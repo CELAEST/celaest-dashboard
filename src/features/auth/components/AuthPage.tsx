@@ -440,9 +440,15 @@ export const AuthPage: React.FC = () => {
                       onClick={async () => {
                         setLoading(true);
                         setError("");
-                        const result = await signInWithGoogle();
-                        if (!result.success) {
-                          setError(result.error || "Google sign in failed");
+                        try {
+                          const result = await signInWithGoogle();
+                          if (!result.success) {
+                            setError(result.error || "Google sign in failed");
+                          }
+                        } catch (error) {
+                          console.error("Google sign in error", error);
+                          setError("An unexpected error occurred.");
+                        } finally {
                           setLoading(false);
                         }
                       }}
@@ -480,9 +486,15 @@ export const AuthPage: React.FC = () => {
                       onClick={async () => {
                         setLoading(true);
                         setError("");
-                        const result = await signInWithGitHub();
-                        if (!result.success) {
-                          setError(result.error || "GitHub sign in failed");
+                        try {
+                          const result = await signInWithGitHub();
+                          if (!result.success) {
+                            setError(result.error || "GitHub sign in failed");
+                          }
+                        } catch (error) {
+                          console.error("GitHub sign in error", error);
+                          setError("An unexpected error occurred.");
+                        } finally {
                           setLoading(false);
                         }
                       }}
