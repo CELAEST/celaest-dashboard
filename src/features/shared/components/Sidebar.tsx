@@ -231,7 +231,7 @@ export const Sidebar = React.memo(function Sidebar({
           transition={{ duration: 0.3 }}
         >
           <motion.div
-            className="flex-shrink-0 w-10 h-10"
+            className="shrink-0 w-10 h-10"
             animate={{ scale: isHovered ? 1 : 1.1 }}
             transition={{ duration: 0.3 }}
           >

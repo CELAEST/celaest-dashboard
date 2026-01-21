@@ -159,11 +159,11 @@ export default function DashboardPage() {
         {isDark && (
           <>
             <div className="absolute inset-0 bg-black/80 z-10" />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-cyan-900/20 via-[#050505] to-[#050505] z-10" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-cyan-900/20 via-[#050505] to-[#050505] z-10" />
           </>
         )}
         {!isDark && (
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-white z-10" />
+          <div className="absolute inset-0 bg-linear-to-br from-blue-50 to-white z-10" />
         )}
 
         <motion.div
@@ -337,7 +337,7 @@ export default function DashboardPage() {
                             }`}
                           >
                             <div
-                              className="h-full bg-gradient-to-r from-cyan-600 to-cyan-400 rounded-full shadow-[0_0_10px_#22d3ee]"
+                              className="h-full bg-linear-to-r from-cyan-600 to-cyan-400 rounded-full shadow-[0_0_10px_#22d3ee]"
                               style={{ width: `${95 + i}%` }}
                             />
                           </div>

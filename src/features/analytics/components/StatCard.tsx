@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo } from "react";
 import { motion } from "motion/react";
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
@@ -42,8 +42,8 @@ export const StatCard = React.memo(function StatCard({
     () =>
       `absolute -inset-0.5 rounded-2xl opacity-0 group-hover:opacity-10 blur transition duration-500 group-hover:duration-200 ${
         isDark
-          ? "bg-gradient-to-r from-cyan-500 to-blue-600"
-          : "bg-gradient-to-r from-blue-400 to-indigo-500"
+          ? "bg-linear-to-r from-cyan-500 to-blue-600"
+          : "bg-linear-to-r from-blue-400 to-indigo-500"
       }`,
     [isDark]
   );
@@ -148,12 +148,12 @@ export const StatCard = React.memo(function StatCard({
 
       {/* Decorative Lines */}
       <div
-        className={`absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent to-transparent ${
+        className={`absolute bottom-0 left-0 w-full h-px bg-linear-to-r from-transparent to-transparent ${
           isDark ? "via-cyan-500/20" : "via-blue-500/20"
         }`}
       />
       <div
-        className={`absolute top-0 right-0 w-[1px] h-12 bg-gradient-to-b from-transparent ${
+        className={`absolute top-0 right-0 w-px h-12 bg-linear-to-b from-transparent ${
           isDark ? "from-cyan-500/20" : "from-blue-500/20"
         }`}
       />

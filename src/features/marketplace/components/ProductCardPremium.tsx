@@ -94,8 +94,8 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
           absolute inset-0 
           ${
             theme === "dark"
-              ? "bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent"
-              : "bg-gradient-to-t from-white/60 via-transparent to-transparent"
+              ? "bg-linear-to-t from-[#0a0a0a] via-transparent to-transparent"
+              : "bg-linear-to-t from-white/60 via-transparent to-transparent"
           }
         `}
         />
@@ -155,7 +155,7 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
             <div key={index} className="flex items-start gap-2">
               <Check
                 size={16}
-                className={`mt-0.5 flex-shrink-0 ${
+                className={`mt-0.5 shrink-0 ${
                   theme === "dark" ? "text-cyan-400" : "text-cyan-600"
                 }`}
               />
