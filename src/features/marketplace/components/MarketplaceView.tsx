@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Search, Sliders, Wallet, Play, Star, ArrowUpRight, Lock, Filter } from 'lucide-react';
 import { AssetCard } from '@/features/assets/components/AssetCard';
 import { GlobalFeedWidget } from '@/features/shared/components/GlobalFeedWidget';
-import { DeployPanel } from './DeployPanel';
+import { DeployPanel } from '@/features/releases/components/DeployPanel';
 import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
 import { Zap, Globe, Shield, Cpu, Server, Activity } from 'lucide-react';
 
