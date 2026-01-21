@@ -11,9 +11,7 @@ import {
   FileSpreadsheet,
   Code,
   Globe,
-  AlertCircle,
   Eye,
-  Upload
 } from 'lucide-react';
 import { useTheme } from '@/features/shared/contexts/ThemeContext';
 import { AssetEditor } from './AssetEditor';
