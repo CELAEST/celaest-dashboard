@@ -1,16 +1,16 @@
-import { createClient } from '@supabase/supabase-js'
+/**
+ * @deprecated Use @/lib/supabase/client or @/lib/supabase/server instead
+ * Este archivo se mantiene por compatibilidad hacia atrás
+ */
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+import { getSupabaseBrowserClient } from './supabase/client'
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn(
-    'Supabase environment variables are missing. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in your environment.'
-  )
-}
+// Re-export para compatibilidad
+export const supabase = typeof window !== 'undefined' 
+  ? getSupabaseBrowserClient() 
+  : null
 
-export const supabase = createClient(
-  supabaseUrl || 'https://placeholder.supabase.co',
-  supabaseAnonKey || 'placeholder-key'
-)
+// Para imports que esperan el cliente directamente
+export { getSupabaseBrowserClient } from './supabase/client'
+export { getSupabaseServerClient, getSupabaseAdminClient } from './supabase/server'
 

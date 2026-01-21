@@ -36,9 +36,6 @@ export const AuthPage: React.FC = () => {
       const result = await signIn(email, password);
       if (!result.success) {
         setError(result.error || 'Sign in failed');
-        if (result.remainingMinutes) {
-          setError(`Account locked. Try again in ${result.remainingMinutes} minutes.`);
-        }
       } else {
         setSuccess('Successfully signed in!');
       }
@@ -344,7 +341,7 @@ export const AuthPage: React.FC = () => {
                     onClick={async () => {
                       setLoading(true);
                       setError('');
-                      const result = await signInWithGoogle(mode === 'signup');
+                      const result = await signInWithGoogle();
                       if (!result.success) {
                         setError(result.error || 'Google sign in failed');
                         setLoading(false);
