@@ -2,7 +2,7 @@
 
 import React, { useMemo } from "react";
 import { motion } from "motion/react";
-import { Cpu, ArrowRight } from "lucide-react";
+import { Cpu, Eye, ShoppingCart } from "lucide-react";
 import { LineChart, Line, ResponsiveContainer } from "recharts";
 
 interface AssetCardProps {
@@ -11,8 +11,11 @@ interface AssetCardProps {
   price: string;
   type: string;
   roi?: string;
+  image?: string;
   specs: { label: string; value: string; icon: React.ReactNode }[];
   trendData: { value: number }[];
+  onViewDetails?: () => void;
+  onAcquire?: () => void;
 }
 
 // Componente memoizado para cada spec item
@@ -68,6 +71,8 @@ export const AssetCard = React.memo(function AssetCard({
   roi,
   specs,
   trendData,
+  onViewDetails,
+  onAcquire,
 }: AssetCardProps) {
   // Memoizar los specs para evitar re-renders
   const memoizedSpecs = useMemo(() => specs, [specs]);
@@ -130,16 +135,35 @@ export const AssetCard = React.memo(function AssetCard({
           <MiniSparkline data={memoizedTrendData} />
         </div>
 
-        {/* Footer / Action */}
-        <div className="pt-4 border-t border-white/10 flex items-center justify-between">
-          <div className="text-lg font-bold text-white font-mono">{price}</div>
-          <button className="px-4 py-2 bg-white/5 hover:bg-cyan-400 hover:text-black border border-white/10 hover:border-cyan-400 text-cyan-400 text-xs font-bold uppercase tracking-wider rounded transition-all flex items-center gap-2 group/btn">
-            Acquire
-            <ArrowRight
-              size={14}
-              className="group-hover/btn:translate-x-1 transition-transform"
-            />
-          </button>
+        {/* Footer / Action - Updated with two buttons */}
+        <div className="pt-4 border-t border-white/10 flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <div className="text-lg font-bold text-white font-mono">
+              {price}
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onViewDetails?.();
+              }}
+              className="px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-gray-300 hover:text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2"
+            >
+              <Eye size={14} />
+              Ver Detalles
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onAcquire?.();
+              }}
+              className="px-4 py-2.5 bg-linear-to-r from-cyan-400 to-blue-500 hover:from-cyan-500 hover:to-blue-600 text-black text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:shadow-cyan-400/40"
+            >
+              <ShoppingCart size={14} />
+              Adquirir
+            </button>
+          </div>
         </div>
       </div>
 

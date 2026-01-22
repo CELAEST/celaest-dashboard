@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion } from "motion/react";
-import { Sun, Moon, Search, Filter, Play } from "lucide-react";
+import { Search, Filter, Play } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { TrustBadges } from "@/features/marketplace/components/TrustBadges";
 import { ProductCardPremium } from "@/features/marketplace/components/ProductCardPremium";
@@ -12,6 +12,7 @@ import { TestimonialsSection } from "@/features/marketplace/components/Testimoni
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { LoginModal } from "@/features/auth/components/LoginModal";
+import { ProductDetailModal } from "./ProductDetailModal";
 
 const products = [
   {
@@ -31,6 +32,11 @@ const products = [
     badge: "Más Popular",
     rating: 4.9,
     reviews: 234,
+    category: "Automatización",
+    videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    demoUrl: "#demo",
+    stack: ["Python", "FastAPI", "React"],
+    tags: ["Automatización", "Empresarial", "No-Code"],
   },
   {
     id: 2,
@@ -48,6 +54,11 @@ const products = [
     ],
     rating: 4.8,
     reviews: 189,
+    category: "Infraestructura",
+    videoUrl: "https://www.youtube.com/embed/jNQXAC9IVRw",
+    demoUrl: "#demo",
+    stack: ["AWS", "Kubernetes", "Terraform"],
+    tags: ["Cloud", "Global", "CDN"],
   },
   {
     id: 3,
@@ -66,6 +77,10 @@ const products = [
     badge: "Nuevo",
     rating: 5.0,
     reviews: 67,
+    category: "Analytics",
+    videoUrl: "https://www.youtube.com/embed/L_LUpnjgPso",
+    stack: ["Power BI", "Python", "TensorFlow"],
+    tags: ["IA", "Analytics", "Dashboard"],
   },
   {
     id: 4,
@@ -83,11 +98,16 @@ const products = [
     ],
     rating: 4.9,
     reviews: 412,
+    category: "Seguridad",
+    videoUrl: "https://www.youtube.com/embed/9bZkp7q19f0",
+    demoUrl: "#demo",
+    stack: ["Firewall", "SIEM", "Zero Trust"],
+    tags: ["Ciberseguridad", "Compliance", "Protección"],
   },
 ];
 
 export const MarketplaceViewNew: React.FC = () => {
-  const { theme, toggleTheme } = useTheme();
+  const { theme } = useTheme();
   const [selectedProduct, setSelectedProduct] = useState<
     (typeof products)[0] | null
   >(null);
@@ -96,6 +116,9 @@ export const MarketplaceViewNew: React.FC = () => {
 
   const { user } = useAuth();
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [detailProduct, setDetailProduct] = useState<
+    (typeof products)[0] | null
+  >(null);
 
   const handleProductSelect = (product: (typeof products)[0]) => {
     if (!user) {
@@ -130,46 +153,43 @@ export const MarketplaceViewNew: React.FC = () => {
         message="Sign in to purchase this enterprise solution."
       />
 
+      <ProductDetailModal
+        product={detailProduct}
+        onClose={() => setDetailProduct(null)}
+        onPurchase={() => {
+          if (detailProduct) {
+            setDetailProduct(null);
+            handleProductSelect(detailProduct);
+          }
+        }}
+      />
+
       {/* Hero Section - Clean & Trust-focused */}
       <div className="relative mb-16">
         {/* Video Background (opcional) */}
-        <div className="relative h-[400px] w-full overflow-hidden rounded-3xl">
+
+        <div className="relative w-full aspect-32/9 overflow-hidden rounded-3xl shadow-2xl">
           <div
             className={`absolute inset-0 z-10 ${
               theme === "dark"
-                ? "bg-linear-to-r from-black via-black/80 to-transparent"
-                : "bg-linear-to-r from-white via-white/90 to-transparent"
+                ? "bg-linear-to-r from-black via-black/40 to-transparent"
+                : "bg-linear-to-r from-white via-white/70 to-transparent"
             }`}
           />
           <ImageWithFallback
-            src="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtaW5pbWFsJTIwdGVjaG5vbG9neSUyMHdvcmtzcGFjZSUyMGNsZWFufGVufDF8fHx8MTc2ODU4MTU5OHww&ixlib=rb-4.1.0&q=80&w=1080"
-            className={`w-full h-full object-cover ${
-              theme === "dark" ? "opacity-30" : "opacity-20"
-            }`}
+            src={`/images/marketplace_hero_${
+              theme === "dark" ? "dark" : "light"
+            }_v7.png`}
+            fill
+            priority
+            className="object-cover"
             alt="Hero Background"
           />
 
-          {/* Theme Toggle - Top Right */}
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={toggleTheme}
-            className={`
-              absolute top-6 right-6 z-20 w-12 h-12 rounded-full flex items-center justify-center transition-all
-              ${
-                theme === "dark"
-                  ? "bg-white/10 hover:bg-white/20 text-cyan-400 border border-cyan-500/30"
-                  : "bg-gray-900 hover:bg-gray-800 text-white shadow-lg"
-              }
-            `}
-          >
-            {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
-          </motion.button>
-
-          <div className="absolute bottom-0 left-0 p-12 z-20 max-w-3xl">
+          <div className="absolute inset-0 flex flex-col justify-center px-12 z-20 max-w-3xl">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
             >
               <h1
@@ -184,7 +204,7 @@ export const MarketplaceViewNew: React.FC = () => {
                     theme === "dark" ? "text-cyan-400" : "text-cyan-600"
                   }`}
                 >
-                  Simple y Confiable
+                  Innovación Celestial
                 </span>
               </h1>
               <p
@@ -206,7 +226,7 @@ export const MarketplaceViewNew: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="max-w-2xl mx-auto -mt-8 relative z-30"
+          className="max-w-2xl mx-auto mt-8 relative z-20"
         >
           <div
             className={`
@@ -303,6 +323,7 @@ export const MarketplaceViewNew: React.FC = () => {
                 key={product.id}
                 {...product}
                 onSelect={() => handleProductSelect(product)}
+                onViewDetails={() => setDetailProduct(product)}
               />
             ))
           )}

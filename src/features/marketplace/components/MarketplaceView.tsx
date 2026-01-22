@@ -198,12 +198,12 @@ export const MarketplaceView: React.FC = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {highYieldAssets.map((asset) => (
-                <div
-                  key={asset.id}
-                  onClick={() => setSelectedAsset(asset)}
-                  className="cursor-pointer"
-                >
-                  <AssetCard {...asset} />
+                <div key={asset.id} className="cursor-pointer">
+                  <AssetCard
+                    {...asset}
+                    onViewDetails={() => setSelectedAsset(asset)}
+                    onAcquire={() => setSelectedAsset(asset)}
+                  />
                 </div>
               ))}
             </div>
@@ -222,9 +222,12 @@ export const MarketplaceView: React.FC = () => {
                 <div
                   key={asset.id}
                   className={`${asset.colSpan || "col-span-1"} cursor-pointer`}
-                  onClick={() => setSelectedAsset(asset)}
                 >
-                  <AssetCard {...asset} />
+                  <AssetCard
+                    {...asset}
+                    onViewDetails={() => setSelectedAsset(asset)}
+                    onAcquire={() => setSelectedAsset(asset)}
+                  />
                 </div>
               ))}
             </div>

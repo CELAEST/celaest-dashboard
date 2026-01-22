@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense, useSyncExternalStore } from "react";
 import dynamic from "next/dynamic";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
@@ -119,6 +119,9 @@ const ErrorMonitoring = dynamic(
 );
 
 // Main page component wrapped in Suspense for correct useSearchParams handling
+// stable subscribe function to avoid re-subscription on every render
+const emptySubscribe = () => () => {};
+
 export default function DashboardPage() {
   return (
     <Suspense
@@ -200,22 +203,22 @@ function DashboardContent() {
     window.history.pushState({}, "", url);
   };
 
-  // Show loading state while checking authentication
-  if (loading) {
+  // Fix hydration mismatch by using useSyncExternalStore
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
+
+  // Show loading state (or unmounted state)
+  // We force the dark theme loader initially to match the Suspense fallback and avoid hydration mismatch
+  if (!mounted || loading) {
     return (
-      <div
-        className={`min-h-screen flex items-center justify-center ${
-          isDark ? "bg-[#050505]" : "bg-[#F5F7FA]"
-        }`}
-      >
+      <div className="min-h-screen flex items-center justify-center bg-[#050505]">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className={`w-12 h-12 border-4 rounded-full ${
-            isDark
-              ? "border-cyan-500 border-t-transparent"
-              : "border-blue-600 border-t-transparent"
-          }`}
+          className="w-12 h-12 border-4 rounded-full border-cyan-500 border-t-transparent"
         />
       </div>
     );
