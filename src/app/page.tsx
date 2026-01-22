@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
 import dynamic from "next/dynamic";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
@@ -116,12 +116,48 @@ const ErrorMonitoring = dynamic(
   { ssr: false, loading: () => <ViewSkeleton /> },
 );
 
+import { useSearchParams } from "next/navigation";
+
+// ... existing imports ...
+
+// Main page component wrapped in Suspense for correct useSearchParams handling
 export default function DashboardPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-[#050505]">
+          <div className="w-12 h-12 border-4 rounded-full border-cyan-500 border-t-transparent animate-spin" />
+        </div>
+      }
+    >
+      <DashboardContent />
+    </Suspense>
+  );
+}
+
+function DashboardContent() {
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState("dashboard");
   const { theme } = useTheme();
   const { user, loading } = useAuth();
-
   const isDark = theme === "dark";
+
+  // Sync state from URL on mount only (Performance optimized)
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab) {
+      setActiveTab(tab);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run once on mount to avoid re-renders
+
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    // Update URL without reloading or triggering heavy router actions
+    const url = new URL(window.location.href);
+    url.searchParams.set("tab", tab);
+    window.history.pushState({}, "", url);
+  };
 
   // Show loading state while checking authentication
   if (loading) {
@@ -196,7 +232,7 @@ export default function DashboardPage() {
         ></div>
       </div>
 
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Sidebar activeTab={activeTab} setActiveTab={handleTabChange} />
 
       <div className="pl-[80px] relative z-10 transition-all duration-300 h-screen flex flex-col">
         <Header />
