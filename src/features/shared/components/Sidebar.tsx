@@ -133,20 +133,27 @@ const SidebarMenuItem = React.memo(function SidebarMenuItem({
       />
 
       <div className="min-w-[48px] flex items-center justify-center relative">
-        <Icon
-          size={22}
-          className={`transition-all duration-300 ${
-            isActive && isDark
-              ? "drop-shadow-[0_0_5px_rgba(34,211,238,0.8)]"
-              : ""
-          }`}
-        />
-        {isLocked && (
-          <div
-            className={`absolute -top-1 -right-1 p-0.5 rounded-full ${isDark ? "bg-black text-white" : "bg-white text-gray-900"}`}
-          >
-            <Shield size={10} className="fill-current" />
-          </div>
+        {isLocked && isHovered ? (
+          // When sidebar is open and locked, show only the shield icon
+          <Shield size={22} className="fill-current" />
+        ) : (
+          <>
+            <Icon
+              size={22}
+              className={`transition-all duration-300 ${
+                isActive && isDark
+                  ? "drop-shadow-[0_0_5px_rgba(34,211,238,0.8)]"
+                  : ""
+              }`}
+            />
+            {isLocked && (
+              <div
+                className={`absolute -top-1 -right-1 p-0.5 rounded-full ${isDark ? "bg-black text-white" : "bg-white text-gray-900"}`}
+              >
+                <Shield size={10} className="fill-current" />
+              </div>
+            )}
+          </>
         )}
       </div>
 
@@ -209,10 +216,11 @@ export const Sidebar = React.memo(function Sidebar({
     setShowSignOutModal(false);
     if (user) {
       await signOut();
-      // El estado del usuario cambiará a null y page.tsx mostrará AuthPage automásticamente
+      // Redirigir a la página de login para que el usuario pueda iniciar sesión con otra cuenta
+      window.location.href = "/?mode=signin";
     } else {
-      // Modo demo: recargar página
-      window.location.reload();
+      // Modo demo: redirigir a login
+      window.location.href = "/?mode=signin";
     }
   }, [user, signOut]);
 

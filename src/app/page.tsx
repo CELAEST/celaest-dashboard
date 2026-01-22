@@ -135,7 +135,7 @@ export default function DashboardPage() {
 
 function DashboardContent() {
   const searchParams = useSearchParams();
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const [activeTab, setActiveTab] = useState("marketplace");
   const [showLoginModal, setShowLoginModal] = useState(false);
   const { theme } = useTheme();
   const { user, loading } = useAuth();
