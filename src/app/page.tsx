@@ -16,6 +16,7 @@ import { AuthPage } from "@/features/auth/components/AuthPage";
 // Static imports for dashboard main view
 import { StatCard } from "@/features/analytics/components/StatCard";
 import { OrdersTable } from "@/features/billing/components/OrdersTable";
+import { NotificationShowcase } from "@/features/shared/components/NotificationShowcase";
 
 // Loading skeleton component
 const ChartSkeleton = () => (
@@ -42,16 +43,16 @@ const SalesChart = dynamic(
     import("@/features/analytics/components/Charts").then((m) => ({
       default: m.SalesChart,
     })),
-  { ssr: false, loading: () => <ChartSkeleton /> }
+  { ssr: false, loading: () => <ChartSkeleton /> },
 );
 
 // Dynamic imports for feature views (lazy loaded on tab change)
 const MarketplaceViewNew = dynamic(
   () =>
     import("@/features/marketplace/components/MarketplaceViewNew").then(
-      (m) => ({ default: m.MarketplaceViewNew })
+      (m) => ({ default: m.MarketplaceViewNew }),
     ),
-  { loading: () => <ViewSkeleton /> }
+  { loading: () => <ViewSkeleton /> },
 );
 
 const LicensingHubNew = dynamic(
@@ -59,7 +60,7 @@ const LicensingHubNew = dynamic(
     import("@/features/licensing/components/LicensingHubNew").then((m) => ({
       default: m.LicensingHubNew,
     })),
-  { loading: () => <ViewSkeleton /> }
+  { loading: () => <ViewSkeleton /> },
 );
 
 const AnalyticsConsole = dynamic(
@@ -67,7 +68,7 @@ const AnalyticsConsole = dynamic(
     import("@/features/analytics/components/AnalyticsConsole").then((m) => ({
       default: m.AnalyticsConsole,
     })),
-  { ssr: false, loading: () => <ViewSkeleton /> }
+  { ssr: false, loading: () => <ViewSkeleton /> },
 );
 
 const BillingPortal = dynamic(
@@ -75,7 +76,7 @@ const BillingPortal = dynamic(
     import("@/features/billing/components/BillingPortal").then((m) => ({
       default: m.BillingPortal,
     })),
-  { loading: () => <ViewSkeleton /> }
+  { loading: () => <ViewSkeleton /> },
 );
 
 const AssetManager = dynamic(
@@ -83,7 +84,7 @@ const AssetManager = dynamic(
     import("@/features/assets/components/AssetManager").then((m) => ({
       default: m.AssetManager,
     })),
-  { loading: () => <ViewSkeleton /> }
+  { loading: () => <ViewSkeleton /> },
 );
 
 const ReleaseManager = dynamic(
@@ -91,7 +92,7 @@ const ReleaseManager = dynamic(
     import("@/features/releases/components/ReleaseManager").then((m) => ({
       default: m.ReleaseManager,
     })),
-  { loading: () => <ViewSkeleton /> }
+  { loading: () => <ViewSkeleton /> },
 );
 
 const UserManagement = dynamic(
@@ -99,7 +100,7 @@ const UserManagement = dynamic(
     import("@/features/users/components/UserManagement").then((m) => ({
       default: m.UserManagement,
     })),
-  { loading: () => <ViewSkeleton /> }
+  { loading: () => <ViewSkeleton /> },
 );
 
 const ROIMetrics = dynamic(
@@ -107,12 +108,12 @@ const ROIMetrics = dynamic(
     import("@/features/analytics/components/ROIMetrics").then((m) => ({
       default: m.ROIMetrics,
     })),
-  { ssr: false, loading: () => <ViewSkeleton /> }
+  { ssr: false, loading: () => <ViewSkeleton /> },
 );
 
 const ErrorMonitoring = dynamic(
   () => import("@/features/analytics/components/ErrorMonitoring"),
-  { ssr: false, loading: () => <ViewSkeleton /> }
+  { ssr: false, loading: () => <ViewSkeleton /> },
 );
 
 export default function DashboardPage() {
@@ -167,7 +168,7 @@ export default function DashboardPage() {
         )}
 
         <motion.div
-          className="absolute inset-0 z-0"
+          className="absolute inset-0 z-0 will-change-transform"
           animate={{
             scale: [1, 1.1, 1],
             rotate: [0, 1, 0],
@@ -281,6 +282,10 @@ export default function DashboardPage() {
                     icon={<Zap size={24} />}
                     delay={0.4}
                   />
+                </div>
+
+                <div className="mb-8">
+                  <NotificationShowcase />
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

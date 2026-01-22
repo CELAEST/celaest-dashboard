@@ -4,14 +4,13 @@
 import React, { useState } from "react";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useNotifications } from "@/features/shared/contexts/NotificationContext";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Lock,
   Mail,
   User,
   Shield,
-  AlertCircle,
-  CheckCircle2,
   Eye,
   EyeOff,
   ArrowRight,
@@ -21,12 +20,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import Logo from "@/components/icons/Logo";
 
 export const AuthPage: React.FC = () => {
   const { signIn, signUp, signInWithGoogle, signInWithGitHub } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { addNotification } = useNotifications();
   const isDark = theme === "dark";
 
   const [mode, setMode] = useState<"signin" | "signup">("signin");
@@ -35,33 +34,56 @@ export const AuthPage: React.FC = () => {
   const [name, setName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
-    setSuccess("");
 
     if (mode === "signin") {
       const result = await signIn(email, password);
       if (!result.success) {
-        setError(result.error || "Sign in failed");
+        addNotification({
+          type: "error",
+          title: "Error de Inicia Sesión",
+          message:
+            result.error ||
+            "No se pudo iniciar sesión. Verifique sus credenciales.",
+          timestamp: new Date(),
+        });
       } else {
-        setSuccess("Successfully signed in!");
+        addNotification({
+          type: "success",
+          title: "¡Bienvenido de nuevo!",
+          message: "Has iniciado sesión exitosamente.",
+          timestamp: new Date(),
+        });
       }
     } else {
       if (!name.trim()) {
-        setError("Name is required");
+        addNotification({
+          type: "warning",
+          title: "Campo requerido",
+          message: "Por favor ingrese su nombre para continuar.",
+          timestamp: new Date(),
+        });
         setLoading(false);
         return;
       }
       const result = await signUp(email, password, name);
       if (!result.success) {
-        setError(result.error || "Sign up failed");
+        addNotification({
+          type: "error",
+          title: "Error de Registro",
+          message: result.error || "No se pudo crear la cuenta.",
+          timestamp: new Date(),
+        });
       } else {
-        setSuccess("Account created successfully!");
+        addNotification({
+          type: "success",
+          title: "Cuenta Creada",
+          message: "Tu cuenta ha sido creada exitosamente. ¡Bienvenido!",
+          timestamp: new Date(),
+        });
       }
     }
 
@@ -70,8 +92,7 @@ export const AuthPage: React.FC = () => {
 
   const toggleMode = () => {
     setMode(mode === "signin" ? "signup" : "signin");
-    setError("");
-    setSuccess("");
+
     setEmail("");
     setPassword("");
     setName("");
@@ -96,8 +117,8 @@ export const AuthPage: React.FC = () => {
                   ? "/images/auth/loguin30.jpg"
                   : "/images/auth/loguin40.jpg"
                 : mode === "signin"
-                ? "/images/auth/loguin3.jpg"
-                : "/images/auth/loguin4.jpg"
+                  ? "/images/auth/loguin3.jpg"
+                  : "/images/auth/loguin4.jpg"
             }
             alt="Background"
             className="w-full h-full object-cover"
@@ -207,57 +228,6 @@ export const AuthPage: React.FC = () => {
                       : "Start your journey with CELAEST today"}
                   </p>
                 </motion.div>
-              </AnimatePresence>
-
-              {/* Alerts */}
-              <AnimatePresence mode="wait">
-                {error && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="mb-4"
-                  >
-                    <Alert
-                      className={`border ${
-                        isDark
-                          ? "border-red-500/30 bg-red-500/10"
-                          : "border-red-300 bg-red-50"
-                      }`}
-                    >
-                      <AlertCircle className="h-4 w-4 text-red-500" />
-                      <AlertDescription
-                        className={isDark ? "text-red-400" : "text-red-700"}
-                      >
-                        {error}
-                      </AlertDescription>
-                    </Alert>
-                  </motion.div>
-                )}
-
-                {success && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="mb-4"
-                  >
-                    <Alert
-                      className={`border ${
-                        isDark
-                          ? "border-green-500/30 bg-green-500/10"
-                          : "border-green-300 bg-green-50"
-                      }`}
-                    >
-                      <CheckCircle2 className="h-4 w-4 text-green-500" />
-                      <AlertDescription
-                        className={isDark ? "text-green-400" : "text-green-700"}
-                      >
-                        {success}
-                      </AlertDescription>
-                    </Alert>
-                  </motion.div>
-                )}
               </AnimatePresence>
 
               {/* Form */}
@@ -439,15 +409,26 @@ export const AuthPage: React.FC = () => {
                       disabled={loading}
                       onClick={async () => {
                         setLoading(true);
-                        setError("");
                         try {
                           const result = await signInWithGoogle();
                           if (!result.success) {
-                            setError(result.error || "Google sign in failed");
+                            addNotification({
+                              type: "error",
+                              title: "Error de Google",
+                              message:
+                                result.error ||
+                                "Falló el inicio de sesión con Google.",
+                              timestamp: new Date(),
+                            });
                           }
                         } catch (error) {
                           console.error("Google sign in error", error);
-                          setError("An unexpected error occurred.");
+                          addNotification({
+                            type: "error",
+                            title: "Error Inesperado",
+                            message: "Ocurrió un error al conectar con Google.",
+                            timestamp: new Date(),
+                          });
                         } finally {
                           setLoading(false);
                         }
@@ -485,15 +466,26 @@ export const AuthPage: React.FC = () => {
                       disabled={loading}
                       onClick={async () => {
                         setLoading(true);
-                        setError("");
                         try {
                           const result = await signInWithGitHub();
                           if (!result.success) {
-                            setError(result.error || "GitHub sign in failed");
+                            addNotification({
+                              type: "error",
+                              title: "Error de GitHub",
+                              message:
+                                result.error ||
+                                "Falló el inicio de sesión con GitHub.",
+                              timestamp: new Date(),
+                            });
                           }
                         } catch (error) {
                           console.error("GitHub sign in error", error);
-                          setError("An unexpected error occurred.");
+                          addNotification({
+                            type: "error",
+                            title: "Error Inesperado",
+                            message: "Ocurrió un error al conectar con GitHub.",
+                            timestamp: new Date(),
+                          });
                         } finally {
                           setLoading(false);
                         }

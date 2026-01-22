@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { Search, Bell, Command, Sun, Moon, User, Shield } from "lucide-react";
+import { Search, Command, Sun, Moon, User, Shield } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
+import { NotificationCenter } from "./NotificationCenter";
 // import { Badge } from "@/components/ui/badge";
 
 // Componente memoizado para el indicador de rol
@@ -27,7 +28,7 @@ const UserInfo = React.memo(function UserInfo({
       `flex items-center gap-3 px-4 py-2 rounded-full border ${
         isDark ? "bg-white/5 border-white/10" : "bg-gray-50 border-gray-200"
       }`,
-    [isDark]
+    [isDark],
   );
 
   const iconContainerClassName = useMemo(
@@ -35,7 +36,7 @@ const UserInfo = React.memo(function UserInfo({
       `w-8 h-8 rounded-full flex items-center justify-center ${
         isDark ? "bg-cyan-500/20" : "bg-blue-100"
       }`,
-    [isDark]
+    [isDark],
   );
 
   return (
@@ -82,7 +83,7 @@ export const Header = React.memo(function Header() {
       `h-20 px-8 flex items-center justify-between sticky top-0 z-40 backdrop-blur-md border-b transition-colors duration-300 ${
         isDark ? "bg-black/40 border-white/5" : "bg-white/60 border-gray-200"
       }`,
-    [isDark]
+    [isDark],
   );
 
   const inputClassName = useMemo(
@@ -92,7 +93,7 @@ export const Header = React.memo(function Header() {
           ? "bg-black/50 border-white/10 text-white focus:border-cyan-500/50 focus:ring-cyan-500/50 placeholder:text-gray-600"
           : "bg-gray-100 border-gray-200 text-gray-900 focus:border-blue-500/50 focus:ring-blue-500/50 placeholder:text-gray-500"
       }`,
-    [isDark]
+    [isDark],
   );
 
   const themeButtonClassName = useMemo(
@@ -102,7 +103,7 @@ export const Header = React.memo(function Header() {
           ? "text-gray-400 hover:text-yellow-400 hover:bg-white/5"
           : "text-gray-500 hover:text-blue-600 hover:bg-gray-100"
       }`,
-    [isDark]
+    [isDark],
   );
 
   return (
@@ -141,22 +142,7 @@ export const Header = React.memo(function Header() {
           {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
         </button>
 
-        <button
-          className={`relative transition-colors ${
-            isDark
-              ? "text-gray-400 hover:text-white"
-              : "text-gray-500 hover:text-gray-900"
-          }`}
-        >
-          <Bell className="w-5 h-5" />
-          <span
-            className={`absolute -top-1 -right-1 w-2 h-2 rounded-full ${
-              isDark
-                ? "bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.8)]"
-                : "bg-blue-600"
-            }`}
-          />
-        </button>
+        <NotificationCenter />
       </div>
     </header>
   );

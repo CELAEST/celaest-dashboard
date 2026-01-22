@@ -91,7 +91,7 @@ const OrderRow = React.memo(function OrderRow({
       <td className="py-4 px-4">
         <span
           className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${getStatusColor(
-            order.status
+            order.status,
           )}`}
         >
           {getStatusIcon(order.status)}
@@ -150,7 +150,7 @@ export const OrdersTable = React.memo(function OrdersTable() {
         }
       }
     },
-    [isDark]
+    [isDark],
   );
 
   const getStatusIcon = useCallback((status: string) => {
@@ -163,7 +163,7 @@ export const OrdersTable = React.memo(function OrdersTable() {
         return (
           <Clock
             size={12}
-            className="mr-1.5 animate-[spin_3s_linear_infinite]"
+            className="mr-1.5 animate-[spin_3s_linear_infinite] will-change-transform"
           />
         );
       default:
@@ -179,7 +179,7 @@ export const OrdersTable = React.memo(function OrdersTable() {
           ? "border-white/5 text-gray-500"
           : "border-gray-200 text-gray-500"
       }`,
-    [isDark]
+    [isDark],
   );
 
   return (

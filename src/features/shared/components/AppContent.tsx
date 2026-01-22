@@ -22,6 +22,7 @@ import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
 import { Toaster } from "sonner";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
+import { NotificationShowcase } from "@/features/shared/components/NotificationShowcase";
 
 export const AppContent: React.FC = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -105,7 +106,7 @@ export const AppContent: React.FC = () => {
         )}
 
         <motion.div
-          className="absolute inset-0 z-0"
+          className="absolute inset-0 z-0 will-change-transform"
           animate={{
             scale: [1, 1.1, 1],
             rotate: [0, 1, 0],
@@ -221,6 +222,10 @@ export const AppContent: React.FC = () => {
                     delay={0.4}
                     gradient="from-orange-400 to-red-500"
                   />
+                </div>
+
+                <div className="mb-8">
+                  <NotificationShowcase />
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
