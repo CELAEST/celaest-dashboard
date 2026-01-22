@@ -192,8 +192,7 @@ export const Sidebar = React.memo(function Sidebar({
     setShowSignOutModal(false);
     if (user) {
       await signOut();
-      // Redirigir a la página de login
-      window.location.href = "/";
+      // El estado del usuario cambiará a null y page.tsx mostrará AuthPage automáticamente
     } else {
       // Modo demo: recargar página
       window.location.reload();
