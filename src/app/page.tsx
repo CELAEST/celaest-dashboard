@@ -7,11 +7,13 @@ import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { motion, AnimatePresence } from "motion/react";
 import { Activity, Zap, Server, Box } from "lucide-react";
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
+import { useSearchParams, ReadonlyURLSearchParams } from "next/navigation";
 
 // Shared components (loaded immediately - critical for layout)
 import { Header } from "@/features/shared/components/Header";
 import { Sidebar } from "@/features/shared/components/Sidebar";
 import { AuthPage } from "@/features/auth/components/AuthPage";
+import { LoginModal } from "@/features/auth/components/LoginModal";
 
 // Static imports for dashboard main view
 import { StatCard } from "@/features/analytics/components/StatCard";
@@ -116,10 +118,6 @@ const ErrorMonitoring = dynamic(
   { ssr: false, loading: () => <ViewSkeleton /> },
 );
 
-import { useSearchParams } from "next/navigation";
-
-// ... existing imports ...
-
 // Main page component wrapped in Suspense for correct useSearchParams handling
 export default function DashboardPage() {
   return (
@@ -138,20 +136,63 @@ export default function DashboardPage() {
 function DashboardContent() {
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState("dashboard");
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const { theme } = useTheme();
   const { user, loading } = useAuth();
   const isDark = theme === "dark";
 
-  // Sync state from URL on mount only (Performance optimized)
-  useEffect(() => {
-    const tab = searchParams.get("tab");
-    if (tab) {
-      setActiveTab(tab);
+  const isGuest = !loading && !user;
+  const authMode = searchParams.get("mode");
+  const showAuthPage =
+    !user && (authMode === "signin" || authMode === "signup");
+
+  // Track previous params to detect external URL changes (PopState)
+  // We use this pattern to sync state from URL only when URL explicitly changes
+  const [prevSearchParams, setPrevSearchParams] =
+    useState<ReadonlyURLSearchParams | null>(null);
+
+  // Sync state from URL (Render Phase)
+  if (searchParams !== prevSearchParams) {
+    setPrevSearchParams(searchParams);
+    if (!loading && !isGuest) {
+      const tab = searchParams.get("tab");
+      if (tab && tab !== activeTab) {
+        setActiveTab(tab);
+      }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Run once on mount to avoid re-renders
+  }
+
+  // Enforce Guest restrictions immediately during render to avoid cascading renders
+  if (isGuest && !showAuthPage && activeTab !== "marketplace") {
+    setActiveTab("marketplace");
+  }
+
+  // Sync state from URL on mount and handle Guest restrictions
+  useEffect(() => {
+    if (loading) return;
+
+    if (isGuest) {
+      // Force marketplace for guests if not in auth page mode
+      if (!showAuthPage) {
+        // Update URL if needed
+        const currentTab = searchParams.get("tab");
+        if (currentTab !== "marketplace") {
+          const url = new URL(window.location.href);
+          url.searchParams.set("tab", "marketplace");
+          url.searchParams.delete("mode");
+          window.history.pushState({}, "", url);
+        }
+      }
+    }
+  }, [loading, isGuest, showAuthPage, searchParams]);
 
   const handleTabChange = (tab: string) => {
+    // Determine if guest is trying to access restricted area
+    if (isGuest && tab !== "marketplace") {
+      setShowLoginModal(true);
+      return;
+    }
+
     setActiveTab(tab);
     // Update URL without reloading or triggering heavy router actions
     const url = new URL(window.location.href);
@@ -180,11 +221,12 @@ function DashboardContent() {
     );
   }
 
-  // Show auth page if no user is logged in
-  if (!user) {
+  // Show auth page if strict auth mode is requested and no user
+  if (showAuthPage) {
     return <AuthPage />;
   }
 
+  // Otherwise serve Dashboard Layout (Guest or Authenticated)
   return (
     <div
       className={`min-h-screen font-sans selection:bg-cyan-500/30 selection:text-cyan-100 overflow-x-hidden transition-colors duration-500 ${
@@ -232,14 +274,19 @@ function DashboardContent() {
         ></div>
       </div>
 
-      <Sidebar activeTab={activeTab} setActiveTab={handleTabChange} />
+      <Sidebar
+        activeTab={activeTab}
+        setActiveTab={handleTabChange}
+        isGuest={isGuest}
+        onShowLogin={() => setShowLoginModal(true)}
+      />
 
       <div className="pl-[80px] relative z-10 transition-all duration-300 h-screen flex flex-col">
-        <Header />
+        <Header onShowLogin={() => setShowLoginModal(true)} />
 
         <main className="flex-1 overflow-y-auto p-8 max-w-[1600px] mx-auto w-full">
           <AnimatePresence mode="wait">
-            {activeTab === "dashboard" && (
+            {!isGuest && activeTab === "dashboard" && (
               <motion.div
                 key="dashboard"
                 initial={{ opacity: 0, y: 10 }}
@@ -412,113 +459,119 @@ function DashboardContent() {
               </motion.div>
             )}
 
-            {activeTab === "licensing" && (
-              <motion.div
-                key="licensing"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 1.05 }}
-                transition={{ duration: 0.3 }}
-              >
-                <LicensingHubNew />
-              </motion.div>
+            {/* Other Restricted Tabs */}
+            {!isGuest && (
+              <>
+                {activeTab === "licensing" && (
+                  <motion.div
+                    key="licensing"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 1.05 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <LicensingHubNew />
+                  </motion.div>
+                )}
+
+                {activeTab === "analytics" && (
+                  <motion.div
+                    key="analytics"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 1.05 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <AnalyticsConsole />
+                  </motion.div>
+                )}
+
+                {activeTab === "billing" && (
+                  <motion.div
+                    key="billing"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 1.05 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <BillingPortal />
+                  </motion.div>
+                )}
+
+                {activeTab === "catalog" && (
+                  <motion.div
+                    key="catalog"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 1.05 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <AssetManager />
+                  </motion.div>
+                )}
+
+                {activeTab === "releases" && (
+                  <motion.div
+                    key="releases"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 1.05 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <ReleaseManager />
+                  </motion.div>
+                )}
+
+                {activeTab === "users" && (
+                  <motion.div
+                    key="users"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 1.05 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <UserManagement />
+                  </motion.div>
+                )}
+
+                {activeTab === "roi" && (
+                  <motion.div
+                    key="roi"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 1.05 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <ROIMetrics />
+                  </motion.div>
+                )}
+
+                {activeTab === "errors" && (
+                  <motion.div
+                    key="errors"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 1.05 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <ErrorMonitoring />
+                  </motion.div>
+                )}
+              </>
             )}
 
-            {activeTab === "analytics" && (
-              <motion.div
-                key="analytics"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 1.05 }}
-                transition={{ duration: 0.3 }}
-              >
-                <AnalyticsConsole />
-              </motion.div>
-            )}
-
-            {activeTab === "billing" && (
-              <motion.div
-                key="billing"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 1.05 }}
-                transition={{ duration: 0.3 }}
-              >
-                <BillingPortal />
-              </motion.div>
-            )}
-
-            {activeTab === "catalog" && (
-              <motion.div
-                key="catalog"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 1.05 }}
-                transition={{ duration: 0.3 }}
-              >
-                <AssetManager />
-              </motion.div>
-            )}
-
-            {activeTab === "releases" && (
-              <motion.div
-                key="releases"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 1.05 }}
-                transition={{ duration: 0.3 }}
-              >
-                <ReleaseManager />
-              </motion.div>
-            )}
-
-            {activeTab === "users" && (
-              <motion.div
-                key="users"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 1.05 }}
-                transition={{ duration: 0.3 }}
-              >
-                <UserManagement />
-              </motion.div>
-            )}
-
-            {activeTab === "roi" && (
-              <motion.div
-                key="roi"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 1.05 }}
-                transition={{ duration: 0.3 }}
-              >
-                <ROIMetrics />
-              </motion.div>
-            )}
-
-            {activeTab === "errors" && (
-              <motion.div
-                key="errors"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 1.05 }}
-                transition={{ duration: 0.3 }}
-              >
-                <ErrorMonitoring />
-              </motion.div>
-            )}
-
-            {/* Placeholder for other tabs */}
-            {activeTab !== "dashboard" &&
-              activeTab !== "marketplace" &&
-              activeTab !== "licensing" &&
-              activeTab !== "analytics" &&
-              activeTab !== "billing" &&
-              activeTab !== "catalog" &&
-              activeTab !== "releases" &&
-              activeTab !== "users" &&
-              activeTab !== "roi" &&
-              activeTab !== "errors" && (
+            {/* Empty State / Not Loaded (or Guest Restricted View Fallback) */}
+            {activeTab !== "marketplace" &&
+              (isGuest ||
+                (activeTab !== "dashboard" &&
+                  activeTab !== "licensing" &&
+                  activeTab !== "analytics" &&
+                  activeTab !== "billing" &&
+                  activeTab !== "catalog" &&
+                  activeTab !== "releases" &&
+                  activeTab !== "users" &&
+                  activeTab !== "roi" &&
+                  activeTab !== "errors")) && (
                 <motion.div
                   key="empty"
                   initial={{ opacity: 0 }}
@@ -526,16 +579,33 @@ function DashboardContent() {
                   className="flex flex-col items-center justify-center h-[50vh] text-gray-500"
                 >
                   <Server size={48} className="mb-4 opacity-50" />
-                  <h2 className="text-xl font-bold mb-2">Module Not Loaded</h2>
+                  <h2 className="text-xl font-bold mb-2">
+                    {isGuest ? "Access Restricted" : "Module Not Loaded"}
+                  </h2>
                   <p className="font-mono text-sm">
-                    Target module [{activeTab}] is currently offline or
-                    compiling.
+                    {isGuest
+                      ? "Please sign in to access this module."
+                      : `Target module [${activeTab}] is currently offline or compiling.`}
                   </p>
+                  {isGuest && (
+                    <button
+                      onClick={() => setShowLoginModal(true)}
+                      className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                      Sign In
+                    </button>
+                  )}
                 </motion.div>
               )}
           </AnimatePresence>
         </main>
       </div>
+
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        message="Sign in to access the full Celaest Dashboard experience."
+      />
     </div>
   );
 }

@@ -25,6 +25,8 @@ import Logo from "@/components/icons/Logo";
 interface SidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  isGuest?: boolean;
+  onShowLogin?: () => void;
 }
 
 interface MenuItem {
@@ -94,12 +96,14 @@ const SidebarMenuItem = React.memo(function SidebarMenuItem({
   item,
   isActive,
   isHovered,
+  isLocked,
   isDark,
   onClick,
 }: {
   item: MenuItem;
   isActive: boolean;
   isHovered: boolean;
+  isLocked?: boolean;
   isDark: boolean;
   onClick: () => void;
 }) {
@@ -115,8 +119,8 @@ const SidebarMenuItem = React.memo(function SidebarMenuItem({
           : isDark
             ? "text-gray-400 hover:text-white hover:bg-white/5"
             : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
-      }`,
-    [isActive, isDark],
+      } ${isLocked ? "opacity-60 grayscale" : ""}`,
+    [isActive, isDark, isLocked],
   );
 
   return (
@@ -128,7 +132,7 @@ const SidebarMenuItem = React.memo(function SidebarMenuItem({
         style={{ opacity: isActive ? 1 : 0 }}
       />
 
-      <div className="min-w-[48px] flex items-center justify-center">
+      <div className="min-w-[48px] flex items-center justify-center relative">
         <Icon
           size={22}
           className={`transition-all duration-300 ${
@@ -137,18 +141,26 @@ const SidebarMenuItem = React.memo(function SidebarMenuItem({
               : ""
           }`}
         />
+        {isLocked && (
+          <div
+            className={`absolute -top-1 -right-1 p-0.5 rounded-full ${isDark ? "bg-black text-white" : "bg-white text-gray-900"}`}
+          >
+            <Shield size={10} className="fill-current" />
+          </div>
+        )}
       </div>
 
       <motion.span
-        className="whitespace-nowrap font-medium tracking-wide text-sm"
+        className="whitespace-nowrap font-medium tracking-wide text-sm flex items-center gap-2"
         initial={{ opacity: 0, x: -10 }}
         animate={{ opacity: isHovered ? 1 : 0, x: isHovered ? 0 : -10 }}
         transition={{ duration: 0.2 }}
       >
         {item.label}
+        {isLocked && <span className="opacity-50 text-xs">🔒</span>}
       </motion.span>
 
-      {isActive && isHovered && (
+      {isActive && isHovered && !isLocked && (
         <motion.div
           layoutId="activeGlow"
           className={`absolute inset-0 rounded-xl -z-10 ${
@@ -163,6 +175,8 @@ const SidebarMenuItem = React.memo(function SidebarMenuItem({
 export const Sidebar = React.memo(function Sidebar({
   activeTab,
   setActiveTab,
+  isGuest,
+  onShowLogin,
 }: SidebarProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [showSignOutModal, setShowSignOutModal] = useState(false);
@@ -174,12 +188,15 @@ export const Sidebar = React.memo(function Sidebar({
   const visibleMenuItems = useMemo(
     () =>
       menuItems.filter((item) => {
+        // If guest, show all (locked status handled in render)
+        if (isGuest) return true;
+
         if (!item.scope) return true;
         return user
           ? hasScope(item.scope as Parameters<typeof hasScope>[0])
           : true;
       }),
-    [user, hasScope],
+    [user, hasScope, isGuest],
   );
 
   // Abrir modal de Sign Out
@@ -192,7 +209,7 @@ export const Sidebar = React.memo(function Sidebar({
     setShowSignOutModal(false);
     if (user) {
       await signOut();
-      // El estado del usuario cambiará a null y page.tsx mostrará AuthPage automáticamente
+      // El estado del usuario cambiará a null y page.tsx mostrará AuthPage automásticamente
     } else {
       // Modo demo: recargar página
       window.location.reload();
@@ -206,6 +223,17 @@ export const Sidebar = React.memo(function Sidebar({
 
   const handleMouseEnter = useCallback(() => setIsHovered(true), []);
   const handleMouseLeave = useCallback(() => setIsHovered(false), []);
+
+  const handleItemClick = useCallback(
+    (id: string) => {
+      if (isGuest && id !== "marketplace") {
+        onShowLogin?.();
+        return;
+      }
+      setActiveTab(id);
+    },
+    [isGuest, onShowLogin, setActiveTab],
+  );
 
   // Clases memoizadas
   const containerClassName = useMemo(
@@ -291,35 +319,38 @@ export const Sidebar = React.memo(function Sidebar({
               item={item}
               isActive={activeTab === item.id}
               isHovered={isHovered}
+              isLocked={isGuest && item.id !== "marketplace"}
               isDark={isDark}
-              onClick={() => setActiveTab(item.id)}
+              onClick={() => handleItemClick(item.id)}
             />
           ))}
         </nav>
 
-        <div
-          className={`p-4 border-t ${
-            isDark ? "border-white/5" : "border-gray-200"
-          }`}
-        >
-          <button
-            onClick={handleSignOutClick}
-            className={`flex items-center w-full h-12 transition-colors rounded-xl px-3 ${
-              isDark
-                ? "text-gray-400 hover:text-red-400 hover:bg-red-500/10"
-                : "text-gray-500 hover:text-red-600 hover:bg-red-50"
+        {!isGuest && (
+          <div
+            className={`p-4 border-t ${
+              isDark ? "border-white/5" : "border-gray-200"
             }`}
           >
-            <LogOut size={20} />
-            <motion.span
-              className="ml-3 whitespace-nowrap font-medium"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: isHovered ? 1 : 0 }}
+            <button
+              onClick={handleSignOutClick}
+              className={`flex items-center w-full h-12 transition-colors rounded-xl px-3 ${
+                isDark
+                  ? "text-gray-400 hover:text-red-400 hover:bg-red-500/10"
+                  : "text-gray-500 hover:text-red-600 hover:bg-red-50"
+              }`}
             >
-              Sign Out
-            </motion.span>
-          </button>
-        </div>
+              <LogOut size={20} />
+              <motion.span
+                className="ml-3 whitespace-nowrap font-medium"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: isHovered ? 1 : 0 }}
+              >
+                Sign Out
+              </motion.span>
+            </button>
+          </div>
+        )}
       </motion.div>
 
       {/* Sign Out Modal */}

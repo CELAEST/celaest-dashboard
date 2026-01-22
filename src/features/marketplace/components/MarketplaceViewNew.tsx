@@ -10,6 +10,8 @@ import { PurchaseFlow } from "./PurchaseFlow";
 import { ProductSkeleton } from "@/features/marketplace/components/ProductSkeleton";
 import { TestimonialsSection } from "@/features/marketplace/components/TestimonialsSection";
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
+import { useAuth } from "@/features/auth/contexts/AuthContext";
+import { LoginModal } from "@/features/auth/components/LoginModal";
 
 const products = [
   {
@@ -92,6 +94,17 @@ export const MarketplaceViewNew: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
 
+  const { user } = useAuth();
+  const [showLoginModal, setShowLoginModal] = useState(false);
+
+  const handleProductSelect = (product: (typeof products)[0]) => {
+    if (!user) {
+      setShowLoginModal(true);
+    } else {
+      setSelectedProduct(product);
+    }
+  };
+
   // Simulate loading
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 1500);
@@ -109,6 +122,12 @@ export const MarketplaceViewNew: React.FC = () => {
         isOpen={!!selectedProduct}
         onClose={() => setSelectedProduct(null)}
         product={selectedProduct}
+      />
+
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        message="Sign in to purchase this enterprise solution."
       />
 
       {/* Hero Section - Clean & Trust-focused */}
@@ -283,7 +302,7 @@ export const MarketplaceViewNew: React.FC = () => {
               <ProductCardPremium
                 key={product.id}
                 {...product}
-                onSelect={() => setSelectedProduct(product)}
+                onSelect={() => handleProductSelect(product)}
               />
             ))
           )}

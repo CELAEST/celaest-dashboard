@@ -63,19 +63,23 @@ const UserInfo = React.memo(function UserInfo({
 });
 
 // Demo user - definido fuera del componente
-const demoUser = {
-  id: "demo_superadmin_001",
-  email: "admin@celaest.com",
-  name: "CELAEST Admin",
-  role: "super_admin" as const,
-};
+// const demoUser = {
+//   id: "demo_superadmin_001",
+//   email: "admin@celaest.com",
+//   name: "CELAEST Admin",
+//   role: "super_admin" as const,
+// };
 
-export const Header = React.memo(function Header() {
+interface HeaderProps {
+  onShowLogin?: () => void;
+}
+
+export const Header = React.memo(function Header({ onShowLogin }: HeaderProps) {
   const { theme, toggleTheme } = useTheme();
   const { user } = useAuth();
   const isDark = theme === "dark";
 
-  const currentUser = user || demoUser;
+  // const currentUser = user || demoUser;
 
   // Memoizar clases dinámicas
   const headerClassName = useMemo(
@@ -136,7 +140,20 @@ export const Header = React.memo(function Header() {
       </div>
 
       <div className="flex items-center gap-6">
-        {currentUser && <UserInfo user={currentUser} isDark={isDark} />}
+        {user ? (
+          <UserInfo user={user} isDark={isDark} />
+        ) : (
+          <button
+            onClick={onShowLogin}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+              isDark
+                ? "bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 hover:shadow-[0_0_15px_rgba(34,211,238,0.3)]"
+                : "bg-blue-600 text-white hover:bg-blue-700 shadow-md"
+            }`}
+          >
+            Iniciar Sesión
+          </button>
+        )}
 
         <button onClick={toggleTheme} className={themeButtonClassName}>
           {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
