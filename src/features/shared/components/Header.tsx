@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo } from "react";
 import { Search, Bell, Command, Sun, Moon, User, Shield } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
-import { Badge } from "@/components/ui/badge";
+// import { Badge } from "@/components/ui/badge";
 
 // Componente memoizado para el indicador de rol
 const RoleIcon = React.memo(function RoleIcon({ role }: { role: string }) {

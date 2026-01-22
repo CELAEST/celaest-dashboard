@@ -2,13 +2,7 @@
 
 import React, { useState } from "react";
 import { motion } from "motion/react";
-import {
-  Download,
-  Check,
-  FileText,
-  Calendar,
-  ExternalLink,
-} from "lucide-react";
+import { Download, CheckCircle, Calendar } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 
 interface Invoice {
@@ -18,20 +12,18 @@ interface Invoice {
   description: string;
   amount: number;
   status: "paid" | "pending" | "failed";
-  pdfUrl?: string;
 }
 
 export const InvoiceHistory: React.FC = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
-  const [downloadedIds, setDownloadedIds] = useState<Set<string>>(new Set());
 
   const invoices: Invoice[] = [
     {
       id: "1",
       invoiceNumber: "INV-2026-001",
-      date: "2026-01-01",
+      date: "Dec 31, 2025",
       description: "Premium Tier - January 2026",
       amount: 299.0,
       status: "paid",
@@ -39,7 +31,7 @@ export const InvoiceHistory: React.FC = () => {
     {
       id: "2",
       invoiceNumber: "INV-2025-012",
-      date: "2025-12-01",
+      date: "Nov 30, 2025",
       description: "Premium Tier - December 2025",
       amount: 299.0,
       status: "paid",
@@ -47,7 +39,7 @@ export const InvoiceHistory: React.FC = () => {
     {
       id: "3",
       invoiceNumber: "INV-2025-011",
-      date: "2025-11-01",
+      date: "Oct 31, 2025",
       description: "Premium Tier - November 2025",
       amount: 299.0,
       status: "paid",
@@ -55,7 +47,7 @@ export const InvoiceHistory: React.FC = () => {
     {
       id: "4",
       invoiceNumber: "INV-2025-010",
-      date: "2025-10-01",
+      date: "Sep 30, 2025",
       description: "Premium Tier - October 2025",
       amount: 299.0,
       status: "paid",
@@ -63,7 +55,7 @@ export const InvoiceHistory: React.FC = () => {
     {
       id: "5",
       invoiceNumber: "INV-2025-009",
-      date: "2025-09-01",
+      date: "Aug 31, 2025",
       description: "Standard Tier - September 2025",
       amount: 199.0,
       status: "paid",
@@ -72,242 +64,192 @@ export const InvoiceHistory: React.FC = () => {
 
   const handleDownload = async (invoiceId: string) => {
     setDownloadingId(invoiceId);
-
-    // Simulate PDF generation/download
-    await new Promise((resolve) => setTimeout(resolve, 1800));
-
+    await new Promise((resolve) => setTimeout(resolve, 1500));
     setDownloadingId(null);
-    setDownloadedIds(new Set([...downloadedIds, invoiceId]));
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
-  const getStatusColor = (status: Invoice["status"]) => {
-    switch (status) {
-      case "paid":
-        return isDark
-          ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-          : "bg-emerald-50 text-emerald-700 border-emerald-200";
-      case "pending":
-        return isDark
-          ? "bg-yellow-500/10 text-yellow-400 border-yellow-500/20"
-          : "bg-yellow-50 text-yellow-700 border-yellow-200";
-      case "failed":
-        return isDark
-          ? "bg-red-500/10 text-red-400 border-red-500/20"
-          : "bg-red-50 text-red-700 border-red-200";
-    }
   };
 
   return (
     <div
-      className={`rounded-2xl border overflow-hidden ${
+      className={`rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-2xl ${
         isDark
-          ? "bg-linear-to-br from-[#0a0a0a]/80 to-gray-900/50 border-white/10 backdrop-blur-sm"
-          : "bg-white border-gray-200 shadow-sm"
+          ? "bg-black/40 backdrop-blur-xl border border-white/10"
+          : "bg-white border border-gray-200 shadow-sm"
       }`}
     >
-      {/* Header */}
-      <div
-        className={`p-6 border-b ${
-          isDark ? "border-white/5" : "border-gray-200"
-        }`}
-      >
-        <div className="flex items-center justify-between">
+      <div className="p-6">
+        <div className="flex items-center justify-between mb-6">
           <div>
             <h3
-              className={`text-lg font-bold ${
+              className={`font-semibold mb-1 ${
                 isDark ? "text-white" : "text-gray-900"
               }`}
             >
               Invoice History
             </h3>
             <p
-              className={`text-xs mt-1 ${
-                isDark ? "text-gray-500" : "text-gray-600"
-              }`}
+              className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}
             >
               Download past invoices and track your payment history
             </p>
           </div>
           <div
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl ${
-              isDark
-                ? "bg-white/5 text-gray-400 border border-white/10"
-                : "bg-gray-100 text-gray-600 border border-gray-200"
+            className={`px-4 py-2 rounded-lg text-sm ${
+              isDark ? "bg-white/5 text-gray-400" : "bg-gray-100 text-gray-600"
             }`}
           >
-            <FileText size={14} />
-            <span className="text-xs font-medium tabular-nums">
-              {invoices.length} Invoices
-            </span>
+            {invoices.length} Invoices
           </div>
         </div>
-      </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr
-              className={`border-b ${
-                isDark
-                  ? "bg-white/2 border-white/5"
-                  : "bg-gray-50 border-gray-200"
-              }`}
-            >
-              <th
-                className={`px-6 py-4 text-left text-xs font-bold uppercase tracking-wider ${
-                  isDark ? "text-gray-500" : "text-gray-600"
+        {/* Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr
+                className={`border-b ${
+                  isDark ? "border-white/10" : "border-gray-200"
                 }`}
               >
-                Invoice
-              </th>
-              <th
-                className={`px-6 py-4 text-left text-xs font-bold uppercase tracking-wider ${
-                  isDark ? "text-gray-500" : "text-gray-600"
-                }`}
-              >
-                Date
-              </th>
-              <th
-                className={`px-6 py-4 text-left text-xs font-bold uppercase tracking-wider ${
-                  isDark ? "text-gray-500" : "text-gray-600"
-                }`}
-              >
-                Description
-              </th>
-              <th
-                className={`px-6 py-4 text-left text-xs font-bold uppercase tracking-wider ${
-                  isDark ? "text-gray-500" : "text-gray-600"
-                }`}
-              >
-                Amount
-              </th>
-              <th
-                className={`px-6 py-4 text-left text-xs font-bold uppercase tracking-wider ${
-                  isDark ? "text-gray-500" : "text-gray-600"
-                }`}
-              >
-                Status
-              </th>
-              <th
-                className={`px-6 py-4 text-right text-xs font-bold uppercase tracking-wider ${
-                  isDark ? "text-gray-500" : "text-gray-600"
-                }`}
-              >
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody
-            className={`divide-y ${
-              isDark ? "divide-white/5" : "divide-gray-200"
-            }`}
-          >
-            {invoices.map((invoice, index) => (
-              <motion.tr
-                key={invoice.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-                className={`transition-colors ${
-                  isDark ? "hover:bg-white/2" : "hover:bg-gray-50"
-                }`}
-              >
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                        isDark
-                          ? "bg-cyan-500/10 border border-cyan-500/20"
-                          : "bg-cyan-50 border border-cyan-200"
-                      }`}
-                    >
-                      <FileText
-                        size={18}
-                        className={isDark ? "text-cyan-400" : "text-cyan-600"}
-                      />
-                    </div>
-                    <div>
+                <th
+                  className={`text-left pb-4 text-xs font-semibold tracking-wider ${
+                    isDark ? "text-gray-400" : "text-gray-500"
+                  }`}
+                >
+                  INVOICE
+                </th>
+                <th
+                  className={`text-left pb-4 text-xs font-semibold tracking-wider ${
+                    isDark ? "text-gray-400" : "text-gray-500"
+                  }`}
+                >
+                  DATE
+                </th>
+                <th
+                  className={`text-left pb-4 text-xs font-semibold tracking-wider ${
+                    isDark ? "text-gray-400" : "text-gray-500"
+                  }`}
+                >
+                  DESCRIPTION
+                </th>
+                <th
+                  className={`text-right pb-4 text-xs font-semibold tracking-wider ${
+                    isDark ? "text-gray-400" : "text-gray-500"
+                  }`}
+                >
+                  AMOUNT
+                </th>
+                <th
+                  className={`text-center pb-4 text-xs font-semibold tracking-wider ${
+                    isDark ? "text-gray-400" : "text-gray-500"
+                  }`}
+                >
+                  STATUS
+                </th>
+                <th
+                  className={`text-right pb-4 text-xs font-semibold tracking-wider ${
+                    isDark ? "text-gray-400" : "text-gray-500"
+                  }`}
+                >
+                  ACTIONS
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {invoices.map((invoice, idx) => (
+                <motion.tr
+                  key={invoice.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.05 }}
+                  className={`border-b transition-all duration-300 group cursor-pointer ${
+                    isDark
+                      ? "border-white/5 hover:bg-white/5"
+                      : "border-gray-100 hover:bg-gray-50"
+                  }`}
+                >
+                  <td className="py-4">
+                    <div className="flex items-center gap-2">
                       <div
-                        className={`text-sm font-semibold ${
-                          isDark ? "text-white" : "text-gray-900"
+                        className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                          isDark ? "bg-cyan-500/10" : "bg-blue-500/10"
+                        }`}
+                      >
+                        <Download
+                          className={`w-4 h-4 ${
+                            isDark ? "text-cyan-400" : "text-blue-600"
+                          }`}
+                        />
+                      </div>
+                      <span
+                        className={`font-mono text-sm font-semibold ${
+                          isDark ? "text-cyan-400" : "text-blue-600"
                         }`}
                       >
                         {invoice.invoiceNumber}
-                      </div>
+                      </span>
                     </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-2">
-                    <Calendar
-                      size={14}
-                      className={isDark ? "text-gray-600" : "text-gray-400"}
-                    />
+                  </td>
+                  <td className="py-4">
+                    <div className="flex items-center gap-2">
+                      <Calendar
+                        className={`w-4 h-4 ${
+                          isDark ? "text-gray-500" : "text-gray-400"
+                        }`}
+                      />
+                      <span
+                        className={`text-sm ${
+                          isDark ? "text-gray-400" : "text-gray-600"
+                        }`}
+                      >
+                        {invoice.date}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="py-4">
                     <span
-                      className={`text-sm tabular-nums ${
-                        isDark ? "text-gray-400" : "text-gray-600"
+                      className={`text-sm ${
+                        isDark ? "text-gray-300" : "text-gray-700"
                       }`}
                     >
-                      {formatDate(invoice.date)}
+                      {invoice.description}
                     </span>
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <span
-                    className={`text-sm ${
-                      isDark ? "text-gray-300" : "text-gray-700"
-                    }`}
-                  >
-                    {invoice.description}
-                  </span>
-                </td>
-                <td className="px-6 py-4">
-                  <span
-                    className={`text-sm font-bold tabular-nums ${
-                      isDark ? "text-white" : "text-gray-900"
-                    }`}
-                  >
-                    ${invoice.amount.toFixed(2)}
-                  </span>
-                </td>
-                <td className="px-6 py-4">
-                  <span
-                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${getStatusColor(
-                      invoice.status
-                    )}`}
-                  >
-                    {invoice.status === "paid" && <Check size={12} />}
-                    {invoice.status.toUpperCase()}
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => handleDownload(invoice.id)}
-                    disabled={downloadingId === invoice.id}
-                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
-                      downloadedIds.has(invoice.id)
-                        ? isDark
-                          ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                          : "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                        : isDark
-                        ? "bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 border border-cyan-500/20"
-                        : "bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200"
-                    }`}
-                  >
-                    {downloadingId === invoice.id ? (
-                      <>
+                  </td>
+                  <td className="py-4 text-right">
+                    <span
+                      className={`text-sm font-bold ${
+                        isDark ? "text-white" : "text-gray-900"
+                      }`}
+                    >
+                      ${invoice.amount.toFixed(2)}
+                    </span>
+                  </td>
+                  <td className="py-4">
+                    <div className="flex justify-center">
+                      <span
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold ${
+                          isDark
+                            ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                            : "bg-emerald-500/10 text-emerald-600 border border-emerald-200"
+                        }`}
+                      >
+                        <CheckCircle className="w-3 h-3" />
+                        PAID
+                      </span>
+                    </div>
+                  </td>
+                  <td className="py-4 text-right">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => handleDownload(invoice.id)}
+                      disabled={downloadingId === invoice.id}
+                      className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ${
+                        isDark
+                          ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 hover:bg-cyan-500/20"
+                          : "bg-blue-500/10 text-blue-600 border border-blue-500/20 hover:bg-blue-500/20"
+                      }`}
+                    >
+                      {downloadingId === invoice.id ? (
                         <motion.div
                           animate={{ rotate: 360 }}
                           transition={{
@@ -317,46 +259,35 @@ export const InvoiceHistory: React.FC = () => {
                           }}
                           className="w-4 h-4 border-2 border-current border-t-transparent rounded-full"
                         />
-                        <span>Loading...</span>
-                      </>
-                    ) : downloadedIds.has(invoice.id) ? (
-                      <>
-                        <Check size={16} />
-                        <span>Downloaded</span>
-                      </>
-                    ) : (
-                      <>
-                        <Download size={16} />
-                        <span>Download PDF</span>
-                      </>
-                    )}
-                  </motion.button>
-                </td>
-              </motion.tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                      ) : (
+                        <Download className="w-4 h-4" />
+                      )}
+                      Download PDF
+                    </motion.button>
+                  </td>
+                </motion.tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-      {/* Footer */}
-      <div
-        className={`p-4 border-t flex items-center justify-between ${
-          isDark ? "bg-white/2 border-white/5" : "bg-gray-50 border-gray-200"
-        }`}
-      >
-        <p className={`text-xs ${isDark ? "text-gray-500" : "text-gray-600"}`}>
-          Showing all {invoices.length} invoices
-        </p>
-        <button
-          className={`text-xs font-semibold flex items-center gap-1 ${
-            isDark
-              ? "text-cyan-400 hover:text-cyan-300"
-              : "text-blue-600 hover:text-blue-700"
+        {/* Footer */}
+        <div
+          className={`mt-4 text-sm flex items-center justify-between ${
+            isDark ? "text-gray-500" : "text-gray-400"
           }`}
         >
-          View Transaction Details
-          <ExternalLink size={12} />
-        </button>
+          <span>Showing all {invoices.length} invoices</span>
+          <button
+            className={`font-semibold transition-colors duration-300 ${
+              isDark
+                ? "text-cyan-400 hover:text-cyan-300"
+                : "text-blue-600 hover:text-blue-700"
+            }`}
+          >
+            View Transaction Details →
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -152,7 +152,7 @@ export const AppContent: React.FC = () => {
                 <div className="mb-10 flex justify-between items-end">
                   <div>
                     <h1
-                      className={`text-3xl font-bold mb-2 tracking-tight ${
+                      className={`text-4xl font-bold mb-2 tracking-tight ${
                         isDark ? "text-white" : "text-gray-900"
                       }`}
                     >
@@ -164,60 +164,62 @@ export const AppContent: React.FC = () => {
                       } text-sm`}
                     >
                       System Status:{" "}
-                      <span className="text-cyan-400 font-mono">OPTIMAL</span> •
-                      Local Time:{" "}
+                      <span className="text-emerald-500 font-semibold">
+                        OPTIMAL
+                      </span>{" "}
+                      • Local Time:{" "}
                       <span className="font-mono opacity-80">14:32:01</span>
                     </p>
                   </div>
 
-                  <div className="flex gap-3">
-                    <button
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 border ${
-                        isDark
-                          ? "bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border-cyan-500/30 hover:shadow-[0_0_15px_rgba(34,211,238,0.3)]"
-                          : "bg-white hover:bg-gray-50 text-blue-600 border-gray-200 shadow-sm"
-                      }`}
-                    >
-                      <Zap size={16} />
-                      Run Diagnostics
-                    </button>
-                  </div>
+                  <button
+                    className={`px-6 py-3 rounded-xl font-semibold flex items-center gap-2 transition-all duration-300 transform hover:scale-105 ${
+                      isDark
+                        ? "bg-linear-to-r from-cyan-400 to-blue-500 text-white shadow-lg shadow-cyan-500/50 hover:shadow-cyan-500/70"
+                        : "bg-linear-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50"
+                    }`}
+                  >
+                    <Zap size={18} />
+                    Run Diagnostics
+                  </button>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                   <StatCard
-                    title="Total Revenue"
+                    title="TOTAL REVENUE"
                     value="$128,492"
                     trend="12.5%"
                     trendUp={true}
                     icon={<Activity size={24} />}
                     delay={0.1}
+                    gradient="from-cyan-400 to-blue-500"
                   />
                   <StatCard
-                    title="Global Orders"
+                    title="GLOBAL ORDERS"
                     value="1,482"
                     trend="3.2%"
                     trendUp={true}
                     icon={<Box size={24} />}
                     delay={0.2}
-                    hologramImage="https://images.unsplash.com/photo-1751475252133-3db30b9814b5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmdXR1cmlzdGljJTIwM2QlMjBob2xvZ3JhbSUyMGdsb2JlJTIwY3liZXJ8ZW58MXx8fHwxNzY4NTc2ODc4fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+                    gradient="from-blue-500 to-indigo-500"
                   />
                   <StatCard
-                    title="Active Scripts"
+                    title="ACTIVE SCRIPTS"
                     value="24/24"
                     trend="Running"
                     trendUp={true}
                     icon={<Server size={24} />}
                     delay={0.3}
-                    hologramImage="https://images.unsplash.com/photo-1674352889408-52792b1a3b23?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMDNkJTIwbWljcm9jaGlwJTIwZ2xvd2luZyUyMHR1cnF1b2lzZXxlbnwxfHx8fDE3Njg1NzY4Nzh8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+                    gradient="from-emerald-400 to-teal-500"
                   />
                   <StatCard
-                    title="Net Profit"
+                    title="NET PROFIT"
                     value="$42,300"
                     trend="1.8%"
                     trendUp={false}
                     icon={<Zap size={24} />}
                     delay={0.4}
+                    gradient="from-orange-400 to-red-500"
                   />
                 </div>
 
