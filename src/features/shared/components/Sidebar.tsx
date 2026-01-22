@@ -214,14 +214,18 @@ export const Sidebar = React.memo(function Sidebar({
   // Confirmar Sign Out
   const handleConfirmSignOut = useCallback(async () => {
     setShowSignOutModal(false);
+
+    // Explicitly handle sign out logic
     if (user) {
       await signOut();
-      // Redirigir a la página de login para que el usuario pueda iniciar sesión con otra cuenta
-      window.location.href = "/?mode=signin";
-    } else {
-      // Modo demo: redirigir a login
-      window.location.href = "/?mode=signin";
     }
+
+    // Force a hard redirect to the signin page to clear any app state
+    // Using replace to avoid back-button loops
+    // Using setTimeout to allow any pending state updates or UI closing animations to settle
+    setTimeout(() => {
+      window.location.replace("/?mode=signin");
+    }, 100);
   }, [user, signOut]);
 
   // Cancelar Sign Out
