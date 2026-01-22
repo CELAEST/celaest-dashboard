@@ -17,6 +17,7 @@ import React, {
   useMemo,
   type ReactNode,
 } from "react";
+import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import type {
   User as SupabaseUser,
@@ -139,6 +140,7 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
+  const router = useRouter();
   const [state, setState] = useState<AuthState>({
     user: null,
     loading: true,
@@ -354,16 +356,39 @@ export function AuthProvider({ children }: AuthProviderProps) {
     if (!supabase) return;
 
     try {
-      await supabase.auth.signOut();
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+
+      // Security: Manually clear Supabase cookies and local storage to ensure no session artifacts remain
+      // This addresses user concerns about "ghost" sessions or bugs
+      document.cookie.split(";").forEach((c) => {
+        const trimmed = c.trim();
+        if (trimmed.startsWith("sb-")) {
+          document.cookie =
+            trimmed.split("=")[0] +
+            "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+        }
+      });
+
+      // Clear local storage and session storage for complete cleanup
+      if (typeof window !== "undefined") {
+        localStorage.clear();
+        sessionStorage.clear();
+      }
+
       setState({
         user: null,
         loading: false,
         initialized: true,
       });
+
+      // Force a hard navigation to the login page to clear any in-memory state
+      // Modified: Using router.push as requested for cleaner internal transition
+      router.push("/?mode=signin");
     } catch (error) {
       console.error("Sign out error:", error);
     }
-  }, [supabase]);
+  }, [supabase, router]);
 
   // ==================== PERMISSION HELPERS ====================
 
