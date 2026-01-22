@@ -17,18 +17,22 @@ import {
   Moon,
   Sun,
 } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Logo from "@/components/icons/Logo";
 
 export const AuthPage: React.FC = () => {
+  const searchParams = useSearchParams();
   const { signIn, signUp, signInWithGoogle, signInWithGitHub } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { addNotification } = useNotifications();
   const isDark = theme === "dark";
 
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const initialMode =
+    searchParams.get("mode") === "signup" ? "signup" : "signin";
+  const [mode, setMode] = useState<"signin" | "signup">(initialMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
