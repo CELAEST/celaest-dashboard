@@ -2,6 +2,7 @@
 
 import React, { useState, useRef } from "react";
 import { User, Upload, Trash2, Mail, AlertCircle, Github } from "lucide-react";
+import Image from "next/image";
 import { SettingsModal } from "../SettingsModal";
 
 /**
@@ -60,10 +61,12 @@ export function AccountProfile() {
           {/* Avatar */}
           <div className="relative">
             {avatarUrl ? (
-              <img
+              <Image
                 src={avatarUrl}
                 alt="Avatar"
-                className="w-16 h-16 rounded-full object-cover"
+                width={64}
+                height={64}
+                className="rounded-full object-cover"
               />
             ) : (
               <div className="w-16 h-16 rounded-full bg-cyan-500 flex items-center justify-center">
