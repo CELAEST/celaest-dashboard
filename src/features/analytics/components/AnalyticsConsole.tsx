@@ -14,18 +14,6 @@ import {
 } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 
-// Pre-computed particle positions to avoid Math.random() during render
-const PARTICLE_POSITIONS = [
-  { left: 12, top: 25, duration: 3.2, delay: 0.4 },
-  { left: 45, top: 78, duration: 4.1, delay: 1.2 },
-  { left: 67, top: 34, duration: 3.8, delay: 0.8 },
-  { left: 23, top: 89, duration: 4.5, delay: 1.6 },
-  { left: 78, top: 12, duration: 3.5, delay: 0.2 },
-  { left: 56, top: 56, duration: 4.2, delay: 1.0 },
-  { left: 34, top: 45, duration: 3.9, delay: 1.4 },
-  { left: 89, top: 67, duration: 4.0, delay: 0.6 },
-];
-
 const logs = [
   {
     status: "error",
@@ -249,117 +237,78 @@ export const AnalyticsConsole: React.FC = () => {
                     : "bg-linear-to-br from-blue-500/5 to-indigo-500/5"
                 }`}
               >
-                {/* 3D Donut Chart Visualization */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="relative w-48 h-48">
-                    {/* Outer Ring */}
-                    <svg
-                      className="w-full h-full transform -rotate-90"
-                      viewBox="0 0 200 200"
-                    >
-                      <defs>
-                        <linearGradient
-                          id="gradient1"
-                          x1="0%"
-                          y1="0%"
-                          x2="100%"
-                          y2="100%"
-                        >
-                          <stop
-                            offset="0%"
-                            stopColor={isDark ? "#22d3ee" : "#3b82f6"}
-                          />
-                          <stop
-                            offset="100%"
-                            stopColor={isDark ? "#60a5fa" : "#6366f1"}
-                          />
-                        </linearGradient>
-                        <filter id="shadow">
-                          <feDropShadow
-                            dx="0"
-                            dy="4"
-                            stdDeviation="8"
-                            floodColor={isDark ? "#22d3ee" : "#3b82f6"}
-                            floodOpacity="0.3"
-                          />
-                        </filter>
-                      </defs>
-
-                      {/* Background Circle */}
-                      <circle
-                        cx="100"
-                        cy="100"
-                        r="70"
-                        fill="none"
-                        stroke={
-                          isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"
-                        }
-                        strokeWidth="30"
-                      />
-
-                      {/* Animated Arc */}
-                      <motion.circle
-                        cx="100"
-                        cy="100"
-                        r="70"
-                        fill="none"
-                        stroke="url(#gradient1)"
-                        strokeWidth="30"
-                        strokeLinecap="round"
-                        strokeDasharray="439.8"
-                        initial={{ strokeDashoffset: 439.8 }}
-                        animate={{ strokeDashoffset: 110 }}
-                        transition={{ duration: 1.5, ease: "easeOut" }}
-                        filter="url(#shadow)"
-                      />
-                    </svg>
-
-                    {/* Center Text */}
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="text-center">
-                        <div
-                          className={`text-3xl font-bold ${
-                            isDark
-                              ? "bg-linear-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent"
-                              : "bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
-                          }`}
-                        >
-                          3D
-                        </div>
-                        <div
-                          className={`text-xs font-semibold ${
-                            isDark ? "text-gray-400" : "text-gray-600"
-                          }`}
-                        >
-                          VISUALIZATION
-                        </div>
+                {/* Metric Trend Visualization */}
+                <div className="absolute inset-0 flex items-center justify-center p-6">
+                  <div className="w-full h-full flex flex-col justify-end">
+                    {/* Graph Title */}
+                    <div className="absolute top-6 left-6 z-10">
+                      <div
+                        className={`text-xs font-bold tracking-widest uppercase mb-1 ${
+                          isDark ? "text-gray-400" : "text-gray-500"
+                        }`}
+                      >
+                        Efficiency Trend
+                      </div>
+                      <div
+                        className={`text-2xl font-bold ${
+                          isDark ? "text-white" : "text-gray-900"
+                        }`}
+                      >
+                        +24.8%
                       </div>
                     </div>
-                  </div>
-                </div>
 
-                {/* Floating Particles */}
-                <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                  {PARTICLE_POSITIONS.map((particle, i) => (
-                    <motion.div
-                      key={i}
-                      className={`absolute w-1 h-1 rounded-full ${
-                        isDark ? "bg-cyan-400/30" : "bg-blue-500/30"
-                      }`}
-                      style={{
-                        left: `${particle.left}%`,
-                        top: `${particle.top}%`,
-                      }}
-                      animate={{
-                        y: [0, -20, 0],
-                      }}
-                      transition={{
-                        duration: particle.duration,
-                        repeat: Infinity,
-                        delay: particle.delay,
-                      }}
-                    />
-                  ))}
+                    {/* SVG Chart */}
+                    <div className="relative w-full h-32">
+                      <svg
+                        className="w-full h-full overflow-visible"
+                        viewBox="0 0 100 50"
+                        preserveAspectRatio="none"
+                      >
+                        <defs>
+                          <linearGradient
+                            id="trendGradient"
+                            x1="0"
+                            y1="0"
+                            x2="0"
+                            y2="1"
+                          >
+                            <stop
+                              offset="0%"
+                              stopColor={isDark ? "#22d3ee" : "#3b82f6"} // Cyan/Blue top
+                              stopOpacity="0.5"
+                            />
+                            <stop
+                              offset="100%"
+                              stopColor={isDark ? "#22d3ee" : "#3b82f6"}
+                              stopOpacity="0"
+                            />
+                          </linearGradient>
+                        </defs>
+
+                        {/* Fill Area */}
+                        <motion.path
+                          d="M0 50 L0 35 Q20 30 40 38 T80 20 T100 10 L100 50 Z"
+                          fill="url(#trendGradient)"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ duration: 1 }}
+                        />
+
+                        {/* Stroke Line */}
+                        <motion.path
+                          d="M0 35 Q20 30 40 38 T80 20 T100 10"
+                          fill="none"
+                          stroke={isDark ? "#22d3ee" : "#3b82f6"}
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          initial={{ pathLength: 0 }}
+                          animate={{ pathLength: 1 }}
+                          transition={{ duration: 1.5, ease: "easeOut" }}
+                        />
+                      </svg>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
