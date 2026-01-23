@@ -118,6 +118,14 @@ const ErrorMonitoring = dynamic(
   { ssr: false, loading: () => <ViewSkeleton /> },
 );
 
+const SettingsView = dynamic(
+  () =>
+    import("@/features/settings").then((m) => ({
+      default: m.SettingsView,
+    })),
+  { loading: () => <ViewSkeleton /> },
+);
+
 // Main page component wrapped in Suspense for correct useSearchParams handling
 // stable subscribe function to avoid re-subscription on every render
 const emptySubscribe = () => () => {};
@@ -560,6 +568,18 @@ function DashboardContent() {
                     <ErrorMonitoring />
                   </motion.div>
                 )}
+
+                {activeTab === "settings" && (
+                  <motion.div
+                    key="settings"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 1.05 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <SettingsView />
+                  </motion.div>
+                )}
               </>
             )}
 
@@ -574,7 +594,8 @@ function DashboardContent() {
                   activeTab !== "releases" &&
                   activeTab !== "users" &&
                   activeTab !== "roi" &&
-                  activeTab !== "errors")) && (
+                  activeTab !== "errors" &&
+                  activeTab !== "settings")) && (
                 <motion.div
                   key="empty"
                   initial={{ opacity: 0 }}
