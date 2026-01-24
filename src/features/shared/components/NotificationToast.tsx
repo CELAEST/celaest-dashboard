@@ -82,7 +82,7 @@ export const NotificationToast = React.memo(function NotificationToast({
 
   const closeButtonClassName = useMemo(
     () =>
-      `flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-colors
+      `shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-colors
       ${
         isDark
           ? "bg-white/5 text-gray-400 hover:bg-white/10"

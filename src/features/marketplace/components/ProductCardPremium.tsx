@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "motion/react";
-import { Check, ShoppingCart, Star } from "lucide-react";
+import { Check, ShoppingCart, Star, Eye } from "lucide-react";
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 
@@ -17,6 +17,7 @@ interface ProductCardPremiumProps {
   reviews?: number;
   badge?: string;
   onSelect: () => void;
+  onViewDetails?: () => void;
 }
 
 export const ProductCardPremium = React.memo(function ProductCardPremium({
@@ -29,6 +30,7 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
   reviews = 234,
   badge,
   onSelect,
+  onViewDetails,
 }: ProductCardPremiumProps) {
   const { theme } = useTheme();
   const [isHovered, setIsHovered] = React.useState(false);
@@ -115,8 +117,8 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
                     i < Math.floor(rating)
                       ? "text-yellow-500 fill-yellow-500"
                       : theme === "dark"
-                      ? "text-gray-600"
-                      : "text-gray-300"
+                        ? "text-gray-600"
+                        : "text-gray-300"
                   }
                 `}
               />
@@ -191,22 +193,40 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
             </div>
           </div>
 
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={onSelect}
-            className={`
-              w-full py-3 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-all
-              ${
-                theme === "dark"
-                  ? "bg-cyan-500 text-black hover:bg-cyan-400 shadow-[0_0_20px_rgba(0,255,255,0.3)]"
-                  : "bg-gray-900 text-white hover:bg-gray-800 shadow-xl"
-              }
-            `}
-          >
-            <ShoppingCart size={16} />
-            Adquirir Ahora
-          </motion.button>
+          <div className="grid grid-cols-2 gap-3">
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={onViewDetails}
+              className={`
+                py-3 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-all
+                ${
+                  theme === "dark"
+                    ? "bg-white/5 border border-white/10 text-gray-300 hover:bg-white/10 hover:text-white"
+                    : "bg-gray-100 border border-gray-200 text-gray-700 hover:bg-gray-200"
+                }
+              `}
+            >
+              <Eye size={16} />
+              Ver Detalles
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={onSelect}
+              className={`
+                py-3 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-all
+                ${
+                  theme === "dark"
+                    ? "bg-cyan-500 text-black hover:bg-cyan-400 shadow-[0_0_20px_rgba(0,255,255,0.3)]"
+                    : "bg-gray-900 text-white hover:bg-gray-800 shadow-xl"
+                }
+              `}
+            >
+              <ShoppingCart size={16} />
+              Adquirir
+            </motion.button>
+          </div>
         </div>
       </div>
     </motion.div>

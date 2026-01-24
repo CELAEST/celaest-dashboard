@@ -139,7 +139,7 @@ export const AppContent: React.FC = () => {
       <div className="pl-[80px] relative z-10 transition-all duration-300">
         <Header />
 
-        <main className="p-8 max-w-[1600px] mx-auto min-h-[calc(100vh-80px)]">
+        <main className="p-3 mx-auto min-h-[calc(100vh-80px)]">
           <AnimatePresence mode="wait">
             {activeTab === "dashboard" && (
               <motion.div

@@ -17,6 +17,7 @@ import {
   AlertTriangle,
   LucideIcon,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { SignOutModal } from "./SignOutModal";
@@ -185,6 +186,7 @@ export const Sidebar = React.memo(function Sidebar({
   isGuest,
   onShowLogin,
 }: SidebarProps) {
+  const router = useRouter(); // Initialize router
   const [isHovered, setIsHovered] = useState(false);
   const [showSignOutModal, setShowSignOutModal] = useState(false);
   const { theme } = useTheme();
@@ -215,18 +217,14 @@ export const Sidebar = React.memo(function Sidebar({
   const handleConfirmSignOut = useCallback(async () => {
     setShowSignOutModal(false);
 
-    // Explicitly handle sign out logic
+    // 1. Navigate immediately to update URL params (pre-empting the guest check)
+    router.replace("/?mode=signin");
+
+    // 2. Perform sign out
     if (user) {
       await signOut();
     }
-
-    // Force a hard redirect to the signin page to clear any app state
-    // Using replace to avoid back-button loops
-    // Using setTimeout to allow any pending state updates or UI closing animations to settle
-    setTimeout(() => {
-      window.location.replace("/?mode=signin");
-    }, 100);
-  }, [user, signOut]);
+  }, [user, signOut, router]);
 
   // Cancelar Sign Out
   const handleCancelSignOut = useCallback(() => {

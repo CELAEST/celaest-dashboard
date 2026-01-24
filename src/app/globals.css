@@ -224,3 +224,150 @@ html {
 .dark *::-webkit-scrollbar-thumb:hover {
   background: rgba(34, 211, 238, 0.35);
 }
+
+/* ============================================
+   Settings Module - Custom Styles
+   ============================================ */
+
+/* Glassmorphism Card - Dark Theme */
+.settings-glass-card {
+  background: #0a0a0a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+}
+
+/* Right border accent glow */
+.settings-glass-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 3px;
+  height: 100%;
+  background: linear-gradient(180deg, #22d3ee 0%, #3b82f6 100%);
+  border-radius: 0 8px 8px 0;
+  opacity: 0.6;
+}
+
+/* Cards without the accent line */
+.settings-glass-card-plain {
+  background: #0a0a0a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Input styling for dark theme */
+.settings-input {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.settings-input:focus {
+  border-color: #22d3ee;
+  outline: none;
+}
+
+.settings-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* Disabled input */
+.settings-input:disabled {
+  color: rgba(255, 255, 255, 0.5);
+  cursor: not-allowed;
+}
+
+/* Gradient Text */
+.settings-gradient-text {
+  background: linear-gradient(135deg, #22d3ee 0%, #60a5fa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Rotating Ring Animation */
+.settings-rotating-ring {
+  animation: rotateRing 8s linear infinite;
+}
+
+@keyframes rotateRing {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Shimmer Animation */
+.settings-shimmer {
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+/* Pulse Dot Animation */
+.settings-pulse-dot {
+  animation: pulseDot 2s ease-in-out infinite;
+}
+
+@keyframes pulseDot {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+  }
+  50% {
+    opacity: 0.8;
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+  }
+}
+
+/* Toggle Switch */
+.settings-toggle-switch {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.settings-toggle-switch.active {
+  background: linear-gradient(135deg, #22d3ee 0%, #3b82f6 100%);
+  box-shadow: 0 4px 15px rgba(34, 211, 238, 0.25);
+}
+
+.settings-toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 9999px;
+  transition: transform 0.3s ease;
+}
+
+.settings-toggle-switch.active .settings-toggle-thumb {
+  transform: translateX(20px);
+}
+
+/* Tab Button transition fix */
+.settings-tab-button {
+  flex-shrink: 0;
+}
+
+

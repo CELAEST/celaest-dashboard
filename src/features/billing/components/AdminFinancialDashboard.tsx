@@ -12,10 +12,15 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { ConfigurePaymentGatewaysModal } from "./modals/ConfigurePaymentGatewaysModal";
+import { ManageTaxRatesModal } from "./modals/ManageTaxRatesModal";
 
 export const AdminFinancialDashboard: React.FC = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const [isConfigureGatewaysOpen, setIsConfigureGatewaysOpen] =
+    React.useState(false);
+  const [isManageTaxRatesOpen, setIsManageTaxRatesOpen] = React.useState(false);
 
   const totalRevenue = 47850;
   const paidInvoices = 148;
@@ -511,6 +516,7 @@ export const AdminFinancialDashboard: React.FC = () => {
             </div>
 
             <button
+              onClick={() => setIsConfigureGatewaysOpen(true)}
               className={`w-full mt-4 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-[1.02] ${
                 isDark
                   ? "bg-linear-to-r from-cyan-400 to-blue-500 text-white shadow-lg shadow-cyan-500/30"
@@ -693,6 +699,7 @@ export const AdminFinancialDashboard: React.FC = () => {
           </div>
 
           <button
+            onClick={() => setIsManageTaxRatesOpen(true)}
             className={`w-full mt-4 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-[1.02] ${
               isDark
                 ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 hover:bg-cyan-500/20"
@@ -703,6 +710,18 @@ export const AdminFinancialDashboard: React.FC = () => {
           </button>
         </div>
       </motion.div>
+
+      <ConfigurePaymentGatewaysModal
+        darkMode={isDark}
+        isOpen={isConfigureGatewaysOpen}
+        onClose={() => setIsConfigureGatewaysOpen(false)}
+      />
+
+      <ManageTaxRatesModal
+        darkMode={isDark}
+        isOpen={isManageTaxRatesOpen}
+        onClose={() => setIsManageTaxRatesOpen(false)}
+      />
     </div>
   );
 };
