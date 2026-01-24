@@ -295,7 +295,7 @@ function DashboardContent() {
       <div className="pl-[80px] relative z-10 transition-all duration-300 h-screen flex flex-col">
         <Header onShowLogin={() => setShowLoginModal(true)} />
 
-        <main className="flex-1 overflow-y-auto p-8 max-w-[1600px] mx-auto w-full">
+        <main className="flex-1 overflow-y-auto p-3 w-full">
           <AnimatePresence mode="wait">
             {!isGuest && activeTab === "dashboard" && (
               <motion.div

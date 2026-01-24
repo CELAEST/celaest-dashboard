@@ -352,7 +352,7 @@ export const MarketplaceViewNew: React.FC = () => {
   return (
     <div
       className={`
-        min-h-screen -m-8 transition-all duration-500
+        min-h-screen rounded-2xl transition-all duration-500
         ${isDark ? "bg-[#000000]" : "bg-white"}
       `}
     >
