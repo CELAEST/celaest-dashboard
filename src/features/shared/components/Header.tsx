@@ -5,6 +5,8 @@ import { Search, Command, Sun, Moon, User, Shield } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { NotificationCenter } from "./NotificationCenter";
+import { useLayout } from "@/features/shared/contexts/LayoutContext";
+import { Filter } from "lucide-react";
 // import { Badge } from "@/components/ui/badge";
 
 // Componente memoizado para el indicador de rol
@@ -77,6 +79,7 @@ interface HeaderProps {
 export const Header = React.memo(function Header({ onShowLogin }: HeaderProps) {
   const { theme, toggleTheme } = useTheme();
   const { user } = useAuth();
+  const { navbarSearchVisible, searchQuery, setSearchQuery } = useLayout();
   const isDark = theme === "dark";
 
   // const currentUser = user || demoUser;
@@ -112,31 +115,66 @@ export const Header = React.memo(function Header({ onShowLogin }: HeaderProps) {
 
   return (
     <header className={headerClassName}>
-      <div className="flex items-center w-96 relative group">
-        <Search
-          className={`absolute left-4 w-5 h-5 transition-colors ${
-            isDark
-              ? "text-gray-500 group-focus-within:text-cyan-400"
-              : "text-gray-400 group-focus-within:text-blue-500"
-          }`}
-        />
-        <input
-          type="text"
-          placeholder="Search command or data..."
-          className={inputClassName}
-        />
-        <div className="absolute right-4 flex items-center gap-1">
-          <Command
-            className={`w-3 h-3 ${isDark ? "text-gray-600" : "text-gray-400"}`}
-          />
-          <span
-            className={`text-[10px] font-mono ${
-              isDark ? "text-gray-600" : "text-gray-400"
-            }`}
-          >
-            K
-          </span>
-        </div>
+      <div className="flex items-center w-full max-w-xl relative group mr-4">
+        {navbarSearchVisible ? (
+          <>
+            <Search
+              className={`absolute left-4 w-5 h-5 transition-colors ${
+                isDark ? "text-cyan-400" : "text-blue-500"
+              }`}
+            />
+            <input
+              type="text"
+              placeholder="Buscar soluciones enterprise..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className={inputClassName}
+              autoFocus
+            />
+            <div className="absolute right-2 flex items-center gap-2">
+              <button
+                className={`
+                    flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all
+                    ${
+                      isDark
+                        ? "bg-white/10 hover:bg-white/20 text-gray-200 border border-white/10"
+                        : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                    }
+                  `}
+              >
+                <Filter size={12} />
+                Filtros
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <Search
+              className={`absolute left-4 w-5 h-5 transition-colors ${
+                isDark
+                  ? "text-gray-500 group-focus-within:text-cyan-400"
+                  : "text-gray-400 group-focus-within:text-blue-500"
+              }`}
+            />
+            <input
+              type="text"
+              placeholder="Search command or data..."
+              className={inputClassName}
+            />
+            <div className="absolute right-4 flex items-center gap-1">
+              <Command
+                className={`w-3 h-3 ${isDark ? "text-gray-600" : "text-gray-400"}`}
+              />
+              <span
+                className={`text-[10px] font-mono ${
+                  isDark ? "text-gray-600" : "text-gray-400"
+                }`}
+              >
+                K
+              </span>
+            </div>
+          </>
+        )}
       </div>
 
       <div className="flex items-center gap-6">

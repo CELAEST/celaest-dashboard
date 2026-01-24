@@ -243,14 +243,17 @@ const products = [
   },
 ];
 
+import { useLayout } from "@/features/shared/contexts/LayoutContext";
+
 export const MarketplaceViewNew: React.FC = () => {
   const { theme } = useTheme();
   const [selectedProduct, setSelectedProduct] = useState<
     (typeof products)[0] | null
   >(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isSearchSticky, setIsSearchSticky] = useState(false);
+
+  // Use global search state
+  const { setNavbarSearchVisible, searchQuery, setSearchQuery } = useLayout();
 
   const { user } = useAuth();
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -262,8 +265,9 @@ export const MarketplaceViewNew: React.FC = () => {
 
   // Refs for scroll detection
   const heroRef = useRef<HTMLDivElement>(null);
-  const catalogRef = useRef<HTMLDivElement>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+  const productsGridRef = useRef<HTMLDivElement>(null);
 
   const handleProductSelect = (product: (typeof products)[0]) => {
     if (!user) {
@@ -325,26 +329,35 @@ export const MarketplaceViewNew: React.FC = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Intersection Observer for sticky search bar
+  // Sticky Search Logic - Move to Header when scrolled past
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        // When hero is not intersecting (scrolled past), make search sticky
-        setIsSearchSticky(!entry.isIntersecting);
+        // If the search container hits the top (is not intersecting or bounding rect is negative top)
+        // We use a negative rootMargin to trigger it slightly before it disappears
+        setNavbarSearchVisible(
+          !entry.isIntersecting && entry.boundingClientRect.top < 0,
+        );
       },
-      { threshold: 0, rootMargin: "-100px 0px 0px 0px" },
+      { threshold: 0, rootMargin: "-80px 0px 0px 0px" }, // Adjust based on header height
     );
 
-    if (heroRef.current) {
-      observer.observe(heroRef.current);
+    if (searchContainerRef.current) {
+      observer.observe(searchContainerRef.current);
     }
 
-    return () => observer.disconnect();
-  }, []);
+    return () => {
+      observer.disconnect();
+      setNavbarSearchVisible(false); // Reset on unmount
+    };
+  }, [setNavbarSearchVisible]);
 
   // Scroll to catalog indicator
   const scrollToCatalog = () => {
-    catalogRef.current?.scrollIntoView({ behavior: "smooth" });
+    productsGridRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
   };
 
   const isDark = theme === "dark";
@@ -421,7 +434,7 @@ export const MarketplaceViewNew: React.FC = () => {
             alt="Hero Background"
           />
 
-          <div className="absolute inset-0 flex flex-col justify-center px-12 z-20 max-w-3xl">
+          <div className="absolute inset-0 flex flex-col justify-center px-12 z-20 w-full">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -473,17 +486,15 @@ export const MarketplaceViewNew: React.FC = () => {
         </motion.button>
       </div>
 
-      {/* ========== STICKY SEARCH BAR ========== */}
+      {/* ========== SEARCH BAR (In-Page) ========== */}
       <div
-        ref={catalogRef}
+        ref={searchContainerRef}
         className={`
-          ${isSearchSticky ? "sticky -top-[35px] z-30 py-2" : "relative py-4"}
-          transition-all duration-300 px-8
-          ${isSearchSticky && isDark ? "bg-black/90 backdrop-blur-xl border-b border-white/10 shadow-lg shadow-black/20" : ""}
-          ${isSearchSticky && !isDark ? "bg-white/95 backdrop-blur-xl border-b border-gray-200 shadow-md" : ""}
+          relative py-4
+          transition-all duration-300 px-60
         `}
       >
-        <div className="max-w-7xl mx-auto">
+        <div className="w-full">
           <div
             className={`
               flex items-center gap-3 p-2 rounded-2xl transition-all
@@ -542,8 +553,8 @@ export const MarketplaceViewNew: React.FC = () => {
       </div>
 
       {/* ========== PRODUCTS CATALOG (Contained Scroll) ========== */}
-      <div className="px-8">
-        <div className="max-w-7xl mx-auto">
+      <div className="px-8" ref={productsGridRef}>
+        <div className="w-full">
           {/* Section Header */}
           <div className="flex items-center justify-between py-6">
             <div>
@@ -575,7 +586,7 @@ export const MarketplaceViewNew: React.FC = () => {
 
           {/* Product Grid - Global Scroll */}
           <div className="rounded-2xl">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 pb-6">
               {isLoading ? (
                 <>
                   {[...Array(4)].map((_, i) => (
@@ -732,7 +743,7 @@ export const MarketplaceViewNew: React.FC = () => {
               Procesamos cada transacción con el mismo nivel de seguridad que
               los bancos suizos. Su información jamás se comparte. Garantizado.
             </p>
-            <TrustBadges />
+            <TrustBadges className="justify-center" />
           </motion.div>
         </div>
       </div>
