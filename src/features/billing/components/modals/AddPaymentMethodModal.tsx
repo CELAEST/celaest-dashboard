@@ -184,11 +184,10 @@ export function AddPaymentMethodModal({
                 </div>
               </div>
 
-              {/* Content - Scrollable */}
-              <div className="p-6 overflow-y-auto flex-1">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Left Column - Card Preview */}
-                  <div>
+              {/* Content - Split Layout */}
+              <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+                {/* Left Column - Card Preview (Fixed) */}
+                <div className="p-6 md:w-1/2 md:shrink-0 md:flex md:flex-col md:justify-center md:overflow-hidden">
                     {/* Card Preview */}
                     <motion.div
                       initial={{ opacity: 0, rotateY: -20 }}
@@ -328,10 +327,10 @@ export function AddPaymentMethodModal({
                         </div>
                       </div>
                     </motion.div>
-                  </div>
+                </div>
 
-                  {/* Right Column - Form */}
-                  <div className="space-y-4">
+                {/* Right Column - Form (Scrollable) */}
+                <div className="p-6 md:w-1/2 md:overflow-y-auto space-y-4">
                     {/* Card Information */}
                     <div>
                       <h3
@@ -762,7 +761,6 @@ export function AddPaymentMethodModal({
                         />
                       </button>
                     </motion.div>
-                  </div>
                 </div>
               </div>
 

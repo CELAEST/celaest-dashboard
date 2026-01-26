@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "motion/react";
-import { Zap, TrendingUp, CheckCircle } from "lucide-react";
+import { Zap, TrendingUp, CheckCircle, Sparkles } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { ManageSubscriptionModal } from "./modals/ManageSubscriptionModal";
 import { UpgradePlanModal } from "./modals/UpgradePlanModal";
@@ -22,42 +22,50 @@ export const SubscriptionManager: React.FC = () => {
   return (
     <>
       <div
-        className={`relative overflow-hidden rounded-3xl transition-all duration-500 hover:shadow-2xl ${
+        className={`relative w-full rounded-3xl transition-all duration-500 hover:shadow-2xl overflow-hidden ${
           isDark
-            ? "bg-linear-to-br from-cyan-500/20 via-blue-500/20 to-indigo-500/20 backdrop-blur-xl border border-cyan-500/30"
-            : "bg-linear-to-br from-blue-500/10 via-indigo-500/10 to-purple-500/10 border border-blue-500/30 shadow-xl"
+            ? "bg-linear-to-br from-cyan-900/40 via-blue-900/20 to-indigo-900/40 backdrop-blur-2xl border border-cyan-500/20"
+            : "bg-linear-to-br from-blue-50 to-indigo-50 border border-blue-200 shadow-xl"
         }`}
       >
         {/* Animated Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
+        <div className="absolute inset-0 opacity-20 pointer-events-none">
           <div
-            className={`absolute inset-0 ${isDark ? "bg-cyan-400" : "bg-blue-500"}`}
+            className={`absolute inset-0 ${isDark ? "bg-cyan-500/10" : "bg-blue-400/5"}`}
             style={{
-              backgroundImage: `repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,.1) 35px, rgba(255,255,255,.1) 70px)`,
+              backgroundImage: `radial-gradient(circle at 2px 2px, ${isDark ? "rgba(6,182,212,0.15)" : "rgba(59,130,246,0.15)"} 1px, transparent 0)`,
+              backgroundSize: "24px 24px",
             }}
           />
         </div>
 
-        <div className="relative p-8">
-          {/* Badge */}
-          <div className="flex items-center justify-between mb-6">
+        {/* Shine Effect Overlay */}
+        <div className="absolute inset-0 bg-linear-to-tr from-white/5 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+
+        <div className="relative p-6 sm:p-8 flex flex-col h-full">
+          {/* Badge Row */}
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-8">
             <div
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm ${
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-full font-bold text-xs tracking-wide shadow-sm ${
                 isDark
-                  ? "bg-cyan-400/20 border border-cyan-400/30 text-cyan-300"
-                  : "bg-blue-500/20 border border-blue-500/30 text-blue-700"
+                  ? "bg-cyan-500/10 border border-cyan-400/20 text-cyan-300 shadow-cyan-900/20"
+                  : "bg-blue-100 border border-blue-200 text-blue-700"
               }`}
             >
-              <Zap className="w-4 h-4" />
-              ACTIVE PLAN
+              <Zap className="w-3.5 h-3.5" />
+              <span>ACTIVE PLAN</span>
             </div>
             <div
-              className={`px-4 py-2 rounded-xl font-bold text-sm ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full font-bold text-xs tracking-wide shadow-sm ${
                 isDark
-                  ? "bg-emerald-500/20 border border-emerald-500/30 text-emerald-400"
-                  : "bg-emerald-500/20 border border-emerald-500/30 text-emerald-600"
+                  ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shadow-emerald-900/20"
+                  : "bg-emerald-100 border border-emerald-200 text-emerald-700"
               }`}
             >
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
               ACTIVE
             </div>
           </div>
@@ -65,29 +73,31 @@ export const SubscriptionManager: React.FC = () => {
           {/* Plan Details */}
           <div className="mb-8">
             <div
-              className={`text-sm font-semibold tracking-wider mb-2 ${
-                isDark ? "text-cyan-300" : "text-blue-700"
+              className={`text-sm font-bold tracking-widest uppercase mb-3 ${
+                isDark ? "text-cyan-200/70" : "text-blue-600/80"
               }`}
             >
-              BILLED MONTHLY
+              Billed Monthly
             </div>
             <h2
-              className={`text-5xl font-bold tracking-tight mb-2 ${
-                isDark ? "text-white" : "text-gray-900"
+              className={`text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight mb-4 ${
+                isDark
+                  ? "text-transparent bg-clip-text bg-linear-to-r from-white via-cyan-100 to-blue-200 drop-shadow-sm"
+                  : "text-slate-900"
               }`}
             >
               Premium Tier
             </h2>
             <div className="flex items-baseline gap-2">
               <span
-                className={`text-5xl font-bold ${
-                  isDark ? "text-cyan-400" : "text-blue-600"
+                className={`text-4xl sm:text-5xl font-black ${
+                  isDark ? "text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.3)]" : "text-blue-600"
                 }`}
               >
                 $299
               </span>
               <span
-                className={`text-xl ${isDark ? "text-gray-400" : "text-gray-600"}`}
+                className={`text-lg sm:text-xl font-medium ${isDark ? "text-slate-400" : "text-slate-500"}`}
               >
                 /mo
               </span>
@@ -95,40 +105,44 @@ export const SubscriptionManager: React.FC = () => {
           </div>
 
           {/* Usage Metrics */}
-          <div className="space-y-6 mb-6">
+          <div className="space-y-8 mb-8 flex-grow">
             {/* Active Licenses */}
             <div>
               <div className="flex items-center justify-between mb-3">
                 <span
                   className={`text-sm font-semibold flex items-center gap-2 ${
-                    isDark ? "text-white" : "text-gray-900"
+                    isDark ? "text-slate-200" : "text-slate-700"
                   }`}
                 >
-                  <CheckCircle className="w-4 h-4 text-emerald-500" />
+                  <CheckCircle className={`w-4 h-4 ${isDark ? "text-emerald-400" : "text-emerald-500"}`} />
                   Active Licenses
                 </span>
                 <span
                   className={`text-sm font-bold ${
-                    isDark ? "text-cyan-400" : "text-blue-600"
+                    isDark ? "text-cyan-300" : "text-blue-600"
                   }`}
                 >
-                  {usedLicenses} / {totalLicenses}
+                  {usedLicenses} <span className="text-slate-500">/ {totalLicenses}</span>
                 </span>
               </div>
               <div
-                className={`h-3 rounded-full overflow-hidden ${
-                  isDark ? "bg-black/20" : "bg-white/50"
+                className={`h-4 rounded-full overflow-hidden p-1 ${
+                  isDark ? "bg-slate-900/50 box-inner shadow-inner" : "bg-slate-100 shadow-inner"
                 }`}
               >
                 <motion.div
-                  className="h-full bg-linear-to-r from-cyan-400 to-blue-500 rounded-full"
+                  className="h-full bg-linear-to-r from-cyan-500 to-blue-600 rounded-full relative"
                   initial={{ width: 0 }}
                   animate={{ width: `${licensePercentage}%` }}
-                  transition={{ duration: 1, ease: "easeOut" }}
-                />
+                  transition={{ duration: 1.2, ease: "easeOut" }}
+                  style={{ boxShadow: isDark ? "0 0 12px rgba(6,182,212,0.5)" : "none" }}
+                >
+                  {/* Shimmer on bar */}
+                  <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/30 to-transparent w-full -translate-x-full animate-[shimmer_2s_infinite]" />
+                </motion.div>
               </div>
               <div
-                className={`text-xs mt-1 ${isDark ? "text-gray-400" : "text-gray-600"}`}
+                className={`text-xs mt-2 font-medium ${isDark ? "text-slate-400" : "text-slate-500"}`}
               >
                 {totalLicenses - usedLicenses} licenses available
               </div>
@@ -139,64 +153,72 @@ export const SubscriptionManager: React.FC = () => {
               <div className="flex items-center justify-between mb-3">
                 <span
                   className={`text-sm font-semibold flex items-center gap-2 ${
-                    isDark ? "text-white" : "text-gray-900"
+                    isDark ? "text-slate-200" : "text-slate-700"
                   }`}
                 >
-                  <TrendingUp className="w-4 h-4 text-emerald-500" />
-                  API Calls (This Month)
+                  <TrendingUp className={`w-4 h-4 ${isDark ? "text-emerald-400" : "text-emerald-500"}`} />
+                  API Calls
                 </span>
                 <span
                   className={`text-sm font-bold ${
-                    isDark ? "text-cyan-400" : "text-blue-600"
+                    isDark ? "text-cyan-300" : "text-blue-600"
                   }`}
                 >
-                  {usedApiCalls.toLocaleString()} /{" "}
-                  {totalApiCalls.toLocaleString()}
+                  {usedApiCalls.toLocaleString()}
                 </span>
               </div>
               <div
-                className={`h-3 rounded-full overflow-hidden ${
-                  isDark ? "bg-black/20" : "bg-white/50"
+                className={`h-4 rounded-full overflow-hidden p-1 ${
+                  isDark ? "bg-slate-900/50 shadow-inner" : "bg-slate-100 shadow-inner"
                 }`}
               >
                 <motion.div
-                  className="h-full bg-linear-to-r from-emerald-400 to-teal-500 rounded-full"
+                  className="h-full bg-linear-to-r from-emerald-400 to-teal-500 rounded-full relative"
                   initial={{ width: 0 }}
                   animate={{ width: `${apiPercentage}%` }}
-                  transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
-                />
+                  transition={{ duration: 1.2, delay: 0.2, ease: "easeOut" }}
+                  style={{ boxShadow: isDark ? "0 0 12px rgba(52,211,153,0.5)" : "none" }}
+                >
+                   <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/30 to-transparent w-full -translate-x-full animate-[shimmer_2s_infinite]" />
+                </motion.div>
               </div>
               <div
-                className={`text-xs mt-1 ${isDark ? "text-gray-400" : "text-gray-600"}`}
+                className={`text-xs mt-2 font-medium flex justify-between ${isDark ? "text-slate-400" : "text-slate-500"}`}
               >
-                {(totalApiCalls - usedApiCalls).toLocaleString()} calls
-                remaining
+                <span>{(totalApiCalls - usedApiCalls).toLocaleString()} remaining</span>
+                <span>Cap: {totalApiCalls.toLocaleString()}</span>
               </div>
             </div>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-4 mt-auto">
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setIsUpgradeModalOpen(true)}
-              className={`flex-1 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 ${
+              className={`relative overflow-hidden flex-1 py-3.5 px-6 rounded-xl font-bold text-sm tracking-wide transition-all duration-300 group ${
                 isDark
-                  ? "bg-linear-to-r from-cyan-400 to-blue-500 text-white shadow-lg shadow-cyan-500/50"
-                  : "bg-linear-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/30"
+                  ? "bg-linear-to-r from-cyan-500 to-blue-600 text-white shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(6,182,212,0.5)] border border-cyan-400/20"
+                  : "bg-linear-to-r from-blue-600 to-indigo-700 text-white shadow-lg hover:shadow-xl shadow-blue-500/30"
               }`}
             >
-              Upgrade Plan
+              <span className="relative z-10 flex items-center justify-center gap-2">
+                <Sparkles className="w-4 h-4" />
+                UPGRADE PLAN
+              </span>
+              {/* Button Shine Animation */}
+              <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
             </motion.button>
+            
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setIsManageModalOpen(true)}
-              className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
+              className={`px-6 py-3.5 rounded-xl font-bold text-sm tracking-wide transition-all duration-300 ${
                 isDark
-                  ? "bg-white/10 border border-white/20 text-white hover:bg-white/20"
-                  : "bg-white/50 border border-gray-300 text-gray-900 hover:bg-white"
+                  ? "bg-white/5 border border-white/10 text-slate-300 hover:bg-white/10 hover:text-white"
+                  : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300"
               }`}
             >
               Manage
@@ -219,3 +241,4 @@ export const SubscriptionManager: React.FC = () => {
     </>
   );
 };
+
