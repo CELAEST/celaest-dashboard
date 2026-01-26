@@ -124,9 +124,10 @@ export const Header = React.memo(function Header({ onShowLogin }: HeaderProps) {
               }`}
             />
             <input
+              key="search-active"
               type="text"
               placeholder="Buscar soluciones enterprise..."
-              value={searchQuery}
+              value={searchQuery || ""}
               onChange={(e) => setSearchQuery(e.target.value)}
               className={inputClassName}
               autoFocus
@@ -157,9 +158,12 @@ export const Header = React.memo(function Header({ onShowLogin }: HeaderProps) {
               }`}
             />
             <input
+              key="search-inactive"
               type="text"
               placeholder="Search command or data..."
               className={inputClassName}
+              value=""
+              readOnly
             />
             <div className="absolute right-4 flex items-center gap-1">
               <Command
