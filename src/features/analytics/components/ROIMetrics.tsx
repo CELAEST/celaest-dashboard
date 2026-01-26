@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import {
   TrendingUp,
   Clock,
@@ -9,6 +9,8 @@ import {
   DollarSign,
   Download,
   AlertTriangle,
+  ChevronDown,
+  Check,
 } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
@@ -30,27 +32,53 @@ interface CustomTooltipProps {
     value: number;
     dataKey: string;
   }>;
+  label?: string;
   isDark: boolean;
 }
 
 const CustomTooltip: React.FC<CustomTooltipProps> = ({
   active,
   payload,
+  label,
   isDark,
 }) => {
   if (active && payload && payload.length) {
     return (
       <div
-        className={`px-3 py-2 rounded-lg border ${
+        className={`p-3 rounded-xl border shadow-xl backdrop-blur-md ${
           isDark
-            ? "bg-black/90 border-cyan-500/30 text-white"
-            : "bg-white border-gray-200 text-gray-900"
+            ? "bg-black/80 border-cyan-500/20 shadow-cyan-900/10"
+            : "bg-white/95 border-blue-100 shadow-blue-500/5"
         }`}
       >
-        <p className="text-sm font-medium">
-          {payload[0].value}{" "}
-          {payload[0].dataKey === "hours" ? "horas" : "tareas"}
+        <p
+          className={`text-xs font-semibold mb-1.5 ${
+            isDark ? "text-gray-400" : "text-gray-500"
+          }`}
+        >
+          {label}
         </p>
+        <div className="flex items-center gap-2">
+          <div
+            className={`w-2 h-2 rounded-full ${
+              isDark ? "bg-cyan-400" : "bg-blue-500"
+            }`}
+          />
+          <span
+            className={`text-lg font-bold ${
+              isDark ? "text-white" : "text-gray-900"
+            }`}
+          >
+            {payload[0].value}
+          </span>
+          <span
+            className={`text-xs font-medium ${
+              isDark ? "text-cyan-200/70" : "text-blue-600/70"
+            }`}
+          >
+            {payload[0].dataKey === "hours" ? "horas" : "tareas"}
+          </span>
+        </div>
       </div>
     );
   }
@@ -62,6 +90,14 @@ export const ROIMetrics: React.FC = () => {
   const { user } = useAuth();
   const isDark = theme === "dark";
   const [timeRange, setTimeRange] = useState("week");
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState("all");
+
+  const filterOptions = [
+    { value: "all", label: "Todas las Plantillas" },
+    { value: "top10", label: "Top 10" },
+    { value: "custom", label: "Custom Range" },
+  ];
 
   const isAdmin = user?.role === "super_admin" || !user;
 
@@ -174,17 +210,76 @@ export const ROIMetrics: React.FC = () => {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <select
-            className={`px-4 py-2.5 rounded-xl outline-none cursor-pointer font-semibold transition-all duration-300 ${
-              isDark
-                ? "bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 hover:bg-cyan-500/20"
-                : "bg-blue-500/10 border border-blue-500/20 text-blue-600 hover:bg-blue-500/20"
-            }`}
-          >
-            <option value="all">Todas las Plantillas</option>
-            <option value="top10">Top 10</option>
-            <option value="custom">Custom Range</option>
-          </select>
+          <div className="relative">
+            <button
+              onClick={() => setIsFilterOpen(!isFilterOpen)}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold transition-all duration-300 outline-none ${
+                isDark
+                  ? "bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 hover:bg-cyan-500/20"
+                  : "bg-blue-500/10 border border-blue-500/20 text-blue-600 hover:bg-blue-500/20"
+              }`}
+            >
+              <span>
+                {
+                  filterOptions.find((opt) => opt.value === selectedFilter)
+                    ?.label
+                }
+              </span>
+              <ChevronDown
+                className={`w-4 h-4 transition-transform duration-300 ${
+                  isFilterOpen ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+
+            <AnimatePresence>
+              {isFilterOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setIsFilterOpen(false)}
+                  />
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    className={`absolute right-0 top-full mt-2 w-56 rounded-xl border shadow-xl overflow-hidden z-50 ${
+                      isDark
+                        ? "bg-black/90 border-cyan-500/20 backdrop-blur-xl"
+                        : "bg-white border-blue-100"
+                    }`}
+                  >
+                    <div className="p-1.5 flex flex-col gap-0.5">
+                      {filterOptions.map((option) => (
+                        <button
+                          key={option.value}
+                          onClick={() => {
+                            setSelectedFilter(option.value);
+                            setIsFilterOpen(false);
+                          }}
+                          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                            selectedFilter === option.value
+                              ? isDark
+                                ? "bg-cyan-500/10 text-cyan-400"
+                                : "bg-blue-50 text-blue-600"
+                              : isDark
+                                ? "text-gray-400 hover:bg-white/5 hover:text-white"
+                                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                          }`}
+                        >
+                          {option.label}
+                          {selectedFilter === option.value && (
+                            <Check className="w-4 h-4" />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
+          </div>
           <button
             className={`px-6 py-2.5 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 flex items-center gap-2 ${
               isDark
@@ -295,34 +390,60 @@ export const ROIMetrics: React.FC = () => {
                   Tiempo Ahorrado - Última Semana
                 </h3>
               </div>
-              <div className="flex gap-2">
-                {["Semana", "Mes", "Año"].map((period, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() =>
-                      setTimeRange(
-                        period === "Semana"
-                          ? "week"
-                          : period === "Mes"
-                            ? "month"
-                            : "year",
-                      )
-                    }
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-300 ${
-                      (timeRange === "week" && period === "Semana") ||
-                      (timeRange === "month" && period === "Mes") ||
-                      (timeRange === "year" && period === "Año")
-                        ? isDark
-                          ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20"
-                          : "bg-blue-500/10 text-blue-600 border border-blue-500/20"
-                        : isDark
-                          ? "text-gray-400 hover:text-cyan-400 hover:bg-white/5"
-                          : "text-gray-600 hover:text-blue-600 hover:bg-gray-100"
-                    }`}
-                  >
-                    {period}
-                  </button>
-                ))}
+              <div
+                className={`flex bg-transparent p-1 gap-1 rounded-lg ${
+                  isDark ? "bg-white/5 border border-white/5" : "bg-gray-100/50"
+                }`}
+              >
+                {["Semana", "Mes", "Año"].map((period) => {
+                  const isSelected =
+                    (timeRange === "week" && period === "Semana") ||
+                    (timeRange === "month" && period === "Mes") ||
+                    (timeRange === "year" && period === "Año");
+
+                  return (
+                    <button
+                      key={period}
+                      onClick={() =>
+                        setTimeRange(
+                          period === "Semana"
+                            ? "week"
+                            : period === "Mes"
+                              ? "month"
+                              : "year",
+                        )
+                      }
+                      className="relative px-3 py-1.5 text-xs font-bold outline-none transition-colors"
+                    >
+                      {isSelected && (
+                        <motion.div
+                          layoutId="active-period"
+                          className={`absolute inset-0 rounded-md shadow-sm ${
+                            isDark ? "bg-cyan-500/20" : "bg-white"
+                          }`}
+                          transition={{
+                            type: "spring",
+                            stiffness: 300,
+                            damping: 30,
+                          }}
+                        />
+                      )}
+                      <span
+                        className={`relative z-10 transition-colors duration-200 ${
+                          isSelected
+                            ? isDark
+                              ? "text-cyan-400"
+                              : "text-blue-600"
+                            : isDark
+                              ? "text-gray-400 hover:text-gray-300"
+                              : "text-gray-500 hover:text-gray-700"
+                        }`}
+                      >
+                        {period}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 

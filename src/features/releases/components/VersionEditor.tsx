@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X, Upload, Plus, Trash2, Shield, AlertCircle } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { SettingsSelect } from "../../settings/components/SettingsSelect";
 
 interface Version {
   id: string;
@@ -51,7 +52,7 @@ export const VersionEditor: React.FC<VersionEditorProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const cleanChangelog = formData.changelog.filter(
-      (item) => item.trim() !== ""
+      (item) => item.trim() !== "",
     );
     onSave({ ...formData, changelog: cleanChangelog });
   };
@@ -244,28 +245,19 @@ export const VersionEditor: React.FC<VersionEditorProps> = ({
             {/* Status & Compatibility */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label
-                  className={`block text-sm font-semibold mb-2 ${
-                    isDark ? "text-gray-300" : "text-gray-700"
-                  }`}
-                >
-                  Release Status
-                </label>
-                <select
+                <SettingsSelect
+                  label="Release Status"
                   value={formData.status}
-                  onChange={(e) => handleChange("status", e.target.value)}
-                  className={`w-full px-4 py-3 rounded-xl border transition-colors ${
-                    isDark
-                      ? "bg-white/5 border-white/10 text-white focus:border-cyan-500/30 focus:bg-white/10"
-                      : "bg-white border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                  }`}
-                >
-                  <option value="beta">Beta (Early access testing)</option>
-                  <option value="stable">Stable (Production ready)</option>
-                  <option value="deprecated">
-                    Deprecated (Legacy support only)
-                  </option>
-                </select>
+                  onChange={(val) => handleChange("status", val)}
+                  options={[
+                    { value: "beta", label: "Beta (Early access testing)" },
+                    { value: "stable", label: "Stable (Production ready)" },
+                    {
+                      value: "deprecated",
+                      label: "Deprecated (Legacy support only)",
+                    },
+                  ]}
+                />
               </div>
 
               <div>

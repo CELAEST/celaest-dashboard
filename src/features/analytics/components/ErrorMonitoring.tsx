@@ -20,9 +20,12 @@ import {
   Activity,
   TrendingDown,
   Terminal,
+  Lightbulb,
+  CheckCircle,
 } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
+import { SettingsSelect } from "../../settings/components/SettingsSelect";
 
 type ErrorSeverity = "critical" | "warning" | "info";
 type ErrorStatus = "new" | "reviewing" | "resolved" | "ignored";
@@ -54,7 +57,7 @@ const ErrorMonitoring: React.FC = () => {
     ErrorSeverity | "all"
   >("all");
   const [selectedStatus, setSelectedStatus] = useState<ErrorStatus | "all">(
-    "all"
+    "all",
   );
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedError, setExpandedError] = useState<string | null>(null);
@@ -224,13 +227,13 @@ const ErrorMonitoring: React.FC = () => {
 
   // Stats calculation
   const criticalCount = errorLogs.filter(
-    (e) => e.severity === "critical"
+    (e) => e.severity === "critical",
   ).length;
   const warningCount = errorLogs.filter((e) => e.severity === "warning").length;
   const resolvedCount = errorLogs.filter((e) => e.status === "resolved").length;
   const totalAffectedUsers = errorLogs.reduce(
     (sum, e) => sum + e.affectedUsers,
-    0
+    0,
   );
 
   return (
@@ -436,13 +439,13 @@ const ErrorMonitoring: React.FC = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
-        className={`backdrop-blur-xl border rounded-2xl p-4 ${
+        className={`backdrop-blur-xl border rounded-2xl p-6 space-y-4 relative z-20 ${
           isDark
             ? "bg-[#0a0a0a]/60 border-white/5"
             : "bg-white border-gray-200 shadow-sm"
         }`}
       >
-        <div className="flex flex-wrap gap-4 items-center">
+        <div className="flex items-center justify-between px-1">
           <div className="flex items-center gap-2">
             <Filter
               size={16}
@@ -453,71 +456,72 @@ const ErrorMonitoring: React.FC = () => {
                 isDark ? "text-gray-400" : "text-gray-600"
               }`}
             >
-              Filtros:
+              Filtros Activos
             </span>
           </div>
-
-          <select
-            value={selectedSeverity}
-            onChange={(e) =>
-              setSelectedSeverity(e.target.value as ErrorSeverity | "all")
-            }
-            className={`px-3 py-1.5 rounded-lg text-sm border ${
-              isDark
-                ? "bg-black/40 border-cyan-500/30 text-cyan-400"
-                : "bg-gray-50 border-gray-200 text-gray-700"
-            }`}
-          >
-            <option value="all">Todas las Severidades</option>
-            <option value="critical">Crítico</option>
-            <option value="warning">Warning</option>
-            <option value="info">Info</option>
-          </select>
-
-          <select
-            value={selectedStatus}
-            onChange={(e) =>
-              setSelectedStatus(e.target.value as ErrorStatus | "all")
-            }
-            className={`px-3 py-1.5 rounded-lg text-sm border ${
-              isDark
-                ? "bg-black/40 border-cyan-500/30 text-cyan-400"
-                : "bg-gray-50 border-gray-200 text-gray-700"
-            }`}
-          >
-            <option value="all">Todos los Estados</option>
-            <option value="new">Nuevo</option>
-            <option value="reviewing">En Revisión</option>
-            <option value="resolved">Resuelto</option>
-            <option value="ignored">Ignorado</option>
-          </select>
-
-          <div className="flex-1 min-w-[200px] max-w-[400px] relative">
-            <Search
-              size={16}
-              className={`absolute left-3 top-1/2 -translate-y-1/2 ${
-                isDark ? "text-gray-500" : "text-gray-400"
-              }`}
-            />
-            <input
-              type="text"
-              placeholder="Buscar por código o mensaje..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className={`w-full pl-10 pr-4 py-1.5 rounded-lg text-sm border ${
-                isDark
-                  ? "bg-black/40 border-cyan-500/30 text-white placeholder-gray-500"
-                  : "bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400"
-              }`}
-            />
-          </div>
-
           <span
             className={`text-xs ${isDark ? "text-gray-500" : "text-gray-500"}`}
           >
             {filteredErrors.length} resultado
             {filteredErrors.length !== 1 ? "s" : ""}
           </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="relative">
+            <SettingsSelect
+              options={[
+                { value: "all", label: "Todas las Severidades" },
+                { value: "critical", label: "Crítico" },
+                { value: "warning", label: "Warning" },
+                { value: "info", label: "Info" },
+              ]}
+              value={selectedSeverity}
+              onChange={(val: string) =>
+                setSelectedSeverity(val as ErrorSeverity | "all")
+              }
+              placeholder="Severidad"
+            />
+          </div>
+
+          <div className="relative">
+            <SettingsSelect
+              options={[
+                { value: "all", label: "Todos los Estados" },
+                { value: "new", label: "Nuevo" },
+                { value: "reviewing", label: "En Revisión" },
+                { value: "resolved", label: "Resuelto" },
+                { value: "ignored", label: "Ignorado" },
+              ]}
+              value={selectedStatus}
+              onChange={(val: string) =>
+                setSelectedStatus(val as ErrorStatus | "all")
+              }
+              placeholder="Estado"
+            />
+          </div>
+
+          <div className="relative group h-full">
+            <Search
+              size={16}
+              className={`absolute left-4 top-[1.15rem] transition-colors z-10 ${
+                isDark
+                  ? "text-gray-500 group-focus-within:text-cyan-400"
+                  : "text-gray-400 group-focus-within:text-cyan-500"
+              }`}
+            />
+            <input
+              type="text"
+              placeholder="Buscar por código..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className={`w-full h-full pl-11 pr-4 py-3 rounded-xl text-md border outline-none transition-all duration-300 ${
+                isDark
+                  ? "bg-[#0d0d0d] border-white/10 text-white placeholder-gray-500 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50"
+                  : "bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50"
+              }`}
+            />
+          </div>
         </div>
       </motion.div>
 
@@ -559,17 +563,17 @@ const ErrorMonitoring: React.FC = () => {
                             ? "bg-red-500/20"
                             : "bg-red-50"
                           : error.severity === "warning"
-                          ? isDark
-                            ? "bg-orange-500/20"
-                            : "bg-orange-50"
-                          : isDark
-                          ? "bg-cyan-500/20"
-                          : "bg-blue-50"
+                            ? isDark
+                              ? "bg-orange-500/20"
+                              : "bg-orange-50"
+                            : isDark
+                              ? "bg-cyan-500/20"
+                              : "bg-blue-50"
                       }`}
                     >
                       <span
                         className={`text-${getSeverityColor(
-                          error.severity
+                          error.severity,
                         )}-400`}
                       >
                         {getSeverityIcon(error.severity)}
@@ -627,8 +631,8 @@ const ErrorMonitoring: React.FC = () => {
                               error.affectedUsers > 20
                                 ? "text-red-400"
                                 : isDark
-                                ? "text-cyan-400"
-                                : "text-blue-600"
+                                  ? "text-cyan-400"
+                                  : "text-blue-600"
                             }`}
                           >
                             <TrendingDown size={12} />
@@ -770,21 +774,22 @@ const ErrorMonitoring: React.FC = () => {
                       {/* Suggestion */}
                       {error.suggestion && (
                         <div
-                          className={`p-4 rounded-lg border ${
+                          className={`p-4 rounded-xl border ${
                             isDark
-                              ? "bg-cyan-500/5 border-cyan-500/20"
-                              : "bg-blue-50 border-blue-200"
+                              ? "bg-cyan-500/5 border-cyan-500/10"
+                              : "bg-blue-50 border-blue-100"
                           }`}
                         >
                           <h4
-                            className={`text-sm font-semibold mb-1 ${
+                            className={`text-sm font-bold mb-2 flex items-center gap-2 ${
                               isDark ? "text-cyan-400" : "text-blue-600"
                             }`}
                           >
-                            💡 Sugerencia de Solución
+                            <Lightbulb size={16} />
+                            Sugerencia de Solución
                           </h4>
                           <p
-                            className={`text-sm ${
+                            className={`text-sm leading-relaxed ${
                               isDark ? "text-gray-300" : "text-gray-700"
                             }`}
                           >
@@ -796,18 +801,24 @@ const ErrorMonitoring: React.FC = () => {
                       {/* Client View - Simple Message */}
                       {!isAdmin && (
                         <div
-                          className={`p-4 rounded-lg border ${
+                          className={`p-4 rounded-xl border flex items-start gap-3 ${
                             isDark
-                              ? "bg-cyan-500/5 border-cyan-500/20"
-                              : "bg-blue-50 border-blue-200"
+                              ? "bg-emerald-500/10 border-emerald-500/10"
+                              : "bg-emerald-50 border-emerald-100"
                           }`}
                         >
+                          <CheckCircle
+                            size={20}
+                            className={`shrink-0 mt-0.5 ${
+                              isDark ? "text-emerald-400" : "text-emerald-600"
+                            }`}
+                          />
                           <p
-                            className={`text-sm ${
-                              isDark ? "text-gray-300" : "text-gray-700"
+                            className={`text-sm font-medium leading-relaxed ${
+                              isDark ? "text-emerald-100" : "text-emerald-900"
                             }`}
                           >
-                            ✅ Este error ha sido reportado automáticamente a
+                            Este error ha sido reportado automáticamente a
                             nuestro equipo técnico. No es necesario que reportes
                             nada adicional.
                           </p>
