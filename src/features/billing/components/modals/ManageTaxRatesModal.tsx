@@ -209,107 +209,104 @@ export function ManageTaxRatesModal({
                 <AnimatePresence>
                   {isAdding && (
                     <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      exit={{ opacity: 0, height: 0 }}
-                      transition={{ type: "spring", bounce: 0.3 }}
-                      className={`rounded-2xl p-5 overflow-hidden ${
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className={`rounded-2xl p-5 mb-4 overflow-hidden ${
                         darkMode
-                          ? "bg-purple-500/5 border border-purple-500/20 shadow-lg"
-                          : "bg-purple-500/5 border border-purple-500/20 shadow-lg"
+                          ? "bg-purple-500/5 border border-purple-500/20 shadow-lg shadow-purple-500/5"
+                          : "bg-purple-500/5 border border-purple-500/20 shadow-lg shadow-purple-500/5"
                       }`}
                     >
                       <div className="flex items-center gap-2 mb-4">
-                        <Sparkles
-                          className={`w-4 h-4 ${darkMode ? "text-purple-400" : "text-purple-600"}`}
-                        />
-                        <h3
-                          className={`text-base font-bold ${darkMode ? "text-white" : "text-gray-900"}`}
-                        >
+                        <div className={`p-1.5 rounded-lg ${darkMode ? "bg-purple-500/20" : "bg-purple-100"}`}>
+                          <Plus className={`w-4 h-4 ${darkMode ? "text-purple-400" : "text-purple-600"}`} />
+                        </div>
+                        <h3 className={`text-base font-bold ${darkMode ? "text-white" : "text-gray-900"}`}>
                           Add New Tax Rate
                         </h3>
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
-                        <div className="md:col-span-2">
-                          <label
-                            className={`block text-xs font-semibold mb-2 ${
-                              darkMode ? "text-gray-300" : "text-gray-700"
-                            }`}
-                          >
+
+                      <div className="grid grid-cols-1 md:grid-cols-[1.5fr_80px_100px_1fr] gap-4 mb-4">
+                        {/* Country */}
+                        <div className="flex flex-col gap-1.5">
+                          <label className={`text-[10px] font-bold uppercase tracking-wider ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
                             Country/Region
                           </label>
                           <input
                             type="text"
                             value={newTaxRate.country}
-                            onChange={(e) =>
-                              setNewTaxRate({
-                                ...newTaxRate,
-                                country: e.target.value,
-                              })
-                            }
+                            onChange={(e) => setNewTaxRate({ ...newTaxRate, country: e.target.value })}
                             placeholder="Enter country name"
-                            className={`w-full px-4 py-2.5 rounded-xl text-sm transition-all duration-300 ${
+                            className={`w-full px-4 py-2.5 rounded-xl text-sm transition-all duration-300 outline-hidden ${
                               darkMode
-                                ? "bg-black/40 border border-white/10 text-white placeholder-gray-500 focus:border-purple-500/50"
-                                : "bg-white border border-gray-300 text-gray-900 placeholder-gray-400 focus:border-purple-500"
+                                ? "bg-black/40 border border-white/10 text-white placeholder-gray-500 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50"
+                                : "bg-white border border-gray-200 text-gray-900 placeholder-gray-400 focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
                             }`}
                           />
                         </div>
-                        <div>
-                          <label
-                            className={`block text-xs font-semibold mb-2 ${
-                              darkMode ? "text-gray-300" : "text-gray-700"
-                            }`}
-                          >
+
+                        {/* Code */}
+                        <div className="flex flex-col gap-1.5">
+                          <label className={`text-[10px] font-bold uppercase tracking-wider ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
                             Code
                           </label>
                           <input
                             type="text"
                             value={newTaxRate.code}
-                            onChange={(e) =>
-                              setNewTaxRate({
-                                ...newTaxRate,
-                                code: e.target.value.toUpperCase(),
-                              })
-                            }
+                            onChange={(e) => setNewTaxRate({ ...newTaxRate, code: e.target.value.toUpperCase() })}
                             placeholder="US"
                             maxLength={3}
-                            className={`w-full px-4 py-2.5 rounded-xl font-mono uppercase text-sm transition-all duration-300 ${
+                            className={`w-full px-4 py-2.5 rounded-xl font-mono uppercase text-sm text-center transition-all duration-300 outline-hidden ${
                               darkMode
-                                ? "bg-black/40 border border-white/10 text-white placeholder-gray-500 focus:border-purple-500/50"
-                                : "bg-white border border-gray-300 text-gray-900 placeholder-gray-400 focus:border-purple-500"
+                                ? "bg-black/40 border border-white/10 text-white placeholder-gray-500 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50"
+                                : "bg-white border border-gray-200 text-gray-900 placeholder-gray-400 focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
                             }`}
                           />
                         </div>
-                        <div>
-                          <label
-                            className={`block text-xs font-semibold mb-2 ${
-                              darkMode ? "text-gray-300" : "text-gray-700"
-                            }`}
-                          >
+
+                        {/* Rate */}
+                        <div className="flex flex-col gap-1.5">
+                          <label className={`text-[10px] font-bold uppercase tracking-wider ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
                             Rate (%)
                           </label>
                           <input
                             type="number"
                             value={newTaxRate.rate}
-                            onChange={(e) =>
-                              setNewTaxRate({
-                                ...newTaxRate,
-                                rate: e.target.value,
-                              })
-                            }
+                            onChange={(e) => setNewTaxRate({ ...newTaxRate, rate: e.target.value })}
                             placeholder="0"
                             min="0"
                             max="100"
                             step="0.01"
-                            className={`w-full px-4 py-2.5 rounded-xl text-sm transition-all duration-300 ${
+                            className={`w-full px-4 py-2.5 rounded-xl text-sm text-center font-bold transition-all duration-300 outline-hidden ${
                               darkMode
-                                ? "bg-black/40 border border-white/10 text-white placeholder-gray-500 focus:border-purple-500/50"
-                                : "bg-white border border-gray-300 text-gray-900 placeholder-gray-400 focus:border-purple-500"
+                                ? "bg-black/40 border border-white/10 text-white placeholder-gray-500 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50"
+                                : "bg-white border border-gray-200 text-gray-900 placeholder-gray-400 focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
                             }`}
                           />
                         </div>
+
+                        {/* Type (Remaining space) */}
+                        <div className="flex flex-col gap-1.5">
+                          <label className={`text-[10px] font-bold uppercase tracking-wider ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
+                            Type
+                          </label>
+                          <select
+                            value={newTaxRate.vatType}
+                            onChange={(e) => setNewTaxRate({ ...newTaxRate, vatType: e.target.value })}
+                            className={`w-full px-4 py-2.5 rounded-xl text-sm transition-all duration-300 outline-hidden ${
+                              darkMode
+                                ? "bg-black/40 border border-white/10 text-white focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50"
+                                : "bg-white border border-gray-200 text-gray-900 focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                            }`}
+                          >
+                            <option value="VAT">VAT</option>
+                            <option value="GST">GST</option>
+                            <option value="Sales Tax">Sales Tax</option>
+                          </select>
+                        </div>
                       </div>
+
                       <div className="flex gap-2 justify-end">
                         <motion.button
                           whileHover={{ scale: 1.05 }}
@@ -329,8 +326,8 @@ export function ManageTaxRatesModal({
                           onClick={handleAddTaxRate}
                           className={`px-5 py-2 rounded-xl font-semibold text-sm transition-all duration-300 flex items-center gap-2 ${
                             darkMode
-                              ? "bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30"
-                              : "bg-purple-500/20 border border-purple-500/30 text-purple-600 hover:bg-purple-500/30"
+                              ? "bg-purple-600 text-white hover:bg-purple-500 shadow-lg shadow-purple-500/20"
+                              : "bg-purple-600 text-white hover:bg-purple-500 shadow-lg shadow-purple-500/20"
                           }`}
                         >
                           <Plus className="w-4 h-4" />
@@ -343,6 +340,16 @@ export function ManageTaxRatesModal({
 
                 {/* Tax Rates List */}
                 <div className="space-y-3">
+                  {/* Grid Header (Hidden on small mobile, visible for alignment help) */}
+                  <div className="hidden md:grid grid-cols-[1.5fr_80px_100px_80px_120px_90px] gap-4 px-4 pb-1">
+                    <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Country/Region</div>
+                    <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider text-center">Code</div>
+                    <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider text-center">Tax Rate</div>
+                    <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider text-center">Type</div>
+                    <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider text-center">Status</div>
+                    <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider text-right">Actions</div>
+                  </div>
+
                   {taxRates.map((rate, index) => (
                     <motion.div
                       key={rate.id}
@@ -350,122 +357,94 @@ export function ManageTaxRatesModal({
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.05, duration: 0.3 }}
                       whileHover={{ scale: 1.01, y: -2 }}
-                      className={`group rounded-xl p-4 transition-all duration-300 ${
+                      className={`group rounded-2xl p-4 transition-all duration-300 ${
                         darkMode
                           ? "bg-black/40 backdrop-blur-xl border border-white/10 hover:border-purple-500/30"
                           : "bg-white/60 border border-gray-200 hover:border-purple-500/30 shadow-sm"
                       }`}
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4 flex-1">
-                          {/* Country */}
-                          <div className="flex-1">
-                            <div
-                              className={`text-xs font-semibold mb-1 ${
-                                darkMode ? "text-gray-400" : "text-gray-500"
-                              }`}
-                            >
-                              COUNTRY/REGION
-                            </div>
-                            <div
-                              className={`text-base font-bold ${darkMode ? "text-white" : "text-gray-900"}`}
-                            >
-                              {rate.country}
-                            </div>
+                      <div className="grid grid-cols-1 md:grid-cols-[1.5fr_80px_100px_80px_120px_90px] gap-4 items-center">
+                        {/* Country */}
+                        <div className="min-w-0">
+                          <div className={`text-[10px] font-bold mb-1 md:hidden ${darkMode ? "text-gray-500" : "text-gray-400"}`}>
+                            COUNTRY/REGION
                           </div>
-
-                          {/* Code */}
-                          <div>
-                            <div
-                              className={`text-xs font-semibold mb-1 ${
-                                darkMode ? "text-gray-400" : "text-gray-500"
-                              }`}
-                            >
-                              CODE
-                            </div>
-                            <div
-                              className={`px-3 py-1.5 rounded-lg font-mono font-bold text-sm ${
-                                darkMode
-                                  ? "bg-purple-500/10 border border-purple-500/20 text-purple-400"
-                                  : "bg-purple-500/10 border border-purple-500/20 text-purple-600"
-                              }`}
-                            >
-                              {rate.code}
-                            </div>
-                          </div>
-
-                          {/* Rate */}
-                          <div>
-                            <div
-                              className={`text-xs font-semibold mb-1 ${
-                                darkMode ? "text-gray-400" : "text-gray-500"
-                              }`}
-                            >
-                              TAX RATE
-                            </div>
-                            <div
-                              className={`text-2xl font-bold ${
-                                darkMode ? "text-cyan-400" : "text-blue-600"
-                              }`}
-                            >
-                              {rate.rate}%
-                            </div>
-                          </div>
-
-                          {/* VAT Type */}
-                          <div>
-                            <div
-                              className={`text-xs font-semibold mb-1 ${
-                                darkMode ? "text-gray-400" : "text-gray-500"
-                              }`}
-                            >
-                              TYPE
-                            </div>
-                            <div
-                              className={`text-xs font-mono ${darkMode ? "text-gray-300" : "text-gray-700"}`}
-                            >
-                              {rate.vatType}
-                            </div>
-                          </div>
-
-                          {/* Status */}
-                          <div>
-                            <div
-                              className={`text-xs font-semibold mb-1 ${
-                                darkMode ? "text-gray-400" : "text-gray-500"
-                              }`}
-                            >
-                              STATUS
-                            </div>
-                            <motion.button
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                              onClick={() => handleToggleActive(rate.id)}
-                              className={`px-3 py-1 rounded-lg text-xs font-bold transition-all duration-300 ${
-                                rate.isActive
-                                  ? darkMode
-                                    ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20"
-                                    : "bg-emerald-500/10 text-emerald-600 border border-emerald-200 hover:bg-emerald-500/20"
-                                  : darkMode
-                                    ? "bg-gray-500/10 text-gray-400 border border-gray-500/20 hover:bg-gray-500/20"
-                                    : "bg-gray-500/10 text-gray-600 border border-gray-200 hover:bg-gray-500/20"
-                              }`}
-                            >
-                              {rate.isActive ? "ACTIVE" : "INACTIVE"}
-                            </motion.button>
+                          <div className={`text-sm sm:text-base font-bold truncate ${darkMode ? "text-white" : "text-gray-900"}`}>
+                            {rate.country}
                           </div>
                         </div>
 
+                        {/* Code */}
+                        <div className="flex flex-col md:items-center">
+                          <div className={`text-[10px] font-bold mb-1 md:hidden ${darkMode ? "text-gray-500" : "text-gray-400"}`}>
+                            CODE
+                          </div>
+                          <div
+                            className={`px-2.5 py-1 rounded-lg font-mono font-bold text-xs inline-flex items-center justify-center ${
+                              darkMode
+                                ? "bg-purple-500/10 border border-purple-500/20 text-purple-400"
+                                : "bg-purple-500/10 border border-purple-500/20 text-purple-600"
+                            }`}
+                          >
+                            {rate.code}
+                          </div>
+                        </div>
+
+                        {/* Rate */}
+                        <div className="flex flex-col md:items-center">
+                          <div className={`text-[10px] font-bold mb-1 md:hidden ${darkMode ? "text-gray-500" : "text-gray-400"}`}>
+                            TAX RATE
+                          </div>
+                          <div className={`text-xl sm:text-2xl font-black ${darkMode ? "text-cyan-400" : "text-blue-600"}`}>
+                            {rate.rate}%
+                          </div>
+                        </div>
+
+                        {/* Type */}
+                        <div className="flex flex-col md:items-center">
+                          <div className={`text-[10px] font-bold mb-1 md:hidden ${darkMode ? "text-gray-500" : "text-gray-400"}`}>
+                            TYPE
+                          </div>
+                          <div className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-md ${
+                            darkMode ? "bg-white/5 text-gray-400" : "bg-gray-100 text-gray-600"
+                          }`}>
+                            {rate.vatType}
+                          </div>
+                        </div>
+
+                        {/* Status */}
+                        <div className="flex flex-col md:items-center">
+                          <div className={`text-[10px] font-bold mb-1 md:hidden ${darkMode ? "text-gray-500" : "text-gray-400"}`}>
+                            STATUS
+                          </div>
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => handleToggleActive(rate.id)}
+                            className={`w-full md:w-auto px-3 py-1 rounded-lg text-[10px] font-bold transition-all duration-300 ${
+                              rate.isActive
+                                ? darkMode
+                                  ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 shadow-lg shadow-emerald-500/5"
+                                  : "bg-emerald-500/10 text-emerald-600 border border-emerald-200 hover:bg-emerald-500/20"
+                                : darkMode
+                                  ? "bg-gray-500/10 text-gray-400 border border-gray-500/20 hover:bg-gray-500/20"
+                                  : "bg-gray-500/10 text-gray-600 border border-gray-200 hover:bg-gray-500/20"
+                            }`}
+                          >
+                            {rate.isActive ? "ACTIVE" : "INACTIVE"}
+                          </motion.button>
+                        </div>
+
                         {/* Actions */}
-                        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div className="flex items-center justify-end gap-2 md:opacity-0 group-hover:opacity-100 transition-all duration-300">
                           <motion.button
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
                             onClick={() => setEditingId(rate.id)}
-                            className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300 ${
+                            className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 ${
                               darkMode
-                                ? "bg-blue-500/10 text-blue-400 hover:bg-blue-500/20"
-                                : "bg-blue-500/10 text-blue-600 hover:bg-blue-500/20"
+                                ? "bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 border border-blue-500/20"
+                                : "bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 border border-blue-500/20"
                             }`}
                           >
                             <Edit2 className="w-4 h-4" />
@@ -474,10 +453,10 @@ export function ManageTaxRatesModal({
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
                             onClick={() => handleDeleteTaxRate(rate.id)}
-                            className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300 ${
+                            className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 ${
                               darkMode
-                                ? "bg-red-500/10 text-red-400 hover:bg-red-500/20"
-                                : "bg-red-500/10 text-red-600 hover:bg-red-500/20"
+                                ? "bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20"
+                                : "bg-red-500/10 text-red-600 hover:bg-red-500/20 border border-red-500/20"
                             }`}
                           >
                             <Trash2 className="w-4 h-4" />

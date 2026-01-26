@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   CreditCard,
@@ -10,9 +10,12 @@ import {
   Trash2,
   Check,
   Shield,
+  CreditCard as CardIcon,
 } from "lucide-react";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { AddPaymentMethodModal } from "./modals/AddPaymentMethodModal";
+import { EditPaymentMethodModal } from "./modals/EditPaymentMethodModal";
 
 interface PaymentMethod {
   id: string;
@@ -29,6 +32,8 @@ export const PaymentMethodsCard: React.FC = () => {
   const isDark = theme === "dark";
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [isAddCardOpen, setIsAddCardOpen] = useState(false);
+  const [isEditCardOpen, setIsEditCardOpen] = useState(false);
+  const [editingMethod, setEditingMethod] = useState<PaymentMethod | null>(null);
   const [methods, setMethods] = useState<PaymentMethod[]>([
     {
       id: "1",
@@ -45,6 +50,24 @@ export const PaymentMethodsCard: React.FC = () => {
       last4: "8888",
       expiryMonth: "08",
       expiryYear: "2027",
+      isDefault: false,
+      holderName: "John Doe",
+    },
+    {
+      id: "3",
+      type: "amex",
+      last4: "1001",
+      expiryMonth: "11",
+      expiryYear: "2028",
+      isDefault: false,
+      holderName: "John Doe",
+    },
+    {
+      id: "4",
+      type: "visa",
+      last4: "5555",
+      expiryMonth: "03",
+      expiryYear: "2029",
       isDefault: false,
       holderName: "John Doe",
     },
@@ -72,6 +95,32 @@ export const PaymentMethodsCard: React.FC = () => {
     setMethods(methods.filter((m) => m.id !== id));
     setActiveMenu(null);
   };
+
+  const handleEditClick = (method: PaymentMethod) => {
+    setEditingMethod(method);
+    setIsEditCardOpen(true);
+    setActiveMenu(null);
+  };
+
+  const handleUpdateMethod = (updatedMethod: PaymentMethod) => {
+    setMethods(methods.map((m) => (m.id === updatedMethod.id ? updatedMethod : m)));
+    setIsEditCardOpen(false);
+    setEditingMethod(null);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (activeMenu) {
+        const target = event.target as HTMLElement;
+        if (!target.closest(".payment-method-row")) {
+          setActiveMenu(null);
+        }
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [activeMenu]);
 
   const getCardGradient = (type: string) => {
     switch (type) {
@@ -123,42 +172,57 @@ export const PaymentMethodsCard: React.FC = () => {
   return (
     <>
       <div
-        className={`rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-2xl ${
+        className={`relative w-full rounded-3xl transition-all duration-500 hover:shadow-2xl flex flex-col h-full overflow-hidden lg:max-h-[560px] ${
           isDark
-            ? "bg-black/40 backdrop-blur-xl border border-white/10"
-            : "bg-white border border-gray-200 shadow-sm"
+            ? "bg-linear-to-br from-cyan-900/40 via-blue-900/20 to-indigo-900/40 backdrop-blur-2xl border border-cyan-500/20"
+            : "bg-linear-to-br from-blue-50 to-indigo-50 border border-blue-200 shadow-xl"
         }`}
       >
-        <div className="p-6">
+        {/* Animated Background Pattern */}
+        <div className="absolute inset-0 opacity-20 pointer-events-none">
+          <div
+            className={`absolute inset-0 ${isDark ? "bg-cyan-500/10" : "bg-blue-400/5"}`}
+            style={{
+              backgroundImage: `radial-gradient(circle at 2px 2px, ${isDark ? "rgba(6,182,212,0.15)" : "rgba(59,130,246,0.15)"} 1px, transparent 0)`,
+              backgroundSize: "24px 24px",
+            }}
+          />
+        </div>
+
+        {/* Shine Effect Overlay */}
+        <div className="absolute inset-0 bg-linear-to-tr from-white/5 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+
+        <div className="relative p-6 sm:p-8 flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <h3
-              className={`font-semibold ${isDark ? "text-white" : "text-gray-900"}`}
-            >
-              Payment Methods
-            </h3>
+          <div className="flex items-center justify-between mb-8 shrink-0">
+            <div>
+              <h3
+                className={`text-xl font-bold tracking-tight ${isDark ? "text-white" : "text-gray-900"}`}
+              >
+                Payment Methods
+              </h3>
+              <p
+                className={`text-xs mt-1 ${isDark ? "text-cyan-200/50" : "text-blue-600/70"}`}
+              >
+                Secure billing management
+              </p>
+            </div>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setIsAddCardOpen(true)}
-              className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-300 ${
+              className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 shadow-sm ${
                 isDark
-                  ? "bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20"
-                  : "bg-blue-500/10 text-blue-600 hover:bg-blue-500/20"
+                  ? "bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 hover:bg-cyan-500/20 shadow-cyan-900/20"
+                  : "bg-blue-100 border border-blue-200 text-blue-600 hover:bg-blue-200"
               }`}
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-5 h-5" />
             </motion.button>
           </div>
 
-          <p
-            className={`text-sm mb-4 ${isDark ? "text-gray-400" : "text-gray-600"}`}
-          >
-            Manage your payment information securely
-          </p>
-
-          {/* Payment Cards */}
-          <div className="space-y-3">
+          {/* Payment Cards - Scrollable Section */}
+          <div className="flex-1 overflow-y-auto pr-2 -mr-2 space-y-4 mb-6 custom-scrollbar">
             <AnimatePresence>
               {methods.map((method) => (
                 <motion.div
@@ -167,9 +231,9 @@ export const PaymentMethodsCard: React.FC = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.9 }}
-                  className={`group relative overflow-hidden rounded-xl p-4 transition-all duration-300 hover:scale-[1.02] cursor-pointer border ${getCardGradient(
-                    method.type,
-                  )}`}
+                  className={`group relative rounded-xl p-4 transition-all duration-300 hover:scale-[1.02] cursor-pointer border payment-method-row ${
+                    activeMenu === method.id ? "z-30 overflow-visible" : "z-10 overflow-hidden"
+                  } ${getCardGradient(method.type)}`}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -220,73 +284,72 @@ export const PaymentMethodsCard: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Actions Menu */}
+                    {/* Actions Menu (Radix UI) */}
                     <div className="relative">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setActiveMenu(
-                            activeMenu === method.id ? null : method.id,
-                          );
-                        }}
-                        className={`opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-lg ${
-                          isDark
-                            ? "hover:bg-white/10 text-gray-400"
-                            : "hover:bg-gray-100 text-gray-600"
-                        }`}
-                      >
-                        <MoreVertical className="w-5 h-5" />
-                      </button>
+                      <DropdownMenu.Root>
+                        <DropdownMenu.Trigger asChild>
+                          <button
+                            onClick={(e) => e.stopPropagation()}
+                            className={`opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-lg outline-none ${
+                              isDark
+                                ? "hover:bg-white/10 text-gray-400"
+                                : "hover:bg-gray-100 text-gray-600"
+                            }`}
+                          >
+                            <MoreVertical className="w-5 h-5" />
+                          </button>
+                        </DropdownMenu.Trigger>
 
-                      <AnimatePresence>
-                        {activeMenu === method.id && (
-                          <motion.div
-                            initial={{ opacity: 0, y: -10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -10 }}
-                            className={`absolute right-0 top-12 w-52 rounded-xl border shadow-xl z-20 overflow-hidden ${
+                        <DropdownMenu.Portal>
+                          <DropdownMenu.Content
+                            align="end"
+                            sideOffset={8}
+                            className={`w-52 rounded-xl border shadow-2xl overflow-hidden z-[99999] animate-in fade-in zoom-in duration-200 ${
                               isDark
                                 ? "bg-gray-900 border-white/10"
                                 : "bg-white border-gray-200"
                             }`}
+                            onClick={(e) => e.stopPropagation()}
                           >
                             {!method.isDefault && (
-                              <button
+                              <DropdownMenu.Item
                                 onClick={() => handleSetDefault(method.id)}
-                                className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors ${
+                                className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors cursor-pointer outline-none ${
                                   isDark
-                                    ? "text-gray-300 hover:bg-white/5"
-                                    : "text-gray-700 hover:bg-gray-50"
+                                    ? "text-gray-300 hover:bg-white/5 focus:bg-white/5"
+                                    : "text-gray-700 hover:bg-gray-50 focus:bg-gray-50"
                                 }`}
                               >
                                 <Check size={16} />
                                 Set as Default
-                              </button>
+                              </DropdownMenu.Item>
                             )}
-                            <button
-                              className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors ${
+                            <DropdownMenu.Item
+                              onClick={() => handleEditClick(method)}
+                              className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors cursor-pointer outline-none ${
                                 isDark
-                                  ? "text-gray-300 hover:bg-white/5"
-                                  : "text-gray-700 hover:bg-gray-50"
+                                  ? "text-gray-300 hover:bg-white/5 focus:bg-white/5"
+                                  : "text-gray-700 hover:bg-gray-50 focus:bg-gray-50"
                               }`}
                             >
                               <Edit2 size={16} />
                               Edit Details
-                            </button>
-                            <button
+                            </DropdownMenu.Item>
+                            <DropdownMenu.Separator className={`h-px ${isDark ? "bg-white/5" : "bg-gray-100"}`} />
+                            <DropdownMenu.Item
                               onClick={() => handleDelete(method.id)}
-                              className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors border-t ${
+                              className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors cursor-pointer outline-none font-medium ${
                                 isDark
-                                  ? "text-red-400 hover:bg-red-500/10 border-white/5"
-                                  : "text-red-600 hover:bg-red-50 border-gray-200"
+                                  ? "text-red-400 hover:bg-red-500/10 focus:bg-red-500/10"
+                                  : "text-red-600 hover:bg-red-50 focus:bg-red-50"
                               }`}
                             >
                               <Trash2 size={16} />
                               Delete
-                            </button>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
+                            </DropdownMenu.Item>
+                          </DropdownMenu.Content>
+                        </DropdownMenu.Portal>
+                      </DropdownMenu.Root>
                     </div>
                   </div>
                 </motion.div>
@@ -326,6 +389,14 @@ export const PaymentMethodsCard: React.FC = () => {
         darkMode={isDark}
         isOpen={isAddCardOpen}
         onClose={() => setIsAddCardOpen(false)}
+      />
+
+      <EditPaymentMethodModal
+        darkMode={isDark}
+        isOpen={isEditCardOpen}
+        onClose={() => setIsEditCardOpen(false)}
+        onSave={handleUpdateMethod}
+        method={editingMethod}
       />
     </>
   );

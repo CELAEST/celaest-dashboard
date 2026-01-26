@@ -7,8 +7,12 @@ import {
   Eye,
   EyeOff,
   Shield,
+  ShieldCheck,
   Zap,
-  Sparkles,
+  Activity,
+  Layers,
+  ArrowRightCircle,
+  Hash,
 } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
@@ -38,7 +42,7 @@ export function ConfigurePaymentGatewaysModal({
     {
       id: "stripe",
       name: "Stripe",
-      logo: "💳",
+      logo: "stripe",
       status: "active",
       apiKey: "",
       webhookUrl: "https://api.celaest.com/webhooks/stripe",
@@ -47,7 +51,7 @@ export function ConfigurePaymentGatewaysModal({
     {
       id: "paypal",
       name: "PayPal",
-      logo: "💰",
+      logo: "paypal",
       status: "standby",
       apiKey: "",
       webhookUrl: "https://api.celaest.com/webhooks/paypal",
@@ -56,7 +60,7 @@ export function ConfigurePaymentGatewaysModal({
     {
       id: "square",
       name: "Square",
-      logo: "⬛",
+      logo: "square",
       status: "disabled",
       apiKey: "",
       webhookUrl: "https://api.celaest.com/webhooks/square",
@@ -212,34 +216,26 @@ export function ConfigurePaymentGatewaysModal({
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 }}
-                  className={`p-4 rounded-xl flex items-start gap-3 ${
+                  className={`p-4 rounded-xl flex items-start gap-4 ${
                     darkMode
-                      ? "bg-blue-500/5 border border-blue-500/20"
-                      : "bg-blue-500/5 border border-blue-500/20"
+                      ? "bg-cyan-500/5 border border-cyan-500/10"
+                      : "bg-cyan-50/50 border border-cyan-100"
                   }`}
                 >
-                  <motion.div
-                    animate={{ rotate: [0, -10, 10, -10, 0] }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      repeatDelay: 3,
-                    }}
-                  >
-                    <Shield className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
-                  </motion.div>
+                  <div className={`p-2 rounded-lg ${darkMode ? "bg-cyan-500/10" : "bg-cyan-100"}`}>
+                    <ShieldCheck className={`w-5 h-5 ${darkMode ? "text-cyan-400" : "text-cyan-600"}`} />
+                  </div>
                   <div>
                     <div
-                      className={`text-xs font-semibold mb-1 flex items-center gap-1 ${darkMode ? "text-blue-400" : "text-blue-600"}`}
+                      className={`text-sm font-bold mb-0.5 ${darkMode ? "text-white" : "text-gray-900"}`}
                     >
-                      <Sparkles className="w-3 h-3" />
-                      Security Notice
+                      Enterprise-Grade Security
                     </div>
                     <div
-                      className={`text-xs ${darkMode ? "text-gray-400" : "text-gray-600"}`}
+                      className={`text-xs leading-relaxed ${darkMode ? "text-gray-400" : "text-gray-600"}`}
                     >
-                      API keys are encrypted at rest and in transit. Never share
-                      your production keys.
+                      All API credentials are encrypted with AES-256 and transmited via secure TLS 1.3 channels. 
+                      Credentials are never stored in plain text.
                     </div>
                   </div>
                 </motion.div>
@@ -250,43 +246,55 @@ export function ConfigurePaymentGatewaysModal({
                     const isEditing = editingGateway === gateway.id;
                     const statusColor = getStatusColor(gateway.status);
 
+                    const getGatewayIcon = (logo: string) => {
+                      switch (logo) {
+                        case "stripe":
+                          return <Layers className="w-10 h-10 text-indigo-500" />;
+                        case "paypal":
+                          return <ArrowRightCircle className="w-10 h-10 text-blue-500" />;
+                        case "square":
+                          return <Hash className="w-10 h-10 text-gray-400" />;
+                        default:
+                          return <CreditCard className="w-10 h-10 text-gray-500" />;
+                      }
+                    };
+
                     return (
                       <motion.div
                         key={gateway.id}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.1, duration: 0.3 }}
-                        whileHover={!isEditing ? { scale: 1.01, y: -2 } : {}}
+                        whileHover={!isEditing ? { y: -4, boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)" } : {}}
                         className={`rounded-2xl overflow-hidden transition-all duration-300 ${
                           darkMode
-                            ? "bg-black/40 backdrop-blur-xl border border-white/10"
-                            : "bg-white/60 border border-gray-200 shadow-sm"
+                            ? "bg-[#1e293b]/50 backdrop-blur-xl border border-white/10"
+                            : "bg-white border border-gray-200 shadow-sm"
                         }`}
                       >
                         {/* Gateway Header */}
-                        <div className="p-5">
-                          <div className="flex items-center justify-between mb-5">
-                            <div className="flex items-center gap-4">
-                              <motion.div
-                                whileHover={{ scale: 1.1, rotate: 5 }}
-                                className="text-4xl"
-                              >
-                                {gateway.logo}
-                              </motion.div>
+                        <div className="p-6">
+                          <div className="flex items-start justify-between mb-6">
+                            <div className="flex items-center gap-5">
+                              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-transform duration-500 group-hover:scale-110 ${
+                                darkMode ? "bg-white/5 border border-white/10" : "bg-gray-50 border border-gray-100"
+                              }`}>
+                                {getGatewayIcon(gateway.logo)}
+                              </div>
                               <div>
                                 <h3
-                                  className={`text-xl font-bold ${darkMode ? "text-white" : "text-gray-900"}`}
+                                  className={`text-xl font-black tracking-tight ${darkMode ? "text-white" : "text-gray-900"}`}
                                 >
                                   {gateway.name}
                                 </h3>
-                                <div className="flex items-center gap-2 mt-1">
+                                <div className="flex items-center gap-2 mt-2">
                                   <motion.button
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
                                     onClick={() =>
                                       handleToggleStatus(gateway.id)
                                     }
-                                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all duration-300 ${
+                                    className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${
                                       statusColor === "emerald"
                                         ? darkMode
                                           ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20"
@@ -300,23 +308,18 @@ export function ConfigurePaymentGatewaysModal({
                                             : "bg-gray-500/10 text-gray-600 border border-gray-200 hover:bg-gray-500/20"
                                     }`}
                                   >
-                                    {gateway.status.toUpperCase()}
+                                    {gateway.status}
                                   </motion.button>
                                   {gateway.testMode && (
-                                    <motion.span
-                                      animate={{ opacity: [0.7, 1, 0.7] }}
-                                      transition={{
-                                        duration: 2,
-                                        repeat: Infinity,
-                                      }}
-                                      className={`px-3 py-1 rounded-lg text-xs font-bold ${
+                                    <span
+                                      className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${
                                         darkMode
-                                          ? "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20"
-                                          : "bg-yellow-500/10 text-yellow-600 border border-yellow-200"
+                                          ? "bg-amber-500/10 text-amber-500 border border-amber-500/20"
+                                          : "bg-amber-100 text-amber-700 border border-amber-200"
                                       }`}
                                     >
-                                      TEST MODE
-                                    </motion.span>
+                                      Sandbox
+                                    </span>
                                   )}
                                 </div>
                               </div>
@@ -326,10 +329,10 @@ export function ConfigurePaymentGatewaysModal({
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                                 onClick={() => handleEdit(gateway)}
-                                className={`px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-300 ${
+                                className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 ${
                                   darkMode
-                                    ? "bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 hover:bg-cyan-500/20"
-                                    : "bg-blue-500/10 border border-blue-500/20 text-blue-600 hover:bg-blue-500/20"
+                                    ? "bg-cyan-600 text-white hover:bg-cyan-500 shadow-lg shadow-cyan-900/20"
+                                    : "bg-blue-600 text-white hover:bg-blue-500 shadow-lg shadow-blue-900/20"
                                 }`}
                               >
                                 Configure
@@ -517,78 +520,80 @@ export function ConfigurePaymentGatewaysModal({
                               </div>
                             </motion.div>
                           ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              {/* API Key Display */}
-                              <motion.div
-                                whileHover={{ scale: 1.01 }}
-                                className={`p-4 rounded-xl ${
-                                  darkMode
-                                    ? "bg-white/5 border border-white/10"
-                                    : "bg-gray-50 border border-gray-200"
-                                }`}
-                              >
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {/* API Key Display */}
                                 <div
-                                  className={`text-xs font-semibold mb-2 ${
-                                    darkMode ? "text-gray-400" : "text-gray-500"
+                                  className={`p-4 rounded-xl border ${
+                                    darkMode
+                                      ? "bg-black/20 border-white/5"
+                                      : "bg-gray-50 border-gray-100"
                                   }`}
                                 >
-                                  API KEY
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <Key className={`w-3.5 h-3.5 ${darkMode ? "text-gray-500" : "text-gray-400"}`} />
+                                    <div
+                                      className={`text-[10px] font-black uppercase tracking-widest ${
+                                        darkMode ? "text-gray-500" : "text-gray-400"
+                                      }`}
+                                    >
+                                      API Credentials
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center justify-between gap-4">
+                                    <code
+                                      className={`text-xs font-mono font-medium truncate ${darkMode ? "text-cyan-400/90" : "text-blue-600"}`}
+                                    >
+                                      {maskApiKey(
+                                        gateway.apiKey,
+                                        showApiKey[gateway.id],
+                                      )}
+                                    </code>
+                                    <button
+                                      onClick={() =>
+                                        toggleApiKeyVisibility(gateway.id)
+                                      }
+                                      className={`p-1.5 rounded-lg transition-colors ${
+                                        darkMode
+                                          ? "hover:bg-white/5 text-gray-500 hover:text-white"
+                                          : "hover:bg-gray-200 text-gray-400 hover:text-gray-700"
+                                      }`}
+                                    >
+                                      {showApiKey[gateway.id] ? (
+                                        <EyeOff className="w-4 h-4" />
+                                      ) : (
+                                        <Eye className="w-4 h-4" />
+                                      )}
+                                    </button>
+                                  </div>
                                 </div>
-                                <div className="flex items-center justify-between gap-2">
+
+                                {/* Webhook URL Display */}
+                                <div
+                                  className={`p-4 rounded-xl border ${
+                                    darkMode
+                                      ? "bg-black/20 border-white/5"
+                                      : "bg-gray-50 border-gray-100"
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <Activity className={`w-3.5 h-3.5 ${darkMode ? "text-gray-500" : "text-gray-400"}`} />
+                                    <div
+                                      className={`text-[10px] font-black uppercase tracking-widest ${
+                                        darkMode ? "text-gray-500" : "text-gray-400"
+                                      }`}
+                                    >
+                                      Endpoint URL
+                                    </div>
+                                  </div>
                                   <code
-                                    className={`text-xs font-mono ${darkMode ? "text-gray-300" : "text-gray-700"}`}
-                                  >
-                                    {maskApiKey(
-                                      gateway.apiKey,
-                                      showApiKey[gateway.id],
-                                    )}
-                                  </code>
-                                  <motion.button
-                                    whileHover={{ scale: 1.1 }}
-                                    whileTap={{ scale: 0.9 }}
-                                    onClick={() =>
-                                      toggleApiKeyVisibility(gateway.id)
-                                    }
-                                    className={`p-1 rounded ${
-                                      darkMode
-                                        ? "hover:bg-white/10"
-                                        : "hover:bg-gray-200"
+                                    className={`text-[10px] font-mono font-medium break-all block ${
+                                      darkMode ? "text-gray-400" : "text-gray-600"
                                     }`}
                                   >
-                                    {showApiKey[gateway.id] ? (
-                                      <EyeOff className="w-4 h-4" />
-                                    ) : (
-                                      <Eye className="w-4 h-4" />
-                                    )}
-                                  </motion.button>
+                                    {gateway.webhookUrl}
+                                  </code>
                                 </div>
-                              </motion.div>
-
-                              {/* Webhook URL Display */}
-                              <motion.div
-                                whileHover={{ scale: 1.01 }}
-                                className={`p-4 rounded-xl ${
-                                  darkMode
-                                    ? "bg-white/5 border border-white/10"
-                                    : "bg-gray-50 border border-gray-200"
-                                }`}
-                              >
-                                <div
-                                  className={`text-xs font-semibold mb-2 ${
-                                    darkMode ? "text-gray-400" : "text-gray-500"
-                                  }`}
-                                >
-                                  WEBHOOK URL
-                                </div>
-                                <code
-                                  className={`text-xs font-mono break-all ${
-                                    darkMode ? "text-gray-300" : "text-gray-700"
-                                  }`}
-                                >
-                                  {gateway.webhookUrl}
-                                </code>
-                              </motion.div>
-                            </div>
+                              </div>
                           )}
                         </div>
                       </motion.div>

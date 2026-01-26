@@ -7,8 +7,9 @@ import {
   PauseCircle,
   XCircle,
   CheckCircle,
+  ArrowDownCircle,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 
 interface ManageSubscriptionModalProps {
@@ -25,6 +26,36 @@ export function ManageSubscriptionModal({
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [showPauseConfirm, setShowPauseConfirm] = useState(false);
   const [autoRenew, setAutoRenew] = useState(true);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    if (scrollContainerRef.current) {
+      setTimeout(() => {
+        scrollContainerRef.current?.scrollTo({
+          top: scrollContainerRef.current.scrollHeight,
+          behavior: "smooth",
+        });
+      }, 100);
+    }
+  };
+
+  const handleToggleCancel = () => {
+    const nextState = !showCancelConfirm;
+    setShowCancelConfirm(nextState);
+    if (nextState) {
+      setShowPauseConfirm(false);
+      scrollToBottom();
+    }
+  };
+
+  const handleTogglePause = () => {
+    const nextState = !showPauseConfirm;
+    setShowPauseConfirm(nextState);
+    if (nextState) {
+      setShowCancelConfirm(false);
+      scrollToBottom();
+    }
+  };
 
   const subscriptionDetails = {
     plan: "Premium Tier",
@@ -131,7 +162,10 @@ export function ManageSubscriptionModal({
               </div>
 
               {/* Content - Scrollable */}
-              <div className="p-6 space-y-5 overflow-y-auto flex-1">
+              <div 
+                ref={scrollContainerRef}
+                className="p-6 space-y-5 overflow-y-auto flex-1 scroll-smooth"
+              >
                 {/* Current Plan Card */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
@@ -341,27 +375,30 @@ export function ManageSubscriptionModal({
                     transition={{ delay: 0.4 }}
                     whileHover={{ scale: 1.02, y: -2 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={() => setShowPauseConfirm(true)}
-                    className={`p-4 rounded-xl transition-all duration-300 ${
+                    onClick={handleTogglePause}
+                    className={`p-4 rounded-xl transition-all duration-300 group ${
                       darkMode
                         ? "bg-orange-500/10 border border-orange-500/20 hover:bg-orange-500/20 hover:border-orange-500/40"
                         : "bg-orange-500/10 border border-orange-500/20 hover:bg-orange-500/20 hover:border-orange-500/40 shadow-sm"
-                    }`}
+                    } ${showPauseConfirm ? "ring-2 ring-orange-500/50" : ""}`}
                   >
-                    <div className="flex items-center gap-3">
-                      <PauseCircle className="w-5 h-5 text-orange-500" />
-                      <div className="text-left">
-                        <div
-                          className={`font-semibold text-sm ${darkMode ? "text-white" : "text-gray-900"}`}
-                        >
-                          Pause Subscription
-                        </div>
-                        <div
-                          className={`text-xs ${darkMode ? "text-gray-400" : "text-gray-600"}`}
-                        >
-                          Temporarily pause billing
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3 text-left">
+                        <PauseCircle className="w-5 h-5 text-orange-500" />
+                        <div>
+                          <div
+                            className={`font-bold text-sm ${darkMode ? "text-white" : "text-gray-900"}`}
+                          >
+                            Pause Subscription
+                          </div>
+                          <div
+                            className={`text-[10px] ${darkMode ? "text-gray-400" : "text-gray-500"}`}
+                          >
+                            Temporarily pause billing
+                          </div>
                         </div>
                       </div>
+                      <ArrowDownCircle className={`w-4 h-4 text-orange-400 transition-transform duration-300 ${showPauseConfirm ? "rotate-180" : "opacity-0 group-hover:opacity-100"}`} />
                     </div>
                   </motion.button>
 
@@ -372,80 +409,84 @@ export function ManageSubscriptionModal({
                     transition={{ delay: 0.5 }}
                     whileHover={{ scale: 1.02, y: -2 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={() => setShowCancelConfirm(true)}
-                    className={`p-4 rounded-xl transition-all duration-300 ${
+                    onClick={handleToggleCancel}
+                    className={`p-4 rounded-xl transition-all duration-300 group ${
                       darkMode
                         ? "bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 hover:border-red-500/40"
                         : "bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 hover:border-red-500/40 shadow-sm"
-                    }`}
+                    } ${showCancelConfirm ? "ring-2 ring-red-500/50" : ""}`}
                   >
-                    <div className="flex items-center gap-3">
-                      <XCircle className="w-5 h-5 text-red-500" />
-                      <div className="text-left">
-                        <div
-                          className={`font-semibold text-sm ${darkMode ? "text-white" : "text-gray-900"}`}
-                        >
-                          Cancel Subscription
-                        </div>
-                        <div
-                          className={`text-xs ${darkMode ? "text-gray-400" : "text-gray-600"}`}
-                        >
-                          End your subscription
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3 text-left">
+                        <XCircle className="w-5 h-5 text-red-500" />
+                        <div>
+                          <div
+                            className={`font-bold text-sm ${darkMode ? "text-white" : "text-gray-900"}`}
+                          >
+                            Cancel Subscription
+                          </div>
+                          <div
+                            className={`text-[10px] ${darkMode ? "text-gray-400" : "text-gray-500"}`}
+                          >
+                            End your subscription
+                          </div>
                         </div>
                       </div>
+                      <ArrowDownCircle className={`w-4 h-4 text-red-400 transition-transform duration-300 ${showCancelConfirm ? "rotate-180" : "opacity-0 group-hover:opacity-100"}`} />
                     </div>
                   </motion.button>
                 </div>
 
-                {/* Warning for Cancellation */}
-                <AnimatePresence>
+                <AnimatePresence mode="wait">
                   {showCancelConfirm && (
                     <motion.div
-                      initial={{ opacity: 0, height: 0, y: -20 }}
-                      animate={{ opacity: 1, height: "auto", y: 0 }}
-                      exit={{ opacity: 0, height: 0, y: -20 }}
-                      transition={{ type: "spring", bounce: 0.3 }}
-                      className={`rounded-xl p-5 overflow-hidden ${
+                      initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                      className={`rounded-2xl p-6 ring-2 ring-red-500/20 ${
                         darkMode
-                          ? "bg-red-500/10 border border-red-500/20 shadow-lg shadow-red-500/10"
-                          : "bg-red-500/10 border border-red-500/20 shadow-lg"
+                          ? "bg-red-500/10 border border-red-500/30 shadow-2xl shadow-red-500/10"
+                          : "bg-red-50/50 border border-red-200 shadow-xl"
                       }`}
                     >
-                      <div className="flex items-start gap-3 mb-4">
-                        <AlertTriangle className="w-5 h-5 text-red-500 shrink-0 mt-1" />
+                      <div className="flex items-start gap-4 mb-6">
+                        <div className="p-3 bg-red-500/20 rounded-xl">
+                          <AlertTriangle className="w-6 h-6 text-red-500" />
+                        </div>
                         <div>
                           <div
-                            className={`font-bold mb-2 ${darkMode ? "text-white" : "text-gray-900"}`}
+                            className={`text-lg font-black mb-2 ${darkMode ? "text-white" : "text-gray-900"}`}
                           >
                             Are you sure you want to cancel?
                           </div>
                           <div
-                            className={`text-xs ${darkMode ? "text-gray-300" : "text-gray-700"}`}
+                            className={`text-xs leading-relaxed ${darkMode ? "text-gray-300" : "text-gray-700"}`}
                           >
                             Your subscription will remain active until{" "}
-                            {subscriptionDetails.nextBillingDate}, after which
-                            you&apos;ll lose access to all premium features.
+                            <span className="font-bold underline decoration-red-500/50">
+                              {subscriptionDetails.nextBillingDate}
+                            </span>, after which you&apos;ll lose access to all premium features instantly.
                           </div>
                         </div>
                       </div>
-                      <div className="flex gap-2 justify-end">
+                      <div className="flex gap-3 justify-end">
                         <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
                           onClick={() => setShowCancelConfirm(false)}
-                          className={`px-5 py-2 rounded-xl font-semibold text-sm transition-all duration-300 ${
+                          className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 ${
                             darkMode
-                              ? "bg-white/10 border border-white/20 text-white hover:bg-white/20"
-                              : "bg-gray-100 border border-gray-300 text-gray-900 hover:bg-gray-200"
+                              ? "bg-white/5 border border-white/10 text-white hover:bg-white/10"
+                              : "bg-gray-100 border border-gray-200 text-gray-900 hover:bg-gray-200"
                           }`}
                         >
                           Keep Subscription
                         </motion.button>
                         <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
                           onClick={handleCancelSubscription}
-                          className="px-5 py-2 rounded-xl font-semibold text-sm bg-red-500 text-white hover:bg-red-600 transition-all duration-300 shadow-lg shadow-red-500/30"
+                          className="px-6 py-2.5 rounded-xl font-bold text-sm bg-red-600 text-white hover:bg-red-500 transition-all duration-300 shadow-xl shadow-red-600/20"
                         >
                           Confirm Cancellation
                         </motion.button>
@@ -454,54 +495,54 @@ export function ManageSubscriptionModal({
                   )}
                 </AnimatePresence>
 
-                {/* Warning for Pause */}
-                <AnimatePresence>
+                <AnimatePresence mode="wait">
                   {showPauseConfirm && (
                     <motion.div
-                      initial={{ opacity: 0, height: 0, y: -20 }}
-                      animate={{ opacity: 1, height: "auto", y: 0 }}
-                      exit={{ opacity: 0, height: 0, y: -20 }}
-                      transition={{ type: "spring", bounce: 0.3 }}
-                      className={`rounded-xl p-5 overflow-hidden ${
+                      initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                      className={`rounded-2xl p-6 ring-2 ring-orange-500/20 ${
                         darkMode
-                          ? "bg-orange-500/10 border border-orange-500/20 shadow-lg shadow-orange-500/10"
-                          : "bg-orange-500/10 border border-orange-500/20 shadow-lg"
+                          ? "bg-orange-500/10 border border-orange-500/30 shadow-2xl shadow-orange-500/10"
+                          : "bg-orange-50/50 border border-orange-200 shadow-xl"
                       }`}
                     >
-                      <div className="flex items-start gap-3 mb-4">
-                        <AlertTriangle className="w-5 h-5 text-orange-500 shrink-0 mt-1" />
+                      <div className="flex items-start gap-4 mb-6">
+                        <div className="p-3 bg-orange-500/20 rounded-xl">
+                          <AlertTriangle className="w-6 h-6 text-orange-500" />
+                        </div>
                         <div>
                           <div
-                            className={`font-bold mb-2 ${darkMode ? "text-white" : "text-gray-900"}`}
+                            className={`text-lg font-black mb-2 ${darkMode ? "text-white" : "text-gray-900"}`}
                           >
                             Pause your subscription?
                           </div>
                           <div
-                            className={`text-xs ${darkMode ? "text-gray-300" : "text-gray-700"}`}
+                            className={`text-xs leading-relaxed ${darkMode ? "text-gray-300" : "text-gray-700"}`}
                           >
-                            Your subscription will be paused and billing will
-                            stop. You can resume anytime within 90 days.
+                            Your subscription will be paused and billing will stop immediately. 
+                            You can resume anytime within <span className="font-bold underline">90 days</span> without losing your data.
                           </div>
                         </div>
                       </div>
-                      <div className="flex gap-2 justify-end">
+                      <div className="flex gap-3 justify-end">
                         <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
                           onClick={() => setShowPauseConfirm(false)}
-                          className={`px-5 py-2 rounded-xl font-semibold text-sm transition-all duration-300 ${
+                          className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 ${
                             darkMode
-                              ? "bg-white/10 border border-white/20 text-white hover:bg-white/20"
-                              : "bg-gray-100 border border-gray-300 text-gray-900 hover:bg-gray-200"
+                              ? "bg-white/5 border border-white/10 text-white hover:bg-white/10"
+                              : "bg-gray-100 border border-gray-200 text-gray-900 hover:bg-gray-200"
                           }`}
                         >
-                          Cancel
+                          Go Back
                         </motion.button>
                         <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
                           onClick={handlePauseSubscription}
-                          className="px-5 py-2 rounded-xl font-semibold text-sm bg-orange-500 text-white hover:bg-orange-600 transition-all duration-300 shadow-lg shadow-orange-500/30"
+                          className="px-6 py-2.5 rounded-xl font-bold text-sm bg-orange-600 text-white hover:bg-orange-500 transition-all duration-300 shadow-xl shadow-orange-600/20"
                         >
                           Confirm Pause
                         </motion.button>
