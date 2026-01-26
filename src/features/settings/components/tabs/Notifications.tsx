@@ -1,220 +1,236 @@
 "use client";
 
 import React, { useState } from "react";
-import {
-  Bell,
-  Mail,
-  Smartphone,
-  AlertTriangle,
-  TrendingUp,
-  Megaphone,
-} from "lucide-react";
-
-interface NotificationSetting {
-  id: string;
-  category: string;
-  description: string;
-  icon: React.ReactNode;
-  email: boolean;
-  push: boolean;
-  required?: boolean;
-}
+import { Bell, Mail, Smartphone, Globe, ShieldAlert } from "lucide-react";
+import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { toast } from "sonner";
 
 /**
  * Notifications Settings Tab
  */
 export function Notifications() {
-  const [settings, setSettings] = useState<NotificationSetting[]>([
-    {
-      id: "1",
-      category: "Critical Alerts",
-      description: "System failures, security breaches, license violations",
-      icon: <AlertTriangle className="w-5 h-5 text-red-400" />,
-      email: true,
-      push: true,
-      required: true,
-    },
-    {
-      id: "2",
-      category: "Weekly Summaries",
-      description: "Performance reports, usage statistics, revenue updates",
-      icon: <TrendingUp className="w-5 h-5 text-cyan-400" />,
-      email: true,
-      push: false,
-    },
-    {
-      id: "3",
-      category: "Team Activity",
-      description: "New members, role changes, permission updates",
-      icon: <Bell className="w-5 h-5 text-purple-400" />,
-      email: true,
-      push: true,
-    },
-    {
-      id: "4",
-      category: "Product Updates",
-      description: "New features, platform improvements, maintenance notices",
-      icon: <Smartphone className="w-5 h-5 text-blue-400" />,
-      email: false,
-      push: true,
-    },
-    {
-      id: "5",
-      category: "Marketing & News",
-      description: "Tips, best practices, company news, promotional offers",
-      icon: <Megaphone className="w-5 h-5 text-orange-400" />,
-      email: false,
-      push: false,
-    },
-  ]);
+  const { isDark } = useTheme();
+  const [prefs, setPrefs] = useState({
+    email_activity: true,
+    email_newsletter: false,
+    push_security: true,
+    push_mentions: true,
+    browser_all: false,
+  });
 
-  const toggleNotification = (id: string, channel: "email" | "push") => {
-    setSettings(
-      settings.map((setting) => {
-        if (setting.id === id && !setting.required) {
-          return {
-            ...setting,
-            [channel]: !setting[channel],
-          };
-        }
-        return setting;
-      }),
-    );
+  const togglePref = (id: keyof typeof prefs) => {
+    setPrefs((prev) => ({ ...prev, [id]: !prev[id] }));
   };
+
+  const notificationSections = [
+    {
+      title: "Email Notifications",
+      icon: Mail,
+      items: [
+        {
+          id: "email_activity",
+          label: "Account Activity",
+          desc: "Large orders, new logins, and security alerts.",
+        },
+        {
+          id: "email_newsletter",
+          label: "Newsletter & Updates",
+          desc: "New features, tips, and marketplace news.",
+        },
+      ],
+    },
+    {
+      title: "Push Notifications",
+      icon: Smartphone,
+      items: [
+        {
+          id: "push_security",
+          label: "Security Alerts",
+          desc: "Critical alerts about your account security.",
+        },
+        {
+          id: "push_mentions",
+          label: "Mentions & Comments",
+          desc: "When someone mentions you in a workspace.",
+        },
+      ],
+    },
+  ];
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Overview Card */}
       <div className="settings-glass-card rounded-2xl p-6">
-        <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
-          <Bell className="w-5 h-5 text-cyan-400" />
-          Notification Preferences
-        </h3>
-        <p className="text-sm text-gray-500">
-          Control how and when you receive notifications from CELAEST Dashboard.
-        </p>
-      </div>
-
-      {/* Notification Matrix */}
-      <div className="settings-glass-card rounded-2xl p-6">
-        <div className="space-y-4">
-          {/* Table Header */}
-          <div className="grid grid-cols-12 gap-4 pb-4 border-b border-white/10">
-            <div className="col-span-6 text-xs text-gray-500 uppercase tracking-wider">
-              Category
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <div
+              className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-sm transition-colors ${
+                isDark ? "bg-cyan-500/10" : "bg-cyan-50"
+              }`}
+            >
+              <Bell
+                className={`w-6 h-6 ${isDark ? "text-cyan-400" : "text-cyan-600"}`}
+              />
             </div>
-            <div className="col-span-3 text-center">
-              <div className="flex flex-col items-center gap-1">
-                <Mail className="w-4 h-4 text-cyan-400" />
-                <span className="text-xs text-gray-500 uppercase tracking-wider">
-                  Email
-                </span>
-              </div>
-            </div>
-            <div className="col-span-3 text-center">
-              <div className="flex flex-col items-center gap-1">
-                <Smartphone className="w-4 h-4 text-cyan-400" />
-                <span className="text-xs text-gray-500 uppercase tracking-wider">
-                  Push/In-App
-                </span>
-              </div>
+            <div>
+              <h3
+                className={`text-lg font-bold ${isDark ? "text-white" : "text-gray-900"}`}
+              >
+                Notification Preferences
+              </h3>
+              <p
+                className={`text-sm ${isDark ? "text-gray-500" : "text-gray-400"}`}
+              >
+                Choose how and when you want to be notified.
+              </p>
             </div>
           </div>
+          <button
+            onClick={() =>
+              toast.message("All notifications muted", {
+                description: "You will no longer receive push or email alerts.",
+              })
+            }
+            className={`px-4 py-2 rounded-xl text-xs font-black tracking-widest transition-all ${
+              isDark
+                ? "bg-white/5 text-gray-400 hover:text-white"
+                : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+            }`}
+          >
+            MUTE ALL
+          </button>
+        </div>
 
-          {/* Notification Rows */}
-          {settings.map((setting) => (
-            <div
-              key={setting.id}
-              className="grid grid-cols-12 gap-4 items-center p-4 rounded-xl bg-[#0d0d0d] border border-white/5"
-            >
-              {/* Category Info */}
-              <div className="col-span-6 flex items-start gap-3">
-                <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center">
-                  {setting.icon}
-                </div>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="text-white font-medium text-sm">
-                      {setting.category}
-                    </p>
-                    {setting.required && (
-                      <span className="px-2 py-0.5 rounded bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-medium">
-                        Required
-                      </span>
-                    )}
+        <div className="space-y-8">
+          {notificationSections.map((section, idx) => (
+            <div key={idx}>
+              <h4
+                className={`text-xs uppercase tracking-[0.2em] font-black mb-4 flex items-center gap-2 ${
+                  isDark ? "text-gray-500" : "text-gray-400"
+                }`}
+              >
+                <section.icon size={14} />
+                {section.title}
+              </h4>
+              <div className="space-y-3">
+                {section.items.map((item) => (
+                  <div
+                    key={item.id}
+                    className={`flex items-center justify-between p-4 rounded-xl border transition-all ${
+                      isDark
+                        ? "bg-black/20 border-white/5"
+                        : "bg-gray-50 border-gray-100"
+                    }`}
+                  >
+                    <div>
+                      <p
+                        className={`font-bold text-sm ${isDark ? "text-white" : "text-gray-900"}`}
+                      >
+                        {item.label}
+                      </p>
+                      <p
+                        className={`text-xs ${isDark ? "text-gray-500" : "text-gray-400"}`}
+                      >
+                        {item.desc}
+                      </p>
+                    </div>
+                    <div
+                      onClick={() => togglePref(item.id as keyof typeof prefs)}
+                      className={`settings-toggle-switch ${
+                        prefs[item.id as keyof typeof prefs] ? "active" : ""
+                      }`}
+                    >
+                      <div className="settings-toggle-thumb" />
+                    </div>
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {setting.description}
-                  </p>
-                </div>
-              </div>
-
-              {/* Email Toggle */}
-              <div className="col-span-3 flex justify-center">
-                <button
-                  onClick={() => toggleNotification(setting.id, "email")}
-                  disabled={setting.required}
-                  className={`settings-toggle-switch ${
-                    setting.email ? "active" : ""
-                  } ${setting.required ? "opacity-75 cursor-not-allowed" : ""}`}
-                >
-                  <div className="settings-toggle-thumb" />
-                </button>
-              </div>
-
-              {/* Push Toggle */}
-              <div className="col-span-3 flex justify-center">
-                <button
-                  onClick={() => toggleNotification(setting.id, "push")}
-                  disabled={setting.required}
-                  className={`settings-toggle-switch ${
-                    setting.push ? "active" : ""
-                  } ${setting.required ? "opacity-75 cursor-not-allowed" : ""}`}
-                >
-                  <div className="settings-toggle-thumb" />
-                </button>
+                ))}
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Important Notes */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="p-4 rounded-xl bg-red-500/5 border border-red-500/20">
-          <div className="flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 text-red-400 shrink-0" />
+      {/* Browser Notifications */}
+      <div className="settings-glass-card rounded-2xl p-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div
+              className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-sm transition-colors ${
+                isDark ? "bg-blue-500/10" : "bg-blue-50"
+              }`}
+            >
+              <Globe
+                className={`w-6 h-6 ${isDark ? "text-blue-400" : "text-blue-600"}`}
+              />
+            </div>
             <div>
-              <p className="text-sm text-red-400 font-medium mb-1">
-                Critical Alerts
+              <p
+                className={`font-bold ${isDark ? "text-white" : "text-gray-900"}`}
+              >
+                Browser Notifications
               </p>
-              <p className="text-xs text-gray-500">
-                Critical alerts cannot be disabled for security and compliance
-                reasons.
+              <p
+                className={`text-sm ${isDark ? "text-gray-500" : "text-gray-400"}`}
+              >
+                Show real-time alerts in your web browser.
               </p>
             </div>
           </div>
+          <button
+            onClick={() => {
+              if ("Notification" in window) {
+                Notification.requestPermission().then((permission) => {
+                  if (permission === "granted") {
+                    toast.success("Browser alerts enabled!");
+                  } else {
+                    toast.error("Permission denied");
+                  }
+                });
+              } else {
+                toast.error("Browser does not support notifications");
+              }
+            }}
+            className="px-6 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-black tracking-widest active:scale-95 transition-all"
+          >
+            ENABLE BROWSER ALERTS
+          </button>
         </div>
+      </div>
 
-        <div className="p-4 rounded-xl bg-cyan-500/5 border border-cyan-500/20">
-          <div className="flex items-start gap-3">
-            <Smartphone className="w-5 h-5 text-cyan-400 shrink-0" />
-            <div>
-              <p className="text-sm text-cyan-400 font-medium mb-1">
-                Push Notifications
-              </p>
-              <p className="text-xs text-gray-500">
-                Enable browser permissions to receive in-app notifications.
-              </p>
-            </div>
+      {/* Security Alerts - High Priority */}
+      <div
+        className={`rounded-2xl p-6 border transition-all ${
+          isDark ? "bg-red-500/5 border-red-500/20" : "bg-red-50 border-red-100"
+        }`}
+      >
+        <div className="flex items-start gap-4">
+          <div className="w-10 h-10 rounded-lg bg-red-500 flex items-center justify-center shrink-0 shadow-lg shadow-red-500/20">
+            <ShieldAlert className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <p
+              className={`font-black text-sm tracking-tight ${isDark ? "text-red-400" : "text-red-700"}`}
+            >
+              CRITICAL SECURITY ALERTS
+            </p>
+            <p
+              className={`text-xs mt-1 leading-relaxed ${isDark ? "text-red-400/60" : "text-red-600/70"}`}
+            >
+              These notifications cannot be disabled for your protection. We
+              will always notify you of password changes and account-level
+              security events.
+            </p>
           </div>
         </div>
       </div>
 
       {/* Save Button */}
-      <div className="flex justify-end">
-        <button className="px-8 py-3 rounded-xl bg-linear-to-r from-cyan-500 to-blue-500 text-white font-medium hover:shadow-lg hover:shadow-cyan-500/25 transition-all">
-          Save Preferences
+      <div className="flex justify-end pb-8">
+        <button
+          onClick={() => toast.success("Notification preferences updated")}
+          className="px-8 py-3 rounded-xl bg-linear-to-r from-cyan-600 to-blue-600 text-white font-bold hover:shadow-lg hover:shadow-cyan-500/30 transition-all active:scale-95"
+        >
+          Save Settings
         </button>
       </div>
     </div>

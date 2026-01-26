@@ -2,6 +2,7 @@
 
 import React, { useEffect, useCallback } from "react";
 import { X } from "lucide-react";
+import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import type { SettingsModalProps } from "../types";
 
 /**
@@ -13,6 +14,8 @@ export function SettingsModal({
   title,
   children,
 }: SettingsModalProps) {
+  const { isDark } = useTheme();
+
   const handleEscape = useCallback(
     (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -42,20 +45,36 @@ export function SettingsModal({
     <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+        className={`absolute inset-0 backdrop-blur-sm transition-all duration-500 ${
+          isDark ? "bg-black/80" : "bg-gray-900/40"
+        }`}
         onClick={onClose}
         aria-hidden="true"
       />
 
       {/* Modal Content */}
-      <div className="relative bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl shadow-black/50">
+      <div
+        className={`relative rounded-2xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl transition-all duration-300 animate-in fade-in zoom-in ${
+          isDark
+            ? "bg-[#0a0a0a] border border-white/10 shadow-black/50"
+            : "bg-white border border-gray-200 shadow-gray-400/20"
+        }`}
+      >
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-bold text-white tracking-tight">
+          <h3
+            className={`text-xl font-bold tracking-tight ${
+              isDark ? "text-white" : "text-gray-900"
+            }`}
+          >
             {title}
           </h3>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/5"
+            className={`transition-colors p-1 rounded-lg ${
+              isDark
+                ? "text-gray-500 hover:text-white hover:bg-white/5"
+                : "text-gray-400 hover:text-gray-900 hover:bg-gray-100"
+            }`}
             aria-label="Close modal"
           >
             <X className="w-5 h-5" />

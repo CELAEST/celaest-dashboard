@@ -8,6 +8,8 @@ import {
 
 interface ThemeContextType {
   theme: string | undefined;
+  resolvedTheme: string | undefined;
+  isDark: boolean;
   setTheme: (theme: string) => void;
   toggleTheme: () => void;
 }
@@ -20,8 +22,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
   return (
     <NextThemesProvider
       attribute="class"
-      defaultTheme="dark"
-      enableSystem={false}
+      defaultTheme="system"
+      enableSystem={true}
       disableTransitionOnChange
     >
       <ThemeContextWrapper>{children}</ThemeContextWrapper>
@@ -33,14 +35,15 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
 const ThemeContextWrapper: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const { theme, setTheme } = useNextTheme();
+  const { theme, setTheme, resolvedTheme } = useNextTheme();
+  const isDark = resolvedTheme === "dark";
 
   const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
+    setTheme(resolvedTheme === "dark" ? "light" : "dark");
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, resolvedTheme, isDark, setTheme, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );
@@ -49,8 +52,6 @@ const ThemeContextWrapper: React.FC<{ children: React.ReactNode }> = ({
 export const useTheme = () => {
   const context = useContext(ThemeContext);
   if (context === undefined) {
-    // If used outside of our wrapper but inside NextThemesProvider, fallback to direct usage could be possible,
-    // but for now let's enforce our structure.
     throw new Error("useTheme must be used within a ThemeProvider");
   }
   return context;

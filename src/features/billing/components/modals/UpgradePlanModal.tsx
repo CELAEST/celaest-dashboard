@@ -85,7 +85,7 @@ export function UpgradePlanModal({
             }
           >
             <div
-              className={`relative w-full max-w-6xl rounded-[2rem] overflow-hidden flex flex-col shadow-2xl ${
+              className={`relative w-full max-w-6xl rounded-4xl overflow-hidden flex flex-col shadow-2xl ${
                 darkMode
                   ? "bg-[#0f172a] border border-white/10 shadow-purple-900/20"
                   : "bg-white border border-gray-200 shadow-xl"
@@ -254,7 +254,7 @@ export function UpgradePlanModal({
                               {isPopular && <Star className="w-3 h-3 sm:w-4 sm:h-4 fill-white/20" />}
                             </span>
                             {/* Shine Effect */}
-                            <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-1000" />
+                            <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000" />
                           </motion.button>
                         </motion.div>
                       );

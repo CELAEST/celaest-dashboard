@@ -14,6 +14,7 @@ import { LucideIcon } from "lucide-react";
 export type SettingsTabId =
   | "account"
   | "security"
+  | "billing"
   | "workspace"
   | "notifications"
   | "developer"

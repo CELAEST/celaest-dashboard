@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   CreditCard,
@@ -10,7 +10,6 @@ import {
   Trash2,
   Check,
   Shield,
-  CreditCard as CardIcon,
 } from "lucide-react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
@@ -33,7 +32,9 @@ export const PaymentMethodsCard: React.FC = () => {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [isAddCardOpen, setIsAddCardOpen] = useState(false);
   const [isEditCardOpen, setIsEditCardOpen] = useState(false);
-  const [editingMethod, setEditingMethod] = useState<PaymentMethod | null>(null);
+  const [editingMethod, setEditingMethod] = useState<PaymentMethod | null>(
+    null,
+  );
   const [methods, setMethods] = useState<PaymentMethod[]>([
     {
       id: "1",
@@ -103,7 +104,9 @@ export const PaymentMethodsCard: React.FC = () => {
   };
 
   const handleUpdateMethod = (updatedMethod: PaymentMethod) => {
-    setMethods(methods.map((m) => (m.id === updatedMethod.id ? updatedMethod : m)));
+    setMethods(
+      methods.map((m) => (m.id === updatedMethod.id ? updatedMethod : m)),
+    );
     setIsEditCardOpen(false);
     setEditingMethod(null);
   };
@@ -232,7 +235,9 @@ export const PaymentMethodsCard: React.FC = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.9 }}
                   className={`group relative rounded-xl p-4 transition-all duration-300 hover:scale-[1.02] cursor-pointer border payment-method-row ${
-                    activeMenu === method.id ? "z-30 overflow-visible" : "z-10 overflow-hidden"
+                    activeMenu === method.id
+                      ? "z-30 overflow-visible"
+                      : "z-10 overflow-hidden"
                   } ${getCardGradient(method.type)}`}
                 >
                   <div className="flex items-center justify-between">
@@ -304,7 +309,7 @@ export const PaymentMethodsCard: React.FC = () => {
                           <DropdownMenu.Content
                             align="end"
                             sideOffset={8}
-                            className={`w-52 rounded-xl border shadow-2xl overflow-hidden z-[99999] animate-in fade-in zoom-in duration-200 ${
+                            className={`w-52 rounded-xl border shadow-2xl overflow-hidden z-99999 animate-in fade-in zoom-in duration-200 ${
                               isDark
                                 ? "bg-gray-900 border-white/10"
                                 : "bg-white border-gray-200"
@@ -335,7 +340,9 @@ export const PaymentMethodsCard: React.FC = () => {
                               <Edit2 size={16} />
                               Edit Details
                             </DropdownMenu.Item>
-                            <DropdownMenu.Separator className={`h-px ${isDark ? "bg-white/5" : "bg-gray-100"}`} />
+                            <DropdownMenu.Separator
+                              className={`h-px ${isDark ? "bg-white/5" : "bg-gray-100"}`}
+                            />
                             <DropdownMenu.Item
                               onClick={() => handleDelete(method.id)}
                               className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors cursor-pointer outline-none font-medium ${

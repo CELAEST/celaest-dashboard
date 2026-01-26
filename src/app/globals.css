@@ -229,11 +229,19 @@ html {
    Settings Module - Custom Styles
    ============================================ */
 
-/* Glassmorphism Card - Dark Theme */
+/* Glassmorphism Card */
 .settings-glass-card {
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.dark .settings-glass-card {
   background: #0a0a0a;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  position: relative;
+  box-shadow: none;
 }
 
 /* Right border accent glow */
@@ -245,18 +253,33 @@ html {
   width: 3px;
   height: 100%;
   background: linear-gradient(180deg, #22d3ee 0%, #3b82f6 100%);
-  border-radius: 0 8px 8px 0;
+  border-radius: 0 12px 12px 0;
   opacity: 0.6;
 }
 
 /* Cards without the accent line */
 .settings-glass-card-plain {
-  background: #0a0a0a;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+  transition: all 0.3s ease;
 }
 
-/* Input styling for dark theme */
+.dark .settings-glass-card-plain {
+  background: #0a0a0a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+}
+
+/* Input styling */
 .settings-input {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #1e293b;
+  transition: all 0.2s ease;
+}
+
+.dark .settings-input {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: white;
@@ -265,72 +288,21 @@ html {
 .settings-input:focus {
   border-color: #22d3ee;
   outline: none;
+  box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.15);
 }
 
 .settings-input::placeholder {
-  color: rgba(255, 255, 255, 0.4);
+  color: #94a3b8;
+}
+
+.dark .settings-input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
 }
 
 /* Disabled input */
 .settings-input:disabled {
-  color: rgba(255, 255, 255, 0.5);
   cursor: not-allowed;
-}
-
-/* Gradient Text */
-.settings-gradient-text {
-  background: linear-gradient(135deg, #22d3ee 0%, #60a5fa 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Rotating Ring Animation */
-.settings-rotating-ring {
-  animation: rotateRing 8s linear infinite;
-}
-
-@keyframes rotateRing {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* Shimmer Animation */
-.settings-shimmer {
-  animation: shimmer 3s ease-in-out infinite;
-}
-
-@keyframes shimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  50% {
-    transform: translateX(100%);
-  }
-  100% {
-    transform: translateX(-100%);
-  }
-}
-
-/* Pulse Dot Animation */
-.settings-pulse-dot {
-  animation: pulseDot 2s ease-in-out infinite;
-}
-
-@keyframes pulseDot {
-  0%,
-  100% {
-    opacity: 1;
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
-  }
-  50% {
-    opacity: 0.8;
-    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
-  }
+  opacity: 0.6;
 }
 
 /* Toggle Switch */
@@ -338,11 +310,18 @@ html {
   position: relative;
   width: 44px;
   height: 24px;
-  background: rgba(255, 255, 255, 0.1);
   border-radius: 9999px;
   cursor: pointer;
   transition: all 0.3s ease;
   flex-shrink: 0;
+}
+
+.dark .settings-toggle-switch {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+:not(.dark) .settings-toggle-switch {
+  background: #e2e8f0;
 }
 
 .settings-toggle-switch.active {
@@ -359,6 +338,7 @@ html {
   background: white;
   border-radius: 9999px;
   transition: transform 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .settings-toggle-switch.active .settings-toggle-thumb {
@@ -369,5 +349,3 @@ html {
 .settings-tab-button {
   flex-shrink: 0;
 }
-
-

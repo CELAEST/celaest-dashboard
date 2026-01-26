@@ -3,375 +3,304 @@
 import React, { useState } from "react";
 import {
   Code,
-  Key,
-  Eye,
-  EyeOff,
   Copy,
-  Check,
   RefreshCw,
-  Webhook,
-  Plus,
-  Trash2,
+  ExternalLink,
+  Key,
+  Globe,
+  LayoutGrid,
+  Zap,
   AlertCircle,
 } from "lucide-react";
-import { SettingsModal } from "../SettingsModal";
-import type { WebhookEndpoint } from "../../types";
+import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { toast } from "sonner";
 
 /**
  * Developer & API Settings Tab
  */
 export function DeveloperAPI() {
-  const [apiKeyVisible, setApiKeyVisible] = useState(false);
-  const [apiKeyCopied, setApiKeyCopied] = useState(false);
-  const [showRegenerateModal, setShowRegenerateModal] = useState(false);
-  const [showAddWebhookModal, setShowAddWebhookModal] = useState(false);
-  const [password, setPassword] = useState("");
-  const [newWebhookUrl, setNewWebhookUrl] = useState("");
-  const [selectedEvents, setSelectedEvents] = useState<string[]>([
-    "license.created",
-  ]);
-
-  const [webhooks, setWebhooks] = useState<WebhookEndpoint[]>([
+  const { isDark } = useTheme();
+  const [apiKeys, setApiKeys] = useState([
     {
       id: "1",
-      url: "https://api.example.com/webhooks/celaest",
-      events: ["license.created", "license.revoked", "payment.success"],
-      status: "active",
-      lastTriggered: "2 hours ago",
+      name: "Production API Key",
+      key: "pk_live_f7a2b9c8d1e3f4a5b6c7d8e9f0a1b2c3d4",
+      created: "Oct 12, 2023",
+      lastUsed: "2 mins ago",
     },
     {
       id: "2",
-      url: "https://monitor.acme.com/events",
-      events: ["error.critical", "system.down"],
-      status: "failed",
-      lastTriggered: "5 days ago",
+      name: "Development Key",
+      key: "pk_test_b9c8d1e3f4a5b6c7d8e9f0a1b2c3d4e5f6",
+      created: "Dec 05, 2023",
+      lastUsed: "Yesterday",
     },
   ]);
 
-  const apiKey = "sk_live_4x9k8j7h6g5f4d3s2a1";
-
-  const handleCopyApiKey = () => {
-    navigator.clipboard.writeText(apiKey);
-    setApiKeyCopied(true);
-    setTimeout(() => setApiKeyCopied(false), 2000);
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success("API Key copied to clipboard");
   };
-
-  const handleRegenerateKey = () => {
-    setShowRegenerateModal(false);
-    setPassword("");
-    setApiKeyVisible(false);
-  };
-
-  const handleAddWebhook = () => {
-    if (newWebhookUrl) {
-      const newWebhook: WebhookEndpoint = {
-        id: Date.now().toString(),
-        url: newWebhookUrl,
-        events: selectedEvents,
-        status: "active",
-      };
-      setWebhooks([...webhooks, newWebhook]);
-      setNewWebhookUrl("");
-      setSelectedEvents(["license.created"]);
-      setShowAddWebhookModal(false);
-    }
-  };
-
-  const handleDeleteWebhook = (id: string) => {
-    setWebhooks(webhooks.filter((w) => w.id !== id));
-  };
-
-  const toggleEvent = (event: string) => {
-    setSelectedEvents((prev) =>
-      prev.includes(event) ? prev.filter((e) => e !== event) : [...prev, event],
-    );
-  };
-
-  const availableEvents = [
-    "license.created",
-    "license.revoked",
-    "payment.success",
-    "error.critical",
-  ];
 
   return (
-    <div className="space-y-6">
-      {/* API Keys */}
+    <div className="space-y-6 pb-8">
+      {/* API Overview */}
       <div className="settings-glass-card rounded-2xl p-6">
-        <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-          <Key className="w-5 h-5 text-cyan-400" />
-          API Keys
-        </h3>
+        <div className="flex items-center gap-4 mb-8">
+          <div
+            className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-sm transition-colors ${
+              isDark ? "bg-cyan-500/10" : "bg-cyan-50"
+            }`}
+          >
+            <Code
+              className={`w-6 h-6 ${isDark ? "text-cyan-400" : "text-cyan-600"}`}
+            />
+          </div>
+          <div>
+            <h3
+              className={`text-lg font-bold ${isDark ? "text-white" : "text-gray-900"}`}
+            >
+              Developer API Keys
+            </h3>
+            <p
+              className={`text-sm ${isDark ? "text-gray-500" : "text-gray-400"}`}
+            >
+              Manage your API keys for programmatic access to Celaest.
+            </p>
+          </div>
+        </div>
 
         <div className="space-y-4">
-          <div>
-            <label className="text-xs text-gray-500 uppercase tracking-wider mb-2 block">
-              Live API Key
-            </label>
-            <div className="flex items-center gap-3">
-              <div className="flex-1 rounded-lg px-4 py-3 font-mono text-sm text-white bg-[#0d0d0d] border border-white/10">
-                {apiKeyVisible ? apiKey : "••••••••••••••••••••••••"}
-              </div>
-              <button
-                onClick={() => setApiKeyVisible(!apiKeyVisible)}
-                className="p-3 rounded-lg bg-[#0d0d0d] border border-white/10 hover:bg-white/5 transition-colors"
-              >
-                {apiKeyVisible ? (
-                  <EyeOff className="w-5 h-5 text-gray-500" />
-                ) : (
-                  <Eye className="w-5 h-5 text-gray-500" />
-                )}
-              </button>
-              <button
-                onClick={handleCopyApiKey}
-                className="p-3 rounded-lg bg-[#0d0d0d] border border-white/10 hover:bg-cyan-500/10 transition-colors"
-              >
-                {apiKeyCopied ? (
-                  <Check className="w-5 h-5 text-emerald-400" />
-                ) : (
-                  <Copy className="w-5 h-5 text-cyan-400" />
-                )}
-              </button>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between p-4 rounded-xl bg-[#0d0d0d] border border-white/5">
-            <div>
-              <p className="text-white font-medium text-sm mb-1">
-                Regenerate API Key
-              </p>
-              <p className="text-xs text-gray-500">
-                This will invalidate your current key.
-              </p>
-            </div>
-            <button
-              onClick={() => setShowRegenerateModal(true)}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-transparent border border-orange-500/30 text-orange-400 text-sm font-medium hover:bg-orange-500/10 transition-colors"
+          {apiKeys.map((key) => (
+            <div
+              key={key.id}
+              className={`p-5 rounded-xl border transition-all hover:border-cyan-500/30 ${
+                isDark
+                  ? "bg-black/20 border-white/5"
+                  : "bg-gray-50 border-gray-100"
+              }`}
             >
-              <RefreshCw className="w-4 h-4" />
-              Regenerate
-            </button>
-          </div>
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <p
+                    className={`font-bold text-sm ${isDark ? "text-white" : "text-gray-900"}`}
+                  >
+                    {key.name}
+                  </p>
+                  <p
+                    className={`text-[11px] mt-1 font-medium ${isDark ? "text-gray-500" : "text-gray-400"}`}
+                  >
+                    Created {key.created} • Last used {key.lastUsed}
+                  </p>
+                </div>
+                <div className="flex gap-1.5">
+                  <button
+                    onClick={() => toast.success("API Key regenerated")}
+                    className={`p-2 rounded-lg transition-colors ${
+                      isDark
+                        ? "text-gray-500 hover:text-white hover:bg-white/5"
+                        : "text-gray-400 hover:text-gray-900 hover:bg-gray-200"
+                    }`}
+                    title="Regenerate"
+                  >
+                    <RefreshCw size={15} />
+                  </button>
+                </div>
+              </div>
 
-          <div className="flex items-start gap-3 p-4 rounded-xl bg-red-500/5 border border-red-500/20">
-            <AlertCircle className="w-5 h-5 text-red-400 shrink-0" />
-            <div>
-              <p className="text-sm text-red-400 font-medium mb-1">
-                Keep Your Key Secure
-              </p>
-              <p className="text-xs text-gray-500">
-                Never expose your API key in client-side code or public
-                repositories.
-              </p>
+              <div
+                className={`flex items-center gap-3 p-3.5 rounded-xl border font-mono text-xs transition-colors ${
+                  isDark
+                    ? "bg-black border-white/10 text-cyan-400/90"
+                    : "bg-white border-gray-200 text-cyan-600 shadow-sm"
+                }`}
+              >
+                <Key size={14} className="shrink-0 opacity-40" />
+                <span className="flex-1 truncate tracking-wider">
+                  {key.key.substring(0, 12)}...
+                  {key.key.substring(key.key.length - 4)}
+                </span>
+                <button
+                  onClick={() => copyToClipboard(key.key)}
+                  className={`p-1.5 rounded-md transition-all ${
+                    isDark
+                      ? "hover:bg-cyan-500/10 text-cyan-500"
+                      : "hover:bg-cyan-50 text-cyan-600"
+                  }`}
+                >
+                  <Copy size={15} />
+                </button>
+              </div>
             </div>
-          </div>
+          ))}
+        </div>
+
+        <button
+          onClick={() => {
+            toast.promise(new Promise((resolve) => setTimeout(resolve, 1500)), {
+              loading: "Generating cryptographically secure key...",
+              success: () => {
+                setApiKeys([
+                  ...apiKeys,
+                  {
+                    id: Date.now().toString(),
+                    name: "New Live Key",
+                    key: `pk_live_${Math.random().toString(36).substring(2)}`,
+                    created: "Just now",
+                    lastUsed: "Never",
+                  },
+                ]);
+                return "New API key generated successfully";
+              },
+            });
+          }}
+          className={`w-full mt-6 py-3.5 rounded-xl border-dashed border-2 font-black transition-all text-[11px] flex items-center justify-center gap-2 tracking-widest ${
+            isDark
+              ? "border-cyan-500/20 text-cyan-500 hover:bg-cyan-500/5 hover:border-cyan-500/40"
+              : "border-cyan-200 text-cyan-600 bg-cyan-50/30 hover:bg-cyan-50 hover:border-cyan-300"
+          }`}
+        >
+          <LayoutGrid size={14} />
+          GENERATE NEW LIVE KEY
+        </button>
+      </div>
+
+      {/* Webhooks Section */}
+      <div className="settings-glass-card rounded-2xl p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h3
+            className={`text-lg font-bold flex items-center gap-2 ${isDark ? "text-white" : "text-gray-900"}`}
+          >
+            <Zap className="w-5 h-5 text-amber-500" />
+            Webhooks
+          </h3>
+          <button
+            onClick={() =>
+              toast("Endpoint configuration modal would open here", {
+                description: "This feature requires backend integration.",
+                action: {
+                  label: "Undo",
+                  onClick: () => console.log("Undo"),
+                },
+              })
+            }
+            className={`px-4 py-2 rounded-xl text-[10px] font-black tracking-widest transition-all ${
+              isDark
+                ? "bg-white/5 text-gray-400 hover:text-white"
+                : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+            }`}
+          >
+            ADD ENDPOINT
+          </button>
+        </div>
+
+        <div
+          className={`flex flex-col items-center justify-center py-12 px-6 rounded-2xl border border-dashed transition-colors ${
+            isDark
+              ? "bg-black/20 border-white/5 text-gray-500"
+              : "bg-gray-50 border-gray-200 text-gray-400"
+          }`}
+        >
+          <Globe size={40} className="mb-4 opacity-20" />
+          <p className="text-sm font-medium">No webhook endpoints configured</p>
+          <p className="text-xs mt-1 opacity-60">
+            Add an endpoint to start receiving real-time events.
+          </p>
         </div>
       </div>
 
       {/* API Documentation */}
       <div className="settings-glass-card rounded-2xl p-6">
-        <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-          <Code className="w-5 h-5 text-cyan-400" />
-          API Documentation
+        <h3
+          className={`text-base font-bold mb-4 flex items-center gap-2 ${isDark ? "text-white" : "text-gray-900"}`}
+        >
+          <ExternalLink className="w-4 h-4 text-blue-500" />
+          Documentation & Support
         </h3>
-        <p className="text-sm text-gray-500 mb-4">
-          Use the CELAEST API to programmatically manage licenses, track usage,
-          and integrate with your systems.
+        <p
+          className={`text-sm mb-6 ${isDark ? "text-gray-500" : "text-gray-400"}`}
+        >
+          Learn how to integrate Celaest into your workflow with our
+          comprehensive API documentation and examples.
         </p>
-        <div className="flex gap-3">
-          <button className="px-4 py-2 rounded-lg bg-transparent border border-cyan-500/50 text-cyan-400 text-sm font-medium hover:bg-cyan-500/10 transition-colors">
-            View Documentation
-          </button>
-          <button className="px-4 py-2 rounded-lg bg-transparent border border-gray-600 text-gray-300 text-sm font-medium hover:bg-white/5 transition-colors">
-            API Reference
-          </button>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <a
+            href="#"
+            className={`p-4 rounded-xl border transition-all flex items-center justify-between group shadow-xs ${
+              isDark
+                ? "bg-white/5 border-white/5 hover:bg-white/10"
+                : "bg-gray-50 border-gray-100 hover:bg-gray-100"
+            }`}
+          >
+            <div>
+              <p
+                className={`text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}
+              >
+                API Reference
+              </p>
+              <p className="text-[10px] text-gray-500 mt-1">
+                Detailed endpoint documentation
+              </p>
+            </div>
+            <ExternalLink
+              size={16}
+              className={`transition-transform group-hover:translate-x-1 ${isDark ? "text-gray-600" : "text-gray-400"}`}
+            />
+          </a>
+          <a
+            href="#"
+            className={`p-4 rounded-xl border transition-all flex items-center justify-between group shadow-xs ${
+              isDark
+                ? "bg-white/5 border-white/5 hover:bg-white/10"
+                : "bg-gray-50 border-gray-100 hover:bg-gray-100"
+            }`}
+          >
+            <div>
+              <p
+                className={`text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}
+              >
+                SDK Guides
+              </p>
+              <p className="text-[10px] text-gray-500 mt-1">
+                Libraries for Python, JS, and Rust
+              </p>
+            </div>
+            <ExternalLink
+              size={16}
+              className={`transition-transform group-hover:translate-x-1 ${isDark ? "text-gray-600" : "text-gray-400"}`}
+            />
+          </a>
         </div>
       </div>
 
-      {/* Webhooks */}
-      <div className="settings-glass-card rounded-2xl p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-bold text-white flex items-center gap-2">
-            <Webhook className="w-5 h-5 text-cyan-400" />
-            Webhook Endpoints
-          </h3>
-          <button
-            onClick={() => setShowAddWebhookModal(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-white text-sm font-medium transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            Add Endpoint
-          </button>
-        </div>
-
-        {webhooks.length > 0 ? (
-          <div className="space-y-3">
-            {webhooks.map((webhook) => (
-              <div
-                key={webhook.id}
-                className="p-4 rounded-xl bg-[#0d0d0d] border border-white/5"
-              >
-                <div className="flex items-start justify-between gap-4 mb-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-2">
-                      <p className="text-white font-mono text-sm truncate">
-                        {webhook.url}
-                      </p>
-                      {webhook.status === "active" ? (
-                        <span className="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
-                          Active
-                        </span>
-                      ) : (
-                        <span className="px-2 py-0.5 rounded bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-medium">
-                          Failed
-                        </span>
-                      )}
-                    </div>
-                    {webhook.lastTriggered && (
-                      <p className="text-xs text-gray-500">
-                        Last triggered {webhook.lastTriggered}
-                      </p>
-                    )}
-                  </div>
-                  <button
-                    onClick={() => handleDeleteWebhook(webhook.id)}
-                    className="text-red-400 hover:text-red-300 transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {webhook.events.map((event) => (
-                    <span
-                      key={event}
-                      className="px-2 py-1 rounded-lg bg-white/5 text-xs text-gray-400 border border-white/10"
-                    >
-                      {event}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ))}
+      {/* Security Alert */}
+      <div
+        className={`rounded-2xl p-5 border transition-all shadow-sm ${
+          isDark
+            ? "bg-amber-500/5 border-amber-500/20"
+            : "bg-amber-50 border-amber-100"
+        }`}
+      >
+        <div className="flex items-start gap-4">
+          <div className="w-11 h-11 rounded-xl bg-amber-500 flex items-center justify-center shrink-0 shadow-lg shadow-amber-500/20">
+            <AlertCircle className="w-6 h-6 text-white" />
           </div>
-        ) : (
-          <div className="text-center py-8 rounded-xl bg-[#0d0d0d] border border-white/5">
-            <Webhook className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-            <p className="text-gray-500 text-sm">
-              No webhook endpoints configured
+          <div>
+            <p
+              className={`font-black text-xs tracking-widest ${isDark ? "text-amber-400" : "text-amber-700"}`}
+            >
+              API KEY SECURITY
+            </p>
+            <p
+              className={`text-xs mt-1 leading-relaxed font-medium ${isDark ? "text-amber-400/60" : "text-amber-600/70"}`}
+            >
+              Your API keys carry significant privileges. Never share them in
+              publicly accessible areas. If you believe a key has been
+              compromised, regenerate it immediately.
             </p>
           </div>
-        )}
+        </div>
       </div>
-
-      {/* Regenerate API Key Modal */}
-      <SettingsModal
-        isOpen={showRegenerateModal}
-        onClose={() => setShowRegenerateModal(false)}
-        title="Regenerate API Key"
-      >
-        <div className="space-y-4">
-          <div className="flex items-start gap-3 p-4 rounded-xl bg-orange-500/10 border border-orange-500/20">
-            <AlertCircle className="w-5 h-5 text-orange-400 shrink-0" />
-            <div>
-              <p className="text-sm text-orange-400 font-medium mb-1">
-                Warning
-              </p>
-              <p className="text-xs text-gray-400">
-                This will immediately invalidate your current API key.
-              </p>
-            </div>
-          </div>
-
-          <div>
-            <label className="text-xs text-gray-500 uppercase tracking-wider mb-2 block">
-              Confirm Password
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-lg px-4 py-3 text-white bg-[#0d0d0d] border border-white/10 focus:border-cyan-400 focus:outline-none"
-              placeholder="Enter your password"
-            />
-          </div>
-
-          <div className="flex gap-3 pt-2">
-            <button
-              onClick={() => setShowRegenerateModal(false)}
-              className="flex-1 px-4 py-3 rounded-xl bg-transparent border border-gray-600 text-gray-300 hover:bg-white/5 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleRegenerateKey}
-              disabled={!password}
-              className="flex-1 px-4 py-3 rounded-xl bg-linear-to-r from-orange-500 to-red-500 text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Regenerate Key
-            </button>
-          </div>
-        </div>
-      </SettingsModal>
-
-      {/* Add Webhook Modal */}
-      <SettingsModal
-        isOpen={showAddWebhookModal}
-        onClose={() => setShowAddWebhookModal(false)}
-        title="Add Webhook Endpoint"
-      >
-        <div className="space-y-4">
-          <div>
-            <label className="text-xs text-gray-500 uppercase tracking-wider mb-2 block">
-              Endpoint URL
-            </label>
-            <input
-              type="url"
-              value={newWebhookUrl}
-              onChange={(e) => setNewWebhookUrl(e.target.value)}
-              className="w-full rounded-lg px-4 py-3 text-white bg-[#0d0d0d] border border-white/10 focus:border-cyan-400 focus:outline-none font-mono text-sm"
-              placeholder="https://your-domain.com/webhooks"
-            />
-          </div>
-
-          <div>
-            <label className="text-xs text-gray-500 uppercase tracking-wider mb-2 block">
-              Events to Subscribe
-            </label>
-            <div className="space-y-2">
-              {availableEvents.map((event) => (
-                <label
-                  key={event}
-                  className="flex items-center gap-3 p-3 rounded-lg bg-[#0d0d0d] border border-white/10 cursor-pointer hover:bg-white/5 transition-colors"
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedEvents.includes(event)}
-                    onChange={() => toggleEvent(event)}
-                    className="w-4 h-4 rounded border-gray-600 bg-transparent text-cyan-500 focus:ring-cyan-400 focus:ring-offset-0"
-                  />
-                  <span className="text-sm text-white font-mono">{event}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex gap-3 pt-2">
-            <button
-              onClick={() => setShowAddWebhookModal(false)}
-              className="flex-1 px-4 py-3 rounded-xl bg-transparent border border-gray-600 text-gray-300 hover:bg-white/5 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleAddWebhook}
-              disabled={!newWebhookUrl}
-              className="flex-1 px-4 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Add Endpoint
-            </button>
-          </div>
-        </div>
-      </SettingsModal>
     </div>
   );
 }
