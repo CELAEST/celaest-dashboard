@@ -143,6 +143,10 @@ const MOCK_AUDIT_LOGS: AuditLog[] = [
   },
 ];
 
+import { UserActionModal } from "./modals/UserActionModal";
+
+// ... imports
+
 export const UserManagement: React.FC = () => {
   const { user, hasScope, isSuperAdmin } = useAuth();
   const { theme } = useTheme();
@@ -155,6 +159,11 @@ export const UserManagement: React.FC = () => {
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [activeTab, setActiveTab] = useState<"users" | "logs">("users");
 
+  // Modal State
+  const [isActionModalOpen, setIsActionModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
+  const [actionType, setActionType] = useState<"sign_out" | "ban">("sign_out");
+
   // Removed API calls for design review with "data quemada"
   // prevent unused vars
   React.useEffect(() => {
@@ -164,18 +173,31 @@ export const UserManagement: React.FC = () => {
 
   const handleChangeRole = async (userId: string, newRole: string) => {
     setUsers(
-      users.map((u) => (u.id === userId ? { ...u, role: newRole as any } : u)),
+      users.map((u) =>
+        u.id === userId
+          ? { ...u, role: newRole as "super_admin" | "admin" | "client" }
+          : u,
+      ),
     );
     toast.success("User role updated successfully (Mock)");
   };
 
-  const handleForceSignOut = async (userId: string, email: string) => {
-    if (
-      !confirm(`Force sign out ${email}? This will end all active sessions.`)
-    ) {
-      return;
+  const initForceSignOut = (user: UserData) => {
+    setSelectedUser(user);
+    setActionType("sign_out");
+    setIsActionModalOpen(true);
+  };
+
+  const handleConfirmAction = () => {
+    if (!selectedUser) return;
+
+    if (actionType === "sign_out") {
+      toast.success(`${selectedUser.email} has been signed out (Mock)`);
+      // Logic to actually sign out would go here
     }
-    toast.success(`${email} has been signed out (Mock)`);
+
+    setIsActionModalOpen(false);
+    setSelectedUser(null);
   };
 
   const filteredUsers = users.filter((u) => {
@@ -568,7 +590,7 @@ export const UserManagement: React.FC = () => {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => handleForceSignOut(u.id, u.email)}
+                            onClick={() => initForceSignOut(u)}
                             disabled={u.id === user?.id}
                             className={
                               isDark
@@ -661,6 +683,20 @@ export const UserManagement: React.FC = () => {
           </Card>
         </motion.div>
       )}
+      {/* Action Confirmation Modal */}
+      <UserActionModal
+        isOpen={isActionModalOpen}
+        onClose={() => setIsActionModalOpen(false)}
+        onConfirm={handleConfirmAction}
+        title={actionType === "sign_out" ? "Force Sign Out" : "Confirm Action"}
+        description={
+          actionType === "sign_out"
+            ? `Are you sure you want to sign out ${selectedUser?.email}? This will immediately invalidate all active sessions for this user.`
+            : "Are you sure you want to verify this action?"
+        }
+        actionType="danger"
+        confirmText="Sign Out"
+      />
     </div>
   );
 };
