@@ -1,8 +1,129 @@
 "use client";
 
-import React, { useMemo, useCallback } from "react";
-import { MoreHorizontal, AlertCircle, CheckCircle, Clock } from "lucide-react";
+import React, { useMemo, useCallback, useState } from "react";
+import { createPortal } from "react-dom";
+import { toast } from "sonner";
+import {
+  MoreHorizontal,
+  AlertCircle,
+  CheckCircle,
+  Clock,
+  Eye,
+  Download,
+  Archive,
+  Trash2,
+  Edit,
+} from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { OrderDetailsModal } from "./modals/OrderDetailsModal";
+import { ConfirmDeleteOrderModal } from "./modals/ConfirmDeleteOrderModal";
+
+interface ActionMenuProps {
+  isOpen: boolean;
+  position: { x: number; y: number };
+  align?: "top" | "bottom";
+  onClose: () => void;
+  onAction: (action: string) => void;
+  isDark: boolean;
+}
+
+const ActionMenu = ({
+  isOpen,
+  position,
+  align = "top",
+  onClose,
+  onAction,
+  isDark,
+}: ActionMenuProps) => {
+  return createPortal(
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          <div className="fixed inset-0 z-99999" onClick={onClose} />
+          <motion.div
+            initial={{
+              opacity: 0,
+              scale: 0.95,
+              y: align === "top" ? -10 : 10,
+            }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{
+              opacity: 0,
+              scale: 0.95,
+              y: align === "top" ? -10 : 10,
+            }}
+            transition={{ duration: 0.2 }}
+            style={{
+              position: "fixed",
+              left: position.x - 180,
+              ...(align === "top"
+                ? { top: position.y }
+                : { bottom: position.y }),
+            }}
+            className={`z-100000 w-48 rounded-xl shadow-2xl border overflow-hidden ${
+              isDark
+                ? "bg-[#0a0a0a]/90 backdrop-blur-xl border-white/10"
+                : "bg-white/90 backdrop-blur-xl border-white/20"
+            }`}
+          >
+            <div className="p-1.5 flex flex-col gap-0.5">
+              {[
+                {
+                  icon: Eye,
+                  label: "View Details",
+                  action: "view",
+                  color: isDark ? "text-gray-300" : "text-gray-700",
+                },
+                {
+                  icon: Download,
+                  label: "Download Invoice",
+                  action: "download",
+                  color: isDark ? "text-gray-300" : "text-gray-700",
+                },
+                {
+                  icon: Edit,
+                  label: "Edit Order",
+                  action: "edit",
+                  color: isDark ? "text-gray-300" : "text-gray-700",
+                },
+                {
+                  icon: Archive,
+                  label: "Archive",
+                  action: "archive",
+                  color: isDark ? "text-gray-300" : "text-gray-700",
+                },
+                {
+                  icon: Trash2,
+                  label: "Delete",
+                  action: "delete",
+                  color: "text-red-500",
+                },
+              ].map((item, i) => (
+                <button
+                  key={i}
+                  onClick={() => {
+                    onAction(item.action);
+                    onClose();
+                  }}
+                  className={`flex items-center gap-2 px-3 py-2 text-xs font-medium rounded-lg transition-colors ${
+                    isDark
+                      ? `hover:bg-white/10 ${item.color}`
+                      : `hover:bg-gray-100 ${item.color}`
+                  }`}
+                >
+                  <item.icon size={14} />
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>,
+    document.body,
+  );
+};
 
 interface Order {
   id: string;
@@ -13,7 +134,7 @@ interface Order {
   amount: string;
 }
 
-const orders: Order[] = [
+const initialOrders: Order[] = [
   {
     id: "#CL-8832",
     product: "Quantum Processor Unit",
@@ -54,11 +175,13 @@ const OrderRow = React.memo(function OrderRow({
   isDark,
   getStatusColor,
   getStatusIcon,
+  onOpenMenu,
 }: {
   order: Order;
   isDark: boolean;
   getStatusColor: (status: string) => string;
   getStatusIcon: (status: string) => React.ReactNode;
+  onOpenMenu: (e: React.MouseEvent, id: string) => void;
 }) {
   return (
     <tr
@@ -107,9 +230,10 @@ const OrderRow = React.memo(function OrderRow({
       </td>
       <td className="py-4 px-4 text-right">
         <button
-          className={`p-1 transition-colors rounded ${
+          onClick={(e) => onOpenMenu(e, order.id)}
+          className={`p-1.5 transition-all duration-300 rounded-lg ${
             isDark
-              ? "text-gray-500 hover:text-white hover:bg-white/10"
+              ? "text-gray-500 hover:text-white hover:bg-white/10 hover:shadow-[0_0_10px_rgba(255,255,255,0.1)]"
               : "text-gray-400 hover:text-gray-900 hover:bg-gray-100"
           }`}
         >
@@ -123,6 +247,89 @@ const OrderRow = React.memo(function OrderRow({
 export const OrdersTable = React.memo(function OrdersTable() {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const [orders, setOrders] = useState<Order[]>(initialOrders);
+  const [activeMenu, setActiveMenu] = useState<{
+    id: string;
+    x: number;
+    y: number;
+    align: "top" | "bottom";
+  } | null>(null);
+
+  // Modal State
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [detailsMode, setDetailsMode] = useState<"view" | "edit">("view");
+
+  const handleOpenMenu = useCallback((e: React.MouseEvent, id: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+
+    const menuHeight = 220; // safe estimate
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const showAbove = spaceBelow < menuHeight;
+
+    setActiveMenu({
+      id,
+      x: rect.right - 12,
+      y: showAbove ? window.innerHeight - rect.top + 8 : rect.bottom + 8,
+      align: showAbove ? "bottom" : "top",
+    });
+  }, []);
+
+  const handleCloseMenu = useCallback(() => {
+    setActiveMenu(null);
+  }, []);
+
+  const handleMenuAction = useCallback(
+    (action: string) => {
+      if (!activeMenu) return;
+      const order = orders.find((o) => o.id === activeMenu.id);
+      if (!order) return;
+
+      switch (action) {
+        case "view":
+          setSelectedOrder(order);
+          setDetailsMode("view");
+          setDetailsModalOpen(true);
+          break;
+        case "edit":
+          setSelectedOrder(order);
+          setDetailsMode("edit");
+          setDetailsModalOpen(true);
+          break;
+        case "delete":
+          setSelectedOrder(order);
+          setDeleteModalOpen(true);
+          break;
+        case "download":
+          toast.success(`Downloading invoice for ${activeMenu.id}`, {
+            description: "Your download will start shortly.",
+          });
+          break;
+        case "archive":
+          toast("Order archived", {
+            description: `${activeMenu.id} has been moved to archive.`,
+          });
+          break;
+      }
+    },
+    [activeMenu, orders],
+  );
+
+  const handleSaveOrder = (updatedOrder: Order) => {
+    setOrders(orders.map((o) => (o.id === updatedOrder.id ? updatedOrder : o)));
+    toast.success("Order updated successfully");
+  };
+
+  const handleDeleteOrder = () => {
+    if (selectedOrder) {
+      setOrders(orders.filter((o) => o.id !== selectedOrder.id));
+      setDeleteModalOpen(false);
+      toast.success("Order deleted successfully");
+    }
+  };
 
   const getStatusColor = useCallback(
     (status: string) => {
@@ -183,7 +390,7 @@ export const OrdersTable = React.memo(function OrdersTable() {
   );
 
   return (
-    <div className="w-full">
+    <div className="w-full relative">
       <div className="flex justify-between items-center mb-6">
         <h3
           className={`font-medium ${isDark ? "text-white" : "text-gray-900"}`}
@@ -201,7 +408,7 @@ export const OrdersTable = React.memo(function OrdersTable() {
         </button>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto min-h-[300px]">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className={headerClassName}>
@@ -221,11 +428,39 @@ export const OrdersTable = React.memo(function OrdersTable() {
                 isDark={isDark}
                 getStatusColor={getStatusColor}
                 getStatusIcon={getStatusIcon}
+                onOpenMenu={handleOpenMenu}
               />
             ))}
           </tbody>
         </table>
       </div>
+
+      {activeMenu && (
+        <ActionMenu
+          isOpen={true}
+          position={{ x: activeMenu.x, y: activeMenu.y }}
+          align={activeMenu.align}
+          onClose={handleCloseMenu}
+          onAction={handleMenuAction}
+          isDark={isDark}
+        />
+      )}
+
+      {/* Modals */}
+      <OrderDetailsModal
+        isOpen={detailsModalOpen}
+        onClose={() => setDetailsModalOpen(false)}
+        order={selectedOrder}
+        initialMode={detailsMode}
+        onSave={handleSaveOrder}
+      />
+
+      <ConfirmDeleteOrderModal
+        isOpen={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={handleDeleteOrder}
+        orderId={selectedOrder?.id || ""}
+      />
     </div>
   );
 });

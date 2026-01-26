@@ -17,8 +17,9 @@ import {
 } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { VersionEditor } from "./VersionEditor";
+import { VersionDetailsModal } from "./modals/VersionDetailsModal";
 
-interface Version {
+export interface Version {
   id: string;
   assetName: string;
   versionNumber: string;
@@ -38,6 +39,8 @@ export const VersionControl: React.FC = () => {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [editingVersion, setEditingVersion] = useState<Version | null>(null);
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [viewingVersion, setViewingVersion] = useState<Version | null>(null);
 
   const [versions, setVersions] = useState<Version[]>([
     {
@@ -101,7 +104,7 @@ export const VersionControl: React.FC = () => {
       downloads: 34,
       adoptionRate: 15.3,
       changelog: [
-        "🚀 Major redesign with new UI",
+        "Major redesign with new UI",
         "Real-time sync improvements",
         "Mobile app integration (beta)",
       ],
@@ -151,8 +154,8 @@ export const VersionControl: React.FC = () => {
   const handleDeprecate = (id: string) => {
     setVersions(
       versions.map((v) =>
-        v.id === id ? { ...v, status: "deprecated" as const } : v
-      )
+        v.id === id ? { ...v, status: "deprecated" as const } : v,
+      ),
     );
     setActiveMenu(null);
   };
@@ -161,8 +164,8 @@ export const VersionControl: React.FC = () => {
     if (editingVersion) {
       setVersions(
         versions.map((v) =>
-          v.id === editingVersion.id ? { ...v, ...versionData } : v
-        )
+          v.id === editingVersion.id ? { ...v, ...versionData } : v,
+        ),
       );
     } else {
       const newVersion: Version = {
@@ -340,7 +343,7 @@ export const VersionControl: React.FC = () => {
                   <td className="px-6 py-4">
                     <span
                       className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border uppercase ${getStatusColor(
-                        version.status
+                        version.status,
                       )}`}
                     >
                       {getStatusIcon(version.status)}
@@ -364,7 +367,7 @@ export const VersionControl: React.FC = () => {
                             month: "short",
                             day: "numeric",
                             year: "numeric",
-                          }
+                          },
                         )}
                       </span>
                     </div>
@@ -410,12 +413,12 @@ export const VersionControl: React.FC = () => {
                               ? "text-emerald-400"
                               : "text-emerald-600"
                             : version.adoptionRate > 40
-                            ? isDark
-                              ? "text-yellow-400"
-                              : "text-yellow-600"
-                            : isDark
-                            ? "text-gray-400"
-                            : "text-gray-600"
+                              ? isDark
+                                ? "text-yellow-400"
+                                : "text-yellow-600"
+                              : isDark
+                                ? "text-gray-400"
+                                : "text-gray-600"
                         }`}
                       >
                         {version.adoptionRate.toFixed(1)}%
@@ -430,8 +433,8 @@ export const VersionControl: React.FC = () => {
                             version.adoptionRate > 70
                               ? "bg-linear-to-r from-emerald-500 to-emerald-400"
                               : version.adoptionRate > 40
-                              ? "bg-linear-to-r from-yellow-500 to-yellow-400"
-                              : "bg-linear-to-r from-gray-500 to-gray-400"
+                                ? "bg-linear-to-r from-yellow-500 to-yellow-400"
+                                : "bg-linear-to-r from-gray-500 to-gray-400"
                           }`}
                           style={{ width: `${version.adoptionRate}%` }}
                         />
@@ -443,7 +446,7 @@ export const VersionControl: React.FC = () => {
                       <button
                         onClick={() =>
                           setActiveMenu(
-                            activeMenu === version.id ? null : version.id
+                            activeMenu === version.id ? null : version.id,
                           )
                         }
                         className={`p-2 rounded-lg transition-colors ${
@@ -479,6 +482,11 @@ export const VersionControl: React.FC = () => {
                               Edit Changelog
                             </button>
                             <button
+                              onClick={() => {
+                                setViewingVersion(version);
+                                setDetailsModalOpen(true);
+                                setActiveMenu(null);
+                              }}
                               className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors ${
                                 isDark
                                   ? "text-gray-300 hover:bg-white/5"
@@ -533,6 +541,12 @@ export const VersionControl: React.FC = () => {
         onClose={() => setIsEditorOpen(false)}
         onSave={handleSaveVersion}
         version={editingVersion}
+      />
+
+      <VersionDetailsModal
+        isOpen={detailsModalOpen}
+        onClose={() => setDetailsModalOpen(false)}
+        version={viewingVersion}
       />
     </>
   );

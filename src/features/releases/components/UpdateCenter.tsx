@@ -75,7 +75,7 @@ export const UpdateCenter: React.FC = () => {
       purchaseDate: "2025-07-10",
       lastDownload: "2025-10-22",
       changelog: [
-        "🚀 Major redesign with new UI",
+        " Major redesign with new UI",
         "Real-time sync improvements",
         "Mobile app integration (beta)",
         "Advanced reporting dashboard",

@@ -6,7 +6,6 @@ import {
   AlertCircle,
   Eye,
   EyeOff,
-  Shield,
   ShieldCheck,
   Zap,
   Activity,

@@ -1,6 +1,7 @@
-import { X, Globe, Plus, Edit2, Trash2, Check, Sparkles } from "lucide-react";
+import { X, Globe, Plus, Edit2, Trash2, Check } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { SettingsSelect } from "../../../settings/components/SettingsSelect";
 
 interface TaxRate {
   id: string;
@@ -212,17 +213,23 @@ export function ManageTaxRatesModal({
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
-                      className={`rounded-2xl p-5 mb-4 overflow-hidden ${
+                      className={`rounded-2xl p-5 mb-4 relative z-10 ${
                         darkMode
                           ? "bg-purple-500/5 border border-purple-500/20 shadow-lg shadow-purple-500/5"
                           : "bg-purple-500/5 border border-purple-500/20 shadow-lg shadow-purple-500/5"
                       }`}
                     >
                       <div className="flex items-center gap-2 mb-4">
-                        <div className={`p-1.5 rounded-lg ${darkMode ? "bg-purple-500/20" : "bg-purple-100"}`}>
-                          <Plus className={`w-4 h-4 ${darkMode ? "text-purple-400" : "text-purple-600"}`} />
+                        <div
+                          className={`p-1.5 rounded-lg ${darkMode ? "bg-purple-500/20" : "bg-purple-100"}`}
+                        >
+                          <Plus
+                            className={`w-4 h-4 ${darkMode ? "text-purple-400" : "text-purple-600"}`}
+                          />
                         </div>
-                        <h3 className={`text-base font-bold ${darkMode ? "text-white" : "text-gray-900"}`}>
+                        <h3
+                          className={`text-base font-bold ${darkMode ? "text-white" : "text-gray-900"}`}
+                        >
                           Add New Tax Rate
                         </h3>
                       </div>
@@ -230,17 +237,24 @@ export function ManageTaxRatesModal({
                       <div className="grid grid-cols-1 md:grid-cols-[1.5fr_80px_100px_1fr] gap-4 mb-4">
                         {/* Country */}
                         <div className="flex flex-col gap-1.5">
-                          <label className={`text-[10px] font-bold uppercase tracking-wider ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
+                          <label
+                            className={`text-[10px] font-bold uppercase tracking-wider ${darkMode ? "text-gray-400" : "text-gray-500"}`}
+                          >
                             Country/Region
                           </label>
                           <input
                             type="text"
                             value={newTaxRate.country}
-                            onChange={(e) => setNewTaxRate({ ...newTaxRate, country: e.target.value })}
+                            onChange={(e) =>
+                              setNewTaxRate({
+                                ...newTaxRate,
+                                country: e.target.value,
+                              })
+                            }
                             placeholder="Enter country name"
-                            className={`w-full px-4 py-2.5 rounded-xl text-sm transition-all duration-300 outline-hidden ${
+                            className={`w-full px-4 py-2.5 rounded-xl text-sm transition-all duration-300 outline-none ${
                               darkMode
-                                ? "bg-black/40 border border-white/10 text-white placeholder-gray-500 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50"
+                                ? "bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50"
                                 : "bg-white border border-gray-200 text-gray-900 placeholder-gray-400 focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
                             }`}
                           />
@@ -248,18 +262,25 @@ export function ManageTaxRatesModal({
 
                         {/* Code */}
                         <div className="flex flex-col gap-1.5">
-                          <label className={`text-[10px] font-bold uppercase tracking-wider ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
+                          <label
+                            className={`text-[10px] font-bold uppercase tracking-wider ${darkMode ? "text-gray-400" : "text-gray-500"}`}
+                          >
                             Code
                           </label>
                           <input
                             type="text"
                             value={newTaxRate.code}
-                            onChange={(e) => setNewTaxRate({ ...newTaxRate, code: e.target.value.toUpperCase() })}
+                            onChange={(e) =>
+                              setNewTaxRate({
+                                ...newTaxRate,
+                                code: e.target.value.toUpperCase(),
+                              })
+                            }
                             placeholder="US"
                             maxLength={3}
-                            className={`w-full px-4 py-2.5 rounded-xl font-mono uppercase text-sm text-center transition-all duration-300 outline-hidden ${
+                            className={`w-full px-4 py-2.5 rounded-xl font-mono uppercase text-sm text-center transition-all duration-300 outline-none ${
                               darkMode
-                                ? "bg-black/40 border border-white/10 text-white placeholder-gray-500 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50"
+                                ? "bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50"
                                 : "bg-white border border-gray-200 text-gray-900 placeholder-gray-400 focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
                             }`}
                           />
@@ -267,20 +288,27 @@ export function ManageTaxRatesModal({
 
                         {/* Rate */}
                         <div className="flex flex-col gap-1.5">
-                          <label className={`text-[10px] font-bold uppercase tracking-wider ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
+                          <label
+                            className={`text-[10px] font-bold uppercase tracking-wider ${darkMode ? "text-gray-400" : "text-gray-500"}`}
+                          >
                             Rate (%)
                           </label>
                           <input
                             type="number"
                             value={newTaxRate.rate}
-                            onChange={(e) => setNewTaxRate({ ...newTaxRate, rate: e.target.value })}
+                            onChange={(e) =>
+                              setNewTaxRate({
+                                ...newTaxRate,
+                                rate: e.target.value,
+                              })
+                            }
                             placeholder="0"
                             min="0"
                             max="100"
                             step="0.01"
-                            className={`w-full px-4 py-2.5 rounded-xl text-sm text-center font-bold transition-all duration-300 outline-hidden ${
+                            className={`w-full px-4 py-2.5 rounded-xl text-sm text-center font-bold transition-all duration-300 outline-none ${
                               darkMode
-                                ? "bg-black/40 border border-white/10 text-white placeholder-gray-500 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50"
+                                ? "bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50"
                                 : "bg-white border border-gray-200 text-gray-900 placeholder-gray-400 focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
                             }`}
                           />
@@ -288,22 +316,18 @@ export function ManageTaxRatesModal({
 
                         {/* Type (Remaining space) */}
                         <div className="flex flex-col gap-1.5">
-                          <label className={`text-[10px] font-bold uppercase tracking-wider ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
-                            Type
-                          </label>
-                          <select
+                          <SettingsSelect
+                            label="Type"
                             value={newTaxRate.vatType}
-                            onChange={(e) => setNewTaxRate({ ...newTaxRate, vatType: e.target.value })}
-                            className={`w-full px-4 py-2.5 rounded-xl text-sm transition-all duration-300 outline-hidden ${
-                              darkMode
-                                ? "bg-black/40 border border-white/10 text-white focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50"
-                                : "bg-white border border-gray-200 text-gray-900 focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
-                            }`}
-                          >
-                            <option value="VAT">VAT</option>
-                            <option value="GST">GST</option>
-                            <option value="Sales Tax">Sales Tax</option>
-                          </select>
+                            onChange={(val) =>
+                              setNewTaxRate({ ...newTaxRate, vatType: val })
+                            }
+                            options={[
+                              { value: "VAT", label: "VAT" },
+                              { value: "GST", label: "GST" },
+                              { value: "Sales Tax", label: "Sales Tax" },
+                            ]}
+                          />
                         </div>
                       </div>
 
@@ -342,12 +366,24 @@ export function ManageTaxRatesModal({
                 <div className="space-y-3">
                   {/* Grid Header (Hidden on small mobile, visible for alignment help) */}
                   <div className="hidden md:grid grid-cols-[1.5fr_80px_100px_80px_120px_90px] gap-4 px-4 pb-1">
-                    <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Country/Region</div>
-                    <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider text-center">Code</div>
-                    <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider text-center">Tax Rate</div>
-                    <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider text-center">Type</div>
-                    <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider text-center">Status</div>
-                    <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider text-right">Actions</div>
+                    <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                      Country/Region
+                    </div>
+                    <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider text-center">
+                      Code
+                    </div>
+                    <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider text-center">
+                      Tax Rate
+                    </div>
+                    <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider text-center">
+                      Type
+                    </div>
+                    <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider text-center">
+                      Status
+                    </div>
+                    <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider text-right">
+                      Actions
+                    </div>
                   </div>
 
                   {taxRates.map((rate, index) => (
@@ -366,17 +402,23 @@ export function ManageTaxRatesModal({
                       <div className="grid grid-cols-1 md:grid-cols-[1.5fr_80px_100px_80px_120px_90px] gap-4 items-center">
                         {/* Country */}
                         <div className="min-w-0">
-                          <div className={`text-[10px] font-bold mb-1 md:hidden ${darkMode ? "text-gray-500" : "text-gray-400"}`}>
+                          <div
+                            className={`text-[10px] font-bold mb-1 md:hidden ${darkMode ? "text-gray-500" : "text-gray-400"}`}
+                          >
                             COUNTRY/REGION
                           </div>
-                          <div className={`text-sm sm:text-base font-bold truncate ${darkMode ? "text-white" : "text-gray-900"}`}>
+                          <div
+                            className={`text-sm sm:text-base font-bold truncate ${darkMode ? "text-white" : "text-gray-900"}`}
+                          >
                             {rate.country}
                           </div>
                         </div>
 
                         {/* Code */}
                         <div className="flex flex-col md:items-center">
-                          <div className={`text-[10px] font-bold mb-1 md:hidden ${darkMode ? "text-gray-500" : "text-gray-400"}`}>
+                          <div
+                            className={`text-[10px] font-bold mb-1 md:hidden ${darkMode ? "text-gray-500" : "text-gray-400"}`}
+                          >
                             CODE
                           </div>
                           <div
@@ -392,29 +434,41 @@ export function ManageTaxRatesModal({
 
                         {/* Rate */}
                         <div className="flex flex-col md:items-center">
-                          <div className={`text-[10px] font-bold mb-1 md:hidden ${darkMode ? "text-gray-500" : "text-gray-400"}`}>
+                          <div
+                            className={`text-[10px] font-bold mb-1 md:hidden ${darkMode ? "text-gray-500" : "text-gray-400"}`}
+                          >
                             TAX RATE
                           </div>
-                          <div className={`text-xl sm:text-2xl font-black ${darkMode ? "text-cyan-400" : "text-blue-600"}`}>
+                          <div
+                            className={`text-xl sm:text-2xl font-black ${darkMode ? "text-cyan-400" : "text-blue-600"}`}
+                          >
                             {rate.rate}%
                           </div>
                         </div>
 
                         {/* Type */}
                         <div className="flex flex-col md:items-center">
-                          <div className={`text-[10px] font-bold mb-1 md:hidden ${darkMode ? "text-gray-500" : "text-gray-400"}`}>
+                          <div
+                            className={`text-[10px] font-bold mb-1 md:hidden ${darkMode ? "text-gray-500" : "text-gray-400"}`}
+                          >
                             TYPE
                           </div>
-                          <div className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-md ${
-                            darkMode ? "bg-white/5 text-gray-400" : "bg-gray-100 text-gray-600"
-                          }`}>
+                          <div
+                            className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-md ${
+                              darkMode
+                                ? "bg-white/5 text-gray-400"
+                                : "bg-gray-100 text-gray-600"
+                            }`}
+                          >
                             {rate.vatType}
                           </div>
                         </div>
 
                         {/* Status */}
                         <div className="flex flex-col md:items-center">
-                          <div className={`text-[10px] font-bold mb-1 md:hidden ${darkMode ? "text-gray-500" : "text-gray-400"}`}>
+                          <div
+                            className={`text-[10px] font-bold mb-1 md:hidden ${darkMode ? "text-gray-500" : "text-gray-400"}`}
+                          >
                             STATUS
                           </div>
                           <motion.button
