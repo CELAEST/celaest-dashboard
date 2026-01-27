@@ -5,7 +5,6 @@ import {
   Archive,
   PackageCheck,
   Layers,
-  TrendingUp,
 } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 

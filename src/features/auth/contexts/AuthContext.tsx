@@ -1,137 +1,28 @@
 "use client";
 
 /**
- * AuthContext refactorizado con Clean Architecture
- * - Separación de responsabilidades
- * - Tipos estrictos
- * - Manejo de errores robusto
- * - Seguridad mejorada
+ * AuthContext refactored with Clean Architecture
+ * - Responsibility: Authentication & Identity ONLY.
+ * - Authorization (Permissions) is handled by useAuthorization hook.
  */
 
 import React, {
   createContext,
   useContext,
-  useState,
-  useEffect,
-  useCallback,
   useMemo,
   type ReactNode,
 } from "react";
-import { useRouter } from "next/navigation";
-import { getSupabaseBrowserClient } from "@/lib/supabase/client";
-import type {
-  User as SupabaseUser,
-  AuthChangeEvent,
-  Session,
-} from "@supabase/supabase-js";
-import {
-  type Role,
-  type Permission,
-  parseRole,
-  calculateEffectivePermissions,
-  roleHasPermission,
-} from "../lib/permissions";
+import { type AuthActions, type AuthState } from "../lib/types";
+import { useAuthSession } from "../hooks/useAuthSession";
+import { useAuthActions } from "../hooks/useAuthActions";
 
-// ==================== TIPOS ====================
+// ==================== CONTEXT VALUE ====================
 
-export type UserScopes = Partial<Record<Permission, boolean>>;
-
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  avatarUrl?: string;
-  role: Role;
-  scopes: UserScopes;
-  emailVerified: boolean;
+interface AuthContextValue extends AuthState, AuthActions {
+  // Authorization helpers removed. Use useAuthorization() or useRole() instead.
 }
-
-interface AuthState {
-  user: User | null;
-  loading: boolean;
-  initialized: boolean;
-}
-
-interface SignInResult {
-  success: boolean;
-  error?: string;
-}
-
-interface AuthContextValue extends AuthState {
-  // Actions
-  signIn: (email: string, password: string) => Promise<SignInResult>;
-  signUp: (
-    email: string,
-    password: string,
-    name: string,
-  ) => Promise<SignInResult>;
-  signInWithGoogle: () => Promise<SignInResult>;
-  signInWithGitHub: () => Promise<SignInResult>;
-  signOut: () => Promise<void>;
-
-  // Permission helpers
-  hasScope: (scope: Permission) => boolean;
-  hasAnyScope: (scopes: Permission[]) => boolean;
-  hasAllScopes: (scopes: Permission[]) => boolean;
-  isAdmin: () => boolean;
-  isSuperAdmin: () => boolean;
-}
-
-// ==================== CONTEXTO ====================
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
-
-// ==================== HELPER FUNCTIONS ====================
-
-function mapSupabaseUser(supabaseUser: SupabaseUser): User {
-  const metadata = supabaseUser.user_metadata || {};
-  const role = parseRole(metadata.role);
-
-  // Calcular scopes basados en rol + scopes personalizados
-  const effectivePermissions = calculateEffectivePermissions(
-    role,
-    metadata.custom_scopes,
-  );
-  const scopes: UserScopes = {};
-  for (const permission of effectivePermissions) {
-    scopes[permission] = true;
-  }
-
-  return {
-    id: supabaseUser.id,
-    email: supabaseUser.email || "",
-    name:
-      metadata.name ||
-      metadata.full_name ||
-      supabaseUser.email?.split("@")[0] ||
-      "Usuario",
-    avatarUrl: metadata.avatar_url || metadata.picture,
-    role,
-    scopes,
-    emailVerified: supabaseUser.email_confirmed_at != null,
-  };
-}
-
-function getAuthErrorMessage(error: {
-  message: string;
-  status?: number;
-}): string {
-  const errorMap: Record<string, string> = {
-    "Invalid login credentials":
-      "Credenciales inválidas. Verifica tu email y contraseña.",
-    "Email not confirmed":
-      "Por favor verifica tu email antes de iniciar sesión.",
-    "User already registered": "Este email ya está registrado.",
-    "Password should be at least 6 characters":
-      "La contraseña debe tener al menos 6 caracteres.",
-    "Unable to validate email address: invalid format":
-      "El formato del email no es válido.",
-  };
-
-  return (
-    errorMap[error.message] || error.message || "Ocurrió un error inesperado."
-  );
-}
 
 // ==================== PROVIDER ====================
 
@@ -140,326 +31,21 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const router = useRouter();
-  const [state, setState] = useState<AuthState>({
-    user: null,
-    loading: true,
-    initialized: false,
-  });
+  const { state, setState, supabase } = useAuthSession();
+  const actions = useAuthActions(supabase, setState);
 
-  // Inicializar cliente de Supabase
-  const supabase = useMemo(() => {
-    try {
-      return getSupabaseBrowserClient();
-    } catch {
-      console.error("Failed to initialize Supabase client");
-      return null;
-    }
-  }, []);
-
-  // Cargar sesión inicial
-  useEffect(() => {
-    if (!supabase) {
-      setState((prev) => ({ ...prev, loading: false, initialized: true }));
-      return;
-    }
-
-    const initializeAuth = async () => {
-      try {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-
-        if (session?.user) {
-          setState({
-            user: mapSupabaseUser(session.user),
-            loading: false,
-            initialized: true,
-          });
-        } else {
-          setState({
-            user: null,
-            loading: false,
-            initialized: true,
-          });
-        }
-      } catch (error) {
-        console.error("Failed to initialize auth:", error);
-        setState({
-          user: null,
-          loading: false,
-          initialized: true,
-        });
-      }
-    };
-
-    initializeAuth();
-
-    // Escuchar cambios de autenticación
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(
-      async (event: AuthChangeEvent, session: Session | null) => {
-        if (session?.user) {
-          setState((prev) => ({
-            ...prev,
-            user: mapSupabaseUser(session.user),
-            loading: false,
-          }));
-        } else {
-          setState((prev) => ({
-            ...prev,
-            user: null,
-            loading: false,
-          }));
-        }
-      },
-    );
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [supabase]);
-
-  // ==================== ACTIONS ====================
-
-  /*
-   * Modificado: No activamos loading global para acciones (signIn/signUp)
-   * Esto previene que el AppContent se desmonte y resetee los formularios.
-   * El estado de carga lo debe manejar el componente local (botón).
-   */
-
-  const signIn = useCallback(
-    async (email: string, password: string): Promise<SignInResult> => {
-      if (!supabase) {
-        return { success: false, error: "Servicio no disponible" };
-      }
-
-      try {
-        // setState(prev => ({ ...prev, loading: true })) <-- ELIMINADO PARA EVITAR RE-RENDER GLOBAL
-
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: email.trim().toLowerCase(),
-          password,
-        });
-
-        if (error) {
-          return { success: false, error: getAuthErrorMessage(error) };
-        }
-
-        if (data.user) {
-          setState((prev) => ({
-            ...prev,
-            user: mapSupabaseUser(data.user),
-            loading: false,
-          }));
-          return { success: true };
-        }
-
-        return { success: false, error: "Error al iniciar sesión" };
-      } catch (error) {
-        console.error("Sign in error:", error);
-        return { success: false, error: "Error de conexión" };
-      } finally {
-        // setState(prev => ({ ...prev, loading: false })) <-- ELIMINADO
-      }
-    },
-    [supabase],
-  );
-
-  const signUp = useCallback(
-    async (email: string, password: string): Promise<SignInResult> => {
-      if (!supabase) {
-        return { success: false, error: "Servicio no disponible" };
-      }
-
-      try {
-        // setState(prev => ({ ...prev, loading: true })) <-- ELIMINADO
-
-        const { data, error } = await supabase.auth.signUp({
-          email: email.trim().toLowerCase(),
-          password,
-        });
-
-        if (error) {
-          return { success: false, error: getAuthErrorMessage(error) };
-        }
-
-        if (data.user) {
-          return { success: true };
-        }
-
-        return { success: false, error: "Error al crear la cuenta" };
-      } catch (error) {
-        console.error("Sign up error:", error);
-        return { success: false, error: "Error de conexión" };
-      } finally {
-        // setState(prev => ({ ...prev, loading: false })) <-- ELIMINADO
-      }
-    },
-    [supabase],
-  );
-
-  const signInWithGoogle = useCallback(async (): Promise<SignInResult> => {
-    if (!supabase) {
-      return { success: false, error: "Servicio no disponible" };
-    }
-
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}`,
-          queryParams: {
-            access_type: "offline",
-            prompt: "consent",
-          },
-        },
-      });
-
-      if (error) {
-        return { success: false, error: getAuthErrorMessage(error) };
-      }
-
-      return { success: true };
-    } catch (error) {
-      console.error("Google sign in error:", error);
-      return { success: false, error: "Error al conectar con Google" };
-    }
-  }, [supabase]);
-
-  const signInWithGitHub = useCallback(async (): Promise<SignInResult> => {
-    if (!supabase) {
-      return { success: false, error: "Servicio no disponible" };
-    }
-
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "github",
-        options: {
-          redirectTo: `${window.location.origin}`,
-        },
-      });
-
-      if (error) {
-        return { success: false, error: getAuthErrorMessage(error) };
-      }
-
-      return { success: true };
-    } catch (error) {
-      console.error("GitHub sign in error:", error);
-      return { success: false, error: "Error al conectar con GitHub" };
-    }
-  }, [supabase]);
-
-  const signOut = useCallback(async (): Promise<void> => {
-    if (!supabase) return;
-
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-
-      // Security: Manually clear Supabase cookies and local storage to ensure no session artifacts remain
-      // This addresses user concerns about "ghost" sessions or bugs
-      document.cookie.split(";").forEach((c) => {
-        const trimmed = c.trim();
-        if (trimmed.startsWith("sb-")) {
-          document.cookie =
-            trimmed.split("=")[0] +
-            "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
-        }
-      });
-
-      // Clear local storage and session storage for complete cleanup
-      if (typeof window !== "undefined") {
-        localStorage.clear();
-        sessionStorage.clear();
-      }
-
-      setState({
-        user: null,
-        loading: false,
-        initialized: true,
-      });
-
-      // Force a hard navigation to the login page to clear any in-memory state
-      // Modified: Using router.push as requested for cleaner internal transition
-      router.push("/?mode=signin");
-    } catch (error) {
-      console.error("Sign out error:", error);
-    }
-  }, [supabase, router]);
-
-  // ==================== PERMISSION HELPERS ====================
-
-  const hasScope = useCallback(
-    (scope: Permission): boolean => {
-      if (!state.user) return false;
-      return (
-        state.user.scopes[scope] === true ||
-        roleHasPermission(state.user.role, scope)
-      );
-    },
-    [state.user],
-  );
-
-  const hasAnyScope = useCallback(
-    (scopes: Permission[]): boolean => {
-      return scopes.some((scope) => hasScope(scope));
-    },
-    [hasScope],
-  );
-
-  const hasAllScopes = useCallback(
-    (scopes: Permission[]): boolean => {
-      return scopes.every((scope) => hasScope(scope));
-    },
-    [hasScope],
-  );
-
-  const isAdmin = useCallback((): boolean => {
-    return state.user?.role === "admin" || state.user?.role === "super_admin";
-  }, [state.user]);
-
-  const isSuperAdmin = useCallback((): boolean => {
-    return state.user?.role === "super_admin";
-  }, [state.user]);
-
-  // ==================== CONTEXT VALUE ====================
+  // ==================== VALUE ====================
 
   const value = useMemo<AuthContextValue>(
     () => ({
       ...state,
-      signIn,
-      signUp,
-      signInWithGoogle,
-      signInWithGitHub,
-      signOut,
-      hasScope,
-      hasAnyScope,
-      hasAllScopes,
-      isAdmin,
-      isSuperAdmin,
+      ...actions,
     }),
-    [
-      state,
-      signIn,
-      signUp,
-      signInWithGoogle,
-      signInWithGitHub,
-      signOut,
-      hasScope,
-      hasAnyScope,
-      hasAllScopes,
-      isAdmin,
-      isSuperAdmin,
-    ],
+    [state, actions],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
-
-// ==================== HOOK ====================
 
 export function useAuth(): AuthContextValue {
   const context = useContext(AuthContext);

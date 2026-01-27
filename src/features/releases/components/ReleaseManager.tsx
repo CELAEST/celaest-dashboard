@@ -1,8 +1,7 @@
 'use client'
 
 import React, { useState } from 'react';
-import { motion } from 'motion/react';
-import { Crown, User, GitBranch, TrendingUp } from 'lucide-react';
+import { Crown, User, TrendingUp } from 'lucide-react';
 import { useTheme } from '@/features/shared/contexts/ThemeContext';
 import { VersionControl } from './VersionControl';
 import { ReleaseMetrics } from './ReleaseMetrics';

@@ -1,0 +1,20 @@
+# AI Protocol - CELAEST Rules
+
+You are working on the CELAEST Dashboard project. 
+**CRITICAL:** Before generating any code or planning architecture, you MUST strictly adhere to the standards defined in:
+1.  `docs/OPTIMIZATION_GUIDE.md` (The "Source of Truth" for implementation).
+2.  `docs/BEST_PRACTICES.md` (Strategy and Performance tips).
+
+## Core Principles (Summary)
+1.  **Rendering:** Server Components by default. `"use client"` ONLY for interactivity leaves.
+3.  **Data:** 
+    -   **Read:** Fetch in Server Component.
+    -   **Write:** Server Actions (`src/actions/*`).
+    -   **API:** Use the **Service Pattern** (`src/features/*/services/*.service.ts`) to share logic between Actions and API Routes.
+4.  **Structure:** Screaming Architecture (`src/features/*`).
+5.  **Forms:** React Hook Form + Zod.
+
+## Enforcement
+-   If you see `useEffect` fetching data -> **Refactor** to Server Component.
+
+Refer to the documentation files for specific code examples.

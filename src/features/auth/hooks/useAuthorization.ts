@@ -26,7 +26,9 @@ export function usePermissions() {
   
   const hasPermission = useCallback((permission: Permission): boolean => {
     if (!user) return false
-    return user.scopes[permission] === true || roleHasPermission(user.role, permission)
+    // AuthUser now has 'permissions' array from types.ts
+    // Check if permission is in user's granted permissions OR inferred from role
+    return user.permissions.includes(permission) || roleHasPermission(user.role, permission)
   }, [user])
   
   const hasAllPermissions = useCallback((permissions: Permission[]): boolean => {
@@ -79,7 +81,7 @@ export function useRole() {
  * Hook combinado para verificar autorización
  */
 export function useAuthorization() {
-  const { user, loading } = useAuth()
+  const { user, isLoading } = useAuth()
   const permissions = usePermissions()
   const roles = useRole()
   
@@ -118,7 +120,7 @@ export function useAuthorization() {
   
   return {
     isAuthenticated: !!user,
-    isLoading: loading,
+    isLoading,
     user,
     ...permissions,
     ...roles,

@@ -64,7 +64,7 @@ export const DeployPanel: React.FC<DeployPanelProps> = ({
           <div className="relative aspect-video rounded-xl overflow-hidden border border-white/10 group">
             <div className="absolute inset-0 bg-linear-to-t from-black via-transparent to-transparent z-10" />
             <ImageWithFallback
-              src="https://images.unsplash.com/photo-1664526936810-ec0856d31b92?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHwzZCUyMGFic3RyYWN0JTIwbmV0d29ycyUyMGNvbm5lY3Rpdml0eSUyMGJsdWUlMjBub2Rlc3xlbnwxfHx8fDE3Njg1Nzg0NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+              src="https://images.unsplash.com/photo-1664526936810-ec0856d31b92?crop=entropy&cs=tinysrgb&fit=max&fm=webp&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHwzZCUyMGFic3RyYWN0JTIwbmV0d29ycyUyMGNvbm5lY3Rpdml0eSUyMGJsdWUlMjBub2Rlc3xlbnwxfHx8fDE3Njg1Nzg0NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
               className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-700"
               alt="asset"
             />

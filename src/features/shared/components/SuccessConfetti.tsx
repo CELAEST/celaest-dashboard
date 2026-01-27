@@ -28,7 +28,7 @@ export const SuccessConfetti: React.FC<SuccessConfettiProps> = ({ active }) => {
   if (!active) return null;
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-[100] overflow-hidden">
+    <div className="fixed inset-0 pointer-events-none z-100 overflow-hidden">
       {particles.map(particle => (
         <motion.div
           key={particle.id}

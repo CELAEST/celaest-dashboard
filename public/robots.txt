@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /_next/
+Disallow: /signin
+Disallow: /signup
+
+Sitemap: https://celaest.com/sitemap.xml

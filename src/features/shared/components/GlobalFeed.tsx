@@ -42,7 +42,7 @@ export const GlobalFeed: React.FC = () => {
             </div>
 
             <div className="space-y-6 relative">
-                 <div className="absolute left-[9px] top-2 bottom-2 w-[1px] bg-white/10" />
+                 <div className="absolute left-[9px] top-2 bottom-2 w-px bg-white/10" />
                  
                  <AnimatePresence initial={false}>
                     {feed.map((item, i) => (

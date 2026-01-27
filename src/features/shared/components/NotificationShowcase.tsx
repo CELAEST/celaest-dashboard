@@ -4,7 +4,7 @@ import React from "react";
 import { motion } from "motion/react";
 import { CheckCircle, AlertTriangle, XCircle, Info, Bell } from "lucide-react";
 import { useNotifications } from "@/features/shared/contexts/NotificationContext";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 
 export const NotificationShowcase = () => {
   const { addNotification } = useNotifications();
@@ -73,6 +73,7 @@ export const NotificationShowcase = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <button
           onClick={triggerSuccess}
+          aria-label="Simular notificación de éxito"
           className={`flex items-center gap-3 p-4 rounded-xl border transition-all duration-300 hover:scale-[1.02] text-left group
             ${
               isDark
@@ -101,6 +102,7 @@ export const NotificationShowcase = () => {
 
         <button
           onClick={triggerWarning}
+          aria-label="Simular notificación de advertencia"
           className={`flex items-center gap-3 p-4 rounded-xl border transition-all duration-300 hover:scale-[1.02] text-left group
             ${
               isDark
@@ -129,6 +131,7 @@ export const NotificationShowcase = () => {
 
         <button
           onClick={triggerError}
+          aria-label="Simular notificación de error"
           className={`flex items-center gap-3 p-4 rounded-xl border transition-all duration-300 hover:scale-[1.02] text-left group
             ${
               isDark
@@ -157,6 +160,7 @@ export const NotificationShowcase = () => {
 
         <button
           onClick={triggerInfo}
+          aria-label="Simular notificación de información"
           className={`flex items-center gap-3 p-4 rounded-xl border transition-all duration-300 hover:scale-[1.02] text-left group
             ${
               isDark

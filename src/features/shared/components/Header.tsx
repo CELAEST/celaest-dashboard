@@ -1,88 +1,21 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { Search, Command, Sun, Moon, User, Shield } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { Search, Command, Sun, Moon, Filter } from "lucide-react";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { NotificationCenter } from "./NotificationCenter";
-import { useLayout } from "@/features/shared/contexts/LayoutContext";
-import { Filter } from "lucide-react";
-// import { Badge } from "@/components/ui/badge";
-
-// Componente memoizado para el indicador de rol
-const RoleIcon = React.memo(function RoleIcon({ role }: { role: string }) {
-  if (role === "super_admin")
-    return <Shield className="w-3 h-3 text-purple-400" />;
-  if (role === "admin") return <Shield className="w-3 h-3 text-cyan-400" />;
-  return <User className="w-3 h-3" />;
-});
-
-// Componente memoizado para la info del usuario
-const UserInfo = React.memo(function UserInfo({
-  user,
-  isDark,
-}: {
-  user: { name?: string; email: string; role: string };
-  isDark: boolean;
-}) {
-  const containerClassName = useMemo(
-    () =>
-      `flex items-center gap-3 px-4 py-2 rounded-full border ${
-        isDark ? "bg-white/5 border-white/10" : "bg-gray-50 border-gray-200"
-      }`,
-    [isDark],
-  );
-
-  const iconContainerClassName = useMemo(
-    () =>
-      `w-8 h-8 rounded-full flex items-center justify-center ${
-        isDark ? "bg-cyan-500/20" : "bg-blue-100"
-      }`,
-    [isDark],
-  );
-
-  return (
-    <div className={containerClassName}>
-      <div className={iconContainerClassName}>
-        <RoleIcon role={user.role} />
-      </div>
-      <div className="flex flex-col">
-        <span
-          className={`text-sm font-medium ${
-            isDark ? "text-white" : "text-gray-900"
-          }`}
-        >
-          {user.name || user.email.split("@")[0]}
-        </span>
-        <span
-          className={`text-xs ${isDark ? "text-gray-500" : "text-gray-500"}`}
-        >
-          {user.role.replace("_", " ")}
-        </span>
-      </div>
-    </div>
-  );
-});
-
-// Demo user - definido fuera del componente
-// const demoUser = {
-//   id: "demo_superadmin_001",
-//   email: "admin@celaest.com",
-//   name: "CELAEST Admin",
-//   role: "super_admin" as const,
-// };
+import { useUIStore } from "@/stores/useUIStore";
+import { UserInfo } from "./Header/UserInfo";
 
 interface HeaderProps {
   onShowLogin?: () => void;
 }
 
 export const Header = React.memo(function Header({ onShowLogin }: HeaderProps) {
-  const { theme, toggleTheme } = useTheme();
+  const { toggleTheme, isDark, isMounted } = useTheme();
   const { user } = useAuth();
-  const { navbarSearchVisible, searchQuery, setSearchQuery } = useLayout();
-  const isDark = theme === "dark";
-
-  // const currentUser = user || demoUser;
+  const { navbarSearchVisible, searchQuery, setSearchQuery } = useUIStore();
 
   // Memoizar clases dinámicas
   const headerClassName = useMemo(
@@ -112,6 +45,19 @@ export const Header = React.memo(function Header({ onShowLogin }: HeaderProps) {
       }`,
     [isDark],
   );
+
+  // Prevent hydration mismatch for icons/theme-dependent UI
+  if (!isMounted) {
+    return (
+      <header className="h-20 px-8 flex items-center justify-between sticky top-0 z-40 border-b bg-white/60 border-gray-200">
+        <div className="w-64 h-10 bg-gray-100 rounded-full animate-pulse" />
+        <div className="flex gap-4">
+          <div className="w-20 h-10 bg-gray-100 rounded-full animate-pulse" />
+          <div className="w-10 h-10 bg-gray-100 rounded-full animate-pulse" />
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header className={headerClassName}>
@@ -183,7 +129,7 @@ export const Header = React.memo(function Header({ onShowLogin }: HeaderProps) {
 
       <div className="flex items-center gap-6">
         {user ? (
-          <UserInfo user={user} isDark={isDark} />
+          <UserInfo user={user} />
         ) : (
           <button
             onClick={onShowLogin}

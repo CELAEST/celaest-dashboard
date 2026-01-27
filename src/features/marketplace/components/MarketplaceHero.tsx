@@ -1,63 +1,93 @@
-import React from "react";
+"use client";
+
+import React, { forwardRef } from "react";
 import { motion } from "motion/react";
-import { Play, ArrowRight } from "lucide-react";
+import { ChevronDown } from "lucide-react";
+import { TrustBadges } from "@/features/marketplace/components/TrustBadges";
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
+import { useTheme } from "@/features/shared/contexts/ThemeContext";
 
-export const MarketplaceHero: React.FC = () => {
-  return (
-    <div className="relative w-full h-[400px] rounded-3xl overflow-hidden mb-12 group">
-      {/* Background Image (Simulating 3D Loop) */}
-      <div className="absolute inset-0">
-        <ImageWithFallback
-          src="https://images.unsplash.com/photo-1693829957089-671ff2b0a5de?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHwzZCUyMGZ1dHVyaXN0aWMlMjBzZXJ2ZXIlMjBhYnN0cmFjdCUyMGNpbmVtYXRpYyUyMGxvb3B8ZW58MXx8fHwxNzY4NTc4MzczfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-          className="w-full h-full object-cover transition-transform duration-[20s] ease-linear group-hover:scale-110"
-          alt="Celaest Infrastructure"
-        />
-        <div className="absolute inset-0 bg-linear-to-r from-black via-black/50 to-transparent" />
-      </div>
+interface MarketplaceHeroProps {
+  onScrollToCatalog: () => void;
+}
 
-      <div className="absolute inset-0 p-12 flex flex-col justify-center max-w-2xl z-10">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8 }}
+export const MarketplaceHero = React.memo(
+  forwardRef<HTMLDivElement, MarketplaceHeroProps>(function MarketplaceHero(
+    { onScrollToCatalog },
+    ref,
+  ) {
+    const { theme } = useTheme();
+    const isDark = theme === "dark";
+
+    return (
+      <div ref={ref} className="relative p-8 pb-0">
+        <div className="relative w-full aspect-32/9 overflow-hidden rounded-3xl shadow-2xl">
+          <div
+            className={`absolute inset-0 z-10 ${
+              isDark
+                ? "bg-linear-to-r from-black via-black/40 to-transparent"
+                : "bg-linear-to-r from-white via-white/70 to-transparent"
+            }`}
+          />
+          <ImageWithFallback
+            src={`/images/marketplace_hero_${isDark ? "dark" : "light"}_v7.webp`}
+            fill
+            priority
+            className="object-cover"
+            alt="Hero Background"
+          />
+
+          <div className="absolute inset-0 flex flex-col justify-center px-12 z-20 w-full">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <h1
+                className={`text-5xl font-bold mb-4 leading-tight ${
+                  isDark ? "text-white" : "text-gray-900"
+                }`}
+              >
+                Tecnología Empresarial
+                <br />
+                <span className={isDark ? "text-cyan-400" : "text-cyan-600"}>
+                  Innovación Celestial
+                </span>
+              </h1>
+              <p
+                className={`text-lg mb-6 max-w-xl leading-relaxed ${
+                  isDark ? "text-gray-300" : "text-gray-700"
+                }`}
+              >
+                Soluciones profesionales listas para usar. Sin complejidad
+                técnica, sin configuraciones difíciles. Solo resultados
+                garantizados.
+              </p>
+              <TrustBadges />
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Scroll indicator */}
+        <motion.button
+          onClick={onScrollToCatalog}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1 }}
+          className={`
+            mx-auto mt-6 flex flex-col items-center gap-1 text-sm transition-colors
+            ${isDark ? "text-gray-500 hover:text-cyan-400" : "text-gray-400 hover:text-cyan-600"}
+          `}
         >
-          <div className="flex items-center gap-2 mb-4">
-            <span className="px-2 py-1 bg-cyan-500/20 border border-cyan-500/50 rounded text-cyan-400 text-[10px] font-bold uppercase tracking-widest backdrop-blur-md">
-              System Update 5.0
-            </span>
-          </div>
-          <h1 className="text-5xl font-bold text-white mb-6 leading-tight tracking-tight">
-            Architect the <br />
-            <span className="text-transparent bg-clip-text bg-linear-to-r from-cyan-400 to-blue-500">
-              Unimaginable
-            </span>
-          </h1>
-          <p className="text-gray-300 text-lg mb-8 max-w-lg leading-relaxed">
-            Access the new Quantum Scalability Nodes. Deploy infrastructure that
-            adapts to market volatility in milliseconds.
-          </p>
-
-          <div className="flex items-center gap-4">
-            <button className="px-8 py-3 bg-cyan-400 text-black font-bold uppercase tracking-widest text-sm hover:bg-white transition-colors rounded-sm flex items-center gap-2">
-              Explore Nodes <ArrowRight size={16} />
-            </button>
-            <button className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-white/10 transition-colors backdrop-blur-sm group/play">
-              <Play
-                size={20}
-                className="fill-white group-hover/play:scale-110 transition-transform"
-              />
-            </button>
-            <span className="text-xs text-gray-400 font-mono">
-              Watch Demo [0:45]
-            </span>
-          </div>
-        </motion.div>
+          <span>Explorar catálogo</span>
+          <motion.div
+            animate={{ y: [0, 5, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          >
+            <ChevronDown size={20} />
+          </motion.div>
+        </motion.button>
       </div>
-
-      {/* Decorative Border Glow */}
-      <div className="absolute inset-0 border border-white/10 rounded-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-full h-px bg-linear-to-r from-transparent via-cyan-500/50 to-transparent" />
-    </div>
-  );
-};
+    );
+  }),
+);

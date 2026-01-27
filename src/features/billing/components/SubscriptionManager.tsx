@@ -91,7 +91,9 @@ export const SubscriptionManager: React.FC = () => {
             <div className="flex items-baseline gap-2">
               <span
                 className={`text-4xl sm:text-5xl font-black ${
-                  isDark ? "text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.3)]" : "text-blue-600"
+                  isDark
+                    ? "text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.3)]"
+                    : "text-blue-600"
                 }`}
               >
                 $299
@@ -114,7 +116,9 @@ export const SubscriptionManager: React.FC = () => {
                     isDark ? "text-slate-200" : "text-slate-700"
                   }`}
                 >
-                  <CheckCircle className={`w-4 h-4 ${isDark ? "text-emerald-400" : "text-emerald-500"}`} />
+                  <CheckCircle
+                    className={`w-4 h-4 ${isDark ? "text-emerald-400" : "text-emerald-500"}`}
+                  />
                   Active Licenses
                 </span>
                 <span
@@ -122,12 +126,15 @@ export const SubscriptionManager: React.FC = () => {
                     isDark ? "text-cyan-300" : "text-blue-600"
                   }`}
                 >
-                  {usedLicenses} <span className="text-slate-500">/ {totalLicenses}</span>
+                  {usedLicenses}{" "}
+                  <span className="text-slate-500">/ {totalLicenses}</span>
                 </span>
               </div>
               <div
                 className={`h-4 rounded-full overflow-hidden p-1 ${
-                  isDark ? "bg-slate-900/50 box-inner shadow-inner" : "bg-slate-100 shadow-inner"
+                  isDark
+                    ? "bg-slate-900/50 box-inner shadow-inner"
+                    : "bg-slate-100 shadow-inner"
                 }`}
               >
                 <motion.div
@@ -135,7 +142,9 @@ export const SubscriptionManager: React.FC = () => {
                   initial={{ width: 0 }}
                   animate={{ width: `${licensePercentage}%` }}
                   transition={{ duration: 1.2, ease: "easeOut" }}
-                  style={{ boxShadow: isDark ? "0 0 12px rgba(6,182,212,0.5)" : "none" }}
+                  style={{
+                    boxShadow: isDark ? "0 0 12px rgba(6,182,212,0.5)" : "none",
+                  }}
                 >
                   {/* Shimmer on bar */}
                   <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/30 to-transparent w-full -translate-x-full animate-[shimmer_2s_infinite]" />
@@ -156,7 +165,9 @@ export const SubscriptionManager: React.FC = () => {
                     isDark ? "text-slate-200" : "text-slate-700"
                   }`}
                 >
-                  <TrendingUp className={`w-4 h-4 ${isDark ? "text-emerald-400" : "text-emerald-500"}`} />
+                  <TrendingUp
+                    className={`w-4 h-4 ${isDark ? "text-emerald-400" : "text-emerald-500"}`}
+                  />
                   API Calls
                 </span>
                 <span
@@ -169,7 +180,9 @@ export const SubscriptionManager: React.FC = () => {
               </div>
               <div
                 className={`h-4 rounded-full overflow-hidden p-1 ${
-                  isDark ? "bg-slate-900/50 shadow-inner" : "bg-slate-100 shadow-inner"
+                  isDark
+                    ? "bg-slate-900/50 shadow-inner"
+                    : "bg-slate-100 shadow-inner"
                 }`}
               >
                 <motion.div
@@ -177,15 +190,21 @@ export const SubscriptionManager: React.FC = () => {
                   initial={{ width: 0 }}
                   animate={{ width: `${apiPercentage}%` }}
                   transition={{ duration: 1.2, delay: 0.2, ease: "easeOut" }}
-                  style={{ boxShadow: isDark ? "0 0 12px rgba(52,211,153,0.5)" : "none" }}
+                  style={{
+                    boxShadow: isDark
+                      ? "0 0 12px rgba(52,211,153,0.5)"
+                      : "none",
+                  }}
                 >
-                   <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/30 to-transparent w-full -translate-x-full animate-[shimmer_2s_infinite]" />
+                  <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/30 to-transparent w-full -translate-x-full animate-[shimmer_2s_infinite]" />
                 </motion.div>
               </div>
               <div
                 className={`text-xs mt-2 font-medium flex justify-between ${isDark ? "text-slate-400" : "text-slate-500"}`}
               >
-                <span>{(totalApiCalls - usedApiCalls).toLocaleString()} remaining</span>
+                <span>
+                  {(totalApiCalls - usedApiCalls).toLocaleString()} remaining
+                </span>
                 <span>Cap: {totalApiCalls.toLocaleString()}</span>
               </div>
             </div>
@@ -210,7 +229,7 @@ export const SubscriptionManager: React.FC = () => {
               {/* Button Shine Animation */}
               <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
             </motion.button>
-            
+
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -228,17 +247,14 @@ export const SubscriptionManager: React.FC = () => {
       </div>
 
       <ManageSubscriptionModal
-        darkMode={isDark}
         isOpen={isManageModalOpen}
         onClose={() => setIsManageModalOpen(false)}
       />
 
       <UpgradePlanModal
-        darkMode={isDark}
         isOpen={isUpgradeModalOpen}
         onClose={() => setIsUpgradeModalOpen(false)}
       />
     </>
   );
 };
-

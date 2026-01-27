@@ -78,7 +78,7 @@ export interface AuthState {
 }
 
 export interface AuthActions {
-  signIn: (email: string, password: string) => Promise<AuthResult<AuthSession>>
+  signIn: (email: string, password: string) => Promise<AuthResult>
   signUp: (email: string, password: string, name: string) => Promise<AuthResult>
   signInWithGoogle: () => Promise<AuthResult>
   signInWithGitHub: () => Promise<AuthResult>
