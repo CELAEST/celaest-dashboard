@@ -9,7 +9,6 @@ import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { motion } from "motion/react";
 import { Users, Clock, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
 
@@ -94,41 +93,42 @@ export const UserManagement: React.FC = () => {
   }
 
   return (
-    <div>
-      {/* Header */}
-      <div className="mb-8">
+    <div className="h-full flex flex-col min-h-0">
+      {/* Fixed Header Section */}
+      <div className="shrink-0 mb-6">
         <h1
-          className={`text-3xl font-bold mb-2 ${
+          className={`text-4xl font-black mb-2 tracking-tighter italic uppercase ${
             isDark ? "text-white" : "text-gray-900"
           }`}
         >
           User Management
         </h1>
-        <p className={`${isDark ? "text-gray-400" : "text-gray-600"}`}>
-          Manage users, roles, and view security audit logs
+        <p
+          className={`text-sm font-medium ${
+            isDark ? "text-gray-400" : "text-gray-600"
+          }`}
+        >
+          Manage users, roles, and security protocols
         </p>
       </div>
 
-      {/* Stats Cards */}
-      <StatsOverview users={users} auditLogs={auditLogs} isDark={isDark} />
-
-      {/* Tabs */}
-      <div className="flex gap-2 mb-6">
+      {/* Fixed Tabs */}
+      <div className="flex gap-2 mb-6 shrink-0">
         <Button
           onClick={() => setActiveTab("users")}
           variant={activeTab === "users" ? "default" : "outline"}
           className={
             activeTab === "users"
               ? isDark
-                ? "bg-cyan-500 text-white"
-                : "bg-blue-600 text-white"
+                ? "bg-cyan-500 text-white font-bold tracking-wide shadow-lg shadow-cyan-500/20"
+                : "bg-blue-600 text-white font-bold tracking-wide shadow-lg shadow-blue-500/20"
               : isDark
-                ? "border-white/10 text-gray-400"
-                : "border-gray-300 text-gray-700"
+                ? "border-white/10 text-gray-400 hover:text-white hover:bg-white/5"
+                : "border-gray-300 text-gray-700 hover:text-gray-900"
           }
         >
           <Users className="w-4 h-4 mr-2" />
-          Users
+          Users Directory
         </Button>
         <Button
           onClick={() => setActiveTab("logs")}
@@ -136,11 +136,11 @@ export const UserManagement: React.FC = () => {
           className={
             activeTab === "logs"
               ? isDark
-                ? "bg-cyan-500 text-white"
-                : "bg-blue-600 text-white"
+                ? "bg-cyan-500 text-white font-bold tracking-wide shadow-lg shadow-cyan-500/20"
+                : "bg-blue-600 text-white font-bold tracking-wide shadow-lg shadow-blue-500/20"
               : isDark
-                ? "border-white/10 text-gray-400"
-                : "border-gray-300 text-gray-700"
+                ? "border-white/10 text-gray-400 hover:text-white hover:bg-white/5"
+                : "border-gray-300 text-gray-700 hover:text-gray-900"
           }
         >
           <Clock className="w-4 h-4 mr-2" />
@@ -148,50 +148,69 @@ export const UserManagement: React.FC = () => {
         </Button>
       </div>
 
-      {/* Users Tab */}
-      {activeTab === "users" && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <Card
-            className={`${
-              isDark
-                ? "bg-[#0a0a0a]/60 border-white/10"
-                : "bg-white border-gray-200"
-            }`}
+      {/* Main Content Area - Scrollable */}
+      <div className="flex-1 overflow-hidden relative">
+        {/* Users Tab Content */}
+        {activeTab === "users" && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="h-full flex flex-col"
           >
-            <UserFilters
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              roleFilter={roleFilter}
-              setRoleFilter={setRoleFilter}
-            />
-            <CardContent>
-              <UsersTable
-                users={filteredUsers}
-                loading={usersLoading}
-                currentUserId={user?.id}
-                isSuperAdmin={!!isSuperAdmin()}
-                onRoleChange={handleChangeRole}
-                onForceSignOut={initForceSignOut}
+            {/* Scrollable Container */}
+            <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 pb-16 space-y-6">
+              {/* Stats Grid */}
+              <StatsOverview
+                users={users}
+                auditLogs={auditLogs}
+                isDark={isDark}
               />
-            </CardContent>
-          </Card>
-        </motion.div>
-      )}
 
-      {/* Audit Logs Tab */}
-      {activeTab === "logs" && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <AuditLogsList logs={auditLogs} />
-        </motion.div>
-      )}
+              {/* Main Data Card */}
+              <div
+                className={`backdrop-blur-xl border rounded-[2.5rem] overflow-hidden flex flex-col flex-1 min-h-[500px] ${
+                  isDark
+                    ? "bg-[#0a0a0a]/60 border-white/5 shadow-2xl"
+                    : "bg-white border-gray-200 shadow-xl"
+                }`}
+              >
+                <div className="p-6 border-b border-white/5 shrink-0">
+                  <UserFilters
+                    searchQuery={searchQuery}
+                    setSearchQuery={setSearchQuery}
+                    roleFilter={roleFilter}
+                    setRoleFilter={setRoleFilter}
+                  />
+                </div>
+
+                <div className="flex-1 overflow-hidden">
+                  <UsersTable
+                    users={filteredUsers}
+                    loading={usersLoading}
+                    currentUserId={user?.id}
+                    isSuperAdmin={!!isSuperAdmin()}
+                    onRoleChange={handleChangeRole}
+                    onForceSignOut={initForceSignOut}
+                  />
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Audit Logs Tab Content */}
+        {activeTab === "logs" && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="h-full overflow-y-auto custom-scrollbar pr-2 pb-16"
+          >
+            <AuditLogsList logs={auditLogs} />
+          </motion.div>
+        )}
+      </div>
 
       {/* Action Confirmation Modal */}
       <UserActionModal

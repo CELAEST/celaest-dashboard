@@ -63,10 +63,10 @@ export const AppContent: React.FC = () => {
 
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      <div className="pl-[80px] relative z-10 transition-all duration-300">
+      <div className="pl-[80px] h-screen relative z-10 flex flex-col transition-all duration-300 overflow-hidden">
         <Header />
 
-        <main className="p-3 mx-auto min-h-[calc(100vh-80px)]">
+        <main className="flex-1 overflow-hidden p-4 mx-auto w-full">
           <AppViewSwitcher activeTab={activeTab} />
         </main>
       </div>

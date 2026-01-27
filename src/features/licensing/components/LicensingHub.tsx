@@ -33,6 +33,7 @@ export const LicensingHub: React.FC = () => {
     handleUnbindIp,
     selectLicense,
     addNewLicense,
+    revokeLicense,
   } = useLicensing();
 
   // Handle License Creation (Bridge between UI and Hook)
@@ -61,13 +62,13 @@ export const LicensingHub: React.FC = () => {
 
   return (
     <div
-      className={`min-h-screen ${isDark ? "bg-[#0a0a0a]" : "bg-gray-50"} pb-20`}
+      className={`h-full w-full flex flex-col ${isDark ? "bg-[#0a0a0a]" : "bg-gray-50"}`}
     >
       <LicensingHeader onCreateClick={() => setIsCreateModalOpen(true)} />
 
-      <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
-        {/* Navigation Tabs (Simplified for now, can be extracted too) */}
-        <div className="flex items-center gap-6 border-b border-gray-200 dark:border-white/10">
+      <div className="flex-1 overflow-hidden flex flex-col pt-4">
+        {/* Navigation Tabs (Fixed at top) */}
+        <div className="flex items-center gap-6 border-b border-gray-200 dark:border-white/10 shrink-0 px-2 pb-px">
           <button
             onClick={() => setActiveTab("licenses")}
             className={`pb-3 text-sm font-medium border-b-2 transition-colors ${
@@ -111,24 +112,33 @@ export const LicensingHub: React.FC = () => {
           </button>
         </div>
 
-        {/* Tab Content */}
-        {activeTab === "analytics" && <LicensingStats analytics={analytics} />}
+        {/* Tab Content Area (Internal scroll managed by children) */}
+        <div className="flex-1 overflow-hidden flex flex-col pt-6">
+          {activeTab === "analytics" && (
+            <div className="flex-1 overflow-y-auto custom-scrollbar pb-4">
+              <LicensingStats analytics={analytics} />
+            </div>
+          )}
 
-        {activeTab === "collisions" && (
-          <LicensingCollisions collisions={collisions} />
-        )}
+          {activeTab === "collisions" && (
+            <LicensingCollisions
+              collisions={collisions}
+              onRevoke={revokeLicense}
+            />
+          )}
 
-        {activeTab === "licenses" && (
-          <LicensingList
-            licenses={licenses}
-            loading={loading}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            statusFilter={statusFilter}
-            setStatusFilter={setStatusFilter}
-            onSelectLicense={selectLicense}
-          />
-        )}
+          {activeTab === "licenses" && (
+            <LicensingList
+              licenses={licenses}
+              loading={loading}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              statusFilter={statusFilter}
+              setStatusFilter={setStatusFilter}
+              onSelectLicense={selectLicense}
+            />
+          )}
+        </div>
       </div>
 
       <CreateLicenseModal

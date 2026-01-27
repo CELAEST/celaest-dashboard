@@ -30,33 +30,16 @@ export const OrdersTable = React.memo(function OrdersTable() {
   // Memoize header class
   const headerClassName = useMemo(
     () =>
-      `border-b text-xs uppercase tracking-wider font-mono ${
+      `border-b text-[10px] uppercase tracking-widest font-black italic ${
         isDark
-          ? "border-white/5 text-gray-500"
-          : "border-gray-200 text-gray-500"
+          ? "border-white/5 text-gray-600"
+          : "border-gray-200 text-gray-400"
       }`,
     [isDark],
   );
 
   return (
     <div className="w-full relative">
-      <div className="flex justify-between items-center mb-6">
-        <h3
-          className={`font-medium ${isDark ? "text-white" : "text-gray-900"}`}
-        >
-          Recent Orders
-        </h3>
-        <button
-          className={`text-xs transition-colors ${
-            isDark
-              ? "text-cyan-400 hover:text-cyan-300"
-              : "text-blue-600 hover:text-blue-700"
-          }`}
-        >
-          View All
-        </button>
-      </div>
-
       <div className="overflow-x-auto min-h-[300px]">
         <table className="w-full text-left border-collapse">
           <thead>

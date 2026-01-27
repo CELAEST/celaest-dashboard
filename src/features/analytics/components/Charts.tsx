@@ -44,7 +44,7 @@ const CustomTooltip = React.memo(function CustomTooltip({
           ? "bg-black/90 border-cyan-500/30 shadow-[0_0_20px_rgba(34,211,238,0.2)]"
           : "bg-white/90 border-gray-200 shadow-lg"
       }`,
-    [isDark]
+    [isDark],
   );
 
   // Return condicional DESPUÉS de todos los hooks
@@ -84,85 +84,53 @@ export const SalesChart = React.memo(function SalesChart() {
       grid: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)",
       cursor: isDark ? "rgba(34,211,238,0.2)" : "rgba(59,130,246,0.2)",
     }),
-    [isDark]
-  );
-
-  // Memoizar estilos del select
-  const selectClassName = useMemo(
-    () =>
-      `text-xs rounded-lg px-2 py-1 outline-none border ${
-        isDark
-          ? "bg-black/30 border-white/10 text-gray-400 focus:border-cyan-500/50"
-          : "bg-white border-gray-200 text-gray-600 focus:border-blue-500"
-      }`,
-    [isDark]
+    [isDark],
   );
 
   return (
-    <div className="h-full w-full flex flex-col">
-      <div className="flex justify-between items-center mb-6">
-        <h3
-          className={`font-medium flex items-center gap-2 ${
-            isDark ? "text-white" : "text-gray-900"
-          }`}
-        >
-          <span
-            className={`w-2 h-2 rounded-full ${
-              isDark ? "bg-cyan-400 shadow-[0_0_8px_#22d3ee]" : "bg-blue-500"
-            }`}
+    <div className="w-full h-full min-w-0">
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart data={chartData}>
+          <defs>
+            <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor={colors.stroke} stopOpacity={0.3} />
+              <stop offset="95%" stopColor={colors.stroke} stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid
+            strokeDasharray="3 3"
+            stroke={colors.grid}
+            vertical={false}
           />
-          Revenue Flow
-        </h3>
-        <select className={selectClassName}>
-          <option>Last 7 Days</option>
-          <option>Last Month</option>
-        </select>
-      </div>
-
-      <div className="w-full h-[300px] min-w-0">
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={chartData}>
-            <defs>
-              <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={colors.stroke} stopOpacity={0.3} />
-                <stop offset="95%" stopColor={colors.stroke} stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke={colors.grid}
-              vertical={false}
-            />
-            <XAxis
-              dataKey="name"
-              stroke={colors.axis}
-              tick={{ fill: colors.axis, fontSize: 10 }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <YAxis
-              stroke={colors.axis}
-              tick={{ fill: colors.axis, fontSize: 10 }}
-              axisLine={false}
-              tickLine={false}
-              tickFormatter={(value) => `$${value / 1000}k`}
-            />
-            <Tooltip
-              content={<CustomTooltip />}
-              cursor={{ stroke: colors.cursor, strokeWidth: 2 }}
-            />
-            <Area
-              type="monotone"
-              dataKey="sales"
-              stroke={colors.stroke}
-              strokeWidth={2}
-              fillOpacity={1}
-              fill="url(#colorSales)"
-              isAnimationActive={false}
-            />
-          </AreaChart>
-        </ResponsiveContainer>
-      </div>
+          <XAxis
+            dataKey="name"
+            stroke={colors.axis}
+            tick={{ fill: colors.axis, fontSize: 10 }}
+            axisLine={false}
+            tickLine={false}
+          />
+          <YAxis
+            stroke={colors.axis}
+            tick={{ fill: colors.axis, fontSize: 10 }}
+            axisLine={false}
+            tickLine={false}
+            tickFormatter={(value) => `$${value / 1000}k`}
+          />
+          <Tooltip
+            content={<CustomTooltip />}
+            cursor={{ stroke: colors.cursor, strokeWidth: 2 }}
+          />
+          <Area
+            type="monotone"
+            dataKey="sales"
+            stroke={colors.stroke}
+            strokeWidth={2}
+            fillOpacity={1}
+            fill="url(#colorSales)"
+            isAnimationActive={false}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
     </div>
   );
 });

@@ -29,6 +29,7 @@ export const AppViewSwitcher: React.FC<AppViewSwitcherProps> = memo(
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.3 }}
+            className="h-full"
           >
             <MarketplaceViewNew />
           </motion.div>
@@ -41,6 +42,7 @@ export const AppViewSwitcher: React.FC<AppViewSwitcherProps> = memo(
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.05 }}
             transition={{ duration: 0.3 }}
+            className="h-full"
           >
             <LicensingHub />
           </motion.div>
@@ -53,6 +55,7 @@ export const AppViewSwitcher: React.FC<AppViewSwitcherProps> = memo(
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.05 }}
             transition={{ duration: 0.3 }}
+            className="h-full"
           >
             <AnalyticsConsole />
           </motion.div>
@@ -65,6 +68,7 @@ export const AppViewSwitcher: React.FC<AppViewSwitcherProps> = memo(
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.05 }}
             transition={{ duration: 0.3 }}
+            className="h-full"
           >
             <BillingPortal />
           </motion.div>
@@ -77,6 +81,7 @@ export const AppViewSwitcher: React.FC<AppViewSwitcherProps> = memo(
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.05 }}
             transition={{ duration: 0.3 }}
+            className="h-full"
           >
             <AssetManager />
           </motion.div>
@@ -89,6 +94,7 @@ export const AppViewSwitcher: React.FC<AppViewSwitcherProps> = memo(
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.05 }}
             transition={{ duration: 0.3 }}
+            className="h-full"
           >
             <ReleaseManager />
           </motion.div>
@@ -101,6 +107,7 @@ export const AppViewSwitcher: React.FC<AppViewSwitcherProps> = memo(
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.05 }}
             transition={{ duration: 0.3 }}
+            className="h-full"
           >
             <UserManagement />
           </motion.div>
@@ -113,6 +120,7 @@ export const AppViewSwitcher: React.FC<AppViewSwitcherProps> = memo(
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.05 }}
             transition={{ duration: 0.3 }}
+            className="h-full"
           >
             <ROIMetrics />
           </motion.div>
@@ -125,6 +133,7 @@ export const AppViewSwitcher: React.FC<AppViewSwitcherProps> = memo(
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.05 }}
             transition={{ duration: 0.3 }}
+            className="h-full"
           >
             <ErrorMonitoring />
           </motion.div>

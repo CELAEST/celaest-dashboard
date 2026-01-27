@@ -51,63 +51,67 @@ export const StatCard = React.memo(function StatCard({
 
       <div className="relative">
         {/* Icon & Trend */}
-        <div className="flex items-start justify-between mb-4">
+        <div className="flex items-start justify-between mb-6">
           <div
-            className={`w-12 h-12 rounded-xl bg-linear-to-br ${gradient} flex items-center justify-center transform transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6 ${
-              isDark ? "shadow-lg shadow-cyan-500/30" : "shadow-md"
+            className={`w-14 h-14 rounded-2xl bg-linear-to-br ${gradient} flex items-center justify-center transform transition-transform duration-500 group-hover:scale-110 group-hover:rotate-12 ${
+              isDark
+                ? "shadow-2xl shadow-cyan-500/20"
+                : "shadow-xl shadow-blue-500/20"
             }`}
           >
-            <div className="text-white">{icon}</div>
+            <div className="text-white scale-110">{icon}</div>
           </div>
           <div
-            className={`p-2 rounded-lg ${isDark ? "bg-white/5" : "bg-gray-50"}`}
+            className={`px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-colors ${
+              isDark ? "bg-white/5" : "bg-gray-100"
+            }`}
           >
+            <span
+              className={`text-[10px] font-black tracking-widest uppercase ${
+                trendUp ? "text-emerald-500" : "text-red-500"
+              }`}
+            >
+              {trendUp ? "+" : "-"}
+              {trend}
+            </span>
             {trendUp ? (
-              <TrendingUp
-                className={`w-4 h-4 ${
-                  trendUp ? "text-emerald-500" : "text-blue-500"
-                }`}
-              />
+              <TrendingUp className="w-3 h-3 text-emerald-500" />
             ) : (
-              <TrendingDown className="w-4 h-4 text-red-500" />
+              <TrendingDown className="w-3 h-3 text-red-500" />
             )}
           </div>
         </div>
 
         {/* Content */}
         <div
-          className={`text-xs font-semibold tracking-wider mb-2 ${
-            isDark ? "text-gray-400" : "text-gray-500"
+          className={`text-[10px] font-black uppercase tracking-[0.2em] mb-2 ${
+            isDark ? "text-gray-500" : "text-gray-400"
           }`}
         >
           {title}
         </div>
         <div
-          className={`text-3xl font-bold tracking-tight mb-3 ${
+          className={`text-4xl font-black tracking-tighter italic mb-1 ${
             isDark ? "text-white" : "text-gray-900"
           }`}
         >
           {value}
         </div>
         <div className="flex items-center gap-2">
-          <span
-            className={`text-sm font-semibold ${
-              trendUp
-                ? isDark
-                  ? "text-emerald-400"
-                  : "text-emerald-600"
-                : isDark
-                  ? "text-red-400"
-                  : "text-red-600"
-            }`}
+          <div
+            className={`h-1 w-12 rounded-full overflow-hidden ${isDark ? "bg-white/5" : "bg-gray-100"}`}
           >
-            {trendUp ? "+" : ""}
-            {trend}
-          </span>
+            <motion.div
+              initial={{ x: "-100%" }}
+              animate={{ x: "0%" }}
+              transition={{ delay: delay + 0.5, duration: 1 }}
+              className={`h-full bg-linear-to-r ${gradient}`}
+            />
+          </div>
           <span
-            className={`text-xs ${isDark ? "text-gray-500" : "text-gray-400"}`}
+            className={`text-[9px] font-bold uppercase tracking-widest ${isDark ? "text-gray-600" : "text-gray-400"}`}
           >
-            vs last week
+            Global performance index
           </span>
         </div>
       </div>

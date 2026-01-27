@@ -1,67 +1,92 @@
-"use client";
-
-import React from "react";
-import { AlertTriangle } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import React, { useState } from "react";
+import { Check } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { Collision } from "@/features/licensing/constants/mock-data";
+import { CollisionCard } from "./CollisionCard";
+import { RevokeConfirmationModal } from "../modals/RevokeConfirmationModal";
 
 interface LicensingCollisionsProps {
   collisions: Collision[];
+  onRevoke: (licenseId: string) => void;
 }
 
+/**
+ * LicensingCollisions component refactored for SOLID and DRY principles.
+ * Manages the list of collisions and the revocation confirmation state.
+ * Adapts to full width with responsive padding.
+ */
 export const LicensingCollisions: React.FC<LicensingCollisionsProps> = ({
   collisions,
+  onRevoke,
 }) => {
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
+  const { isDark } = useTheme();
+  const [selectedCollision, setSelectedCollision] = useState<Collision | null>(
+    null,
+  );
+
+  const handleConfirmRevoke = () => {
+    if (selectedCollision) {
+      onRevoke(selectedCollision.licenseId);
+      setSelectedCollision(null);
+    }
+  };
 
   return (
-    <div className="space-y-4">
-      {collisions.length === 0 ? (
-        <div className="text-center py-20 text-gray-500">
-          No collisions detected. Great job!
-        </div>
-      ) : (
-        collisions.map((collision) => (
-          <div
-            key={collision.licenseId}
-            className={`p-6 rounded-2xl border flex items-center justify-between ${
-              isDark
-                ? "bg-red-500/5 border-red-500/20"
-                : "bg-red-50 border-red-200"
-            }`}
-          >
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center text-red-500">
-                <AlertTriangle size={24} />
-              </div>
-              <div>
-                <h3
-                  className={`font-bold ${
-                    isDark ? "text-white" : "text-gray-900"
-                  }`}
-                >
-                  Multiple IP Collision Detected
-                </h3>
-                <p className="text-sm text-gray-500">
-                  License {collision.licenseId} is being used on{" "}
-                  {collision.ipCount} IPs (Limit: {collision.license.maxIpSlots}
-                  )
-                </p>
-              </div>
-            </div>
-            <button
-              className={`px-4 py-2 rounded-lg text-sm font-medium ${
+    <div className="flex-1 min-h-0 flex flex-col space-y-6">
+      <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-6 pb-4">
+        <AnimatePresence mode="popLayout">
+          {collisions.length === 0 ? (
+            <motion.div
+              key="empty-state"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className={`text-center py-24 rounded-3xl border border-dashed transition-colors duration-500 ${
                 isDark
-                  ? "bg-red-500 text-black hover:bg-red-400"
-                  : "bg-red-600 text-white hover:bg-red-700"
+                  ? "border-white/10 bg-white/2"
+                  : "border-gray-200 bg-gray-50/50"
               }`}
             >
-              Revoke License
-            </button>
-          </div>
-        ))
-      )}
+              <div className="flex flex-col items-center gap-6">
+                <div
+                  className={`p-5 rounded-full ${isDark ? "bg-white/5" : "bg-white shadow-sm"}`}
+                >
+                  <Check className="w-10 h-10 text-emerald-500" />
+                </div>
+                <div className="space-y-2">
+                  <h3
+                    className={`text-xl font-black uppercase tracking-tighter italic ${isDark ? "text-white" : "text-gray-900"}`}
+                  >
+                    System Integrous
+                  </h3>
+                  <p className="text-sm text-gray-500 font-medium max-w-[280px] mx-auto leading-relaxed">
+                    No active IP collisions detected in the current
+                    authorization cluster.
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          ) : (
+            collisions.map((collision, index) => (
+              <CollisionCard
+                key={collision.licenseId}
+                collision={collision}
+                index={index}
+                onRevokeClick={setSelectedCollision}
+              />
+            ))
+          )}
+        </AnimatePresence>
+      </div>
+
+      <RevokeConfirmationModal
+        isOpen={!!selectedCollision}
+        onClose={() => setSelectedCollision(null)}
+        onConfirm={handleConfirmRevoke}
+        licenseId={selectedCollision?.licenseId || ""}
+        ipCount={selectedCollision?.ipCount || 0}
+      />
     </div>
   );
 };

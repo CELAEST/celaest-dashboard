@@ -1,18 +1,18 @@
-const sharp = require('sharp');
-const fs = require('fs');
-const path = require('path');
+import sharp from 'sharp';
+import { readdirSync } from 'fs';
+import { join, resolve, parse, format, basename } from 'path';
 
 /**
  * Script para convertir imágenes PNG/JPG a WebP de forma recursiva.
  * Optimiza el rendimiento y SEO de la aplicación.
  */
 
-const PUBLIC_DIR = path.join(process.cwd(), 'public');
+const PUBLIC_DIR = join(process.cwd(), 'public');
 
 async function getFiles(dir) {
-  const dirents = fs.readdirSync(dir, { withFileTypes: true });
+  const dirents = readdirSync(dir, { withFileTypes: true });
   const files = await Promise.all(dirents.map((dirent) => {
-    const res = path.resolve(dir, dirent.name);
+    const res = resolve(dir, dirent.name);
     return dirent.isDirectory() ? getFiles(res) : res;
   }));
   return Array.prototype.concat(...files);
@@ -35,8 +35,8 @@ async function convertImages() {
     console.log(`📸 Se encontraron ${imageFiles.length} imágenes. Iniciando conversión...`);
 
     for (const inputPath of imageFiles) {
-      const parsedPath = path.parse(inputPath);
-      const outputPath = path.format({
+      const parsedPath = parse(inputPath);
+      const outputPath = format({
         ...parsedPath,
         base: undefined,
         ext: '.webp'
@@ -47,7 +47,7 @@ async function convertImages() {
           .webp({ quality: 80, effort: 6 })
           .toFile(outputPath);
         
-        console.log(`✅ ${parsedPath.base} -> ${path.basename(outputPath)}`);
+        console.log(`✅ ${parsedPath.base} -> ${basename(outputPath)}`);
         
         // Descomenta la siguiente línea si deseas borrar los originales automáticamente
         // fs.unlinkSync(inputPath);
@@ -67,4 +67,4 @@ if (require.main === module) {
   convertImages();
 }
 
-module.exports = convertImages;
+export default convertImages;

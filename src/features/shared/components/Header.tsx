@@ -20,7 +20,7 @@ export const Header = React.memo(function Header({ onShowLogin }: HeaderProps) {
   // Memoizar clases dinámicas
   const headerClassName = useMemo(
     () =>
-      `h-20 px-8 flex items-center justify-between sticky top-0 z-40 backdrop-blur-md border-b transition-colors duration-300 ${
+      `h-20 px-4 flex items-center justify-between sticky top-0 z-40 backdrop-blur-md border-b transition-colors duration-300 ${
         isDark ? "bg-black/40 border-white/5" : "bg-white/60 border-gray-200"
       }`,
     [isDark],

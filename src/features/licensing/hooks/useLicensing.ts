@@ -109,6 +109,19 @@ export const useLicensing = () => {
     }
   }, [loadLicenseDetails]);
 
+  const revokeLicense = useCallback(async (licenseId: string) => {
+    setLicenses((prev) =>
+      prev.map((l) => (l.id === licenseId ? { ...l, status: "revoked" as const } : l))
+    );
+    
+    // Also update selected license if it happens to be the same one
+    if (selectedLicense?.id === licenseId) {
+      setSelectedLicense(prev => prev ? { ...prev, status: "revoked" as const } : null);
+    }
+
+    toast.success(`License ${licenseId} revoked successfully`);
+  }, [selectedLicense]);
+
   const addNewLicense = useCallback((newLicense: License) => {
       setLicenses((prev) => [newLicense, ...prev]);
   }, []);
@@ -143,6 +156,7 @@ export const useLicensing = () => {
       handleChangeStatus,
       handleUnbindIp,
       selectLicense,
-      addNewLicense
+      addNewLicense,
+      revokeLicense
   };
 };
