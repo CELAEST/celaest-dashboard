@@ -2,26 +2,35 @@
 
 This guide defines the architectural and UX principles for the **CELAEST Dashboard** layout. Consistency in spacing and scrolling behavior is critical to maintaining a premium, enterprise-grade software feel.
 
-## 1. The "Zero Global Scroll" Principle
+## 1. The "Zero Global Scroll" Principle (Static Layout)
 
-In a high-productivity dashboard, the user must never lose their primary navigation context. CELAEST enforces a **rigid viewport layout**.
+In a high-productivity dashboard, the user must never lose their primary navigation context. CELAEST enforces a **rigid, static viewport layout** where the main application window never scrolls.
 
-### 🛠️ Implementation Specs
+### 🛠️ Technical Implementation Spec
 
-- **Viewport Locking:** The root container must always be `100vh` (height-screen) and `overflow-hidden`.
-- **Targeted Scroll Areas:** Only specific data containers (tables, list cards, analytics boards) are allowed to scroll.
-- **Scrollbar Styling:** Use the `.custom-scrollbar` utility to ensure the UI remains aesthetic even with scrollbars active.
+To achieve a static layout without cutting off content, you must implement a **Flex-Height Chain**:
+
+1.  **Level 0: Viewport Lock**
+    - Root `AppContent.tsx` must be `h-screen w-screen overflow-hidden`.
+2.  **Level 1: Propagation Chain**
+    - Every parent container between the Root and the Scroll Area must be:
+      - `flex flex-col` (to fill height vertically)
+      - `min-h-0` (CRITICAL: Allows the container to shrink smaller than its children's natural height)
+      - `flex-1` (to take up remaining space)
+3.  **Level 2: The Trap**
+    - The actual content container must be `overflow-y-auto` (or `overflow-y-scroll`).
+    - This "traps" the scrollbar inside the specific card or table.
 
 ### 📐 Structural Diagram
 
 ```mermaid
 graph TD
-    App[AppContent - overflow-hidden] --> Header[Header - Fixed]
-    App --> Sidebar[Sidebar - Fixed]
-    App --> Main[Main Content Container - overflow-hidden]
-    Main --> FeatureHub[Feature Hub - flex-col]
-    FeatureHub --> FeatureHeader[Feature Header - Fixed]
-    FeatureHub --> ScrollArea[Data Section - overflow-y-auto]
+    App["App Root (h-screen, overflow-hidden)"] --> Header[Header - Fixed height]
+    App --> Sidebar[Sidebar - Fixed width]
+    App --> Main["Main Wrapper (flex-1, min-h-0, overflow-hidden)"]
+    Main --> Feature["Feature Hub (flex-1, min-h-0, flex-col)"]
+    Feature --> FHeader[Fixed Header/Tabs]
+    Feature --> ContentArea["Scroll Area (flex-1, overflow-y-auto)"]
 ```
 
 ---

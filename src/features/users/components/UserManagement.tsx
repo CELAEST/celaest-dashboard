@@ -148,18 +148,18 @@ export const UserManagement: React.FC = () => {
         </Button>
       </div>
 
-      {/* Main Content Area - Scrollable */}
-      <div className="flex-1 overflow-hidden relative">
+      {/* Main Content Area - Scroll Area Trigger */}
+      <div className="flex-1 overflow-hidden relative flex flex-col min-h-0">
         {/* Users Tab Content */}
         {activeTab === "users" && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            className="h-full flex flex-col"
+            className="flex-1 flex flex-col min-h-0"
           >
             {/* Scrollable Container */}
-            <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 pb-16 space-y-6">
+            <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 pb-16 space-y-6 min-h-0">
               {/* Stats Grid */}
               <StatsOverview
                 users={users}
@@ -169,7 +169,7 @@ export const UserManagement: React.FC = () => {
 
               {/* Main Data Card */}
               <div
-                className={`backdrop-blur-xl border rounded-[2.5rem] overflow-hidden flex flex-col flex-1 min-h-[500px] ${
+                className={`backdrop-blur-xl border rounded-[2.5rem] overflow-hidden flex flex-col min-h-[500px] shrink-0 ${
                   isDark
                     ? "bg-[#0a0a0a]/60 border-white/5 shadow-2xl"
                     : "bg-white border-gray-200 shadow-xl"
@@ -184,7 +184,7 @@ export const UserManagement: React.FC = () => {
                   />
                 </div>
 
-                <div className="flex-1 overflow-hidden">
+                <div className="flex-1 overflow-hidden border-t border-white/5">
                   <UsersTable
                     users={filteredUsers}
                     loading={usersLoading}
@@ -205,7 +205,7 @@ export const UserManagement: React.FC = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            className="h-full overflow-y-auto custom-scrollbar pr-2 pb-16"
+            className="flex-1 overflow-y-auto custom-scrollbar pr-2 pb-16 min-h-0"
           >
             <AuditLogsList logs={auditLogs} />
           </motion.div>

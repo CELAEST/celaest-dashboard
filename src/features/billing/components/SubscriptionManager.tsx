@@ -22,7 +22,7 @@ export const SubscriptionManager: React.FC = () => {
   return (
     <>
       <div
-        className={`relative w-full rounded-3xl transition-all duration-500 hover:shadow-2xl overflow-hidden ${
+        className={`relative w-full rounded-3xl transition-all duration-500 hover:shadow-2xl flex flex-col h-full overflow-hidden xl:max-h-[560px] ${
           isDark
             ? "bg-linear-to-br from-cyan-900/40 via-blue-900/20 to-indigo-900/40 backdrop-blur-2xl border border-cyan-500/20"
             : "bg-linear-to-br from-blue-50 to-indigo-50 border border-blue-200 shadow-xl"
@@ -42,9 +42,9 @@ export const SubscriptionManager: React.FC = () => {
         {/* Shine Effect Overlay */}
         <div className="absolute inset-0 bg-linear-to-tr from-white/5 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
 
-        <div className="relative p-6 sm:p-8 flex flex-col h-full">
+        <div className="relative p-4 flex flex-col h-full min-h-0">
           {/* Badge Row */}
-          <div className="flex flex-wrap items-center justify-between gap-3 mb-8">
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-4 shrink-0">
             <div
               className={`flex items-center gap-2 px-3 py-1.5 rounded-full font-bold text-xs tracking-wide shadow-sm ${
                 isDark
@@ -71,7 +71,7 @@ export const SubscriptionManager: React.FC = () => {
           </div>
 
           {/* Plan Details */}
-          <div className="mb-8">
+          <div className="mb-4 shrink-0">
             <div
               className={`text-sm font-bold tracking-widest uppercase mb-3 ${
                 isDark ? "text-cyan-200/70" : "text-blue-600/80"
@@ -106,11 +106,11 @@ export const SubscriptionManager: React.FC = () => {
             </div>
           </div>
 
-          {/* Usage Metrics */}
-          <div className="space-y-8 mb-8 grow">
+          {/* Usage Metrics - Adaptive spacing, no scroll */}
+          <div className="flex-1 flex flex-col justify-center space-y-4 mb-4 min-h-0">
             {/* Active Licenses */}
             <div>
-              <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center justify-between mb-2">
                 <span
                   className={`text-sm font-semibold flex items-center gap-2 ${
                     isDark ? "text-slate-200" : "text-slate-700"
@@ -151,7 +151,7 @@ export const SubscriptionManager: React.FC = () => {
                 </motion.div>
               </div>
               <div
-                className={`text-xs mt-2 font-medium ${isDark ? "text-slate-400" : "text-slate-500"}`}
+                className={`text-xs mt-1.5 font-medium ${isDark ? "text-slate-400" : "text-slate-500"}`}
               >
                 {totalLicenses - usedLicenses} licenses available
               </div>
@@ -159,7 +159,7 @@ export const SubscriptionManager: React.FC = () => {
 
             {/* API Calls */}
             <div>
-              <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center justify-between mb-2">
                 <span
                   className={`text-sm font-semibold flex items-center gap-2 ${
                     isDark ? "text-slate-200" : "text-slate-700"
@@ -200,7 +200,7 @@ export const SubscriptionManager: React.FC = () => {
                 </motion.div>
               </div>
               <div
-                className={`text-xs mt-2 font-medium flex justify-between ${isDark ? "text-slate-400" : "text-slate-500"}`}
+                className={`text-xs mt-1.5 font-medium flex justify-between ${isDark ? "text-slate-400" : "text-slate-500"}`}
               >
                 <span>
                   {(totalApiCalls - usedApiCalls).toLocaleString()} remaining

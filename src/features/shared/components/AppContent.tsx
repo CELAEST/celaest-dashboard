@@ -55,7 +55,7 @@ export const AppContent: React.FC = () => {
 
   return (
     <div
-      className={`min-h-screen font-sans selection:bg-cyan-500/30 selection:text-cyan-100 overflow-x-hidden transition-colors duration-500 ${
+      className={`h-screen w-screen font-sans selection:bg-cyan-500/30 selection:text-cyan-100 overflow-hidden transition-colors duration-500 ${
         isDark ? "bg-[#050505] text-white" : "bg-[#F5F7FA] text-gray-900"
       }`}
     >
@@ -66,7 +66,7 @@ export const AppContent: React.FC = () => {
       <div className="pl-[80px] h-screen relative z-10 flex flex-col transition-all duration-300 overflow-hidden">
         <Header />
 
-        <main className="flex-1 overflow-hidden p-4 mx-auto w-full">
+        <main className="flex-1 overflow-hidden p-4 w-full flex flex-col">
           <AppViewSwitcher activeTab={activeTab} />
         </main>
       </div>

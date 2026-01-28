@@ -29,7 +29,7 @@ export const InvoiceHistoryItem: React.FC<InvoiceHistoryItemProps> = ({
           : "border-gray-100 hover:bg-gray-50"
       }`}
     >
-      <td className="py-4">
+      <td className="py-2">
         <div className="flex items-center gap-2">
           <div
             className={`w-8 h-8 rounded-lg flex items-center justify-center ${
@@ -51,7 +51,7 @@ export const InvoiceHistoryItem: React.FC<InvoiceHistoryItemProps> = ({
           </span>
         </div>
       </td>
-      <td className="py-4">
+      <td className="py-2">
         <div className="flex items-center gap-2">
           <Calendar
             className={`w-4 h-4 ${isDark ? "text-gray-500" : "text-gray-400"}`}
@@ -63,14 +63,14 @@ export const InvoiceHistoryItem: React.FC<InvoiceHistoryItemProps> = ({
           </span>
         </div>
       </td>
-      <td className="py-4">
+      <td className="py-2">
         <span
           className={`text-sm ${isDark ? "text-gray-300" : "text-gray-700"}`}
         >
           {invoice.description}
         </span>
       </td>
-      <td className="py-4 text-right">
+      <td className="py-2 text-right">
         <span
           className={`text-sm font-bold ${
             isDark ? "text-white" : "text-gray-900"
@@ -79,7 +79,7 @@ export const InvoiceHistoryItem: React.FC<InvoiceHistoryItemProps> = ({
           ${invoice.amount.toFixed(2)}
         </span>
       </td>
-      <td className="py-4">
+      <td className="py-2">
         <div className="flex justify-center">
           <span
             className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold ${
@@ -93,7 +93,7 @@ export const InvoiceHistoryItem: React.FC<InvoiceHistoryItemProps> = ({
           </span>
         </div>
       </td>
-      <td className="py-4 text-right">
+      <td className="py-2 text-right">
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}

@@ -82,9 +82,9 @@ export const PaymentMethodsCard: React.FC = () => {
         {/* Shine Effect Overlay */}
         <div className="absolute inset-0 bg-linear-to-tr from-white/5 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
 
-        <div className="relative p-6 sm:p-8 flex flex-col h-full">
+        <div className="relative p-4 flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between mb-8 shrink-0">
+          <div className="flex items-center justify-between mb-4 shrink-0">
             <div>
               <h3
                 className={`text-xl font-bold tracking-tight ${
@@ -116,7 +116,7 @@ export const PaymentMethodsCard: React.FC = () => {
           </div>
 
           {/* Payment Cards - Scrollable Section */}
-          <div className="flex-1 overflow-y-auto pr-2 -mr-2 space-y-4 mb-6 custom-scrollbar">
+          <div className="flex-1 overflow-y-auto pr-2 -mr-2 space-y-4 mb-4 custom-scrollbar">
             <AnimatePresence>
               {methods.map((method) => (
                 <PaymentMethodItem

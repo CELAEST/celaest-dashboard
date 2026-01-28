@@ -10,7 +10,7 @@ interface StatsOverviewProps {
 }
 
 export const StatsOverview = memo(
-  ({ users, auditLogs, isDark }: StatsOverviewProps) => {
+  ({ users, auditLogs }: StatsOverviewProps) => {
     return (
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
         <StatCard

@@ -12,61 +12,46 @@ export const FinancialHeader: React.FC = () => {
     <motion.div
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`relative overflow-hidden rounded-3xl transition-all duration-500 hover:shadow-2xl ${
+      className={`relative overflow-hidden rounded-3xl transition-all duration-300 group ${
         isDark
-          ? "bg-linear-to-br from-purple-500/20 via-cyan-500/10 to-blue-500/20 backdrop-blur-xl border border-purple-500/30"
-          : "bg-linear-to-br from-purple-500/10 via-cyan-500/5 to-blue-500/10 border border-purple-500/30 shadow-xl"
+          ? "bg-[#09090b] border border-white/10 hover:border-purple-500/30 hover:shadow-[0_0_30px_rgba(168,85,247,0.1)]"
+          : "bg-white border border-gray-100 shadow-xl"
       }`}
     >
-      {/* Animated Background */}
-      <div className="absolute inset-0 opacity-20">
-        {[...Array(5)].map((_, i) => (
-          <motion.div
-            key={i}
-            className={`absolute w-32 h-32 rounded-full ${
-              isDark ? "bg-cyan-400" : "bg-purple-500"
-            }`}
-            style={{
-              left: `${i * 25}%`,
-              top: `${Math.sin(i) * 50 + 25}%`,
-              filter: "blur(60px)",
-            }}
-            animate={{
-              y: [0, -20, 0],
-            }}
-            transition={{
-              duration: 4 + i,
-              repeat: Infinity,
-              delay: i * 0.5,
-            }}
-          />
-        ))}
-      </div>
-
       <div className="relative p-8">
         <div className="flex items-center justify-between">
           <div>
-            <h2
-              className={`text-2xl font-bold mb-2 ${
-                isDark ? "text-white" : "text-gray-900"
+            <div className="flex items-center gap-3 mb-2">
+              <div
+                className={`w-2 h-8 rounded-full ${
+                  isDark ? "bg-purple-500" : "bg-purple-600"
+                }`}
+              />
+              <h2
+                className={`text-3xl font-black tracking-tight ${
+                  isDark ? "text-white" : "text-gray-900"
+                }`}
+              >
+                FINANCIAL COMMAND
+              </h2>
+            </div>
+            <p
+              className={`text-sm font-mono tracking-wide ml-5 ${
+                isDark ? "text-gray-500" : "text-gray-500"
               }`}
             >
-              Global Billing Control Center
-            </h2>
-            <p
-              className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}
-            >
-              Real-time financial metrics and payment gateway administration
+              {/* // REAL-TIME SYSTEM MONITORING */}
             </p>
           </div>
           <div
-            className={`px-6 py-2.5 rounded-xl font-bold text-sm ${
+            className={`px-6 py-3 rounded-xl font-bold text-xs tracking-widest uppercase border transition-all duration-300 ${
               isDark
-                ? "bg-purple-500/20 text-purple-400 border border-purple-500/30"
-                : "bg-purple-500/20 text-purple-600 border border-purple-500/30"
+                ? "bg-[#18181b] text-purple-400 border-purple-500/20 group-hover:bg-purple-500/10 group-hover:border-purple-500/50"
+                : "bg-purple-50 text-purple-700 border-purple-200"
             }`}
           >
-            👑 SUPER ADMIN
+            <span className="mr-2">👑</span>
+            Super Admin Access
           </div>
         </div>
       </div>

@@ -9,10 +9,16 @@ interface RevenueCardProps {
   totalRevenue: number;
   paidInvoices: number;
   refundedFunds: number;
+  className?: string;
 }
 
 export const RevenueCard = React.memo(
-  ({ totalRevenue, paidInvoices, refundedFunds }: RevenueCardProps) => {
+  ({
+    totalRevenue,
+    paidInvoices,
+    refundedFunds,
+    className,
+  }: RevenueCardProps) => {
     const { theme } = useTheme();
     const isDark = theme === "dark";
 
@@ -20,109 +26,120 @@ export const RevenueCard = React.memo(
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`lg:col-span-2 relative overflow-hidden rounded-3xl transition-all duration-500 hover:shadow-2xl ${
+        className={`relative overflow-hidden rounded-3xl transition-all duration-300 hover:shadow-2xl group h-full ${
           isDark
-            ? "bg-linear-to-br from-cyan-500/20 via-blue-500/20 to-indigo-500/20 backdrop-blur-xl border border-cyan-500/30"
-            : "bg-linear-to-br from-cyan-500/10 via-blue-500/10 to-indigo-500/10 border border-cyan-500/30 shadow-xl"
-        }`}
+            ? "bg-[#09090b] border border-white/10 hover:border-cyan-500/50 hover:shadow-[0_0_30px_rgba(6,182,212,0.15)]"
+            : "bg-white border border-gray-100 shadow-xl hover:border-blue-500/30"
+        } ${className || ""}`}
       >
-        {/* Floating Background Effect */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {[...Array(3)].map((_, i) => (
-            <motion.div
-              key={i}
-              className={`absolute w-48 h-48 rounded-full ${
-                isDark ? "bg-cyan-400/10" : "bg-blue-500/10"
-              }`}
-              style={{
-                left: `${20 + i * 30}%`,
-                top: `${10 + i * 20}%`,
-                filter: "blur(40px)",
-              }}
-              animate={{
-                y: [0, -30, 0],
-                scale: [1, 1.1, 1],
-              }}
-              transition={{
-                duration: 5 + i,
-                repeat: Infinity,
-                delay: i * 0.5,
-              }}
-            />
-          ))}
-        </div>
+        {/* Ambient Background Glow */}
+        <div
+          className={`absolute top-0 right-0 w-64 h-64 bg-linear-to-br from-cyan-500/10 to-transparent blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none`}
+        />
 
-        <div className="relative p-8">
-          <div className="flex items-start justify-between mb-6">
-            <div
-              className={`w-16 h-16 rounded-2xl flex items-center justify-center ${
-                isDark
-                  ? "bg-linear-to-br from-cyan-400 to-blue-500"
-                  : "bg-linear-to-br from-blue-500 to-indigo-600"
-              } shadow-lg`}
-            >
-              <DollarSign className="w-8 h-8 text-white" strokeWidth={2.5} />
-            </div>
-            <div
-              className={`px-4 py-2 rounded-xl font-bold text-xs ${
-                isDark
-                  ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                  : "bg-emerald-500/20 text-emerald-600 border border-emerald-500/30"
-              }`}
-            >
-              ALL TIME
-            </div>
-          </div>
-
+        {/* MICRO-BENTO GRID: 3 Interlocking Tiles */}
+        <div className="relative h-full p-4 grid grid-rows-[1.5fr_1fr] gap-3">
+          {/* TILE 1: HERO REVENUE (Top / Dominant) */}
           <div
-            className={`text-xs font-semibold tracking-wider mb-3 ${
-              isDark ? "text-gray-400" : "text-gray-500"
-            }`}
-          >
-            TOTAL REVENUE
-          </div>
-          <div
-            className={`text-6xl font-bold tracking-tight mb-4 ${
+            className={`rounded-2xl p-4 sm:p-5 flex flex-col justify-between relative overflow-hidden transition-all duration-300 group-hover:bg-white/5 ${
               isDark
-                ? "bg-linear-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent"
-                : "bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
+                ? "bg-white/2 border border-white/5"
+                : "bg-gray-50/50 border border-gray-100"
             }`}
           >
-            ${totalRevenue.toLocaleString()}
-          </div>
-
-          {/* Sub-metrics */}
-          <div
-            className={`pt-6 mt-6 border-t flex items-center gap-8 ${
-              isDark ? "border-white/10" : "border-gray-200"
-            }`}
-          >
-            <div>
+            {/* Header Row: Icon and Badge */}
+            <div className="flex items-start justify-between z-10 shrink-0">
               <div
-                className={`text-xs mb-1 ${
-                  isDark ? "text-gray-400" : "text-gray-600"
+                className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center ${
+                  isDark
+                    ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20"
+                    : "bg-blue-600 text-white shadow-md shadow-blue-500/20"
                 }`}
               >
-                Paid Invoices
+                <DollarSign className="w-4 h-4" strokeWidth={2.5} />
               </div>
               <div
-                className={`text-2xl font-bold ${
+                className={`px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-widest border ${
+                  isDark
+                    ? "bg-emerald-500/5 text-emerald-400 border-emerald-500/20"
+                    : "bg-emerald-50 text-emerald-700 border-emerald-200"
+                }`}
+              >
+                All Time
+              </div>
+            </div>
+
+            {/* Content Row: Label and Value */}
+            <div className="relative z-10 mt-auto pt-2">
+              <div
+                className={`text-[9px] font-black uppercase tracking-widest opacity-60 mb-1 ${
+                  isDark ? "text-gray-400" : "text-gray-500"
+                }`}
+              >
+                Total Revenue
+              </div>
+              <div
+                className={`text-3xl sm:text-4xl lg:text-4xl font-black tracking-tighter tabular-nums transition-all duration-300 truncate ${
+                  isDark
+                    ? "text-white group-hover:text-cyan-50"
+                    : "text-gray-900"
+                }`}
+              >
+                <span className="inline-block">
+                  ${totalRevenue.toLocaleString()}
+                </span>
+              </div>
+            </div>
+
+            {/* Decor */}
+            <div
+              className={`absolute -bottom-10 -right-10 w-40 h-40 rounded-full blur-3xl opacity-10 pointer-events-none ${isDark ? "bg-cyan-500" : "bg-blue-500"}`}
+            />
+          </div>
+
+          {/* ROW 2: THE TWINS (Paid & Refunds) */}
+          <div className="grid grid-cols-2 gap-3 min-h-0">
+            {/* TILE 2: PAID (Emerald Glass) */}
+            <div
+              className={`rounded-2xl p-4 flex flex-col justify-center relative overflow-hidden transition-all duration-300 group-hover:scale-[1.02] ${
+                isDark
+                  ? "bg-linear-to-br from-emerald-500/10 to-transparent border border-emerald-500/10"
+                  : "bg-emerald-50/50 border border-emerald-100"
+              }`}
+            >
+              <div
+                className={`text-[9px] font-black uppercase tracking-wider mb-1 opacity-70 ${
+                  isDark ? "text-emerald-200" : "text-emerald-700"
+                }`}
+              >
+                Paid
+              </div>
+              <div
+                className={`text-xl lg:text-2xl font-bold tabular-nums ${
                   isDark ? "text-emerald-400" : "text-emerald-600"
                 }`}
               >
                 {paidInvoices}
               </div>
             </div>
-            <div>
+
+            {/* TILE 3: REFUNDS (Orange Glass) */}
+            <div
+              className={`rounded-2xl p-4 flex flex-col justify-center relative overflow-hidden transition-all duration-300 group-hover:scale-[1.02] ${
+                isDark
+                  ? "bg-linear-to-br from-orange-500/10 to-transparent border border-orange-500/10"
+                  : "bg-orange-50/50 border border-orange-100"
+              }`}
+            >
               <div
-                className={`text-xs mb-1 ${
-                  isDark ? "text-gray-400" : "text-gray-600"
+                className={`text-[9px] font-black uppercase tracking-wider mb-1 opacity-70 ${
+                  isDark ? "text-orange-200" : "text-orange-700"
                 }`}
               >
-                Refunded Funds
+                Refunds
               </div>
               <div
-                className={`text-2xl font-bold ${
+                className={`text-xl lg:text-2xl font-bold tabular-nums ${
                   isDark ? "text-orange-400" : "text-orange-600"
                 }`}
               >

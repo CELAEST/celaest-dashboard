@@ -62,11 +62,11 @@ export const LicensingHub: React.FC = () => {
 
   return (
     <div
-      className={`h-full w-full flex flex-col ${isDark ? "bg-[#0a0a0a]" : "bg-gray-50"}`}
+      className={`h-full w-full flex flex-col min-h-0 ${isDark ? "bg-[#0a0a0a]" : "bg-gray-50"}`}
     >
       <LicensingHeader onCreateClick={() => setIsCreateModalOpen(true)} />
 
-      <div className="flex-1 overflow-hidden flex flex-col pt-4">
+      <div className="flex-1 overflow-hidden flex flex-col pt-4 min-h-0">
         {/* Navigation Tabs (Fixed at top) */}
         <div className="flex items-center gap-6 border-b border-gray-200 dark:border-white/10 shrink-0 px-2 pb-px">
           <button
@@ -113,9 +113,9 @@ export const LicensingHub: React.FC = () => {
         </div>
 
         {/* Tab Content Area (Internal scroll managed by children) */}
-        <div className="flex-1 overflow-hidden flex flex-col pt-6">
+        <div className="flex-1 overflow-hidden flex flex-col pt-6 min-h-0">
           {activeTab === "analytics" && (
-            <div className="flex-1 overflow-y-auto custom-scrollbar pb-4">
+            <div className="flex-1 overflow-y-auto custom-scrollbar pb-4 min-h-0">
               <LicensingStats analytics={analytics} />
             </div>
           )}

@@ -25,42 +25,42 @@ export const InvoiceHistoryTable: React.FC<InvoiceHistoryTableProps> = ({
             }`}
           >
             <th
-              className={`text-left pb-4 text-xs font-semibold tracking-wider ${
+              className={`text-left pb-2 text-xs font-semibold tracking-wider ${
                 isDark ? "text-gray-400" : "text-gray-500"
               }`}
             >
               INVOICE
             </th>
             <th
-              className={`text-left pb-4 text-xs font-semibold tracking-wider ${
+              className={`text-left pb-2 text-xs font-semibold tracking-wider ${
                 isDark ? "text-gray-400" : "text-gray-500"
               }`}
             >
               DATE
             </th>
             <th
-              className={`text-left pb-4 text-xs font-semibold tracking-wider ${
+              className={`text-left pb-2 text-xs font-semibold tracking-wider ${
                 isDark ? "text-gray-400" : "text-gray-500"
               }`}
             >
               DESCRIPTION
             </th>
             <th
-              className={`text-right pb-4 text-xs font-semibold tracking-wider ${
+              className={`text-right pb-2 text-xs font-semibold tracking-wider ${
                 isDark ? "text-gray-400" : "text-gray-500"
               }`}
             >
               AMOUNT
             </th>
             <th
-              className={`text-center pb-4 text-xs font-semibold tracking-wider ${
+              className={`text-center pb-2 text-xs font-semibold tracking-wider ${
                 isDark ? "text-gray-400" : "text-gray-500"
               }`}
             >
               STATUS
             </th>
             <th
-              className={`text-right pb-4 text-xs font-semibold tracking-wider ${
+              className={`text-right pb-2 text-xs font-semibold tracking-wider ${
                 isDark ? "text-gray-400" : "text-gray-500"
               }`}
             >
