@@ -32,26 +32,30 @@ export const VersionControl: React.FC = () => {
   return (
     <>
       <div
-        className={`rounded-2xl border overflow-hidden ${
+        className={`h-full flex flex-col rounded-2xl border overflow-hidden ${
           isDark
             ? "bg-linear-to-br from-[#0a0a0a]/80 to-gray-900/50 border-white/10"
             : "bg-white border-gray-200 shadow-sm"
         }`}
       >
-        <VersionHeader onCreate={handleCreate} />
+        <div className="shrink-0">
+          <VersionHeader onCreate={handleCreate} />
+        </div>
 
-        <VersionTable
-          versions={versions}
-          activeMenu={activeMenu}
-          onToggleMenu={toggleMenu}
-          onEdit={handleEdit}
-          onViewDetails={handleViewDetails}
-          onDeprecate={handleDeprecate}
-        />
+        <div className="flex-1 min-h-0 overflow-auto">
+          <VersionTable
+            versions={versions}
+            activeMenu={activeMenu}
+            onToggleMenu={toggleMenu}
+            onEdit={handleEdit}
+            onViewDetails={handleViewDetails}
+            onDeprecate={handleDeprecate}
+          />
+        </div>
 
         {/* Footer */}
         <div
-          className={`p-4 border-t flex items-center justify-between ${
+          className={`shrink-0 p-4 border-t flex items-center justify-between ${
             isDark ? "bg-white/2 border-white/5" : "bg-gray-50 border-gray-200"
           }`}
         >

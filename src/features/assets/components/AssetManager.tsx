@@ -1,5 +1,7 @@
+"use client";
+
 import React, { useState } from "react";
-import { User, Crown, HardDrive } from "lucide-react";
+import { User, Crown, LayoutGrid, List, HardDrive } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { AssetAdminPortal } from "./AssetAdminPortal";
 import { AssetCustomerCatalog } from "./AssetCustomerCatalog";
@@ -9,69 +11,65 @@ export const AssetManager: React.FC = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const [viewMode, setViewMode] = useState<"admin" | "customer">("admin");
+  const [adminTab, setAdminTab] = useState<"inventory" | "analytics">(
+    "inventory",
+  );
+
   const { assets, activeAssets, deleteAsset, duplicateAsset, saveAsset } =
     useAssets();
 
   return (
-    <div>
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-start justify-between mb-6">
-          <div>
-            <h1
-              className={`text-4xl font-bold mb-3 tracking-tight ${
-                isDark ? "text-white" : "text-gray-900"
-              }`}
-            >
-              {viewMode === "admin"
-                ? "Asset Management System"
-                : "Product Catalog"}
-            </h1>
-            <p
-              className={`text-sm ${
-                isDark ? "text-gray-400" : "text-gray-600"
-              }`}
-            >
-              {viewMode === "admin"
-                ? "Full CRUD control over templates, versioning, and digital asset inventory"
-                : "Browse available digital assets and templates for purchase"}
-            </p>
-          </div>
-
-          {/* Storage Info (Admin Only) */}
-          {viewMode === "admin" && (
+    <div className="h-full flex flex-col min-h-0 overflow-hidden p-2">
+      {/* Unified Header Row */}
+      <div className="shrink-0 mb-4 flex items-center justify-between">
+        {/* Left: Tabs (Only visible in Admin Mode) */}
+        <div className="flex items-center gap-4">
+          {viewMode === "admin" ? (
             <div
-              className={`flex items-center gap-3 px-5 py-3 rounded-xl border ${
-                isDark
-                  ? "bg-purple-500/10 border-purple-500/20"
-                  : "bg-purple-50 border-purple-200"
-              }`}
+              className={`flex items-center p-1 rounded-xl border ${isDark ? "bg-white/5 border-white/5" : "bg-gray-100 border-gray-200"}`}
             >
-              <HardDrive
-                size={20}
-                className={isDark ? "text-purple-400" : "text-purple-600"}
-              />
-              <div>
-                <p
-                  className={`text-xs font-semibold ${
-                    isDark ? "text-purple-400" : "text-purple-700"
-                  }`}
-                >
-                  Storage Used
-                </p>
-                <p
-                  className={`text-sm font-bold ${
-                    isDark ? "text-white" : "text-gray-900"
-                  }`}
-                >
-                  2.4 GB / 50 GB
-                </p>
-              </div>
+              <button
+                onClick={() => setAdminTab("inventory")}
+                className={`px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-all ${
+                  adminTab === "inventory"
+                    ? isDark
+                      ? "bg-cyan-500/20 text-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.2)]"
+                      : "bg-white text-blue-600 shadow-sm"
+                    : isDark
+                      ? "text-gray-500 hover:text-gray-300"
+                      : "text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                <List size={14} />
+                Inventory
+              </button>
+              <button
+                onClick={() => setAdminTab("analytics")}
+                className={`px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-all ${
+                  adminTab === "analytics"
+                    ? isDark
+                      ? "bg-purple-500/20 text-purple-400 shadow-[0_0_10px_rgba(168,85,247,0.2)]"
+                      : "bg-white text-purple-600 shadow-sm"
+                    : isDark
+                      ? "text-gray-500 hover:text-gray-300"
+                      : "text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                <LayoutGrid size={14} />
+                Analytics
+              </button>
             </div>
+          ) : (
+            // Placeholder title if in Customer Mode
+            <h1
+              className={`text-xl font-black italic tracking-tighter uppercase ${isDark ? "text-white" : "text-gray-900"}`}
+            >
+              Product Catalog
+            </h1>
           )}
         </div>
 
-        {/* View Mode Toggle */}
+        {/* Right: View Mode Toggle */}
         <div
           className={`inline-flex p-1 rounded-xl border ${
             isDark ? "bg-black/40 border-white/10" : "bg-white border-gray-200"
@@ -79,48 +77,51 @@ export const AssetManager: React.FC = () => {
         >
           <button
             onClick={() => setViewMode("customer")}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all ${
+            className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
               viewMode === "customer"
                 ? isDark
                   ? "bg-cyan-500/20 text-cyan-400 shadow-lg"
                   : "bg-blue-600 text-white shadow-lg"
                 : isDark
-                  ? "text-gray-400 hover:text-gray-300"
+                  ? "text-gray-500 hover:text-gray-300"
                   : "text-gray-600 hover:text-gray-900"
             }`}
           >
-            <User size={16} />
-            Customer View
+            <User size={14} />
+            Customer
           </button>
           <button
             onClick={() => setViewMode("admin")}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all ${
+            className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
               viewMode === "admin"
                 ? isDark
                   ? "bg-purple-500/20 text-purple-400 shadow-lg"
                   : "bg-purple-600 text-white shadow-lg"
                 : isDark
-                  ? "text-gray-400 hover:text-gray-300"
+                  ? "text-gray-500 hover:text-gray-300"
                   : "text-gray-600 hover:text-gray-900"
             }`}
           >
-            <Crown size={16} />
-            Admin CRUD
+            <Crown size={14} />
+            Admin
           </button>
         </div>
       </div>
 
-      {/* Conditional Rendering */}
-      {viewMode === "admin" ? (
-        <AssetAdminPortal
-          assets={assets}
-          saveAsset={saveAsset}
-          deleteAsset={deleteAsset}
-          duplicateAsset={duplicateAsset}
-        />
-      ) : (
-        <AssetCustomerCatalog assets={activeAssets} />
-      )}
+      {/* Main Content */}
+      <div className="flex-1 min-h-0 relative">
+        {viewMode === "admin" ? (
+          <AssetAdminPortal
+            assets={assets}
+            saveAsset={saveAsset}
+            deleteAsset={deleteAsset}
+            duplicateAsset={duplicateAsset}
+            activeTab={adminTab}
+          />
+        ) : (
+          <AssetCustomerCatalog assets={activeAssets} />
+        )}
+      </div>
     </div>
   );
 };

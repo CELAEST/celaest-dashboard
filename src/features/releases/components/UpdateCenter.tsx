@@ -4,8 +4,8 @@ import React from "react";
 import { AlertCircle } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { useUpdateCenter } from "../hooks/useUpdateCenter";
-import { UpdateSummary } from "./UpdateCenter/UpdateSummary";
-import { UpdateList } from "./UpdateCenter/UpdateList";
+import { UpdateSummary } from "./UpdateCenterComponents/UpdateSummary";
+import { UpdateList } from "./UpdateCenterComponents/UpdateList";
 
 export const UpdateCenter: React.FC = () => {
   const { theme } = useTheme();

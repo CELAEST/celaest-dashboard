@@ -4,17 +4,36 @@ import React from "react";
 import { motion } from "motion/react";
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { cn } from "@/lib/utils";
+import { Area, AreaChart, ResponsiveContainer } from "recharts";
 
 interface StatCardProps {
   title: string;
   value: string;
   trend?: string;
   trendUp?: boolean;
-  icon?: React.ReactNode;
+  icon?: React.ReactElement;
   delay?: number;
   hologramImage?: string;
   gradient?: string;
+  className?: string;
+  chartData?: { value: number }[];
 }
+
+const defaultChartData = [
+  { value: 10 },
+  { value: 15 },
+  { value: 12 },
+  { value: 20 },
+  { value: 18 },
+  { value: 25 },
+  { value: 22 },
+  { value: 30 },
+  { value: 28 },
+  { value: 35 },
+  { value: 30 },
+  { value: 40 },
+];
 
 export const StatCard = React.memo(function StatCard({
   title,
@@ -24,6 +43,8 @@ export const StatCard = React.memo(function StatCard({
   icon,
   delay = 0,
   gradient = "from-cyan-400 to-blue-500",
+  className,
+  chartData = defaultChartData,
 }: StatCardProps) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
@@ -33,88 +54,115 @@ export const StatCard = React.memo(function StatCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.5 }}
-      className={`group relative overflow-hidden rounded-2xl p-6 transition-all duration-500 hover:scale-105 cursor-pointer ${
+      className={cn(
+        "group relative overflow-hidden rounded-2xl p-5 transition-all duration-500 hover:scale-[1.02] cursor-pointer flex flex-col justify-between h-full",
         isDark
-          ? "bg-black/40 backdrop-blur-xl border border-white/10 hover:border-white/20"
-          : "bg-white border border-gray-200 shadow-sm hover:shadow-xl"
-      }`}
+          ? "bg-black/40 backdrop-blur-xl border border-white/10 hover:border-white/20 hover:shadow-[0_0_20px_rgba(255,255,255,0.05)]"
+          : "bg-white border border-gray-200 shadow-sm hover:shadow-xl",
+        className,
+      )}
     >
-      {/* Gradient Overlay on Hover */}
+      {/* Background Gradient Spot */}
       <div
-        className={`absolute inset-0 bg-linear-to-br ${gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}
+        className={`absolute -right-10 -top-10 w-40 h-40 bg-linear-to-br ${gradient} opacity-10 group-hover:opacity-20 blur-3xl transition-opacity duration-500 rounded-full`}
       />
 
-      {/* Glow Effect */}
-      <div
-        className={`absolute -inset-1 bg-linear-to-br ${gradient} opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500`}
-      />
+      {/* Scanline Effect (Subtle) */}
+      {isDark && (
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 pointer-events-none mix-blend-overlay" />
+      )}
 
-      <div className="relative">
-        {/* Icon & Trend */}
-        <div className="flex items-start justify-between mb-6">
-          <div
-            className={`w-14 h-14 rounded-2xl bg-linear-to-br ${gradient} flex items-center justify-center transform transition-transform duration-500 group-hover:scale-110 group-hover:rotate-12 ${
-              isDark
-                ? "shadow-2xl shadow-cyan-500/20"
-                : "shadow-xl shadow-blue-500/20"
-            }`}
-          >
-            <div className="text-white scale-110">{icon}</div>
-          </div>
-          <div
-            className={`px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-colors ${
-              isDark ? "bg-white/5" : "bg-gray-100"
-            }`}
-          >
-            <span
-              className={`text-[10px] font-black tracking-widest uppercase ${
-                trendUp ? "text-emerald-500" : "text-red-500"
-              }`}
+      {/* Header */}
+      <div className="flex justify-between items-start relative z-10">
+        <div className="flex flex-col">
+          <div className="flex items-center gap-2 mb-1.5 px-2 py-1 rounded-md bg-white/5 w-fit border border-white/5">
+            <div
+              className={`p-1 rounded-full ${isDark ? "bg-white/10" : "bg-gray-100"}`}
             >
-              {trendUp ? "+" : "-"}
-              {trend}
+              {React.cloneElement(
+                icon as React.ReactElement<{
+                  size?: number | string;
+                  className?: string;
+                }>,
+                {
+                  size: 12,
+                  className: isDark ? "text-white" : "text-gray-600",
+                },
+              )}
+            </div>
+            <span
+              className={`text-[10px] uppercase font-black tracking-widest ${isDark ? "text-gray-400" : "text-gray-500"}`}
+            >
+              {title}
             </span>
-            {trendUp ? (
-              <TrendingUp className="w-3 h-3 text-emerald-500" />
-            ) : (
-              <TrendingDown className="w-3 h-3 text-red-500" />
-            )}
+          </div>
+
+          <div
+            className={`text-3xl font-black tracking-tighter italic ${isDark ? "text-white" : "text-gray-900"}`}
+          >
+            {value}
           </div>
         </div>
 
-        {/* Content */}
         <div
-          className={`text-[10px] font-black uppercase tracking-[0.2em] mb-2 ${
-            isDark ? "text-gray-500" : "text-gray-400"
+          className={`flex items-center gap-1 px-2 py-1 rounded-lg border ${
+            trendUp
+              ? isDark
+                ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+                : "bg-emerald-50 border-emerald-100 text-emerald-600"
+              : isDark
+                ? "bg-red-500/10 border-red-500/20 text-red-400"
+                : "bg-red-50 border-red-100 text-red-600"
           }`}
         >
-          {title}
-        </div>
-        <div
-          className={`text-4xl font-black tracking-tighter italic mb-1 ${
-            isDark ? "text-white" : "text-gray-900"
-          }`}
-        >
-          {value}
-        </div>
-        <div className="flex items-center gap-2">
-          <div
-            className={`h-1 w-12 rounded-full overflow-hidden ${isDark ? "bg-white/5" : "bg-gray-100"}`}
-          >
-            <motion.div
-              initial={{ x: "-100%" }}
-              animate={{ x: "0%" }}
-              transition={{ delay: delay + 0.5, duration: 1 }}
-              className={`h-full bg-linear-to-r ${gradient}`}
-            />
-          </div>
-          <span
-            className={`text-[9px] font-bold uppercase tracking-widest ${isDark ? "text-gray-600" : "text-gray-400"}`}
-          >
-            Global performance index
+          <span className="text-xs font-bold">
+            {trendUp ? "+" : ""}
+            {trend}
           </span>
+          {trendUp ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
         </div>
       </div>
+
+      {/* Mini Chart Area */}
+      <div className="h-16 w-full relative mt-4 opacity-50 group-hover:opacity-100 transition-opacity duration-500 -mb-2">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={chartData}>
+            <defs>
+              <linearGradient
+                id={`gradient-${title}`}
+                x1="0"
+                y1="0"
+                x2="0"
+                y2="1"
+              >
+                <stop
+                  offset="5%"
+                  stopColor={trendUp ? "#10b981" : "#ef4444"}
+                  stopOpacity={0.3}
+                />
+                <stop
+                  offset="95%"
+                  stopColor={trendUp ? "#10b981" : "#ef4444"}
+                  stopOpacity={0}
+                />
+              </linearGradient>
+            </defs>
+            <Area
+              type="monotone"
+              dataKey="value"
+              stroke={trendUp ? "#10b981" : "#ef4444"}
+              fill={`url(#gradient-${title})`}
+              strokeWidth={2}
+              isAnimationActive={true}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Bottom Glow Line */}
+      <div
+        className={`absolute bottom-0 left-0 right-0 h-0.5 bg-linear-to-r ${gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
+      />
     </motion.div>
   );
 });

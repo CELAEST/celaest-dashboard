@@ -1,21 +1,30 @@
 "use client";
 
-import React from "react";
-import { Activity, Zap, Server, Box } from "lucide-react";
+import React, { useState } from "react";
+import {
+  Activity,
+  Zap,
+  Server,
+  Box,
+  Terminal,
+  Shield,
+  List,
+  LayoutGrid,
+} from "lucide-react";
 import dynamic from "next/dynamic";
+import { motion, AnimatePresence } from "motion/react";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 
-// Static imports for dashboard main view components
+// Static imports
 import { StatCard } from "@/features/shared/components/StatCard";
 import { OrdersTable } from "@/features/billing/components/OrdersTable";
 
-import { useTheme } from "@/features/shared/hooks/useTheme";
-
-// Skeleton for Chart
+// Skeleton
 const ChartSkeleton = () => (
-  <div className="h-[300px] w-full animate-pulse bg-gray-200/10 dark:bg-white/5 rounded-lg" />
+  <div className="h-full w-full animate-pulse bg-gray-200/10 dark:bg-white/5 rounded-lg" />
 );
 
-// Dynamic import for RevenueChart
+// Dynamic Chart
 const RevenueChart = dynamic(
   () =>
     import("@/features/analytics/components/RevenueChart").then((m) => ({
@@ -24,153 +33,345 @@ const RevenueChart = dynamic(
   { ssr: false, loading: () => <ChartSkeleton /> },
 );
 
+// Mock Data for Sparklines
+const revenueData = [
+  { value: 10 },
+  { value: 20 },
+  { value: 15 },
+  { value: 25 },
+  { value: 30 },
+  { value: 28 },
+  { value: 40 },
+  { value: 35 },
+  { value: 50 },
+  { value: 45 },
+  { value: 60 },
+  { value: 55 },
+];
+const ordersData = [
+  { value: 120 },
+  { value: 130 },
+  { value: 125 },
+  { value: 140 },
+  { value: 150 },
+  { value: 145 },
+  { value: 160 },
+  { value: 155 },
+  { value: 170 },
+  { value: 165 },
+  { value: 180 },
+  { value: 175 },
+];
+const scriptsData = [
+  { value: 24 },
+  { value: 24 },
+  { value: 23 },
+  { value: 24 },
+  { value: 24 },
+  { value: 24 },
+  { value: 24 },
+  { value: 24 },
+  { value: 24 },
+  { value: 24 },
+  { value: 24 },
+  { value: 24 },
+];
+const profitData = [
+  { value: 40 },
+  { value: 35 },
+  { value: 38 },
+  { value: 30 },
+  { value: 25 },
+  { value: 28 },
+  { value: 20 },
+  { value: 22 },
+  { value: 18 },
+  { value: 15 },
+  { value: 12 },
+  { value: 10 },
+];
+
 export const DashboardContent = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const [activeTab, setActiveTab] = useState<"metrics" | "feed">("metrics");
 
   return (
-    <div className="p-1">
-      <div className="mb-10 flex justify-between items-end">
-        <div>
-          <h1
-            className={`text-3xl font-bold mb-2 tracking-tight ${
-              isDark ? "text-white" : "text-gray-900"
-            }`}
-          >
-            Command Center
-          </h1>
-          <p
-            className={`${isDark ? "text-gray-400" : "text-gray-500"} text-sm`}
-          >
-            System Status:{" "}
-            <span className="text-cyan-400 font-mono">OPTIMAL</span> • Local
-            Time: <span className="font-mono opacity-80">14:32:01</span>
-          </p>
+    <div className="h-full w-full flex flex-col min-h-0 overflow-hidden p-2">
+      {/* Header - Fixed */}
+      <div className="shrink-0 mb-4 flex flex-col gap-4">
+        {/* Top Bar */}
+        <div className="flex justify-between items-end">
+          <div>
+            <h1
+              className={`text-3xl font-black mb-1 tracking-tighter uppercase italic ${
+                isDark ? "text-white" : "text-gray-900"
+              }`}
+            >
+              Command Center
+            </h1>
+            <p
+              className={`${isDark ? "text-gray-400" : "text-gray-500"} text-xs font-mono flex items-center gap-3`}
+            >
+              <span>
+                SYS_ID: <span className="text-cyan-400">CX-9000</span>
+              </span>
+              <span className="opacity-30">|</span>
+              <span className="flex items-center gap-1.5">
+                STATUS:{" "}
+                <span className="text-emerald-400 font-bold animate-pulse">
+                  ONLINE
+                </span>
+              </span>
+            </p>
+          </div>
+          <div className="flex gap-3">
+            <div
+              className={`px-3 py-1.5 rounded-lg border text-xs font-mono flex items-center gap-2 ${isDark ? "bg-[#0a0a0a] border-white/10 text-gray-400" : "bg-white border-gray-200 text-gray-600"}`}
+            >
+              <Shield className="w-3 h-3 text-emerald-500" />
+              <span>SECURE</span>
+            </div>
+            <button
+              className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 border ${
+                isDark
+                  ? "bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border-cyan-500/30 hover:shadow-[0_0_15px_rgba(34,211,238,0.3)]"
+                  : "bg-white hover:bg-gray-50 text-blue-600 border-gray-200 shadow-sm"
+              }`}
+            >
+              <Terminal size={14} />
+              Run Diagnostics
+            </button>
+          </div>
         </div>
 
-        <div className="flex gap-3">
+        {/* Tab Controls */}
+        <div
+          className={`flex items-center p-1 rounded-xl w-fit ${isDark ? "bg-white/5 border border-white/5" : "bg-gray-100 border border-gray-200"}`}
+        >
           <button
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 border ${
-              isDark
-                ? "bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border-cyan-500/30 hover:shadow-[0_0_15px_rgba(34,211,238,0.3)]"
-                : "bg-white hover:bg-gray-50 text-blue-600 border-gray-200 shadow-sm"
+            onClick={() => setActiveTab("metrics")}
+            className={`px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-all ${
+              activeTab === "metrics"
+                ? isDark
+                  ? "bg-purple-500/20 text-purple-400 shadow-[0_0_10px_rgba(168,85,247,0.2)]"
+                  : "bg-white text-purple-600 shadow-sm"
+                : isDark
+                  ? "text-gray-500 hover:text-gray-300"
+                  : "text-gray-500 hover:text-gray-700"
             }`}
           >
-            <Zap size={16} />
-            Run Diagnostics
+            <LayoutGrid size={14} />
+            Overview & Metrics
+          </button>
+          <button
+            onClick={() => setActiveTab("feed")}
+            className={`px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-all ${
+              activeTab === "feed"
+                ? isDark
+                  ? "bg-cyan-500/20 text-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.2)]"
+                  : "bg-white text-blue-600 shadow-sm"
+                : isDark
+                  ? "text-gray-500 hover:text-gray-300"
+                  : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            <List size={14} />
+            Live Transactions
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <StatCard
-          title="Total Revenue"
-          value="$128,492"
-          trend="12.5%"
-          trendUp={true}
-          icon={<Activity size={24} />}
-          delay={0.1}
-        />
-        <StatCard
-          title="Global Orders"
-          value="1,482"
-          trend="3.2%"
-          trendUp={true}
-          icon={<Box size={24} />}
-          delay={0.2}
-          hologramImage="https://images.unsplash.com/photo-1751475252133-3db30b9814b5?crop=entropy&cs=tinysrgb&fit=max&fm=webp&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmdXR1cmlzdGljJTIwM2QlMjBob2xvZ3JhbSUyMGdsb2JlJTIwY3liZXJ8ZW58MXx8fHwxNzY4NTc2ODc4fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-        />
-        <StatCard
-          title="Active Scripts"
-          value="24/24"
-          trend="Running"
-          trendUp={true}
-          icon={<Server size={24} />}
-          delay={0.3}
-          hologramImage="https://images.unsplash.com/photo-1674352889408-52792b1a3b23?crop=entropy&cs=tinysrgb&fit=max&fm=webp&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMDNkJTIwbWljcm9jaGlwJTIwZ2xvd2luZyUyMHR1cnF1b2lzZXxlbnwxfHx8fDE3Njg1NzY4Nzh8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-        />
-        <StatCard
-          title="Net Profit"
-          value="$42,300"
-          trend="1.8%"
-          trendUp={false}
-          icon={<Zap size={24} />}
-          delay={0.4}
-        />
-      </div>
+      {/* Main Content */}
+      <div className="flex-1 min-h-0 relative">
+        <AnimatePresence mode="wait">
+          {activeTab === "metrics" ? (
+            <motion.div
+              key="metrics"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              transition={{ duration: 0.2 }}
+              className="h-full grid grid-cols-12 grid-rows-[auto_1fr] lg:grid-rows-12 gap-4 pb-2"
+            >
+              {/* ROW 1: KPI CARDS (Spans 3 rows on large screens) */}
+              <div className="col-span-12 lg:row-span-3 grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <StatCard
+                  title="Total Revenue"
+                  value="$128,492"
+                  trend="12.5%"
+                  trendUp={true}
+                  icon={<Activity size={24} />}
+                  delay={0.1}
+                  className="h-full"
+                  chartData={revenueData} // Passing Sparkline Data
+                />
+                <StatCard
+                  title="Global Orders"
+                  value="1,482"
+                  trend="3.2%"
+                  trendUp={true}
+                  icon={<Box size={24} />}
+                  delay={0.2}
+                  className="h-full"
+                  chartData={ordersData}
+                />
+                <StatCard
+                  title="Active Scripts"
+                  value="24/24"
+                  trend="Running"
+                  trendUp={true}
+                  icon={<Server size={24} />}
+                  delay={0.3}
+                  className="h-full"
+                  chartData={scriptsData}
+                />
+                <StatCard
+                  title="Net Profit"
+                  value="$42,300"
+                  trend="1.8%"
+                  trendUp={false}
+                  icon={<Zap size={24} />}
+                  delay={0.4}
+                  className="h-full"
+                  chartData={profitData}
+                />
+              </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div
-          className={`lg:col-span-2 backdrop-blur-xl border rounded-2xl p-6 min-h-[400px] ${
-            isDark
-              ? "bg-[#0a0a0a]/60 border-white/5"
-              : "bg-white border-gray-200 shadow-sm"
-          }`}
-        >
-          <RevenueChart />
-        </div>
-
-        <div
-          className={`backdrop-blur-xl border rounded-2xl p-6 ${
-            isDark
-              ? "bg-[#0a0a0a]/60 border-white/5"
-              : "bg-white border-gray-200 shadow-sm"
-          }`}
-        >
-          <h3
-            className={`${
-              isDark ? "text-white" : "text-gray-900"
-            } font-medium mb-4 flex items-center gap-2`}
-          >
-            <Server size={18} className="text-cyan-400" />
-            System Health
-          </h3>
-          <div className="space-y-6">
-            {[
-              "Main Database",
-              "API Gateway",
-              "CDN Node US-East",
-              "Payment Processor",
-            ].map((item, i) => (
-              <div key={i} className="group">
-                <div className="flex justify-between text-sm mb-1">
-                  <span
-                    className={`${
-                      isDark
-                        ? "text-gray-400 group-hover:text-cyan-400"
-                        : "text-gray-500 group-hover:text-blue-600"
-                    } transition-colors`}
-                  >
-                    {item}
-                  </span>
-                  <span className="text-green-400 font-mono text-xs">
-                    99.{8 + i}%
-                  </span>
-                </div>
+              {/* Chart + System */}
+              <div className="col-span-12 lg:col-span-9 lg:row-span-9 min-h-[300px] lg:min-h-0 relative">
                 <div
-                  className={`h-1.5 w-full rounded-full overflow-hidden ${
-                    isDark ? "bg-white/5" : "bg-gray-100"
-                  }`}
+                  className={`absolute inset-0 backdrop-blur-xl border rounded-3xl p-6 flex flex-col ${isDark ? "bg-[#0a0a0a]/60 border-white/5" : "bg-white border-gray-200 shadow-sm"}`}
                 >
-                  <div
-                    className="h-full bg-linear-to-r from-cyan-600 to-cyan-400 rounded-full shadow-[0_0_10px_#22d3ee]"
-                    style={{ width: `${95 + i}%` }}
-                  />
+                  <div className="flex justify-between items-center mb-4 shrink-0">
+                    <div>
+                      <h3
+                        className={`text-sm font-bold uppercase tracking-widest ${isDark ? "text-white" : "text-gray-900"}`}
+                      >
+                        Revenue Analytics
+                      </h3>
+                      <p
+                        className={`text-[10px] ${isDark ? "text-gray-500" : "text-gray-400"}`}
+                      >
+                        REAL-TIME DATA STREAM
+                      </p>
+                    </div>
+                    <div
+                      className={`px-2 py-1 rounded text-[10px] font-bold ${isDark ? "bg-white/5 text-gray-400" : "bg-gray-100 text-gray-600"}`}
+                    >
+                      LIVE
+                    </div>
+                  </div>
+                  <div className="flex-1 w-full min-h-0 relative">
+                    <div className="absolute inset-0">
+                      <RevenueChart />
+                    </div>
+                  </div>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
+              <div className="col-span-12 lg:col-span-3 lg:row-span-9 min-h-[300px] lg:min-h-0 relative">
+                <div
+                  className={`absolute inset-0 backdrop-blur-xl border rounded-3xl p-6 flex flex-col ${isDark ? "bg-[#0a0a0a]/60 border-white/5" : "bg-white border-gray-200 shadow-sm"}`}
+                >
+                  <h3
+                    className={`text-sm font-bold uppercase tracking-widest ${isDark ? "text-white" : "text-gray-900"} mb-4`}
+                  >
+                    System Health
+                  </h3>
+                  <div className="flex-1 flex flex-col justify-center space-y-8">
+                    {[
+                      { name: "Main Database", val: 99.8, color: "#22d3ee" },
+                      { name: "API Gateway", val: 99.9, color: "#34d399" },
+                      { name: "CDN Nodes", val: 98.2, color: "#a78bfa" },
+                      {
+                        name: "Payment Processor",
+                        val: 100.0,
+                        color: "#fbbf24",
+                      },
+                    ].map((item, i) => (
+                      <div key={i} className="group">
+                        <div className="flex justify-between text-[10px] mb-2 uppercase font-bold tracking-wider">
+                          <span
+                            className={`${isDark ? "text-gray-400 group-hover:text-cyan-400" : "text-gray-500 group-hover:text-blue-600"} transition-colors`}
+                          >
+                            {item.name}
+                          </span>
+                          <span
+                            className="font-mono text-xs"
+                            style={{ color: item.color }}
+                          >
+                            {item.val}%
+                          </span>
+                        </div>
+                        <div
+                          className={`h-2 w-full rounded-full overflow-hidden ${isDark ? "bg-white/5" : "bg-gray-100"}`}
+                        >
+                          <div
+                            className="h-full rounded-full shadow-[0_0_10px_currentColor] transition-all duration-1000"
+                            style={{
+                              width: `${item.val}%`,
+                              backgroundColor: item.color,
+                              color: item.color,
+                            }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div
+                    className={`mt-auto pt-4 border-t border-dashed ${isDark ? "border-white/10" : "border-gray-200"}`}
+                  >
+                    <div className="flex justify-between text-[10px] font-mono opacity-50">
+                      <span>UPTIME: 42d 12h</span>
+                      <span className="text-emerald-500">STABLE</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="feed"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.2 }}
+              className="h-full relative flex flex-col pb-2"
+            >
+              <div
+                className={`flex-1 relative backdrop-blur-xl border rounded-3xl overflow-hidden flex flex-col ${
+                  isDark
+                    ? "bg-[#0a0a0a]/60 border-white/5"
+                    : "bg-white border-gray-200 shadow-sm"
+                }`}
+              >
+                <div
+                  className={`h-12 border-b flex items-center justify-between px-6 shrink-0 ${isDark ? "border-white/5 bg-white/2" : "border-gray-100 bg-gray-50/50"}`}
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                    <h3
+                      className={`text-xs font-bold uppercase tracking-widest ${isDark ? "text-white" : "text-gray-900"}`}
+                    >
+                      Live Transaction Feed
+                    </h3>
+                  </div>
+                  <div
+                    className={`text-[10px] px-2 py-1 rounded border ${isDark ? "border-white/10 text-gray-500" : "border-gray-200 text-gray-400"}`}
+                  >
+                    AUTO-SCROLL: ON
+                  </div>
+                </div>
 
-        <div
-          className={`lg:col-span-3 backdrop-blur-xl border rounded-2xl p-6 ${
-            isDark
-              ? "bg-[#0a0a0a]/60 border-white/5"
-              : "bg-white border-gray-200 shadow-sm"
-          }`}
-        >
-          <OrdersTable />
-        </div>
+                <div className="flex-1 relative">
+                  <div className="absolute inset-0 overflow-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent p-0">
+                    <OrdersTable />
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

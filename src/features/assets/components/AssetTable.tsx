@@ -38,7 +38,7 @@ export const AssetTable: React.FC<AssetTableProps> = ({
     <Table>
       <TableHeader>
         <TableRow
-          className={`border-b ${isDark ? "bg-white/2 border-white/5 hover:bg-white/2" : "bg-gray-50 border-gray-200 hover:bg-gray-50"}`}
+          className={`sticky top-0 z-10 border-b backdrop-blur-md ${isDark ? "bg-[#0a0a0a]/90 border-white/5 hover:bg-[#0a0a0a]/90" : "bg-gray-50/90 border-gray-200 hover:bg-gray-50/90"}`}
         >
           <TableHead
             className={`px-6 py-4 text-left text-xs font-bold uppercase tracking-wider ${isDark ? "text-gray-500" : "text-gray-600"}`}
