@@ -1,173 +1,113 @@
 import React from "react";
 import { motion } from "motion/react";
-import { Activity, AlertCircle, CheckCircle, Info } from "lucide-react";
+import { Terminal, Minus, Square, X, ChevronRight } from "lucide-react";
 import { useAnalytics } from "@/features/analytics/hooks/useAnalytics";
 
 export const EventLogs = React.memo(() => {
   const { isDark, eventLogs } = useAnalytics();
 
-  const getStatusStyles = (type: string) => {
-    switch (type) {
-      case "error":
-        return {
-          bg: isDark ? "bg-red-500/5" : "bg-red-50",
-          border: isDark ? "border-red-500/20" : "border-red-200",
-          text: "text-red-400",
-          iconBg: isDark ? "bg-red-500/10" : "bg-red-100",
-          icon: AlertCircle,
-        };
-      case "warning":
-        return {
-          bg: isDark ? "bg-orange-500/5" : "bg-orange-50",
-          border: isDark ? "border-orange-500/20" : "border-orange-200",
-          text: "text-orange-400",
-          iconBg: isDark ? "bg-orange-500/10" : "bg-orange-100",
-          icon: AlertCircle,
-        };
-      case "success":
-        return {
-          bg: isDark ? "bg-green-500/5" : "bg-green-50",
-          border: isDark ? "border-green-500/20" : "border-green-200",
-          text: "text-green-400",
-          iconBg: isDark ? "bg-green-500/10" : "bg-green-100",
-          icon: CheckCircle,
-        };
-      default:
-        return {
-          bg: isDark ? "bg-blue-500/5" : "bg-blue-50",
-          border: isDark ? "border-blue-500/20" : "border-blue-200",
-          text: "text-blue-400",
-          iconBg: isDark ? "bg-blue-500/10" : "bg-blue-100",
-          icon: Info,
-        };
-    }
-  };
-
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, scale: 0.98 }}
+      animate={{ opacity: 1, scale: 1 }}
       transition={{ delay: 0.3 }}
-      className={`rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-2xl ${
+      className={`h-full flex flex-col rounded-xl overflow-hidden shadow-2xl relative group ${
         isDark
-          ? "bg-black/40 backdrop-blur-xl border border-white/10"
-          : "bg-white border border-gray-200 shadow-sm"
+          ? "bg-[#050505] border border-white/10"
+          : "bg-[#1a1a1a] border-gray-800"
       }`}
     >
-      <div className="p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <Activity
-              className={`w-5 h-5 ${isDark ? "text-cyan-400" : "text-blue-600"}`}
-            />
-            <h3
-              className={`font-semibold ${
-                isDark ? "text-white" : "text-gray-900"
-              }`}
-            >
-              GLOBAL_EVENT_LOGS
-            </h3>
+      {/* CRT Scanline Effect Overlay */}
+      <div className="absolute inset-0 pointer-events-none z-20 overflow-hidden opacity-10">
+        <div
+          className="w-full h-full bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))]"
+          style={{ backgroundSize: "100% 2px, 3px 100%" }}
+        />
+      </div>
+
+      {/* Terminal Title Bar */}
+      <div className="h-10 bg-[#1a1a1a] flex items-center justify-between px-4 shrink-0 relative z-30 border-b border-white/5">
+        <div className="flex items-center gap-2 text-xs font-mono text-gray-400">
+          <Terminal className="w-3.5 h-3.5 text-emerald-500" />
+          <span>root@celaest-core:~</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="p-1 hover:bg-white/10 rounded cursor-pointer transition-colors">
+            <Minus className="w-3 h-3 text-gray-500" />
           </div>
-          <div className="flex gap-2">
-            {["Live", "Filtered", "Search"].map((tab, idx) => (
-              <button
-                key={idx}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-300 ${
-                  idx === 0
-                    ? isDark
-                      ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20"
-                      : "bg-blue-500/10 text-blue-600 border border-blue-500/20"
-                    : isDark
-                      ? "text-gray-400 hover:text-cyan-400 hover:bg-white/5"
-                      : "text-gray-600 hover:text-blue-600 hover:bg-gray-100"
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
+          <div className="p-1 hover:bg-white/10 rounded cursor-pointer transition-colors">
+            <Square className="w-2.5 h-2.5 text-gray-500" />
+          </div>
+          <div className="p-1 hover:bg-red-500/20 rounded cursor-pointer transition-colors group/close">
+            <X className="w-3 h-3 text-gray-500 group-hover/close:text-red-400" />
           </div>
         </div>
+      </div>
 
-        {/* Logs Table */}
-        <div
-          className={`rounded-xl overflow-hidden ${
-            isDark ? "bg-white/5" : "bg-gray-50"
-          }`}
-        >
-          <table className="w-full">
-            <thead>
-              <tr
-                className={`border-b ${
-                  isDark ? "border-white/10" : "border-gray-200"
-                }`}
+      {/* Terminal Body */}
+      <div className="flex-1 overflow-hidden relative p-4 font-mono text-xs">
+        <div className="absolute inset-0 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+          {/* Initial Boot Sequence Mock */}
+          <div className="text-gray-500 mb-4 opacity-70">
+            <p>Initializing system core...</p>
+            <p>Loading modules: [OK]</p>
+            <p>Establishing secure connection... connected.</p>
+            <p className="mb-2">----------------------------------------</p>
+          </div>
+
+          {/* Live Logs */}
+          <div className="space-y-1.5">
+            {eventLogs.map((log) => (
+              <div
+                key={log.id}
+                className="flex items-start gap-2 hover:bg-white/5 px-1 -mx-1 rounded selection:bg-emerald-500/30 selection:text-white"
               >
-                <th
-                  className={`text-left px-4 py-3 text-xs font-semibold tracking-wider ${
-                    isDark ? "text-gray-400" : "text-gray-500"
-                  }`}
-                >
-                  STATUS
-                </th>
-                <th
-                  className={`text-left px-4 py-3 text-xs font-semibold tracking-wider ${
-                    isDark ? "text-gray-400" : "text-gray-500"
-                  }`}
-                >
-                  TIMESTAMP
-                </th>
-                <th
-                  className={`text-left px-4 py-3 text-xs font-semibold tracking-wider ${
-                    isDark ? "text-gray-400" : "text-gray-500"
-                  }`}
-                >
-                  MESSAGE
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {eventLogs.map((log) => {
-                const styles = getStatusStyles(log.type);
-                const Icon = styles.icon;
-                return (
-                  <tr
-                    key={log.id}
-                    className={`border-b transition-colors duration-200 ${
-                      isDark
-                        ? "border-white/5 hover:bg-white/5"
-                        : "border-gray-100 hover:bg-white"
+                <span className="text-gray-600 shrink-0">
+                  [{new Date().toISOString().split("T")[1].split(".")[0]}]
+                </span>
+                <div className="break-all">
+                  <span
+                    className={`${
+                      log.type === "error"
+                        ? "text-red-500"
+                        : log.type === "warning"
+                          ? "text-amber-500"
+                          : log.type === "success"
+                            ? "text-emerald-500"
+                            : "text-blue-400"
                     }`}
                   >
-                    <td className="px-4 py-3">
-                      <div
-                        className={`inline-flex items-center gap-2 px-3 py-1 rounded-lg ${styles.iconBg} border ${styles.border}`}
-                      >
-                        <Icon className={`w-3 h-3 ${styles.text}`} />
-                        <span
-                          className={`text-xs font-bold uppercase ${styles.text}`}
-                        >
-                          {log.type}
-                        </span>
-                      </div>
-                    </td>
-                    <td
-                      className={`px-4 py-3 text-sm font-mono ${
-                        isDark ? "text-gray-400" : "text-gray-600"
-                      }`}
-                    >
-                      {log.time}
-                    </td>
-                    <td
-                      className={`px-4 py-3 text-sm ${
-                        isDark ? "text-gray-300" : "text-gray-700"
-                      }`}
-                    >
-                      {log.message}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                    {log.type === "error"
+                      ? "[ERR]"
+                      : log.type === "warning"
+                        ? "[WARN]"
+                        : log.type === "success"
+                          ? "[OK]"
+                          : "[INFO]"}
+                  </span>
+                  <span className="ml-2 text-gray-300">{log.message}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Blinking Cursor */}
+          <div className="mt-2 flex items-center gap-1 text-emerald-500">
+            <ChevronRight className="w-3 h-3" strokeWidth={3} />
+            <span className="animate-pulse">_</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer Status */}
+      <div className="h-6 bg-[#0a0a0a] border-t border-white/5 flex items-center justify-between px-3 text-[10px] font-mono text-gray-500 relative z-30">
+        <div className="flex items-center gap-3">
+          <span>UTF-8</span>
+          <span>Ln {eventLogs.length + 12}, Col 1</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="text-emerald-500">Connected</span>
         </div>
       </div>
     </motion.div>

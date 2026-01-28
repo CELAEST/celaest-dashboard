@@ -9,6 +9,8 @@ interface ROIHeaderProps {
   selectedFilter: string;
   setSelectedFilter: (filter: string) => void;
   filterOptions: { value: string; label: string }[];
+  activeTab: "overview" | "insights";
+  setActiveTab: (tab: "overview" | "insights") => void;
 }
 
 export const ROIHeader = React.memo(
@@ -18,12 +20,14 @@ export const ROIHeader = React.memo(
     selectedFilter,
     setSelectedFilter,
     filterOptions,
+    activeTab,
+    setActiveTab,
   }: ROIHeaderProps) => {
     const { theme } = useTheme();
     const isDark = theme === "dark";
 
     return (
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-6 shrink-0">
         <div>
           <h1
             className={`text-4xl font-bold tracking-tight mb-2 ${
@@ -32,12 +36,46 @@ export const ROIHeader = React.memo(
           >
             ROI Analytics - Global View
           </h1>
-          <p
-            className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}
-          >
-            Métricas agregadas de todos los usuarios • Detectando tendencias de
-            uso
-          </p>
+          <div className="flex items-center gap-4">
+            <p
+              className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}
+            >
+              Métricas agregadas • Detectando tendencias
+            </p>
+            {/* TAB SWITCHER (Glass Capsule) */}
+            <div
+              className={`flex items-center p-1 rounded-full ${isDark ? "bg-white/5 border border-white/5" : "bg-gray-100 border border-gray-200"}`}
+            >
+              <button
+                onClick={() => setActiveTab("overview")}
+                className={`px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
+                  activeTab === "overview"
+                    ? isDark
+                      ? "bg-cyan-500 text-white shadow-lg shadow-cyan-500/20"
+                      : "bg-white text-gray-900 shadow-sm"
+                    : isDark
+                      ? "text-gray-500 hover:text-gray-300"
+                      : "text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                Overview
+              </button>
+              <button
+                onClick={() => setActiveTab("insights")}
+                className={`px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
+                  activeTab === "insights"
+                    ? isDark
+                      ? "bg-purple-500 text-white shadow-lg shadow-purple-500/20"
+                      : "bg-white text-gray-900 shadow-sm"
+                    : isDark
+                      ? "text-gray-500 hover:text-gray-300"
+                      : "text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                Deep Insights
+              </button>
+            </div>
+          </div>
         </div>
         <div className="flex items-center gap-3">
           <div className="relative">
