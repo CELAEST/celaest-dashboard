@@ -20,7 +20,7 @@ interface SidebarProps {
   onShowLogin?: () => void;
 }
 
-export const Sidebar = React.memo(function Sidebar({
+export const AppSidebar = React.memo(function AppSidebar({
   activeTab,
   setActiveTab,
   isGuest,

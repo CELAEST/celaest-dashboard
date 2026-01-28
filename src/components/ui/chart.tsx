@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import * as React from "react";
 import * as RechartsPrimitive from "recharts";
 
@@ -128,7 +130,12 @@ function ChartTooltipContent({
   hideIndicator?: boolean;
   labelFormatter?: (value: any, payload: any[]) => React.ReactNode;
   labelClassName?: string;
-  formatter?: (value: any, name: string, item: any, index: number) => React.ReactNode;
+  formatter?: (
+    value: any,
+    name: string,
+    item: any,
+    index: number,
+  ) => React.ReactNode;
   color?: string;
   nameKey?: string;
   labelKey?: string;

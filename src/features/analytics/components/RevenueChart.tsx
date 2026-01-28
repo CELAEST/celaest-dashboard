@@ -72,7 +72,7 @@ const CustomTooltip = React.memo(function CustomTooltip({
   );
 });
 
-export const SalesChart = React.memo(function SalesChart() {
+export const RevenueChart = React.memo(function RevenueChart() {
   const { theme } = useTheme();
   const isDark = theme === "dark";
 

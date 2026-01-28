@@ -9,7 +9,7 @@ import { useSearchParams } from "next/navigation";
 
 // Shared components
 import { Header } from "@/features/shared/components/Header";
-import { Sidebar } from "@/features/shared/components/Sidebar";
+import { AppSidebar } from "@/features/shared/components/AppSidebar";
 import { AuthPage } from "@/features/auth/components/AuthPage";
 import { LoginModal } from "@/features/auth/components/LoginModal";
 
@@ -17,6 +17,7 @@ import { LoginModal } from "@/features/auth/components/LoginModal";
 import { FeatureLoader } from "./FeatureLoader";
 import { AnimatedSlot } from "./AnimatedSlot";
 import { useDashboardRouter } from "../hooks/useDashboardRouter";
+import { ValidTabId } from "../config/feature-registry";
 
 const emptySubscribe = () => () => {};
 
@@ -35,6 +36,11 @@ export function DashboardShell() {
   const authMode = searchParams.get("mode");
   const showAuthPage =
     !user && (authMode === "signin" || authMode === "signup");
+
+  // Fix: Explicit callback for sidebar to match types
+  const handleTabChange = (tabId: string) => {
+    navigateTo(tabId as ValidTabId);
+  };
 
   // Fix hydration mismatch
   const mounted = useSyncExternalStore(
@@ -106,9 +112,9 @@ export function DashboardShell() {
         ></div>
       </div>
 
-      <Sidebar
+      <AppSidebar
         activeTab={activeTab}
-        setActiveTab={navigateTo}
+        setActiveTab={handleTabChange}
         isGuest={isGuest}
         onShowLogin={() => setShowLoginModal(true)}
       />

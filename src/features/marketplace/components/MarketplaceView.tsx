@@ -30,7 +30,7 @@ import { VideoDemoSection } from "@/features/marketplace/components/VideoDemoSec
 
 import { useMarketplaceLogic } from "@/features/marketplace/hooks/useMarketplaceLogic";
 
-export const MarketplaceViewNew: React.FC = () => {
+export const MarketplaceView: React.FC = () => {
   const { theme } = useTheme();
 
   const {

@@ -7,7 +7,7 @@ import dynamic from "next/dynamic";
 // Static imports for dashboard main view components
 import { StatCard } from "@/features/shared/components/StatCard";
 import { OrdersTable } from "@/features/billing/components/OrdersTable";
-import { NotificationShowcase } from "@/features/shared/components/NotificationShowcase";
+
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
 // Skeleton for Chart
@@ -15,11 +15,11 @@ const ChartSkeleton = () => (
   <div className="h-[300px] w-full animate-pulse bg-gray-200/10 dark:bg-white/5 rounded-lg" />
 );
 
-// Dynamic import for SalesChart
-const SalesChart = dynamic(
+// Dynamic import for RevenueChart
+const RevenueChart = dynamic(
   () =>
-    import("@/features/analytics/components/Charts").then((m) => ({
-      default: m.SalesChart,
+    import("@/features/analytics/components/RevenueChart").then((m) => ({
+      default: m.RevenueChart,
     })),
   { ssr: false, loading: () => <ChartSkeleton /> },
 );
@@ -99,10 +99,6 @@ export const DashboardContent = () => {
         />
       </div>
 
-      <div className="mb-8">
-        <NotificationShowcase />
-      </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div
           className={`lg:col-span-2 backdrop-blur-xl border rounded-2xl p-6 min-h-[400px] ${
@@ -111,7 +107,7 @@ export const DashboardContent = () => {
               : "bg-white border-gray-200 shadow-sm"
           }`}
         >
-          <SalesChart />
+          <RevenueChart />
         </div>
 
         <div

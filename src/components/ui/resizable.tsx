@@ -1,15 +1,23 @@
 "use client";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import * as React from "react";
 import { GripVerticalIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
 // Placeholder components - react-resizable-panels needs compatible version
-const ResizablePanelGroup = ({ children, ...props }: any) => <div {...props}>{children}</div>;
+const ResizablePanelGroup = ({ children, ...props }: any) => (
+  <div {...props}>{children}</div>
+);
 
 function ResizablePanel({ children, ...props }: any) {
-  return <div data-slot="resizable-panel" {...props}>{children}</div>;
+  return (
+    <div data-slot="resizable-panel" {...props}>
+      {children}
+    </div>
+  );
 }
 
 function ResizableHandle({

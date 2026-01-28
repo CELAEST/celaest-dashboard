@@ -12,12 +12,12 @@ interface Metric {
   positive: boolean;
 }
 
-interface ROIMetricsCardsProps {
+interface ROISummaryCardsProps {
   metrics: Metric[];
 }
 
-export const ROIMetricsCards = React.memo(
-  ({ metrics }: ROIMetricsCardsProps) => {
+export const ROISummaryCards = React.memo(
+  ({ metrics }: ROISummaryCardsProps) => {
     const { theme } = useTheme();
     const isDark = theme === "dark";
 
@@ -94,4 +94,4 @@ export const ROIMetricsCards = React.memo(
   },
 );
 
-ROIMetricsCards.displayName = "ROIMetricsCards";
+ROISummaryCards.displayName = "ROISummaryCards";

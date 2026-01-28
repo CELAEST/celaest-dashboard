@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { SignOutCard } from "./SignOutModal/SignOutCard";
+import { SignOutCard } from "./SignOutCard";
 
 interface SignOutModalProps {
   isOpen: boolean;

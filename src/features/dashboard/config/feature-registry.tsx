@@ -18,8 +18,7 @@ export interface FeatureConfig {
   id: string;
   label: string;
   icon?: LucideIcon;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  load: () => Promise<{ default: ComponentType<any> }>;
+  load: () => Promise<{ default: ComponentType }>;
   access: FeatureAccessLevel;
   ssr?: boolean;
 }
@@ -41,9 +40,9 @@ export const FEATURE_REGISTRY: Record<string, FeatureConfig> = {
     label: "Marketplace",
     icon: Files,
     load: () =>
-      import("@/features/marketplace/components/MarketplaceViewNew").then(
-        (m) => ({ default: m.MarketplaceViewNew }),
-      ),
+      import("@/features/marketplace/components/MarketplaceView").then((m) => ({
+        default: m.MarketplaceView,
+      })),
     access: "public",
     ssr: true,
   },

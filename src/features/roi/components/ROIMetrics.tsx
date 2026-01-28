@@ -4,7 +4,7 @@ import React from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useROIMetrics } from "@/features/roi/hooks/useROIMetrics";
 import { ROIHeader } from "./ROIHeader";
-import { ROIMetricsCards } from "./ROIMetricsCards";
+import { ROISummaryCards } from "./ROISummaryCards";
 import { TimeSavedChart } from "./TimeSavedChart";
 import { TaskCompletionChart } from "./TaskCompletionChart";
 import { TopTemplates } from "./TopTemplates";
@@ -12,7 +12,6 @@ import { ZombieUsers } from "./ZombieUsers";
 
 export const ROIMetrics: React.FC = () => {
   const {
-    isAdmin,
     timeRange,
     setTimeRange,
     isFilterOpen,
@@ -58,7 +57,7 @@ export const ROIMetrics: React.FC = () => {
             >
               {/* Metrics Cards - Compact Row */}
               <div className="shrink-0">
-                <ROIMetricsCards metrics={metrics} />
+                <ROISummaryCards metrics={metrics} />
               </div>
 
               {/* Charts Section - Fills remaining space */}
