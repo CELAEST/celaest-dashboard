@@ -1,25 +1,18 @@
-"use client";
-
 import React from "react";
-import { motion } from "motion/react";
-import { Bell, Download } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
+import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { useErrorMonitoring } from "@/features/errors/hooks/useErrorMonitoring";
 import { ErrorStats } from "./ErrorStats";
-import { ErrorFilters } from "./ErrorFilters";
 import { ErrorList } from "./ErrorList";
+import { ErrorAnalytics } from "./ErrorAnalytics";
 
 const ErrorMonitoring: React.FC = () => {
-  // We already get theme context inside the hook, but we need isDark here for the header
-  // Actually the hook returns isDark.
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+  const [activeTab, setActiveTab] = React.useState<"overview" | "logs">("logs");
+
   const {
-    isDark,
     isAdmin,
-    selectedSeverity,
-    setSelectedSeverity,
-    selectedStatus,
-    setSelectedStatus,
-    searchQuery,
-    setSearchQuery,
     expandedError,
     toggleErrorExpansion,
     filteredErrors,
@@ -27,74 +20,82 @@ const ErrorMonitoring: React.FC = () => {
   } = useErrorMonitoring();
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
+    <div className="h-full flex flex-col gap-4 p-4 min-h-0 overflow-hidden">
+      {/* Simplified Header - Titles and Tabs only */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex justify-between items-end mb-6"
+        className="shrink-0 flex justify-between items-center"
       >
         <div>
           <h1
-            className={`text-3xl font-bold mb-2 tracking-tight ${
-              isDark ? "text-white" : "text-gray-900"
-            }`}
+            className={`text-2xl font-bold tracking-tight ${isDark ? "text-white" : "text-gray-900"}`}
           >
-            Error Monitoring System
+            Monitor de Errores
           </h1>
           <p
-            className={`${isDark ? "text-gray-400" : "text-gray-500"} text-sm`}
+            className={`${isDark ? "text-gray-400" : "text-gray-500"} text-xs font-black uppercase tracking-widest`}
           >
-            Sistema de alerta temprana • Detección proactiva de fallos críticos
+            Live Mission Control
           </p>
         </div>
 
-        <div className="flex gap-3">
+        <div
+          className={`flex p-1 rounded-lg border ${isDark ? "bg-white/5 border-white/10" : "bg-gray-100 border-gray-200"}`}
+        >
           <button
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 border ${
-              isDark
-                ? "bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border-cyan-500/30 hover:shadow-[0_0_15px_rgba(34,211,238,0.3)]"
-                : "bg-white hover:bg-gray-50 text-blue-600 border-gray-200 shadow-sm"
-            }`}
+            onClick={() => setActiveTab("logs")}
+            className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${activeTab === "logs" ? (isDark ? "bg-white/10 text-white shadow-sm" : "bg-white text-gray-900 shadow-sm") : isDark ? "text-gray-400 hover:text-white" : "text-gray-500 hover:text-gray-900"}`}
           >
-            <Bell size={16} />
-            Configurar Alertas
+            Live Logs
           </button>
-
           <button
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 border ${
-              isDark
-                ? "bg-white/5 hover:bg-white/10 text-white border-white/10"
-                : "bg-white hover:bg-gray-50 text-gray-700 border-gray-200 shadow-sm"
-            }`}
+            onClick={() => setActiveTab("overview")}
+            className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${activeTab === "overview" ? (isDark ? "bg-white/10 text-white shadow-sm" : "bg-white text-gray-900 shadow-sm") : isDark ? "text-gray-400 hover:text-white" : "text-gray-500 hover:text-gray-900"}`}
           >
-            <Download size={16} />
-            Exportar Logs
+            Overview
           </button>
         </div>
       </motion.div>
 
-      {/* Stats Cards */}
-      <ErrorStats stats={stats} />
+      {/* Content Area - Maximized */}
+      <div className="flex-1 min-h-0 relative">
+        <AnimatePresence mode="wait">
+          {activeTab === "overview" ? (
+            <motion.div
+              key="overview"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              className="h-full flex flex-col gap-5 overflow-hidden"
+            >
+              {/* Top Row: Core 4 Stats */}
+              <ErrorStats stats={stats} />
 
-      {/* Filters */}
-      <ErrorFilters
-        selectedSeverity={selectedSeverity}
-        setSelectedSeverity={setSelectedSeverity}
-        selectedStatus={selectedStatus}
-        setSelectedStatus={setSelectedStatus}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        resultCount={filteredErrors.length}
-      />
-
-      {/* Error Logs List */}
-      <ErrorList
-        errors={filteredErrors}
-        expandedError={expandedError}
-        toggleErrorExpansion={toggleErrorExpansion}
-        isAdmin={isAdmin}
-      />
+              {/* Symmetric Analytics Row */}
+              <ErrorAnalytics />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="logs"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="h-full"
+            >
+              {/* Error Logs List - 100% Height gain from removed local filters */}
+              <div className="h-full overflow-hidden rounded-2xl border border-gray-200 dark:border-white/10 bg-white/50 dark:bg-black/20 backdrop-blur-sm">
+                <ErrorList
+                  errors={filteredErrors}
+                  expandedError={expandedError}
+                  toggleErrorExpansion={toggleErrorExpansion}
+                  isAdmin={isAdmin}
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 };

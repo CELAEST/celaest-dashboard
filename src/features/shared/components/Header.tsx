@@ -1,12 +1,20 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { Search, Command, Sun, Moon, Filter } from "lucide-react";
+import {
+  Search,
+  Command,
+  Sun,
+  Moon,
+  ShieldAlert,
+  Activity,
+} from "lucide-react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { NotificationCenter } from "./NotificationCenter";
 import { useUIStore } from "@/stores/useUIStore";
 import { UserInfo } from "./Header/UserInfo";
+import { HeaderFilterPill } from "./Header/HeaderFilterPill";
 
 interface HeaderProps {
   onShowLogin?: () => void;
@@ -15,7 +23,13 @@ interface HeaderProps {
 export const Header = React.memo(function Header({ onShowLogin }: HeaderProps) {
   const { toggleTheme, isDark, isMounted } = useTheme();
   const { user } = useAuth();
-  const { navbarSearchVisible, searchQuery, setSearchQuery } = useUIStore();
+  const {
+    searchQuery,
+    setSearchQuery,
+    showErrorControls,
+    errorFilters,
+    setErrorFilters,
+  } = useUIStore();
 
   // Memoizar clases dinámicas
   const headerClassName = useMemo(
@@ -62,72 +76,69 @@ export const Header = React.memo(function Header({ onShowLogin }: HeaderProps) {
   return (
     <header className={headerClassName}>
       <div className="flex items-center w-full max-w-xl relative group mr-4">
-        {navbarSearchVisible ? (
-          <>
-            <Search
-              className={`absolute left-4 w-5 h-5 transition-colors ${
-                isDark ? "text-cyan-400" : "text-blue-500"
-              }`}
+        {/* Search Input stays same, it will drive the global searchQuery state */}
+        <Search
+          className={`absolute left-4 w-5 h-5 transition-colors ${
+            isDark
+              ? "text-gray-500 group-focus-within:text-cyan-400"
+              : "text-gray-400 group-focus-within:text-blue-500"
+          }`}
+        />
+        <input
+          type="text"
+          placeholder={
+            showErrorControls ? "Filter errors..." : "Search command or data..."
+          }
+          className={inputClassName}
+          value={searchQuery || ""}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        {!searchQuery && !showErrorControls && (
+          <div className="absolute right-4 flex items-center gap-1">
+            <Command
+              className={`w-3 h-3 ${isDark ? "text-gray-600" : "text-gray-400"}`}
             />
-            <input
-              key="search-active"
-              type="text"
-              placeholder="Buscar soluciones enterprise..."
-              value={searchQuery || ""}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className={inputClassName}
-              autoFocus
-            />
-            <div className="absolute right-2 flex items-center gap-2">
-              <button
-                className={`
-                    flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all
-                    ${
-                      isDark
-                        ? "bg-white/10 hover:bg-white/20 text-gray-200 border border-white/10"
-                        : "bg-gray-100 hover:bg-gray-200 text-gray-700"
-                    }
-                  `}
-              >
-                <Filter size={12} />
-                Filtros
-              </button>
-            </div>
-          </>
-        ) : (
-          <>
-            <Search
-              className={`absolute left-4 w-5 h-5 transition-colors ${
-                isDark
-                  ? "text-gray-500 group-focus-within:text-cyan-400"
-                  : "text-gray-400 group-focus-within:text-blue-500"
-              }`}
-            />
-            <input
-              key="search-inactive"
-              type="text"
-              placeholder="Search command or data..."
-              className={inputClassName}
-              value=""
-              readOnly
-            />
-            <div className="absolute right-4 flex items-center gap-1">
-              <Command
-                className={`w-3 h-3 ${isDark ? "text-gray-600" : "text-gray-400"}`}
-              />
-              <span
-                className={`text-[10px] font-mono ${
-                  isDark ? "text-gray-600" : "text-gray-400"
-                }`}
-              >
-                K
-              </span>
-            </div>
-          </>
+            <span
+              className={`text-[10px] font-mono ${isDark ? "text-gray-600" : "text-gray-400"}`}
+            >
+              K
+            </span>
+          </div>
         )}
       </div>
 
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-3">
+        {/* Feature Specific: Error Monitoring Controls */}
+        {showErrorControls && (
+          <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-4 duration-500">
+            <HeaderFilterPill
+              icon={ShieldAlert}
+              options={[
+                { value: "all", label: "Toda Severidad" },
+                { value: "critical", label: "Crítico" },
+                { value: "warning", label: "Advertencia" },
+              ]}
+              value={errorFilters.severity}
+              onChange={(val) =>
+                setErrorFilters({ ...errorFilters, severity: val })
+              }
+            />
+            <HeaderFilterPill
+              icon={Activity}
+              options={[
+                { value: "all", label: "Todo Estado" },
+                { value: "new", label: "Nuevo" },
+                { value: "resolved", label: "Resuelto" },
+              ]}
+              value={errorFilters.status}
+              onChange={(val) =>
+                setErrorFilters({ ...errorFilters, status: val })
+              }
+            />
+            <div className="w-px h-6 bg-gray-200 dark:bg-white/10 mx-1" />
+          </div>
+        )}
+
         {user ? (
           <UserInfo user={user} />
         ) : (

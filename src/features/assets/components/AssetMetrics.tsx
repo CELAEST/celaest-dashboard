@@ -6,7 +6,6 @@ import { StatCard } from "@/features/shared/components/StatCard";
 import {
   PackageCheck,
   FileText,
-  Archive,
   Layers,
   HardDrive,
   PieChart as PieIcon,
@@ -76,7 +75,6 @@ const storageData = [
   { value: 65 },
 ];
 
-// Mock Data for Main Charts
 const engagementData = [
   { name: "Mon", downloads: 120, views: 450 },
   { name: "Tue", downloads: 145, views: 520 },
@@ -95,7 +93,25 @@ const categoryData = [
   { name: "Other", value: 5, color: "#6b7280" },
 ];
 
-const CustomTooltip = ({ active, payload, label, isDark }: any) => {
+interface TooltipPayload {
+  value: number;
+  name: string;
+  color: string;
+}
+
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: TooltipPayload[];
+  label?: string;
+  isDark: boolean;
+}
+
+const CustomTooltip: React.FC<CustomTooltipProps> = ({
+  active,
+  payload,
+  label,
+  isDark,
+}) => {
   if (active && payload && payload.length) {
     return (
       <div
@@ -106,7 +122,7 @@ const CustomTooltip = ({ active, payload, label, isDark }: any) => {
         >
           {label}
         </p>
-        {payload.map((entry: any, index: number) => (
+        {payload.map((entry, index) => (
           <div key={index} className="flex items-center gap-2 text-xs mb-1">
             <div
               className="w-2 h-2 rounded-full"
@@ -133,9 +149,9 @@ export const AssetMetrics: React.FC = () => {
   const isDark = theme === "dark";
 
   return (
-    <div className="space-y-6 pb-6">
-      {/* Row 1: KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="flex flex-col h-full gap-5 pb-2">
+      {/* Row 1: KPI Cards - Shrink-wrapped to content */}
+      <div className="shrink-0 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Active Templates"
           value="24"
@@ -178,33 +194,36 @@ export const AssetMetrics: React.FC = () => {
         />
       </div>
 
-      {/* Row 2: Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 h-96">
+      {/* Row 2: Analytics Row - Flexible space filler */}
+      <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Chart 1: Engagement Trends (2/3 width) */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className={`col-span-1 lg:col-span-2 rounded-3xl border p-6 flex flex-col ${isDark ? "bg-[#0a0a0a]/60 border-white/5 backdrop-blur-xl" : "bg-white border-gray-200 shadow-sm"}`}
+          className={`col-span-1 lg:col-span-2 rounded-4xl border p-6 flex flex-col ${isDark ? "bg-[#0a0a0a]/60 border-white/5 backdrop-blur-3xl shadow-xl" : "bg-white border-gray-200 shadow-sm"}`}
         >
           <div className="flex justify-between items-center mb-6">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               <div
-                className={`p-2 rounded-lg ${isDark ? "bg-blue-500/10 text-blue-400" : "bg-blue-50 text-blue-600"}`}
+                className={`p-3 rounded-2xl ${isDark ? "bg-white/5 border border-white/10" : "bg-blue-50 text-blue-600"}`}
               >
-                <TrendingUp size={20} />
+                <TrendingUp
+                  size={20}
+                  className={isDark ? "text-blue-400" : "text-blue-600"}
+                />
               </div>
               <div>
                 <h3
-                  className={`text-sm font-bold uppercase tracking-widest ${isDark ? "text-white" : "text-gray-900"}`}
+                  className={`text-[10px] font-black uppercase tracking-[0.3em] ${isDark ? "text-white/40" : "text-gray-400"}`}
                 >
-                  Engagement Analytics
+                  Inteligencia de Activos
                 </h3>
-                <p
-                  className={`text-xs ${isDark ? "text-gray-500" : "text-gray-500"}`}
+                <h2
+                  className={`text-xl font-black italic tracking-tighter ${isDark ? "text-white" : "text-gray-900"}`}
                 >
-                  Downloads & Views Performance
-                </p>
+                  ENGAGEMENT LEVELS
+                </h2>
               </div>
             </div>
           </div>
@@ -223,32 +242,35 @@ export const AssetMetrics: React.FC = () => {
                     x2="0"
                     y2="1"
                   >
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.2} />
                     <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
+                    <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.2} />
                     <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid
                   strokeDasharray="3 3"
-                  stroke={isDark ? "#ffffff10" : "#00000010"}
+                  stroke={
+                    isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"
+                  }
                   vertical={false}
                 />
                 <XAxis
                   dataKey="name"
-                  stroke={isDark ? "#666" : "#999"}
-                  fontSize={12}
+                  stroke={isDark ? "#444" : "#999"}
+                  fontSize={10}
+                  fontWeight="900"
                   tickLine={false}
                   axisLine={false}
                 />
                 <YAxis
-                  stroke={isDark ? "#666" : "#999"}
-                  fontSize={12}
+                  stroke={isDark ? "#444" : "#999"}
+                  fontSize={10}
+                  fontWeight="900"
                   tickLine={false}
                   axisLine={false}
-                  tickFormatter={(value) => `${value}`}
                 />
                 <Tooltip content={<CustomTooltip isDark={isDark} />} />
                 <Area
@@ -257,8 +279,7 @@ export const AssetMetrics: React.FC = () => {
                   stackId="1"
                   stroke="#8b5cf6"
                   fill="url(#colorViews)"
-                  strokeWidth={2}
-                  activeDot={{ r: 6, strokeWidth: 0 }}
+                  strokeWidth={3}
                 />
                 <Area
                   type="monotone"
@@ -266,8 +287,7 @@ export const AssetMetrics: React.FC = () => {
                   stackId="2"
                   stroke="#3b82f6"
                   fill="url(#colorDownloads)"
-                  strokeWidth={2}
-                  activeDot={{ r: 6, strokeWidth: 0 }}
+                  strokeWidth={3}
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -279,25 +299,28 @@ export const AssetMetrics: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
-          className={`col-span-1 lg:col-span-1 rounded-3xl border p-6 flex flex-col ${isDark ? "bg-[#0a0a0a]/60 border-white/5 backdrop-blur-xl" : "bg-white border-gray-200 shadow-sm"}`}
+          className={`col-span-1 lg:col-span-1 rounded-4xl border p-6 flex flex-col ${isDark ? "bg-[#0a0a0a]/60 border-white/5 backdrop-blur-3xl shadow-xl" : "bg-white border-gray-200 shadow-sm"}`}
         >
-          <div className="flex items-center gap-3 mb-6">
+          <div className="flex items-center gap-4 mb-6">
             <div
-              className={`p-2 rounded-lg ${isDark ? "bg-purple-500/10 text-purple-400" : "bg-purple-50 text-purple-600"}`}
+              className={`p-3 rounded-2xl ${isDark ? "bg-white/5 border border-white/10" : "bg-purple-50 text-purple-600"}`}
             >
-              <PieIcon size={20} />
+              <PieIcon
+                size={20}
+                className={isDark ? "text-purple-400" : "text-purple-600"}
+              />
             </div>
             <div>
               <h3
-                className={`text-sm font-bold uppercase tracking-widest ${isDark ? "text-white" : "text-gray-900"}`}
+                className={`text-[10px] font-black uppercase tracking-[0.3em] ${isDark ? "text-white/40" : "text-gray-400"}`}
               >
-                Asset Distribution
+                Estructura de Catálogo
               </h3>
-              <p
-                className={`text-xs ${isDark ? "text-gray-500" : "text-gray-500"}`}
+              <h2
+                className={`text-xl font-black italic tracking-tighter ${isDark ? "text-white" : "text-gray-900"}`}
               >
-                By Category
-              </p>
+                ASSET MIX
+              </h2>
             </div>
           </div>
 
@@ -308,11 +331,12 @@ export const AssetMetrics: React.FC = () => {
                   data={categoryData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
-                  paddingAngle={5}
+                  innerRadius={65}
+                  outerRadius={85}
+                  paddingAngle={8}
                   dataKey="value"
                   stroke="none"
+                  cornerRadius={10}
                 >
                   {categoryData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
@@ -325,28 +349,30 @@ export const AssetMetrics: React.FC = () => {
             {/* Center Text */}
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
               <span
-                className={`text-2xl font-black ${isDark ? "text-white" : "text-gray-900"}`}
+                className={`text-3xl font-black italic tracking-tighter ${isDark ? "text-white" : "text-gray-900"}`}
               >
-                1,240
+                1.2K
               </span>
-              <span className="text-[10px] text-gray-500 uppercase font-bold tracking-widest">
-                Total
+              <span
+                className={`text-[9px] font-black uppercase tracking-widest opacity-30 ${isDark ? "text-white" : "text-gray-900"}`}
+              >
+                Global
               </span>
             </div>
           </div>
 
-          {/* Legend */}
-          <div className="mt-4 grid grid-cols-2 gap-2">
-            {categoryData.slice(0, 4).map((item, i) => (
-              <div
-                key={i}
-                className="flex items-center gap-2 text-[10px] uppercase font-bold text-gray-500"
-              >
+          <div className="mt-6 flex flex-wrap gap-x-4 gap-y-2 justify-center">
+            {categoryData.slice(0, 5).map((item, i) => (
+              <div key={i} className="flex items-center gap-2">
                 <div
-                  className="w-2 h-2 rounded-full"
-                  style={{ backgroundColor: item.color }}
+                  className="w-1.5 h-1.5 rounded-full shadow-[0_0_8px] shadow-current"
+                  style={{ backgroundColor: item.color, color: item.color }}
                 />
-                {item.name}
+                <span
+                  className={`text-[9px] font-black uppercase tracking-widest ${isDark ? "text-white/60" : "text-gray-600"}`}
+                >
+                  {item.name}
+                </span>
               </div>
             ))}
           </div>
@@ -355,3 +381,5 @@ export const AssetMetrics: React.FC = () => {
     </div>
   );
 };
+
+AssetMetrics.displayName = "AssetMetrics";

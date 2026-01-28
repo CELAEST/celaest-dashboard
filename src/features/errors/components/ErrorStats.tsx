@@ -1,12 +1,6 @@
 import React from "react";
-import { motion } from "motion/react";
-import {
-  AlertTriangle,
-  AlertCircle,
-  CheckCircle2,
-  Activity,
-} from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { StatCard } from "@/features/shared/components/StatCard";
+import { AlertTriangle, AlertCircle, CheckCircle2, Clock } from "lucide-react";
 
 interface ErrorStatsProps {
   stats: {
@@ -18,147 +12,79 @@ interface ErrorStatsProps {
 }
 
 export const ErrorStats = React.memo(({ stats }: ErrorStatsProps) => {
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
-
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className={`backdrop-blur-xl border rounded-2xl p-6 ${
-          isDark
-            ? "bg-[#0a0a0a]/60 border-white/5"
-            : "bg-white border-gray-200 shadow-sm"
-        }`}
-      >
-        <div className="flex items-center justify-between mb-2">
-          <div
-            className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-              isDark ? "bg-red-500/20" : "bg-red-50"
-            }`}
-          >
-            <AlertTriangle size={20} className="text-red-400" />
-          </div>
-          <span className="text-xs font-medium text-red-400">CRÍTICO</span>
-        </div>
-        <p
-          className={`text-3xl font-bold mb-1 ${
-            isDark ? "text-white" : "text-gray-900"
-          }`}
-        >
-          {stats.criticalCount}
-        </p>
-        <p className={`text-xs ${isDark ? "text-gray-500" : "text-gray-500"}`}>
-          Requieren atención inmediata
-        </p>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className={`backdrop-blur-xl border rounded-2xl p-6 ${
-          isDark
-            ? "bg-[#0a0a0a]/60 border-white/5"
-            : "bg-white border-gray-200 shadow-sm"
-        }`}
-      >
-        <div className="flex items-center justify-between mb-2">
-          <div
-            className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-              isDark ? "bg-orange-500/20" : "bg-orange-50"
-            }`}
-          >
-            <AlertCircle size={20} className="text-orange-400" />
-          </div>
-          <span className="text-xs font-medium text-orange-400">WARNING</span>
-        </div>
-        <p
-          className={`text-3xl font-bold mb-1 ${
-            isDark ? "text-white" : "text-gray-900"
-          }`}
-        >
-          {stats.warningCount}
-        </p>
-        <p className={`text-xs ${isDark ? "text-gray-500" : "text-gray-500"}`}>
-          Problemas de rendimiento
-        </p>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className={`backdrop-blur-xl border rounded-2xl p-6 ${
-          isDark
-            ? "bg-[#0a0a0a]/60 border-white/5"
-            : "bg-white border-gray-200 shadow-sm"
-        }`}
-      >
-        <div className="flex items-center justify-between mb-2">
-          <div
-            className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-              isDark ? "bg-green-500/20" : "bg-green-50"
-            }`}
-          >
-            <CheckCircle2 size={20} className="text-green-400" />
-          </div>
-          <span className="text-xs font-medium text-green-400">RESUELTO</span>
-        </div>
-        <p
-          className={`text-3xl font-bold mb-1 ${
-            isDark ? "text-white" : "text-gray-900"
-          }`}
-        >
-          {stats.resolvedCount}
-        </p>
-        <p className={`text-xs ${isDark ? "text-gray-500" : "text-gray-500"}`}>
-          Corregidos este mes
-        </p>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-        className={`backdrop-blur-xl border rounded-2xl p-6 ${
-          isDark
-            ? "bg-[#0a0a0a]/60 border-white/5"
-            : "bg-white border-gray-200 shadow-sm"
-        }`}
-      >
-        <div className="flex items-center justify-between mb-2">
-          <div
-            className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-              isDark ? "bg-cyan-500/20" : "bg-blue-50"
-            }`}
-          >
-            <Activity
-              size={20}
-              className={isDark ? "text-cyan-400" : "text-blue-600"}
-            />
-          </div>
-          <span
-            className={`text-xs font-medium ${
-              isDark ? "text-cyan-400" : "text-blue-600"
-            }`}
-          >
-            IMPACTO
-          </span>
-        </div>
-        <p
-          className={`text-3xl font-bold mb-1 ${
-            isDark ? "text-white" : "text-gray-900"
-          }`}
-        >
-          {stats.totalAffectedUsers}
-        </p>
-        <p className={`text-xs ${isDark ? "text-gray-500" : "text-gray-500"}`}>
-          Usuarios afectados total
-        </p>
-      </motion.div>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <StatCard
+        title="CRÍTICO"
+        value={stats.criticalCount.toString()}
+        trend="Requiere Atención"
+        trendUp={false}
+        icon={<AlertTriangle />}
+        gradient="from-red-600 to-rose-600"
+        delay={0.1}
+        chartData={[
+          { value: 2 },
+          { value: 5 },
+          { value: 3 },
+          { value: 8 },
+          { value: 12 },
+          { value: 5 },
+          { value: stats.criticalCount },
+        ]}
+      />
+      <StatCard
+        title="ADVERTENCIA"
+        value={stats.warningCount.toString()}
+        trend="Pendiente"
+        trendUp={false}
+        icon={<AlertCircle />}
+        gradient="from-amber-500 to-orange-600"
+        delay={0.2}
+        chartData={[
+          { value: 10 },
+          { value: 15 },
+          { value: 12 },
+          { value: 20 },
+          { value: 18 },
+          { value: 25 },
+          { value: stats.warningCount },
+        ]}
+      />
+      <StatCard
+        title="RESUELTO"
+        value={stats.resolvedCount.toString()}
+        trend="Este Mes"
+        trendUp={true}
+        icon={<CheckCircle2 />}
+        gradient="from-emerald-500 to-teal-600"
+        delay={0.3}
+        chartData={[
+          { value: 5 },
+          { value: 8 },
+          { value: 15 },
+          { value: 22 },
+          { value: 30 },
+          { value: 45 },
+          { value: stats.resolvedCount },
+        ]}
+      />
+      <StatCard
+        title="MTTR"
+        value="42m"
+        trend="Eficiencia +12%"
+        trendUp={true}
+        icon={<Clock />}
+        gradient="from-blue-600 to-cyan-600"
+        delay={0.4}
+        chartData={[
+          { value: 60 },
+          { value: 55 },
+          { value: 50 },
+          { value: 48 },
+          { value: 45 },
+          { value: 42 },
+        ]}
+      />
     </div>
   );
 });

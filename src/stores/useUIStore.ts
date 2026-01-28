@@ -17,6 +17,15 @@ interface UIState {
   // Hydration
   isMounted: boolean;
   setIsMounted: (mounted: boolean) => void;
+
+  // Feature Specific Controls
+  showErrorControls: boolean;
+  setShowErrorControls: (show: boolean) => void;
+  errorFilters: {
+    severity: string;
+    status: string;
+  };
+  setErrorFilters: (filters: { severity: string, status: string }) => void;
 }
 
 export const useUIStore = create<UIState>()(
@@ -28,11 +37,20 @@ export const useUIStore = create<UIState>()(
       theme: 'system',
       isMounted: false,
 
+      // Feature Specific Defaults
+      showErrorControls: false,
+      errorFilters: {
+        severity: 'all',
+        status: 'all',
+      },
+
       // Actions
       setNavbarSearchVisible: (visible) => set({ navbarSearchVisible: visible }),
       setSearchQuery: (query) => set({ searchQuery: query }),
       setTheme: (theme) => set({ theme }),
       setIsMounted: (mounted) => set({ isMounted: mounted }),
+      setShowErrorControls: (show) => set({ showErrorControls: show }),
+      setErrorFilters: (filters) => set({ errorFilters: filters }),
     }),
     {
       name: 'ui-storage',

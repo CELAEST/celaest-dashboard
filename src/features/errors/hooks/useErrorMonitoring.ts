@@ -1,6 +1,7 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
+import { useUIStore } from "@/stores/useUIStore";
 
 export type ErrorSeverity = "critical" | "warning" | "info";
 export type ErrorStatus = "new" | "reviewing" | "resolved" | "ignored";
@@ -118,30 +119,40 @@ const MOCK_ERROR_LOGS: ErrorLog[] = [
 export const useErrorMonitoring = () => {
   const { theme } = useTheme();
   const { user } = useAuth();
+  const { 
+    searchQuery, 
+    setSearchQuery, 
+    errorFilters, 
+    setErrorFilters,
+    setShowErrorControls 
+  } = useUIStore();
+
   const isDark = theme === "dark";
   const isAdmin = user?.role === "super_admin" || !user;
 
-  const [selectedSeverity, setSelectedSeverity] = useState<
-    ErrorSeverity | "all"
-  >("all");
-  const [selectedStatus, setSelectedStatus] = useState<ErrorStatus | "all">(
-    "all",
-  );
-  const [searchQuery, setSearchQuery] = useState("");
   const [expandedError, setExpandedError] = useState<string | null>(null);
+
+  // Manage control visibility
+  useEffect(() => {
+    setShowErrorControls(true);
+    return () => {
+        setShowErrorControls(false);
+        setSearchQuery(""); 
+    };
+  }, [setShowErrorControls, setSearchQuery]);
 
   const filteredErrors = useMemo(() => {
     return MOCK_ERROR_LOGS.filter((error) => {
       const matchesSeverity =
-        selectedSeverity === "all" || error.severity === selectedSeverity;
+        errorFilters.severity === "all" || error.severity === errorFilters.severity;
       const matchesStatus =
-        selectedStatus === "all" || error.status === selectedStatus;
+        errorFilters.status === "all" || error.status === errorFilters.status;
       const matchesSearch =
         error.message.toLowerCase().includes(searchQuery.toLowerCase()) ||
         error.errorCode.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesSeverity && matchesStatus && matchesSearch;
     });
-  }, [selectedSeverity, selectedStatus, searchQuery]);
+  }, [errorFilters, searchQuery]);
 
   const stats = useMemo(() => {
     return {
@@ -165,10 +176,11 @@ export const useErrorMonitoring = () => {
   return {
     isDark,
     isAdmin,
-    selectedSeverity,
-    setSelectedSeverity,
-    selectedStatus,
-    setSelectedStatus,
+    // Return compatibility props for now, though they point to global state
+    selectedSeverity: errorFilters.severity as ErrorSeverity | "all",
+    setSelectedSeverity: (severity: string) => setErrorFilters({ ...errorFilters, severity }),
+    selectedStatus: errorFilters.status as ErrorStatus | "all",
+    setSelectedStatus: (status: string) => setErrorFilters({ ...errorFilters, status }),
     searchQuery,
     setSearchQuery,
     expandedError,

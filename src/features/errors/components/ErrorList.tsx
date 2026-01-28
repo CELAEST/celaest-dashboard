@@ -67,21 +67,23 @@ export const ErrorList = React.memo(
     }
 
     return (
-      <ul className="space-y-4 p-0 m-0 list-none">
-        <AnimatePresence mode="popLayout">
-          {errors.map((error, index) => (
-            <ErrorListItem
-              key={error.id}
-              error={error}
-              index={index}
-              expandedError={expandedError}
-              toggleErrorExpansion={toggleErrorExpansion}
-              isAdmin={isAdmin}
-              isDark={isDark}
-            />
-          ))}
-        </AnimatePresence>
-      </ul>
+      <div className="h-full overflow-y-auto p-4 custom-scrollbar space-y-4">
+        <ul className="space-y-4 p-0 m-0 list-none">
+          <AnimatePresence mode="popLayout">
+            {errors.map((error, index) => (
+              <ErrorListItem
+                key={error.id}
+                error={error}
+                index={index}
+                expandedError={expandedError}
+                toggleErrorExpansion={toggleErrorExpansion}
+                isAdmin={isAdmin}
+                isDark={isDark}
+              />
+            ))}
+          </AnimatePresence>
+        </ul>
+      </div>
     );
   },
 );

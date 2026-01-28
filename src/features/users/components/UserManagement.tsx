@@ -6,9 +6,8 @@ import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { usePermissions } from "@/features/auth/hooks/useAuthorization";
 import { isSuperAdminRole } from "@/features/auth/lib/permissions";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
-import { motion } from "motion/react";
-import { Users, Clock, AlertCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { motion, AnimatePresence } from "motion/react";
+import { Users, Clock, AlertCircle, LayoutGrid } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
 
@@ -46,7 +45,9 @@ export const UserManagement: React.FC = () => {
 
   const { auditLogs } = useAuditLogs();
 
-  const [activeTab, setActiveTab] = useState<"users" | "logs">("users");
+  const [activeTab, setActiveTab] = useState<"overview" | "directory" | "logs">(
+    "directory",
+  );
 
   // Modal State
   const [isActionModalOpen, setIsActionModalOpen] = useState(false);
@@ -64,7 +65,6 @@ export const UserManagement: React.FC = () => {
 
     if (actionType === "sign_out") {
       toast.success(`${selectedUser.email} has been signed out (Mock)`);
-      // Logic to actually sign out would go here
     }
 
     setIsActionModalOpen(false);
@@ -93,83 +93,137 @@ export const UserManagement: React.FC = () => {
   }
 
   return (
-    <div className="h-full flex flex-col min-h-0">
-      {/* Fixed Header Section */}
-      <div className="shrink-0 mb-6">
-        <h1
-          className={`text-4xl font-black mb-2 tracking-tighter italic uppercase ${
-            isDark ? "text-white" : "text-gray-900"
-          }`}
-        >
-          User Management
-        </h1>
-        <p
-          className={`text-sm font-medium ${
-            isDark ? "text-gray-400" : "text-gray-600"
-          }`}
-        >
-          Manage users, roles, and security protocols
-        </p>
-      </div>
-
-      {/* Fixed Tabs */}
-      <div className="flex gap-2 mb-6 shrink-0">
-        <Button
-          onClick={() => setActiveTab("users")}
-          variant={activeTab === "users" ? "default" : "outline"}
-          className={
-            activeTab === "users"
-              ? isDark
-                ? "bg-cyan-500 text-white font-bold tracking-wide shadow-lg shadow-cyan-500/20"
-                : "bg-blue-600 text-white font-bold tracking-wide shadow-lg shadow-blue-500/20"
-              : isDark
-                ? "border-white/10 text-gray-400 hover:text-white hover:bg-white/5"
-                : "border-gray-300 text-gray-700 hover:text-gray-900"
-          }
-        >
-          <Users className="w-4 h-4 mr-2" />
-          Users Directory
-        </Button>
-        <Button
-          onClick={() => setActiveTab("logs")}
-          variant={activeTab === "logs" ? "default" : "outline"}
-          className={
-            activeTab === "logs"
-              ? isDark
-                ? "bg-cyan-500 text-white font-bold tracking-wide shadow-lg shadow-cyan-500/20"
-                : "bg-blue-600 text-white font-bold tracking-wide shadow-lg shadow-blue-500/20"
-              : isDark
-                ? "border-white/10 text-gray-400 hover:text-white hover:bg-white/5"
-                : "border-gray-300 text-gray-700 hover:text-gray-900"
-          }
-        >
-          <Clock className="w-4 h-4 mr-2" />
-          Audit Logs
-        </Button>
-      </div>
-
-      {/* Main Content Area - Scroll Area Trigger */}
-      <div className="flex-1 overflow-hidden relative flex flex-col min-h-0">
-        {/* Users Tab Content */}
-        {activeTab === "users" && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="flex-1 flex flex-col min-h-0"
+    <div className="h-full flex flex-col min-h-0 overflow-hidden p-2 gap-4">
+      {/* Unified Header Row */}
+      <div className="shrink-0 flex items-center justify-between">
+        <div>
+          <h1
+            className={`text-2xl font-black italic tracking-tighter uppercase ${
+              isDark ? "text-white" : "text-gray-900"
+            }`}
           >
-            {/* Scrollable Container */}
-            <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 pb-16 space-y-6 min-h-0">
-              {/* Stats Grid */}
+            User Management
+          </h1>
+          <p
+            className={`text-[10px] font-black uppercase tracking-[0.2em] ${
+              isDark ? "text-gray-500" : "text-gray-400"
+            }`}
+          >
+            Governance & Operational Control
+          </p>
+        </div>
+
+        {/* Premium Navigation Hub */}
+        <div
+          className={`relative flex p-1 rounded-2xl border backdrop-blur-3xl shadow-2xl ${
+            isDark
+              ? "bg-[#0a0a0a]/60 border-white/5"
+              : "bg-gray-100/80 border-gray-200"
+          }`}
+        >
+          {[
+            {
+              id: "directory",
+              label: "Directory",
+              icon: Users,
+              color: "purple",
+            },
+            {
+              id: "overview",
+              label: "Overview",
+              icon: LayoutGrid,
+              color: "cyan",
+            },
+            { id: "logs", label: "Audit Logs", icon: Clock, color: "amber" },
+          ].map((tab, idx) => {
+            const isActive = activeTab === tab.id;
+            const Icon = tab.icon;
+
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`relative px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-3 transition-all duration-500 z-10 ${
+                  isActive
+                    ? isDark
+                      ? "text-white"
+                      : "text-gray-900"
+                    : isDark
+                      ? "text-gray-500 hover:text-gray-300"
+                      : "text-gray-400 hover:text-gray-700"
+                }`}
+              >
+                {isActive && (
+                  <motion.div
+                    layoutId="activeTab"
+                    className={`absolute inset-0 rounded-xl shadow-lg ${
+                      isDark
+                        ? "bg-white/5 border border-white/10"
+                        : "bg-white shadow-sm border border-gray-200"
+                    }`}
+                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                  >
+                    <div
+                      className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-[2px] rounded-full ${
+                        tab.color === "cyan"
+                          ? "bg-cyan-500 shadow-[0_0_10px_#22d3ee]"
+                          : tab.color === "purple"
+                            ? "bg-purple-500 shadow-[0_0_10px_#a855f7]"
+                            : "bg-amber-500 shadow-[0_0_10px_#f59e0b]"
+                      }`}
+                    />
+                  </motion.div>
+                )}
+
+                <span className="opacity-30 font-mono">0{idx + 1}</span>
+                <Icon
+                  size={14}
+                  className={
+                    isActive
+                      ? tab.color === "cyan"
+                        ? "text-cyan-400"
+                        : tab.color === "purple"
+                          ? "text-purple-400"
+                          : "text-amber-400"
+                      : ""
+                  }
+                />
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Main Viewport */}
+      <div className="flex-1 min-h-0 relative">
+        <AnimatePresence mode="wait">
+          {activeTab === "overview" && (
+            <motion.div
+              key="overview"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              className="h-full w-full"
+            >
               <StatsOverview
                 users={users}
                 auditLogs={auditLogs}
                 isDark={isDark}
               />
+            </motion.div>
+          )}
 
-              {/* Main Data Card */}
+          {activeTab === "directory" && (
+            <motion.div
+              key="directory"
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.98 }}
+              className="h-full w-full flex flex-col"
+            >
               <div
-                className={`backdrop-blur-xl border rounded-[2.5rem] overflow-hidden flex flex-col min-h-[500px] shrink-0 ${
+                className={`flex-1 flex flex-col backdrop-blur-3xl border rounded-[2.5rem] overflow-hidden ${
                   isDark
                     ? "bg-[#0a0a0a]/60 border-white/5 shadow-2xl"
                     : "bg-white border-gray-200 shadow-xl"
@@ -184,7 +238,7 @@ export const UserManagement: React.FC = () => {
                   />
                 </div>
 
-                <div className="flex-1 overflow-hidden border-t border-white/5">
+                <div className="flex-1 overflow-hidden">
                   <UsersTable
                     users={filteredUsers}
                     loading={usersLoading}
@@ -195,21 +249,23 @@ export const UserManagement: React.FC = () => {
                   />
                 </div>
               </div>
-            </div>
-          </motion.div>
-        )}
+            </motion.div>
+          )}
 
-        {/* Audit Logs Tab Content */}
-        {activeTab === "logs" && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="flex-1 overflow-y-auto custom-scrollbar pr-2 pb-16 min-h-0"
-          >
-            <AuditLogsList logs={auditLogs} />
-          </motion.div>
-        )}
+          {activeTab === "logs" && (
+            <motion.div
+              key="logs"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="h-full w-full"
+            >
+              <div className="h-full backdrop-blur-3xl border rounded-[2.5rem] overflow-hidden bg-black/20 border-white/5">
+                <AuditLogsList logs={auditLogs} />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Action Confirmation Modal */}

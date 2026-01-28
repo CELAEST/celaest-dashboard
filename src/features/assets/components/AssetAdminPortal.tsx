@@ -9,7 +9,6 @@ import { AssetMetrics } from "./AssetMetrics";
 import { Asset } from "../hooks/useAssets";
 import { AssetFormValues } from "../hooks/useAssetForm";
 import { motion, AnimatePresence } from "motion/react";
-import { Plus } from "lucide-react";
 
 interface AssetAdminPortalProps {
   assets: Asset[];
@@ -118,7 +117,7 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.2 }}
-              className="h-full overflow-y-auto pr-2 pb-2"
+              className="h-full flex flex-col overflow-hidden"
             >
               <AssetMetrics />
             </motion.div>
