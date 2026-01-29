@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect } from "react";
 import { X } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useEscapeKey } from "@/features/shared/hooks/useEscapeKey";
 import type { SettingsModalProps } from "../types";
 
 /**
@@ -16,28 +17,20 @@ export function SettingsModal({
 }: SettingsModalProps) {
   const { isDark } = useTheme();
 
-  const handleEscape = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        onClose();
-      }
-    },
-    [onClose],
-  );
+  // Keyboard accessibility: Esc to close
+  useEscapeKey(onClose, isOpen);
 
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
-      document.addEventListener("keydown", handleEscape);
     } else {
       document.body.style.overflow = "unset";
     }
 
     return () => {
       document.body.style.overflow = "unset";
-      document.removeEventListener("keydown", handleEscape);
     };
-  }, [isOpen, handleEscape]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 

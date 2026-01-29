@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
 import { X } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useEscapeKey } from "@/features/shared/hooks/useEscapeKey";
 
 interface BillingModalProps {
   isOpen: boolean;
@@ -31,6 +32,9 @@ export const BillingModal = React.memo(
       return () => clearTimeout(timer);
     }, []);
 
+    // Keyboard accessibility: Esc to close
+    useEscapeKey(onClose, isOpen);
+
     // Lock body scroll
     useEffect(() => {
       if (isOpen) {
@@ -53,9 +57,6 @@ export const BillingModal = React.memo(
             tabIndex={-1}
             role="dialog"
             aria-modal="true"
-            onKeyDown={(e) => {
-              if (e.key === "Escape") onClose();
-            }}
             // Focus self on mount to catch keys immediately
             ref={(node) => node?.focus()}
             style={{ outline: "none" }} // Hide focus ring

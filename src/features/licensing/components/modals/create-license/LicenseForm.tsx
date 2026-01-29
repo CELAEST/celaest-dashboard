@@ -3,6 +3,7 @@ import { Sparkles } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { LicenseFormData } from "@/features/licensing/hooks/useCreateLicense";
 import { UseFormReturn } from "react-hook-form";
+import { FormInput } from "@/components/forms";
 
 interface LicenseFormProps {
   form: UseFormReturn<LicenseFormData>;
@@ -18,7 +19,6 @@ export const LicenseForm: React.FC<LicenseFormProps> = ({
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const {
-    register,
     watch,
     setValue,
     formState: { errors },
@@ -61,48 +61,20 @@ export const LicenseForm: React.FC<LicenseFormProps> = ({
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label
-            className={`block text-sm font-medium mb-1.5 ${isDark ? "text-gray-300" : "text-gray-700"}`}
-          >
-            User ID
-          </label>
-          <input
-            {...register("userId")}
-            type="text"
-            className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-cyan-500/50 ${
-              isDark
-                ? "bg-white/5 border-white/10 text-white"
-                : "bg-white border-gray-200 text-gray-900"
-            }`}
-            placeholder="e.g. user_123"
-          />
-          {errors.userId && (
-            <p className="text-red-500 text-xs mt-1">{errors.userId.message}</p>
-          )}
-        </div>
-        <div>
-          <label
-            className={`block text-sm font-medium mb-1.5 ${isDark ? "text-gray-300" : "text-gray-700"}`}
-          >
-            Max IP Slots
-          </label>
-          <input
-            {...register("maxIpSlots", { valueAsNumber: true })}
-            type="number"
-            min="1"
-            className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-cyan-500/50 ${
-              isDark
-                ? "bg-white/5 border-white/10 text-white"
-                : "bg-white border-gray-200 text-gray-900"
-            }`}
-          />
-          {errors.maxIpSlots && (
-            <p className="text-red-500 text-xs mt-1">
-              {errors.maxIpSlots.message}
-            </p>
-          )}
-        </div>
+        <FormInput
+          control={form.control}
+          name="userId"
+          label="User ID"
+          placeholder="e.g. user_123"
+        />
+
+        <FormInput
+          control={form.control}
+          name="maxIpSlots"
+          label="Max IP Slots"
+          type="number"
+          min={1}
+        />
       </div>
 
       <button

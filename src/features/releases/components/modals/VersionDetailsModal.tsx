@@ -1,7 +1,8 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Share2, Download, Clock } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useEscapeKey } from "@/features/shared/hooks/useEscapeKey";
 import { Version } from "@/features/releases/types";
 import { VersionDetailsHeader } from "./VersionDetails/VersionDetailsHeader";
 import { VersionDetailsMetrics } from "./VersionDetails/VersionDetailsMetrics";
@@ -22,16 +23,8 @@ export const VersionDetailsModal = ({
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
-  // Keyboard support (Esc to close)
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isOpen) {
-        onClose();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, onClose]);
+  // Keyboard accessibility: Esc to close
+  useEscapeKey(onClose, isOpen && !!version);
 
   if (!version) return null;
 

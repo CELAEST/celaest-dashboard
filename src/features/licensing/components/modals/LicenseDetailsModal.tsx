@@ -1,6 +1,7 @@
 import React from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useEscapeKey } from "@/features/shared/hooks/useEscapeKey";
 import {
   License,
   ValidationLog,
@@ -30,6 +31,9 @@ export const LicenseDetailsModal = ({
 }: LicenseDetailsModalProps) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+
+  // Keyboard accessibility: Esc to close
+  useEscapeKey(onClose, isOpen && !!license);
 
   if (!license) return null;
 

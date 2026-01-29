@@ -2,6 +2,7 @@ import React from "react";
 import { AlertTriangle, ShieldX, X } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useEscapeKey } from "@/features/shared/hooks/useEscapeKey";
 
 interface RevokeConfirmationModalProps {
   isOpen: boolean;
@@ -19,6 +20,9 @@ export const RevokeConfirmationModal: React.FC<
   RevokeConfirmationModalProps
 > = ({ isOpen, onClose, onConfirm, licenseId, ipCount }) => {
   const { isDark } = useTheme();
+
+  // Keyboard accessibility: Esc to close
+  useEscapeKey(onClose, isOpen);
 
   return (
     <AnimatePresence>

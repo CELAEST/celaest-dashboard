@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X, Sparkles } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useEscapeKey } from "@/features/shared/hooks/useEscapeKey";
 import { useCreateLicense } from "@/features/licensing/hooks/useCreateLicense";
 import { LicenseTypeSelector } from "./create-license/LicenseTypeSelector";
 import { LicenseForm } from "./create-license/LicenseForm";
@@ -50,6 +51,9 @@ export const CreateLicenseModal = ({
     hookReset();
     onClose();
   };
+
+  // Keyboard accessibility: Esc to close
+  useEscapeKey(handleClose, isOpen);
 
   const productType = form.watch("productType");
 

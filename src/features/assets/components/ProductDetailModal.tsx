@@ -1,6 +1,7 @@
 import React from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useEscapeKey } from "@/features/shared/hooks/useEscapeKey";
 
 import { Asset } from "../hooks/useAssets";
 import { ProductModalHeader } from "./product-modal/ProductModalHeader";
@@ -19,6 +20,9 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+
+  // Keyboard accessibility: Esc to close
+  useEscapeKey(onClose, !!product);
 
   if (!product) return null;
 

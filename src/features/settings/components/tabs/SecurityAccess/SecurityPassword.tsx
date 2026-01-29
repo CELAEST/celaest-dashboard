@@ -1,10 +1,43 @@
 import React, { memo } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Key } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { toast } from "sonner";
+import { FormInput } from "@/components/forms";
+import {
+  ChangePasswordFormData,
+  changePasswordSchema,
+} from "@/lib/validation/schemas/settings";
 
 export const SecurityPassword: React.FC = memo(() => {
   const { isDark } = useTheme();
+
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { isSubmitting },
+  } = useForm<ChangePasswordFormData>({
+    resolver: zodResolver(changePasswordSchema),
+    defaultValues: {
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    },
+  });
+
+  const onSubmit = async (data: ChangePasswordFormData) => {
+    try {
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      console.log("Password change requested:", data);
+      toast.success("Password updated successfully");
+      reset();
+    } catch {
+      toast.error("Failed to update password");
+    }
+  };
 
   return (
     <div className="settings-glass-card rounded-2xl p-6">
@@ -17,62 +50,48 @@ export const SecurityPassword: React.FC = memo(() => {
         Update Password
       </h3>
 
-      <div className="space-y-4 max-w-xl">
-        <div>
-          <label
-            className={`text-xs uppercase tracking-wider mb-2 block font-bold ${
-              isDark ? "text-gray-500" : "text-gray-400"
-            }`}
-          >
-            Current Password
-          </label>
-          <input
-            type="password"
-            className="settings-input w-full rounded-lg px-4 py-3 font-mono"
-            placeholder="••••••••••••"
-          />
-        </div>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-xl">
+        <FormInput
+          control={control}
+          name="currentPassword"
+          label="Current Password"
+          type="password"
+          placeholder="••••••••••••"
+          className="font-mono"
+        />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label
-              className={`text-xs uppercase tracking-wider mb-2 block font-bold ${
-                isDark ? "text-gray-500" : "text-gray-400"
-              }`}
-            >
-              New Password
-            </label>
-            <input
-              type="password"
-              className="settings-input w-full rounded-lg px-4 py-3 font-mono"
-              placeholder="••••••••••••"
-            />
-          </div>
-          <div>
-            <label
-              className={`text-xs uppercase tracking-wider mb-2 block font-bold ${
-                isDark ? "text-gray-500" : "text-gray-400"
-              }`}
-            >
-              Confirm New Password
-            </label>
-            <input
-              type="password"
-              className="settings-input w-full rounded-lg px-4 py-3 font-mono"
-              placeholder="••••••••••••"
-            />
-          </div>
+          <FormInput
+            control={control}
+            name="newPassword"
+            label="New Password"
+            type="password"
+            placeholder="••••••••••••"
+            className="font-mono"
+          />
+
+          <FormInput
+            control={control}
+            name="confirmPassword"
+            label="Confirm New Password"
+            type="password"
+            placeholder="••••••••••••"
+            className="font-mono"
+          />
         </div>
 
         <div className="flex justify-end pt-2">
           <button
-            onClick={() => toast.success("Password updated successfully")}
-            className="px-6 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-bold transition-all shadow-sm active:scale-95"
+            type="submit"
+            disabled={isSubmitting}
+            className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-sm active:scale-95 flex items-center gap-2 ${
+              isSubmitting ? "opacity-70 cursor-not-allowed" : ""
+            } bg-cyan-600 hover:bg-cyan-500 text-white`}
           >
-            Update Password
+            {isSubmitting ? "Updating..." : "Update Password"}
           </button>
         </div>
-      </div>
+      </form>
     </div>
   );
 });

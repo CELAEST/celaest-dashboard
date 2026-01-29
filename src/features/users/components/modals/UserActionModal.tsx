@@ -2,6 +2,7 @@ import React from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X, AlertTriangle, ShieldAlert } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useEscapeKey } from "@/features/shared/hooks/useEscapeKey";
 import { Button } from "@/components/ui/button";
 
 interface UserActionModalProps {
@@ -62,15 +63,8 @@ export const UserActionModal: React.FC<UserActionModalProps> = ({
 
   const colors = getColors();
 
-  React.useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isOpen) {
-        onClose();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, onClose]);
+  // Keyboard accessibility: Esc to close
+  useEscapeKey(onClose, isOpen);
 
   return (
     <AnimatePresence>

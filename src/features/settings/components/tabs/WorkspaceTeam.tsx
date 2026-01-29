@@ -14,10 +14,6 @@ export function WorkspaceTeam() {
     members,
     showInviteModal,
     setShowInviteModal,
-    inviteEmail,
-    setInviteEmail,
-    inviteRole,
-    setInviteRole,
     removeMember,
     inviteMember,
   } = useWorkspaceSettings();
@@ -36,10 +32,6 @@ export function WorkspaceTeam() {
         isOpen={showInviteModal}
         onClose={() => setShowInviteModal(false)}
         onInvite={inviteMember}
-        inviteEmail={inviteEmail}
-        setInviteEmail={setInviteEmail}
-        inviteRole={inviteRole}
-        setInviteRole={setInviteRole}
       />
     </div>
   );

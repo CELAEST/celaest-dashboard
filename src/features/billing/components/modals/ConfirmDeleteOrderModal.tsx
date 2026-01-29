@@ -93,6 +93,7 @@ export function ConfirmDeleteOrderModal({
           <div className="grid grid-cols-2 gap-4 w-full pt-2">
             <button
               onClick={onClose}
+              autoFocus
               className={`px-4 py-3 rounded-xl text-sm font-semibold transition-all active:scale-95 ${
                 isDark
                   ? "bg-white/5 hover:bg-white/10 text-gray-300 border border-white/5"

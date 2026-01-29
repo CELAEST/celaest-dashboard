@@ -2,6 +2,7 @@ import React from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
+import { useEscapeKey } from "@/features/shared/hooks/useEscapeKey";
 import { X, Lock, ArrowRight, Github } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -19,6 +20,9 @@ export const LoginModal: React.FC<LoginModalProps> = ({
   const { theme } = useTheme();
   const { signInWithGoogle, signInWithGitHub } = useAuth();
   const isDark = theme === "dark";
+
+  // Keyboard accessibility: Esc to close
+  useEscapeKey(onClose, isOpen);
 
   if (!isOpen) return null;
 
@@ -84,6 +88,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                   signInWithGoogle();
                   onClose();
                 }}
+                autoFocus
                 className={`w-full h-12 flex items-center justify-center gap-3 font-medium transition-all ${
                   isDark
                     ? "bg-white text-black hover:bg-gray-200"

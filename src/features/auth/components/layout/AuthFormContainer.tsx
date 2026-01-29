@@ -5,7 +5,10 @@ import { motion, AnimatePresence } from "motion/react";
 import { LoginForm } from "../forms/LoginForm";
 import { SignupForm } from "../forms/SignupForm";
 import { SocialAuth } from "../forms/SocialAuth";
-import { LoginFormValues, SignupFormValues } from "../../hooks/useAuthForm";
+import {
+  LoginFormValues,
+  SignupFormValues,
+} from "@/lib/validation/schemas/auth";
 
 interface AuthFormContainerProps {
   mode: "signin" | "signup";

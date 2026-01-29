@@ -114,6 +114,7 @@ export const SignOutCard: React.FC<SignOutCardProps> = memo(
             <button
               onClick={onConfirm}
               disabled={isLoading}
+              autoFocus
               className="group relative flex-1 px-6 py-3.5 rounded-xl font-medium text-white overflow-hidden transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
             >
               {/* Gradient Background */}

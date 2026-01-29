@@ -7,7 +7,10 @@ import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { useNotifications } from "@/features/shared/contexts/NotificationContext";
 import { motion, AnimatePresence } from "motion/react";
 import { useSearchParams } from "next/navigation";
-import { LoginFormValues, SignupFormValues } from "../hooks/useAuthForm";
+import {
+  LoginFormValues,
+  SignupFormValues,
+} from "@/lib/validation/schemas/auth";
 
 import { AuthBackground } from "./layout/AuthBackground";
 import { FloatingThemeToggle } from "./layout/FloatingThemeToggle";

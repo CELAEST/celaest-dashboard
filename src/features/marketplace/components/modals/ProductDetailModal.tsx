@@ -4,6 +4,7 @@ import React from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X, Star, Download, Calendar } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useEscapeKey } from "@/features/shared/hooks/useEscapeKey";
 import { ProductModalTabs } from "./ProductModalTabs";
 import { ProductModalSidebar } from "./ProductModalSidebar";
 
@@ -41,6 +42,9 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 }) => {
   const { theme } = useTheme();
   const [activeTab, setActiveTab] = React.useState("overview");
+
+  // Keyboard accessibility: Esc to close
+  useEscapeKey(onClose, !!product);
 
   if (!product) return null;
 

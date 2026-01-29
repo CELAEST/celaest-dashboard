@@ -4,8 +4,6 @@ import { Member } from "../components/tabs/WorkspaceTeam/TeamMembers";
 
 export const useWorkspaceSettings = () => {
   const [showInviteModal, setShowInviteModal] = useState(false);
-  const [inviteEmail, setInviteEmail] = useState("");
-  const [inviteRole, setInviteRole] = useState("member");
 
   const [members, setMembers] = useState<Member[]>([
     {
@@ -38,31 +36,24 @@ export const useWorkspaceSettings = () => {
     setMembers(members.filter((m) => m.id !== id));
   };
 
-  const inviteMember = () => {
-    if (inviteEmail) {
-      const newMember: Member = {
-        id: Date.now().toString(),
-        name: inviteEmail.split("@")[0],
-        email: inviteEmail,
-        role: inviteRole,
-        status: "pending",
-        avatar: null,
-      };
-      setMembers([...members, newMember]);
-      setInviteEmail("");
-      setShowInviteModal(false);
-      toast.success("Invitation sent successfully");
-    }
+  const inviteMember = (data: { email: string; role: string }) => {
+    const newMember: Member = {
+      id: Date.now().toString(),
+      name: data.email.split("@")[0],
+      email: data.email,
+      role: data.role,
+      status: "pending",
+      avatar: null,
+    };
+    setMembers([...members, newMember]);
+    setShowInviteModal(false);
+    toast.success("Invitation sent successfully");
   };
 
   return {
     members,
     showInviteModal,
     setShowInviteModal,
-    inviteEmail,
-    setInviteEmail,
-    inviteRole,
-    setInviteRole,
     removeMember,
     inviteMember,
   };

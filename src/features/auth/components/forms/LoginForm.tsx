@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Lock, Mail, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { motion } from "motion/react";
-import { loginSchema, LoginFormValues } from "../../hooks/useAuthForm";
+import { loginSchema, LoginFormValues } from "@/lib/validation/schemas/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {

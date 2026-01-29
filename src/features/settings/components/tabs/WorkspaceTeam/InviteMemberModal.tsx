@@ -1,29 +1,44 @@
 import React, { memo } from "react";
 import { Mail, Shield } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { SettingsModal } from "../../SettingsModal";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import {
+  inviteMemberSchema,
+  InviteMemberFormData,
+} from "@/lib/validation/schemas/settings";
+import { FormInput } from "@/components/forms";
 
 interface InviteMemberModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onInvite: () => void;
-  inviteEmail: string;
-  setInviteEmail: (email: string) => void;
-  inviteRole: string;
-  setInviteRole: (role: string) => void;
+  onInvite: (data: InviteMemberFormData) => void;
 }
 
 export const InviteMemberModal: React.FC<InviteMemberModalProps> = memo(
-  ({
-    isOpen,
-    onClose,
-    onInvite,
-    inviteEmail,
-    setInviteEmail,
-    inviteRole,
-    setInviteRole,
-  }) => {
+  ({ isOpen, onClose, onInvite }) => {
     const { isDark } = useTheme();
+
+    const {
+      control,
+      handleSubmit,
+      setValue,
+      watch,
+      formState: { isSubmitting },
+    } = useForm<InviteMemberFormData>({
+      resolver: zodResolver(inviteMemberSchema),
+      defaultValues: {
+        email: "",
+        role: "member",
+      },
+    });
+
+    const inviteRole = watch("role");
+
+    const onSubmit = (data: InviteMemberFormData) => {
+      onInvite(data);
+    };
 
     return (
       <SettingsModal
@@ -31,30 +46,16 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = memo(
         onClose={onClose}
         title="Invite New Member"
       >
-        <div className="space-y-6">
-          <div>
-            <label
-              className={`text-xs uppercase tracking-wider mb-2 block font-bold ${
-                isDark ? "text-gray-500" : "text-gray-400"
-              }`}
-            >
-              Email Address
-            </label>
-            <div className="relative">
-              <Mail className="absolute left-4 top-3.5 w-5 h-5 text-gray-400" />
-              <input
-                autoFocus
-                type="email"
-                value={inviteEmail}
-                onChange={(e) => setInviteEmail(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && inviteEmail) onInvite();
-                }}
-                className="settings-input w-full rounded-xl pl-12 pr-4 py-3"
-                placeholder="colleague@company.com"
-              />
-            </div>
-          </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <FormInput
+            control={control}
+            name="email"
+            label="Email Address"
+            placeholder="colleague@company.com"
+            type="email"
+            autoFocus
+            icon={<Mail className="w-5 h-5 text-gray-400" />}
+          />
 
           <div>
             <label
@@ -75,7 +76,8 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = memo(
               ].map((role) => (
                 <button
                   key={role.id}
-                  onClick={() => setInviteRole(role.id)}
+                  type="button"
+                  onClick={() => setValue("role", role.id)}
                   className={`p-4 rounded-xl border text-left transition-all ${
                     inviteRole === role.id
                       ? "bg-cyan-500/10 border-cyan-500 shadow-sm"
@@ -112,6 +114,7 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = memo(
 
           <div className="flex gap-3 pt-4">
             <button
+              type="button"
               onClick={onClose}
               className={`flex-1 px-4 py-3 rounded-xl border text-sm font-bold transition-all ${
                 isDark
@@ -122,14 +125,14 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = memo(
               Cancel
             </button>
             <button
-              onClick={onInvite}
-              disabled={!inviteEmail}
+              type="submit"
+              disabled={isSubmitting}
               className="flex-1 px-4 py-3 rounded-xl bg-linear-to-r from-cyan-600 to-blue-600 text-white font-black shadow-lg shadow-cyan-500/20 active:scale-95 transition-all disabled:opacity-50"
             >
-              Send Invitation
+              {isSubmitting ? "Sending..." : "Send Invitation"}
             </button>
           </div>
-        </div>
+        </form>
       </SettingsModal>
     );
   },
