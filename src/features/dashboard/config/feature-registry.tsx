@@ -40,9 +40,11 @@ export const FEATURE_REGISTRY: Record<string, FeatureConfig> = {
     label: "Marketplace",
     icon: Files,
     load: () =>
-      import("@/features/marketplace/components/MarketplaceView").then((m) => ({
-        default: m.MarketplaceView,
-      })),
+      import("@/features/marketplace/components/MarketplaceRouter").then(
+        (m) => ({
+          default: m.MarketplaceRouter,
+        }),
+      ),
     access: "public",
     ssr: true,
   },

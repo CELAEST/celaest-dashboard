@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Terminal, Shield, Globe, Zap, CheckCircle, Activity } from 'lucide-react';
+import { Globe, Activity } from 'lucide-react';
 
 const activities = [
   { user: "User_8821", action: "deployed", asset: "Neural Core v4", time: "2s ago", region: "US-East" },
