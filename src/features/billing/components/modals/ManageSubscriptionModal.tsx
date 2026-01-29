@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from "react";
@@ -113,5 +114,6 @@ export function ManageSubscriptionModal({
 
       <ManageSubscriptionFooter onClose={onClose} />
     </BillingModal>
+
   );
 }

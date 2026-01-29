@@ -2,7 +2,6 @@
 
 import React, { useEffect } from "react";
 import { useForm, FormProvider } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { motion, AnimatePresence } from "motion/react";
 import { X } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
@@ -10,6 +9,7 @@ import { assetSchema, AssetFormValues } from "../hooks/useAssetForm";
 import { Asset } from "../hooks/useAssets";
 import { AssetFileUploader } from "./AssetFileUploader";
 import { AssetFormFields } from "./AssetFormFields";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 interface AssetEditorProps {
   isOpen: boolean;

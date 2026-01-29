@@ -1,7 +1,6 @@
 import React, { memo } from "react";
 import { Mail, Shield } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { SettingsModal } from "../../SettingsModal";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import {
@@ -9,6 +8,7 @@ import {
   InviteMemberFormData,
 } from "@/lib/validation/schemas/settings";
 import { FormInput } from "@/components/forms";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 interface InviteMemberModalProps {
   isOpen: boolean;

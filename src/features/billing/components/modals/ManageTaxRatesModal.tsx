@@ -8,6 +8,7 @@ import { TaxRateList } from "./ManageTaxRates/TaxRateList";
 import { ManageTaxRatesFooter } from "./ManageTaxRates/ManageTaxRatesFooter";
 
 interface ManageTaxRatesModalProps {
+
   isOpen: boolean;
   onClose: () => void;
 }
@@ -55,5 +56,6 @@ export function ManageTaxRatesModal({
 
       <ManageTaxRatesFooter taxRatesCount={taxRates.length} onClose={onClose} />
     </BillingModal>
+
   );
 }

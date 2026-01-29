@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+
 import { AlertCircle, Mail, Key } from "lucide-react";
 import { SettingsModal } from "../../SettingsModal";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
@@ -9,6 +9,7 @@ import {
   EmailChangeFormData,
   emailChangeSchema,
 } from "@/lib/validation/schemas/settings";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 interface EmailChangeModalProps {
   isOpen: boolean;

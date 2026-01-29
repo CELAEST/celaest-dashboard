@@ -16,6 +16,7 @@ interface AddPaymentMethodModalProps {
 }
 
 export function AddPaymentMethodModal({
+
   isOpen,
   onClose,
 }: AddPaymentMethodModalProps) {
@@ -156,5 +157,6 @@ export function AddPaymentMethodModal({
         </div>
       </FormProvider>
     </BillingModal>
+
   );
 }

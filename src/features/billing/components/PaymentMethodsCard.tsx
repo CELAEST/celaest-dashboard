@@ -10,6 +10,7 @@ import { usePaymentMethods } from "../hooks/usePaymentMethods";
 import { PaymentMethodItem } from "./payment-methods/PaymentMethodItem";
 import { PaymentMethod } from "../types";
 
+
 export const PaymentMethodsCard: React.FC = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
@@ -21,6 +22,7 @@ export const PaymentMethodsCard: React.FC = () => {
     handleDelete,
     handleUpdateMethod,
   } = usePaymentMethods();
+
 
   const [isAddCardOpen, setIsAddCardOpen] = useState(false);
   const [isEditCardOpen, setIsEditCardOpen] = useState(false);
@@ -128,6 +130,7 @@ export const PaymentMethodsCard: React.FC = () => {
                   onEdit={handleEditClick}
                   onDelete={handleDelete}
                 />
+
               ))}
             </AnimatePresence>
           </div>
@@ -150,9 +153,11 @@ export const PaymentMethodsCard: React.FC = () => {
                 Bank Level Security
               </div>
               <div
+
                 className={`text-xs ${
                   isDark ? "text-gray-400" : "text-gray-600"
                 }`}
+
               >
                 All payment data is encrypted using industry standard 256-bit
                 encryption. We never store your full card number.

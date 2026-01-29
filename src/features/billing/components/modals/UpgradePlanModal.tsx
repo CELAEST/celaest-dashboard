@@ -153,5 +153,6 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
         </div>
       </div>
     </BillingModal>
+
   );
 }

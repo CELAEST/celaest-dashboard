@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useProfileSettings } from "../../hooks/useProfileSettings";
 import { ProfileAvatar } from "./AccountProfile/ProfileAvatar";
 import { ProfilePersonalInfo } from "./AccountProfile/ProfilePersonalInfo";
@@ -12,6 +11,7 @@ import {
   ProfileFormData,
   profileSchema,
 } from "@/lib/validation/schemas/settings";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 /**
  * Account & Profile Settings Tab

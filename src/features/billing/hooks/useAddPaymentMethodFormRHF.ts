@@ -77,6 +77,7 @@ export const useAddPaymentMethodFormRHF = (
   onClose: () => void
 ) => {
   const form = useForm<AddPaymentMethodFormData>({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(addPaymentMethodFormSchema) as any,
     mode: "onBlur", // Validate on blur for better UX
     reValidateMode: "onChange", // Re-validate on change after first submit

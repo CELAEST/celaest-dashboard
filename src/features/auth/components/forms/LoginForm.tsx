@@ -1,8 +1,7 @@
 "use client";
-
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+
 import { Lock, Mail, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { motion } from "motion/react";
 import { loginSchema, LoginFormValues } from "@/lib/validation/schemas/auth";
@@ -16,6 +15,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 interface LoginFormProps {
   isDark: boolean;

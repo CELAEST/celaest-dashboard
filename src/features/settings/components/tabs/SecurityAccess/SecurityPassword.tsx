@@ -1,6 +1,5 @@
 import React, { memo } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Key } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { toast } from "sonner";
@@ -9,6 +8,7 @@ import {
   ChangePasswordFormData,
   changePasswordSchema,
 } from "@/lib/validation/schemas/settings";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 export const SecurityPassword: React.FC = memo(() => {
   const { isDark } = useTheme();
