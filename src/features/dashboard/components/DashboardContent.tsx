@@ -14,10 +14,12 @@ import {
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { toast } from "sonner";
 
 // Static imports
 import { StatCard } from "@/features/shared/components/StatCard";
 import { OrdersTable } from "@/features/billing/components/OrdersTable";
+import { useControlCenterData } from "../hooks/useControlCenterData";
 
 // Skeleton
 const ChartSkeleton = () => (
@@ -91,10 +93,21 @@ const profitData = [
   { value: 10 },
 ];
 
+// Sparkline fallbacks when no trend data
+const defaultSparkline = (v: number) =>
+  Array.from({ length: 12 }, (_, i) => ({ value: v + i * 2 }));
+
 export const DashboardContent = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const [activeTab, setActiveTab] = useState<"metrics" | "feed">("metrics");
+  const { health, dashboard, loading, error, refresh } = useControlCenterData();
+
+  const handleRunDiagnostics = async () => {
+    toast.info("Ejecutando diagnósticos...");
+    await refresh();
+    toast.success("Diagnósticos completados");
+  };
 
   return (
     <div className="h-full w-full flex flex-col min-h-0 overflow-hidden p-2">
@@ -119,8 +132,16 @@ export const DashboardContent = () => {
               <span className="opacity-30">|</span>
               <span className="flex items-center gap-1.5">
                 STATUS:{" "}
-                <span className="text-emerald-400 font-bold animate-pulse">
-                  ONLINE
+                <span
+                  className={`font-bold ${
+                    health?.status === "healthy"
+                      ? "text-emerald-400 animate-pulse"
+                      : error
+                        ? "text-red-400"
+                        : "text-amber-400"
+                  }`}
+                >
+                  {loading ? "..." : health?.status?.toUpperCase() || (error ? "OFFLINE" : "CONNECTING")}
                 </span>
               </span>
             </p>
@@ -133,14 +154,16 @@ export const DashboardContent = () => {
               <span>SECURE</span>
             </div>
             <button
+              onClick={handleRunDiagnostics}
+              disabled={loading}
               className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 border ${
                 isDark
                   ? "bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border-cyan-500/30 hover:shadow-[0_0_15px_rgba(34,211,238,0.3)]"
                   : "bg-white hover:bg-gray-50 text-blue-600 border-gray-200 shadow-sm"
-              }`}
+              } disabled:opacity-50`}
             >
               <Terminal size={14} />
-              Run Diagnostics
+              {loading ? "Cargando..." : "Run Diagnostics"}
             </button>
           </div>
         </div>
@@ -198,43 +221,70 @@ export const DashboardContent = () => {
               <div className="col-span-12 lg:row-span-3 grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <StatCard
                   title="Total Revenue"
-                  value="$128,492"
-                  trend="12.5%"
-                  trendUp={true}
+                  value={
+                    dashboard != null
+                      ? `$${(dashboard.total_revenue ?? 0).toLocaleString("en-US", {
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0,
+                        })}`
+                      : "—"
+                  }
+                  trend={
+                    dashboard?.revenue_growth != null
+                      ? `${dashboard.revenue_growth >= 0 ? "+" : ""}${dashboard.revenue_growth.toFixed(1)}%`
+                      : "—"
+                  }
+                  trendUp={(dashboard?.revenue_growth ?? 0) >= 0}
                   icon={<Activity size={24} />}
                   delay={0.1}
                   className="h-full"
-                  chartData={revenueData} // Passing Sparkline Data
+                  chartData={defaultSparkline(dashboard?.total_revenue ?? 0)}
                 />
                 <StatCard
                   title="Global Orders"
-                  value="1,482"
-                  trend="3.2%"
+                  value={
+                    dashboard?.total_orders != null
+                      ? dashboard.total_orders.toLocaleString()
+                      : "—"
+                  }
+                  trend={
+                    dashboard?.conversion_rate != null
+                      ? `${(dashboard.conversion_rate * 100).toFixed(1)}% conv`
+                      : "—"
+                  }
                   trendUp={true}
                   icon={<Box size={24} />}
                   delay={0.2}
                   className="h-full"
-                  chartData={ordersData}
+                  chartData={defaultSparkline(dashboard?.total_orders ?? 0)}
                 />
                 <StatCard
-                  title="Active Scripts"
-                  value="24/24"
-                  trend="Running"
+                  title="Active Licenses"
+                  value={
+                    dashboard != null
+                      ? `${dashboard.active_licenses ?? 0}/${dashboard.total_licenses ?? 0}`
+                      : "—"
+                  }
+                  trend="—"
                   trendUp={true}
                   icon={<Server size={24} />}
                   delay={0.3}
                   className="h-full"
-                  chartData={scriptsData}
+                  chartData={defaultSparkline(dashboard?.active_licenses ?? 0)}
                 />
                 <StatCard
-                  title="Net Profit"
-                  value="$42,300"
-                  trend="1.8%"
-                  trendUp={false}
+                  title="Active Users"
+                  value={
+                    dashboard != null
+                      ? `${dashboard.active_users ?? 0}/${dashboard.total_users ?? 0}`
+                      : "—"
+                  }
+                  trend="—"
+                  trendUp={true}
                   icon={<Zap size={24} />}
                   delay={0.4}
                   className="h-full"
-                  chartData={profitData}
+                  chartData={defaultSparkline(dashboard?.active_users ?? 0)}
                 />
               </div>
 
@@ -280,13 +330,20 @@ export const DashboardContent = () => {
                   </h3>
                   <div className="flex-1 flex flex-col justify-center space-y-8">
                     {[
-                      { name: "Main Database", val: 99.8, color: "#22d3ee" },
-                      { name: "API Gateway", val: 99.9, color: "#34d399" },
-                      { name: "CDN Nodes", val: 98.2, color: "#a78bfa" },
                       {
-                        name: "Payment Processor",
-                        val: 100.0,
-                        color: "#fbbf24",
+                        name: "Database",
+                        ok: health?.services?.database ?? false,
+                        color: "#22d3ee",
+                      },
+                      {
+                        name: "Redis Cache",
+                        ok: health?.services?.redis ?? false,
+                        color: "#34d399",
+                      },
+                      {
+                        name: "Backend API",
+                        ok: health?.status === "healthy",
+                        color: "#a78bfa",
                       },
                     ].map((item, i) => (
                       <div key={i} className="group">
@@ -300,7 +357,7 @@ export const DashboardContent = () => {
                             className="font-mono text-xs"
                             style={{ color: item.color }}
                           >
-                            {item.val}%
+                            {item.ok ? "OK" : "—"}
                           </span>
                         </div>
                         <div
@@ -309,7 +366,7 @@ export const DashboardContent = () => {
                           <div
                             className="h-full rounded-full shadow-[0_0_10px_currentColor] transition-all duration-1000"
                             style={{
-                              width: `${item.val}%`,
+                              width: item.ok ? "100%" : "0%",
                               backgroundColor: item.color,
                               color: item.color,
                             }}

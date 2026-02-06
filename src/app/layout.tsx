@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/features/auth/contexts/AuthContext";
+import { OrgProvider } from "@/features/shared/contexts/OrgContext";
 import { NotificationProvider } from "@/features/shared/contexts/NotificationContext";
 import { Toaster } from "sonner";
 import { ThemeSync } from "@/features/shared/components/ThemeSync";
@@ -83,8 +84,10 @@ export default function RootLayout({
         <ThemeSync />
         <NotificationProvider>
           <AuthProvider>
-            {children}
-            <Toaster />
+            <OrgProvider>
+              {children}
+              <Toaster />
+            </OrgProvider>
           </AuthProvider>
         </NotificationProvider>
       </body>
