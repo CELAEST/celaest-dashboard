@@ -4,58 +4,53 @@ import { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { AuthActions, AuthResult, AuthSession } from "../lib/types";
+
 import { getAuthErrorMessage } from "../lib/errors";
 import { mapSupabaseUser } from "../lib/mappers";
-import { AuthState } from "../lib/types";
+import { authService } from "../services/auth.service";
+import { useAuthStore } from "../stores/useAuthStore";
 
 export function useAuthActions(
   supabase: SupabaseClient | null,
-  setState: React.Dispatch<React.SetStateAction<AuthState>>,
 ): AuthActions {
+
   const router = useRouter();
 
   const signIn = useCallback(
     async (email: string, password: string): Promise<AuthResult> => {
-      if (!supabase) {
-        return {
-          success: false,
-          error: { code: "UNKNOWN_ERROR", message: "Servicio no disponible" },
-        };
-      }
-
       try {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: email.trim().toLowerCase(),
-          password,
-        });
+        // Llamada al servicio en lugar del adaptador antiguo
+        const response = await authService.login(email.trim().toLowerCase(), password);
 
-        if (error) {
-          return {
-            success: false,
-            error: {
-              code: "UNKNOWN_ERROR",
-              message: getAuthErrorMessage(error),
-            },
-          };
-        }
+        if (response.access_token && supabase) {
+          // Sincronizar el cliente de Supabase con el token recibido del backend
+          await supabase.auth.setSession({
+            access_token: response.access_token,
+            refresh_token: response.refresh_token,
+          });
 
-        if (data.user) {
           return { success: true };
         }
+
 
         return {
           success: false,
           error: { code: "UNKNOWN_ERROR", message: "Error al iniciar sesión" },
         };
-      } catch {
+      } catch (error) {
         return {
           success: false,
-          error: { code: "NETWORK_ERROR", message: "Error de conexión" },
+          error: { 
+            code: "INVALID_CREDENTIALS", 
+            message: error instanceof Error ? error.message : "Email o contraseña incorrectos" 
+          },
         };
       }
+
     },
     [supabase],
   );
+
 
   const signUp = useCallback(
     async (
@@ -187,6 +182,8 @@ export function useAuthActions(
     }
   }, [supabase]);
 
+  const { reset } = useAuthStore.getState();
+
   const signOut = useCallback(async (): Promise<AuthResult> => {
     if (!supabase) return { success: false };
 
@@ -213,13 +210,8 @@ export function useAuthActions(
         sessionStorage.clear();
       }
 
-      // State update
-      setState((prev) => ({
-        ...prev,
-        user: null,
-        session: null,
-        isAuthenticated: false,
-      }));
+      // State update using Zustand reset
+      reset();
 
       router.refresh(); // Refresh server components
       router.push("/?mode=signin");
@@ -231,7 +223,8 @@ export function useAuthActions(
         error: { code: "UNKNOWN_ERROR", message: "Error al cerrar sesión" },
       };
     }
-  }, [supabase, router, setState]);
+  }, [supabase, router, reset]);
+
 
   const refreshSession = useCallback(async (): Promise<
     AuthResult<AuthSession>

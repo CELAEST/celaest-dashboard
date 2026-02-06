@@ -8,8 +8,7 @@ import React, {
   useEffect,
   type ReactNode,
 } from "react";
-import { useAuth } from "@/features/auth/contexts/AuthContext";
-import { api } from "@/lib/api-client";
+import { useApiAuth } from "@/lib/use-api-auth";
 
 export interface Organization {
   id: string;
@@ -30,25 +29,25 @@ interface OrgContextValue {
 const OrgContext = createContext<OrgContextValue | undefined>(undefined);
 
 export function OrgProvider({ children }: { children: ReactNode }) {
-  const { session, isAuthenticated } = useAuth();
+  const { isAuthReady, token } = useApiAuth();
   const [org, setOrgState] = useState<Organization | null>(null);
   const [orgs, setOrgs] = useState<Organization[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const fetchOrgs = useCallback(async () => {
-    if (!session?.accessToken) {
+    if (!token) {
       setOrgs([]);
       setOrgState(null);
       setIsLoading(false);
       return;
     }
 
+    setIsLoading(true);
     try {
-      const res = await api.get<{ success: boolean; data: { organizations: Organization[] } }>(
-        "/api/v1/user/organizations",
-        { token: session.accessToken }
-      );
-      const list = res?.data?.organizations ?? [];
+      const { authAdapter } = await import("@/features/auth/api/auth");
+      const res = await authAdapter.getMyOrganizations(token);
+      const list = res?.organizations ?? [];
+
       setOrgs(list);
 
       const defaultOrg = list.find((o) => o.is_default) ?? list[0];
@@ -56,23 +55,24 @@ export function OrgProvider({ children }: { children: ReactNode }) {
         if (prev && list.some((o) => o.id === prev.id)) return prev;
         return defaultOrg ?? null;
       });
-    } catch {
+    } catch (error) {
+      console.error("Failed to fetch organizations:", error);
       setOrgs([]);
       setOrgState(null);
     } finally {
       setIsLoading(false);
     }
-  }, [session?.accessToken]);
+  }, [token]);
 
   useEffect(() => {
-    if (isAuthenticated && session?.accessToken) {
+    if (isAuthReady) {
       fetchOrgs();
     } else {
       setOrgs([]);
       setOrgState(null);
       setIsLoading(false);
     }
-  }, [isAuthenticated, session?.accessToken, fetchOrgs]);
+  }, [isAuthReady, fetchOrgs]);
 
   const setOrg = useCallback((o: Organization | null) => {
     setOrgState(o);

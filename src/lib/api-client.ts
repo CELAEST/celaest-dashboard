@@ -5,13 +5,14 @@
  */
 
 const BASE_URL =
-  process.env.NEXT_PUBLIC_CELAEST_API_URL || "http://localhost:3001";
+  process.env.NEXT_PUBLIC_CELAEST_API_URL || "https://celaest-back.onrender.com";
 
 export class ApiError extends Error {
   constructor(
     message: string,
     public status: number,
-    public code?: string
+    public code?: string,
+    public details?: Record<string, unknown>
   ) {
     super(message);
     this.name = "ApiError";
@@ -21,6 +22,16 @@ export class ApiError extends Error {
 export interface ApiClientConfig {
   token?: string | null;
   orgId?: string | null;
+}
+
+export interface ApiResponse<T = unknown> {
+  success: boolean;
+  data?: T;
+  error?: {
+    message: string;
+    code?: string;
+    details?: Record<string, unknown>;
+  };
 }
 
 type RequestConfig = RequestInit & {
@@ -53,24 +64,48 @@ async function request<T>(
     (headers as Record<string, string>)["X-Organization-ID"] = orgId;
   }
 
-  const response = await fetch(url, {
-    ...init,
-    headers,
-    cache: init.method === "GET" ? "no-store" : undefined,
-  });
+  try {
+    const response = await fetch(url, {
+      ...init,
+      headers,
+      cache: init.method === "GET" ? "no-store" : undefined,
+    });
 
-  const data = await response.json().catch(() => ({}));
+    // Leer el cuerpo una vez como texto para manejar respuestas vacías o errores no JSON
+    const text = await response.text();
+    let data: ApiResponse<T>;
 
-  if (!response.ok) {
-    const err = data?.error || {};
+    try {
+      data = text ? JSON.parse(text) : {};
+    } catch {
+      data = { 
+        success: false, 
+        error: { message: "Error al procesar la respuesta del servidor" } 
+      };
+    }
+
+    if (!response.ok) {
+      const errorData = (data.error || {}) as NonNullable<ApiResponse<T>["error"]>;
+      throw new ApiError(
+        errorData.message || "Request failed",
+        response.status,
+        errorData.code,
+        errorData.details
+      );
+    }
+
+
+    // El backend suele envolver la respuesta en un objeto { success, data }
+    // Si data.data existe, devolvemos eso. Si no, devolvemos data completo como T.
+    return (data.data !== undefined ? data.data : data) as T;
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
     throw new ApiError(
-      err?.message || data?.error || "Request failed",
-      response.status,
-      err?.code
+      error instanceof Error ? error.message : "Error de red desconocido",
+      500,
+      "NETWORK_ERROR"
     );
   }
-
-  return data as T;
 }
 
 export const api = {
@@ -102,3 +137,4 @@ export const api = {
   delete: <T>(path: string, config?: RequestConfig & ApiClientConfig) =>
     request<T>(path, { ...config, method: "DELETE" }),
 };
+

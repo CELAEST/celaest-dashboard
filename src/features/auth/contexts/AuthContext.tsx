@@ -30,18 +30,21 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
+import { useAuthStore } from "../stores/useAuthStore";
+
 export function AuthProvider({ children }: AuthProviderProps) {
-  const { state, setState, supabase } = useAuthSession();
-  const actions = useAuthActions(supabase, setState);
+  const { supabase } = useAuthSession();
+  const store = useAuthStore();
+  const actions = useAuthActions(supabase);
 
   // ==================== VALUE ====================
 
   const value = useMemo<AuthContextValue>(
     () => ({
-      ...state,
+      ...store,
       ...actions,
     }),
-    [state, actions],
+    [store, actions],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -56,6 +56,39 @@ export interface AuthError {
   details?: Record<string, unknown>
 }
 
+// ==================== TIPOS DE RESPUESTA BACKEND ====================
+
+export interface SessionVerification {
+  valid: boolean;
+  user_id: string;
+}
+
+export interface AuthResponse {
+  access_token: string;
+  refresh_token: string;
+  expires_in: number;
+  user: UserProfile;
+}
+
+export interface UserOrganization {
+  id: string;
+  name: string;
+  slug: string;
+  role: string;
+  is_default: boolean;
+}
+
+export interface UserOrganizationsResponse {
+  organizations: UserOrganization[];
+}
+
+export interface UserProfile {
+  id: string;
+  email: string;
+  name: string;
+  avatar_url?: string;
+}
+
 export type AuthErrorCode =
   | 'INVALID_CREDENTIALS'
   | 'USER_NOT_FOUND'
@@ -74,8 +107,10 @@ export interface AuthState {
   session: AuthSession | null
   isLoading: boolean
   isAuthenticated: boolean
+  isBackendSynced: boolean // Indica si el backend ha verificado la sesión
   error: AuthError | null
 }
+
 
 export interface AuthActions {
   signIn: (email: string, password: string) => Promise<AuthResult>
