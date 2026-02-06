@@ -44,8 +44,9 @@ export function OrgProvider({ children }: { children: ReactNode }) {
 
     setIsLoading(true);
     try {
-      const { authAdapter } = await import("@/features/auth/api/auth");
-      const res = await authAdapter.getMyOrganizations(token);
+      const { authService } =
+        await import("@/features/auth/services/auth.service");
+      const res = await authService.getUserOrganizations(token);
       const list = res?.organizations ?? [];
 
       setOrgs(list);

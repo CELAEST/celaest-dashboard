@@ -44,6 +44,7 @@ export function useAuthSession() {
 
   // Efecto para verificar la sesión con el backend (celaest-back)
   useEffect(() => {
+    // Si hay sesión pero no está sincronizada con el backend, intentamos sincronizar
     if (isAuthenticated && session?.accessToken && !isBackendSynced) {
       const verifyWithBackend = async () => {
         try {
@@ -52,15 +53,20 @@ export function useAuthSession() {
           
           if (res.valid) {
             setBackendSynced(true);
+            console.log("✅ Authenticated with Backend via API Proxy.");
+          } else {
+            console.warn("⚠️ Backend rejected the token. Check JWT_ISSUER/AUDIENCE configs.");
           }
         } catch (error) {
-          console.error("Backend session verification failed:", error);
+          console.error("❌ Proactive backend session verification failed:", error);
         }
       };
+
       
       verifyWithBackend();
     }
-  }, [isAuthenticated, session, isBackendSynced, setBackendSynced]);
+  }, [isAuthenticated, session?.accessToken, isBackendSynced, setBackendSynced]);
+
 
   useEffect(() => {
     if (!supabase) return;

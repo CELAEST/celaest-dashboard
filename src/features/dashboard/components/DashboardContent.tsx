@@ -141,7 +141,10 @@ export const DashboardContent = () => {
                         : "text-amber-400"
                   }`}
                 >
-                  {loading ? "..." : health?.status?.toUpperCase() || (error ? "OFFLINE" : "CONNECTING")}
+                  {loading
+                    ? "..."
+                    : health?.status?.toUpperCase() ||
+                      (error ? "OFFLINE" : "CONNECTING")}
                 </span>
               </span>
             </p>
@@ -223,10 +226,13 @@ export const DashboardContent = () => {
                   title="Total Revenue"
                   value={
                     dashboard != null
-                      ? `$${(dashboard.total_revenue ?? 0).toLocaleString("en-US", {
-                          minimumFractionDigits: 0,
-                          maximumFractionDigits: 0,
-                        })}`
+                      ? `$${(dashboard.total_revenue ?? 0).toLocaleString(
+                          "en-US",
+                          {
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0,
+                          },
+                        )}`
                       : "—"
                   }
                   trend={

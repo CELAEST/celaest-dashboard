@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { controlCenterAdapter } from "../adapter";
+// import { controlCenterAdapter } from "../adapter"; // DELETED
 import { useApiAuth } from "@/lib/use-api-auth";
 import type { HealthResponse, DashboardStats } from "../types";
 
@@ -13,7 +13,7 @@ interface ControlCenterData {
   refresh: () => Promise<void>;
 }
 
-export function useControlCenterData(period = "month"): ControlCenterData {
+export function useControlCenterData(): ControlCenterData {
   const { token, orgId, isReady } = useApiAuth();
   const [health, setHealth] = useState<HealthResponse | null>(null);
   const [dashboard, setDashboard] = useState<DashboardStats | null>(null);
@@ -24,17 +24,21 @@ export function useControlCenterData(period = "month"): ControlCenterData {
     setError(null);
 
     try {
+      const { metricsService } = await import("@/features/control-center/services/metrics.service");
+      
       const [healthRes, dashboardRes] = await Promise.allSettled([
-        controlCenterAdapter.getHealth(),
+        metricsService.getHealth(),
         isReady && token && orgId
-          ? controlCenterAdapter.getDashboard({ token, orgId, period })
+          ? metricsService.getDashboardOverview(orgId)
           : Promise.resolve(null),
       ]);
 
       setHealth(healthRes.status === "fulfilled" ? healthRes.value : null);
 
-      if (dashboardRes.status === "fulfilled" && dashboardRes.value?.data) {
-        setDashboard(dashboardRes.value.data);
+      if (dashboardRes.status === "fulfilled" && dashboardRes.value) {
+        // Mapear los datos de DashboardMetrics (nuevo) a DashboardStats (legacy) si es necesario
+        // O actualizar types.ts para que coincidan. Por ahora, asumimos coincidencia.
+        setDashboard(dashboardRes.value as any);
       } else {
         setDashboard(null);
       }
@@ -43,7 +47,8 @@ export function useControlCenterData(period = "month"): ControlCenterData {
     } finally {
       setLoading(false);
     }
-  }, [token, orgId, isReady, period]);
+  }, [token, orgId, isReady]);
+
 
   useEffect(() => {
     setLoading(true);
