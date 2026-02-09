@@ -5,7 +5,29 @@ import { useAnalytics } from "@/features/analytics/hooks/useAnalytics";
 
 export const ResourceAllocation = React.memo(
   ({ className }: { className?: string }) => {
-    const { isDark, resourceData } = useAnalytics();
+    const { isDark, usage } = useAnalytics();
+
+    const resourceData = React.useMemo(
+      () => [
+        {
+          name: "CPU Usage (API)",
+          value: Math.min(
+            Math.round(((usage?.api_requests || 0) / 10000) * 100),
+            100,
+          ), // Mock calc
+          color: "#3b82f6",
+        },
+        {
+          name: "Database Storage",
+          value: Math.min(
+            Math.round(((usage?.storage_used_gb || 0) / 10) * 100),
+            100,
+          ), // Mock calc assuming 10GB limit
+          color: "#8b5cf6",
+        },
+      ],
+      [usage],
+    );
 
     return (
       <motion.div

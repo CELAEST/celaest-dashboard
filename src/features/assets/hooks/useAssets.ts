@@ -47,11 +47,9 @@ export const useAssets = () => {
     };
 
     const unsubscribeAsset = socket.on("product.asset_created", handleRefresh);
-    const unsubscribePayment = socket.on("payment.succeeded", handleRefresh);
 
     return () => {
       unsubscribeAsset();
-      unsubscribePayment();
     };
   }, [token, handleFetch, orgId]);
 

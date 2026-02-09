@@ -28,6 +28,8 @@ export interface Asset {
   features: string[];
   requirements: string[];
   thumbnail: string;
+  external_url?: string;
+  display_type?: string;
   isPurchased: boolean;
   isPublic: boolean;
   isFeatured: boolean;
@@ -44,24 +46,26 @@ export const assetsService = {
     name: ba.product_name,
     slug: ba.product_slug,
     type: (ba.product_type || "asset") as AssetType,
-    category: "Purchased",
-    price: 0,
+    category: ba.product_category || "Purchased",
+    price: ba.product_price || 0,
     operationalCost: 0,
     status: ba.is_active ? "active" : "archived",
-    version: "1.0.0",
-    fileSize: "0 KB",
-    downloads: 0,
-    rating: 5.0,
-    reviews: 0,
-    shortDescription: "",
-    description: "",
-    features: [],
-    requirements: [],
+    version: ba.product_version || "1.0.0",
+    fileSize: formatFileSize(ba.product_file_size || 0),
+    downloads: ba.product_downloads || 0,
+    rating: ba.product_rating || 0,
+    reviews: ba.product_reviews || 0,
+    shortDescription: ba.product_short_desc || "",
+    description: ba.product_description || "",
+    features: safeJsonParse(ba.product_tags) || [],
+    requirements: safeJsonParse(ba.product_requirements) || [],
     thumbnail: ba.product_thumbnail_url || "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&fm=webp",
     isPurchased: true,
     isPublic: false,
     isFeatured: false,
     license_id: ba.license_id,
+    external_url: "",
+    display_type: ba.product_display_type || ba.product_type,
     createdAt: ba.granted_at || new Date().toISOString(),
     updatedAt: ba.granted_at || new Date().toISOString(),
   }),
@@ -76,8 +80,8 @@ export const assetsService = {
     category: "Inventory",
     price: bp.base_price,
     operationalCost: 0,
-    status: bp.status as Asset["status"],
-    version: "1.0.0",
+    status: (bp.status === "published" ? "active" : bp.status) as Asset["status"],
+    version: bp.version || "1.0.0",
     fileSize: "0 KB",
     downloads: bp.download_count,
     rating: bp.rating_avg,
@@ -87,6 +91,8 @@ export const assetsService = {
     features: [],
     requirements: bp.requirements ? bp.requirements.split(",") : [],
     thumbnail: bp.thumbnail_url || "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&fm=webp",
+    external_url: bp.external_url || "",
+    display_type: bp.display_type || bp.product_type,
     isPurchased: false,
     isPublic: bp.is_public,
     isFeatured: bp.is_featured,
@@ -128,6 +134,32 @@ export const assetsService = {
   async getLicense(token: string, licenseId: string) {
     console.log("[AssetsService] getLicense called for:", licenseId);
     return assetsApi.getLicense(token, licenseId);
+  },
+
+  async createRelease(token: string, productId: string, data: {
+    version: string;
+    status: string;
+    download_url: string;
+    file_size_bytes?: number;
+  }) {
+    return assetsApi.createRelease(token, productId, data);
+  },
+};
+
+const safeJsonParse = (jsonString?: string): string[] => {
+  if (!jsonString) return [];
+  try {
+    const parsed = JSON.parse(jsonString);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    return [];
   }
 };
 
+const formatFileSize = (bytes: number): string => {
+  if (bytes === 0) return "0 KB";
+  const k = 1024;
+  const sizes = ["Bytes", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+};

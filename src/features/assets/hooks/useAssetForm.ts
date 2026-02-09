@@ -10,6 +10,10 @@ export const assetSchema = z.object({
   description: z.string().optional(),
   features: z.string().optional(), 
   requirements: z.string().optional(),
+  external_url: z.string().url("Must be a valid URL").or(z.literal("")).optional(),
+  thumbnail_url: z.string().url("Must be a valid URL").or(z.literal("")).optional(),
+  pending_image: z.any().optional(), // For local File object before upload
+  productFile: z.any().optional(), // For logic use only
 });
 
 export type AssetFormValues = z.infer<typeof assetSchema>;

@@ -1,5 +1,5 @@
 import React from "react";
-import { Check, AlertCircle } from "lucide-react";
+import { Check, AlertCircle, Calendar, ShieldCheck } from "lucide-react";
 import { Asset } from "../../hooks/useAssets";
 
 interface ProductDetailsSectionProps {
@@ -93,6 +93,34 @@ export const ProductDetailsSection: React.FC<ProductDetailsSectionProps> = ({
               </li>
             ))}
           </ul>
+        </div>
+      </div>
+
+      {/* Metadata / Trust Badges */}
+      <div
+        className={`mt-8 p-4 rounded-xl border flex flex-wrap gap-6 items-center ${
+          isDark ? "bg-white/5 border-white/5" : "bg-gray-50 border-gray-100"
+        }`}
+      >
+        <div className="flex items-center gap-2">
+          <Calendar
+            size={16}
+            className={isDark ? "text-gray-500" : "text-gray-400"}
+          />
+          <span
+            className={`text-xs ${isDark ? "text-gray-400" : "text-gray-600"}`}
+          >
+            Last updated:{" "}
+            <span className="font-semibold">
+              {new Date(product.updatedAt).toLocaleDateString()}
+            </span>
+          </span>
+        </div>
+        <div className="flex items-center gap-2 text-emerald-500">
+          <ShieldCheck size={16} />
+          <span className="text-xs font-bold uppercase tracking-wider">
+            Verified Asset
+          </span>
         </div>
       </div>
     </>

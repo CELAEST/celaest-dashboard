@@ -4,6 +4,7 @@ import { AssetEditor } from "./AssetEditor";
 import { AssetTable } from "./AssetTable";
 import { AssetHeader } from "./AssetHeader";
 import { AssetMetrics } from "./AssetMetrics";
+import { ProductDetailModal } from "./ProductDetailModal";
 import { Asset, assetsService } from "../services/assets.service";
 import { CreateProductPayload, UpdateProductPayload } from "../api/assets.api";
 import { AssetFormValues } from "../hooks/useAssetForm";
@@ -12,6 +13,7 @@ import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 import { useOrg } from "@/features/shared/contexts/OrgContext";
 import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
+import { socket } from "@/lib/socket-client";
 
 interface AssetAdminPortalProps {
   activeTab: "inventory" | "analytics";
@@ -32,13 +34,39 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
   // Asset Editor State
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [editingAsset, setEditingAsset] = useState<Asset | null>(null);
+  const [previewingAsset, setPreviewingAsset] = useState<Asset | null>(null);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
 
   useEffect(() => {
     if (session?.accessToken && orgId) {
-      fetchInventory(session.accessToken, orgId);
+      fetchInventory(session.accessToken, orgId, {});
     }
-  }, [session?.accessToken, orgId, fetchInventory]);
+  }, [session, orgId, fetchInventory]);
+
+  // Real-time updates for Inventory
+  useEffect(() => {
+    if (!session?.accessToken || !orgId) return;
+
+    // Ensure socket is connected (idempotent)
+    socket.connect(session.accessToken, orgId);
+
+    const handleRefresh = () => {
+      console.log(
+        "[AssetAdminPortal] Real-time activity detected. Refreshing inventory...",
+      );
+      fetchInventory(session.accessToken!, orgId, { silent: true });
+    };
+
+    const unsubCreated = socket.on("product.created", handleRefresh);
+    const unsubUpdated = socket.on("product.updated", handleRefresh);
+    const unsubDeleted = socket.on("product.deleted", handleRefresh);
+
+    return () => {
+      unsubCreated();
+      unsubUpdated();
+      unsubDeleted();
+    };
+  }, [session, orgId, fetchInventory]);
 
   const handleEdit = (asset: Asset) => {
     setEditingAsset(asset);
@@ -50,8 +78,121 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
     setIsEditorOpen(true);
   };
 
+  const handlePreview = (asset: Asset) => {
+    setPreviewingAsset(asset);
+  };
+
+  const handleModalAction = async (
+    asset: Asset,
+    type: "download" | "cart" | "docs",
+  ) => {
+    if (type === "download") {
+      if (!session?.accessToken) return;
+      try {
+        toast.info(`Preparing download for ${asset.name}...`);
+        const { download_url } = await assetsService.downloadAsset(
+          session.accessToken,
+          asset.id,
+        );
+        if (download_url) {
+          window.open(download_url, "_blank");
+          toast.success("Download started");
+        }
+      } catch {
+        toast.error("Failed to start download");
+      }
+    } else {
+      toast.info(
+        `Action '${type}' is only available in the public Marketplace, but it's verified!`,
+      );
+    }
+  };
+
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
+
   const handleSave = async (data: AssetFormValues) => {
     if (!session?.accessToken || !orgId) return;
+
+    let finalThumbnailUrl = data.thumbnail_url;
+
+    // 1. Handle actual file upload if there's a pending image
+    if (data.pending_image instanceof File) {
+      try {
+        setIsUploading(true);
+        setUploadProgress(0);
+
+        const file = data.pending_image;
+        const fileExt = file.name.split(".").pop();
+        const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+        const filePath = `thumbnails/${fileName}`;
+
+        const { supabase } = await import("@/lib/supabase/client");
+        if (!supabase) throw new Error("Supabase client not available");
+
+        // Simulate progress for UI (actual upload progress is harder to track with .upload() without a custom client)
+        const progressInterval = setInterval(() => {
+          setUploadProgress((prev) => (prev >= 90 ? 90 : prev + 10));
+        }, 200);
+
+        const { error } = await supabase.storage
+          .from("products")
+          .upload(filePath, file, { cacheControl: "3600", upsert: false });
+
+        clearInterval(progressInterval);
+        if (error) throw error;
+
+        const { data: urlData } = supabase.storage
+          .from("products")
+          .getPublicUrl(filePath);
+
+        finalThumbnailUrl = urlData.publicUrl;
+        setUploadProgress(100);
+      } catch (err) {
+        toast.error(`Upload failed: ${(err as Error).message}`);
+        setIsUploading(false);
+        return;
+      }
+    }
+
+    // 2. Handle Product File Upload (if any)
+    let productFileUrl: string | null = null;
+    let productFileSize: number = 0;
+
+    if (data.productFile instanceof File) {
+      try {
+        setIsUploading(true);
+        setUploadProgress(0);
+
+        const file = data.productFile;
+        const fileExt = file.name.split(".").pop();
+        const fileName = `releases/${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+
+        const { supabase } = await import("@/lib/supabase/client");
+        if (!supabase) throw new Error("Supabase client not available");
+
+        // Simulate progress
+        setUploadProgress(20);
+
+        const { error } = await supabase.storage
+          .from("products")
+          .upload(fileName, file, { cacheControl: "3600", upsert: false });
+
+        if (error) throw error;
+
+        const { data: urlData } = supabase.storage
+          .from("products")
+          .getPublicUrl(fileName);
+
+        productFileUrl = urlData.publicUrl;
+        productFileSize = file.size;
+        setUploadProgress(100);
+      } catch (err) {
+        toast.error(`Product file upload failed: ${(err as Error).message}`);
+        setIsUploading(false);
+        return;
+      }
+    }
 
     const transformedData: CreateProductPayload = {
       name: data.name,
@@ -62,30 +203,52 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
       product_type: data.type,
       status: data.status,
       category_id: data.category,
+      thumbnail_url: finalThumbnailUrl,
+      external_url: data.external_url,
     };
 
     setInventoryLoading(true);
-    const operation = editingAsset
-      ? assetsService.updateAsset(
-          session.accessToken,
-          orgId,
-          editingAsset.id,
-          transformedData as UpdateProductPayload,
-        )
-      : assetsService.createAsset(session.accessToken, orgId, transformedData);
 
-    toast.promise(operation, {
-      loading: editingAsset ? "Updating asset..." : "Creating asset...",
-      success: () => {
-        fetchInventory(session.accessToken!, orgId);
-        setIsEditorOpen(false);
-        return `Asset ${editingAsset ? "updated" : "created"} successfully!`;
-      },
-      error: (err: Error) => {
-        setInventoryLoading(false);
-        return `Error: ${err.message || "Failed to save asset"}`;
-      },
-    });
+    try {
+      // Create or Update Asset
+      const asset = editingAsset
+        ? await assetsService.updateAsset(
+            session.accessToken,
+            orgId,
+            editingAsset.id,
+            transformedData as UpdateProductPayload,
+          )
+        : await assetsService.createAsset(
+            session.accessToken,
+            orgId,
+            transformedData,
+          );
+
+      // 3. Create Release if file was uploaded
+      if (productFileUrl) {
+        await assetsService.createRelease(session.accessToken, asset.id, {
+          version: "1.0.0", // Default version for MVP
+          status: "stable",
+          download_url: productFileUrl,
+          file_size_bytes: productFileSize,
+        });
+        toast.success("Release v1.0.0 created successfully!");
+      }
+
+      toast.success(
+        `Asset ${editingAsset ? "updated" : "created"} successfully!`,
+      );
+
+      fetchInventory(session.accessToken!, orgId);
+      setIsEditorOpen(false);
+    } catch (err) {
+      const error = err as Error;
+      toast.error(`Error: ${error.message || "Failed to save asset"}`);
+    } finally {
+      setInventoryLoading(false);
+      setIsUploading(false);
+      setUploadProgress(0);
+    }
   };
 
   const handleDelete = async (id: string) => {
@@ -174,6 +337,7 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
                           onEdit={handleEdit}
                           onDuplicate={handleDuplicate}
                           onDelete={handleDelete}
+                          onPreview={handlePreview}
                         />
                       )}
                     </div>
@@ -214,6 +378,14 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
         onClose={() => setIsEditorOpen(false)}
         onSave={handleSave}
         asset={editingAsset}
+        isUploading={isUploading}
+        uploadProgress={uploadProgress}
+      />
+
+      <ProductDetailModal
+        product={previewingAsset}
+        onClose={() => setPreviewingAsset(null)}
+        onAction={handleModalAction}
       />
     </div>
   );

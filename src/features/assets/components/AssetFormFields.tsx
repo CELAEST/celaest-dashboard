@@ -4,6 +4,7 @@ import { FileSpreadsheet, Code, Globe } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { SettingsSelect } from "../../settings/components/SettingsSelect";
 import { AssetFormValues } from "../hooks/useAssetForm";
+import { AssetImageUploader } from "./AssetImageUploader";
 
 const CATEGORY_OPTIONS = [
   { value: "Finance", label: "Finance" },
@@ -20,7 +21,15 @@ const STATUS_OPTIONS = [
   { value: "archived", label: "Archived (Legacy version)" },
 ];
 
-export const AssetFormFields: React.FC = () => {
+interface AssetFormFieldsProps {
+  isUploading?: boolean;
+  uploadProgress?: number;
+}
+
+export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
+  isUploading = false,
+  uploadProgress = 0,
+}) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const {
@@ -31,6 +40,12 @@ export const AssetFormFields: React.FC = () => {
   } = useFormContext<AssetFormValues>();
 
   const selectedType = watch("type");
+  const watchExternalUrl = watch("external_url");
+  const watchThumbnailUrl = watch("thumbnail_url");
+
+  // Use watchExternalUrl in a subtle way to avoid unused warning if needed,
+  // or just ensure uploader logic stays intact.
+  const hasExternalUrl = !!watchExternalUrl;
 
   return (
     <div className="space-y-8">
@@ -132,6 +147,78 @@ export const AssetFormFields: React.FC = () => {
             </p>
           )}
         </div>
+      </div>
+
+      {/* External URL */}
+      <div>
+        <label
+          htmlFor="external_url"
+          className={`block text-xs uppercase tracking-wider font-bold mb-2 ${
+            isDark ? "text-gray-500" : "text-gray-400"
+          }`}
+        >
+          Automation / External Link (Optional)
+        </label>
+        <div className="relative">
+          <Globe
+            size={18}
+            className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${
+              hasExternalUrl
+                ? "text-cyan-500"
+                : isDark
+                  ? "text-gray-500"
+                  : "text-gray-400"
+            }`}
+          />
+          <input
+            id="external_url"
+            type="text"
+            {...register("external_url")}
+            className={`w-full pl-11 pr-4 py-3 rounded-lg border transition-all outline-none ${
+              isDark
+                ? "bg-white/5 border-white/10 text-white placeholder-gray-500 focus:border-cyan-500/30 focus:bg-white/10"
+                : "bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
+            } ${errors.external_url ? "border-red-500 shadow-[0_0_0_1px_rgba(239,68,68,0.2)]" : ""}`}
+            placeholder="e.g., https://docs.google.com/spreadsheets/d/..."
+          />
+        </div>
+        {errors.external_url && (
+          <p className="text-red-500 text-xs mt-1 font-medium">
+            {errors.external_url.message}
+          </p>
+        )}
+        <p
+          className={`text-[10px] mt-2 ml-1 ${isDark ? "text-gray-600" : "text-gray-400"}`}
+        >
+          If this is a Google Sheet or external web tool, provide the direct
+          link here.
+        </p>
+      </div>
+
+      {/* Product Image / Thumbnail */}
+      <div className="space-y-4">
+        <label
+          className={`block text-xs uppercase tracking-wider font-bold mb-2 ${
+            isDark ? "text-gray-500" : "text-gray-400"
+          }`}
+        >
+          Product Thumbnail / Image
+        </label>
+        <AssetImageUploader
+          url={watchThumbnailUrl}
+          file={watch("pending_image")}
+          onFileChange={(file) => setValue("pending_image", file)}
+          onUrlChange={(url) => setValue("thumbnail_url", url)}
+          isUploading={isUploading}
+          uploadProgress={uploadProgress}
+          isDark={isDark}
+        />
+        <p
+          className={`text-[10px] ml-1 ${isDark ? "text-gray-600" : "text-gray-400"}`}
+        >
+          This image will be displayed in the Marketplace and your inventory
+          list.
+        </p>
       </div>
 
       {/* Pricing */}

@@ -2,231 +2,13 @@
 
 import React, { useState, useMemo } from "react";
 import { AnimatePresence } from "motion/react";
-import {
-  Search,
-  Code,
-  Globe,
-  Box,
-  Music,
-  Image as ImageIcon,
-  Zap,
-} from "lucide-react";
+import { Search, Code, Box, Music, Zap } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { toast } from "sonner";
 import { ProductDetailModal } from "./ProductDetailModal";
 import { Asset } from "../services/assets.service";
 import { MarketplaceCard } from "./MarketplaceCard";
-
-// Rich Mock Data for the Marketplace Demo
-const MOCK_MARKETPLACE_ASSETS = [
-  {
-    id: "m1",
-    name: "Neon City 3D Kit",
-    category: "3D Models",
-    price: 89.99,
-    type: "3d-model",
-    version: "2.1.0",
-    rating: 4.9,
-    reviews: 128,
-    downloads: 3420,
-    thumbnail:
-      "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=1974&auto=format&fit=crop",
-    isPurchased: false,
-    roi: "95%",
-    description:
-      "Complete modular kit for building cyberpunk cities. Includes 200+ assets.",
-    specs: [
-      { label: "Format", value: ".FBX / .OBJ", icon: <Box size={14} /> },
-      { label: "Polys", value: "High / Low", icon: <Zap size={14} /> },
-    ],
-    trendData: [
-      { value: 40 },
-      { value: 65 },
-      { value: 50 },
-      { value: 80 },
-      { value: 95 },
-    ],
-    features: ["Modular Streets", "Holographic Signs", "Volumetric Fog"],
-    requirements: ["Unreal Engine 5", "8GB VRAM"],
-    operationalCost: 0,
-    status: "active",
-    fileSize: "2.4 GB",
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: "m2",
-    name: "AI Trading Bot Script",
-    category: "Scripts",
-    price: 149.0,
-    type: "script",
-    version: "1.0.5",
-    rating: 4.7,
-    reviews: 56,
-    downloads: 890,
-    thumbnail:
-      "https://images.unsplash.com/photo-1642543492481-44e81e3914a7?q=80&w=2070&auto=format&fit=crop",
-    isPurchased: true,
-    roi: "120%",
-    description:
-      "Advanced Python script for automated crypto trading with configurable strategies.",
-    specs: [
-      { label: "Lang", value: "Python 3.9", icon: <Code size={14} /> },
-      { label: "License", value: "Commercial", icon: <Globe size={14} /> },
-    ],
-    trendData: [
-      { value: 30 },
-      { value: 40 },
-      { value: 35 },
-      { value: 60 },
-      { value: 70 },
-    ],
-    features: ["Auto-Rebalancing", "Stop-Loss", "Backtesting"],
-    requirements: ["Python 3.9+", "API Keys"],
-    operationalCost: 10,
-    status: "active",
-    fileSize: "15 MB",
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: "m3",
-    name: "Cinematic Soundscapes",
-    category: "Audio",
-    price: 29.99,
-    type: "audio",
-    version: "3.0",
-    rating: 4.8,
-    reviews: 210,
-    downloads: 5600,
-    thumbnail:
-      "https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=2070&auto=format&fit=crop",
-    isPurchased: false,
-    roi: "N/A",
-    description:
-      "Royalty-free ambient textures and drones for film and game production.",
-    specs: [
-      { label: "Format", value: "WAV 24bit", icon: <Music size={14} /> },
-      { label: "Tracks", value: "50+", icon: <Zap size={14} /> },
-    ],
-    trendData: [
-      { value: 20 },
-      { value: 25 },
-      { value: 30 },
-      { value: 28 },
-      { value: 45 },
-    ],
-    features: ["Seamless Loops", "Dolby Atmos Ready", "Royalty Free"],
-    requirements: ["Any DAW"],
-    operationalCost: 0,
-    status: "active",
-    fileSize: "1.2 GB",
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: "m4",
-    name: "Pro UI Kit - Glassmorphism",
-    category: "Templates",
-    price: 45.0,
-    type: "template",
-    version: "1.2",
-    rating: 5.0,
-    reviews: 85,
-    downloads: 1200,
-    thumbnail:
-      "https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?q=80&w=2070&auto=format&fit=crop",
-    isPurchased: false,
-    roi: "200%",
-    description:
-      "The extensive UI kit used to build this very dashboard. React + Tailwind.",
-    specs: [
-      { label: "Framework", value: "React", icon: <Code size={14} /> },
-      { label: "Style", value: "Tailwind", icon: <Zap size={14} /> },
-    ],
-    trendData: [
-      { value: 80 },
-      { value: 85 },
-      { value: 90 },
-      { value: 95 },
-      { value: 100 },
-    ],
-    features: ["Dark Mode", "60+ Components", "Figma File"],
-    requirements: ["React 19", "Tailwind 4"],
-    operationalCost: 0,
-    status: "active",
-    fileSize: "50 MB",
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: "m5",
-    name: "Financial Data Sheet",
-    category: "Excel",
-    price: 12.5,
-    type: "excel",
-    version: "2024",
-    rating: 4.5,
-    reviews: 40,
-    downloads: 600,
-    thumbnail:
-      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2015&auto=format&fit=crop",
-    isPurchased: true,
-    roi: "50%",
-    description: "Automated financial forecasting model for SaaS startups.",
-    specs: [
-      { label: "Format", value: ".XLSX", icon: <Code size={14} /> },
-      { label: "Macros", value: "Yes", icon: <Zap size={14} /> },
-    ],
-    trendData: [
-      { value: 20 },
-      { value: 22 },
-      { value: 25 },
-      { value: 28 },
-      { value: 30 },
-    ],
-    features: ["MRR Calc", "Burn Rate", "Cohort Analysis"],
-    requirements: ["Excel 2021+"],
-    operationalCost: 0,
-    status: "active",
-    fileSize: "2 MB",
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: "m6",
-    name: "Cyber Character Pack",
-    category: "3D Models",
-    price: 120.0,
-    type: "3d-model",
-    version: "1.0",
-    rating: 4.9,
-    reviews: 90,
-    downloads: 2000,
-    thumbnail:
-      "https://images.unsplash.com/photo-1614728263952-84ea256f9679?q=80&w=1908&auto=format&fit=crop",
-    isPurchased: false,
-    roi: "N/A",
-    description: "5 Rigged cyberpunk characters ready for Unreal Engine 5.",
-    specs: [
-      { label: "Rigged", value: "Yes", icon: <Box size={14} /> },
-      { label: "Texture", value: "4K", icon: <ImageIcon size={14} /> },
-    ],
-    trendData: [
-      { value: 10 },
-      { value: 20 },
-      { value: 15 },
-      { value: 40 },
-      { value: 50 },
-    ],
-    features: ["Full Rig", "Facial Blendshapes", "Clothing Variants"],
-    requirements: ["UE5", "Maya (Optional)"],
-    operationalCost: 0,
-    status: "active",
-    fileSize: "8 GB",
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-];
+import { useAssets } from "../hooks/useAssets";
 
 interface AssetCustomerCatalogProps {
   assets: Asset[];
@@ -243,21 +25,45 @@ export const AssetCustomerCatalog: React.FC<
   >("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Use mocks directly to restore Marketplace view as requested
+  const { assets, isLoading, refresh, downloadAsset } = useAssets();
+  const [downloading, setDownloading] = useState<string | null>(null);
+
+  // Use real assets (purchased items)
   const displayAssets = useMemo(() => {
-    // Explicitly cast mocks to contain required fields
-    return [...MOCK_MARKETPLACE_ASSETS] as unknown as Asset[];
-  }, []);
+    return assets;
+  }, [assets]);
+
+  // Refresh on mount to ensure fresh data
+  React.useEffect(() => {
+    refresh();
+  }, [refresh]);
 
   const filteredAssets = useMemo(() => {
     return displayAssets.filter((item) => {
-      const matchesFilter =
-        filter === "all" ||
-        (filter === "3d" && item.category === "3D Models") ||
-        (filter === "script" && item.category === "Scripts") ||
-        (filter === "audio" && item.category === "Audio") ||
-        (filter === "template" &&
-          (item.category === "Templates" || item.category === "Excel"));
+      // Map filter keys to AssetTypes
+      // Filter keys: "all" | "3d" | "script" | "audio" | "template"
+      // AssetTypes: "excel" | "script" | "google-sheet" | "software" | "plugin" | "theme" | "template" | "asset" | "service"
+
+      let matchesFilter = filter === "all";
+
+      if (!matchesFilter) {
+        if (filter === "3d") {
+          matchesFilter =
+            item.type === "asset" || item.display_type === "3d-model"; // Assuming 'asset' or specific display_type
+        } else if (filter === "script") {
+          matchesFilter = item.type === "script" || item.type === "plugin";
+        } else if (filter === "audio") {
+          // We don't have an explicit audio type in AssetType yet, might be under 'asset'
+          matchesFilter =
+            item.type === "asset" && item.display_type === "audio";
+        } else if (filter === "template") {
+          matchesFilter =
+            item.type === "template" ||
+            item.type === "theme" ||
+            item.type === "excel" ||
+            item.type === "google-sheet";
+        }
+      }
 
       const matchesSearch = item.name
         .toLowerCase()
@@ -265,6 +71,27 @@ export const AssetCustomerCatalog: React.FC<
       return matchesFilter && matchesSearch;
     });
   }, [displayAssets, filter, searchQuery]);
+
+  const handleAction = async (
+    product: Asset,
+    type: "download" | "cart" | "docs",
+  ) => {
+    if (type === "download") {
+      setDownloading(product.id);
+      try {
+        await downloadAsset(product.id, product.slug);
+        toast.success("Download started");
+      } catch (error) {
+        console.error("Download failed", error);
+        toast.error("Download failed");
+      } finally {
+        setDownloading(null);
+      }
+    } else if (type === "docs") {
+      // Placeholder for docs
+      toast.info("Documentation coming soon");
+    }
+  };
 
   return (
     <div className="h-full flex flex-col min-h-0 relative">
@@ -293,11 +120,11 @@ export const AssetCustomerCatalog: React.FC<
         {/* Filter Chips */}
         <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-none">
           {[
-            { id: "all", label: "All Items" },
-            { id: "3d", label: "3D Models", icon: Box },
-            { id: "script", label: "Scripts", icon: Code },
-            { id: "audio", label: "Audio", icon: Music },
-            { id: "template", label: "Templates", icon: Zap },
+            { id: "all", label: "All Assets" },
+            { id: "script", label: "Software & Agents", icon: Code }, // Was Scripts
+            { id: "template", label: "Templates & Prompts", icon: Zap }, // Was Templates
+            { id: "3d", label: "3D & Visuals", icon: Box }, // Was 3D Models
+            { id: "audio", label: "Audio & Voice", icon: Music }, // Was Audio
           ].map((chip) => {
             const Icon = chip.icon;
             const isActive = filter === chip.id;
@@ -335,7 +162,7 @@ export const AssetCustomerCatalog: React.FC<
               {filteredAssets.map((product, index) => (
                 <MarketplaceCard
                   key={product.id}
-                  product={product as unknown as Asset}
+                  product={product}
                   isDark={isDark}
                   index={index}
                   onViewDetails={(p) => setSelectedProduct(p)}
@@ -344,7 +171,7 @@ export const AssetCustomerCatalog: React.FC<
             </AnimatePresence>
           </div>
 
-          {filteredAssets.length === 0 && (
+          {!isLoading && filteredAssets.length === 0 && (
             <div className="h-64 flex flex-col items-center justify-center text-center opacity-50">
               <Box size={48} className="mb-4 text-gray-500" />
               <p
@@ -353,8 +180,15 @@ export const AssetCustomerCatalog: React.FC<
                 No items found
               </p>
               <p className="text-sm text-gray-500">
-                Try adjusting your search or filters.
+                You haven&apos;t purchased any assets yet, or they don&apos;t
+                match your search.
               </p>
+            </div>
+          )}
+
+          {isLoading && (
+            <div className="flex h-64 items-center justify-center">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-current border-t-transparent text-cyan-500" />
             </div>
           )}
         </div>
@@ -364,6 +198,8 @@ export const AssetCustomerCatalog: React.FC<
         <ProductDetailModal
           product={selectedProduct}
           onClose={() => setSelectedProduct(null)}
+          onAction={handleAction}
+          isProcessing={downloading === selectedProduct.id}
         />
       )}
     </div>

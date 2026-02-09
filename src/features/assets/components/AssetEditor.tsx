@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { X } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { assetSchema, AssetFormValues } from "../hooks/useAssetForm";
-import { Asset } from "../services/assets.service";
+import { Asset, AssetType } from "../services/assets.service";
 import { AssetFileUploader } from "./AssetFileUploader";
 import { AssetFormFields } from "./AssetFormFields";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,6 +16,8 @@ interface AssetEditorProps {
   onClose: () => void;
   onSave: (data: AssetFormValues) => void;
   asset: Asset | null;
+  isUploading?: boolean;
+  uploadProgress?: number;
 }
 
 export const AssetEditor: React.FC<AssetEditorProps> = ({
@@ -23,6 +25,8 @@ export const AssetEditor: React.FC<AssetEditorProps> = ({
   onClose,
   onSave,
   asset,
+  isUploading,
+  uploadProgress,
 }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
@@ -39,8 +43,12 @@ export const AssetEditor: React.FC<AssetEditorProps> = ({
       description: "",
       requirements: "",
       features: "",
+      external_url: "",
+      thumbnail_url: "",
     },
   });
+
+  const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
 
   const { reset, handleSubmit } = methods;
 
@@ -48,7 +56,7 @@ export const AssetEditor: React.FC<AssetEditorProps> = ({
     if (asset) {
       reset({
         name: asset.name,
-        type: asset.type,
+        type: (asset.display_type || asset.type) as AssetType,
         category: asset.category,
         price: asset.price,
         operationalCost: asset.operationalCost,
@@ -56,6 +64,8 @@ export const AssetEditor: React.FC<AssetEditorProps> = ({
         description: asset.description || "",
         requirements: asset.requirements?.join("\n") || "",
         features: asset.features?.join("\n") || "",
+        external_url: asset.external_url || "",
+        thumbnail_url: asset.thumbnail || "",
       });
     } else {
       reset({
@@ -68,6 +78,8 @@ export const AssetEditor: React.FC<AssetEditorProps> = ({
         description: "",
         requirements: "",
         features: "",
+        external_url: "",
+        thumbnail_url: "",
       });
     }
   }, [asset, reset, isOpen]);
@@ -132,9 +144,20 @@ export const AssetEditor: React.FC<AssetEditorProps> = ({
           </div>
 
           <FormProvider {...methods}>
-            <form onSubmit={handleSubmit(onSave)} className="p-6 space-y-8">
-              <AssetFileUploader />
-              <AssetFormFields />
+            <form
+              onSubmit={handleSubmit((data) =>
+                onSave({ ...data, productFile: selectedFile || undefined }),
+              )}
+              className="p-6 space-y-8"
+            >
+              <AssetFileUploader
+                selectedFile={selectedFile}
+                onFileSelect={setSelectedFile}
+              />
+              <AssetFormFields
+                isUploading={isUploading}
+                uploadProgress={uploadProgress}
+              />
 
               <div className="flex gap-3 pt-4 border-t border-white/5">
                 <button

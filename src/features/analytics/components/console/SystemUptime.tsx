@@ -117,7 +117,7 @@ export const SystemUptime = React.memo(
                   isDark ? "text-white" : "text-gray-900"
                 }`}
               >
-                {stats.uptime}
+                {stats?.active_licenses || 0}/{stats?.total_licenses || 0}
               </div>
               <div
                 className={`text-[9px] font-black uppercase tracking-widest opacity-50 ${

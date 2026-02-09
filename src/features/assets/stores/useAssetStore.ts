@@ -14,7 +14,7 @@ interface AssetStore {
   setAssets: (assets: Asset[]) => void;
   setInventory: (assets: Asset[]) => void;
   fetchAssets: (token: string, force?: boolean) => Promise<void>;
-  fetchInventory: (token: string, orgId: string, force?: boolean) => Promise<void>;
+  fetchInventory: (token: string, orgId: string, options?: { silent?: boolean; force?: boolean }) => Promise<void>;
   setLoading: (loading: boolean) => void;
   setInventoryLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
@@ -58,19 +58,20 @@ export const useAssetStore = create<AssetStore>((set, get) => ({
     }
   },
 
-  fetchInventory: async (token: string, orgId: string, force = false) => {
+  fetchInventory: async (token, orgId, options = {}) => {
     if (!token || !orgId) return;
     const now = Date.now();
     const { lastInventoryFetched, isInventoryLoading } = get();
-    if (!force && !isInventoryLoading && lastInventoryFetched && (now - lastInventoryFetched < 30000)) return;
+    // If not silent and not forced, and data is fresh, return early
+    if (!options.silent && !options.force && !isInventoryLoading && lastInventoryFetched && (now - lastInventoryFetched < 30000)) return;
 
-    set({ isInventoryLoading: true, error: null });
+    if (!options.silent) set({ isInventoryLoading: true, error: null });
     try {
       const inventory = await assetsService.fetchInventory(token, orgId);
       set({ inventory, lastInventoryFetched: Date.now(), isInventoryLoading: false });
     } catch (err: unknown) {
       console.error("[AssetStore] Error fetching inventory:", err);
-      set({ error: "No se pudo cargar el inventario.", isInventoryLoading: false });
+      if (!options.silent) set({ error: "No se pudo cargar el inventario.", isInventoryLoading: false });
     }
   },
 
