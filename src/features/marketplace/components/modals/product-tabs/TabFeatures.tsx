@@ -10,17 +10,21 @@ export const TabFeatures: React.FC<TabFeaturesProps> = React.memo(
   ({ features }) => {
     const { theme } = useTheme();
 
+    const displayFeatures =
+      features && features.length > 0
+        ? features
+        : [
+            "Fácil de personalizar e integrar",
+            "Documentación completa incluida",
+            "Actualizaciones regulares y correcciones",
+            "Soporte por email del autor",
+            "Garantía de devolución de 30 días",
+            "Acceso de por vida a actualizaciones",
+          ];
+
     return (
       <div className="space-y-3">
-        {[
-          "Fácil de personalizar e integrar",
-          "Documentación completa incluida",
-          "Actualizaciones regulares y correcciones",
-          "Soporte por email del autor",
-          "Garantía de devolución de 30 días",
-          "Acceso de por vida a actualizaciones",
-          ...features,
-        ].map((feature, i) => (
+        {displayFeatures.map((feature, i) => (
           <div key={i} className="flex items-start gap-3">
             <CheckCircle2
               className={`size-5 mt-0.5 shrink-0 ${

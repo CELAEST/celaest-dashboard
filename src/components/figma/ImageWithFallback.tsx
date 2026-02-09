@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 
 interface ImageWithFallbackProps {
-  src: string;
+  src: string | null;
   alt: string;
   width?: number;
   height?: number;
@@ -41,7 +41,9 @@ export const ImageWithFallback = React.memo(function ImageWithFallback({
     setDidError(true);
   };
 
-  if (didError) {
+  const isValidSrc = src && src.length > 0;
+
+  if (didError || !isValidSrc) {
     return (
       <div
         className={`inline-flex items-center justify-center bg-gray-100/10 dark:bg-gray-800/10 ${className}`}

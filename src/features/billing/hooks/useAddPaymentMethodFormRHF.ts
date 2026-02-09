@@ -5,7 +5,7 @@
  * This is the recommended pattern for all forms.
  */
 
-import { useForm, UseFormReturn } from "react-hook-form";
+import { useForm, UseFormReturn, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { formatCardNumber, getCardType } from "@/lib/validation/schemas/billing";
@@ -75,7 +75,7 @@ interface UseAddPaymentMethodFormResult {
 
 export const useAddPaymentMethodFormRHF = (
   onClose: () => void
-) => {
+): UseAddPaymentMethodFormResult => {
   const form = useForm<AddPaymentMethodFormData>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(addPaymentMethodFormSchema) as any,
@@ -95,7 +95,11 @@ export const useAddPaymentMethodFormRHF = (
     },
   });
 
-  const cardNumber = form.watch("cardNumber");
+  const cardNumber = useWatch({
+    control: form.control,
+    name: "cardNumber",
+    defaultValue: "",
+  });
   const cardType = getCardType(cardNumber);
 
   // Format card number with spaces

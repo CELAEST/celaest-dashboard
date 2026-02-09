@@ -41,7 +41,7 @@ export function OrderDetailsModal({
       showCloseButton={false}
     >
       <OrderDetailsHeader
-        orderId={formData.id}
+        orderId={formData.displayId}
         orderDate={formData.date}
         onClose={onClose}
       />

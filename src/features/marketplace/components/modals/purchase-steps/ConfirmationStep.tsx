@@ -43,7 +43,10 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
       >
         <div className="flex items-center gap-4">
           <Image
-            src={product.image}
+            src={
+              product.image ||
+              "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&fm=webp"
+            }
             alt={product.title}
             width={80}
             height={80}

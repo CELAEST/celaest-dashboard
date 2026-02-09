@@ -72,9 +72,31 @@ const CustomTooltip = React.memo(function CustomTooltip({
   );
 });
 
-export const RevenueChart = React.memo(function RevenueChart() {
+interface RevenueChartProps {
+  data?: { date: string; sales: number }[];
+}
+
+export const RevenueChart = React.memo(function RevenueChart({
+  data,
+}: RevenueChartProps) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+
+  // Usar datos reales o fallback estático si no hay
+  const displayData = useMemo(() => {
+    if (!data || data.length === 0) return chartData;
+
+    // El backend devuelve fechas. Vamos a formatearlas para el eje X
+    return data
+      .map((item) => ({
+        name: new Date(item.date).toLocaleDateString(undefined, {
+          day: "numeric",
+          month: "short",
+        }),
+        sales: item.sales,
+      }))
+      .reverse(); // El backend devuelve de más reciente a más antiguo
+  }, [data]);
 
   // Memoizar colores que dependen del tema
   const colors = useMemo(
@@ -90,7 +112,7 @@ export const RevenueChart = React.memo(function RevenueChart() {
   return (
     <div className="w-full h-full min-w-0">
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={chartData}>
+        <AreaChart data={displayData}>
           <defs>
             <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor={colors.stroke} stopOpacity={0.3} />

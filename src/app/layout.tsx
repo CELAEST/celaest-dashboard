@@ -6,6 +6,7 @@ import { OrgProvider } from "@/features/shared/contexts/OrgContext";
 import { NotificationProvider } from "@/features/shared/contexts/NotificationContext";
 import { Toaster } from "sonner";
 import { ThemeSync } from "@/features/shared/components/ThemeSync";
+import { ErrorBoundary } from "@/components/ui/error-boundary";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -82,14 +83,16 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <ThemeSync />
-        <NotificationProvider>
-          <AuthProvider>
-            <OrgProvider>
-              {children}
-              <Toaster />
-            </OrgProvider>
-          </AuthProvider>
-        </NotificationProvider>
+        <ErrorBoundary>
+          <NotificationProvider>
+            <AuthProvider>
+              <OrgProvider>
+                {children}
+                <Toaster />
+              </OrgProvider>
+            </AuthProvider>
+          </NotificationProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

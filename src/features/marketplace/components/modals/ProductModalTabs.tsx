@@ -1,28 +1,20 @@
-"use client";
-
 import React from "react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { TabOverview } from "./product-tabs/TabOverview";
 import { TabFeatures } from "./product-tabs/TabFeatures";
-import { TabCompatibility } from "./product-tabs/TabCompatibility";
 import { TabReviews } from "./product-tabs/TabReviews";
-
-interface Product {
-  id: number;
-  description: string;
-  stack?: string[];
-  tags?: string[];
-  features: string[];
-}
+import { MarketplaceProduct, Review } from "../../types";
 
 interface ProductModalTabsProps {
-  product: Product;
+  product: MarketplaceProduct;
+  reviews: Review[];
   activeTab: string;
   setActiveTab: (tab: string) => void;
 }
 
 export const ProductModalTabs: React.FC<ProductModalTabsProps> = ({
   product,
+  reviews,
   activeTab,
   setActiveTab,
 }) => {
@@ -31,7 +23,6 @@ export const ProductModalTabs: React.FC<ProductModalTabsProps> = ({
   const tabs = [
     { id: "overview", label: "Overview" },
     { id: "features", label: "Features" },
-    { id: "compatibility", label: "Compatibilidad" },
     { id: "reviews", label: "Reviews" },
   ];
 
@@ -69,7 +60,7 @@ export const ProductModalTabs: React.FC<ProductModalTabsProps> = ({
         {activeTab === "overview" && (
           <TabOverview
             description={product.description}
-            stack={product.stack}
+            stack={product.technical_stack}
             tags={product.tags}
           />
         )}
@@ -78,9 +69,7 @@ export const ProductModalTabs: React.FC<ProductModalTabsProps> = ({
           <TabFeatures features={product.features} />
         )}
 
-        {activeTab === "compatibility" && <TabCompatibility />}
-
-        {activeTab === "reviews" && <TabReviews />}
+        {activeTab === "reviews" && <TabReviews reviews={reviews} />}
       </div>
     </div>
   );

@@ -3,7 +3,6 @@
 import React from "react";
 import { motion } from "motion/react";
 import { Star, Download, ChevronRight, Lock } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { AssetTypeIcon } from "./shared/AssetTypeIcon";
 import { getAssetTypeLabel } from "../utils/assetUtils";
 import { Asset } from "../hooks/useAssets";

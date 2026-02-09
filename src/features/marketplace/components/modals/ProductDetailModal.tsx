@@ -2,46 +2,44 @@
 
 import React from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { X, Star, Download, Calendar } from "lucide-react";
+import { X, Star, Calendar } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { useEscapeKey } from "@/features/shared/hooks/useEscapeKey";
 import { ProductModalTabs } from "./ProductModalTabs";
 import { ProductModalSidebar } from "./ProductModalSidebar";
-
-interface Product {
-  id: number;
-  title: string;
-  description: string;
-  price: string;
-  image: string;
-  features: string[];
-  badge?: string;
-  rating?: number;
-  reviews?: number;
-  category?: string;
-  author?: string;
-  downloads?: number;
-  lastUpdated?: string;
-  stack?: string[];
-  tags?: string[];
-  videoUrl?: string;
-  demoUrl?: string;
-}
+import { MarketplaceProduct } from "../../types";
+import { useProductDetail } from "../../hooks/useProductDetail";
+import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
 
 interface ProductDetailModalProps {
-  product: Product | null;
+  initialProduct: MarketplaceProduct;
   onClose: () => void;
   onPurchase?: () => void;
-  relatedProducts?: Product[];
+  isOwned?: boolean;
+  onDownload?: () => void;
+  onViewLicense?: () => void;
 }
 
 export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
-  product,
+  initialProduct,
   onClose,
   onPurchase,
+  isOwned = false,
+  onDownload,
+  onViewLicense,
 }) => {
   const { theme } = useTheme();
   const [activeTab, setActiveTab] = React.useState("overview");
+
+  // Fetch full details (reviews, etc.)
+  const {
+    product: fullProduct,
+    reviews,
+    loading,
+  } = useProductDetail(initialProduct.slug);
+
+  // Use full details if available, otherwise initial
+  const product = fullProduct || initialProduct;
 
   // Keyboard accessibility: Esc to close
   useEscapeKey(onClose, !!product);
@@ -86,20 +84,38 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           `}
           >
             <div className="flex-1">
-              <div className="flex items-center gap-3 mb-2">
+              <div className="flex flex-wrap items-center gap-2 mb-2">
                 <span
                   className={`
-                  px-3 py-1 rounded-lg text-xs font-medium border
+                  px-3 py-1 rounded-lg text-xs font-bold border
                   ${
                     theme === "dark"
-                      ? "bg-white/5 border-white/10 text-gray-300"
-                      : "bg-gray-100 border-gray-200 text-gray-700"
+                      ? "bg-blue-500/10 border-blue-500/30 text-blue-400"
+                      : "bg-blue-50 border-blue-200 text-blue-700"
                   }
                 `}
                 >
-                  {product.category || "Excel"}
+                  {product.category_name || "General"}
                 </span>
-                {product.badge && (
+
+                {/* Secondary Tags in Header */}
+                {(product.tags || []).slice(0, 2).map((tag) => (
+                  <span
+                    key={tag}
+                    className={`
+                      px-2 py-0.5 rounded-md text-[10px] font-medium border uppercase tracking-wider
+                      ${
+                        theme === "dark"
+                          ? "bg-white/5 border-white/10 text-gray-400"
+                          : "bg-gray-50 border-gray-200 text-gray-500"
+                      }
+                    `}
+                  >
+                    {tag}
+                  </span>
+                ))}
+
+                {product.rating_avg >= 4.5 && (
                   <span
                     className={`
                     px-3 py-1 rounded-lg text-xs font-bold border-0
@@ -110,7 +126,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                     }
                   `}
                   >
-                    {product.badge}
+                    POPULAR
                   </span>
                 )}
               </div>
@@ -119,7 +135,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   theme === "dark" ? "text-white" : "text-gray-900"
                 }`}
               >
-                {product.title}
+                {product.name}
               </h2>
               <div
                 className={`flex items-center gap-4 text-sm ${
@@ -128,18 +144,19 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
               >
                 <div className="flex items-center gap-1">
                   <Star className="size-4 fill-yellow-400 text-yellow-400" />
-                  <span className="font-medium">{product.rating || 4.8}</span>
-                  <span>({product.reviews || 127} reviews)</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Download className="size-4" />
-                  <span>
-                    {(product.downloads || 1543).toLocaleString()} downloads
+                  <span className="font-medium">
+                    {product.rating_avg > 0
+                      ? product.rating_avg.toFixed(1)
+                      : "N/A"}
                   </span>
+                  <span>({product.rating_count} reviews)</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Calendar className="size-4" />
-                  <span>Updated {product.lastUpdated || "14/1/2025"}</span>
+                  <span>
+                    Published{" "}
+                    {new Date(product.created_at).toLocaleDateString()}
+                  </span>
                 </div>
               </div>
             </div>
@@ -161,20 +178,21 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           <div className="grid lg:grid-cols-3 gap-6 p-6">
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Video/Demo */}
-              {product.videoUrl && (
-                <div className="aspect-video rounded-2xl overflow-hidden bg-gray-900">
-                  <iframe
-                    src={product.videoUrl}
-                    className="w-full h-full"
-                    allowFullScreen
-                    title={product.title}
-                  />
-                </div>
-              )}
+              {/* Product Image */}
+              <div
+                className={`relative aspect-video rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-900 ${loading ? "animate-pulse" : ""}`}
+              >
+                <ImageWithFallback
+                  src={product.thumbnail_url || ""}
+                  alt={product.name}
+                  fill
+                  className={`object-cover transition-opacity duration-300 ${loading ? "opacity-50" : "opacity-100"}`}
+                />
+              </div>
 
               <ProductModalTabs
                 product={product}
+                reviews={reviews}
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
               />
@@ -182,7 +200,13 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 
             {/* Sidebar */}
             <div className="lg:col-span-1">
-              <ProductModalSidebar product={product} onPurchase={onPurchase} />
+              <ProductModalSidebar
+                product={product}
+                onPurchase={onPurchase}
+                isOwned={isOwned}
+                onDownload={onDownload}
+                onViewLicense={onViewLicense}
+              />
             </div>
           </div>
         </motion.div>

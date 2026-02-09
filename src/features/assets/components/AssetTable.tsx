@@ -2,7 +2,14 @@
 
 import React from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Edit2, Trash2, Copy, MoreVertical, Eye } from "lucide-react";
+import {
+  Edit2,
+  Trash2,
+  Copy,
+  MoreVertical,
+  Eye,
+  Image as ImageIcon,
+} from "lucide-react";
 import { Asset } from "../hooks/useAssets";
 import { AssetTypeIcon } from "./shared/AssetTypeIcon";
 import { AssetStatusBadge } from "./shared/AssetStatusBadge";
@@ -23,6 +30,7 @@ interface AssetTableProps {
   onEdit: (asset: Asset) => void;
   onDuplicate: (asset: Asset) => void;
   onDelete: (id: string) => void;
+  onPreview?: (asset: Asset) => void;
 }
 
 export const AssetTable: React.FC<AssetTableProps> = ({
@@ -33,6 +41,7 @@ export const AssetTable: React.FC<AssetTableProps> = ({
   onEdit,
   onDuplicate,
   onDelete,
+  onPreview,
 }) => {
   return (
     <Table>
@@ -100,16 +109,38 @@ export const AssetTable: React.FC<AssetTableProps> = ({
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
+                  className="flex items-center gap-4"
                 >
                   <div
-                    className={`text-sm font-semibold mb-1 ${isDark ? "text-white" : "text-gray-900"}`}
+                    className={`shrink-0 w-10 h-10 rounded-lg overflow-hidden border transition-transform hover:scale-110 ${
+                      isDark
+                        ? "bg-white/5 border-white/10"
+                        : "bg-gray-100 border-gray-200"
+                    }`}
                   >
-                    {asset.name}
+                    {asset.thumbnail ? (
+                      <img
+                        src={asset.thumbnail}
+                        className="w-full h-full object-cover"
+                        alt={asset.name}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-500/50">
+                        <ImageIcon size={16} />
+                      </div>
+                    )}
                   </div>
-                  <div
-                    className={`text-xs ${isDark ? "text-gray-500" : "text-gray-600"}`}
-                  >
-                    {asset.category} • {asset.fileSize}
+                  <div>
+                    <div
+                      className={`text-sm font-semibold mb-0.5 ${isDark ? "text-white" : "text-gray-900"}`}
+                    >
+                      {asset.name}
+                    </div>
+                    <div
+                      className={`text-[10px] ${isDark ? "text-gray-500" : "text-gray-600"}`}
+                    >
+                      {asset.category} • {asset.fileSize}
+                    </div>
                   </div>
                 </motion.div>
               </TableCell>
@@ -213,6 +244,10 @@ export const AssetTable: React.FC<AssetTableProps> = ({
                           <Copy size={16} /> Duplicate
                         </button>
                         <button
+                          onClick={() => {
+                            onPreview?.(asset);
+                            setActiveMenu(null);
+                          }}
                           className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors ${isDark ? "text-gray-300 hover:bg-white/5" : "text-gray-700 hover:bg-gray-50"}`}
                         >
                           <Eye size={16} /> Preview

@@ -40,72 +40,89 @@ type RequestConfig = RequestInit & {
   orgId?: string | null;
 };
 
+// Map para deduplicar peticiones en vuelo
+const pendingRequests = new Map<string, Promise<unknown>>();
+
 async function request<T>(
   path: string,
   config: RequestConfig & ApiClientConfig = {}
 ): Promise<T> {
   const { params, token, orgId, ...init } = config;
 
-  let url = path.startsWith("http") ? path : `${BASE_URL}${path}`;
-  if (params) {
-    const search = new URLSearchParams(params).toString();
-    url += (url.includes("?") ? "&" : "?") + search;
+  // Solo deduplicamos peticiones GET
+  const isGet = init.method === "GET" || !init.method;
+  const cacheKey = isGet ? `${path}:${JSON.stringify(params)}:${token}:${orgId}` : null;
+
+  if (cacheKey && pendingRequests.has(cacheKey)) {
+    return pendingRequests.get(cacheKey) as Promise<T>;
   }
 
-  const headers: HeadersInit = {
-    "Content-Type": "application/json",
-    ...init.headers,
-  };
+  const promise = (async () => {
+    let url = path.startsWith("http") ? path : `${BASE_URL}${path}`;
+    if (params) {
+      const search = new URLSearchParams(params).toString();
+      url += (url.includes("?") ? "&" : "?") + search;
+    }
 
-  if (token) {
-    (headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
-  }
-  if (orgId) {
-    (headers as Record<string, string>)["X-Organization-ID"] = orgId;
-  }
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+      ...init.headers,
+    };
 
-  try {
-    const response = await fetch(url, {
-      ...init,
-      headers,
-      cache: init.method === "GET" ? "no-store" : undefined,
-    });
-
-    // Leer el cuerpo una vez como texto para manejar respuestas vacías o errores no JSON
-    const text = await response.text();
-    let data: ApiResponse<T>;
+    if (token) {
+      (headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
+    }
+    if (orgId) {
+      (headers as Record<string, string>)["X-Organization-ID"] = orgId;
+    }
 
     try {
-      data = text ? JSON.parse(text) : {};
-    } catch {
-      data = { 
-        success: false, 
-        error: { message: "Error al procesar la respuesta del servidor" } 
-      };
-    }
+      const response = await fetch(url, {
+        ...init,
+        headers,
+        cache: init.method === "GET" ? "no-store" : undefined,
+      });
 
-    if (!response.ok) {
-      const errorData = (data.error || {}) as NonNullable<ApiResponse<T>["error"]>;
+      const text = await response.text();
+      let data: ApiResponse<T>;
+
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch {
+        data = { 
+          success: false, 
+          error: { message: "Error al procesar la respuesta del servidor" } 
+        };
+      }
+
+      if (!response.ok) {
+        const errorData = (data.error || {}) as NonNullable<ApiResponse<T>["error"]>;
+        throw new ApiError(
+          errorData.message || "Request failed",
+          response.status,
+          errorData.code,
+          errorData.details
+        );
+      }
+
+      return (data.data !== undefined ? data.data : data) as T;
+    } catch (error) {
+      if (error instanceof ApiError) throw error;
       throw new ApiError(
-        errorData.message || "Request failed",
-        response.status,
-        errorData.code,
-        errorData.details
+        error instanceof Error ? error.message : "Error de red desconocido",
+        500,
+        "NETWORK_ERROR"
       );
+    } finally {
+      if (cacheKey) pendingRequests.delete(cacheKey);
     }
+  })();
 
-
-    // El backend suele envolver la respuesta en un objeto { success, data }
-    // Si data.data existe, devolvemos eso. Si no, devolvemos data completo como T.
-    return (data.data !== undefined ? data.data : data) as T;
-  } catch (error) {
-    if (error instanceof ApiError) throw error;
-    throw new ApiError(
-      error instanceof Error ? error.message : "Error de red desconocido",
-      500,
-      "NETWORK_ERROR"
-    );
+  if (cacheKey) {
+    pendingRequests.set(cacheKey, promise);
   }
+
+  return promise;
 }
 
 export const api = {
@@ -134,7 +151,19 @@ export const api = {
       body: body ? JSON.stringify(body) : undefined,
     }),
 
+  patch: <T>(
+    path: string,
+    body?: unknown,
+    config?: RequestConfig & ApiClientConfig
+  ) =>
+    request<T>(path, {
+      ...config,
+      method: "PATCH",
+      body: body ? JSON.stringify(body) : undefined,
+    }),
+
   delete: <T>(path: string, config?: RequestConfig & ApiClientConfig) =>
     request<T>(path, { ...config, method: "DELETE" }),
 };
 
+export default api;

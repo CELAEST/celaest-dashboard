@@ -24,6 +24,11 @@ import {
   CartesianGrid,
 } from "recharts";
 import { motion } from "motion/react";
+import { useAnalytics as useAnalyticsHook } from "@/features/analytics/hooks/useAnalytics";
+import {
+  CategoryDistribution,
+  SalesByPeriod,
+} from "@/features/analytics/api/analytics.api";
 
 // Mock Data for Sparklines
 const templatesData = [
@@ -147,24 +152,100 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
 export const AssetMetrics: React.FC = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const [period, setPeriod] = React.useState("month");
+  const {
+    stats,
+    usage,
+    salesByPeriod,
+    categoryDistribution,
+    isLoading,
+    error,
+  } = useAnalyticsHook(period);
+
+  if (isLoading && !stats) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-full text-red-500 font-bold">
+        {error}
+      </div>
+    );
+  }
+
+  // Map SalesByPeriod to Engagement Trends
+  const chartData = [...salesByPeriod].reverse().map((item: SalesByPeriod) => ({
+    name: new Date(item.date).toLocaleDateString("en-US", { weekday: "short" }),
+    orders: item.orders,
+    sales: item.sales,
+  }));
+
+  // Map CategoryDistribution to Asset Mix
+  const categoryColors = [
+    "#3b82f6",
+    "#a855f7",
+    "#10b981",
+    "#f59e0b",
+    "#6b7280",
+  ];
+  const mixData = categoryDistribution.map(
+    (item: CategoryDistribution, index: number) => ({
+      name: item.category || "Uncategorized",
+      value: item.count,
+      color: categoryColors[index % categoryColors.length],
+    }),
+  );
+
+  const totalGlobal = categoryDistribution.reduce(
+    (acc: number, curr: CategoryDistribution) => acc + curr.count,
+    0,
+  );
 
   return (
     <div className="flex flex-col h-full gap-5 pb-2">
-      {/* Row 1: KPI Cards - Shrink-wrapped to content */}
+      {/* Period Selector Header */}
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2 p-1 rounded-xl bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5">
+          {[
+            { label: "7D", value: "week" },
+            { label: "30D", value: "month" },
+            { label: "90D", value: "90d" },
+          ].map((item) => (
+            <button
+              key={item.value}
+              onClick={() => setPeriod(item.value)}
+              className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
+                period === item.value
+                  ? "bg-cyan-500 text-white shadow-lg shadow-cyan-500/20"
+                  : "text-gray-500 hover:text-gray-900 dark:hover:text-white"
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Row 1: KPI Cards */}
       <div className="shrink-0 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Active Templates"
-          value="24"
-          trend="+3 this week"
+          value={stats?.active_products?.toString() || "0"}
+          trend={`Total: ${stats?.total_products}`}
           trendUp={true}
           icon={<PackageCheck size={24} />}
           delay={0.1}
-          chartData={templatesData}
+          chartData={templatesData} // Keeping sparkles mock for now as they are micro-trends
           gradient="from-emerald-400 to-teal-500"
         />
         <StatCard
           title="Draft Assets"
-          value="7"
+          value={stats?.draft_products?.toString() || "0"}
           trend="In Review"
           trendUp={false}
           icon={<FileText size={24} />}
@@ -173,9 +254,9 @@ export const AssetMetrics: React.FC = () => {
           gradient="from-amber-400 to-orange-500"
         />
         <StatCard
-          title="Total Versions"
-          value="68"
-          trend="All Time"
+          title="Total Licenses"
+          value={stats?.total_licenses?.toString() || "0"}
+          trend={`${stats?.active_licenses} Active`}
           trendUp={true}
           icon={<Layers size={24} />}
           delay={0.3}
@@ -184,8 +265,8 @@ export const AssetMetrics: React.FC = () => {
         />
         <StatCard
           title="Storage Used"
-          value="2.4 GB"
-          trend="5% of 50GB"
+          value={`${usage?.storage_used_gb?.toFixed(1) || "0.0"} GB`}
+          trend={`${usage?.api_requests || 0} API Calls`}
           trendUp={true}
           icon={<HardDrive size={24} />}
           delay={0.4}
@@ -194,9 +275,9 @@ export const AssetMetrics: React.FC = () => {
         />
       </div>
 
-      {/* Row 2: Analytics Row - Flexible space filler */}
+      {/* Row 2: Analytics Row */}
       <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Chart 1: Engagement Trends (2/3 width) */}
+        {/* Chart 1: Engagement Trends */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -222,7 +303,7 @@ export const AssetMetrics: React.FC = () => {
                 <h2
                   className={`text-xl font-black italic tracking-tighter ${isDark ? "text-white" : "text-gray-900"}`}
                 >
-                  ENGAGEMENT LEVELS
+                  ORDER TRENDS
                 </h2>
               </div>
             </div>
@@ -231,21 +312,15 @@ export const AssetMetrics: React.FC = () => {
           <div className="flex-1 w-full min-h-0">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart
-                data={engagementData}
+                data={chartData.length > 0 ? chartData : engagementData}
                 margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
               >
                 <defs>
-                  <linearGradient
-                    id="colorDownloads"
-                    x1="0"
-                    y1="0"
-                    x2="0"
-                    y2="1"
-                  >
+                  <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.2} />
                     <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                   </linearGradient>
-                  <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient id="colorOrders" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.2} />
                     <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
                   </linearGradient>
@@ -275,18 +350,18 @@ export const AssetMetrics: React.FC = () => {
                 <Tooltip content={<CustomTooltip isDark={isDark} />} />
                 <Area
                   type="monotone"
-                  dataKey="views"
+                  dataKey="orders"
                   stackId="1"
                   stroke="#8b5cf6"
-                  fill="url(#colorViews)"
+                  fill="url(#colorOrders)"
                   strokeWidth={3}
                 />
                 <Area
                   type="monotone"
-                  dataKey="downloads"
+                  dataKey="sales"
                   stackId="2"
                   stroke="#3b82f6"
-                  fill="url(#colorDownloads)"
+                  fill="url(#colorSales)"
                   strokeWidth={3}
                 />
               </AreaChart>
@@ -294,7 +369,7 @@ export const AssetMetrics: React.FC = () => {
           </div>
         </motion.div>
 
-        {/* Chart 2: Category Distribution (1/3 width) */}
+        {/* Chart 2: Category Distribution */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -328,7 +403,7 @@ export const AssetMetrics: React.FC = () => {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={categoryData}
+                  data={mixData.length > 0 ? mixData : categoryData}
                   cx="50%"
                   cy="50%"
                   innerRadius={65}
@@ -338,9 +413,14 @@ export const AssetMetrics: React.FC = () => {
                   stroke="none"
                   cornerRadius={10}
                 >
-                  {categoryData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
+                  {(mixData.length > 0 ? mixData : categoryData).map(
+                    (entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={(entry as { color: string }).color}
+                      />
+                    ),
+                  )}
                 </Pie>
                 <Tooltip content={<CustomTooltip isDark={isDark} />} />
               </PieChart>
@@ -351,7 +431,9 @@ export const AssetMetrics: React.FC = () => {
               <span
                 className={`text-3xl font-black italic tracking-tighter ${isDark ? "text-white" : "text-gray-900"}`}
               >
-                1.2K
+                {totalGlobal > 1000
+                  ? `${(totalGlobal / 1000).toFixed(1)}K`
+                  : totalGlobal}
               </span>
               <span
                 className={`text-[9px] font-black uppercase tracking-widest opacity-30 ${isDark ? "text-white" : "text-gray-900"}`}
@@ -362,19 +444,24 @@ export const AssetMetrics: React.FC = () => {
           </div>
 
           <div className="mt-6 flex flex-wrap gap-x-4 gap-y-2 justify-center">
-            {categoryData.slice(0, 5).map((item, i) => (
-              <div key={i} className="flex items-center gap-2">
-                <div
-                  className="w-1.5 h-1.5 rounded-full shadow-[0_0_8px] shadow-current"
-                  style={{ backgroundColor: item.color, color: item.color }}
-                />
-                <span
-                  className={`text-[9px] font-black uppercase tracking-widest ${isDark ? "text-white/60" : "text-gray-600"}`}
-                >
-                  {item.name}
-                </span>
-              </div>
-            ))}
+            {(mixData.length > 0 ? mixData : categoryData)
+              .slice(0, 5)
+              .map((item, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <div
+                    className="w-1.5 h-1.5 rounded-full shadow-[0_0_8px] shadow-current"
+                    style={{
+                      backgroundColor: (item as { color: string }).color,
+                      color: (item as { color: string }).color,
+                    }}
+                  />
+                  <span
+                    className={`text-[9px] font-black uppercase tracking-widest ${isDark ? "text-white/60" : "text-gray-600"}`}
+                  >
+                    {item.name}
+                  </span>
+                </div>
+              ))}
           </div>
         </motion.div>
       </div>

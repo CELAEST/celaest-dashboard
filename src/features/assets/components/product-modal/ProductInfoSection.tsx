@@ -21,6 +21,15 @@ export const ProductInfoSection: React.FC<ProductInfoSectionProps> = ({
             }`}
           >
             {product.name}
+            <span
+              className={`ml-3 text-xs font-mono font-medium px-2 py-0.5 rounded-full border ${
+                isDark
+                  ? "bg-white/5 border-white/10 text-gray-400"
+                  : "bg-gray-100 border-gray-200 text-gray-500"
+              }`}
+            >
+              v{product.version}
+            </span>
           </h2>
           <p
             className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}

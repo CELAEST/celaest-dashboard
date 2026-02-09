@@ -2,7 +2,15 @@ import React from "react";
 import { Upload, AlertCircle } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 
-export const AssetFileUploader: React.FC = () => {
+interface AssetFileUploaderProps {
+  onFileSelect: (file: File) => void;
+  selectedFile: File | null;
+}
+
+export const AssetFileUploader: React.FC<AssetFileUploaderProps> = ({
+  onFileSelect,
+  selectedFile,
+}) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
@@ -17,12 +25,20 @@ export const AssetFileUploader: React.FC = () => {
           Upload File
         </label>
         <div
-          className={`border-2 border-dashed rounded-xl p-8 text-center transition-all ${
+          className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all ${
             isDark
               ? "border-white/10 hover:border-cyan-500/30 bg-white/5 hover:bg-white/10"
               : "border-gray-300 hover:border-blue-400 bg-gray-50 hover:bg-gray-100"
           }`}
         >
+          <input
+            type="file"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) onFileSelect(file);
+            }}
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+          />
           <div
             className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${
               isDark ? "bg-white/5" : "bg-white shadow-sm"
@@ -33,18 +49,35 @@ export const AssetFileUploader: React.FC = () => {
               className={isDark ? "text-gray-400" : "text-gray-600"}
             />
           </div>
-          <p
-            className={`text-sm font-medium mb-1 ${
-              isDark ? "text-white" : "text-gray-900"
-            }`}
-          >
-            Drop your file here or click to browse
-          </p>
-          <p
-            className={`text-xs ${isDark ? "text-gray-500" : "text-gray-600"}`}
-          >
-            Supports: .xlsm, .py, .js, Google Sheets link (Max 50MB)
-          </p>
+          {selectedFile ? (
+            <div className="z-20 relative pointer-events-none">
+              <p
+                className={`text-sm font-bold mb-1 ${isDark ? "text-cyan-400" : "text-blue-600"}`}
+              >
+                {selectedFile.name}
+              </p>
+              <p
+                className={`text-xs ${isDark ? "text-gray-400" : "text-gray-500"}`}
+              >
+                {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+              </p>
+            </div>
+          ) : (
+            <>
+              <p
+                className={`text-sm font-medium mb-1 ${
+                  isDark ? "text-white" : "text-gray-900"
+                }`}
+              >
+                Drop your file here or click to browse
+              </p>
+              <p
+                className={`text-xs ${isDark ? "text-gray-500" : "text-gray-600"}`}
+              >
+                Supports: .xlsm, .py, .js, Google Sheets link (Max 50MB)
+              </p>
+            </>
+          )}
         </div>
       </div>
 

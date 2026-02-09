@@ -12,11 +12,15 @@ import { ProductActionsSection } from "./product-modal/ProductActionsSection";
 interface ProductDetailModalProps {
   product: Asset | null;
   onClose: () => void;
+  onAction?: (product: Asset, type: "download" | "cart" | "docs") => void;
+  isProcessing?: boolean;
 }
 
 export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   product,
   onClose,
+  onAction,
+  isProcessing,
 }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
@@ -58,7 +62,12 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           <div className="p-8">
             <ProductInfoSection product={product} isDark={isDark} />
             <ProductDetailsSection product={product} isDark={isDark} />
-            <ProductActionsSection product={product} isDark={isDark} />
+            <ProductActionsSection
+              product={product}
+              isDark={isDark}
+              onAction={(type) => onAction?.(product, type)}
+              isProcessing={isProcessing}
+            />
           </div>
         </motion.div>
       </div>
