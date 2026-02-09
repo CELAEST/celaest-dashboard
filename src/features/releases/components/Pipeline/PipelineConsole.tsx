@@ -1,15 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import {
-  Terminal,
-  Play,
-  Pause,
-  Download,
-  RotateCw,
-  Check,
-  AlertCircle,
-} from "lucide-react";
+import { Terminal, Check } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { motion } from "motion/react";
 

@@ -7,12 +7,14 @@ import { Progress } from "@/components/ui/progress";
 interface ActivationStepProps {
   purchaseComplete: boolean;
   progress: number;
+  statusMessage?: string;
   onReset: () => void;
 }
 
 export const ActivationStep: React.FC<ActivationStepProps> = ({
   purchaseComplete,
   progress,
+  statusMessage,
   onReset,
 }) => {
   const { theme } = useTheme();
@@ -85,7 +87,7 @@ export const ActivationStep: React.FC<ActivationStepProps> = ({
             <p
               className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}
             >
-              Esto solo tomará unos segundos...
+              {statusMessage || "Esto solo tomará unos segundos..."}
             </p>
           </div>
           <Progress value={progress} className="w-64 mx-auto" />

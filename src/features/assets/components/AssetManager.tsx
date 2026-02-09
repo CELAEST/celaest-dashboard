@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { User, Crown, LayoutGrid, List, HardDrive } from "lucide-react";
+import { User, Crown, LayoutGrid, List } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { AssetAdminPortal } from "./AssetAdminPortal";
 import { AssetCustomerCatalog } from "./AssetCustomerCatalog";
@@ -15,8 +15,7 @@ export const AssetManager: React.FC = () => {
     "inventory",
   );
 
-  const { assets, activeAssets, deleteAsset, duplicateAsset, saveAsset } =
-    useAssets();
+  const { activeAssets } = useAssets();
 
   return (
     <div className="h-full flex flex-col min-h-0 overflow-hidden p-2">
@@ -111,13 +110,7 @@ export const AssetManager: React.FC = () => {
       {/* Main Content */}
       <div className="flex-1 min-h-0 relative">
         {viewMode === "admin" ? (
-          <AssetAdminPortal
-            assets={assets}
-            saveAsset={saveAsset}
-            deleteAsset={deleteAsset}
-            duplicateAsset={duplicateAsset}
-            activeTab={adminTab}
-          />
+          <AssetAdminPortal activeTab={adminTab} />
         ) : (
           <AssetCustomerCatalog assets={activeAssets} />
         )}

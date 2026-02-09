@@ -3,20 +3,30 @@
 import React, { forwardRef } from "react";
 import { Search, Filter } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
-import { useUIStore } from "@/stores/useUIStore";
+import { useMarketplaceProducts } from "../hooks/useMarketplaceProducts";
 
 export const MarketplaceSearch = React.memo(
   forwardRef<HTMLDivElement>(function MarketplaceSearch(_, ref) {
     const { theme } = useTheme();
-    const { searchQuery, setSearchQuery } = useUIStore();
+    const { filters, searchWithDebounce, refresh } = useMarketplaceProducts();
     const isDark = theme === "dark";
+
+    const handleSearchClick = () => {
+      refresh();
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+      if (e.key === "Enter") {
+        refresh();
+      }
+    };
 
     return (
       <div
         ref={ref}
         className={`
-          relative py-4
-          transition-all duration-300 px-60
+          relative py-4 mb-8
+          transition-all duration-300 px-4 md:px-20 lg:px-60
         `}
       >
         <div className="w-full">
@@ -37,8 +47,9 @@ export const MarketplaceSearch = React.memo(
             <input
               type="text"
               placeholder="¿Qué necesitas automatizar hoy?"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              defaultValue={filters.q || ""}
+              onChange={(e) => searchWithDebounce(e.target.value)}
+              onKeyDown={handleKeyDown}
               className={`
                 flex-1 bg-transparent border-none outline-none text-sm
                 ${
@@ -50,7 +61,7 @@ export const MarketplaceSearch = React.memo(
             />
             <button
               className={`
-                flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all
+                hidden md:flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all
                 ${
                   isDark
                     ? "bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10"
@@ -62,6 +73,7 @@ export const MarketplaceSearch = React.memo(
               Filtros
             </button>
             <button
+              onClick={handleSearchClick}
               className={`
                 px-6 py-2.5 rounded-xl font-medium text-sm transition-all
                 ${

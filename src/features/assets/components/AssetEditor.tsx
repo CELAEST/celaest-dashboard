@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { X } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { assetSchema, AssetFormValues } from "../hooks/useAssetForm";
-import { Asset } from "../hooks/useAssets";
+import { Asset } from "../services/assets.service";
 import { AssetFileUploader } from "./AssetFileUploader";
 import { AssetFormFields } from "./AssetFormFields";
 import { zodResolver } from "@hookform/resolvers/zod";

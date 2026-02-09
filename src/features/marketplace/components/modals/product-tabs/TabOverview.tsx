@@ -40,7 +40,7 @@ export const TabOverview: React.FC<TabOverviewProps> = React.memo(
             Technology Stack
           </h3>
           <div className="flex flex-wrap gap-2">
-            {(stack || ["Excel", "VBA", "Power Query"]).map((tech) => (
+            {(stack || []).map((tech) => (
               <span
                 key={tech}
                 className={`
@@ -68,9 +68,7 @@ export const TabOverview: React.FC<TabOverviewProps> = React.memo(
             Tags
           </h3>
           <div className="flex flex-wrap gap-2">
-            {(
-              tags || ["Dashboard", "Sales", "Analytics", "VBA", "Automation"]
-            ).map((tag) => (
+            {(tags || []).map((tag) => (
               <span
                 key={tag}
                 className={`

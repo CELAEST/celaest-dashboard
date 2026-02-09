@@ -14,16 +14,21 @@ interface PurchaseFlowProps {
   isOpen: boolean;
   onClose: () => void;
   product: {
+    id: string;
     title: string;
     price: string;
     image: string;
   } | null;
+  initialStep?: number;
+  onSuccess?: () => void;
 }
 
 export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
   isOpen,
   onClose,
   product,
+  initialStep = 1,
+  onSuccess,
 }) => {
   const { theme } = useTheme();
   const {
@@ -33,9 +38,10 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
     purchaseComplete,
     showConfetti,
     progress,
+    statusMessage,
     handlePurchase,
     resetFlow,
-  } = usePurchaseFlow(onClose);
+  } = usePurchaseFlow(onClose, initialStep, onSuccess);
 
   // Close on Escape key
   useEffect(() => {
@@ -51,8 +57,6 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
     { number: 2, title: "Pago Seguro", icon: <CreditCard size={18} /> },
     { number: 3, title: "Activación", icon: <Download size={18} /> },
   ];
-
-  if (!product) return null;
 
   return (
     <AnimatePresence>
@@ -141,19 +145,19 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
 
             {/* Content */}
             <div className="p-8">
-              {step === 1 && (
+              {step === 1 && product && (
                 <ConfirmationStep
                   product={product}
                   onContinue={() => setStep(2)}
                 />
               )}
 
-              {step === 2 && (
+              {step === 2 && product && (
                 <PaymentStep
                   productPrice={product.price}
                   isProcessing={isProcessing}
                   progress={progress}
-                  onPurchase={handlePurchase}
+                  onPurchase={() => handlePurchase(product.id)}
                 />
               )}
 
@@ -161,6 +165,7 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
                 <ActivationStep
                   purchaseComplete={purchaseComplete}
                   progress={progress}
+                  statusMessage={statusMessage}
                   onReset={resetFlow}
                 />
               )}

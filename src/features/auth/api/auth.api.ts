@@ -16,7 +16,8 @@ export const authApi = {
     api.post<AuthResponse>("/api/v1/auth/login", { email, password }),
 
   verifySession: (token: string) => 
-    api.post<SessionVerification>("/api/v1/user/verify", {}, { token }),
+    api.post<SessionVerification>("/api/v1/auth/verify", {}, { token }),
+
 
   getProfile: (token: string) => 
     api.get<UserProfile>("/api/v1/user/me", { token }),

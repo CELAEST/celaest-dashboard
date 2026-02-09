@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { ProductDetailModal } from "./ProductDetailModal";
-import { Asset } from "../hooks/useAssets";
+import { Asset } from "../services/assets.service";
 import { MarketplaceCard } from "./MarketplaceCard";
 
 // Rich Mock Data for the Marketplace Demo
@@ -243,9 +243,10 @@ export const AssetCustomerCatalog: React.FC<
   >("all");
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Use mocks directly to restore Marketplace view as requested
   const displayAssets = useMemo(() => {
-    // Explicitly cast mocks to contain required fields to satisfy Typescript if needed in consuming components
-    return [...MOCK_MARKETPLACE_ASSETS];
+    // Explicitly cast mocks to contain required fields
+    return [...MOCK_MARKETPLACE_ASSETS] as unknown as Asset[];
   }, []);
 
   const filteredAssets = useMemo(() => {

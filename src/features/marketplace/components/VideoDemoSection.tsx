@@ -13,7 +13,7 @@ export const VideoDemoSection = React.memo(function VideoDemoSection() {
   const isDark = theme === "dark";
 
   return (
-    <div className="px-8 pt-8">
+    <div className="px-8 pt-8 pb-20">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -101,7 +101,7 @@ export const VideoDemoSection = React.memo(function VideoDemoSection() {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           className={`
-            text-center py-16 rounded-3xl mb-8
+            text-center py-16 rounded-3xl mb-8 mt-16
             ${
               isDark
                 ? "bg-linear-to-b from-black to-cyan-950/20"

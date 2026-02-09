@@ -184,10 +184,12 @@ export const OrderDetailsContent: React.FC<OrderDetailsContentProps> = ({
               value={formData.status}
               onChange={(val) => updateField("status", val as string)}
               options={[
-                { value: "Processing", label: "Processing" },
-                { value: "Shipped", label: "Active" },
-                { value: "Delivered", label: "Completed" },
-                { value: "Pending", label: "Pending" },
+                { value: "pending", label: "Pending" },
+                { value: "processing", label: "Processing" },
+                { value: "active", label: "Active" },
+                { value: "completed", label: "Completed" },
+                { value: "cancelled", label: "Cancelled" },
+                { value: "failed", label: "Failed" },
               ]}
             />
           </div>

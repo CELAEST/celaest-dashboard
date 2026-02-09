@@ -14,26 +14,31 @@ export const OrderRow = React.memo(
   ({ order, isDark, onOpenMenu }: OrderRowProps) => {
     const getStatusColor = useCallback(
       (status: string) => {
+        const s = status.toLowerCase();
         if (isDark) {
-          switch (status) {
-            case "Shipped":
-              return "text-cyan-400 bg-cyan-400/10 border-cyan-400/20";
-            case "Delivered":
+          switch (s) {
+            case "completed":
+            case "active":
               return "text-green-400 bg-green-400/10 border-green-400/20";
-            case "Processing":
+            case "processing":
               return "text-blue-400 bg-blue-400/10 border-blue-400/20";
-            default:
+            case "cancelled":
+            case "failed":
+              return "text-red-400 bg-red-400/10 border-red-400/20";
+            default: // pending
               return "text-yellow-400 bg-yellow-400/10 border-yellow-400/20";
           }
         } else {
-          switch (status) {
-            case "Shipped":
-              return "text-cyan-700 bg-cyan-50 border-cyan-200";
-            case "Delivered":
+          switch (s) {
+            case "completed":
+            case "active":
               return "text-green-700 bg-green-50 border-green-200";
-            case "Processing":
+            case "processing":
               return "text-blue-700 bg-blue-50 border-blue-200";
-            default:
+            case "cancelled":
+            case "failed":
+              return "text-red-700 bg-red-50 border-red-200";
+            default: // pending
               return "text-yellow-700 bg-yellow-50 border-yellow-200";
           }
         }
@@ -42,20 +47,23 @@ export const OrderRow = React.memo(
     );
 
     const getStatusIcon = useCallback((status: string) => {
-      switch (status) {
-        case "Shipped":
+      const s = status.toLowerCase();
+      switch (s) {
+        case "completed":
+        case "active":
           return <CheckCircle size={12} className="mr-1.5" />;
-        case "Delivered":
-          return <CheckCircle size={12} className="mr-1.5" />;
-        case "Processing":
+        case "processing":
           return (
             <Clock
               size={12}
               className="mr-1.5 animate-[spin_3s_linear_infinite] will-change-transform"
             />
           );
-        default:
+        case "cancelled":
+        case "failed":
           return <AlertCircle size={12} className="mr-1.5" />;
+        default:
+          return <Clock size={12} className="mr-1.5" />;
       }
     }, []);
 
@@ -74,8 +82,9 @@ export const OrderRow = React.memo(
               : "text-blue-600/80 group-hover:text-blue-600"
           }`}
         >
-          {order.id}
+          {order.displayId}
         </td>
+
         <td
           className={`py-4 px-4 font-medium ${
             isDark ? "text-white" : "text-gray-900"

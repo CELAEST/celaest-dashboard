@@ -5,36 +5,51 @@ import { motion } from "motion/react";
 import { Check, ShoppingCart, Star, Eye, Zap, ArrowRight } from "lucide-react";
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { MarketplaceProduct } from "../types";
+import { formatCurrency } from "@/lib/utils";
 
 interface ProductCardCompactProps {
-  id: number;
-  title: string;
-  description: string;
-  price: string;
-  image: string;
-  features: string[];
-  rating?: number;
-  reviews?: number;
-  badge?: string;
+  product: MarketplaceProduct;
   onSelect: () => void;
   onViewDetails?: () => void;
+  isOwned?: boolean;
 }
 
 export const ProductCardCompact = React.memo(function ProductCardCompact({
-  title,
-  description,
-  price,
-  image,
-  features,
-  rating = 4.9,
-  reviews = 234,
-  badge,
+  product,
   onSelect,
   onViewDetails,
+  isOwned = false,
 }: ProductCardCompactProps) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const [isHovered, setIsHovered] = React.useState(false);
+
+  // Mapeo seguro de propiedades
+  const {
+    name: title,
+    short_description: description,
+    thumbnail_url: imageUrl,
+    rating_avg: rating = 0,
+    rating_count: reviews = 0,
+    base_price,
+    currency,
+  } = product;
+
+  const image = imageUrl || null;
+
+  // Features reales o fallback si están vacíos
+  const displayFeatures =
+    product.features && product.features.length > 0
+      ? product.features
+      : product.tags && product.tags.length > 0
+        ? product.tags
+        : ["Instant Delivery", "Secure Payment", "24/7 Support"];
+
+  const formattedPrice = formatCurrency(base_price, currency);
+
+  // Badge derivado (ej. si tiene rating alto)
+  const badge = rating >= 4.5 ? "BESTSELLER" : undefined;
 
   return (
     <motion.div
@@ -101,7 +116,7 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
               Price
             </span>
             <span className="text-white text-xl font-black tracking-tight drop-shadow-2xl">
-              {price}
+              {formattedPrice}
             </span>
           </div>
         </div>
@@ -164,7 +179,7 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
 
         {/* Professional Feature Set - Compact */}
         <div className="grid grid-cols-2 gap-2 py-1">
-          {features.slice(0, 4).map((feature, index) => (
+          {displayFeatures.slice(0, 4).map((feature, index) => (
             <div key={index} className="flex items-start gap-1.5">
               <div className="mt-0.5 w-4 h-4 rounded-full bg-cyan-500/10 flex items-center justify-center shrink-0">
                 <Check size={10} className="text-cyan-500" strokeWidth={3} />
@@ -195,17 +210,30 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
           </motion.button>
 
           <motion.button
-            whileHover={{ y: -4, scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={onSelect}
-            className={`py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all shadow-xl shadow-cyan-500/20 ${
-              isDark
-                ? "bg-cyan-500 text-black hover:bg-cyan-400"
-                : "bg-gray-900 text-white hover:bg-gray-800"
+            whileHover={!isOwned ? { y: -4, scale: 1.02 } : {}}
+            whileTap={!isOwned ? { scale: 0.98 } : {}}
+            onClick={!isOwned ? onSelect : undefined}
+            className={`py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all ${
+              isOwned
+                ? isDark
+                  ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 cursor-default"
+                  : "bg-emerald-50 text-emerald-600 border border-emerald-200 cursor-default"
+                : isDark
+                  ? "bg-cyan-500 text-black hover:bg-cyan-400 shadow-xl shadow-cyan-500/20"
+                  : "bg-gray-900 text-white hover:bg-gray-800 shadow-xl shadow-gray-900/20"
             }`}
           >
-            <ShoppingCart size={14} strokeWidth={3} />
-            Acquire
+            {isOwned ? (
+              <>
+                <Check size={14} strokeWidth={3} />
+                Adquirido
+              </>
+            ) : (
+              <>
+                <ShoppingCart size={14} strokeWidth={3} />
+                Acquire
+              </>
+            )}
           </motion.button>
         </div>
       </div>

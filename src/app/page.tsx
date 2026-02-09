@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense } from "react";
-import { DashboardShell } from "@/features/dashboard/components/DashboardShell";
+import { DashboardShell } from "@/features/control-center/components/DashboardShell";
 
 export default function DashboardPage() {
   return (

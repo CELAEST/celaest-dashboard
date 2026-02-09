@@ -1,5 +1,4 @@
-import React from "react";
-import { Asset } from "../../hooks/useAssets";
+import { Asset } from "../../services/assets.service";
 
 interface AssetStatusBadgeProps {
   status: Asset["status"];
@@ -18,6 +17,10 @@ export const AssetStatusBadge: React.FC<AssetStatusBadgeProps> = ({
         return isDark
           ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
           : "bg-emerald-50 text-emerald-700 border-emerald-200";
+      case "stable":
+        return isDark
+          ? "bg-blue-500/10 text-blue-400 border-blue-500/20"
+          : "bg-blue-50 text-blue-700 border-blue-200";
       case "draft":
         return isDark
           ? "bg-yellow-500/10 text-yellow-400 border-yellow-500/20"

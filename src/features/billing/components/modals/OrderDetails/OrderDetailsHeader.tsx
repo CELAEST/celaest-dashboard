@@ -44,6 +44,7 @@ export const OrderDetailsHeader: React.FC<OrderDetailsHeaderProps> = ({
           >
             Order {orderId}
           </h2>
+
           <div className="flex items-center gap-2 mt-1">
             <span
               className={`text-sm font-medium px-2 py-0.5 rounded-full ${

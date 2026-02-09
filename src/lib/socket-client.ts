@@ -15,20 +15,36 @@ class SocketClient {
   private ws: WebSocket | null = null;
   private listeners = new Map<string, Set<Listener>>();
   private token: string | null = null;
+  private currentOrgId: string | null = null;
 
-  connect(token: string): void {
+  connect(token: string, orgId?: string): void {
     if (typeof window === "undefined") return;
-    if (this.ws?.readyState === WebSocket.OPEN && this.token === token) return;
+    
+    const targetOrgId = orgId || null;
+    if (this.ws?.readyState === WebSocket.OPEN && this.token === token && this.currentOrgId === targetOrgId) return;
 
     this.token = token;
-    const url = getWsUrl() + (token ? `?token=${encodeURIComponent(token)}` : "");
+    this.currentOrgId = targetOrgId;
+    let url = getWsUrl() + (token ? `?token=${encodeURIComponent(token)}` : "");
+    if (orgId) {
+      url += `&org_id=${orgId}`;
+    }
     this.ws = new WebSocket(url);
 
     this.ws.onmessage = (event) => {
       try {
         const msg = JSON.parse(event.data);
-        const type = msg.type || msg.event;
-        const payload = msg.payload ?? msg;
+        
+        // Backend sends: { type: "event", data: { type: "order.created", ... } }
+        let type = msg.type || msg.event;
+        let payload = msg.payload ?? msg;
+
+        // Unwrap the real event if it's wrapped
+        if (type === "event" && msg.data && msg.data.type) {
+            type = msg.data.type;
+            payload = msg.data;
+        }
+
         const handlers = this.listeners.get(type);
         if (handlers) {
           handlers.forEach((fn) => fn(payload));

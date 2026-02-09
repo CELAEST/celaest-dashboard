@@ -5,35 +5,46 @@ import { motion } from "motion/react";
 import { Check, ShoppingCart, Star, Eye } from "lucide-react";
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { MarketplaceProduct } from "../types";
+import { formatCurrency } from "@/lib/utils";
 
 interface ProductCardPremiumProps {
-  id: number;
-  title: string;
-  description: string;
-  price: string;
-  image: string;
-  features: string[];
-  rating?: number;
-  reviews?: number;
-  badge?: string;
+  product: MarketplaceProduct;
   onSelect: () => void;
   onViewDetails?: () => void;
 }
 
 export const ProductCardPremium = React.memo(function ProductCardPremium({
-  title,
-  description,
-  price,
-  image,
-  features,
-  rating = 4.9,
-  reviews = 234,
-  badge,
+  product,
   onSelect,
   onViewDetails,
 }: ProductCardPremiumProps) {
   const { theme } = useTheme();
   const [isHovered, setIsHovered] = React.useState(false);
+
+  // Mapping props from MarketplaceProduct
+  const {
+    name: title,
+    short_description: description,
+    base_price,
+    currency,
+    thumbnail_url,
+    tags,
+    rating_avg: rating = 0,
+    rating_count: reviews = 0,
+  } = product;
+
+  // Derive features from tags or use defaults
+  const features =
+    tags && tags.length > 0
+      ? tags.slice(0, 3)
+      : ["Enterprise Ready", "Secure", "24/7 Support"];
+
+  const price = formatCurrency(base_price, currency);
+  const image =
+    thumbnail_url ||
+    "https://images.unsplash.com/photo-1551288049-bebda4e38f71";
+  const badge = rating >= 4.5 ? "PREMIUM" : undefined;
 
   return (
     <motion.div
@@ -42,7 +53,7 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
       className={`
-        group relative rounded-3xl overflow-hidden transition-all duration-500
+        group relative rounded-3xl overflow-hidden transition-all duration-500 h-full flex flex-col
         ${
           theme === "dark"
             ? "bg-[#0a0a0a]/60 border border-white/5 hover:border-cyan-500/30"
@@ -73,7 +84,7 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
       )}
 
       {/* Image Container */}
-      <div className="relative h-[280px] w-full overflow-hidden">
+      <div className="relative h-[220px] w-full overflow-hidden shrink-0">
         <motion.div
           animate={{ scale: isHovered ? 1.05 : 1 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
@@ -104,7 +115,7 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
       </div>
 
       {/* Content */}
-      <div className="p-6 space-y-4">
+      <div className="p-6 space-y-4 flex flex-col flex-1">
         {/* Rating */}
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1">
@@ -129,13 +140,13 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
               theme === "dark" ? "text-gray-400" : "text-gray-600"
             }`}
           >
-            {rating} ({reviews} valoraciones)
+            {rating.toFixed(1)} ({reviews} valoraciones)
           </span>
         </div>
 
         {/* Title */}
         <h3
-          className={`text-xl font-semibold ${
+          className={`text-xl font-semibold line-clamp-1 ${
             theme === "dark" ? "text-white" : "text-gray-900"
           }`}
         >
@@ -144,7 +155,7 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
 
         {/* Description */}
         <p
-          className={`text-sm leading-relaxed ${
+          className={`text-sm leading-relaxed line-clamp-2 ${
             theme === "dark" ? "text-gray-400" : "text-gray-600"
           }`}
         >
@@ -152,7 +163,7 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
         </p>
 
         {/* Features - Human language */}
-        <div className="space-y-2 pt-2">
+        <div className="space-y-2 pt-2 flex-1">
           {features.map((feature, index) => (
             <div key={index} className="flex items-start gap-2">
               <Check
@@ -173,7 +184,7 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
         </div>
 
         {/* Price & CTA */}
-        <div className="pt-4 border-t border-white/10">
+        <div className="pt-4 border-t border-white/10 mt-auto">
           <div className="flex items-end justify-between mb-4">
             <div>
               <div
@@ -184,7 +195,7 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
                 Inversión
               </div>
               <div
-                className={`text-3xl font-bold ${
+                className={`text-2xl font-bold ${
                   theme === "dark" ? "text-white" : "text-gray-900"
                 }`}
               >

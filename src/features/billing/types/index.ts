@@ -26,13 +26,15 @@ export interface PaymentMethod {
 }
 
 export interface Order {
-  id: string;
+  id: string; // The UUID
+  displayId: string; // The #XXXXX ID
   product: string;
   customer: string;
   date: string;
-  status: "Processing" | "Shipped" | "Pending" | "Delivered";
+  status: "Processing" | "Active" | "Completed" | "Pending" | "Cancelled" | "Failed";
   amount: string;
 }
+
 
 export interface TaxRate {
   id: string;
