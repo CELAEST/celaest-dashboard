@@ -10,11 +10,13 @@ interface UpdateItemProps {
   asset: CustomerAsset;
   expandedAsset: string | null;
   toggleExpanded: (id: string) => void;
+  onDownload: (assetId: string) => void;
+  onSkip: (assetId: string, version: string) => void;
   index: number;
 }
 
 export const UpdateItem: React.FC<UpdateItemProps> = memo(
-  ({ asset, expandedAsset, toggleExpanded, index }) => {
+  ({ asset, expandedAsset, toggleExpanded, onDownload, onSkip, index }) => {
     const { theme } = useTheme();
     const isDark = theme === "dark";
 
@@ -38,7 +40,11 @@ export const UpdateItem: React.FC<UpdateItemProps> = memo(
           onToggle={() => toggleExpanded(asset.id)}
         />
 
-        <UpdateItemActions asset={asset} />
+        <UpdateItemActions
+          asset={asset}
+          onDownload={() => onDownload(asset.id)}
+          onSkip={() => onSkip(asset.id, asset.latestVersion)}
+        />
       </motion.div>
     );
   },

@@ -4,11 +4,12 @@ import React from "react";
 import { motion } from "motion/react";
 import { Key, CheckCircle, AlertTriangle, TrendingUp } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
-import { Analytics, Collision } from "@/features/licensing/constants/mock-data";
+import { LicenseStats } from "@/features/licensing/types";
+import type { IPBinding } from "@/features/licensing/types";
 
 interface LicensingStatsProps {
-  analytics: Analytics | null;
-  collisions: Collision[];
+  analytics: LicenseStats | null;
+  collisions: IPBinding[];
 }
 
 export const LicensingStats: React.FC<LicensingStatsProps> = ({
@@ -43,8 +44,8 @@ export const LicensingStats: React.FC<LicensingStatsProps> = ({
       bg: "bg-red-500/10",
     },
     {
-      label: "Success Rate",
-      value: `${analytics.validationSuccessRate}%`,
+      label: "Trial Licenses",
+      value: analytics.trial,
       icon: TrendingUp,
       color: "text-cyan-500",
       bg: "bg-cyan-500/10",

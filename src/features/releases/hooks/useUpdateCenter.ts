@@ -77,12 +77,55 @@ export const useUpdateCenter = (options: { enabled?: boolean } = {}) => {
     }
   };
 
+
+
+  const downloadUpdate = async (assetId: string) => {
+    if (!session?.accessToken) return;
+    try {
+      const response = await assetsService.downloadAsset(session.accessToken, assetId);
+      if (response && response.download_url) {
+        // Trigger download
+        const link = document.createElement('a');
+        link.href = response.download_url;
+        link.setAttribute('download', ''); // Optional: sets download attribute
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    } catch (err) {
+      console.error("Failed to download update:", err);
+      setError(handleApiError(err));
+    }
+  };
+
+  const skipUpdate = async (assetId: string, version: string) => {
+    if (!session?.accessToken) return;
+    try {
+      await assetsService.skipVersion(session.accessToken, assetId, version);
+      
+      // Update local state to hide the update
+      setAssets(prev => prev.map(a => 
+        a.id === assetId 
+          ? { ...a, hasUpdate: false } 
+          : a
+      ));
+      
+      // Optionally re-fetch to ensure sync
+      // fetchAssets();
+    } catch (err) {
+      console.error("Failed to skip update:", err);
+      setError(handleApiError(err));
+    }
+  };
+
   const updateCount = assets.filter((a) => a.hasUpdate).length;
 
   return {
     assets,
     expandedAsset,
     toggleExpanded,
+    downloadUpdate,
+    skipUpdate,
     updateCount,
     isLoading,
     error

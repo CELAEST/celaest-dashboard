@@ -136,6 +136,10 @@ export const assetsService = {
     return assetsApi.downloadAsset(token, assetId);
   },
 
+  async skipVersion(token: string, assetId: string, version: string) {
+    return assetsApi.skipVersion(token, assetId, version);
+  },
+
   async getLicense(token: string, licenseId: string) {
     console.log("[AssetsService] getLicense called for:", licenseId);
     return assetsApi.getLicense(token, licenseId);

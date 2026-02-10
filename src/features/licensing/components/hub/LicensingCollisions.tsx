@@ -2,12 +2,12 @@ import React, { useState } from "react";
 import { Check } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
-import { Collision } from "@/features/licensing/constants/mock-data";
+import type { IPBinding } from "@/features/licensing/types";
 import { CollisionCard } from "./CollisionCard";
 import { RevokeConfirmationModal } from "../modals/RevokeConfirmationModal";
 
 interface LicensingCollisionsProps {
-  collisions: Collision[];
+  collisions: IPBinding[];
   onRevoke: (licenseId: string) => void;
 }
 
@@ -21,13 +21,13 @@ export const LicensingCollisions: React.FC<LicensingCollisionsProps> = ({
   onRevoke,
 }) => {
   const { isDark } = useTheme();
-  const [selectedCollision, setSelectedCollision] = useState<Collision | null>(
+  const [selectedCollision, setSelectedCollision] = useState<IPBinding | null>(
     null,
   );
 
   const handleConfirmRevoke = () => {
     if (selectedCollision) {
-      onRevoke(selectedCollision.licenseId);
+      onRevoke(selectedCollision.ip_address);
       setSelectedCollision(null);
     }
   };
@@ -70,7 +70,7 @@ export const LicensingCollisions: React.FC<LicensingCollisionsProps> = ({
           ) : (
             collisions.map((collision, index) => (
               <CollisionCard
-                key={collision.licenseId}
+                key={collision.ip_address}
                 collision={collision}
                 index={index}
                 onRevokeClick={setSelectedCollision}
@@ -84,8 +84,8 @@ export const LicensingCollisions: React.FC<LicensingCollisionsProps> = ({
         isOpen={!!selectedCollision}
         onClose={() => setSelectedCollision(null)}
         onConfirm={handleConfirmRevoke}
-        licenseId={selectedCollision?.licenseId || ""}
-        ipCount={selectedCollision?.ipCount || 0}
+        licenseId={selectedCollision?.license_id || ""}
+        ipCount={1}
       />
     </div>
   );

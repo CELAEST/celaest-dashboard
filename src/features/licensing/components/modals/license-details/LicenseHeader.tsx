@@ -1,10 +1,10 @@
 import React from "react";
 import { X } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
-import { License } from "@/features/licensing/constants/mock-data";
+import type { LicenseResponse } from "@/features/licensing/types";
 
 interface LicenseHeaderProps {
-  license: License;
+  license: LicenseResponse;
   onClose: () => void;
 }
 
@@ -22,7 +22,7 @@ export const LicenseHeader: React.FC<LicenseHeaderProps> = ({
           <h2
             className={`text-xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}
           >
-            {license.productId}
+            {license.plan?.name || license.license_key.substring(0, 16)}
           </h2>
           <span
             className={`px-2 py-0.5 rounded text-xs font-medium border uppercase ${

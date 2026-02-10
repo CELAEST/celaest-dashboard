@@ -4,6 +4,8 @@ import { CreateLicenseModal } from "./modals/CreateLicenseModal";
 import { LicenseDetailsModal } from "./modals/LicenseDetailsModal";
 import { useLicensing } from "@/features/licensing/hooks/useLicensing";
 import { LicenseFormData } from "@/features/licensing/hooks/useCreateLicense";
+import { licensingService } from "@/features/licensing/services/licensing.service";
+import type { LicenseStatus } from "@/features/licensing/types";
 
 // Sub-components
 import { LicensingHeader } from "./hub/LicensingHeader";
@@ -36,28 +38,16 @@ export const LicensingHub: React.FC = () => {
     revokeLicense,
   } = useLicensing();
 
-  // Handle License Creation (Bridge between UI and Hook)
+  // Handle License Creation — delegates to real API
   const handleCreateLicense = async (data: LicenseFormData) => {
-    return new Promise<string>((resolve) => {
-      // Logic for adding the new license to the list is handled here or in the hook.
-      const newLicenseId = `lic_${Date.now()}`;
-      const newKey = `sk_live_${Math.random().toString(36).substring(7)}`;
-
-      const newLicense = {
-        id: newLicenseId,
-        userId: data.userId,
-        productId: data.productId || `prod_${Date.now()}`,
-        productType: data.productType,
-        status: "active" as const,
-        maxIpSlots: data.maxIpSlots,
-        ipSlotsUsed: 0,
-        metadata: { tier: data.tier },
-        createdAt: new Date().toISOString(),
-      };
-
-      addNewLicense(newLicense);
-      resolve(newKey);
+    const created = await licensingService.create({
+      plan_id: data.plan_id,
+      billing_cycle: data.billing_cycle,
+      notes: data.notes,
     });
+    // Add the newly created license to the local list
+    addNewLicense(created);
+    return created.license_key;
   };
 
   return (
@@ -152,8 +142,13 @@ export const LicensingHub: React.FC = () => {
         onClose={() => selectLicense(null)}
         license={selectedLicense}
         logs={validationLogs}
-        onStatusChange={handleChangeStatus}
-        onUnbindIp={handleUnbindIp}
+        onStatusChange={(status) =>
+          selectedLicense &&
+          handleChangeStatus(selectedLicense.id, status as LicenseStatus)
+        }
+        onUnbindIp={(ip) =>
+          selectedLicense && handleUnbindIp(selectedLicense.id, ip)
+        }
       />
     </div>
   );

@@ -2,10 +2,10 @@ import React from "react";
 import { motion } from "motion/react";
 import { Globe, MapPin, Activity, X } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
-import { IpBinding } from "@/features/licensing/constants/mock-data";
+import type { IPBinding } from "@/features/licensing/types";
 
 interface LicenseBindingsProps {
-  bindings?: IpBinding[];
+  bindings?: IPBinding[];
   onUnbind: (ip: string) => void;
 }
 
@@ -27,7 +27,7 @@ export const LicenseBindings: React.FC<LicenseBindingsProps> = ({
         {bindings && bindings.length > 0 ? (
           bindings.map((binding, i) => (
             <motion.div
-              key={binding.ip}
+              key={binding.ip_address}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
@@ -42,15 +42,15 @@ export const LicenseBindings: React.FC<LicenseBindingsProps> = ({
                     <div
                       className={`font-mono font-medium ${isDark ? "text-white" : "text-gray-900"}`}
                     >
-                      {binding.ip}
+                      {binding.ip_address}
                     </div>
                     <div className="text-xs text-gray-500 flex items-center gap-2 mt-0.5">
-                      <Activity size={12} /> {binding.requestCount} requests
+                      <Activity size={12} /> {binding.request_count} requests
                     </div>
                   </div>
                 </div>
                 <button
-                  onClick={() => onUnbind(binding.ip)}
+                  onClick={() => onUnbind(binding.ip_address)}
                   className="opacity-0 group-hover:opacity-100 p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
                   title="Unbind IP"
                 >
@@ -60,11 +60,11 @@ export const LicenseBindings: React.FC<LicenseBindingsProps> = ({
               <div className="mt-3 text-[10px] text-gray-500 flex justify-between">
                 <span>
                   First seen:{" "}
-                  {new Date(binding.firstSeenAt).toLocaleDateString()}
+                  {new Date(binding.first_seen_at).toLocaleDateString()}
                 </span>
                 <span>
                   Last active:{" "}
-                  {new Date(binding.lastSeenAt).toLocaleTimeString()}
+                  {new Date(binding.last_seen_at).toLocaleTimeString()}
                 </span>
               </div>
             </motion.div>

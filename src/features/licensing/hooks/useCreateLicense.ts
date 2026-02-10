@@ -1,22 +1,22 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { License } from "@/features/licensing/constants/mock-data";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { licensingService } from "@/features/licensing/services/licensing.service";
+import type { LicenseResponse } from "@/features/licensing/types";
 
 export const licenseFormSchema = z.object({
-  userId: z.string().min(1, "User ID is required"),
-  productId: z.string().optional(),
-  productType: z.string().min(1, "Product type is required"),
-  maxIpSlots: z.number().min(1, "At least 1 IP slot is required").max(100, "Max 100 slots"),
-  expiresAt: z.string().optional(),
-  tier: z.enum(["basic", "pro", "enterprise"]),
+  plan_id: z.string().min(1, "Plan ID is required"),
+  billing_cycle: z.enum(["monthly", "quarterly", "yearly", "lifetime"]),
+  notes: z.string().optional(),
 });
 
 export type LicenseFormData = z.infer<typeof licenseFormSchema>;
 
-export const useCreateLicense = (onLicenseCreated: (license: License) => void) => {
+export const useCreateLicense = (
+  onLicenseCreated: (license: LicenseResponse) => void
+) => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [createdKey, setCreatedKey] = useState("");
@@ -24,12 +24,9 @@ export const useCreateLicense = (onLicenseCreated: (license: License) => void) =
   const form = useForm<LicenseFormData>({
     resolver: zodResolver(licenseFormSchema),
     defaultValues: {
-      userId: "user_demo_001",
-      productId: "",
-      productType: "excel-automation",
-      maxIpSlots: 1,
-      expiresAt: "",
-      tier: "basic",
+      plan_id: "",
+      billing_cycle: "monthly",
+      notes: "",
     },
   });
 
@@ -42,32 +39,18 @@ export const useCreateLicense = (onLicenseCreated: (license: License) => void) =
   const handleCreateLicense = async (data: LicenseFormData) => {
     setLoading(true);
     try {
-      // Mock API call simulation
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      
-      const newKey = "sk_test_mock_key_" + Math.random().toString(36).substring(7);
-      
-      const newLic: License = {
-          id: `lic_${Date.now()}`,
-          userId: data.userId,
-          productId: data.productId || `prod_${Date.now()}`,
-          productType: data.productType,
-          status: "active",
-          maxIpSlots: data.maxIpSlots,
-          ipSlotsUsed: 0,
-          ipBindings: [],
-          metadata: {
-              tier: data.tier || "basic",
-          },
-          createdAt: new Date().toISOString(),
-      };
-      
-      onLicenseCreated(newLic);
-      setCreatedKey(newKey);
+      const result = await licensingService.create({
+        plan_id: data.plan_id,
+        billing_cycle: data.billing_cycle,
+        notes: data.notes || undefined,
+      });
+
+      onLicenseCreated(result);
+      setCreatedKey(result.license_key);
       setStep(3); // Move to success step
-      toast.success("License created successfully! (Mock)");
+      toast.success("License created successfully!");
     } catch (error) {
-      console.error(error);
+      console.error("Failed to create license:", error);
       toast.error("Failed to create license");
     } finally {
       setLoading(false);
@@ -84,5 +67,3 @@ export const useCreateLicense = (onLicenseCreated: (license: License) => void) =
     handleCreateLicense,
   };
 };
-
-

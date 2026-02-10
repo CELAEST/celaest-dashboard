@@ -258,6 +258,13 @@ export const assetsApi = {
   },
 
   /**
+   * Skip a specific version for an asset
+   */
+  skipVersion: async (token: string, assetId: string, version: string) => {
+    return api.post(`/api/v1/user/my/assets/${assetId}/skip`, { version }, { token });
+  },
+
+  /**
    * Obtener licencia asociada a un activo
    */
   getLicense: async (token: string, licenseId: string) => {

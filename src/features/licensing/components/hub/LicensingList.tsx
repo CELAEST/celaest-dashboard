@@ -9,16 +9,16 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
-import { License } from "@/features/licensing/constants/mock-data";
+import { LicenseResponse } from "@/features/licensing/types";
 
 interface LicensingListProps {
-  licenses: License[];
+  licenses: LicenseResponse[];
   loading: boolean;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   statusFilter: string;
   setStatusFilter: (status: string) => void;
-  onSelectLicense: (license: License) => void;
+  onSelectLicense: (license: LicenseResponse) => void;
 }
 
 export const LicensingList: React.FC<LicensingListProps> = ({
@@ -238,7 +238,8 @@ export const LicensingList: React.FC<LicensingListProps> = ({
                               : "text-gray-900 group-hover:text-blue-600"
                           } transition-colors duration-300`}
                         >
-                          {license.productId}
+                          {license.plan?.name ||
+                            license.license_key.substring(0, 16)}
                         </div>
                         <div className="flex items-center gap-2">
                           <span
@@ -248,7 +249,7 @@ export const LicensingList: React.FC<LicensingListProps> = ({
                                 : "bg-gray-100 text-gray-600"
                             }`}
                           >
-                            {license.productType}
+                            {license.billing_cycle}
                           </span>
                         </div>
                       </div>
@@ -265,7 +266,7 @@ export const LicensingList: React.FC<LicensingListProps> = ({
                           <Users size={14} className="opacity-60" />
                         </div>
                         <span className="text-sm font-medium truncate max-w-[120px]">
-                          {license.userId.split("@")[0]}
+                          {license.organization_id.substring(0, 8)}...
                         </span>
                       </div>
                     </td>
@@ -295,15 +296,10 @@ export const LicensingList: React.FC<LicensingListProps> = ({
                       <div className="flex flex-col gap-2">
                         <div className="flex items-center justify-between gap-4">
                           <span className="text-[10px] font-black text-gray-500 uppercase tracking-tighter">
-                            {license.ipSlotsUsed}/{license.maxIpSlots} SLOTS
+                            {license.ip_bindings?.length || 0}/∞ SLOTS
                           </span>
                           <span className="text-[10px] font-black text-gray-500">
-                            {Math.round(
-                              ((license.ipSlotsUsed || 0) /
-                                license.maxIpSlots) *
-                                100,
-                            )}
-                            %
+                            {license.ip_bindings?.length || 0} active
                           </span>
                         </div>
                         <div
@@ -314,12 +310,11 @@ export const LicensingList: React.FC<LicensingListProps> = ({
                           <motion.div
                             initial={{ width: 0 }}
                             animate={{
-                              width: `${((license.ipSlotsUsed || 0) / license.maxIpSlots) * 100}%`,
+                              width: `${Math.min((license.ip_bindings?.length || 0) * 20, 100)}%`,
                             }}
                             transition={{ duration: 1, ease: "circOut" }}
                             className={`h-full rounded-full ${
-                              (license.ipSlotsUsed || 0) / license.maxIpSlots >
-                              0.8
+                              (license.ip_bindings?.length || 0) > 4
                                 ? "bg-linear-to-r from-rose-500 to-rose-400"
                                 : "bg-linear-to-r from-cyan-500 to-blue-500"
                             }`}
@@ -332,7 +327,7 @@ export const LicensingList: React.FC<LicensingListProps> = ({
                         <span
                           className={`text-sm font-medium ${isDark ? "text-gray-400" : "text-gray-600"}`}
                         >
-                          {new Date(license.createdAt).toLocaleDateString()}
+                          {new Date(license.created_at).toLocaleDateString()}
                         </span>
                         <span className="text-[10px] text-gray-500 uppercase font-bold tracking-tighter">
                           Authorized Record

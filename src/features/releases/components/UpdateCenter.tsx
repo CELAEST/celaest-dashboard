@@ -16,6 +16,8 @@ export const UpdateCenter: React.FC<{ enabled?: boolean }> = ({
     assets,
     expandedAsset,
     toggleExpanded,
+    downloadUpdate,
+    skipUpdate,
     updateCount,
     isLoading,
     error,
@@ -67,6 +69,8 @@ export const UpdateCenter: React.FC<{ enabled?: boolean }> = ({
           assets={assets}
           expandedAsset={expandedAsset}
           toggleExpanded={toggleExpanded}
+          onDownload={downloadUpdate}
+          onSkip={skipUpdate}
         />
       )}
 

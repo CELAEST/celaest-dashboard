@@ -2,10 +2,8 @@ import React from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { useEscapeKey } from "@/features/shared/hooks/useEscapeKey";
-import {
-  License,
-  ValidationLog,
-} from "@/features/licensing/constants/mock-data";
+import { ValidationLog } from "@/features/licensing/constants/mock-data";
+import type { LicenseResponse } from "@/features/licensing/types";
 import { LicenseHeader } from "./license-details/LicenseHeader";
 import { LicenseActions } from "./license-details/LicenseActions";
 import { LicenseStats } from "./license-details/LicenseStats";
@@ -15,7 +13,7 @@ import { LicenseActivityLog } from "./license-details/LicenseActivityLog";
 interface LicenseDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  license: License | null;
+  license: LicenseResponse | null;
   logs: ValidationLog[];
   onStatusChange: (status: string) => void;
   onUnbindIp: (ip: string) => void;
@@ -68,12 +66,12 @@ export const LicenseDetailsModal = ({
                 />
 
                 <LicenseStats
-                  tier={license.metadata?.tier}
-                  maxIpSlots={license.maxIpSlots}
+                  tier={license.plan?.code}
+                  maxIpSlots={license.ip_bindings?.length || 0}
                 />
 
                 <LicenseBindings
-                  bindings={license.ipBindings}
+                  bindings={license.ip_bindings || []}
                   onUnbind={onUnbindIp}
                 />
 
@@ -88,7 +86,10 @@ export const LicenseDetailsModal = ({
                     : "border-gray-200 text-gray-400"
                 }`}
               >
-                License Key: •••••-•••••-{license.id.split("_")[1] || "XXXX"}
+                License Key: •••••-•••••-
+                {license.license_key?.substring(
+                  license.license_key.length - 4,
+                ) || "XXXX"}
               </div>
             </motion.div>
           </div>

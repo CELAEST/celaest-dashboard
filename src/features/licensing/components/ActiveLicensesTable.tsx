@@ -11,11 +11,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
-import { License } from "@/features/licensing/constants/mock-data";
+import type { LicenseResponse } from "@/features/licensing/types";
 
 interface ActiveLicensesTableProps {
-  licenses: License[];
-  onSelectLicense: (license: License) => void;
+  licenses: LicenseResponse[];
+  onSelectLicense: (license: LicenseResponse) => void;
 }
 
 export const ActiveLicensesTable: React.FC<ActiveLicensesTableProps> = ({
@@ -63,15 +63,15 @@ export const ActiveLicensesTable: React.FC<ActiveLicensesTableProps> = ({
                       isDark ? "text-white" : "text-gray-900"
                     }`}
                   >
-                    {license.productId}
+                    {license.plan?.name || license.license_key.substring(0, 16)}
                   </div>
                   <div className="text-xs text-gray-500 capitalize">
-                    {license.productType.replace("-", " ")}
+                    {license.billing_cycle.replace("_", " ")}
                   </div>
                 </div>
               </TableCell>
               <TableCell className="font-mono text-xs text-gray-500">
-                {license.userId}
+                {license.organization_id.substring(0, 8)}...
               </TableCell>
               <TableCell>
                 <span
@@ -104,20 +104,17 @@ export const ActiveLicensesTable: React.FC<ActiveLicensesTableProps> = ({
                   >
                     <div
                       className={`h-full rounded-full ${
-                        (license.ipSlotsUsed || 0) / license.maxIpSlots > 0.8
+                        (license.ip_bindings?.length || 0) > 4
                           ? "bg-red-500"
                           : "bg-blue-500"
                       }`}
                       style={{
-                        width: `${
-                          ((license.ipSlotsUsed || 0) / license.maxIpSlots) *
-                          100
-                        }%`,
+                        width: `${Math.min((license.ip_bindings?.length || 0) * 20, 100)}%`,
                       }}
                     />
                   </div>
                   <span className="text-xs text-gray-500">
-                    {license.ipSlotsUsed}/{license.maxIpSlots}
+                    {license.ip_bindings?.length || 0} active
                   </span>
                 </div>
               </TableCell>
