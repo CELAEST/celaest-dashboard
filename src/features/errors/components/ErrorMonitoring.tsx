@@ -15,8 +15,10 @@ const ErrorMonitoring: React.FC = () => {
     isAdmin,
     expandedError,
     toggleErrorExpansion,
+    updateTaskStatus,
     filteredErrors,
     stats,
+    platformDistribution,
   } = useErrorMonitoring();
 
   return (
@@ -73,7 +75,7 @@ const ErrorMonitoring: React.FC = () => {
               <ErrorStats stats={stats} />
 
               {/* Symmetric Analytics Row */}
-              <ErrorAnalytics />
+              <ErrorAnalytics data={platformDistribution} />
             </motion.div>
           ) : (
             <motion.div
@@ -89,6 +91,7 @@ const ErrorMonitoring: React.FC = () => {
                   errors={filteredErrors}
                   expandedError={expandedError}
                   toggleErrorExpansion={toggleErrorExpansion}
+                  onStatusUpdate={updateTaskStatus}
                   isAdmin={isAdmin}
                 />
               </div>

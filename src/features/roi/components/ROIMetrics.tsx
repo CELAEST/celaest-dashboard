@@ -24,6 +24,9 @@ export const ROIMetrics: React.FC = () => {
     zombieUsers,
     weeklyData,
     monthlyData,
+    refresh,
+    isLoading,
+    exportReport,
   } = useROIMetrics();
 
   const [activeTab, setActiveTab] = React.useState<"overview" | "insights">(
@@ -41,6 +44,9 @@ export const ROIMetrics: React.FC = () => {
         filterOptions={filterOptions}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
+        onRefresh={refresh}
+        onExport={exportReport}
+        isLoading={isLoading}
       />
 
       {/* Content Area (Scrollable if needed, but aimed for Zero Scroll) */}

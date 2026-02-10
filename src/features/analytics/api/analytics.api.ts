@@ -103,4 +103,88 @@ export const analyticsApi = {
       orgId
     });
   },
+
+  async getTasks(token: string, orgId: string, period = "month"): Promise<TaskMetrics> {
+    return api.get<TaskMetrics>("/api/v1/org/analytics/tasks", {
+      params: { period },
+      token,
+      orgId
+    });
+  },
+
+  async getActiveUsers(token: string, orgId: string, period = "month"): Promise<ActiveUserStats> {
+    return api.get<ActiveUserStats>("/api/v1/org/analytics/users/active", {
+      params: { period },
+      token,
+      orgId
+    });
+  },
+
+  async getUsers(token: string, orgId: string, period = "month"): Promise<UserActivity> {
+    return api.get<UserActivity>("/api/v1/org/analytics/users", {
+      params: { period },
+      token,
+      orgId
+    });
+  },
+
+  async getSalesByProduct(token: string, orgId: string, period = "month"): Promise<ProductSales[]> {
+    return api.get<ProductSales[]>("/api/v1/org/analytics/sales/by-product", {
+      params: { period },
+      token,
+      orgId
+    });
+  },
+
+  async getROIByProduct(token: string, orgId: string, period = "month"): Promise<ROIByProduct[]> {
+    return api.get<ROIByProduct[]>("/api/v1/org/analytics/roi/by-product", {
+      params: { period },
+      token,
+      orgId
+    });
+  },
+
+  async getExport(token: string, orgId: string, format = "json"): Promise<unknown> {
+    return api.get<unknown>("/api/v1/org/analytics/export", {
+      params: { format },
+      token,
+      orgId
+    });
+  },
 };
+
+export interface ROIByProduct {
+  product_id: string;
+  product_name: string;
+  revenue: number;
+  costs: number;
+  profit: number;
+  roi_percentage: number;
+}
+
+export interface UserActivity {
+  total_users: number;
+  active_users: number;
+  new_users: number;
+  churned_users: number;
+  retention_rate: number;
+  avg_session_time: number;
+  period: string;
+}
+
+export interface TaskMetrics {
+  total_tasks: number;
+  completed_tasks: number;
+  pending_tasks: number;
+  failed_tasks: number;
+  avg_completion_time_ms: number;
+  success_rate: number;
+}
+
+export interface ActiveUserStats {
+  daily_active_users: number;
+  weekly_active_users: number;
+  monthly_active_users: number;
+  peak_hour: number;
+  peak_day: string;
+}

@@ -127,8 +127,10 @@ export const Header = React.memo(function Header({ onShowLogin }: HeaderProps) {
               icon={Activity}
               options={[
                 { value: "all", label: "Todo Estado" },
-                { value: "new", label: "Nuevo" },
+                { value: "failed", label: "Fallido" },
+                { value: "reviewing", label: "En Revisión" },
                 { value: "resolved", label: "Resuelto" },
+                { value: "ignored", label: "Ignorado" },
               ]}
               value={errorFilters.status}
               onChange={(val) =>

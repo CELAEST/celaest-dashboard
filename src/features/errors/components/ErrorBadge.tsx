@@ -45,8 +45,8 @@ export const ErrorBadge = React.memo(
     }
 
     const status = value as ErrorStatus;
-    const statusColors = {
-      new: isDark
+    const statusColors: Record<string, string> = {
+      failed: isDark
         ? "bg-red-500/20 text-red-400 border-red-500/30"
         : "bg-red-50 text-red-600 border-red-200",
       reviewing: isDark
@@ -60,8 +60,8 @@ export const ErrorBadge = React.memo(
         : "bg-gray-100 text-gray-600 border-gray-200",
     };
 
-    const labels = {
-      new: "Nuevo",
+    const labels: Record<string, string> = {
+      failed: "Fallido",
       reviewing: "En Revisión",
       resolved: "Resuelto",
       ignored: "Ignorado",

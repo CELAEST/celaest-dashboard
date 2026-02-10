@@ -8,6 +8,7 @@ interface ErrorStatsProps {
     warningCount: number;
     resolvedCount: number;
     totalAffectedUsers: number;
+    mttr: string;
   };
 }
 
@@ -51,26 +52,26 @@ export const ErrorStats = React.memo(({ stats }: ErrorStatsProps) => {
         ]}
       />
       <StatCard
-        title="RESUELTO"
-        value={stats.resolvedCount.toString()}
-        trend="Este Mes"
+        title="USUARIOS AFECTADOS"
+        value={stats.totalAffectedUsers.toString()}
+        trend="Total Global"
         trendUp={true}
         icon={<CheckCircle2 />}
         gradient="from-emerald-500 to-teal-600"
         delay={0.3}
         chartData={[
-          { value: 5 },
-          { value: 8 },
-          { value: 15 },
-          { value: 22 },
-          { value: 30 },
-          { value: 45 },
-          { value: stats.resolvedCount },
+          { value: 100 },
+          { value: 120 },
+          { value: 150 },
+          { value: 180 },
+          { value: 210 },
+          { value: 250 },
+          { value: stats.totalAffectedUsers },
         ]}
       />
       <StatCard
         title="MTTR"
-        value="42m"
+        value={stats.mttr}
         trend="Eficiencia +12%"
         trendUp={true}
         icon={<Clock />}
@@ -82,7 +83,7 @@ export const ErrorStats = React.memo(({ stats }: ErrorStatsProps) => {
           { value: 50 },
           { value: 48 },
           { value: 45 },
-          { value: 42 },
+          { value: stats.mttr === "0m" ? 0 : parseInt(stats.mttr) },
         ]}
       />
     </div>

@@ -2,13 +2,17 @@ import React from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Search } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
-import { ErrorLog } from "@/features/errors/hooks/useErrorMonitoring";
+import {
+  ErrorLog,
+  ErrorStatus,
+} from "@/features/errors/hooks/useErrorMonitoring";
 import { ErrorListItem } from "./ErrorListItem";
 
 interface ErrorListProps {
   errors: ErrorLog[];
   expandedError: string | null;
   toggleErrorExpansion: (errorId: string) => void;
+  onStatusUpdate: (errorId: string, status: ErrorStatus) => Promise<void>;
   isAdmin: boolean;
 }
 
@@ -27,6 +31,7 @@ export const ErrorList = React.memo(
     errors,
     expandedError,
     toggleErrorExpansion,
+    onStatusUpdate,
     isAdmin,
   }: ErrorListProps) => {
     const { theme } = useTheme();
@@ -77,6 +82,7 @@ export const ErrorList = React.memo(
                 index={index}
                 expandedError={expandedError}
                 toggleErrorExpansion={toggleErrorExpansion}
+                onStatusUpdate={onStatusUpdate}
                 isAdmin={isAdmin}
                 isDark={isDark}
               />
