@@ -2,6 +2,7 @@ export type ReleaseStatus = "stable" | "beta" | "deprecated";
 
 export interface Version {
   id: string;
+  productId?: string;
   assetName: string;
   versionNumber: string;
   status: ReleaseStatus;

@@ -5,6 +5,7 @@ import { VersionTableRow } from "./VersionTableRow";
 
 interface VersionTableProps {
   versions: Version[];
+  isLoading?: boolean;
   activeMenu: string | null;
   onToggleMenu: (id: string) => void;
   onEdit: (version: Version) => void;
@@ -15,6 +16,7 @@ interface VersionTableProps {
 export const VersionTable: React.FC<VersionTableProps> = memo(
   ({
     versions,
+    isLoading,
     activeMenu,
     onToggleMenu,
     onEdit,
@@ -60,18 +62,34 @@ export const VersionTable: React.FC<VersionTableProps> = memo(
               isDark ? "divide-white/5" : "divide-gray-200"
             }`}
           >
-            {versions.map((version, index) => (
-              <VersionTableRow
-                key={version.id}
-                version={version}
-                index={index}
-                isActive={activeMenu === version.id}
-                onToggle={onToggleMenu}
-                onEdit={onEdit}
-                onViewDetails={onViewDetails}
-                onDeprecate={onDeprecate}
-              />
-            ))}
+            {isLoading ? (
+              [...Array(5)].map((_, i) => (
+                <tr key={i} className="animate-pulse">
+                  <td colSpan={7} className="px-6 py-4">
+                    <div className="h-12 bg-gray-200 dark:bg-white/5 rounded-xl" />
+                  </td>
+                </tr>
+              ))
+            ) : versions.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="px-6 py-12 text-center">
+                  <p className="text-gray-500 text-sm">No versions found</p>
+                </td>
+              </tr>
+            ) : (
+              versions.map((version, index) => (
+                <VersionTableRow
+                  key={version.id}
+                  version={version}
+                  index={index}
+                  isActive={activeMenu === version.id}
+                  onToggle={onToggleMenu}
+                  onEdit={onEdit}
+                  onViewDetails={onViewDetails}
+                  onDeprecate={onDeprecate}
+                />
+              ))
+            )}
           </tbody>
         </table>
       </div>

@@ -1,7 +1,8 @@
 import { 
   assetsApi, 
-  BackendAsset, 
+  BackendCustomerAsset, 
   BackendProduct, 
+  BackendRelease,
   CreateProductPayload, 
   UpdateProductPayload 
 } from "../api/assets.api";
@@ -40,7 +41,7 @@ export interface Asset {
 
 export const assetsService = {
   // Maps a customer-owned asset from /user/my/assets
-  mapBackendAssetToAsset: (ba: BackendAsset): Asset => ({
+  mapBackendAssetToAsset: (ba: BackendCustomerAsset): Asset => ({
     id: ba.id,
     productId: ba.product_id,
     name: ba.product_name,
@@ -102,9 +103,13 @@ export const assetsService = {
 
   // Customer-owned assets
   async getMyAssets(token: string): Promise<Asset[]> {
-    const assets = await assetsApi.getMyAssets(token);
-    // api-client returns the data array directly due to unwrapping
-    return Array.isArray(assets) ? assets.map(this.mapBackendAssetToAsset) : [];
+    const response = await assetsApi.getMyAssets(token);
+    // Handle paginated response
+    if (response && response.data && Array.isArray(response.data)) {
+      return response.data.map(this.mapBackendAssetToAsset);
+    }
+    // Fallback for old/direct arrays just in case, though current api returns PaginatedBackendData
+    return Array.isArray(response) ? (response as any).map(this.mapBackendAssetToAsset) : [];
   },
 
   // Organization inventory (products owned by org)
@@ -136,13 +141,24 @@ export const assetsService = {
     return assetsApi.getLicense(token, licenseId);
   },
 
-  async createRelease(token: string, productId: string, data: {
-    version: string;
-    status: string;
-    download_url: string;
-    file_size_bytes?: number;
-  }) {
-    return assetsApi.createRelease(token, productId, data);
+  async getReleases(token: string, orgId: string, productId: string) {
+    return assetsApi.getReleases(token, orgId, productId);
+  },
+
+  async createRelease(token: string, orgId: string, productId: string, data: Partial<BackendRelease>) {
+    return assetsApi.createRelease(token, orgId, productId, data);
+  },
+
+  async updateRelease(token: string, orgId: string, releaseId: string, data: Partial<BackendRelease>) {
+    return assetsApi.updateRelease(token, orgId, releaseId, data);
+  },
+
+  async deleteRelease(token: string, orgId: string, releaseId: string) {
+    return assetsApi.deleteRelease(token, orgId, releaseId);
+  },
+
+  async getGlobalReleases(token: string, orgId: string, page = 1, limit = 20) {
+    return assetsApi.getGlobalReleases(token, orgId, page, limit);
   },
 };
 
@@ -151,7 +167,7 @@ const safeJsonParse = (jsonString?: string): string[] => {
   try {
     const parsed = JSON.parse(jsonString);
     return Array.isArray(parsed) ? parsed : [];
-  } catch (e) {
+  } catch {
     return [];
   }
 };

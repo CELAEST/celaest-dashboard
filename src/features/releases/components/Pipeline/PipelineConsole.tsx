@@ -37,26 +37,41 @@ const logs = [
   { time: "10:26:25", type: "success", msg: "Deployment to Staging complete." },
 ];
 
-export const PipelineConsole: React.FC = () => {
+import { BackendPipelineLog } from "@/features/assets/api/assets.api";
+
+export interface PipelineConsoleProps {
+  logs?: BackendPipelineLog[];
+  isLoading: boolean;
+}
+
+export const PipelineConsole: React.FC<PipelineConsoleProps> = ({
+  logs: propLogs,
+  isLoading,
+}) => {
   const { isDark } = useTheme();
   const [activeLog, setActiveLog] = useState<number>(0);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Simulate streaming logs
+  const showMock = !propLogs;
+  const displayLogs = React.useMemo(() => {
+    return showMock ? logs.slice(0, activeLog) : propLogs || [];
+  }, [showMock, activeLog, propLogs]);
+
+  // Simulate streaming logs (only for mock data)
   useEffect(() => {
-    if (activeLog < logs.length) {
+    if (showMock && activeLog < logs.length) {
       const timeout = setTimeout(() => {
         setActiveLog((prev) => prev + 1);
       }, 800);
       return () => clearTimeout(timeout);
     }
-  }, [activeLog]);
+  }, [activeLog, showMock]);
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [activeLog]);
+  }, [displayLogs, activeLog]);
 
   return (
     <div
@@ -90,38 +105,48 @@ export const PipelineConsole: React.FC = () => {
         ref={scrollRef}
         className="flex-1 overflow-y-auto p-4 font-mono text-xs custom-scrollbar"
       >
-        {logs.slice(0, activeLog).map((log, idx) => (
-          <motion.div
-            key={idx}
-            initial={{ opacity: 0, x: -5 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="mb-1.5 flex gap-3"
-          >
-            <span className="shrink-0 text-gray-500 select-none">
-              {log.time}
-            </span>
-            <span
-              className={`break-all ${
-                log.type === "cmd"
-                  ? "text-yellow-400 font-bold"
-                  : log.type === "success"
-                    ? "text-emerald-400"
-                    : log.type === "warning"
-                      ? "text-amber-400"
-                      : log.type === "info"
-                        ? "text-blue-300"
-                        : "text-gray-300"
-              }`}
-            >
-              {log.msg}
-            </span>
-          </motion.div>
-        ))}
-        {activeLog === logs.length && (
-          <div className="mt-4 flex items-center gap-2 text-emerald-500">
-            <Check size={14} />
-            <span>Process finished with exit code 0</span>
+        {isLoading ? (
+          <div className="space-y-2 animate-pulse">
+            <div className="h-4 w-3/4 bg-gray-200 dark:bg-white/5 rounded" />
+            <div className="h-4 w-1/2 bg-gray-200 dark:bg-white/5 rounded" />
+            <div className="h-4 w-2/3 bg-gray-200 dark:bg-white/5 rounded" />
           </div>
+        ) : (
+          <>
+            {displayLogs.map((log, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, x: -5 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="mb-1.5 flex gap-3"
+              >
+                <span className="shrink-0 text-gray-500 select-none">
+                  {log.time}
+                </span>
+                <span
+                  className={`break-all ${
+                    log.type === "cmd"
+                      ? "text-yellow-400 font-bold"
+                      : log.type === "success"
+                        ? "text-emerald-400"
+                        : log.type === "warning"
+                          ? "text-amber-400"
+                          : log.type === "info"
+                            ? "text-blue-300"
+                            : "text-gray-300"
+                  }`}
+                >
+                  {log.msg}
+                </span>
+              </motion.div>
+            ))}
+            {showMock && activeLog === logs.length && (
+              <div className="mt-4 flex items-center gap-2 text-emerald-500">
+                <Check size={14} />
+                <span>Process finished with exit code 0</span>
+              </div>
+            )}
+          </>
         )}
         <div className="h-4" /> {/* Spacer */}
       </div>

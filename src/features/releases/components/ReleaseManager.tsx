@@ -12,6 +12,9 @@ import {
   AlertCircle,
   Loader2,
 } from "lucide-react";
+import { useAuth } from "@/features/auth/contexts/AuthContext";
+import { useOrg } from "@/features/shared/contexts/OrgContext";
+import { assetsApi } from "@/features/assets/api/assets.api";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { VersionControl } from "./VersionControl";
 import { ReleaseMetrics } from "./ReleaseMetrics";
@@ -22,9 +25,14 @@ import { RecentReleaseFeed } from "./Overview/RecentReleaseFeed";
 import { EnvironmentHealth } from "./Overview/EnvironmentHealth";
 import { PipelineConsole } from "./Pipeline/PipelineConsole";
 import { motion, AnimatePresence } from "motion/react";
+import { useReleaseOverview } from "@/features/releases/hooks/useReleaseOverview";
+import { usePipeline } from "@/features/releases/hooks/usePipeline";
 
 export const ReleaseManager: React.FC = () => {
   const { theme } = useTheme();
+  const { session } = useAuth();
+  const { org } = useOrg();
+  const token = session?.accessToken;
   const isDark = theme === "dark";
   const [viewMode, setViewMode] = useState<"admin" | "customer">("admin");
   const [activeTab, setActiveTab] = useState<
@@ -34,6 +42,24 @@ export const ReleaseManager: React.FC = () => {
   const [abortState, setAbortState] = useState<"idle" | "confirm" | "aborting">(
     "idle",
   );
+
+  // Data Fetching
+  const {
+    data: overviewData,
+    isLoading: overviewLoading,
+    refetch: refetchOverview,
+  } = useReleaseOverview({
+    enabled: viewMode === "admin" && activeTab === "overview",
+  });
+  const {
+    data: pipelineData,
+    isLoading: pipelineLoading,
+    refetch: refetchPipeline,
+  } = usePipeline({
+    enabled:
+      viewMode === "admin" &&
+      (activeTab === "overview" || activeTab === "pipeline"),
+  });
 
   // Mock Asset for Deploy Panel
   const deployAsset = {
@@ -248,7 +274,10 @@ export const ReleaseManager: React.FC = () => {
                   >
                     {/* Metrics Row - Fixed Height */}
                     <div className="shrink-0">
-                      <ReleaseMetrics />
+                      <ReleaseMetrics
+                        metrics={overviewData?.metrics}
+                        isLoading={overviewLoading}
+                      />
                     </div>
 
                     {/* Dashboard Grid - Fills Remaining Height */}
@@ -272,7 +301,10 @@ export const ReleaseManager: React.FC = () => {
                           </div>
                           <div className="flex-1 overflow-x-auto overflow-y-hidden px-8 pb-4">
                             <div className="h-full min-w-[600px] flex flex-col justify-center">
-                              <DeploymentPipeline />
+                              <DeploymentPipeline
+                                stages={pipelineData?.stages}
+                                isLoading={pipelineLoading}
+                              />
                             </div>
                           </div>
                         </div>
@@ -280,10 +312,16 @@ export const ReleaseManager: React.FC = () => {
 
                       <div className="lg:col-span-4 h-full flex flex-col gap-4 min-h-0">
                         <div className="flex-1 min-h-0">
-                          <EnvironmentHealth />
+                          <EnvironmentHealth
+                            systemHealth={overviewData?.metrics?.system_health}
+                            isLoading={overviewLoading || !overviewData}
+                          />
                         </div>
                         <div className="flex-[1.5] min-h-0">
-                          <RecentReleaseFeed />
+                          <RecentReleaseFeed
+                            activities={overviewData?.activity}
+                            isLoading={overviewLoading}
+                          />
                         </div>
                       </div>
                     </div>
@@ -299,19 +337,25 @@ export const ReleaseManager: React.FC = () => {
                     className="h-full overflow-hidden flex flex-col gap-4"
                   >
                     <div className="shrink-0 h-[220px] rounded-[2.5rem] border p-8 flex flex-col justify-center relative backdrop-blur-3xl shadow-2xl bg-[#0a0a0a]/60 border-white/5">
-                      <DeploymentPipeline />
+                      <DeploymentPipeline
+                        stages={pipelineData?.stages}
+                        isLoading={pipelineLoading}
+                      />
                     </div>
 
                     <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-4 pb-2">
                       <div className="lg:col-span-8 h-full min-h-0">
-                        <PipelineConsole />
+                        <PipelineConsole
+                          logs={pipelineData?.logs}
+                          isLoading={pipelineLoading}
+                        />
                       </div>
 
                       <div
                         className={`lg:col-span-4 h-full min-h-0 rounded-[2.5rem] border flex flex-col overflow-hidden backdrop-blur-3xl shadow-2xl ${isDark ? "bg-[#0a0a0a]/60 border-white/5" : "bg-white border-gray-200"}`}
                       >
                         <div className="flex-1 overflow-y-auto p-8 space-y-6 custom-scrollbar">
-                          {/* Build Metadata content remains the same with updated styling */}
+                          {/* Build Metadata content */}
                           <div>
                             <h3
                               className={`text-[10px] font-black uppercase tracking-[0.4em] mb-4 ${isDark ? "text-white/40" : "text-gray-400"}`}
@@ -326,7 +370,8 @@ export const ReleaseManager: React.FC = () => {
                                 <span
                                   className={`font-black italic tracking-tighter ${isDark ? "text-white" : "text-gray-700"}`}
                                 >
-                                  Webhook (GitHub)
+                                  {pipelineData?.metadata?.triggered_by ||
+                                    "Manual (API)"}
                                 </span>
                               </div>
                               <div className="flex justify-between">
@@ -336,7 +381,7 @@ export const ReleaseManager: React.FC = () => {
                                 <span
                                   className={`font-mono text-xs ${isDark ? "text-purple-400" : "text-purple-600"}`}
                                 >
-                                  main
+                                  {pipelineData?.metadata?.branch || "main"}
                                 </span>
                               </div>
                               <div className="flex justify-between">
@@ -346,7 +391,7 @@ export const ReleaseManager: React.FC = () => {
                                 <span
                                   className={`font-mono text-xs ${isDark ? "text-gray-300" : "text-gray-700"}`}
                                 >
-                                  fe45a12
+                                  {pipelineData?.metadata?.commit || "---"}
                                 </span>
                               </div>
                               <div className="flex justify-between">
@@ -354,7 +399,8 @@ export const ReleaseManager: React.FC = () => {
                                   Environment
                                 </span>
                                 <span className="px-3 py-1 rounded bg-blue-500/20 text-blue-400 text-[10px] font-black tracking-widest uppercase">
-                                  STAGING
+                                  {pipelineData?.metadata?.environment ||
+                                    "PRODUCTION"}
                                 </span>
                               </div>
                             </div>
@@ -380,10 +426,12 @@ export const ReleaseManager: React.FC = () => {
                                     <p
                                       className={`text-xs font-black italic tracking-tighter uppercase ${isDark ? "text-white" : "text-gray-900"}`}
                                     >
-                                      Docker Image
+                                      {pipelineData?.metadata?.artifact_name ||
+                                        "Latest Build"}
                                     </p>
                                     <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest">
-                                      45.2 MB
+                                      {pipelineData?.metadata?.artifact_size ||
+                                        "0.0 MB"}
                                     </p>
                                   </div>
                                 </div>
@@ -427,12 +475,30 @@ export const ReleaseManager: React.FC = () => {
                                   initial={{ opacity: 0, scale: 0.9 }}
                                   animate={{ opacity: 1, scale: 1 }}
                                   exit={{ opacity: 0, scale: 0.9 }}
-                                  onClick={() => {
+                                  onClick={async () => {
                                     setAbortState("aborting");
-                                    setTimeout(
-                                      () => setAbortState("idle"),
-                                      2000,
-                                    );
+                                    try {
+                                      if (token && org?.id) {
+                                        await assetsApi.abortPipeline(
+                                          token,
+                                          org.id,
+                                        );
+                                        await Promise.all([
+                                          refetchPipeline(),
+                                          refetchOverview(),
+                                        ]);
+                                      }
+                                      setTimeout(
+                                        () => setAbortState("idle"),
+                                        1000,
+                                      );
+                                    } catch (err) {
+                                      console.error(
+                                        "Failed to abort pipeline:",
+                                        err,
+                                      );
+                                      setAbortState("idle");
+                                    }
                                   }}
                                   className="w-full py-4 rounded-xl font-black text-[10px] uppercase tracking-widest bg-red-600 text-white shadow-[0_0_20px_rgba(220,38,38,0.6)] animate-pulse flex items-center justify-center gap-2 transition-transform active:scale-95"
                                 >
@@ -464,7 +530,7 @@ export const ReleaseManager: React.FC = () => {
           </>
         ) : (
           <div className="flex-1 min-h-0 overflow-y-auto pr-2 pb-20 scrollbar-hide">
-            <UpdateCenter />
+            <UpdateCenter enabled={viewMode === "customer"} />
           </div>
         )}
       </div>

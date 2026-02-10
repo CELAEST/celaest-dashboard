@@ -2,7 +2,7 @@
 
 import React, { useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { X } from "lucide-react";
+import { X, Loader2 } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { Version } from "../types";
 import { useVersionEditor } from "../hooks/useVersionEditor";
@@ -14,8 +14,10 @@ import { VersionSecurity } from "./VersionEditor/VersionSecurity";
 interface VersionEditorProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (version: Partial<Version>) => void;
-  version: Version | null;
+  onSave: (data: any) => void;
+  version?: Version | null;
+  assets?: { id: string; name: string }[];
+  isSubmitting?: boolean;
 }
 
 export const VersionEditor: React.FC<VersionEditorProps> = ({
@@ -23,6 +25,8 @@ export const VersionEditor: React.FC<VersionEditorProps> = ({
   onClose,
   onSave,
   version,
+  assets,
+  isSubmitting,
 }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
@@ -34,7 +38,9 @@ export const VersionEditor: React.FC<VersionEditorProps> = ({
     addChangelogItem,
     removeChangelogItem,
     handleSubmit,
-  } = useVersionEditor({ version, onSave, onClose });
+    selectedFile,
+    setSelectedFile,
+  } = useVersionEditor({ version: version || null, onSave, onClose });
 
   const autoFocusRef = useRef<HTMLInputElement>(null);
 
@@ -128,10 +134,51 @@ export const VersionEditor: React.FC<VersionEditorProps> = ({
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="p-6 space-y-8">
-            {!version && <VersionFileUpload onFileSelect={() => {}} />}
+            {!version && (
+              <VersionFileUpload
+                onFileSelect={(files) => {
+                  if (files && files.length > 0) {
+                    setSelectedFile(files[0]);
+                  }
+                }}
+              />
+            )}
+
+            {selectedFile && (
+              <div
+                className={`p-3 rounded-lg border flex items-center justify-between ${
+                  isDark
+                    ? "bg-cyan-500/5 border-cyan-500/20 text-cyan-400"
+                    : "bg-blue-50 border-blue-200 text-blue-700"
+                }`}
+              >
+                <div className="flex items-center gap-2 overflow-hidden">
+                  <div className="w-8 h-8 rounded bg-current/10 flex items-center justify-center shrink-0">
+                    <span className="text-[10px] font-bold">FILE</span>
+                  </div>
+                  <div className="truncate">
+                    <p className="text-sm font-semibold truncate">
+                      {selectedFile.name}
+                    </p>
+                    <p className="text-xs opacity-70">
+                      {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedFile(null)}
+                  className="p-1 hover:bg-current/10 rounded-md transition-colors"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            )}
 
             <VersionBasicInfo
               formData={formData}
+              assets={assets}
+              isEdit={!!version}
               onChange={handleChange}
               autoFocusRef={autoFocusRef}
             />
@@ -164,13 +211,25 @@ export const VersionEditor: React.FC<VersionEditorProps> = ({
               </button>
               <button
                 type="submit"
-                className={`flex-1 px-6 py-3 rounded-xl font-semibold transition-all ${
-                  isDark
-                    ? "bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 border border-cyan-500/20"
-                    : "bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
+                disabled={isSubmitting}
+                className={`flex-1 px-6 py-3 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 ${
+                  isSubmitting
+                    ? "opacity-50 cursor-not-allowed bg-gray-600/20 text-gray-500"
+                    : isDark
+                      ? "bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 border border-cyan-500/20"
+                      : "bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
                 }`}
               >
-                {version ? "Update Version" : "Publish Release"}
+                {isSubmitting ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" />
+                    {version ? "Updating..." : "Publishing..."}
+                  </>
+                ) : version ? (
+                  "Update Version"
+                ) : (
+                  "Publish Release"
+                )}
               </button>
             </div>
           </form>

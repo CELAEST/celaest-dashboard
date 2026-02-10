@@ -12,39 +12,40 @@ import {
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { motion } from "motion/react";
 
-export const DeploymentPipeline: React.FC = () => {
+import { BackendPipelineStage } from "@/features/assets/api/assets.api";
+
+export interface DeploymentPipelineProps {
+  stages?: BackendPipelineStage[];
+  isLoading: boolean;
+}
+
+export const DeploymentPipeline: React.FC<DeploymentPipelineProps> = ({
+  stages,
+  isLoading,
+}) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
-  const stages = [
-    {
-      name: "Build",
-      status: "complete",
-      duration: "2m 14s",
-      commit: "fe45a1",
-      icon: Server,
-    },
-    {
-      name: "Test",
-      status: "complete",
-      duration: "4m 30s",
-      commit: "fe45a1",
-      icon: CheckCircle,
-    },
-    {
-      name: "Staging",
-      status: "active",
-      duration: "Running...",
-      commit: "fe45a1",
-      icon: Loader2,
-    },
-    {
-      name: "Production",
-      status: "pending",
-      duration: "-",
-      commit: "-",
-      icon: PlayCircle,
-    },
+  const getIcon = (name: string) => {
+    switch (name) {
+      case "Build":
+        return Server;
+      case "Test":
+        return CheckCircle;
+      case "Staging":
+        return Loader2;
+      case "Production":
+        return PlayCircle;
+      default:
+        return Server;
+    }
+  };
+
+  const displayStages = stages || [
+    { name: "Build", status: "pending", duration: "-", commit: "-" },
+    { name: "Test", status: "pending", duration: "-", commit: "-" },
+    { name: "Staging", status: "pending", duration: "-", commit: "-" },
+    { name: "Production", status: "pending", duration: "-", commit: "-" },
   ];
 
   return (
@@ -68,10 +69,10 @@ export const DeploymentPipeline: React.FC = () => {
           </motion.div>
         </div>
 
-        {stages.map((stage, idx) => {
+        {displayStages.map((stage, idx) => {
           const isComplete = stage.status === "complete";
           const isActive = stage.status === "active";
-          const Icon = stage.icon;
+          const Icon = getIcon(stage.name);
 
           return (
             <motion.div
@@ -85,29 +86,37 @@ export const DeploymentPipeline: React.FC = () => {
               {/* Icon Bubble */}
               <div
                 className={`relative w-20 h-20 rounded-full flex items-center justify-center border-4 transition-all duration-500 z-10 bg-white dark:bg-[#0a0a0a] ${
-                  isComplete
+                  isLoading
                     ? isDark
-                      ? "border-emerald-500 text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)]"
-                      : "border-emerald-500 text-emerald-600 shadow-emerald-200"
-                    : isActive
+                      ? "border-white/5 text-gray-700"
+                      : "border-gray-100 text-gray-300"
+                    : isComplete
                       ? isDark
-                        ? "border-blue-500 text-blue-400 shadow-[0_0_30px_rgba(59,130,246,0.5)] scale-110"
-                        : "border-blue-500 text-blue-600 shadow-blue-300 scale-110"
-                      : isDark
-                        ? "border-white/10 text-gray-600"
-                        : "border-gray-200 text-gray-300"
+                        ? "border-emerald-500 text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)]"
+                        : "border-emerald-500 text-emerald-600 shadow-emerald-200"
+                      : isActive
+                        ? isDark
+                          ? "border-blue-500 text-blue-400 shadow-[0_0_30px_rgba(59,130,246,0.5)] scale-110"
+                          : "border-blue-500 text-blue-600 shadow-blue-300 scale-110"
+                        : isDark
+                          ? "border-white/10 text-gray-600"
+                          : "border-gray-200 text-gray-300"
                 }`}
               >
-                {isActive && (
+                {isActive && !isLoading && (
                   <div className="absolute inset-0 rounded-full border-blue-500 border-2 animate-ping opacity-20" />
                 )}
-                <Icon
-                  size={isComplete || isActive ? 28 : 24}
-                  className={isActive ? "animate-spin-slow" : ""}
-                />
+                {isLoading ? (
+                  <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-white/5 animate-pulse" />
+                ) : (
+                  <Icon
+                    size={isComplete || isActive ? 28 : 24}
+                    className={isActive ? "animate-spin-slow" : ""}
+                  />
+                )}
 
                 {/* Small Status Badge on Icon */}
-                {isComplete && (
+                {isComplete && !isLoading && (
                   <div className="absolute -right-1 -top-1 bg-emerald-500 rounded-full p-1 border-2 border-white dark:border-black">
                     <CheckCircle size={10} className="text-white" />
                   </div>
@@ -118,46 +127,55 @@ export const DeploymentPipeline: React.FC = () => {
               <div
                 className={`mt-4 text-center transition-all duration-300 ${isActive ? "transform translateY(-4px)" : ""}`}
               >
-                <h4
-                  className={`font-bold text-lg mb-1 ${
-                    isActive
-                      ? isDark
-                        ? "text-blue-400"
-                        : "text-blue-600"
-                      : isComplete
-                        ? isDark
-                          ? "text-emerald-400"
-                          : "text-emerald-600"
-                        : isDark
-                          ? "text-gray-500"
-                          : "text-gray-400"
-                  }`}
-                >
-                  {stage.name}
-                </h4>
+                {isLoading ? (
+                  <div className="space-y-2 flex flex-col items-center">
+                    <div className="h-4 w-16 bg-gray-200 dark:bg-white/5 rounded animate-pulse" />
+                    <div className="h-3 w-12 bg-gray-200 dark:bg-white/5 rounded animate-pulse" />
+                  </div>
+                ) : (
+                  <>
+                    <h4
+                      className={`font-bold text-lg mb-1 ${
+                        isActive
+                          ? isDark
+                            ? "text-blue-400"
+                            : "text-blue-600"
+                          : isComplete
+                            ? isDark
+                              ? "text-emerald-400"
+                              : "text-emerald-600"
+                            : isDark
+                              ? "text-gray-500"
+                              : "text-gray-400"
+                      }`}
+                    >
+                      {stage.name}
+                    </h4>
 
-                <div
-                  className={`flex flex-col items-center gap-1 text-xs font-medium ${
-                    isActive
-                      ? isDark
-                        ? "text-gray-200"
-                        : "text-gray-700"
-                      : isDark
-                        ? "text-gray-500"
-                        : "text-gray-400"
-                  }`}
-                >
-                  <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-gray-100 dark:bg-white/5">
-                    <Clock size={10} />
-                    {stage.duration}
-                  </span>
-                  {stage.commit !== "-" && (
-                    <span className="flex items-center gap-1.5 font-mono opacity-80">
-                      <GitCommit size={10} />
-                      {stage.commit}
-                    </span>
-                  )}
-                </div>
+                    <div
+                      className={`flex flex-col items-center gap-1 text-xs font-medium ${
+                        isActive
+                          ? isDark
+                            ? "text-gray-200"
+                            : "text-gray-700"
+                          : isDark
+                            ? "text-gray-500"
+                            : "text-gray-400"
+                      }`}
+                    >
+                      <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-gray-100 dark:bg-white/5">
+                        <Clock size={10} />
+                        {stage.duration}
+                      </span>
+                      {stage.commit !== "-" && (
+                        <span className="flex items-center gap-1.5 font-mono opacity-80">
+                          <GitCommit size={10} />
+                          {stage.commit}
+                        </span>
+                      )}
+                    </div>
+                  </>
+                )}
               </div>
             </motion.div>
           );

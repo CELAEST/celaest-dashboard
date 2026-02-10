@@ -14,6 +14,7 @@ export const VersionControl: React.FC = () => {
 
   const {
     versions,
+    isLoading,
     activeMenu,
     isEditorOpen,
     editingVersion,
@@ -27,6 +28,8 @@ export const VersionControl: React.FC = () => {
     toggleMenu,
     setIsEditorOpen,
     setDetailsModalOpen,
+    availableAssets,
+    isSaving,
   } = useVersionControl();
 
   return (
@@ -45,6 +48,7 @@ export const VersionControl: React.FC = () => {
         <div className="flex-1 min-h-0 overflow-auto">
           <VersionTable
             versions={versions}
+            isLoading={isLoading}
             activeMenu={activeMenu}
             onToggleMenu={toggleMenu}
             onEdit={handleEdit}
@@ -74,6 +78,8 @@ export const VersionControl: React.FC = () => {
         onClose={() => setIsEditorOpen(false)}
         onSave={handleSaveVersion}
         version={editingVersion}
+        assets={availableAssets}
+        isSubmitting={isSaving}
       />
 
       <VersionDetailsModal
