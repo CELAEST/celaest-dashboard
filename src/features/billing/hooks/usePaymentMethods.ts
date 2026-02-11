@@ -1,70 +1,84 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { PaymentMethod } from "../types";
-
-const INITIAL_METHODS: PaymentMethod[] = [
-  {
-    id: "1",
-    type: "visa",
-    last4: "4242",
-    expiryMonth: "12",
-    expiryYear: "2026",
-    isDefault: true,
-    holderName: "John Doe",
-  },
-  {
-    id: "2",
-    type: "mastercard",
-    last4: "8888",
-    expiryMonth: "08",
-    expiryYear: "2027",
-    isDefault: false,
-    holderName: "John Doe",
-  },
-  {
-    id: "3",
-    type: "amex",
-    last4: "1001",
-    expiryMonth: "11",
-    expiryYear: "2028",
-    isDefault: false,
-    holderName: "John Doe",
-  },
-  {
-    id: "4",
-    type: "visa",
-    last4: "5555",
-    expiryMonth: "03",
-    expiryYear: "2029",
-    isDefault: false,
-    holderName: "John Doe",
-  },
-];
+import { useOrgStore } from "@/features/shared/stores/useOrgStore";
+import { useAuth } from "@/features/auth/contexts/AuthContext";
+import { billingApi } from "../api/billing.api";
+import { toast } from "sonner";
 
 export const usePaymentMethods = () => {
-  const [methods, setMethods] = useState<PaymentMethod[]>(INITIAL_METHODS);
+  const { currentOrg } = useOrgStore();
+  const { session } = useAuth();
+  const [methods, setMethods] = useState<PaymentMethod[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
 
-  const handleSetDefault = (id: string) => {
-    setMethods(methods.map((m) => ({ ...m, isDefault: m.id === id })));
-    setActiveMenu(null);
+  const fetchMethods = useCallback(async () => {
+    if (!currentOrg?.id || !session?.accessToken) return;
+
+    setIsLoading(true);
+    try {
+      const data: any = await billingApi.getPaymentMethods(currentOrg.id, session.accessToken);
+      
+      // Map backend to frontend types if necessary
+      const mappedMethods: PaymentMethod[] = (data || []).map((m: any) => ({
+        id: m.id,
+        // Backend brand -> frontend type
+        type: (m.brand?.toLowerCase() || 'visa') as any, 
+        last4: m.last4 || '0000',
+        expiryMonth: String(m.expiry_month || '12').padStart(2, '0'),
+        expiryYear: String(m.expiry_year || '2025'),
+        isDefault: m.is_default || false,
+        holderName: "Card Holder", // Fallback if not in DB
+      }));
+
+      setMethods(mappedMethods);
+      setError(null);
+    } catch (err: any) {
+      console.error("Failed to fetch payment methods:", err);
+      setError("Failed to load payment methods");
+      // toast.error("Failed to load payment methods");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [currentOrg?.id, session?.accessToken]);
+
+  useEffect(() => {
+    fetchMethods();
+  }, [fetchMethods]);
+
+  const handleSetDefault = async (id: string) => {
+    if (!currentOrg?.id || !session?.accessToken) return;
+
+    try {
+      await billingApi.setDefaultPaymentMethod(currentOrg.id, session.accessToken, id);
+      setMethods(methods.map((m) => ({ ...m, isDefault: m.id === id })));
+      setActiveMenu(null);
+      toast.success("Default payment method updated");
+    } catch (err: any) {
+      console.error("Failed to set default payment method:", err);
+      toast.error("Failed to update default payment method");
+    }
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
+    if (!currentOrg?.id || !session?.accessToken) return;
+
     const method = methods.find((m) => m.id === id);
     if (method?.isDefault && methods.length > 1) {
-      alert(
-        "Cannot delete default payment method. Please set another card as default first.",
-      );
+      toast.error("Cannot delete default payment method");
       return;
     }
-    if (methods.length === 1) {
-      alert(
-        "Cannot delete the only payment method associated with an active subscription.",
-      );
-      return;
+
+    try {
+      await billingApi.deletePaymentMethod(currentOrg.id, session.accessToken, id);
+      setMethods(methods.filter((m) => m.id !== id));
+      setActiveMenu(null);
+      toast.success("Payment method removed");
+    } catch (err: any) {
+      console.error("Failed to delete payment method:", err);
+      toast.error("Failed to remove payment method");
     }
-    setMethods(methods.filter((m) => m.id !== id));
-    setActiveMenu(null);
   };
 
   const handleUpdateMethod = (updatedMethod: PaymentMethod) => {
@@ -79,11 +93,14 @@ export const usePaymentMethods = () => {
 
   return {
     methods,
+    isLoading,
+    error,
     activeMenu,
     setActiveMenu,
     handleSetDefault,
     handleDelete,
     handleUpdateMethod,
-    addMethod
+    addMethod,
+    refresh: fetchMethods
   };
 };

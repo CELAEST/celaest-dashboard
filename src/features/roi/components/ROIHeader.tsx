@@ -1,6 +1,6 @@
 import React from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { ChevronDown, Check, Download } from "lucide-react";
+import { ChevronDown, Check, Download, RefreshCw } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 
 interface ROIHeaderProps {
@@ -11,6 +11,9 @@ interface ROIHeaderProps {
   filterOptions: { value: string; label: string }[];
   activeTab: "overview" | "insights";
   setActiveTab: (tab: "overview" | "insights") => void;
+  onRefresh: () => void;
+  onExport: () => void;
+  isLoading: boolean;
 }
 
 export const ROIHeader = React.memo(
@@ -22,6 +25,9 @@ export const ROIHeader = React.memo(
     filterOptions,
     activeTab,
     setActiveTab,
+    onRefresh,
+    onExport,
+    isLoading,
   }: ROIHeaderProps) => {
     const { theme } = useTheme();
     const isDark = theme === "dark";
@@ -153,7 +159,24 @@ export const ROIHeader = React.memo(
               )}
             </AnimatePresence>
           </div>
+
           <button
+            onClick={onRefresh}
+            className={`p-2.5 rounded-xl font-semibold transition-all duration-300 hover:scale-105 ${
+              isDark
+                ? "bg-white/5 hover:bg-white/10 text-white"
+                : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+            }`}
+            aria-label="Refrescar datos"
+            disabled={isLoading}
+          >
+            <RefreshCw
+              className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`}
+            />
+          </button>
+
+          <button
+            onClick={onExport}
             className={`px-6 py-2.5 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 flex items-center gap-2 ${
               isDark
                 ? "bg-linear-to-r from-cyan-400 to-blue-500 text-white shadow-lg shadow-cyan-500/50"

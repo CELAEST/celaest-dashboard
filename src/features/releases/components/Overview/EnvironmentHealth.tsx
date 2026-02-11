@@ -9,10 +9,14 @@ const HealthGauge: React.FC<{
   label: string;
   color: string;
   icon: React.ElementType;
-}> = ({ value, label, color, icon: Icon }) => {
+  unit?: string;
+}> = ({ value, label, color, icon: Icon, unit = "%" }) => {
   const { isDark } = useTheme();
   const circumference = 2 * Math.PI * 22; // r=22
-  const offset = circumference - (value / 100) * circumference;
+
+  // Cap gauge at 100% for visualization
+  const gaugeValue = Math.min(value, 100);
+  const offset = circumference - (gaugeValue / 100) * circumference;
 
   const colors: Record<string, string> = {
     emerald: isDark ? "#10b981" : "#059669",
@@ -45,13 +49,14 @@ const HealthGauge: React.FC<{
             className="transition-all duration-1000 ease-out"
           />
         </svg>
-        <div className="absolute inset-0 flex items-center justify-center text-xs font-bold">
-          {value}%
+        <div className="absolute inset-0 flex items-center justify-center text-[10px] font-bold">
+          {value}
+          {unit}
         </div>
       </div>
-      <div className="flex items-center gap-1.5 text-xs font-medium opacity-80">
+      <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest opacity-80">
         <Icon
-          size={12}
+          size={10}
           className={
             color === "emerald"
               ? "text-emerald-500"
@@ -66,8 +71,27 @@ const HealthGauge: React.FC<{
   );
 };
 
-export const EnvironmentHealth: React.FC = () => {
+import { BackendSystemHealth } from "@/features/assets/api/assets.api";
+
+export interface EnvironmentHealthProps {
+  systemHealth?: BackendSystemHealth;
+  isLoading?: boolean;
+}
+
+export const EnvironmentHealth: React.FC<EnvironmentHealthProps> = ({
+  systemHealth,
+  isLoading,
+}) => {
   const { isDark } = useTheme();
+
+  // Defaults if no data yet
+  const health = systemHealth || {
+    cpu: 0,
+    ram: 0,
+    network: 0,
+    uptime: "99.98%",
+    latency: "24ms",
+  };
 
   return (
     <div
@@ -101,9 +125,27 @@ export const EnvironmentHealth: React.FC = () => {
 
       {/* Gauges Row */}
       <div className="flex justify-around items-center flex-1 py-2">
-        <HealthGauge value={32} label="CPU" color="emerald" icon={Server} />
-        <HealthGauge value={64} label="RAM" color="blue" icon={Zap} />
-        <HealthGauge value={45} label="NET" color="purple" icon={Wifi} />
+        <HealthGauge
+          value={health.cpu}
+          label="CPU Load"
+          color="emerald"
+          icon={Server}
+          unit="%"
+        />
+        <HealthGauge
+          value={health.ram}
+          label="RAM"
+          color="blue"
+          icon={Zap}
+          unit="MB"
+        />
+        <HealthGauge
+          value={health.network}
+          label="Net"
+          color="purple"
+          icon={Wifi}
+          unit="%"
+        />
       </div>
 
       {/* Footer Stats */}
@@ -115,7 +157,7 @@ export const EnvironmentHealth: React.FC = () => {
           <span
             className={`font-mono font-bold ${isDark ? "text-white" : "text-gray-900"}`}
           >
-            99.98%
+            {health.uptime}
           </span>
         </span>
         <span>
@@ -123,7 +165,7 @@ export const EnvironmentHealth: React.FC = () => {
           <span
             className={`font-mono font-bold ${isDark ? "text-white" : "text-gray-900"}`}
           >
-            24ms
+            {health.latency}
           </span>
         </span>
       </div>

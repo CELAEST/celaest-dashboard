@@ -42,12 +42,35 @@ const deprecatedData = [
   { value: 8 },
 ];
 
-export const ReleaseMetrics: React.FC = () => {
+import { BackendReleaseMetrics } from "@/features/assets/api/assets.api";
+
+interface ReleaseMetricsProps {
+  metrics?: BackendReleaseMetrics;
+  isLoading: boolean;
+}
+
+export const ReleaseMetrics: React.FC<ReleaseMetricsProps> = ({
+  metrics,
+  isLoading,
+}) => {
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 animate-pulse">
+        {[...Array(4)].map((_, i) => (
+          <div
+            key={i}
+            className="h-32 bg-gray-200 dark:bg-white/5 rounded-2xl"
+          />
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <StatCard
         title="Total Releases"
-        value="68"
+        value={metrics?.total_releases.toString() || "0"}
         trend="+12 this month"
         trendUp={true}
         icon={<GitBranch size={24} />}
@@ -57,7 +80,7 @@ export const ReleaseMetrics: React.FC = () => {
       />
       <StatCard
         title="Adoption Rate"
-        value="82.4%"
+        value={`${Math.round(metrics?.adoption_rate || 0)}%`}
         trend="+4.2% engagement"
         trendUp={true}
         icon={<TrendingUp size={24} />}
@@ -67,7 +90,7 @@ export const ReleaseMetrics: React.FC = () => {
       />
       <StatCard
         title="Active Versions"
-        value="14"
+        value={metrics?.active_versions.toString() || "0"}
         trend="-2 outdated"
         trendUp={false}
         icon={<Users size={24} />}
@@ -77,7 +100,7 @@ export const ReleaseMetrics: React.FC = () => {
       />
       <StatCard
         title="Deprecated"
-        value="8"
+        value={metrics?.deprecated_count.toString() || "0"}
         trend="+1 archived"
         trendUp={true} // Neutral defaults to positive styling for now
         icon={<AlertTriangle size={24} />}

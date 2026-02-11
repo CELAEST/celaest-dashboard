@@ -1,58 +1,64 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import { motion } from "motion/react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { Monitor, ShieldCheck, CheckCircle2, AlertCircle } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
-interface ErrorAnalyticsProps {
-  data?: {
-    totalErrors: number;
-    ecosystem: {
-      name: string;
-      value: number;
-      color: string;
-      details: string;
-      status: "optimal" | "warning" | "critical";
-    }[];
-  };
+export interface PlatformStat {
+  name: string;
+  value: number;
+  details: string;
 }
 
-export const ErrorAnalytics: React.FC<ErrorAnalyticsProps> = () => {
+interface ErrorAnalyticsProps {
+  data?: PlatformStat[];
+}
+
+export const ErrorAnalytics: React.FC<ErrorAnalyticsProps> = ({ data }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
-  const ecosystemData = [
-    {
-      name: "Enterprise Hub (W11)",
-      value: 45,
-      color: "#06b6d4",
-      details: "Excel 365 v2401",
-      status: "optimal",
-    },
-    {
-      name: "Legacy Node (W10)",
-      value: 30,
-      color: "#3b82f6",
-      details: "Excel 365 v2312",
-      status: "optimal",
-    },
-    {
-      name: "Mac Runtime (macOS)",
-      value: 15,
-      color: "#8b5cf6",
-      details: "Excel v16.82",
-      status: "warning",
-    },
-    {
-      name: "Restricted Env",
-      value: 10,
-      color: "#6366f1",
-      details: "Excel 2019 LTSC",
-      status: "critical",
-    },
+  const platformColors = [
+    "#06b6d4",
+    "#3b82f6",
+    "#8b5cf6",
+    "#6366f1",
+    "#ec4899",
   ];
+
+  const ecosystemData = useMemo(() => {
+    if (!data || data.length === 0) {
+      return [
+        {
+          name: "Enterprise Hub (W11)",
+          value: 100,
+          color: "#06b6d4",
+          details: "Excel 365 v2401",
+          status: "optimal" as const,
+        },
+      ];
+    }
+
+    return data.map((item, index) => ({
+      name: item.name,
+      value: item.value,
+      color: platformColors[index % platformColors.length],
+      details: item.details,
+      status: (item.value > 80
+        ? "optimal"
+        : item.value > 50
+          ? "warning"
+          : "critical") as "optimal" | "warning" | "critical",
+    }));
+  }, [data]);
+
+  const averageHealth = useMemo(() => {
+    if (ecosystemData.length === 0) return 100;
+    const sum = ecosystemData.reduce((acc, curr) => acc + curr.value, 0);
+    return Math.round(sum / ecosystemData.length);
+  }, [ecosystemData]);
 
   return (
     <motion.div
@@ -110,7 +116,7 @@ export const ErrorAnalytics: React.FC<ErrorAnalyticsProps> = () => {
             }`}
           >
             <div className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
-            SYSTEM HEALTH: 100%
+            SYSTEM HEALTH: {averageHealth}%
           </div>
         </div>
       </div>
@@ -133,7 +139,7 @@ export const ErrorAnalytics: React.FC<ErrorAnalyticsProps> = () => {
             <span
               className={`text-5xl font-black italic tracking-tighter ${isDark ? "text-white" : "text-gray-900"}`}
             >
-              100%
+              {averageHealth}%
             </span>
           </div>
 

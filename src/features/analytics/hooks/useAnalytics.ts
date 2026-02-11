@@ -19,14 +19,23 @@ export const useAnalytics = (period: string = "month") => {
     eventLogs,
     isLoading,
     error,
-    fetchDashboardData
+    fetchDashboardData,
+    fetchLiveFeed
   } = useAnalyticsStore();
 
   useEffect(() => {
     if (isAuthReady && token && orgId) {
       fetchDashboardData(token, orgId, period);
+      fetchLiveFeed(token, orgId);
+
+      // Poll live feed every 30 seconds
+      const interval = setInterval(() => {
+        fetchLiveFeed(token, orgId);
+      }, 30000);
+
+      return () => clearInterval(interval);
     }
-  }, [isAuthReady, token, orgId, fetchDashboardData, period]);
+  }, [isAuthReady, token, orgId, fetchDashboardData, fetchLiveFeed, period]);
 
   return {
     isDark,

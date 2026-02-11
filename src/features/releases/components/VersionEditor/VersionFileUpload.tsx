@@ -21,7 +21,8 @@ export const VersionFileUpload: React.FC<VersionFileUploadProps> = memo(
           Upload New Version File
         </label>
         <div
-          className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${
+          onClick={() => document.getElementById("version-file-input")?.click()}
+          className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors cursor-pointer ${
             isDark
               ? "border-white/10 hover:border-cyan-500/30 bg-white/5"
               : "border-gray-300 hover:border-blue-400 bg-gray-50"
@@ -47,6 +48,7 @@ export const VersionFileUpload: React.FC<VersionFileUploadProps> = memo(
           </p>
           <input
             type="file"
+            id="version-file-input"
             className="hidden"
             onChange={(e) => onFileSelect(e.target.files)}
           />

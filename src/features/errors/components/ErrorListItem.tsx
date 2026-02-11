@@ -8,7 +8,10 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
-import { ErrorLog } from "@/features/errors/hooks/useErrorMonitoring";
+import {
+  ErrorLog,
+  ErrorStatus,
+} from "@/features/errors/hooks/useErrorMonitoring";
 import { ErrorBadge } from "./ErrorBadge";
 import { ErrorDetails } from "./ErrorDetails";
 
@@ -17,6 +20,7 @@ interface ErrorListItemProps {
   index: number;
   expandedError: string | null;
   toggleErrorExpansion: (errorId: string) => void;
+  onStatusUpdate: (errorId: string, status: ErrorStatus) => Promise<void>;
   isAdmin: boolean;
   isDark: boolean;
 }
@@ -27,6 +31,7 @@ export const ErrorListItem = React.memo(
     index,
     expandedError,
     toggleErrorExpansion,
+    onStatusUpdate,
     isAdmin,
     isDark,
   }: ErrorListItemProps) => {
@@ -154,7 +159,12 @@ export const ErrorListItem = React.memo(
               transition={{ duration: 0.3 }}
               className={`border-t overflow-hidden ${isDark ? "border-white/5" : "border-gray-200"}`}
             >
-              <ErrorDetails error={error} isDark={isDark} isAdmin={isAdmin} />
+              <ErrorDetails
+                error={error}
+                isDark={isDark}
+                isAdmin={isAdmin}
+                onStatusUpdate={(status) => onStatusUpdate(error.id, status)}
+              />
             </motion.div>
           )}
         </AnimatePresence>

@@ -10,19 +10,19 @@ import { usePaymentMethods } from "../hooks/usePaymentMethods";
 import { PaymentMethodItem } from "./payment-methods/PaymentMethodItem";
 import { PaymentMethod } from "../types";
 
-
 export const PaymentMethodsCard: React.FC = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const {
     methods,
+    isLoading,
+    error,
     activeMenu,
     setActiveMenu,
     handleSetDefault,
     handleDelete,
     handleUpdateMethod,
   } = usePaymentMethods();
-
 
   const [isAddCardOpen, setIsAddCardOpen] = useState(false);
   const [isEditCardOpen, setIsEditCardOpen] = useState(false);
@@ -119,20 +119,42 @@ export const PaymentMethodsCard: React.FC = () => {
 
           {/* Payment Cards - Scrollable Section */}
           <div className="flex-1 overflow-y-auto pr-2 -mr-2 space-y-4 mb-4 custom-scrollbar">
-            <AnimatePresence>
-              {methods.map((method) => (
-                <PaymentMethodItem
-                  key={method.id}
-                  method={method}
-                  activeMenu={activeMenu}
-                  setActiveMenu={setActiveMenu}
-                  onSetDefault={handleSetDefault}
-                  onEdit={handleEditClick}
-                  onDelete={handleDelete}
-                />
-
-              ))}
-            </AnimatePresence>
+            {isLoading ? (
+              <div className="space-y-4">
+                {[1, 2].map((i) => (
+                  <div
+                    key={i}
+                    className={`h-24 rounded-2xl animate-pulse ${isDark ? "bg-white/5" : "bg-slate-200/50"}`}
+                  />
+                ))}
+              </div>
+            ) : error ? (
+              <div className="h-full flex flex-col items-center justify-center text-center p-4">
+                <p className="text-red-400 text-sm font-medium">{error}</p>
+              </div>
+            ) : methods.length === 0 ? (
+              <div className="h-full flex flex-col items-center justify-center text-center p-4 opacity-50">
+                <p
+                  className={`text-sm ${isDark ? "text-slate-400" : "text-slate-500"}`}
+                >
+                  No payment methods saved.
+                </p>
+              </div>
+            ) : (
+              <AnimatePresence mode="popLayout">
+                {methods.map((method) => (
+                  <PaymentMethodItem
+                    key={method.id}
+                    method={method}
+                    activeMenu={activeMenu}
+                    setActiveMenu={setActiveMenu}
+                    onSetDefault={handleSetDefault}
+                    onEdit={handleEditClick}
+                    onDelete={handleDelete}
+                  />
+                ))}
+              </AnimatePresence>
+            )}
           </div>
 
           {/* Security Notice */}
@@ -153,11 +175,9 @@ export const PaymentMethodsCard: React.FC = () => {
                 Bank Level Security
               </div>
               <div
-
                 className={`text-xs ${
                   isDark ? "text-gray-400" : "text-gray-600"
                 }`}
-
               >
                 All payment data is encrypted using industry standard 256-bit
                 encryption. We never store your full card number.

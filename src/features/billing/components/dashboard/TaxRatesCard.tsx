@@ -81,7 +81,7 @@ export const TaxRatesCard = React.memo(
                     {tax.rate}
                   </div>
                   <div className="text-[10px] uppercase font-bold tracking-widest opacity-40">
-                    VAT
+                    {tax.vatType}
                   </div>
                 </motion.div>
               ))}

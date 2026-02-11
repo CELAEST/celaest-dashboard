@@ -3,7 +3,7 @@ import { Version } from "../types";
 
 interface UseVersionEditorProps {
   version: Version | null;
-  onSave: (version: Partial<Version>) => void;
+  onSave: (version: Partial<Version> & { productId?: string; file?: File; changelogItems?: string[] }) => void;
   onClose: () => void;
 }
 
@@ -11,7 +11,10 @@ export const useVersionEditor = ({
   version,
   onSave,
 }: UseVersionEditorProps) => {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
   const [formData, setFormData] = useState({
+    productId: version?.productId || "",
     assetName: version?.assetName || "",
     versionNumber: version?.versionNumber || "",
     status: version?.status || ("beta" as Version["status"]),
@@ -60,9 +63,13 @@ export const useVersionEditor = ({
       const cleanChangelog = formData.changelog.filter(
         (item) => item.trim() !== "",
       );
-      onSave({ ...formData, changelog: cleanChangelog });
+      onSave({ 
+        ...formData, 
+        changelogItems: cleanChangelog,
+        file: selectedFile || undefined 
+      });
     },
-    [formData, onSave],
+    [formData, onSave, selectedFile],
   );
 
   return {
@@ -73,5 +80,7 @@ export const useVersionEditor = ({
     addChangelogItem,
     removeChangelogItem,
     handleSubmit,
+    selectedFile,
+    setSelectedFile,
   };
 };

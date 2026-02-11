@@ -62,12 +62,19 @@ export const EventLogs = React.memo(() => {
                 key={log.id}
                 className="flex items-start gap-2 hover:bg-white/5 px-1 -mx-1 rounded selection:bg-emerald-500/30 selection:text-white"
               >
-                <span className="text-gray-600 shrink-0">
-                  [{new Date().toISOString().split("T")[1].split(".")[0]}]
+                <span className="text-gray-600 shrink-0 font-mono text-[10px] w-20">
+                  [
+                  {new Date(log.timestamp).toLocaleTimeString([], {
+                    hour12: false,
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                  })}
+                  ]
                 </span>
-                <div className="break-all">
+                <div className="break-all flex-1">
                   <span
-                    className={`${
+                    className={`font-bold mr-2 ${
                       log.type === "error"
                         ? "text-red-500"
                         : log.type === "warning"
@@ -85,7 +92,12 @@ export const EventLogs = React.memo(() => {
                           ? "[OK]"
                           : "[INFO]"}
                   </span>
-                  <span className="ml-2 text-gray-300">{log.message}</span>
+                  <span className="text-gray-300">
+                    <span className="opacity-50 mr-2 text-[10px] uppercase font-bold tracking-wider">
+                      {log.source}:
+                    </span>
+                    {log.message}
+                  </span>
                 </div>
               </div>
             ))}
@@ -106,8 +118,16 @@ export const EventLogs = React.memo(() => {
           <span>Ln {eventLogs.length + 12}, Col 1</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="text-emerald-500">Connected</span>
+          <div
+            className={`w-1.5 h-1.5 rounded-full animate-pulse ${eventLogs.length > 0 ? "bg-emerald-500" : "bg-amber-500"}`}
+          />
+          <span
+            className={
+              eventLogs.length > 0 ? "text-emerald-500" : "text-amber-500"
+            }
+          >
+            {eventLogs.length > 0 ? "Connected" : "Connecting..."}
+          </span>
         </div>
       </div>
     </motion.div>

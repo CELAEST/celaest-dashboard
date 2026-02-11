@@ -7,7 +7,8 @@ import { FormProvider } from "react-hook-form";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { BillingModal } from "./shared/BillingModal";
 import { useAddPaymentMethodFormRHF } from "../../hooks/useAddPaymentMethodFormRHF";
-import { CreditCardPreview } from "../ui/CreditCardPreview"; // Use the existing UI component
+
+import { ConnectedCreditCardPreview } from "../payment-methods/ConnectedCreditCardPreview";
 import { AddPaymentMethodFormRHF } from "../forms/AddPaymentMethodFormRHF";
 
 interface AddPaymentMethodModalProps {
@@ -16,7 +17,6 @@ interface AddPaymentMethodModalProps {
 }
 
 export function AddPaymentMethodModal({
-
   isOpen,
   onClose,
 }: AddPaymentMethodModalProps) {
@@ -24,21 +24,12 @@ export function AddPaymentMethodModal({
   const isDark = theme === "dark";
 
   // Initialize RHF hook
-  const { form, cardType, handleSubmit, isSubmitting } =
+  const { form, handleSubmit, isSubmitting } =
     useAddPaymentMethodFormRHF(onClose);
 
-  // Watch values for preview
-  const cardNumber = form.watch("cardNumber");
-  const cardName = form.watch("cardName");
-  const expiryMonth = form.watch("expiryMonth");
-  const expiryYear = form.watch("expiryYear");
-
-  // To handle focus visualization in preview, we'd need to track focus state.
-  // RHF doesn't expose "currently focused field" directly in a simple way for external consumption without custom logic.
-  // For now, we can omit the focus visualizer in the preview or implement a context for focus tracking if critical.
-  // Given "Pilot" status, omitting focus-sync for Preview is acceptable trade-off for clean RHF architecture,
-  // or we can add a local state tracking via onFocus in the inputs later.
-  const focusedField = null;
+  // Removed direct watchers to prevent full modal re-renders
+  // const cardNumber = form.watch("cardNumber");
+  // ...
 
   return (
     <BillingModal
@@ -83,22 +74,10 @@ export function AddPaymentMethodModal({
 
         {/* Content - Split Layout */}
         <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
-          {/* Left Column - Card Preview */}
-          <CreditCardPreview
-            cardNumber={cardNumber}
-            cardName={cardName}
-            expiryMonth={expiryMonth}
-            expiryYear={expiryYear}
-            cardType={cardType}
-            focusedField={focusedField}
-          />
+          {/* Left Column - Card Preview (Optimized) */}
+          <ConnectedCreditCardPreview />
 
           {/* Right Column - Form */}
-          {/* We wrap the form logic here. The actual <form> tag is inside AddPaymentMethodFormRHF?
-              No, AddPaymentMethodFormRHF was pure div. We need a form tag somewhere to handle submit.
-              Let's put the form tag here? No, better to have it wrap the content or use form ID.
-              The footer button needs to submit.
-          */}
           <AddPaymentMethodFormRHF />
         </div>
 
@@ -157,6 +136,5 @@ export function AddPaymentMethodModal({
         </div>
       </FormProvider>
     </BillingModal>
-
   );
 }

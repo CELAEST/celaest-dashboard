@@ -8,9 +8,10 @@ import {
   Copy,
   MoreVertical,
   Eye,
+  History,
   Image as ImageIcon,
 } from "lucide-react";
-import { Asset } from "../hooks/useAssets";
+import { Asset } from "../services/assets.service";
 import { AssetTypeIcon } from "./shared/AssetTypeIcon";
 import { AssetStatusBadge } from "./shared/AssetStatusBadge";
 import {
@@ -31,6 +32,7 @@ interface AssetTableProps {
   onDuplicate: (asset: Asset) => void;
   onDelete: (id: string) => void;
   onPreview?: (asset: Asset) => void;
+  onManageReleases?: (asset: Asset) => void;
 }
 
 export const AssetTable: React.FC<AssetTableProps> = ({
@@ -42,6 +44,7 @@ export const AssetTable: React.FC<AssetTableProps> = ({
   onDuplicate,
   onDelete,
   onPreview,
+  onManageReleases,
 }) => {
   return (
     <Table>
@@ -233,6 +236,15 @@ export const AssetTable: React.FC<AssetTableProps> = ({
                           className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors ${isDark ? "text-gray-300 hover:bg-white/5" : "text-gray-700 hover:bg-gray-50"}`}
                         >
                           <Edit2 size={16} /> Edit Asset
+                        </button>
+                        <button
+                          onClick={() => {
+                            onManageReleases?.(asset);
+                            setActiveMenu(null);
+                          }}
+                          className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors ${isDark ? "text-gray-300 hover:bg-white/5" : "text-gray-700 hover:bg-gray-50"}`}
+                        >
+                          <History size={16} /> Manage Releases
                         </button>
                         <button
                           onClick={() => {

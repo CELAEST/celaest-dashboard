@@ -1,10 +1,25 @@
 import { useState, useRef } from "react";
+import { toast } from "sonner";
+import { useOrgStore } from "@/features/shared/stores/useOrgStore";
+import { useAuth } from "@/features/auth/contexts/AuthContext";
+import { billingApi } from "../api/billing.api";
+import { Subscription, Plan } from "../types";
 
-export const useManageSubscription = (onClose: () => void) => {
+export const useManageSubscription = (subscription: Subscription | null, plan: Plan | null, onClose: () => void) => {
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [showPauseConfirm, setShowPauseConfirm] = useState(false);
-  const [autoRenew, setAutoRenew] = useState(true);
+  
+  // Initialize state based on subscription
+  // If cancelled_at is null, auto-renew is ON (true)
+  const [autoRenew, setAutoRenew] = useState(() => {
+    if (!subscription) return true;
+    return !subscription.cancelled_at;
+  });
+  
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const { currentOrg } = useOrgStore();
+  const { session } = useAuth();
 
   const scrollToBottom = () => {
     if (scrollContainerRef.current) {
@@ -35,32 +50,70 @@ export const useManageSubscription = (onClose: () => void) => {
     }
   };
 
-  const handleCancelSubscription = () => {
-    console.log("Cancelling subscription...");
-    setShowCancelConfirm(false);
-    onClose();
+  const handleToggleAutoRenew = async () => {
+    if (!subscription?.id || !currentOrg?.id || !session?.accessToken) return;
+
+    try {
+      const newAutoRenewState = !autoRenew;
+      
+      if (newAutoRenewState) {
+        // Turning ON -> Reactivate
+        await billingApi.reactivateSubscription(currentOrg.id, session.accessToken, subscription.id);
+        toast.success("Auto-renewal enabled. Subscription is active.");
+      } else {
+        // Turning OFF -> Cancel at period end
+        await billingApi.cancelSubscription(currentOrg.id, session.accessToken, subscription.id, false);
+        toast.success("Auto-renewal disabled. Subscription will end at the current period.");
+      }
+      
+      setAutoRenew(newAutoRenewState);
+    } catch (error: any) {
+      console.error("Auto-renew update failed:", error);
+      toast.error(error.message || "Failed to update subscription settings");
+    }
+  };
+
+  const handleCancelSubscription = async () => {
+    if (!subscription?.id || !currentOrg?.id || !session?.accessToken) {
+      toast.error("Subscription information missing");
+      return;
+    }
+
+    try {
+      // Cancel at period end (immediately=false)
+      await billingApi.cancelSubscription(currentOrg.id, session.accessToken, subscription.id, false);
+      toast.success("Subscription has been cancelled. It will remain active until the end of the billing period.");
+      setShowCancelConfirm(false);
+      onClose();
+    } catch (error: any) {
+      console.error("Cancellation failed:", error);
+      toast.error(error.message || "Failed to cancel subscription");
+    }
   };
 
   const handlePauseSubscription = () => {
-    console.log("Pausing subscription...");
+    // Pause is not yet supported by backend
+    toast.info("Subscription pausing is coming soon. Please contact support or use Cancel.");
     setShowPauseConfirm(false);
   };
 
-  const handleToggleAutoRenew = () => {
-    setAutoRenew(!autoRenew);
-    console.log("Toggling auto-renew...");
-  };
+  const nextBillingDate = subscription?.current_period_end 
+    ? new Date(subscription.current_period_end).toLocaleDateString() 
+    : "N/A";
+    
+  const activeSince = subscription?.created_at 
+    ? new Date(subscription.created_at).toLocaleDateString() 
+    : "N/A";
 
-  // Mock data
   const subscriptionDetails = {
-    plan: "Premium Tier",
-    status: "Active",
-    price: "$299.00",
+    plan: plan?.name || "No Plan",
+    status: subscription?.status || "Inactive",
+    price: plan?.price_monthly ? `${plan.currency === 'EUR' ? '€' : '$'}${plan.price_monthly}` : "$0.00",
     billingCycle: "Monthly",
-    nextBillingDate: "February 1, 2026",
-    renewalDate: "January 31, 2026",
+    nextBillingDate,
+    renewalDate: nextBillingDate,
     autoRenew: autoRenew,
-    activeSince: "September 1, 2025",
+    activeSince,
   };
 
   return {

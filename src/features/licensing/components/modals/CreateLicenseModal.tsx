@@ -55,7 +55,7 @@ export const CreateLicenseModal = ({
   // Keyboard accessibility: Esc to close
   useEscapeKey(handleClose, isOpen);
 
-  const productType = form.watch("productType");
+  const billingCycle = form.watch("billing_cycle");
 
   return (
     <AnimatePresence>
@@ -118,11 +118,19 @@ export const CreateLicenseModal = ({
                     className="space-y-4"
                   >
                     <LicenseTypeSelector
-                      selectedType={productType}
+                      selectedType={billingCycle}
                       onSelect={(type) =>
-                        form.setValue("productType", type, {
-                          shouldValidate: true,
-                        })
+                        form.setValue(
+                          "billing_cycle",
+                          type as
+                            | "monthly"
+                            | "quarterly"
+                            | "yearly"
+                            | "lifetime",
+                          {
+                            shouldValidate: true,
+                          },
+                        )
                       }
                     />
 

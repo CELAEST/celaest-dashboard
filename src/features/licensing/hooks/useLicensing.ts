@@ -1,162 +1,225 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { toast } from "sonner";
-import {
-  MOCK_LICENSES,
-  MOCK_ANALYTICS,
-  MOCK_COLLISIONS,
-  License,
-  Analytics,
-  Collision,
-  ValidationLog,
-} from "@/features/licensing/constants/mock-data";
+import { licensingService, isServiceReady } from "@/features/licensing/services/licensing.service";
+import { useAuthStore } from "@/features/auth/stores/useAuthStore";
+import { useOrgStore } from "@/features/shared/stores/useOrgStore";
+import type {
+  LicenseResponse,
+  LicenseStats,
+  IPBinding,
+  LicenseStatus,
+} from "@/features/licensing/types";
+import type { ValidationLog } from "@/features/licensing/constants/mock-data";
 
 export const useLicensing = () => {
-  const [licenses, setLicenses] = useState<License[]>(MOCK_LICENSES);
-  const [analytics, setAnalytics] = useState<Analytics | null>(MOCK_ANALYTICS);
-  const [collisions, setCollisions] = useState<Collision[]>(MOCK_COLLISIONS);
+  const [licenses, setLicenses] = useState<LicenseResponse[]>([]);
+  const [stats, setStats] = useState<LicenseStats | null>(null);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [activeTab, setActiveTab] = useState<"licenses" | "collisions" | "analytics">("licenses");
-  
+  const [activeTab, setActiveTab] = useState<
+    "licenses" | "collisions" | "analytics"
+  >("licenses");
+
   // License Detail Modal State
-  const [selectedLicense, setSelectedLicense] = useState<License | null>(null);
+  const [selectedLicense, setSelectedLicense] =
+    useState<LicenseResponse | null>(null);
   const [validationLogs, setValidationLogs] = useState<ValidationLog[]>([]);
 
-  const loadData = useCallback(() => {
-    // Mock refresh logic
+  // Watch auth/org readiness to trigger data loading
+  const session = useAuthStore((s) => s.session);
+  const currentOrg = useOrgStore((s) => s.currentOrg);
+
+  const loadData = useCallback(async () => {
+    // Don't attempt to load if auth/org context isn't ready
+    if (!isServiceReady()) {
+      return;
+    }
+
     setLoading(true);
-    setTimeout(() => {
-      setLicenses(MOCK_LICENSES);
-      setAnalytics(MOCK_ANALYTICS);
-      setCollisions(MOCK_COLLISIONS);
+    try {
+      const [listResult, statsResult] = await Promise.allSettled([
+        licensingService.list({ page: 1, limit: 100 }),
+        licensingService.getStats(),
+      ]);
+
+      if (listResult.status === "fulfilled") {
+        setLicenses(listResult.value.licenses);
+      } else {
+        console.error("Failed to load licenses:", listResult.reason);
+      }
+
+      if (statsResult.status === "fulfilled") {
+        setStats(statsResult.value);
+      } else {
+        console.error("Failed to load stats:", statsResult.reason);
+      }
+    } catch (err) {
+      console.error("Error loading licensing data:", err);
+      toast.error("Failed to load licensing data");
+    } finally {
       setLoading(false);
-    }, 500);
+    }
   }, []);
 
+  // Load data when auth + org become available
   useEffect(() => {
-    // Avoid synchronous setState warning by deferring
-    const timeout = setTimeout(loadData, 0);
-    const interval = setInterval(loadData, 10000);
+    if (!session?.accessToken || !currentOrg?.id) return;
+
+    // Small delay to ensure Zustand stores are fully synchronized
+    const timeout = setTimeout(loadData, 100);
+    const interval = setInterval(loadData, 30000); // Refresh every 30s
     return () => {
       clearTimeout(timeout);
       clearInterval(interval);
     };
-  }, [loadData]);
+  }, [session?.accessToken, currentOrg?.id, loadData]);
 
-  const handleChangeStatus = useCallback(async (status: string) => {
-    if (!selectedLicense) return;
-    const licenseId = selectedLicense.id;
+  // --- Handlers ---
 
-    const updatedLicense = { ...selectedLicense, status: status as License["status"] };
-    
-    setLicenses((prev) =>
-      prev.map((l) => (l.id === licenseId ? updatedLicense : l))
-    );
-    
-    setSelectedLicense(updatedLicense);
-    toast.success(`License status updated to ${status} (Mock)`);
-  }, [selectedLicense]);
+  const selectLicense = useCallback(
+    async (license: LicenseResponse | null) => {
+      setSelectedLicense(license);
+      if (license) {
+        try {
+          const validationsData = await licensingService.getValidations(
+            license.id
+          );
+          if (Array.isArray(validationsData)) {
+            setValidationLogs(validationsData as unknown as ValidationLog[]);
+          } else if (validationsData && "validations" in validationsData) {
+            setValidationLogs(
+              (
+                validationsData as unknown as { validations: ValidationLog[] }
+              ).validations ?? []
+            );
+          } else {
+            setValidationLogs([]);
+          }
+        } catch {
+          setValidationLogs([]);
+        }
+      } else {
+        setValidationLogs([]);
+      }
+    },
+    []
+  );
 
-  const handleUnbindIp = useCallback(async (ip: string) => {
-    if (!selectedLicense) return;
-    const updatedBindings =
-      selectedLicense.ipBindings?.filter((b) => b.ip !== ip) || [];
+  const handleChangeStatus = useCallback(
+    async (licenseId: string, newStatus: LicenseStatus) => {
+      try {
+        const updated = await licensingService.changeStatus(
+          licenseId,
+          newStatus
+        );
+        setLicenses((prev) =>
+          prev.map((lic) => (lic.id === licenseId ? updated : lic))
+        );
+        if (selectedLicense?.id === licenseId) {
+          setSelectedLicense(updated);
+        }
+        toast.success(`License status changed to ${newStatus}`);
+      } catch (err) {
+        console.error("Failed to change status:", err);
+        toast.error("Failed to change license status");
+      }
+    },
+    [selectedLicense]
+  );
 
-    const updatedLicense = { ...selectedLicense, ipBindings: updatedBindings };
-    setSelectedLicense(updatedLicense);
+  const handleUnbindIp = useCallback(
+    async (licenseId: string, ipAddress: string) => {
+      try {
+        await licensingService.unbindIP(licenseId, ipAddress);
+        if (selectedLicense?.id === licenseId) {
+          const updated = await licensingService.getById(licenseId);
+          setSelectedLicense(updated);
+          setLicenses((prev) =>
+            prev.map((lic) => (lic.id === licenseId ? updated : lic))
+          );
+        }
+        toast.success(`IP ${ipAddress} unbound`);
+      } catch (err) {
+        console.error("Failed to unbind IP:", err);
+        toast.error("Failed to unbind IP address");
+      }
+    },
+    [selectedLicense]
+  );
 
-    setLicenses((prev) =>
-      prev.map((l) => (l.id === selectedLicense.id ? updatedLicense : l))
-    );
-    toast.success(`IP ${ip} unbound successfully (Mock)`);
-  }, [selectedLicense]);
+  const revokeLicense = useCallback(
+    async (licenseId: string) => {
+      try {
+        const updated = await licensingService.revoke(
+          licenseId,
+          "Revoked via dashboard"
+        );
+        setLicenses((prev) =>
+          prev.map((lic) => (lic.id === licenseId ? updated : lic))
+        );
+        if (selectedLicense?.id === licenseId) {
+          setSelectedLicense(updated);
+        }
+        toast.success(`License revoked successfully`);
+      } catch (err) {
+        console.error("Failed to revoke license:", err);
+        toast.error("Failed to revoke license");
+      }
+    },
+    [selectedLicense]
+  );
 
-  const loadLicenseDetails = useCallback(async (licenseId: string) => {
-    setValidationLogs([
-      {
-        licenseId,
-        ip: "192.168.1.1",
-        timestamp: new Date().toISOString(),
-        success: true,
-      },
-      {
-        licenseId,
-        ip: "10.0.0.5",
-        timestamp: new Date(Date.now() - 3600000).toISOString(),
-        success: true,
-      },
-      {
-        licenseId,
-        ip: "172.16.0.1",
-        timestamp: new Date(Date.now() - 86400000).toISOString(),
-        success: false,
-        reason: "Invalid signature",
-      },
-      {
-        licenseId,
-        ip: "203.0.113.42",
-        timestamp: new Date(Date.now() - 259200000).toISOString(),
-        success: true,
-      },
-    ]);
-  }, []);
-
-  const selectLicense = useCallback((license: License | null) => {
-    setSelectedLicense(license);
-    if (license) {
-      loadLicenseDetails(license.id);
-    }
-  }, [loadLicenseDetails]);
-
-  const revokeLicense = useCallback(async (licenseId: string) => {
-    setLicenses((prev) =>
-      prev.map((l) => (l.id === licenseId ? { ...l, status: "revoked" as const } : l))
-    );
-    
-    // Also update selected license if it happens to be the same one
-    if (selectedLicense?.id === licenseId) {
-      setSelectedLicense(prev => prev ? { ...prev, status: "revoked" as const } : null);
-    }
-
-    toast.success(`License ${licenseId} revoked successfully`);
-  }, [selectedLicense]);
-
-  const addNewLicense = useCallback((newLicense: License) => {
-      setLicenses((prev) => [newLicense, ...prev]);
+  const addNewLicense = useCallback((newLicense: LicenseResponse) => {
+    setLicenses((prev) => [newLicense, ...prev]);
   }, []);
 
   // Helper for filtered licenses
-  const filteredLicenses = useMemo(() => licenses.filter((lic) => {
-    const matchesSearch =
-      lic.productId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      lic.userId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      lic.productType.toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredLicenses = useMemo(
+    () =>
+      licenses.filter((lic) => {
+        const searchLower = searchQuery.toLowerCase();
+        const matchesSearch =
+          searchQuery === "" ||
+          lic.id.toLowerCase().includes(searchLower) ||
+          lic.license_key.toLowerCase().includes(searchLower) ||
+          lic.status.toLowerCase().includes(searchLower) ||
+          lic.plan?.name?.toLowerCase().includes(searchLower) ||
+          lic.billing_cycle.toLowerCase().includes(searchLower);
 
-    const matchesStatus = statusFilter === "all" || lic.status === statusFilter;
+        const matchesStatus =
+          statusFilter === "all" || lic.status === statusFilter;
 
-    return matchesSearch && matchesStatus;
-  }), [licenses, searchQuery, statusFilter]);
+        return matchesSearch && matchesStatus;
+      }),
+    [licenses, searchQuery, statusFilter]
+  );
+
+  // Map stats to analytics format for backward compatibility
+  const analytics = useMemo(() => {
+    if (!stats) return null;
+    return stats;
+  }, [stats]);
 
   return {
-      licenses: filteredLicenses,
-      allLicenses: licenses,
-      analytics,
-      collisions,
-      loading,
-      searchQuery,
-      setSearchQuery,
-      statusFilter, 
-      setStatusFilter,
-      activeTab, 
-      setActiveTab,
-      selectedLicense,
-      validationLogs,
-      loadData,
-      handleChangeStatus,
-      handleUnbindIp,
-      selectLicense,
-      addNewLicense,
-      revokeLicense
+    licenses: filteredLicenses,
+    allLicenses: licenses,
+    analytics,
+    collisions: [] as IPBinding[], // Loaded per-license now
+    loading,
+    searchQuery,
+    setSearchQuery,
+    statusFilter,
+    setStatusFilter,
+    activeTab,
+    setActiveTab,
+    selectedLicense,
+    validationLogs,
+    loadData,
+    handleChangeStatus,
+    handleUnbindIp,
+    selectLicense,
+    addNewLicense,
+    revokeLicense,
   };
 };

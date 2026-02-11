@@ -1,19 +1,21 @@
 import React from "react";
 import { Smartphone, Terminal, Lightbulb } from "lucide-react";
-import { ErrorLog } from "@/features/errors/hooks/useErrorMonitoring";
+import {
+  ErrorLog,
+  ErrorStatus,
+} from "@/features/errors/hooks/useErrorMonitoring";
 
 interface ErrorDetailsProps {
   error: ErrorLog;
   isDark: boolean;
   isAdmin: boolean;
+  onStatusUpdate: (status: ErrorStatus) => Promise<void>;
 }
 
 export const ErrorDetails = React.memo(
-  ({ error, isDark, isAdmin }: ErrorDetailsProps) => {
+  ({ error, isDark, isAdmin, onStatusUpdate }: ErrorDetailsProps) => {
     return (
       <div className="p-6 space-y-6">
-        
-
         {/* Environment Section */}
         <section>
           <h4
@@ -67,7 +69,6 @@ export const ErrorDetails = React.memo(
             </div>
           </div>
         </section>
-    
 
         {/* Stack Trace (Admin Only) */}
         {isAdmin && error.stackTrace && (
@@ -91,7 +92,6 @@ export const ErrorDetails = React.memo(
             </div>
           </section>
         )}
-        
 
         {/* Suggestion Section */}
         {error.suggestion && (
@@ -115,7 +115,7 @@ export const ErrorDetails = React.memo(
             </p>
           </section>
         )}
-            {/* Client Success Banner */}
+        {/* Client Success Banner */}
         {!isAdmin && (
           <div
             className={`p-4 rounded-lg flex items-center gap-2 ${
@@ -151,6 +151,7 @@ export const ErrorDetails = React.memo(
         {isAdmin && (
           <div className="flex gap-3 pt-2">
             <button
+              onClick={() => onStatusUpdate("reviewing")}
               className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
                 isDark
                   ? "border-orange-500/30 text-orange-400 hover:bg-orange-500/10"
@@ -160,6 +161,7 @@ export const ErrorDetails = React.memo(
               Marcar En Revisión
             </button>
             <button
+              onClick={() => onStatusUpdate("resolved")}
               className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
                 isDark
                   ? "border-green-500/30 text-green-400 hover:bg-green-500/10"
@@ -169,6 +171,7 @@ export const ErrorDetails = React.memo(
               Marcar Resuelto
             </button>
             <button
+              onClick={() => onStatusUpdate("ignored")}
               className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
                 isDark
                   ? "border-white/10 text-gray-400 hover:bg-white/5"

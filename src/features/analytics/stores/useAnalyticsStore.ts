@@ -5,7 +5,8 @@ import {
   SalesByPeriod, 
   ROIMetrics,
   UsageReport,
-  CategoryDistribution
+  CategoryDistribution,
+  SystemEvent
 } from "../api/analytics.api";
 
 interface AnalyticsStore {
@@ -14,13 +15,14 @@ interface AnalyticsStore {
   roi: ROIMetrics | null;
   usage: UsageReport | null;
   categoryDistribution: CategoryDistribution[];
-  eventLogs: Array<{ id: string; type: "info" | "success" | "warning" | "error"; message: string }>;
+  eventLogs: SystemEvent[];
   isLoading: boolean;
   error: string | null;
   lastFetched: number | null;
 
   // Actions
   fetchDashboardData: (token: string, orgId: string, period?: string) => Promise<void>;
+  fetchLiveFeed: (token: string, orgId: string) => Promise<void>;
   clear: () => void;
 }
 
@@ -30,11 +32,7 @@ export const useAnalyticsStore = create<AnalyticsStore>((set, get) => ({
   roi: null,
   usage: null,
   categoryDistribution: [],
-  eventLogs: [
-    { id: "1", type: "success", message: "System core initialized." },
-    { id: "2", type: "info", message: "Listening for new orders..." },
-    { id: "3", type: "info", message: "Checking license validity..." },
-  ],
+  eventLogs: [],
   isLoading: false,
   error: null,
   lastFetched: null,
@@ -75,17 +73,23 @@ export const useAnalyticsStore = create<AnalyticsStore>((set, get) => ({
     }
   },
 
+  fetchLiveFeed: async (token: string, orgId: string) => {
+    if (!token || !orgId) return;
+    try {
+      const events = await analyticsApi.getLiveFeed(token, orgId);
+      set({ eventLogs: events });
+    } catch (err) {
+      console.warn("[AnalyticsStore] Failed to fetch live feed:", err);
+    }
+  },
+
   clear: () => set({
     stats: null,
     salesByPeriod: [],
     roi: null,
     usage: null,
     categoryDistribution: [],
-    eventLogs: [
-      { id: "1", type: "success", message: "System core initialized." },
-      { id: "2", type: "info", message: "Listening for new orders..." },
-      { id: "3", type: "info", message: "Checking license validity..." },
-    ],
+    eventLogs: [],
     isLoading: false,
     error: null,
     lastFetched: null,

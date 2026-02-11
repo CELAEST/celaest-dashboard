@@ -105,7 +105,7 @@ export const StatCard = React.memo(function StatCard({
         </div>
 
         <div
-          className={`flex items-center gap-1 px-2 py-1 rounded-lg border ${
+          className={`shrink-0 flex items-center gap-1 px-2 py-1 rounded-lg border h-fit ${
             trendUp
               ? isDark
                 ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
@@ -115,11 +115,15 @@ export const StatCard = React.memo(function StatCard({
                 : "bg-red-50 border-red-100 text-red-600"
           }`}
         >
-          <span className="text-xs font-bold">
+          <span className="text-xs font-bold whitespace-nowrap">
             {trendUp ? "+" : ""}
             {trend}
           </span>
-          {trendUp ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+          {trendUp ? (
+            <TrendingUp size={12} className="shrink-0" />
+          ) : (
+            <TrendingDown size={12} className="shrink-0" />
+          )}
         </div>
       </div>
 

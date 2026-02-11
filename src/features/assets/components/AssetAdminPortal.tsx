@@ -14,6 +14,7 @@ import { useOrg } from "@/features/shared/contexts/OrgContext";
 import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
 import { socket } from "@/lib/socket-client";
+import { ReleaseManagementModal } from "./ReleaseManagementModal";
 
 interface AssetAdminPortalProps {
   activeTab: "inventory" | "analytics";
@@ -226,12 +227,17 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
 
       // 3. Create Release if file was uploaded
       if (productFileUrl) {
-        await assetsService.createRelease(session.accessToken, asset.id, {
-          version: "1.0.0", // Default version for MVP
-          status: "stable",
-          download_url: productFileUrl,
-          file_size_bytes: productFileSize,
-        });
+        await assetsService.createRelease(
+          session.accessToken,
+          orgId,
+          asset.id,
+          {
+            version: "1.0.0", // Default version for MVP
+            status: "stable",
+            download_url: productFileUrl,
+            file_size_bytes: productFileSize,
+          },
+        );
         toast.success("Release v1.0.0 created successfully!");
       }
 
@@ -292,6 +298,17 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
     }
   };
 
+  // Release Management State
+  const [isReleaseModalOpen, setIsReleaseModalOpen] = useState(false);
+  const [selectedAssetForReleases, setSelectedAssetForReleases] =
+    useState<Asset | null>(null);
+
+  const handleManageReleases = (asset: Asset) => {
+    setSelectedAssetForReleases(asset);
+    setIsReleaseModalOpen(true);
+    setActiveMenu(null); // Close the menu
+  };
+
   return (
     <div className="h-full w-full flex flex-col min-h-0 overflow-hidden relative">
       <div className="flex-1 min-h-0 relative">
@@ -338,6 +355,7 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
                           onDuplicate={handleDuplicate}
                           onDelete={handleDelete}
                           onPreview={handlePreview}
+                          onManageReleases={handleManageReleases}
                         />
                       )}
                     </div>
@@ -386,6 +404,12 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
         product={previewingAsset}
         onClose={() => setPreviewingAsset(null)}
         onAction={handleModalAction}
+      />
+
+      <ReleaseManagementModal
+        isOpen={isReleaseModalOpen}
+        onClose={() => setIsReleaseModalOpen(false)}
+        asset={selectedAssetForReleases}
       />
     </div>
   );

@@ -2,12 +2,12 @@ import React from "react";
 import { ShieldAlert } from "lucide-react";
 import { motion } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
-import { Collision } from "@/features/licensing/constants/mock-data";
+import type { IPBinding } from "@/features/licensing/types";
 
 interface CollisionCardProps {
-  collision: Collision;
+  collision: IPBinding;
   index: number;
-  onRevokeClick: (collision: Collision) => void;
+  onRevokeClick: (collision: IPBinding) => void;
 }
 
 /**
@@ -63,15 +63,14 @@ export const CollisionCard: React.FC<CollisionCardProps> = ({
             <p
               className={`text-sm mt-1 font-medium ${isDark ? "text-gray-400" : "text-gray-600"}`}
             >
-              License{" "}
+              IP{" "}
               <span className="font-mono font-bold text-rose-500">
-                {collision.licenseId}
+                {collision.ip_address}
               </span>{" "}
-              detected on
-              <span className="font-black px-1.5">
-                {collision.ipCount}
-              </span>{" "}
-              unique IPs.
+              detected on license{" "}
+              <span className="font-mono font-bold">
+                {collision.license_id}
+              </span>
             </p>
             <div className="flex items-center gap-4 mt-3">
               <div className="flex -space-x-2">
@@ -83,7 +82,7 @@ export const CollisionCard: React.FC<CollisionCardProps> = ({
                 ))}
               </div>
               <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">
-                Ip Limit Exceeded: {collision.license.maxIpSlots} max
+                {collision.request_count} requests from this IP
               </span>
             </div>
           </div>

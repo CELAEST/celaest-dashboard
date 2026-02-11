@@ -1,67 +1,96 @@
-"use client";
-
+import { useState } from "react";
 import { X } from "lucide-react";
 import { motion } from "motion/react";
+import { toast } from "sonner";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { BillingModal } from "./shared/BillingModal";
 import { Plan } from "../../types";
 import { PlanCard } from "../ui/PlanCard";
+import { useBilling } from "../../hooks/useBilling";
+import { useOrgStore } from "@/features/shared/stores/useOrgStore";
+import { useAuth } from "@/features/auth/contexts/AuthContext";
+import { billingApi } from "../../api/billing.api";
 
 interface UpgradePlanModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const PLANS: Plan[] = [
-  {
-    name: "Starter",
-    price: "$99",
-    period: "/month",
-    description: "Perfect for small businesses just starting out.",
-    features: [
-      "Up to 5 users",
-      "Basic analytics",
-      "Email support",
-      "5GB storage",
-    ],
-    popular: false,
-    color: "blue",
-  },
-  {
-    name: "Pro",
-    price: "$299",
-    period: "/month",
-    description: "Ideal for growing teams requiring more power.",
-    features: [
-      "Up to 20 users",
-      "Advanced analytics",
-      "Priority support",
-      "20GB storage",
-      "API access",
-    ],
-    popular: true,
-    color: "purple",
-  },
-  {
-    name: "Enterprise",
-    price: "Custom",
-    period: "",
-    description: "For large organizations with specific needs.",
-    features: [
-      "Unlimited users",
-      "Custom analytics",
-      "24/7 Dedicated support",
-      "Unlimited storage",
-      "SSO & Advanced Security",
-    ],
-    popular: false,
-    color: "emerald",
-  },
-];
-
 export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const { plans, subscription, isLoading: isBillingLoading } = useBilling();
+  const { currentOrg } = useOrgStore();
+  const { session } = useAuth();
+  const [isUpgrading, setIsUpgrading] = useState(false);
+
+  const handleUpgrade = async (plan: Plan) => {
+    if (!currentOrg?.id || !session?.accessToken) {
+      toast.error("Organization or session information missing");
+      return;
+    }
+
+    setIsUpgrading(true);
+    try {
+      let response: any;
+      if (subscription?.id) {
+        // Upgrade existing subscription
+        response = await billingApi.updateSubscription(
+          currentOrg.id,
+          session.accessToken,
+          subscription.id,
+          { plan_id: plan.id },
+        );
+      } else {
+        // Create new subscription
+        response = await billingApi.createSubscription(
+          currentOrg.id,
+          session.accessToken,
+          {
+            organization_id: currentOrg.id,
+            plan_id: plan.id,
+          },
+        );
+      }
+
+      // Check for Stripe Checkout URL
+      const checkoutUrl =
+        response?.data?.checkout_url || response?.checkout_url;
+      if (checkoutUrl) {
+        toast.info("Redirecting to Stripe for payment...");
+        window.location.href = checkoutUrl;
+        return; // Don't close modal yet, we are leaving the page
+      }
+
+      toast.success(`Successfully activated ${plan.name} plan!`);
+      onClose();
+      // Optional: force reload to refresh all data
+      window.location.reload();
+    } catch (error: any) {
+      console.error("Upgrade failed:", error);
+      toast.error(error.message || "Failed to upgrade plan");
+    } finally {
+      setIsUpgrading(false);
+    }
+  };
+
+  // Filter and sort plans if needed
+  const displayPlans = plans
+    .filter((p: Plan) => p.is_active && p.is_public)
+    .sort((a: Plan, b: Plan) => (a.sort_order || 0) - (b.sort_order || 0))
+    .map((p: Plan) => ({
+      ...p,
+      // Frontend helper mappings
+      price: p.price_monthly
+        ? `${p.currency === "EUR" ? "€" : "$"}${p.price_monthly}`
+        : "Custom",
+      period: "/month",
+      popular: p.code === "premium_seed" || p.code === "pro", // Some logic for popular tag
+      color: (p.code === "premium_seed" ? "purple" : "blue") as
+        | "blue"
+        | "purple"
+        | "emerald",
+    }));
 
   return (
     <BillingModal
@@ -78,13 +107,10 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
         }`}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Background Glows */}
-        {isDark && (
-          <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[100px] mix-blend-screen" />
-            <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-[100px] mix-blend-screen" />
-          </div>
-        )}
+        {/* Decorative Background Elements */}
+        <div className="absolute top-0 inset-x-0 h-96 bg-linear-to-b from-purple-500/10 via-blue-500/5 to-transparent pointer-events-none" />
+        <div className="absolute -top-24 -right-24 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl pointer-events-none" />
 
         {/* Header - Compact */}
         <div className="relative px-4 sm:px-6 pt-4 sm:pt-6 pb-2 text-center shrink-0 z-10">
@@ -139,20 +165,30 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
         <div className="relative px-3 sm:px-4 md:px-6 pb-4 sm:pb-6 z-10">
           {/* Small top padding for badge */}
           <div className="pt-5 sm:pt-6">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-6 max-w-5xl mx-auto items-stretch">
-              {PLANS.map((plan, index) => (
-                <PlanCard
-                  key={plan.name}
-                  plan={plan}
-                  index={index}
-                  onClose={onClose}
-                />
-              ))}
-            </div>
+            {isBillingLoading ? (
+              <div className="flex items-center justify-center p-20">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-6 max-w-5xl mx-auto items-stretch">
+                {(displayPlans.length > 0 ? displayPlans : []).map(
+                  (plan, index) => (
+                    <PlanCard
+                      key={plan.name}
+                      plan={plan as any}
+                      index={index}
+                      onClose={onClose}
+                      onSelect={() => handleUpgrade(plan)}
+                      isLoading={isUpgrading}
+                      currentPlanId={subscription?.plan_id}
+                    />
+                  ),
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
     </BillingModal>
-
   );
 }

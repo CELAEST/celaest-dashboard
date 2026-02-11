@@ -13,6 +13,11 @@ export const AssetFileUploader: React.FC<AssetFileUploaderProps> = ({
 }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleContainerClick = () => {
+    inputRef.current?.click();
+  };
 
   return (
     <div className="space-y-4">
@@ -25,19 +30,21 @@ export const AssetFileUploader: React.FC<AssetFileUploaderProps> = ({
           Upload File
         </label>
         <div
-          className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all ${
+          onClick={handleContainerClick}
+          className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer ${
             isDark
               ? "border-white/10 hover:border-cyan-500/30 bg-white/5 hover:bg-white/10"
               : "border-gray-300 hover:border-blue-400 bg-gray-50 hover:bg-gray-100"
           }`}
         >
           <input
+            ref={inputRef}
             type="file"
             onChange={(e) => {
               const file = e.target.files?.[0];
               if (file) onFileSelect(file);
             }}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+            className="hidden"
           />
           <div
             className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${
