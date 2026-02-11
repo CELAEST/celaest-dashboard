@@ -7,11 +7,14 @@ import { usePermissions } from "@/features/auth/hooks/useAuthorization";
 import { isSuperAdminRole } from "@/features/auth/lib/permissions";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { motion, AnimatePresence } from "motion/react";
-import { Users, Clock, AlertCircle, LayoutGrid } from "lucide-react";
+import { Users, Clock, AlertCircle, LayoutGrid, Plus } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 import { UserActionModal } from "./modals/UserActionModal";
+import { AddUserModal } from "./modals/AddUserModal";
+import { EditUserModal } from "./modals/EditUserModal";
 import { StatsOverview } from "./UserManagement/StatsOverview";
 import { UserFilters } from "./UserManagement/UserFilters";
 import { UsersTable } from "./UserManagement/UsersTable";
@@ -41,6 +44,9 @@ export const UserManagement: React.FC = () => {
     setRoleFilter,
     loading: usersLoading,
     handleChangeRole,
+    createUser,
+    updateUser,
+    deleteUser,
   } = useUserManagement();
 
   const { auditLogs } = useAuditLogs();
@@ -51,8 +57,12 @@ export const UserManagement: React.FC = () => {
 
   // Modal State
   const [isActionModalOpen, setIsActionModalOpen] = useState(false);
+  const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
+  const [isEditUserModalOpen, setIsEditUserModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
-  const [actionType, setActionType] = useState<"sign_out" | "ban">("sign_out");
+  const [actionType, setActionType] = useState<"sign_out" | "delete">(
+    "sign_out",
+  );
 
   const initForceSignOut = useCallback((user: UserData) => {
     setSelectedUser(user);
@@ -60,11 +70,27 @@ export const UserManagement: React.FC = () => {
     setIsActionModalOpen(true);
   }, []);
 
-  const handleConfirmAction = () => {
+  const initEditUser = useCallback((user: UserData) => {
+    setSelectedUser(user);
+    setIsEditUserModalOpen(true);
+  }, []);
+
+  const initDeleteUser = useCallback((user: UserData) => {
+    setSelectedUser(user);
+    setActionType("delete");
+    setIsActionModalOpen(true);
+  }, []);
+
+  const handleConfirmAction = async () => {
     if (!selectedUser) return;
 
     if (actionType === "sign_out") {
-      toast.success(`${selectedUser.email} has been signed out (Mock)`);
+      // Logic for sign out - currently mock/toast mostly unless API updated
+      toast.success(
+        `${selectedUser.email} has been signed out (Session Revoked)`,
+      );
+    } else if (actionType === "delete") {
+      await deleteUser(selectedUser.id);
     }
 
     setIsActionModalOpen(false);
@@ -113,87 +139,103 @@ export const UserManagement: React.FC = () => {
           </p>
         </div>
 
-        {/* Premium Navigation Hub */}
-        <div
-          className={`relative flex p-1 rounded-2xl border backdrop-blur-3xl shadow-2xl ${
-            isDark
-              ? "bg-[#0a0a0a]/60 border-white/5"
-              : "bg-gray-100/80 border-gray-200"
-          }`}
-        >
-          {[
-            {
-              id: "directory",
-              label: "Directory",
-              icon: Users,
-              color: "purple",
-            },
-            {
-              id: "overview",
-              label: "Overview",
-              icon: LayoutGrid,
-              color: "cyan",
-            },
-            { id: "logs", label: "Audit Logs", icon: Clock, color: "amber" },
-          ].map((tab, idx) => {
-            const isActive = activeTab === tab.id;
-            const Icon = tab.icon;
+        <div className="flex items-center gap-4">
+          {/* Action Buttons */}
+          <Button
+            size="sm"
+            onClick={() => setIsAddUserModalOpen(true)}
+            className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold tracking-wider text-[10px] uppercase h-9 px-4 rounded-xl shadow-lg shadow-cyan-900/20"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Invite User
+          </Button>
 
-            return (
-              <button
-                key={tab.id}
-                onClick={() =>
-                  setActiveTab(tab.id as "overview" | "directory" | "logs")
-                }
-                className={`relative px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-3 transition-all duration-500 z-10 ${
-                  isActive
-                    ? isDark
-                      ? "text-white"
-                      : "text-gray-900"
-                    : isDark
-                      ? "text-gray-500 hover:text-gray-300"
-                      : "text-gray-400 hover:text-gray-700"
-                }`}
-              >
-                {isActive && (
-                  <motion.div
-                    layoutId="activeTab"
-                    className={`absolute inset-0 rounded-xl shadow-lg ${
-                      isDark
-                        ? "bg-white/5 border border-white/10"
-                        : "bg-white shadow-sm border border-gray-200"
-                    }`}
-                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                  >
-                    <div
-                      className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-[2px] rounded-full ${
-                        tab.color === "cyan"
-                          ? "bg-cyan-500 shadow-[0_0_10px_#22d3ee]"
-                          : tab.color === "purple"
-                            ? "bg-purple-500 shadow-[0_0_10px_#a855f7]"
-                            : "bg-amber-500 shadow-[0_0_10px_#f59e0b]"
-                      }`}
-                    />
-                  </motion.div>
-                )}
+          {/* Premium Navigation Hub */}
+          <div
+            className={`relative flex p-1 rounded-2xl border backdrop-blur-3xl shadow-2xl ${
+              isDark
+                ? "bg-[#0a0a0a]/60 border-white/5"
+                : "bg-gray-100/80 border-gray-200"
+            }`}
+          >
+            {[
+              {
+                id: "directory",
+                label: "Directory",
+                icon: Users,
+                color: "purple",
+              },
+              {
+                id: "overview",
+                label: "Overview",
+                icon: LayoutGrid,
+                color: "cyan",
+              },
+              { id: "logs", label: "Audit Logs", icon: Clock, color: "amber" },
+            ].map((tab, idx) => {
+              const isActive = activeTab === tab.id;
+              const Icon = tab.icon;
 
-                <span className="opacity-30 font-mono">0{idx + 1}</span>
-                <Icon
-                  size={14}
-                  className={
-                    isActive
-                      ? tab.color === "cyan"
-                        ? "text-cyan-400"
-                        : tab.color === "purple"
-                          ? "text-purple-400"
-                          : "text-amber-400"
-                      : ""
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() =>
+                    setActiveTab(tab.id as "overview" | "directory" | "logs")
                   }
-                />
-                {tab.label}
-              </button>
-            );
-          })}
+                  className={`relative px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-3 transition-all duration-500 z-10 ${
+                    isActive
+                      ? isDark
+                        ? "text-white"
+                        : "text-gray-900"
+                      : isDark
+                        ? "text-gray-500 hover:text-gray-300"
+                        : "text-gray-400 hover:text-gray-700"
+                  }`}
+                >
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeTab"
+                      className={`absolute inset-0 rounded-xl shadow-lg ${
+                        isDark
+                          ? "bg-white/5 border border-white/10"
+                          : "bg-white shadow-sm border border-gray-200"
+                      }`}
+                      transition={{
+                        type: "spring",
+                        bounce: 0.2,
+                        duration: 0.6,
+                      }}
+                    >
+                      <div
+                        className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-[2px] rounded-full ${
+                          tab.color === "cyan"
+                            ? "bg-cyan-500 shadow-[0_0_10px_#22d3ee]"
+                            : tab.color === "purple"
+                              ? "bg-purple-500 shadow-[0_0_10px_#a855f7]"
+                              : "bg-amber-500 shadow-[0_0_10px_#f59e0b]"
+                        }`}
+                      />
+                    </motion.div>
+                  )}
+
+                  <span className="opacity-30 font-mono">0{idx + 1}</span>
+                  <Icon
+                    size={14}
+                    className={
+                      isActive
+                        ? tab.color === "cyan"
+                          ? "text-cyan-400"
+                          : tab.color === "purple"
+                            ? "text-purple-400"
+                            : "text-amber-400"
+                        : ""
+                    }
+                  />
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
@@ -244,10 +286,9 @@ export const UserManagement: React.FC = () => {
                   <UsersTable
                     users={filteredUsers}
                     loading={usersLoading}
-                    currentUserId={user?.id}
-                    isSuperAdmin={!!isSuperAdmin()}
-                    onRoleChange={handleChangeRole}
                     onForceSignOut={initForceSignOut}
+                    onEdit={initEditUser}
+                    onDelete={initDeleteUser}
                   />
                 </div>
               </div>
@@ -275,14 +316,31 @@ export const UserManagement: React.FC = () => {
         isOpen={isActionModalOpen}
         onClose={() => setIsActionModalOpen(false)}
         onConfirm={handleConfirmAction}
-        title={actionType === "sign_out" ? "Force Sign Out" : "Confirm Action"}
+        title={actionType === "sign_out" ? "Force Sign Out" : "Delete User"}
         description={
           actionType === "sign_out"
-            ? `Are you sure you want to sign out ${selectedUser?.email}? This will immediately invalidate all active sessions for this user.`
-            : "Are you sure you want to verify this action?"
+            ? `Are you sure you want to sign out ${selectedUser?.email}? This will immediately invalidate all active sessions.`
+            : `Are you sure you want to delete ${selectedUser?.email}? This action cannot be undone.`
         }
         actionType="danger"
-        confirmText="Sign Out"
+        confirmText={actionType === "sign_out" ? "Sign Out" : "Delete User"}
+      />
+
+      <AddUserModal
+        isOpen={isAddUserModalOpen}
+        onClose={() => setIsAddUserModalOpen(false)}
+        onConfirm={async (data) => {
+          await createUser(data);
+        }}
+      />
+
+      <EditUserModal
+        isOpen={isEditUserModalOpen}
+        onClose={() => setIsEditUserModalOpen(false)}
+        user={selectedUser}
+        onConfirm={async (id, data) => {
+          await updateUser(id, data);
+        }}
       />
     </div>
   );

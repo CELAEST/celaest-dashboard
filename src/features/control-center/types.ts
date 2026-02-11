@@ -30,6 +30,7 @@ export interface DashboardMetrics {
 
 export interface HealthResponse {
   status: string;
+  uptime?: string;
   services?: {
     database?: boolean;
     redis?: boolean;

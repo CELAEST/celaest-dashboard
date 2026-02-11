@@ -72,13 +72,13 @@ export function useControlCenterData(): ControlCenterData {
           revenue_growth: metrics.revenue_growth,
           active_users: metrics.active_users,
           total_users: metrics.total_users,
-          users_growth: 0, // Not in backend yet
+          users_growth: metrics.users_growth,
           total_orders: metrics.total_orders,
-          orders_growth: 0, // Not in backend yet
+          orders_growth: metrics.orders_growth,
           active_licenses: metrics.active_licenses,
-          total_licenses: metrics.total_licenses, // Need to make sure this exists in backend
-          licenses_growth: 0, // Not in backend yet
-          total_products: 0, // Not in backend yet (metrics.total_products)
+          total_licenses: metrics.total_licenses,
+          licenses_growth: metrics.licenses_growth,
+          total_products: metrics.total_products,
           conversion_rate: metrics.conversion_rate,
           period: metrics.period || "Ultimos 30 días",
           period_start: metrics.period_start || "",
