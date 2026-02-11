@@ -4,60 +4,43 @@ import React, { useState } from "react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { Invoice } from "../types";
 import { InvoiceHistoryTable } from "./InvoiceHistory/InvoiceHistoryTable";
+import { useBilling } from "../hooks/useBilling";
+import { Loader2 } from "lucide-react";
 
 export const InvoiceHistory: React.FC = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
-  const invoices: Invoice[] = [
-    {
-      id: "1",
-      invoiceNumber: "INV-2026-001",
-      date: "Dec 31, 2025",
-      description: "Premium Tier - January 2026",
-      amount: 299.0,
-      status: "paid",
-    },
-    {
-      id: "2",
-      invoiceNumber: "INV-2025-012",
-      date: "Nov 30, 2025",
-      description: "Premium Tier - December 2025",
-      amount: 299.0,
-      status: "paid",
-    },
-    {
-      id: "3",
-      invoiceNumber: "INV-2025-011",
-      date: "Oct 31, 2025",
-      description: "Premium Tier - November 2025",
-      amount: 299.0,
-      status: "paid",
-    },
-    {
-      id: "4",
-      invoiceNumber: "INV-2025-010",
-      date: "Sep 30, 2025",
-      description: "Premium Tier - October 2025",
-      amount: 299.0,
-      status: "paid",
-    },
-    {
-      id: "5",
-      invoiceNumber: "INV-2025-009",
-      date: "Aug 31, 2025",
-      description: "Standard Tier - September 2025",
-      amount: 199.0,
-      status: "paid",
-    },
-  ];
+  // Use real billing data
+  const { invoices, isLoading } = useBilling();
 
   const handleDownload = async (invoiceId: string) => {
     setDownloadingId(invoiceId);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    // Find the invoice to get the URL
+    const invoice = invoices.find((i) => i.id === invoiceId);
+    if (invoice?.pdf_url) {
+      window.open(invoice.pdf_url, "_blank");
+    } else {
+      // Fallback or mock download delay if no URL
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+    }
     setDownloadingId(null);
   };
+
+  if (isLoading) {
+    return (
+      <div
+        className={`flex-1 overflow-hidden flex flex-col rounded-2xl p-8 items-center justify-center ${
+          isDark
+            ? "bg-black/40 backdrop-blur-xl border border-white/10"
+            : "bg-white border border-gray-200 shadow-sm"
+        }`}
+      >
+        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+      </div>
+    );
+  }
 
   return (
     <div

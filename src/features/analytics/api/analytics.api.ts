@@ -151,7 +151,21 @@ export const analyticsApi = {
       orgId
     });
   },
+  async getLiveFeed(token: string, orgId: string): Promise<SystemEvent[]> {
+    return api.get<SystemEvent[]>("/api/v1/org/analytics/live-feed", {
+      token,
+      orgId
+    });
+  },
 };
+
+export interface SystemEvent {
+  id: string;
+  type: "info" | "success" | "warning" | "error";
+  message: string;
+  timestamp: string;
+  source: "payment" | "user" | "system";
+}
 
 export interface ROIByProduct {
   product_id: string;

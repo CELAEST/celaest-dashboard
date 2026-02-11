@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Shield, Crown, User, LayoutGrid, Receipt } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { BillingOverview } from "./views/BillingOverview";
@@ -8,6 +8,9 @@ import { InvoicesView } from "./views/InvoicesView";
 import { AdminOverviewView } from "./views/AdminOverviewView";
 import { AdminControlsView } from "./views/AdminControlsView";
 import { AnimatePresence, motion } from "motion/react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { useBilling } from "../hooks/useBilling";
 
 type BillingTab = "overview" | "invoices";
 type AdminTab = "overview" | "controls";
@@ -15,9 +18,47 @@ type AdminTab = "overview" | "controls";
 export const BillingPortal: React.FC = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const { refresh } = useBilling();
+
   const [viewMode, setViewMode] = useState<"customer" | "admin">("customer");
   const [activeTab, setActiveTab] = useState<BillingTab>("overview");
   const [activeAdminTab, setActiveAdminTab] = useState<AdminTab>("overview");
+
+  // Handle Stripe Redirection Success/Cancel & Cleanup Legacy URLs
+  useEffect(() => {
+    // 1. Defend against legacy/ghost URLs that cause 404
+    if (
+      typeof window !== "undefined" &&
+      window.location.pathname === "/dashboard/billing"
+    ) {
+      const currentParams = new URLSearchParams(window.location.search);
+      currentParams.set("tab", "billing");
+      router.replace(`/?${currentParams.toString()}`, { scroll: false });
+      return;
+    }
+
+    const success = searchParams.get("success");
+    const cancel = searchParams.get("cancel");
+
+    if (success === "true") {
+      toast.success("Subscription successfully activated!", {
+        description: "Your new plan is now active.",
+        duration: 5000,
+      });
+      // Refresh data to show new plan
+      refresh();
+      // Clean up URL
+      router.replace(`/?tab=billing`, { scroll: false });
+    } else if (cancel === "true") {
+      toast.error("Payment cancelled", {
+        description: "Your subscription remains unchanged.",
+      });
+      // Clean up URL
+      router.replace(`/?tab=billing`, { scroll: false });
+    }
+  }, [searchParams, router, refresh]);
 
   return (
     <div className="flex-1 flex flex-col min-h-0 h-full">

@@ -5,10 +5,14 @@
  * This is the recommended pattern for all forms.
  */
 
-import { useForm, UseFormReturn, useWatch } from "react-hook-form";
+import { useForm, UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { formatCardNumber, getCardType } from "@/lib/validation/schemas/billing";
+import { useOrgStore } from "@/features/shared/stores/useOrgStore";
+import { useAuth } from "@/features/auth/contexts/AuthContext";
+import { billingApi } from "../api/billing.api";
+import { toast } from "sonner";
 
 // =============================================================================
 // Schema (extended for this specific form)
@@ -67,7 +71,6 @@ export type AddPaymentMethodFormData = z.infer<typeof addPaymentMethodFormSchema
 
 interface UseAddPaymentMethodFormResult {
   form: UseFormReturn<AddPaymentMethodFormData>;
-  cardType: "visa" | "mastercard" | "amex" | "unknown";
   handleCardNumberChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleSubmit: () => void;
   isSubmitting: boolean;
@@ -95,12 +98,14 @@ export const useAddPaymentMethodFormRHF = (
     },
   });
 
-  const cardNumber = useWatch({
-    control: form.control,
-    name: "cardNumber",
-    defaultValue: "",
-  });
-  const cardType = getCardType(cardNumber);
+
+  // REMOVED: useWatch here caused full re-renders on every keystroke.
+  // const cardNumber = useWatch({ ... });
+  // const cardType = getCardType(cardNumber);
+
+  // Instead, we export a helper or just let components use useWatch internally.
+  // usage: const cardType = getCardType(form.getValues("cardNumber")); 
+  // helping valid initial render, but for reactive UI, use ConnectedCreditCardPreview
 
   // Format card number with spaces
   const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -108,17 +113,38 @@ export const useAddPaymentMethodFormRHF = (
     form.setValue("cardNumber", formatted, { shouldValidate: true });
   };
 
+  const { currentOrg } = useOrgStore();
+  const { session } = useAuth();
+
   // Submit handler - wraps RHF's handleSubmit
   const handleSubmit = form.handleSubmit(async (data) => {
-    console.log("Adding payment method...", data);
-    // TODO: API call here
-    // await api.addPaymentMethod(data);
-    onClose();
+    if (!currentOrg?.id || !session?.accessToken) {
+      toast.error("Authentication missing");
+      return;
+    }
+
+    try {
+      // Map frontend keys to backend keys
+      await billingApi.createPaymentMethod(currentOrg.id, session.accessToken, {
+        brand: getCardType(data.cardNumber),
+        last4: data.cardNumber.slice(-4),
+        expiry_month: parseInt(data.expiryMonth),
+        expiry_year: parseInt(data.expiryYear),
+        is_default: data.isDefault,
+        type: "card",
+        provider: "stripe",
+      });
+
+      toast.success("Payment method added successfully");
+      onClose();
+    } catch (err: any) {
+      console.error("Failed to add payment method:", err);
+      toast.error(err.message || "Failed to add payment method");
+    }
   });
 
   return {
     form,
-    cardType,
     handleCardNumberChange,
     handleSubmit,
     isSubmitting: form.formState.isSubmitting,

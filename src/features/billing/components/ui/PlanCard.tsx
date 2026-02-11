@@ -4,35 +4,39 @@ import { motion } from "motion/react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { Plan } from "../../types";
 
-interface PlanCardProps {
-  plan: Plan;
-  index: number;
-  onClose: () => void;
+// Extended plan type for UI only
+interface PlanWithUI extends Plan {
+  price?: string;
+  period?: string;
+  popular?: boolean;
+  color?: "blue" | "purple" | "emerald";
 }
 
-export const PlanCard: React.FC<PlanCardProps> = ({ plan, index, onClose }) => {
+interface PlanCardProps {
+  plan: PlanWithUI;
+  index: number;
+  onClose: () => void;
+  onSelect?: (plan: Plan) => void;
+  isLoading?: boolean;
+  currentPlanId?: string;
+}
+
+export const PlanCard: React.FC<PlanCardProps> = ({
+  plan,
+  index,
+  onClose,
+  onSelect,
+  isLoading = false,
+  currentPlanId,
+}) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const isPopular = plan.popular;
+  const isCurrent = currentPlanId === plan.id;
 
   // Theme Colors Helper
-  const getThemeColors = (color: Plan["color"]) => {
+  const getThemeColors = (color: PlanWithUI["color"]) => {
     switch (color) {
-      case "blue":
-        return {
-          border: isPopular
-            ? "border-blue-500"
-            : isDark
-              ? "border-blue-500/20"
-              : "border-blue-100",
-          bg: isDark ? "bg-slate-900/60" : "bg-white",
-          title: isDark ? "text-blue-200" : "text-blue-900",
-          price: isDark ? "text-white" : "text-slate-900",
-          checkBg: isDark ? "bg-blue-500/20" : "bg-blue-50",
-          check: "text-blue-500",
-          btn: "bg-blue-600 hover:bg-blue-500",
-          glow: "shadow-blue-500/20",
-        };
       case "purple":
         return {
           border: isPopular
@@ -63,10 +67,35 @@ export const PlanCard: React.FC<PlanCardProps> = ({ plan, index, onClose }) => {
           btn: "bg-emerald-600 hover:bg-emerald-500",
           glow: "shadow-emerald-500/20",
         };
+      case "blue":
+      default:
+        return {
+          border: isPopular
+            ? "border-blue-500"
+            : isDark
+              ? "border-blue-500/20"
+              : "border-blue-100",
+          bg: isDark ? "bg-slate-900/60" : "bg-white",
+          title: isDark ? "text-blue-200" : "text-blue-900",
+          price: isDark ? "text-white" : "text-slate-900",
+          checkBg: isDark ? "bg-blue-500/20" : "bg-blue-50",
+          check: "text-blue-500",
+          btn: "bg-blue-600 hover:bg-blue-500",
+          glow: "shadow-blue-500/20",
+        };
     }
   };
 
-  const currentTheme = getThemeColors(plan.color);
+  const currentTheme = getThemeColors(plan.color || "blue");
+
+  const handleSelect = () => {
+    if (isCurrent) return;
+    if (onSelect) {
+      onSelect(plan);
+    } else {
+      onClose();
+    }
+  };
 
   return (
     <motion.div
@@ -79,7 +108,7 @@ export const PlanCard: React.FC<PlanCardProps> = ({ plan, index, onClose }) => {
         isPopular
           ? `shadow-2xl ${currentTheme.glow} ring-1 ring-white/10 z-10 sm:scale-[1.02]`
           : "shadow-lg hover:shadow-xl hover:border-opacity-50"
-      }`}
+      } ${isCurrent ? "ring-2 ring-blue-500 ring-offset-2 ring-offset-current" : ""}`}
     >
       {/* Popular Badge */}
       {isPopular && (
@@ -124,7 +153,7 @@ export const PlanCard: React.FC<PlanCardProps> = ({ plan, index, onClose }) => {
       </div>
 
       <div className="flex-1 space-y-2 sm:space-y-3 lg:space-y-4 mb-4 sm:mb-6 lg:mb-8">
-        {plan.features.map((feature, i) => (
+        {plan.features?.map((feature, i) => (
           <div key={i} className="flex items-start gap-2 sm:gap-3 group/item">
             <div
               className={`mt-0.5 rounded-full p-0.5 sm:p-1 shrink-0 transition-colors ${currentTheme.checkBg}`}
@@ -147,19 +176,29 @@ export const PlanCard: React.FC<PlanCardProps> = ({ plan, index, onClose }) => {
       </div>
 
       <motion.button
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        onClick={onClose}
-        className={`w-full py-2.5 sm:py-3 lg:py-4 rounded-lg sm:rounded-xl font-bold text-sm sm:text-base text-white shadow-lg transition-all duration-300 ${currentTheme.btn} relative overflow-hidden group/btn`}
+        whileHover={!isCurrent && !isLoading ? { scale: 1.02 } : {}}
+        whileTap={!isCurrent && !isLoading ? { scale: 0.98 } : {}}
+        onClick={handleSelect}
+        disabled={isCurrent || isLoading}
+        className={`w-full py-2.5 sm:py-3 lg:py-4 rounded-lg sm:rounded-xl font-bold text-sm sm:text-base text-white shadow-lg transition-all duration-300 ${currentTheme.btn} relative overflow-hidden group/btn ${isCurrent ? "opacity-50 cursor-default" : ""}`}
       >
         <span className="relative z-10 flex items-center justify-center gap-2">
-          {isPopular ? "Get Started Now" : "Choose Plan"}
-          {isPopular && (
+          {isCurrent
+            ? "Current Plan"
+            : isPopular
+              ? "Get Started Now"
+              : "Choose Plan"}
+          {isPopular && !isCurrent && (
             <Star className="w-3 h-3 sm:w-4 sm:h-4 fill-white/20" />
+          )}
+          {isLoading && !isCurrent && (
+            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
           )}
         </span>
         {/* Shine Effect */}
-        <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000" />
+        {!isCurrent && !isLoading && (
+          <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000" />
+        )}
       </motion.button>
     </motion.div>
   );

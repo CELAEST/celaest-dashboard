@@ -9,10 +9,18 @@ interface AlertsCardProps {
   pendingRefunds: number;
   failedPayments: number;
   className?: string;
+  onAlertClick?: (type: "failed" | "refund_requested") => void;
+  onViewLogsClick?: () => void;
 }
 
 export const AlertsCard = React.memo(
-  ({ pendingRefunds, failedPayments, className }: AlertsCardProps) => {
+  ({
+    pendingRefunds,
+    failedPayments,
+    className,
+    onAlertClick,
+    onViewLogsClick,
+  }: AlertsCardProps) => {
     const { theme } = useTheme();
     const isDark = theme === "dark";
 
@@ -51,6 +59,7 @@ export const AlertsCard = React.memo(
             <div className="space-y-3">
               {/* Pending Refunds */}
               <div
+                onClick={() => onAlertClick?.("refund_requested")}
                 className={`p-4 rounded-xl border transition-all duration-300 hover:scale-[1.02] cursor-pointer group ${
                   isDark
                     ? "bg-[#18181b] border-orange-500/20 hover:border-orange-500/50 hover:shadow-[0_0_15px_rgba(249,115,22,0.1)]"
@@ -90,6 +99,7 @@ export const AlertsCard = React.memo(
 
               {/* Failed Payments */}
               <div
+                onClick={() => onAlertClick?.("failed")}
                 className={`p-4 rounded-xl border transition-all duration-300 hover:scale-[1.02] cursor-pointer group ${
                   isDark
                     ? "bg-[#18181b] border-red-500/20 hover:border-red-500/50 hover:shadow-[0_0_15px_rgba(239,68,68,0.1)]"
@@ -129,7 +139,8 @@ export const AlertsCard = React.memo(
             </div>
           </div>
 
-          <div
+          <button
+            onClick={onViewLogsClick}
             className={`w-full py-4 rounded-xl font-bold text-sm tracking-wide text-center border transition-all border-dashed ${
               isDark
                 ? "border-white/10 text-gray-500 hover:border-white/20 hover:text-white hover:bg-white/5"
@@ -137,7 +148,7 @@ export const AlertsCard = React.memo(
             }`}
           >
             VIEW ALL LOGS
-          </div>
+          </button>
         </div>
       </motion.div>
     );

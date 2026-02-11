@@ -6,14 +6,14 @@ import { TaxRate } from "../../../types";
 
 interface TaxRateListProps {
   taxRates: TaxRate[];
-  setEditingId: (id: string | null) => void;
+  startEditing: (id: string) => void;
   handleDeleteTaxRate: (id: string) => void;
   handleToggleActive: (id: string) => void;
 }
 
 export const TaxRateList: React.FC<TaxRateListProps> = ({
   taxRates,
-  setEditingId,
+  startEditing,
   handleDeleteTaxRate,
   handleToggleActive,
 }) => {
@@ -58,7 +58,7 @@ export const TaxRateList: React.FC<TaxRateListProps> = ({
           }`}
         >
           <div className="grid grid-cols-1 md:grid-cols-[1.5fr_80px_100px_80px_120px_90px] gap-4 items-center">
-            {/* Country */}
+            {/* Country/Region */}
             <div className="min-w-0">
               <div
                 className={`text-[10px] font-bold mb-1 md:hidden ${
@@ -72,11 +72,16 @@ export const TaxRateList: React.FC<TaxRateListProps> = ({
                   isDark ? "text-white" : "text-gray-900"
                 }`}
               >
-                {rate.country}
+                {rate.region || "Global"}
+              </div>
+              <div
+                className={`text-[10px] ${isDark ? "text-gray-500" : "text-gray-400"} truncate`}
+              >
+                {rate.name}
               </div>
             </div>
 
-            {/* Code */}
+            {/* Code (Derived from ID or backend field) */}
             <div className="flex flex-col md:items-center">
               <div
                 className={`text-[10px] font-bold mb-1 md:hidden ${
@@ -92,7 +97,7 @@ export const TaxRateList: React.FC<TaxRateListProps> = ({
                     : "bg-purple-500/10 border border-purple-500/20 text-purple-600"
                 }`}
               >
-                {rate.code}
+                {(rate.id.split("_")[1] || rate.id).toUpperCase()}
               </div>
             </div>
 
@@ -130,7 +135,7 @@ export const TaxRateList: React.FC<TaxRateListProps> = ({
                     : "bg-gray-100 text-gray-600"
                 }`}
               >
-                {rate.vatType}
+                {rate.type || "VAT"}
               </div>
             </div>
 
@@ -166,7 +171,7 @@ export const TaxRateList: React.FC<TaxRateListProps> = ({
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                onClick={() => setEditingId(rate.id)}
+                onClick={() => startEditing(rate.id)}
                 className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 ${
                   isDark
                     ? "bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 border border-blue-500/20"

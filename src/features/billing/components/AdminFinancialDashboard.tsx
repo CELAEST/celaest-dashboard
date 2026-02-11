@@ -1,61 +1,44 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "motion/react";
 import {
   DollarSign,
   TrendingUp,
-  Users,
-  AlertCircle,
   CreditCard,
   Globe,
-  Zap,
-  Percent,
   CheckCircle,
+  Settings,
 } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { ConfigurePaymentGatewaysModal } from "./modals/ConfigurePaymentGatewaysModal";
 import { ManageTaxRatesModal } from "./modals/ManageTaxRatesModal";
+import { CriticalAlertsModal } from "./modals/CriticalAlertsModal";
+import { TransactionLogsModal } from "./modals/TransactionLogsModal";
+import { AlertsCard } from "./dashboard/AlertsCard";
+import { useFinancialDashboard } from "../hooks/useFinancialDashboard";
 
 export const AdminFinancialDashboard: React.FC = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
-  const [isConfigureGatewaysOpen, setIsConfigureGatewaysOpen] =
-    React.useState(false);
-  const [isManageTaxRatesOpen, setIsManageTaxRatesOpen] = React.useState(false);
+  const {
+    metrics,
+    totalRevenue,
+    paidInvoices,
+    refundedFunds,
+    mrr,
+    mrrGrowth,
+    pendingRefunds,
+    failedPayments,
+    refresh,
+  } = useFinancialDashboard();
 
-  const totalRevenue = 47850;
-  const paidInvoices = 148;
-  const refundedFunds = 2890;
-  const mrr = 47850;
-  const mrrGrowth = 12.5;
-  const pendingRefunds = 3;
-  const failedPayments = 7;
-
-  const metrics = [
-    {
-      icon: Users,
-      label: "ACTIVE SUBSCRIPTIONS",
-      value: "160",
-      change: "+18",
-      changeLabel: "this month",
-      color: "blue",
-    },
-    {
-      icon: Percent,
-      label: "CHURN RATE",
-      value: "2.3%",
-      change: "-0.4%",
-      changeLabel: "improvement",
-      color: "yellow",
-    },
-    {
-      icon: Zap,
-      label: "ARPU (AVG REVENUE PER USER)",
-      value: "$299",
-      change: "Avg/mo",
-      changeLabel: "per user average",
-      color: "purple",
-    },
-  ];
+  // Modal States
+  const [isGatewayModalOpen, setIsGatewayModalOpen] = useState(false);
+  const [isTaxModalOpen, setIsTaxModalOpen] = useState(false);
+  const [isAlertsModalOpen, setIsAlertsModalOpen] = useState(false);
+  const [isTransactionsModalOpen, setIsTransactionsModalOpen] = useState(false);
+  const [activeAlertType, setActiveAlertType] = useState<
+    "failed" | "refund_requested"
+  >("failed");
 
   const getMetricColor = (color: string) => {
     switch (color) {
@@ -379,7 +362,7 @@ export const AdminFinancialDashboard: React.FC = () => {
                     metric.color,
                   )}`}
                 >
-                  <metric.icon className="w-6 h-6" />
+                  {metric.icon && <metric.icon className="w-6 h-6" />}
                 </div>
               </div>
 
@@ -516,7 +499,7 @@ export const AdminFinancialDashboard: React.FC = () => {
             </div>
 
             <button
-              onClick={() => setIsConfigureGatewaysOpen(true)}
+              onClick={() => setIsGatewayModalOpen(true)}
               className={`w-full mt-4 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-[1.02] ${
                 isDark
                   ? "bg-linear-to-r from-cyan-400 to-blue-500 text-white shadow-lg shadow-cyan-500/30"
@@ -529,99 +512,15 @@ export const AdminFinancialDashboard: React.FC = () => {
         </motion.div>
 
         {/* Critical Alerts */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className={`rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-2xl ${
-            isDark
-              ? "bg-black/40 backdrop-blur-xl border border-white/10"
-              : "bg-white border border-gray-200 shadow-sm"
-          }`}
-        >
-          <div className="p-6">
-            <div className="flex items-center gap-3 mb-6">
-              <AlertCircle className="w-5 h-5 text-orange-500" />
-              <h3
-                className={`font-semibold ${isDark ? "text-white" : "text-gray-900"}`}
-              >
-                Critical Alerts
-              </h3>
-            </div>
-
-            <div className="space-y-4">
-              {/* Pending Refunds */}
-              <div
-                className={`p-4 rounded-xl transition-all duration-300 hover:scale-[1.02] cursor-pointer ${
-                  isDark
-                    ? "bg-linear-to-r from-orange-500/10 to-yellow-500/10 border border-orange-500/20"
-                    : "bg-linear-to-r from-orange-500/5 to-yellow-500/5 border border-orange-500/20"
-                }`}
-              >
-                <div className="flex items-start justify-between">
-                  <div>
-                    <div
-                      className={`font-semibold mb-1 ${
-                        isDark ? "text-orange-400" : "text-orange-600"
-                      }`}
-                    >
-                      Pending Refunds
-                    </div>
-                    <div
-                      className={`text-xs ${
-                        isDark ? "text-orange-400/70" : "text-orange-600/70"
-                      }`}
-                    >
-                      {pendingRefunds} requests awaiting approval
-                    </div>
-                  </div>
-                  <div
-                    className={`text-3xl font-bold ${
-                      isDark ? "text-orange-400" : "text-orange-600"
-                    }`}
-                  >
-                    {pendingRefunds}
-                  </div>
-                </div>
-              </div>
-
-              {/* Failed Payments */}
-              <div
-                className={`p-4 rounded-xl transition-all duration-300 hover:scale-[1.02] cursor-pointer ${
-                  isDark
-                    ? "bg-linear-to-r from-red-500/10 to-pink-500/10 border border-red-500/20"
-                    : "bg-linear-to-r from-red-500/5 to-pink-500/5 border border-red-500/20"
-                }`}
-              >
-                <div className="flex items-start justify-between">
-                  <div>
-                    <div
-                      className={`font-semibold mb-1 ${
-                        isDark ? "text-red-400" : "text-red-600"
-                      }`}
-                    >
-                      Failed Recurring Payments
-                    </div>
-                    <div
-                      className={`text-xs ${
-                        isDark ? "text-red-400/70" : "text-red-600/70"
-                      }`}
-                    >
-                      Customers requiring intervention
-                    </div>
-                  </div>
-                  <div
-                    className={`text-3xl font-bold ${
-                      isDark ? "text-red-400" : "text-red-600"
-                    }`}
-                  >
-                    {failedPayments}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </motion.div>
+        <AlertsCard
+          pendingRefunds={pendingRefunds}
+          failedPayments={failedPayments}
+          onAlertClick={(type) => {
+            setActiveAlertType(type);
+            setIsAlertsModalOpen(true);
+          }}
+          onViewLogsClick={() => setIsTransactionsModalOpen(true)}
+        />
       </div>
 
       {/* Tax Rate Configuration */}
@@ -670,6 +569,16 @@ export const AdminFinancialDashboard: React.FC = () => {
                   >
                     {tax.country}
                   </span>
+                  <button
+                    onClick={() => setIsTaxModalOpen(true)}
+                    className={`p-2 rounded-xl transition-all ${
+                      isDark
+                        ? "bg-white/5 hover:bg-white/10 text-white"
+                        : "bg-gray-100 hover:bg-gray-200 text-gray-900"
+                    }`}
+                  >
+                    <Settings className="w-4 h-4" />
+                  </button>
                   <span
                     className={`text-xs px-2 py-1 rounded ${
                       isDark
@@ -699,7 +608,7 @@ export const AdminFinancialDashboard: React.FC = () => {
           </div>
 
           <button
-            onClick={() => setIsManageTaxRatesOpen(true)}
+            onClick={() => setIsTaxModalOpen(true)}
             className={`w-full mt-4 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-[1.02] ${
               isDark
                 ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 hover:bg-cyan-500/20"
@@ -712,13 +621,24 @@ export const AdminFinancialDashboard: React.FC = () => {
       </motion.div>
 
       <ConfigurePaymentGatewaysModal
-        isOpen={isConfigureGatewaysOpen}
-        onClose={() => setIsConfigureGatewaysOpen(false)}
+        isOpen={isGatewayModalOpen}
+        onClose={() => setIsGatewayModalOpen(false)}
       />
 
       <ManageTaxRatesModal
-        isOpen={isManageTaxRatesOpen}
-        onClose={() => setIsManageTaxRatesOpen(false)}
+        isOpen={isTaxModalOpen}
+        onClose={() => setIsTaxModalOpen(false)}
+      />
+      <CriticalAlertsModal
+        isOpen={isAlertsModalOpen}
+        onClose={() => setIsAlertsModalOpen(false)}
+        type={activeAlertType}
+        onResolve={refresh}
+      />
+
+      <TransactionLogsModal
+        isOpen={isTransactionsModalOpen}
+        onClose={() => setIsTransactionsModalOpen(false)}
       />
     </div>
   );

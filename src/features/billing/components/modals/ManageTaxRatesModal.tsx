@@ -8,7 +8,6 @@ import { TaxRateList } from "./ManageTaxRates/TaxRateList";
 import { ManageTaxRatesFooter } from "./ManageTaxRates/ManageTaxRatesFooter";
 
 interface ManageTaxRatesModalProps {
-
   isOpen: boolean;
   onClose: () => void;
 }
@@ -21,12 +20,14 @@ export function ManageTaxRatesModal({
     taxRates,
     isAdding,
     setIsAdding,
-    setEditingId,
+    editingId,
     newTaxRate,
     setNewTaxRate,
     handleAddTaxRate,
     handleDeleteTaxRate,
     handleToggleActive,
+    handleSaveEdit,
+    startEditing,
   } = useManageTaxRates();
 
   return (
@@ -41,14 +42,16 @@ export function ManageTaxRatesModal({
         <AddTaxRateForm
           isAdding={isAdding}
           setIsAdding={setIsAdding}
+          editingId={editingId}
           newTaxRate={newTaxRate}
           setNewTaxRate={setNewTaxRate}
           handleAddTaxRate={handleAddTaxRate}
+          handleSaveEdit={handleSaveEdit}
         />
 
         <TaxRateList
           taxRates={taxRates}
-          setEditingId={setEditingId}
+          startEditing={startEditing}
           handleDeleteTaxRate={handleDeleteTaxRate}
           handleToggleActive={handleToggleActive}
         />
@@ -56,6 +59,5 @@ export function ManageTaxRatesModal({
 
       <ManageTaxRatesFooter taxRatesCount={taxRates.length} onClose={onClose} />
     </BillingModal>
-
   );
 }

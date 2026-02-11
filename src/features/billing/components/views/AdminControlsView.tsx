@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useFinancialDashboard } from "../../hooks/useFinancialDashboard";
+import { usePaymentGateways } from "../../hooks/usePaymentGateways";
 import { GatewayControl } from "../dashboard/GatewayControl";
 import { AlertsCard } from "../dashboard/AlertsCard";
 import { TaxRatesCard } from "../dashboard/TaxRatesCard";
@@ -13,6 +14,7 @@ export const AdminControlsView: React.FC = () => {
   const [isManageTaxRatesOpen, setIsManageTaxRatesOpen] = useState(false);
 
   const { pendingRefunds, failedPayments, taxRates } = useFinancialDashboard();
+  const { gateways } = usePaymentGateways();
 
   return (
     <div className="h-full w-full p-4 flex flex-col min-h-0">
@@ -21,6 +23,7 @@ export const AdminControlsView: React.FC = () => {
         <div className="h-full min-h-0">
           <GatewayControl
             onConfigure={() => setIsConfigureGatewaysOpen(true)}
+            gateways={gateways}
             className="h-full"
           />
         </div>

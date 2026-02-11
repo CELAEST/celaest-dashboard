@@ -1,9 +1,16 @@
 import React from "react";
 import { motion } from "motion/react";
-import { Zap, TrendingUp, CheckCircle, Sparkles } from "lucide-react";
+import {
+  Zap,
+  TrendingUp,
+  CheckCircle,
+  Sparkles,
+  AlertCircle,
+} from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { ManageSubscriptionModal } from "./modals/ManageSubscriptionModal";
 import { UpgradePlanModal } from "./modals/UpgradePlanModal";
+import { useBilling } from "../hooks/useBilling";
 
 export const SubscriptionManager: React.FC = () => {
   const { theme } = useTheme();
@@ -11,13 +18,29 @@ export const SubscriptionManager: React.FC = () => {
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = React.useState(false);
   const [isManageModalOpen, setIsManageModalOpen] = React.useState(false);
 
-  const usedLicenses = 3;
-  const totalLicenses = 5;
-  const licensePercentage = (usedLicenses / totalLicenses) * 100;
+  // Use real billing data
+  const { subscription, plan, usage, isLoading, error } = useBilling();
 
-  const usedApiCalls = 47800;
-  const totalApiCalls = 100000;
-  const apiPercentage = (usedApiCalls / totalApiCalls) * 100;
+  if (isLoading) {
+    return (
+      <div
+        className={`w-full h-full rounded-3xl animate-pulse ${isDark ? "bg-slate-800/50" : "bg-slate-100"}`}
+      />
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="w-full h-full flex items-center justify-center text-red-500">
+        <AlertCircle className="w-6 h-6 mr-2" />
+        Failed to load subscription info
+      </div>
+    );
+  }
+
+  // Format price
+  const price = plan?.price_monthly || 0;
+  const currencySymbol = plan?.currency === "EUR" ? "€" : "$";
 
   return (
     <>
@@ -53,7 +76,7 @@ export const SubscriptionManager: React.FC = () => {
               }`}
             >
               <Zap className="w-3.5 h-3.5" />
-              <span>ACTIVE PLAN</span>
+              <span>{plan?.name ? plan.name.toUpperCase() : "FREE TIER"}</span>
             </div>
             <div
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full font-bold text-xs tracking-wide shadow-sm ${
@@ -66,7 +89,9 @@ export const SubscriptionManager: React.FC = () => {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
               </span>
-              ACTIVE
+              {subscription?.status
+                ? subscription.status.toUpperCase()
+                : "INACTIVE"}
             </div>
           </div>
 
@@ -86,7 +111,7 @@ export const SubscriptionManager: React.FC = () => {
                   : "text-slate-900"
               }`}
             >
-              Premium Tier
+              {plan?.name || "Free Plan"}
             </h2>
             <div className="flex items-baseline gap-2">
               <span
@@ -96,7 +121,8 @@ export const SubscriptionManager: React.FC = () => {
                     : "text-blue-600"
                 }`}
               >
-                $299
+                {currencySymbol}
+                {price}
               </span>
               <span
                 className={`text-lg sm:text-xl font-medium ${isDark ? "text-slate-400" : "text-slate-500"}`}
@@ -126,8 +152,10 @@ export const SubscriptionManager: React.FC = () => {
                     isDark ? "text-cyan-300" : "text-blue-600"
                   }`}
                 >
-                  {usedLicenses}{" "}
-                  <span className="text-slate-500">/ {totalLicenses}</span>
+                  {usage.licenses.used}{" "}
+                  <span className="text-slate-500">
+                    / {usage.licenses.total}
+                  </span>
                 </span>
               </div>
               <div
@@ -140,7 +168,7 @@ export const SubscriptionManager: React.FC = () => {
                 <motion.div
                   className="h-full bg-linear-to-r from-cyan-500 to-blue-600 rounded-full relative"
                   initial={{ width: 0 }}
-                  animate={{ width: `${licensePercentage}%` }}
+                  animate={{ width: `${usage.licenses.percent}%` }}
                   transition={{ duration: 1.2, ease: "easeOut" }}
                   style={{
                     boxShadow: isDark ? "0 0 12px rgba(6,182,212,0.5)" : "none",
@@ -153,7 +181,7 @@ export const SubscriptionManager: React.FC = () => {
               <div
                 className={`text-xs mt-1.5 font-medium ${isDark ? "text-slate-400" : "text-slate-500"}`}
               >
-                {totalLicenses - usedLicenses} licenses available
+                {usage.licenses.total - usage.licenses.used} licenses available
               </div>
             </div>
 
@@ -175,7 +203,7 @@ export const SubscriptionManager: React.FC = () => {
                     isDark ? "text-cyan-300" : "text-blue-600"
                   }`}
                 >
-                  {usedApiCalls.toLocaleString()}
+                  {usage.apiCalls.used.toLocaleString()}
                 </span>
               </div>
               <div
@@ -188,7 +216,7 @@ export const SubscriptionManager: React.FC = () => {
                 <motion.div
                   className="h-full bg-linear-to-r from-emerald-400 to-teal-500 rounded-full relative"
                   initial={{ width: 0 }}
-                  animate={{ width: `${apiPercentage}%` }}
+                  animate={{ width: `${usage.apiCalls.percent}%` }}
                   transition={{ duration: 1.2, delay: 0.2, ease: "easeOut" }}
                   style={{
                     boxShadow: isDark
@@ -203,9 +231,12 @@ export const SubscriptionManager: React.FC = () => {
                 className={`text-xs mt-1.5 font-medium flex justify-between ${isDark ? "text-slate-400" : "text-slate-500"}`}
               >
                 <span>
-                  {(totalApiCalls - usedApiCalls).toLocaleString()} remaining
+                  {(
+                    usage.apiCalls.total - usage.apiCalls.used
+                  ).toLocaleString()}{" "}
+                  remaining
                 </span>
-                <span>Cap: {totalApiCalls.toLocaleString()}</span>
+                <span>Cap: {usage.apiCalls.total.toLocaleString()}</span>
               </div>
             </div>
           </div>

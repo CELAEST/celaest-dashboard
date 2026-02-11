@@ -1,56 +1,59 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { PaymentGateway } from "../types";
-
-const INITIAL_GATEWAYS: PaymentGateway[] = [
-  {
-    id: "stripe",
-    name: "Stripe",
-    logo: "stripe",
-    status: "active",
-    apiKey: "",
-    webhookUrl: "https://api.celaest.com/webhooks/stripe",
-    testMode: true,
-  },
-  {
-    id: "paypal",
-    name: "PayPal",
-    logo: "paypal",
-    status: "standby",
-    apiKey: "",
-    webhookUrl: "https://api.celaest.com/webhooks/paypal",
-    testMode: false,
-  },
-  {
-    id: "square",
-    name: "Square",
-    logo: "square",
-    status: "disabled",
-    apiKey: "",
-    webhookUrl: "https://api.celaest.com/webhooks/square",
-    testMode: true,
-  },
-];
+import { billingApi } from "../api/billing.api";
+import { useAuth } from "@/features/auth/contexts/AuthContext";
+import { toast } from "sonner";
 
 export const usePaymentGateways = () => {
-  const [gateways, setGateways] = useState<PaymentGateway[]>(INITIAL_GATEWAYS);
+  const { session } = useAuth();
+  const [gateways, setGateways] = useState<PaymentGateway[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [editingGatewayId, setEditingGatewayId] = useState<string | null>(null);
   const [showApiKey, setShowApiKey] = useState<Record<string, boolean>>({});
   const [editForm, setEditForm] = useState<Partial<PaymentGateway>>({});
+
+  const fetchGateways = useCallback(async () => {
+    if (!session?.accessToken) return;
+    setIsLoading(true);
+    try {
+      const data = await billingApi.getAdminGateways(session.accessToken);
+      setGateways(data);
+    } catch (err) {
+      console.error("Failed to fetch gateways:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [session?.accessToken]);
+
+  useEffect(() => {
+    fetchGateways();
+  }, [fetchGateways]);
 
   const handleEdit = (gateway: PaymentGateway) => {
     setEditingGatewayId(gateway.id);
     setEditForm(gateway);
   };
 
-  const handleSaveEdit = () => {
-    if (editingGatewayId && editForm) {
-      setGateways(
-        gateways.map((g) =>
-          g.id === editingGatewayId ? { ...g, ...editForm } : g
-        )
-      );
-      setEditingGatewayId(null);
-      setEditForm({});
+  const handleSaveEdit = async () => {
+    if (editingGatewayId && editForm && session?.accessToken) {
+      try {
+        await billingApi.updateAdminGatewayConfig(
+          session.accessToken,
+          editingGatewayId,
+          editForm
+        );
+        setGateways(
+          gateways.map((g) =>
+            g.id === editingGatewayId ? { ...g, ...editForm } : g
+          )
+        );
+        setEditingGatewayId(null);
+        setEditForm({});
+        toast.success("Gateway configuration saved successfully");
+      } catch (err) {
+        console.error("Failed to save gateway config:", err);
+        toast.error("Failed to save gateway configuration");
+      }
     }
   };
 
@@ -59,22 +62,26 @@ export const usePaymentGateways = () => {
     setEditForm({});
   };
 
-  const handleToggleStatus = (id: string) => {
-    setGateways(
-      gateways.map((g) => {
-        if (g.id === id) {
-          const statuses: Array<"active" | "standby" | "disabled"> = [
-            "active",
-            "standby",
-            "disabled",
-          ];
-          const currentIndex = statuses.indexOf(g.status);
-          const nextStatus = statuses[(currentIndex + 1) % statuses.length];
-          return { ...g, status: nextStatus };
-        }
-        return g;
-      })
-    );
+  const handleToggleStatus = async (id: string) => {
+    if (!session?.accessToken) return;
+    
+    const gateway = gateways.find(g => g.id === id);
+    if (!gateway) return;
+
+    const newActive = gateway.status !== "active";
+    
+    try {
+      await billingApi.updateAdminGatewayStatus(session.accessToken, id, newActive);
+      setGateways(
+        gateways.map((g) =>
+          g.id === id ? { ...g, status: newActive ? "active" : "disabled" } : g
+        )
+      );
+      toast.success(`Gateway ${id} status updated`);
+    } catch (err) {
+      console.error("Failed to toggle gateway status:", err);
+      toast.error("Failed to update gateway status");
+    }
   };
 
   const toggleApiKeyVisibility = (id: string) => {
@@ -83,14 +90,16 @@ export const usePaymentGateways = () => {
 
   return {
     gateways,
+    isLoading,
     editingGatewayId,
     showApiKey,
     editForm,
-    setEditForm, // Expose setter for form updates
+    setEditForm,
     handleEdit,
     handleSaveEdit,
     handleCancelEdit,
     handleToggleStatus,
     toggleApiKeyVisibility,
+    refresh: fetchGateways,
   };
 };

@@ -1,9 +1,9 @@
-
 "use client";
 
 import React from "react";
 import { BillingModal } from "./shared/BillingModal";
 import { useManageSubscription } from "../../hooks/useManageSubscription";
+import { useBilling } from "../../hooks/useBilling";
 import { ManageSubscriptionHeader } from "./ManageSubscription/ManageSubscriptionHeader";
 import { CurrentPlanCard } from "./ManageSubscription/CurrentPlanCard";
 import { SubscriptionInfo } from "./ManageSubscription/SubscriptionInfo";
@@ -21,6 +21,7 @@ export function ManageSubscriptionModal({
   isOpen,
   onClose,
 }: ManageSubscriptionModalProps) {
+  const { subscription, plan } = useBilling();
   const {
     showCancelConfirm,
     setShowCancelConfirm,
@@ -34,7 +35,7 @@ export function ManageSubscriptionModal({
     handleCancelSubscription,
     handlePauseSubscription,
     handleToggleAutoRenew,
-  } = useManageSubscription(onClose);
+  } = useManageSubscription(subscription, plan, onClose);
 
   return (
     <BillingModal
@@ -114,6 +115,5 @@ export function ManageSubscriptionModal({
 
       <ManageSubscriptionFooter onClose={onClose} />
     </BillingModal>
-
   );
 }

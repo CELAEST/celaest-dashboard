@@ -5,15 +5,29 @@ import { motion } from "motion/react";
 import { CreditCard } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 
+import { PaymentGateway } from "../../types";
+
 interface GatewayControlProps {
   onConfigure: () => void;
+  gateways: PaymentGateway[];
   className?: string;
 }
 
 export const GatewayControl = React.memo(
-  ({ onConfigure, className }: GatewayControlProps) => {
+  ({ onConfigure, gateways, className }: GatewayControlProps) => {
     const { theme } = useTheme();
     const isDark = theme === "dark";
+
+    const getStatusColor = (status: string) => {
+      switch (status) {
+        case "active":
+          return isDark ? "emerald" : "emerald";
+        case "standby":
+          return isDark ? "yellow" : "yellow";
+        default:
+          return isDark ? "gray" : "gray";
+      }
+    };
 
     return (
       <motion.div
@@ -48,75 +62,55 @@ export const GatewayControl = React.memo(
             </div>
 
             <div className="space-y-3">
-              {/* Stripe */}
-              <div
-                className={`p-4 rounded-xl border transition-all duration-300 hover:scale-[1.02] cursor-pointer group ${
-                  isDark
-                    ? "bg-[#18181b] border-emerald-500/20 hover:border-emerald-500/50 hover:shadow-[0_0_15px_rgba(16,185,129,0.1)]"
-                    : "bg-emerald-50 border-emerald-200"
-                }`}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span
-                    className={`font-bold ${
-                      isDark ? "text-emerald-400" : "text-gray-900"
+              {gateways.slice(0, 2).map((gateway) => {
+                const color = getStatusColor(gateway.status);
+                const isActive = gateway.status === "active";
+                return (
+                  <div
+                    key={gateway.id}
+                    className={`p-4 rounded-xl border transition-all duration-300 hover:scale-[1.02] cursor-pointer group ${
+                      isDark
+                        ? `bg-[#18181b] border-${color}-500/20 hover:border-${color}-500/50 hover:shadow-[0_0_15px_rgba(16,185,129,0.1)]`
+                        : `bg-${color}-50 border-${color}-200`
                     }`}
                   >
-                    Stripe
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                    </span>
-                    <span
-                      className={`text-[10px] font-black tracking-wider uppercase ${
-                        isDark ? "text-emerald-500" : "text-emerald-700"
-                      }`}
-                    >
-                      Active
-                    </span>
+                    <div className="flex items-center justify-between mb-2">
+                      <span
+                        className={`font-bold ${
+                          isDark ? `text-${color}-400` : "text-gray-900"
+                        }`}
+                      >
+                        {gateway.name}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="relative flex h-2 w-2">
+                          {isActive && (
+                            <span
+                              className={`animate-ping absolute inline-flex h-full w-full rounded-full bg-${color}-400 opacity-75`}
+                            ></span>
+                          )}
+                          <span
+                            className={`relative inline-flex rounded-full h-2 w-2 bg-${color}-500`}
+                          ></span>
+                        </span>
+                        <span
+                          className={`text-[10px] font-black tracking-wider uppercase ${
+                            isDark ? `text-${color}-500` : `text-${color}-700`
+                          }`}
+                        >
+                          {gateway.status}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 font-mono text-[10px] opacity-60">
+                      <div className="w-1.5 h-1.5 bg-current rounded-full" />
+                      {gateway.id === "stripe"
+                        ? "sk_live_...xxxxxx"
+                        : "ID: ...yyyyyy"}
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-2 font-mono text-[10px] opacity-60">
-                  <div className="w-1.5 h-1.5 bg-current rounded-full" />
-                  sk_live_...abc123
-                </div>
-              </div>
-
-              {/* PayPal */}
-              <div
-                className={`p-4 rounded-xl border transition-all duration-300 hover:scale-[1.02] cursor-pointer group ${
-                  isDark
-                    ? "bg-[#18181b] border-white/5 hover:border-white/20"
-                    : "bg-gray-50 border-gray-200"
-                }`}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span
-                    className={`font-bold ${
-                      isDark
-                        ? "text-gray-400 group-hover:text-white transition-colors"
-                        : "text-gray-700"
-                    }`}
-                  >
-                    PayPal
-                  </span>
-                  <span
-                    className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
-                      isDark
-                        ? "bg-white/5 text-gray-500 border border-white/5"
-                        : "bg-gray-200 text-gray-500"
-                    }`}
-                  >
-                    Standby
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 font-mono text-[10px] opacity-40">
-                  <div className="w-1.5 h-1.5 bg-current rounded-full" />
-                  ID: ...xyz789
-                </div>
-              </div>
+                );
+              })}
             </div>
           </div>
 

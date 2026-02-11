@@ -47,7 +47,7 @@ export const InvoiceHistoryItem: React.FC<InvoiceHistoryItemProps> = ({
               isDark ? "text-cyan-400" : "text-blue-600"
             }`}
           >
-            {invoice.invoiceNumber}
+            {invoice.invoice_number}
           </span>
         </div>
       </td>
@@ -59,7 +59,7 @@ export const InvoiceHistoryItem: React.FC<InvoiceHistoryItemProps> = ({
           <span
             className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}
           >
-            {invoice.date}
+            {new Date(invoice.created_at).toLocaleDateString()}
           </span>
         </div>
       </td>
@@ -67,7 +67,7 @@ export const InvoiceHistoryItem: React.FC<InvoiceHistoryItemProps> = ({
         <span
           className={`text-sm ${isDark ? "text-gray-300" : "text-gray-700"}`}
         >
-          {invoice.description}
+          {invoice.billing_name || "Premium Subscription"}
         </span>
       </td>
       <td className="py-2 text-right">
@@ -76,7 +76,8 @@ export const InvoiceHistoryItem: React.FC<InvoiceHistoryItemProps> = ({
             isDark ? "text-white" : "text-gray-900"
           }`}
         >
-          ${invoice.amount.toFixed(2)}
+          {invoice.currency === "EUR" ? "€" : "$"}
+          {invoice.total.toFixed(2)}
         </span>
       </td>
       <td className="py-2">
