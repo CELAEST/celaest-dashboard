@@ -38,6 +38,7 @@ type RequestConfig = RequestInit & {
   params?: Record<string, string>;
   token?: string | null;
   orgId?: string | null;
+  skipUnwrap?: boolean;
 };
 
 // Map para deduplicar peticiones en vuelo
@@ -47,7 +48,7 @@ async function request<T>(
   path: string,
   config: RequestConfig & ApiClientConfig = {}
 ): Promise<T> {
-  const { params, token, orgId, ...init } = config;
+  const { params, token, orgId, skipUnwrap, ...init } = config;
 
   // Solo deduplicamos peticiones GET
   const isGet = init.method === "GET" || !init.method;
@@ -103,6 +104,10 @@ async function request<T>(
           errorData.code,
           errorData.details
         );
+      }
+
+      if (skipUnwrap) {
+        return data as unknown as T;
       }
 
       return (data.data !== undefined ? data.data : data) as T;

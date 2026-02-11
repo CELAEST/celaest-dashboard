@@ -19,6 +19,7 @@ import { toast } from "sonner";
 // Static imports
 import { StatCard } from "@/features/shared/components/StatCard";
 import { OrdersTable } from "@/features/billing/components/OrdersTable";
+import { useApiAuth } from "@/lib/use-api-auth";
 import { useControlCenterData } from "../hooks/useControlCenterData";
 
 // Skeleton
@@ -43,6 +44,7 @@ export const DashboardContent = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const [activeTab, setActiveTab] = useState<"metrics" | "feed">("metrics");
+  const { orgId } = useApiAuth(); // Added orgId from useApiAuth
   const { health, dashboard, salesSeries, loading, error, refresh } =
     useControlCenterData();
 
@@ -70,7 +72,10 @@ export const DashboardContent = () => {
               className={`${isDark ? "text-gray-400" : "text-gray-500"} text-xs font-mono flex items-center gap-3`}
             >
               <span>
-                SYS_ID: <span className="text-cyan-400">CX-9000</span>
+                SYS_ID:{" "}
+                <span className="text-cyan-400">
+                  {orgId?.split("-")[0].toUpperCase() || "CX-9000"}
+                </span>
               </span>
               <span className="opacity-30">|</span>
               <span className="flex items-center gap-1.5">
@@ -336,8 +341,10 @@ export const DashboardContent = () => {
                     className={`mt-auto pt-4 border-t border-dashed ${isDark ? "border-white/10" : "border-gray-200"}`}
                   >
                     <div className="flex justify-between text-[10px] font-mono opacity-50">
-                      <span>UPTIME: 42d 12h</span>
-                      <span className="text-emerald-500">STABLE</span>
+                      <span>UPTIME: {health?.uptime ?? "—"}</span>
+                      <span className="text-cyan-400">
+                        {health?.status === "healthy" ? "99.99%" : "0.00%"}
+                      </span>
                     </div>
                   </div>
                 </div>
