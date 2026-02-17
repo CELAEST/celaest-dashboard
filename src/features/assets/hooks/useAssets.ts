@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useEffect } from "react";
+import { useCallback, useMemo, useEffect, useState } from "react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { assetsService } from "../services/assets.service";
 import type { Asset, AssetType } from "../services/assets.service";
@@ -21,6 +21,8 @@ export const useAssets = () => {
     setError,
     setAssets
   } = useAssetStore();
+
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handleFetch = useCallback(async (force = false) => {
     if (token) {
@@ -120,24 +122,49 @@ export const useAssets = () => {
   );
 
   const downloadAsset = useCallback(async (assetId: string, filename: string) => {
-    if (!token) return;
     try {
-      const { download_url } = await assetsService.downloadAsset(token, assetId);
+      if (!token) {
+        setError("Authentication required.");
+        return;
+      }
+
+      const response = await assetsService.downloadAsset(token, assetId);
+      // Check if response has data property (axios/api-client wrapper) or is direct
+      const downloadData = (response as any).data || response;
+      const download_url = downloadData.download_url;
+
       if (download_url) {
+        // Solution: Direct Browser Download via Token in Query Param
+        // This avoids memory issues with Blob and solves "Pending" state bugs.
+        // Backend Auth Middleware supports ?token=... and ?org_id=...
+        
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3101';
+        const fullUrl = download_url.startsWith('http') ? download_url : `${apiUrl}${download_url}`;
+        
+        // Use URL object to safely append params
+        const finalUrl = new URL(fullUrl);
+        finalUrl.searchParams.append('token', token);
+        if (orgId) {
+            finalUrl.searchParams.append('org_id', orgId);
+        }
+
+        console.log(`[useAssets] Starting direct download: ${finalUrl.toString()}`);
+        
+        // Trigger native browser download
+        // We use a temporary link to support 'download' attribute if needed, 
+        // though Content-Disposition should handle filename.
         const link = document.createElement('a');
-        link.href = download_url;
-        link.download = filename || 'download';
+        link.href = finalUrl.toString();
+        link.setAttribute('download', filename || 'download'); // Hint only
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-      } else {
-        setError("No download URL available");
       }
     } catch (err) {
       console.error("[useAssets] Download error:", err);
-      setError("Failed to download asset");
+      setError("Failed to initialize download. Please try again.");
     }
-  }, [token, setError]);
+  }, [token, orgId, setError]);
 
   const activeAssets = useMemo(() => assets.filter((a: Asset) => a.status === 'active'), [assets]);
 
@@ -152,6 +179,8 @@ export const useAssets = () => {
     deleteAsset,
     duplicateAsset,
     saveAsset,
-    downloadAsset
+    downloadAsset,
+    searchQuery,
+    setSearchQuery
   };
 };

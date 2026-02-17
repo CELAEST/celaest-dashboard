@@ -12,7 +12,16 @@ import { SecurityAlerts } from "./Notifications/SecurityAlerts";
  * Notifications Settings Tab
  */
 export function Notifications() {
-  const { prefs, togglePref, notificationSections } = useNotificationSettings();
+  const { prefs, togglePref, notificationSections, isLoading } =
+    useNotificationSettings();
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-12">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

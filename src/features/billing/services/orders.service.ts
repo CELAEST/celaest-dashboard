@@ -14,10 +14,21 @@ export const ordersService = {
         id: o.id,
         displayId: `#${o.order_number || o.id.substring(0, 8).toUpperCase()}`,
         product: o.items?.[0]?.name || "Product",
-        customer: o.billing_name || "Guest",
-        date: new Date(o.created_at).toLocaleDateString(),
+        customer: o.billing_name || o.user_name || "Guest",
+        date: new Date(o.created_at).toLocaleString('es-ES', { 
+          day: '2-digit', 
+          month: '2-digit', 
+          year: 'numeric', 
+          hour: '2-digit', 
+          minute: '2-digit' 
+        }),
         status: this.mapStatus(o.status),
-        amount: new Intl.NumberFormat('en-US', { style: 'currency', currency: o.currency || 'USD' }).format(o.total || 0)
+        amount: new Intl.NumberFormat('en-US', { style: 'currency', currency: o.currency || 'USD' }).format(o.total || 0),
+        userName: o.user_name,
+        userEmail: o.user_email,
+        paymentMethod: o.payment_method_type,
+        paymentProvider: o.payment_provider,
+        rawDate: o.created_at
       }));
 
     } catch (error) {

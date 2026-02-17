@@ -28,8 +28,11 @@ export interface License {
   updated_at: string;
   suspended_at?: string;
   cancelled_at?: string;
+  active_activations: number; // Count of current IP bindings
   plan?: PlanInfo;
   ip_bindings?: IPBinding[];
+  user_name?: string;
+  user_email?: string;
 }
 
 export type LicenseStatus =
@@ -51,6 +54,7 @@ export interface PlanInfo {
   id: string;
   code: string;
   name: string;
+  limits?: Record<string, unknown>;
 }
 
 export interface IPBinding {
@@ -161,6 +165,7 @@ export interface LicenseFilter {
   plan_id?: string;
   page?: number;
   limit?: number;
+  view?: string;
 }
 
 export interface LimitsStatus {

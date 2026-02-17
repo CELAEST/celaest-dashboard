@@ -41,6 +41,13 @@ export interface Order {
   date: string;
   status: "Processing" | "Active" | "Completed" | "Pending" | "Cancelled" | "Failed";
   amount: string;
+  
+  // New fields for enhanced views
+  userName?: string;
+  userEmail?: string;
+  paymentMethod?: string;
+  paymentProvider?: string;
+  rawDate: string; // ISO date for precise formatting
 }
 
 
@@ -53,10 +60,10 @@ export interface TaxRate {
   status: string;
   lastUpdated?: string;
 
-  // Frontend helper aliases for compatibility
   country?: string;
   code?: string;
   isActive?: boolean;
+  vatType?: string;
 }
 
 export interface GatewayStatus {

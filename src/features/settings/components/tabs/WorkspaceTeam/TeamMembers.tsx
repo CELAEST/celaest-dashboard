@@ -8,17 +8,20 @@ export interface Member {
   email: string;
   role: string;
   status: string;
-  avatar: null;
+  avatar: string | null;
 }
 
 interface TeamMembersProps {
   members: Member[];
   onRemoveMember: (id: string) => void;
+  onUpdateRole: (id: string, role: string) => void;
   onInviteClick: () => void;
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
 }
 
 export const TeamMembers: React.FC<TeamMembersProps> = memo(
-  ({ members, onRemoveMember, onInviteClick }) => {
+  ({ members, onRemoveMember, onUpdateRole, onInviteClick }) => {
     const { isDark } = useTheme();
 
     return (
@@ -96,19 +99,28 @@ export const TeamMembers: React.FC<TeamMembersProps> = memo(
               </div>
 
               <div className="flex items-center gap-4">
-                <div
-                  className={`px-2.5 py-1 rounded-lg text-[10px] font-black tracking-widest uppercase transition-all ${
-                    member.role === "owner"
-                      ? "bg-cyan-500/10 text-cyan-500 border border-cyan-500/20"
-                      : member.role === "admin"
-                        ? "bg-purple-500/10 text-purple-500 border border-purple-500/20"
+                {member.role === "owner" ? (
+                  <div className="px-2.5 py-1 rounded-lg text-[10px] font-black tracking-widest uppercase bg-cyan-500/10 text-cyan-500 border border-cyan-500/20">
+                    {member.role}
+                  </div>
+                ) : (
+                  <select
+                    value={member.role}
+                    onChange={(e) => onUpdateRole(member.id, e.target.value)}
+                    className={`px-2.5 py-1 rounded-lg text-[10px] font-black tracking-widest uppercase border transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-cyan-500/50 ${
+                      member.role === "admin"
+                        ? "bg-purple-500/10 text-purple-500 border-purple-500/20"
                         : isDark
-                          ? "bg-gray-800 text-gray-500"
-                          : "bg-gray-200 text-gray-500"
-                  }`}
-                >
-                  {member.role}
-                </div>
+                          ? "bg-gray-800 text-gray-500 border-white/5"
+                          : "bg-gray-200 text-gray-500 border-gray-100"
+                    }`}
+                  >
+                    <option value="admin">ADMIN</option>
+                    <option value="manager">MANAGER</option>
+                    <option value="operator">OPERATOR</option>
+                    <option value="viewer">VIEWER</option>
+                  </select>
+                )}
                 {member.role !== "owner" && (
                   <button
                     onClick={() => onRemoveMember(member.id)}

@@ -4,6 +4,7 @@ export interface UserData {
   first_name?: string;
   last_name?: string;
   display_name?: string;
+  job_title?: string;
   avatar_url?: string;
   phone?: string;
   role: "super_admin" | "admin" | "client" | "manager" | "operator" | "viewer";
@@ -11,8 +12,14 @@ export interface UserData {
   created_at: string;
   updated_at: string;
   last_login_at?: string;
-  login_count: number;
-  deleted_at?: string;
+  identities?: Array<{
+    id: string;
+    provider: string;
+    email: string;
+    last_login_at?: string;
+  }>;
+  onboarding_completed?: boolean;
+  onboarding_step?: number;
 }
 
 export interface AuditLog {

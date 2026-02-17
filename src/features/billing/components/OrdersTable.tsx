@@ -7,6 +7,7 @@ import { ConfirmDeleteOrderModal } from "./modals/ConfirmDeleteOrderModal";
 import { useOrders } from "../hooks/useOrders";
 import { ActionMenu } from "./orders/ActionMenu";
 import { OrderRow } from "./orders/OrderRow";
+import { useRole } from "@/features/auth/hooks/useAuthorization";
 
 export const OrdersTable = React.memo(function OrdersTable() {
   const { theme } = useTheme();
@@ -26,6 +27,7 @@ export const OrdersTable = React.memo(function OrdersTable() {
     handleSaveOrder,
     handleDeleteOrder,
   } = useOrders();
+  const { isSuperAdmin } = useRole();
 
   // Memoize header class
   const headerClassName = useMemo(
@@ -46,7 +48,18 @@ export const OrdersTable = React.memo(function OrdersTable() {
             <tr className={headerClassName}>
               <th className="py-3 px-4">Order ID</th>
               <th className="py-3 px-4">Product</th>
-              <th className="py-3 px-4">Customer</th>
+              {isSuperAdmin && (
+                <>
+                  <th className="py-3 px-4">User</th>
+                  <th className="py-3 px-4">Email</th>
+                </>
+              )}
+              {!isSuperAdmin && (
+                <>
+                  <th className="py-3 px-4">Customer</th>
+                  <th className="py-3 px-4">Payment</th>
+                </>
+              )}
               <th className="py-3 px-4">Status</th>
               <th className="py-3 px-4 text-right">Amount</th>
               <th className="py-3 px-4"></th>
@@ -58,6 +71,7 @@ export const OrdersTable = React.memo(function OrdersTable() {
                 key={order.id}
                 order={order}
                 isDark={isDark}
+                isSuperAdmin={isSuperAdmin}
                 onOpenMenu={handleOpenMenu}
               />
             ))}

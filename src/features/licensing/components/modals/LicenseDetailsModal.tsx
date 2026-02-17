@@ -68,6 +68,8 @@ export const LicenseDetailsModal = ({
                 <LicenseStats
                   tier={license.plan?.code}
                   maxIpSlots={license.ip_bindings?.length || 0}
+                  startsAt={license.starts_at}
+                  expiresAt={license.expires_at}
                 />
 
                 <LicenseBindings

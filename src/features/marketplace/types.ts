@@ -17,6 +17,7 @@ export interface MarketplaceProduct {
   features: string[];
   technical_stack: string[];
   seller_name: string;
+  version: string;
   created_at: string;
 }
 

@@ -33,7 +33,6 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
   const { theme } = useTheme();
   const {
     step,
-    setStep,
     isProcessing,
     purchaseComplete,
     showConfetti,
@@ -148,7 +147,7 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
               {step === 1 && product && (
                 <ConfirmationStep
                   product={product}
-                  onContinue={() => setStep(2)}
+                  onContinue={() => handlePurchase(product.id)}
                 />
               )}
 

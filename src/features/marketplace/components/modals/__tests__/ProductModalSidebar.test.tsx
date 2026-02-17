@@ -37,6 +37,7 @@ const mockProduct: MarketplaceProduct = {
   technical_stack: [],
   seller_name: "Test Seller",
   created_at: "2024-01-01T00:00:00Z",
+  version: "1.0.0",
 };
 
 describe("ProductModalSidebar", () => {

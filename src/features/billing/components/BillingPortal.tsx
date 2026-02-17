@@ -11,6 +11,8 @@ import { AnimatePresence, motion } from "motion/react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useBilling } from "../hooks/useBilling";
+import { useAuth } from "@/features/auth/contexts/AuthContext";
+import { billingApi } from "../api/billing.api";
 
 type BillingTab = "overview" | "invoices";
 type AdminTab = "overview" | "controls";
@@ -21,6 +23,7 @@ export const BillingPortal: React.FC = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { refresh } = useBilling();
+  const { session } = useAuth();
 
   const [viewMode, setViewMode] = useState<"customer" | "admin">("customer");
   const [activeTab, setActiveTab] = useState<BillingTab>("overview");
@@ -41,24 +44,62 @@ export const BillingPortal: React.FC = () => {
 
     const success = searchParams.get("success");
     const cancel = searchParams.get("cancel");
+    const sessionId = searchParams.get("session_id");
+
+    const handleSuccess = async () => {
+      if (success === "true") {
+        // If we have a session ID, verify it actively to ensure immediate access
+        if (sessionId && session?.accessToken) {
+          const toastId = toast.loading("Verifying purchase...");
+          try {
+            // Active verification against backend
+            const result = await billingApi.verifyPurchase(
+              session.accessToken,
+              sessionId,
+            );
+
+            if (result.status === "completed" || result.access) {
+              toast.success("Subscription successfully activated!", {
+                description: "Your new plan is now active.",
+                id: toastId,
+                duration: 5000,
+              });
+            } else {
+              toast.info("Purchase pending processing", {
+                description: "Your plan will be active shortly.",
+                id: toastId,
+              });
+            }
+          } catch (e) {
+            console.error("Verification failed", e);
+            // Fallback: still show success but maybe warn or just rely on webhook
+            toast.success("Purchase recorded", {
+              description: "Updating your subscription details...",
+              id: toastId,
+            });
+          }
+        } else {
+          toast.success("Subscription successfully activated!", {
+            description: "Your new plan is now active.",
+            duration: 5000,
+          });
+        }
+
+        // Always refresh and clean URL
+        await refresh();
+        router.replace(`/?tab=billing`, { scroll: false });
+      }
+    };
 
     if (success === "true") {
-      toast.success("Subscription successfully activated!", {
-        description: "Your new plan is now active.",
-        duration: 5000,
-      });
-      // Refresh data to show new plan
-      refresh();
-      // Clean up URL
-      router.replace(`/?tab=billing`, { scroll: false });
+      handleSuccess();
     } else if (cancel === "true") {
       toast.error("Payment cancelled", {
         description: "Your subscription remains unchanged.",
       });
-      // Clean up URL
       router.replace(`/?tab=billing`, { scroll: false });
     }
-  }, [searchParams, router, refresh]);
+  }, [searchParams, router, refresh, session?.accessToken]);
 
   return (
     <div className="flex-1 flex flex-col min-h-0 h-full">

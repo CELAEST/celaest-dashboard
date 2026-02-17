@@ -32,14 +32,20 @@ export const useLicensing = () => {
 
   const loadData = useCallback(async () => {
     // Don't attempt to load if auth/org context isn't ready
-    if (!isServiceReady()) {
+    // STRICT: We need org_id for the API calls in this hook
+    if (!session?.accessToken || !currentOrg?.id) {
       return;
     }
 
     setLoading(true);
     try {
+      const currentSession = useAuthStore.getState().session;
+      const isSuperAdmin = currentSession?.user?.role === "super_admin";
+      const isAdmin = currentSession?.user?.role === "admin";
+      const viewMode = isSuperAdmin || isAdmin ? "all" : undefined;
+
       const [listResult, statsResult] = await Promise.allSettled([
-        licensingService.list({ page: 1, limit: 100 }),
+        licensingService.list({ page: 1, limit: 100, view: viewMode }),
         licensingService.getStats(),
       ]);
 
@@ -60,11 +66,14 @@ export const useLicensing = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [session?.accessToken, currentOrg?.id]);
 
-  // Load data when auth + org become available
+  // Load data when auth + org become available (or just auth for super_admins)
   useEffect(() => {
-    if (!session?.accessToken || !currentOrg?.id) return;
+    if (!session?.accessToken) return;
+    
+    // Check readiness (handled global view for Super Admins in isServiceReady)
+    if (!isServiceReady()) return;
 
     // Small delay to ensure Zustand stores are fully synchronized
     const timeout = setTimeout(loadData, 100);
@@ -73,7 +82,7 @@ export const useLicensing = () => {
       clearTimeout(timeout);
       clearInterval(interval);
     };
-  }, [session?.accessToken, currentOrg?.id, loadData]);
+  }, [session?.accessToken, currentOrg?.id, loadData]); // Still depend on currentOrg.id to re-load if it changes
 
   // --- Handlers ---
 

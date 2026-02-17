@@ -1,5 +1,8 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
+import { toast } from "sonner";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useApiAuth } from "@/lib/use-api-auth";
+import { settingsApi } from "../api/settings.api";
 import {
   TimezoneOption,
   DateFormatOption,
@@ -7,10 +10,57 @@ import {
 } from "@/features/settings/components/types";
 
 export const usePreferencesSettings = () => {
+  const { token, isReady } = useApiAuth();
   const { setTheme, theme: currentTheme } = useTheme();
   const [timezone, setTimezone] = useState("America/Los_Angeles");
   const [dateFormat, setDateFormat] = useState("MM/DD/YYYY");
   const [timeFormat, setTimeFormat] = useState("12h");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const fetchPreferences = useCallback(async () => {
+    if (!token) return;
+    setIsLoading(true);
+    try {
+      const response = await settingsApi.getPreferences(token);
+      const { preferences } = response;
+      
+      if (preferences.timezone) setTimezone(preferences.timezone);
+      if (preferences.theme) setTheme(preferences.theme as "light" | "dark");
+      // Date and time formats might be in the raw string or handled separately
+      // For now, let's assume standard mapping
+    } catch (err) {
+      console.error("Error fetching preferences:", err);
+      toast.error("Failed to load generic preferences");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [token, setTheme]);
+
+  useEffect(() => {
+    if (isReady) {
+      fetchPreferences();
+    }
+  }, [isReady, fetchPreferences]);
+
+  const savePreferences = useCallback(async () => {
+    if (!token) return;
+    setIsSaving(true);
+    try {
+      await settingsApi.updatePreferences({
+        timezone,
+        theme: currentTheme,
+        date_format: dateFormat,
+        time_format: timeFormat,
+      }, token);
+      toast.success("Preferences saved successfully");
+    } catch (err) {
+      console.error("Error saving preferences:", err);
+      toast.error("Failed to save preferences");
+    } finally {
+      setIsSaving(false);
+    }
+  }, [token, timezone, currentTheme, dateFormat, timeFormat]);
 
   const timezones: TimezoneOption[] = useMemo(
     () => [
@@ -65,5 +115,8 @@ export const usePreferencesSettings = () => {
     timezones,
     dateFormats,
     timeFormats,
+    isLoading,
+    isSaving,
+    savePreferences,
   };
 };

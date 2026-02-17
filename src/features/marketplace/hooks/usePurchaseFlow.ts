@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { hapticFeedback } from "@/features/shared/utils/sound-effects";
 import { marketplaceService } from "../services/marketplace.service";
-import { useAuthStore } from "@/features/auth/stores/useAuthStore";
+import { useApiAuth } from "@/lib/use-api-auth";
 import { toast } from "sonner";
 
 export const usePurchaseFlow = (onClose: () => void, initialStep = 1, onSuccess?: () => void) => {
@@ -11,6 +11,7 @@ export const usePurchaseFlow = (onClose: () => void, initialStep = 1, onSuccess?
   const [showConfetti, setShowConfetti] = useState(false);
   const [progress, setProgress] = useState(0);
   const [statusMessage, setStatusMessage] = useState("");
+  const { token, orgId } = useApiAuth();
 
   // Sync internal step if initialStep changed (important for in-context return)
   useEffect(() => {
@@ -25,11 +26,10 @@ export const usePurchaseFlow = (onClose: () => void, initialStep = 1, onSuccess?
       // Get session_id from URL if present
       const urlParams = new URLSearchParams(window.location.search);
       const sessionId = urlParams.get("session_id");
-      const session = useAuthStore.getState().session;
 
-      if (!sessionId || !session?.accessToken) {
+      if (!sessionId || !token || !orgId) {
         // Fallback for simulation or error state
-        console.error("Missing session_id or auth token for verification");
+        console.error("Missing session_id, auth token, or orgId for verification");
         setIsProcessing(false);
         return;
       }
@@ -41,7 +41,7 @@ export const usePurchaseFlow = (onClose: () => void, initialStep = 1, onSuccess?
 
       const pollVerification = async () => {
         try {
-          const response = await marketplaceService.verifyPurchase(sessionId, session.accessToken);
+          const response = await marketplaceService.verifyPurchase(sessionId, token, orgId);
           
            if (response.has_access) {
               setPurchaseComplete(true);
@@ -88,7 +88,7 @@ export const usePurchaseFlow = (onClose: () => void, initialStep = 1, onSuccess?
 
       pollVerification();
     }
-  }, [step, purchaseComplete, isProcessing, onSuccess]);
+  }, [step, purchaseComplete, isProcessing, onSuccess, token, orgId]);
 
   const resetFlow = useCallback(() => {
     setStep(1);
@@ -102,10 +102,8 @@ export const usePurchaseFlow = (onClose: () => void, initialStep = 1, onSuccess?
   const handlePurchase = useCallback(async (productId: string) => {
     if (isProcessing) return;
 
-    const session = useAuthStore.getState().session;
-    const token = session?.accessToken;
-    if (!token) {
-      toast.error("Debes iniciar sesión para realizar una compra");
+    if (!token || !orgId) {
+      toast.error("Debes iniciar sesión y seleccionar una organización para realizar una compra");
       return;
     }
 
@@ -115,7 +113,7 @@ export const usePurchaseFlow = (onClose: () => void, initialStep = 1, onSuccess?
 
     try {
       // 1. Crear sesión de checkout en el backend
-      const response = await marketplaceService.buyProduct(productId, token);
+      const response = await marketplaceService.buyProduct(productId, token, orgId);
       
       setProgress(50);
       
@@ -139,7 +137,7 @@ export const usePurchaseFlow = (onClose: () => void, initialStep = 1, onSuccess?
       setIsProcessing(false);
       setStep(1);
     }
-  }, [isProcessing]);
+  }, [isProcessing, token, orgId]);
 
   return {
     step,

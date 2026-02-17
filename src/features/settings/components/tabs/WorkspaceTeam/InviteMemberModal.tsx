@@ -32,14 +32,14 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({
     resolver: zodResolver(inviteMemberSchema),
     defaultValues: {
       email: "",
-      role: "member",
+      role: "viewer",
     },
   });
 
   const inviteRole = useWatch({
     control,
     name: "role",
-    defaultValue: "member",
+    defaultValue: "viewer",
   });
 
   const onSubmit = (data: InviteMemberFormData) => {
@@ -69,7 +69,7 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({
           </label>
           <div className="grid grid-cols-2 gap-4">
             {[
-              { id: "member", label: "Member", desc: "Can view and edit" },
+              { id: "viewer", label: "Member", desc: "Can view and edit" },
               {
                 id: "admin",
                 label: "Admin",

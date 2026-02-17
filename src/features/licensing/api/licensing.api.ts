@@ -19,7 +19,7 @@ import type {
 export const licensingApi = {
   // ===== Plans =====
 
-  getPlans: async (token: string, orgId: string) => {
+  getPlans: async (token: string, orgId?: string) => {
     return api.get<{ plans: SubscriptionPlan[]; total: number }>(
       "/api/v1/org/plans",
       {
@@ -32,13 +32,14 @@ export const licensingApi = {
 
   // ===== CRUD =====
 
-  list: async (filter: LicenseFilter, token: string, orgId: string) => {
+  list: async (filter: LicenseFilter, token: string, orgId?: string) => {
     const params: Record<string, string> = {};
     if (filter.status) params.status = filter.status;
     if (filter.billing_cycle) params.billing_cycle = filter.billing_cycle;
     if (filter.plan_id) params.plan_id = filter.plan_id;
     if (filter.page) params.page = filter.page.toString();
     if (filter.limit) params.limit = filter.limit.toString();
+    if (filter.view) params.view = filter.view;
 
     return api.get<LicenseListResponse>("/api/v1/org/licenses", {
       params,
@@ -47,7 +48,7 @@ export const licensingApi = {
     });
   },
 
-  getById: async (id: string, token: string, orgId: string) => {
+  getById: async (id: string, token: string, orgId?: string) => {
     return api.get<LicenseResponse>(`/api/v1/org/licenses/${id}`, {
       token,
       orgId,
@@ -57,7 +58,7 @@ export const licensingApi = {
   create: async (
     input: CreateLicenseInput,
     token: string,
-    orgId: string
+    orgId?: string
   ) => {
     return api.post<LicenseResponse>("/api/v1/org/licenses", input, {
       token,
@@ -69,7 +70,7 @@ export const licensingApi = {
     id: string,
     input: UpdateLicenseInput,
     token: string,
-    orgId: string
+    orgId?: string
   ) => {
     return api.put<LicenseResponse>(`/api/v1/org/licenses/${id}`, input, {
       token,
@@ -77,13 +78,13 @@ export const licensingApi = {
     });
   },
 
-  delete: async (id: string, token: string, orgId: string) => {
+  delete: async (id: string, token: string, orgId?: string) => {
     return api.delete<void>(`/api/v1/org/licenses/${id}`, { token, orgId });
   },
 
   // ===== Stats =====
 
-  getStats: async (token: string, orgId: string) => {
+  getStats: async (token: string, orgId?: string) => {
     return api.get<LicenseStats>("/api/v1/org/licenses/stats", {
       token,
       orgId,
@@ -92,7 +93,7 @@ export const licensingApi = {
 
   // ===== Extended Operations =====
 
-  renew: async (id: string, token: string, orgId: string) => {
+  renew: async (id: string, token: string, orgId?: string) => {
     return api.post<LicenseResponse>(
       `/api/v1/org/licenses/${id}/renew`,
       {},
@@ -104,7 +105,7 @@ export const licensingApi = {
     id: string,
     reason: string,
     token: string,
-    orgId: string
+    orgId?: string
   ) => {
     return api.post<LicenseResponse>(
       `/api/v1/org/licenses/${id}/revoke`,
@@ -113,7 +114,7 @@ export const licensingApi = {
     );
   },
 
-  reactivate: async (id: string, token: string, orgId: string) => {
+  reactivate: async (id: string, token: string, orgId?: string) => {
     return api.post<LicenseResponse>(
       `/api/v1/org/licenses/${id}/reactivate`,
       {},
@@ -121,7 +122,7 @@ export const licensingApi = {
     );
   },
 
-  convertTrial: async (id: string, token: string, orgId: string) => {
+  convertTrial: async (id: string, token: string, orgId?: string) => {
     return api.post<LicenseResponse>(
       `/api/v1/org/licenses/${id}/convert-trial`,
       {},
@@ -131,14 +132,14 @@ export const licensingApi = {
 
   // ===== Usage & Limits =====
 
-  getUsage: async (id: string, token: string, orgId: string) => {
+  getUsage: async (id: string, token: string, orgId?: string) => {
     return api.get<{ usage: Record<string, unknown>; limits: LimitsStatus }>(
       `/api/v1/org/licenses/${id}/usage`,
       { token, orgId }
     );
   },
 
-  checkLimits: async (id: string, token: string, orgId: string) => {
+  checkLimits: async (id: string, token: string, orgId?: string) => {
     return api.get<LimitsStatus>(`/api/v1/org/licenses/${id}/limits`, {
       token,
       orgId,
@@ -147,7 +148,7 @@ export const licensingApi = {
 
   // ===== IP/Activation Management =====
 
-  getActivations: async (id: string, token: string, orgId: string) => {
+  getActivations: async (id: string, token: string, orgId?: string) => {
     return api.get<IPBinding[]>(`/api/v1/org/licenses/${id}/activations`, {
       token,
       orgId,
@@ -158,7 +159,7 @@ export const licensingApi = {
     id: string,
     data: { ip_address: string; hostname?: string; user_agent?: string },
     token: string,
-    orgId: string
+    orgId?: string
   ) => {
     return api.post<ValidationResult>(
       `/api/v1/org/licenses/${id}/bind`,
@@ -171,7 +172,7 @@ export const licensingApi = {
     id: string,
     ipAddress: string,
     token: string,
-    orgId: string
+    orgId?: string
   ) => {
     return api.delete<void>(
       `/api/v1/org/licenses/${id}/unbind?ip_address=${encodeURIComponent(ipAddress)}`,
@@ -181,7 +182,7 @@ export const licensingApi = {
 
   // ===== Security & Auditing =====
 
-  getCollisions: async (id: string, token: string, orgId: string) => {
+  getCollisions: async (id: string, token: string, orgId?: string) => {
     return api.get<CollisionData>(
       `/api/v1/org/licenses/${id}/collisions`,
       { token, orgId }
@@ -191,10 +192,10 @@ export const licensingApi = {
   getValidations: async (
     id: string,
     token: string,
-    orgId: string,
+    orgId?: string,
     limit = 50
   ) => {
-    return api.get<{ validations: IPBinding[]; total: number }>(
+    return api.get< { validations: IPBinding[]; total: number }>(
       `/api/v1/org/licenses/${id}/validations`,
       { params: { limit: limit.toString() }, token, orgId }
     );

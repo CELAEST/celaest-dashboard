@@ -1,17 +1,25 @@
 "use client";
 
 import React, { useCallback } from "react";
-import { MoreHorizontal, AlertCircle, CheckCircle, Clock } from "lucide-react";
+import {
+  MoreHorizontal,
+  AlertCircle,
+  CheckCircle,
+  Clock,
+  CreditCard,
+  Banknote,
+} from "lucide-react";
 import { Order } from "../../types";
 
 interface OrderRowProps {
   order: Order;
   isDark: boolean;
+  isSuperAdmin: boolean;
   onOpenMenu: (e: React.MouseEvent, id: string) => void;
 }
 
 export const OrderRow = React.memo(
-  ({ order, isDark, onOpenMenu }: OrderRowProps) => {
+  ({ order, isDark, isSuperAdmin, onOpenMenu }: OrderRowProps) => {
     const getStatusColor = useCallback(
       (status: string) => {
         const s = status.toLowerCase();
@@ -92,12 +100,45 @@ export const OrderRow = React.memo(
         >
           {order.product}
         </td>
-        <td
-          className={`py-4 px-4 ${isDark ? "text-gray-400" : "text-gray-600"}`}
-        >
-          {order.customer}
-          <div className="text-[10px] opacity-60">{order.date}</div>
-        </td>
+
+        {isSuperAdmin ? (
+          <>
+            <td
+              className={`py-4 px-4 ${isDark ? "text-gray-400" : "text-gray-600"}`}
+            >
+              {order.userName || "N/A"}
+              <div className="text-[10px] opacity-60">{order.date}</div>
+            </td>
+            <td
+              className={`py-4 px-4 font-mono text-xs ${isDark ? "text-cyan-400/70" : "text-blue-500/70"}`}
+            >
+              {order.userEmail}
+            </td>
+          </>
+        ) : (
+          <>
+            <td
+              className={`py-4 px-4 ${isDark ? "text-gray-400" : "text-gray-600"}`}
+            >
+              {order.customer}
+              <div className="text-[10px] opacity-60">{order.date}</div>
+            </td>
+            <td className="py-4 px-4">
+              <div
+                className={`flex items-center gap-2 text-xs ${isDark ? "text-gray-400" : "text-gray-500"}`}
+              >
+                {order.paymentMethod === "card" ? (
+                  <CreditCard size={14} />
+                ) : (
+                  <Banknote size={14} />
+                )}
+                <span className="capitalize">
+                  {order.paymentMethod || "Stripe"}
+                </span>
+              </div>
+            </td>
+          </>
+        )}
         <td className="py-4 px-4">
           <span
             className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${getStatusColor(

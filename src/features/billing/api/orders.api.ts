@@ -9,6 +9,10 @@ export interface BackendOrder {
   billing_name: string;
   created_at: string;
   items?: { name: string }[];
+  user_name?: string;
+  user_email?: string;
+  payment_method_type?: string;
+  payment_provider?: string;
 }
 
 export interface OrderListResponse {

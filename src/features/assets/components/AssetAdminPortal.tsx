@@ -52,9 +52,6 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
     socket.connect(session.accessToken, orgId);
 
     const handleRefresh = () => {
-      console.log(
-        "[AssetAdminPortal] Real-time activity detected. Refreshing inventory...",
-      );
       fetchInventory(session.accessToken!, orgId, { silent: true });
     };
 
@@ -203,9 +200,11 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
       base_price: data.price,
       product_type: data.type,
       status: data.status,
+      is_public: data.is_public,
       category_id: data.category,
       thumbnail_url: finalThumbnailUrl,
       external_url: data.external_url,
+      github_repository: data.github_repository,
     };
 
     setInventoryLoading(true);
@@ -354,6 +353,64 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
                           onEdit={handleEdit}
                           onDuplicate={handleDuplicate}
                           onDelete={handleDelete}
+                          onDownload={async (asset) => {
+                            if (!session?.accessToken) {
+                              toast.error("Authentication required");
+                              return;
+                            }
+
+                            try {
+                              toast.info("Preparing secure download...");
+                              const { download_url } =
+                                await assetsService.downloadAsset(
+                                  session.accessToken,
+                                  asset.id,
+                                );
+
+                              if (!download_url) {
+                                throw new Error(
+                                  "No download URL returned from server",
+                                );
+                              }
+
+                              // download_url is already the secure proxy path
+                              const url = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3101"}${download_url}`;
+
+                              const response = await fetch(url, {
+                                headers: {
+                                  Authorization: `Bearer ${session.accessToken}`,
+                                },
+                              });
+
+                              if (!response.ok) {
+                                const err = await response.json();
+                                throw new Error(err.error || "Download failed");
+                              }
+
+                              const blob = await response.blob();
+                              const objUrl = window.URL.createObjectURL(blob);
+                              const a = document.createElement("a");
+                              a.href = objUrl;
+
+                              // Extract filename from URL or response headers if possible,
+                              // but backend DownloadMyAsset includes it in the query param 'asset'
+                              const urlObj = new URL(url);
+                              const fileName =
+                                urlObj.searchParams.get("asset") ||
+                                "bundle.zip";
+
+                              a.download = fileName;
+                              document.body.appendChild(a);
+                              a.click();
+                              window.URL.revokeObjectURL(objUrl);
+                              document.body.removeChild(a);
+                              toast.success("Download completed");
+                            } catch (err) {
+                              toast.error(
+                                `Download error: ${(err as Error).message}`,
+                              );
+                            }
+                          }}
                           onPreview={handlePreview}
                           onManageReleases={handleManageReleases}
                         />

@@ -31,10 +31,10 @@ export const billingApi = {
     api.get<Subscription>(`/api/v1/org/subscriptions/${id}`, { orgId, token }),
 
   createSubscription: (orgId: string, token: string, data: Partial<Subscription>) =>
-    api.post("/api/v1/org/subscriptions", data, { orgId, token }),
+    api.post<Subscription>("/api/v1/org/subscriptions", data, { orgId, token }),
 
   updateSubscription: (orgId: string, token: string, subId: string, data: { plan_id?: string; quantity?: number; metadata?: Record<string, unknown> }) =>
-    api.put(`/api/v1/org/subscriptions/${subId}`, data, { orgId, token }),
+    api.put<Subscription>(`/api/v1/org/subscriptions/${subId}`, data, { orgId, token }),
 
   cancelSubscription: (orgId: string, token: string, subId: string, immediately: boolean = false) =>
     api.post(`/api/v1/org/subscriptions/${subId}/cancel`, { immediately }, { orgId, token }),
@@ -109,4 +109,8 @@ export const billingApi = {
 
   resolveAdminRefund: (token: string, id: string, approve: boolean) =>
     api.post(`/api/v1/admin/billing/refunds/${id}/resolve`, { approve }, { token }),
+
+  // Purchase Verification
+  verifyPurchase: (token: string, sessionId: string) =>
+    api.get<{ status: string; message: string; access: boolean }>(`/api/v1/user/marketplace/checkout/verify/${sessionId}`, { token }),
 };

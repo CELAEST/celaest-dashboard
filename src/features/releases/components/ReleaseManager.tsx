@@ -28,13 +28,19 @@ import { motion, AnimatePresence } from "motion/react";
 import { useReleaseOverview } from "@/features/releases/hooks/useReleaseOverview";
 import { usePipeline } from "@/features/releases/hooks/usePipeline";
 
+import { useSearchParams } from "next/navigation";
+
 export const ReleaseManager: React.FC = () => {
   const { theme } = useTheme();
   const { session } = useAuth();
   const { org } = useOrg();
   const token = session?.accessToken;
   const isDark = theme === "dark";
-  const [viewMode, setViewMode] = useState<"admin" | "customer">("admin");
+
+  const searchParams = useSearchParams();
+  const initialView =
+    searchParams.get("view") === "customer" ? "customer" : "admin";
+  const [viewMode, setViewMode] = useState<"admin" | "customer">(initialView);
   const [activeTab, setActiveTab] = useState<
     "overview" | "pipeline" | "history"
   >("history");

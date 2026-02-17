@@ -26,6 +26,7 @@ export interface BackendProduct {
   rating_count: number;
   display_type?: string;
   external_url?: string;
+  github_repository?: string;
   version?: string;
   created_at: string;
   updated_at: string;
@@ -47,6 +48,7 @@ export interface CreateProductPayload {
   is_public?: boolean;
   thumbnail_url?: string;
   external_url?: string;
+  github_repository?: string;
 }
 
 // Payload for updating a product
@@ -61,6 +63,8 @@ export interface UpdateProductPayload {
   is_featured?: boolean;
   is_public?: boolean;
   thumbnail_url?: string;
+  external_url?: string;
+  github_repository?: string;
 }
 
 // License response type

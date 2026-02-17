@@ -144,6 +144,7 @@ export function MarketplaceDashboardView() {
             features: [],
             technical_stack: [],
             seller_name: "CELAEST",
+            version: "1.0.0",
             created_at: new Date().toISOString(),
           });
         }, 0);
@@ -249,7 +250,22 @@ export function MarketplaceDashboardView() {
             );
             if (asset) {
               downloadAsset(asset.id, detailProduct.slug);
+              return;
             }
+
+            // Check Inventory (Owner)
+            const invItem = inventory?.find(
+              (a) =>
+                a.productId === detailProduct.id ||
+                a.slug === detailProduct.slug,
+            );
+            if (invItem) {
+              // Owner Bypass: Use ProductID as AssetID for backend resolution
+              downloadAsset(detailProduct.id, detailProduct.slug);
+              return;
+            }
+
+            toast.error("No tienes permisos para descargar este producto.");
           }}
           onViewLicense={() => {
             if (!detailProduct) return;

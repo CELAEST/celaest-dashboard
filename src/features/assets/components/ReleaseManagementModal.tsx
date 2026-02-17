@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   X,
   Plus,
@@ -17,7 +17,6 @@ import { Asset, assetsService } from "../services/assets.service";
 import { BackendRelease } from "../api/assets.api";
 import { useApiAuth } from "@/lib/use-api-auth";
 import { toast } from "sonner";
-import { AssetFileUploader } from "./AssetFileUploader";
 
 interface ReleaseManagementModalProps {
   isOpen: boolean;
@@ -42,34 +41,12 @@ export const ReleaseManagementModal: React.FC<ReleaseManagementModalProps> = ({
   );
   const [compatibility, setCompatibility] = useState("");
   const [changelogItems, setChangelogItems] = useState<string[]>([""]);
+  // Manual Inputs for External Release
+  const [downloadUrl, setDownloadUrl] = useState("");
+  const [fileSize, setFileSize] = useState("");
   const [fileHash, setFileHash] = useState("");
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [isGeneratingHash, setIsGeneratingHash] = useState(false);
 
-  const generateChecksum = async () => {
-    if (!selectedFile) {
-      toast.error("Please select a file first");
-      return;
-    }
-
-    setIsGeneratingHash(true);
-    try {
-      const arrayBuffer = await selectedFile.arrayBuffer();
-      const hashBuffer = await crypto.subtle.digest("SHA-256", arrayBuffer);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      const hashHex = hashArray
-        .map((b) => b.toString(16).padStart(2, "0"))
-        .join("");
-      setFileHash(`sha256:${hashHex}`);
-      toast.success("Checksum generated successfully");
-    } catch (error) {
-      toast.error("Failed to generate checksum");
-    } finally {
-      setIsGeneratingHash(false);
-    }
-  };
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const addChangelogItem = () => {
     setChangelogItems([...changelogItems, ""]);
@@ -89,24 +66,24 @@ export const ReleaseManagementModal: React.FC<ReleaseManagementModalProps> = ({
     setChangelogItems(changelogItems.filter((_, i) => i !== index));
   };
 
-  useEffect(() => {
-    if (isOpen && asset && token && orgId) {
-      fetchReleases();
-    }
-  }, [isOpen, asset, token, orgId]);
-
-  const fetchReleases = async () => {
+  const fetchReleases = useCallback(async () => {
     if (!asset || !token || !orgId) return;
     setIsLoading(true);
     try {
       const data = await assetsService.getReleases(token, orgId, asset.id);
       setReleases(data || []);
-    } catch (error) {
+    } catch {
       toast.error("Failed to load releases history");
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [asset, token, orgId]);
+
+  useEffect(() => {
+    if (isOpen && asset && token && orgId) {
+      fetchReleases();
+    }
+  }, [isOpen, asset, token, orgId, fetchReleases]);
 
   const handleCreateRelease = async () => {
     if (!token || !orgId || !asset) return;
@@ -114,50 +91,27 @@ export const ReleaseManagementModal: React.FC<ReleaseManagementModalProps> = ({
       toast.error("Please provide a version number (e.g. 1.0.1)");
       return;
     }
-    if (!selectedFile) {
-      toast.error("Please select a file to upload for this release");
+    if (!downloadUrl) {
+      toast.error("Please provide a valid download URL");
       return;
     }
 
-    setIsUploading(true);
-    setUploadProgress(10);
+    setIsSubmitting(true);
 
     try {
-      // 1. Upload File to Supabase
-      const { supabase } = await import("@/lib/supabase/client");
-      if (!supabase) throw new Error("Supabase client not available");
-
-      const fileExt = selectedFile.name.split(".").pop();
-      const fileName = `releases/${asset.id}/${Date.now()}.${fileExt}`;
-
-      setUploadProgress(30);
-
-      const { error: uploadError } = await supabase.storage
-        .from("products")
-        .upload(fileName, selectedFile);
-
-      if (uploadError) throw uploadError;
-
-      setUploadProgress(70);
-
-      const { data: urlData } = supabase.storage
-        .from("products")
-        .getPublicUrl(fileName);
-
-      // 2. Create Release in Backend
+      // 1. Create Release in Backend (Stateless - External URL)
       await assetsService.createRelease(token, orgId, asset.id, {
         version: newVersion,
         status: status,
-        download_url: urlData.publicUrl,
-        file_size_bytes: selectedFile.size,
+        download_url: downloadUrl,
+        file_size_bytes: fileSize ? parseInt(fileSize) : 0,
         file_hash: fileHash || undefined,
         min_app_version: compatibility || undefined,
         changelog: changelogItems.filter((item) => item.trim() !== ""),
-        release_notes: changelogItems[0] || "", // Use first item or empty
+        release_notes: changelogItems[0] || "",
       });
 
       toast.success(`Release ${newVersion} created successfully`);
-      setUploadProgress(100);
 
       // Reset form
       setIsCreating(false);
@@ -166,15 +120,15 @@ export const ReleaseManagementModal: React.FC<ReleaseManagementModalProps> = ({
       setStatus("beta");
       setChangelogItems([""]);
       setFileHash("");
-      setSelectedFile(null);
+      setDownloadUrl("");
+      setFileSize("");
 
       // Refresh list
       fetchReleases();
     } catch (error) {
       toast.error(`Failed to create release: ${(error as Error).message}`);
     } finally {
-      setIsUploading(false);
-      setUploadProgress(0);
+      setIsSubmitting(false);
     }
   };
 
@@ -191,7 +145,7 @@ export const ReleaseManagementModal: React.FC<ReleaseManagementModalProps> = ({
       await assetsService.deleteRelease(token, orgId, releaseId);
       toast.success("Release deleted");
       fetchReleases();
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete release");
     }
   };
@@ -222,11 +176,11 @@ export const ReleaseManagementModal: React.FC<ReleaseManagementModalProps> = ({
             </div>
             <div>
               <h2 className="text-xl font-black italic tracking-tighter text-white uppercase">
-                {isCreating ? "Create New Release" : "RELEASES HISTORY"}
+                {isCreating ? "Link New Release" : "RELEASES HISTORY"}
               </h2>
               <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40">
                 {isCreating
-                  ? "Publish a new version with full changelog"
+                  ? "Link to an external release (e.g. GitHub)"
                   : asset?.name}
               </p>
             </div>
@@ -243,14 +197,20 @@ export const ReleaseManagementModal: React.FC<ReleaseManagementModalProps> = ({
         <div className="p-8 max-h-[70vh] overflow-y-auto scrollbar-thin scrollbar-thumb-white/10">
           {isCreating ? (
             <div className="space-y-6">
-              {/* File Uploader */}
+              {/* Download URL */}
               <div className="space-y-2">
                 <label className="text-[10px] uppercase font-black tracking-widest text-white/40">
-                  Upload New Version File
+                  <span className="flex items-center gap-2">
+                    <ExternalLink size={12} />
+                    Download URL (GitHub Release) *
+                  </span>
                 </label>
-                <AssetFileUploader
-                  onFileSelect={setSelectedFile}
-                  selectedFile={selectedFile}
+                <input
+                  type="url"
+                  value={downloadUrl}
+                  onChange={(e) => setDownloadUrl(e.target.value)}
+                  placeholder="https://github.com/org/repo/releases/download/v1.0.0/app.zip"
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-sm text-white focus:outline-none focus:border-cyan-500/50 transition-colors placeholder:text-white/10 font-mono"
                 />
               </div>
 
@@ -365,53 +325,31 @@ export const ReleaseManagementModal: React.FC<ReleaseManagementModalProps> = ({
                 </div>
               </div>
 
-              {/* Checksum */}
-              <div className="space-y-2">
-                <label className="text-[10px] uppercase font-black tracking-widest text-white/40">
-                  File Checksum (SHA-256)
-                </label>
-                <div className="flex gap-3">
+              {/* Checksum & Size */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] uppercase font-black tracking-widest text-white/40">
+                    SHA-256 Checksum (Optional)
+                  </label>
                   <input
                     type="text"
                     value={fileHash}
                     onChange={(e) => setFileHash(e.target.value)}
-                    placeholder="click generate to create checksum..."
-                    className="flex-1 bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-sm text-white focus:outline-none focus:border-cyan-500/50 transition-colors font-mono text-xs placeholder:text-white/10"
+                    placeholder="e.g. 5e884898da280471..."
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-xs text-white focus:outline-none focus:border-cyan-500/50 transition-colors font-mono placeholder:text-white/10"
                   />
-                  <button
-                    onClick={generateChecksum}
-                    disabled={isGeneratingHash || !selectedFile}
-                    className="px-6 py-3 bg-cyan-500/10 border border-cyan-500/20 rounded-2xl text-cyan-400 hover:bg-cyan-500/20 transition-all flex items-center gap-2 disabled:opacity-50 group"
-                  >
-                    {isGeneratingHash ? (
-                      <Clock size={16} className="animate-spin" />
-                    ) : (
-                      <div className="relative">
-                        <div className="absolute -inset-1 bg-cyan-400/20 blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                        <CheckCircle2 size={16} className="relative" />
-                      </div>
-                    )}
-                    <span className="text-[10px] font-black uppercase tracking-widest">
-                      Generate
-                    </span>
-                  </button>
                 </div>
-
-                {/* Info Alert */}
-                <div className="mt-4 p-4 bg-cyan-500/5 border border-cyan-500/10 rounded-2xl flex gap-4">
-                  <div className="p-2 h-fit rounded-lg bg-cyan-500/10">
-                    <AlertCircle size={16} className="text-cyan-400" />
-                  </div>
-                  <div>
-                    <h4 className="text-[10px] font-black uppercase italic tracking-widest text-cyan-400 mb-1">
-                      Checksum Verification
-                    </h4>
-                    <p className="text-[10px] leading-relaxed text-cyan-400/60 font-medium">
-                      Customers can verify file integrity using the SHA-256
-                      checksum. This ensures downloads are not corrupted or
-                      tampered with.
-                    </p>
-                  </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] uppercase font-black tracking-widest text-white/40">
+                    File Size (Bytes) (Optional)
+                  </label>
+                  <input
+                    type="number"
+                    value={fileSize}
+                    onChange={(e) => setFileSize(e.target.value)}
+                    placeholder="Size in bytes"
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-xs text-white focus:outline-none focus:border-cyan-500/50 transition-colors font-mono placeholder:text-white/10"
+                  />
                 </div>
               </div>
 
@@ -425,10 +363,10 @@ export const ReleaseManagementModal: React.FC<ReleaseManagementModalProps> = ({
                 </button>
                 <button
                   onClick={handleCreateRelease}
-                  disabled={isUploading}
+                  disabled={isSubmitting}
                   className="w-full py-4 bg-cyan-900/40 border border-cyan-500/30 text-cyan-400 rounded-2xl font-black uppercase tracking-[0.2em] italic hover:bg-cyan-500/20 transition-all disabled:opacity-50 relative overflow-hidden group"
                 >
-                  {isUploading ? (
+                  {isSubmitting ? (
                     <div className="flex items-center justify-center gap-3">
                       <motion.div
                         animate={{ rotate: 360 }}
@@ -439,20 +377,12 @@ export const ReleaseManagementModal: React.FC<ReleaseManagementModalProps> = ({
                         }}
                         className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
                       />
-                      <span>Uploading {uploadProgress}%</span>
+                      <span>Linking...</span>
                     </div>
                   ) : (
                     <span className="group-hover:tracking-[0.3em] transition-all">
-                      Publish Release
+                      Link Release
                     </span>
-                  )}
-
-                  {isUploading && (
-                    <motion.div
-                      className="absolute bottom-0 left-0 h-1 bg-cyan-400"
-                      initial={{ width: 0 }}
-                      animate={{ width: `${uploadProgress}%` }}
-                    />
                   )}
                 </button>
               </div>

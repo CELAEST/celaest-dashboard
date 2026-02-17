@@ -10,6 +10,9 @@ import {
   Eye,
   History,
   Image as ImageIcon,
+  Globe,
+  Lock,
+  Download,
 } from "lucide-react";
 import { Asset } from "../services/assets.service";
 import { AssetTypeIcon } from "./shared/AssetTypeIcon";
@@ -33,6 +36,7 @@ interface AssetTableProps {
   onDelete: (id: string) => void;
   onPreview?: (asset: Asset) => void;
   onManageReleases?: (asset: Asset) => void;
+  onDownload?: (asset: Asset) => void;
 }
 
 export const AssetTable: React.FC<AssetTableProps> = ({
@@ -45,6 +49,7 @@ export const AssetTable: React.FC<AssetTableProps> = ({
   onDelete,
   onPreview,
   onManageReleases,
+  onDownload,
 }) => {
   return (
     <Table>
@@ -76,6 +81,11 @@ export const AssetTable: React.FC<AssetTableProps> = ({
             className={`px-6 py-4 text-left text-xs font-bold uppercase tracking-wider ${isDark ? "text-gray-500" : "text-gray-600"}`}
           >
             Status
+          </TableHead>
+          <TableHead
+            className={`px-6 py-4 text-left text-xs font-bold uppercase tracking-wider ${isDark ? "text-gray-500" : "text-gray-600"}`}
+          >
+            Visibility
           </TableHead>
           <TableHead
             className={`px-6 py-4 text-left text-xs font-bold uppercase tracking-wider ${isDark ? "text-gray-500" : "text-gray-600"}`}
@@ -190,6 +200,35 @@ export const AssetTable: React.FC<AssetTableProps> = ({
                 <AssetStatusBadge status={asset.status} isDark={isDark} />
               </TableCell>
 
+              {/* Visibility Column */}
+              <TableCell className="px-6 py-4">
+                <div className="flex items-center gap-2">
+                  {asset.isPublic ? (
+                    <div
+                      className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium ${
+                        isDark
+                          ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20"
+                          : "bg-blue-50 text-blue-600 border border-blue-100"
+                      }`}
+                    >
+                      <Globe size={12} />
+                      <span>Public</span>
+                    </div>
+                  ) : (
+                    <div
+                      className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium ${
+                        isDark
+                          ? "bg-white/5 text-gray-400 border border-white/10"
+                          : "bg-gray-100 text-gray-500 border border-gray-200"
+                      }`}
+                    >
+                      <Lock size={12} />
+                      <span>Private</span>
+                    </div>
+                  )}
+                </div>
+              </TableCell>
+
               {/* Version Column */}
               <TableCell className="px-6 py-4">
                 <span
@@ -228,6 +267,15 @@ export const AssetTable: React.FC<AssetTableProps> = ({
                         exit={{ opacity: 0, y: -10 }}
                         className={`absolute right-0 top-12 w-52 rounded-xl border shadow-xl z-20 overflow-hidden ${isDark ? "bg-gray-900 border-white/10" : "bg-white border-gray-200"}`}
                       >
+                        <button
+                          onClick={() => {
+                            onDownload?.(asset);
+                            setActiveMenu(null);
+                          }}
+                          className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors ${isDark ? "text-gray-300 hover:bg-white/5" : "text-gray-700 hover:bg-gray-50"}`}
+                        >
+                          <Download size={16} /> Download Secure
+                        </button>
                         <button
                           onClick={() => {
                             onEdit(asset);

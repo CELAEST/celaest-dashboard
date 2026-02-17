@@ -1,52 +1,99 @@
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { toast } from "sonner";
 import { ApiKey } from "../components/tabs/DeveloperAPI/ApiKeys";
+import { useAuth } from "@/features/auth/contexts/AuthContext";
+import api from "@/lib/api-client";
+
+interface BackendApiKey {
+  id: string;
+  name: string;
+  key_prefix: string;
+  key_secret?: string; 
+  last_used_at?: string;
+  created_at: string;
+}
 
 export const useDeveloperSettings = () => {
-  const [apiKeys, setApiKeys] = useState<ApiKey[]>([
-    {
-      id: "1",
-      name: "Production API Key",
-      key: "pk_live_f7a2b9c8d1e3f4a5b6c7d8e9f0a1b2c3d4",
-      created: "Oct 12, 2023",
-      lastUsed: "2 mins ago",
-    },
-    {
-      id: "2",
-      name: "Development Key",
-      key: "pk_test_b9c8d1e3f4a5b6c7d8e9f0a1b2c3d4e5f6",
-      created: "Dec 05, 2023",
-      lastUsed: "Yesterday",
-    },
-  ]);
+  const { session } = useAuth();
+  const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const fetchApiKeys = useCallback(async () => {
+    if (!session) return;
+    try {
+      setIsLoading(true);
+      const response = await api.get<{ api_keys: BackendApiKey[] }>("/api/v1/user/api-keys", {
+        token: session.accessToken,
+      });
+      if (response.api_keys) {
+        setApiKeys(
+          response.api_keys.map((k) => ({
+            id: k.id,
+            name: k.name,
+            key: k.key_secret || `${k.key_prefix}••••••••`,
+            created: new Date(k.created_at).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            }),
+            lastUsed: k.last_used_at ? new Date(k.last_used_at).toLocaleDateString() : "Never",
+          }))
+        );
+      }
+    } catch (error) {
+      console.error("[DeveloperAPI] Failed to fetch keys:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [session]);
+
+  useEffect(() => {
+    fetchApiKeys();
+  }, [fetchApiKeys]);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast.success("API Key copied to clipboard");
   };
 
-  const generateKey = () => {
-    toast.promise(new Promise((resolve) => setTimeout(resolve, 1500)), {
-      loading: "Generating cryptographically secure key...",
-      success: () => {
-        setApiKeys((prev) => [
-          ...prev,
-          {
-            id: Date.now().toString(),
-            name: "New Live Key",
-            key: `pk_live_${Math.random().toString(36).substring(2)}`,
-            created: "Just now",
-            lastUsed: "Never",
-          },
-        ]);
-        return "New API key generated successfully";
-      },
-    });
+  const generateKey = async () => {
+    if (!session) return;
+    try {
+      const name = `API Key ${apiKeys.length + 1}`;
+      const response = await api.post<{ api_key: BackendApiKey; message: string }>("/api/v1/user/api-keys", 
+        { name },
+        { token: session.accessToken }
+      );
+      
+      if (response.api_key) {
+        toast.success("New API key generated successfully");
+        // We refresh all keys to get the list, 
+        // Note: the secret is only shown once in the 'message' or 'api_key' if backend supports it
+        fetchApiKeys();
+      }
+    } catch (error) {
+      toast.error("Failed to generate API key");
+    }
+  };
+
+  const revokeKey = async (id: string) => {
+    if (!session) return;
+    try {
+      await api.delete(`/api/v1/user/api-keys/${id}`, {
+        token: session.accessToken,
+      });
+      setApiKeys((prev) => prev.filter((k) => k.id !== id));
+      toast.success("API key revoked");
+    } catch (error) {
+      toast.error("Failed to revoke API key");
+    }
   };
 
   return {
     apiKeys,
+    isLoading,
     copyToClipboard,
     generateKey,
+    revokeKey,
   };
 };

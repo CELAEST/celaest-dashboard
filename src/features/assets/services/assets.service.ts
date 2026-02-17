@@ -34,6 +34,7 @@ export interface Asset {
   isPurchased: boolean;
   isPublic: boolean;
   isFeatured: boolean;
+  github_repository?: string;
   license_id?: string;
   createdAt: string;
   updatedAt: string;
@@ -97,6 +98,7 @@ export const assetsService = {
     isPurchased: false,
     isPublic: bp.is_public,
     isFeatured: bp.is_featured,
+    github_repository: bp.github_repository,
     createdAt: bp.created_at,
     updatedAt: bp.updated_at,
   }),
@@ -114,7 +116,8 @@ export const assetsService = {
 
   // Organization inventory (products owned by org)
   async fetchInventory(token: string, orgId: string): Promise<Asset[]> {
-    const products = await assetsApi.getOrgProducts(token, orgId);
+    // Increase limit to 100 to ensure we get all products (temporary fix until pagination UI)
+    const products = await assetsApi.getOrgProducts(token, orgId, 1, 100);
     return Array.isArray(products) ? products.map(this.mapBackendProductToAsset) : [];
   },
 
@@ -141,7 +144,7 @@ export const assetsService = {
   },
 
   async getLicense(token: string, licenseId: string) {
-    console.log("[AssetsService] getLicense called for:", licenseId);
+
     return assetsApi.getLicense(token, licenseId);
   },
 
@@ -161,7 +164,7 @@ export const assetsService = {
     return assetsApi.deleteRelease(token, orgId, releaseId);
   },
 
-  async getGlobalReleases(token: string, orgId: string, page = 1, limit = 20) {
+  async getGlobalReleases(token: string, orgId: string, page = 1, limit = 100) {
     return assetsApi.getGlobalReleases(token, orgId, page, limit);
   },
 };

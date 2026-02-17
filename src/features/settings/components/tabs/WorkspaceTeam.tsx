@@ -10,12 +10,14 @@ import { InviteMemberModal } from "./WorkspaceTeam/InviteMemberModal";
  * Workspace & Team Settings Tab
  */
 export function WorkspaceTeam() {
+  const [searchQuery, setSearchQuery] = React.useState("");
   const {
     members,
     showInviteModal,
     setShowInviteModal,
     removeMember,
     inviteMember,
+    updateRole,
   } = useWorkspaceSettings();
 
   return (
@@ -24,7 +26,10 @@ export function WorkspaceTeam() {
 
       <TeamMembers
         members={members}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
         onRemoveMember={removeMember}
+        onUpdateRole={updateRole}
         onInviteClick={() => setShowInviteModal(true)}
       />
 

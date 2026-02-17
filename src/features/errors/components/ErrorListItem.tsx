@@ -127,6 +127,14 @@ export const ErrorListItem = React.memo(
                   />
                   {error.environment.os}
                 </span>
+                {error.userEmail && (
+                  <span
+                    className={`flex items-center gap-1.5 ${isDark ? "text-cyan-400 font-bold" : "text-blue-600 font-bold"}`}
+                  >
+                    <span className="opacity-50 min-w-[35px]">User:</span>
+                    {error.userEmail}
+                  </span>
+                )}
                 {isAdmin && error.affectedUsers > 20 && (
                   <span className="flex items-center gap-1.5 font-bold text-red-500 bg-red-500/10 px-2 py-0.5 rounded-full">
                     <TrendingDown size={12} />

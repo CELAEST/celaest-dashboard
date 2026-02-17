@@ -1,6 +1,6 @@
 import React from "react";
 import { useFormContext } from "react-hook-form";
-import { FileSpreadsheet, Code, Globe } from "lucide-react";
+import { FileSpreadsheet, Code, Globe, Github } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { SettingsSelect } from "../../settings/components/SettingsSelect";
 import { AssetFormValues } from "../hooks/useAssetForm";
@@ -17,8 +17,8 @@ const CATEGORY_OPTIONS = [
 
 const STATUS_OPTIONS = [
   { value: "draft", label: "Draft (Hidden from marketplace)" },
-  { value: "active", label: "Active (Visible to customers)" },
-  { value: "archived", label: "Archived (Legacy version)" },
+  { value: "published", label: "Published (Visible in marketplace)" },
+  { value: "archived", label: "Archived (No longer available)" },
 ];
 
 interface AssetFormFieldsProps {
@@ -193,6 +193,47 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
           If this is a Google Sheet or external web tool, provide the direct
           link here.
         </p>
+
+        {/* GitHub Repository */}
+        <div>
+          <label
+            htmlFor="github_repository"
+            className={`block text-xs uppercase tracking-wider font-bold mb-2 ${
+              isDark ? "text-gray-500" : "text-gray-400"
+            }`}
+          >
+            GitHub Repository (Private Distribution)
+          </label>
+          <div className="relative">
+            <Github
+              size={18}
+              className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors pointer-events-none ${
+                watch("github_repository")
+                  ? "text-cyan-500"
+                  : isDark
+                    ? "text-gray-500"
+                    : "text-gray-400"
+              }`}
+            />
+            <input
+              id="github_repository"
+              type="text"
+              {...register("github_repository")}
+              className={`w-full pl-11 pr-4 py-3 rounded-lg border transition-all outline-none ${
+                isDark
+                  ? "bg-white/5 border-white/10 text-white placeholder-gray-500 focus:border-cyan-500/30 focus:bg-white/10"
+                  : "bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
+              }`}
+              placeholder="e.g. owner/repo"
+            />
+          </div>
+          <p
+            className={`text-[10px] mt-2 ml-1 ${isDark ? "text-gray-600" : "text-gray-400"}`}
+          >
+            Format: owner/repo. Used for secure release distribution via GitHub
+            API.
+          </p>
+        </div>
       </div>
 
       {/* Product Image / Thumbnail */}
@@ -305,16 +346,67 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
         </div>
       </div>
 
-      {/* Status */}
-      <div>
+      {/* Status & Visibility */}
+      <div className="space-y-4">
         <SettingsSelect
           label="Publish Status"
           value={watch("status")}
           onChange={(val) =>
-            setValue("status", val as "active" | "draft" | "archived")
+            setValue("status", val as "draft" | "published" | "archived")
           }
           options={STATUS_OPTIONS}
         />
+
+        {/* Marketplace Visibility Toggle */}
+        <div
+          className={`flex items-center justify-between p-4 rounded-xl border transition-all ${
+            watch("is_public")
+              ? isDark
+                ? "bg-cyan-500/10 border-cyan-500/30"
+                : "bg-blue-50 border-blue-300"
+              : isDark
+                ? "bg-white/5 border-white/10"
+                : "bg-gray-50 border-gray-200"
+          }`}
+        >
+          <div>
+            <p
+              className={`text-sm font-bold ${
+                isDark ? "text-white" : "text-gray-900"
+              }`}
+            >
+              Marketplace Visibility
+            </p>
+            <p
+              className={`text-xs mt-0.5 ${
+                isDark ? "text-gray-500" : "text-gray-500"
+              }`}
+            >
+              {watch("is_public")
+                ? "This product is visible in the public marketplace"
+                : "This product is only visible to your organization"}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setValue("is_public", !watch("is_public"))}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+              watch("is_public")
+                ? isDark
+                  ? "bg-cyan-500"
+                  : "bg-blue-600"
+                : isDark
+                  ? "bg-white/20"
+                  : "bg-gray-300"
+            }`}
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm ${
+                watch("is_public") ? "translate-x-6" : "translate-x-1"
+              }`}
+            />
+          </button>
+        </div>
       </div>
 
       {/* Details */}

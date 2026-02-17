@@ -6,11 +6,13 @@ export const assetSchema = z.object({
   category: z.string().min(1, "Category is required"),
   price: z.number().min(0, "Price must be positive"),
   operationalCost: z.number().min(0, "Operational cost must be positive"),
-  status: z.enum(["active", "draft", "archived", "stable"]),
+  status: z.enum(["draft", "published", "archived"]),
+  is_public: z.boolean(),
   description: z.string().optional(),
   features: z.string().optional(), 
   requirements: z.string().optional(),
   external_url: z.string().url("Must be a valid URL").or(z.literal("")).optional(),
+  github_repository: z.string().optional(),
   thumbnail_url: z.string().url("Must be a valid URL").or(z.literal("")).optional(),
   pending_image: z.any().optional(), // For local File object before upload
   productFile: z.any().optional(), // For logic use only

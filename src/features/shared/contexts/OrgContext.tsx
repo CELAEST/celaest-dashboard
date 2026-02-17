@@ -7,7 +7,7 @@ import React, {
   useEffect,
   type ReactNode,
 } from "react";
-import { useApiAuth } from "@/lib/use-api-auth";
+import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { useShallow } from "zustand/react/shallow";
 import { useOrgStore } from "../stores/useOrgStore";
 
@@ -30,7 +30,9 @@ interface OrgContextValue {
 const OrgContext = createContext<OrgContextValue | undefined>(undefined);
 
 export function OrgProvider({ children }: { children: ReactNode }) {
-  const { isAuthReady, token } = useApiAuth();
+  const { session, isBackendSynced } = useAuth();
+  const isAuthReady = !!session?.accessToken && isBackendSynced;
+  const token = session?.accessToken || null;
   const {
     currentOrg,
     organizations,

@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useRole } from "@/features/auth/hooks/useAuthorization";
 import type { LicenseResponse } from "@/features/licensing/types";
 
 interface ActiveLicensesTableProps {
@@ -23,7 +24,13 @@ export const ActiveLicensesTable: React.FC<ActiveLicensesTableProps> = ({
   onSelectLicense,
 }) => {
   const { theme } = useTheme();
+  const { isSuperAdmin } = useRole();
   const isDark = theme === "dark";
+
+  const formatDate = (dateStr?: string) => {
+    if (!dateStr) return "-";
+    return new Date(dateStr).toLocaleString();
+  };
 
   return (
     <div
@@ -38,11 +45,17 @@ export const ActiveLicensesTable: React.FC<ActiveLicensesTableProps> = ({
               isDark ? "border-white/5" : "border-gray-100"
             }`}
           >
-            <TableHead className="font-semibold">Product</TableHead>
-            <TableHead className="font-semibold">User ID</TableHead>
-            <TableHead className="font-semibold">Status</TableHead>
-            <TableHead className="font-semibold">IP Usage</TableHead>
-            <TableHead className="font-semibold text-right">Actions</TableHead>
+            <TableHead className="font-semibold">Producto</TableHead>
+            {isSuperAdmin && (
+              <>
+                <TableHead className="font-semibold">Usuario</TableHead>
+                <TableHead className="font-semibold">Email</TableHead>
+              </>
+            )}
+            <TableHead className="font-semibold">Vigencia</TableHead>
+            <TableHead className="font-semibold">Estado</TableHead>
+            <TableHead className="font-semibold">Uso IP</TableHead>
+            <TableHead className="font-semibold text-right">Acciones</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -70,9 +83,33 @@ export const ActiveLicensesTable: React.FC<ActiveLicensesTableProps> = ({
                   </div>
                 </div>
               </TableCell>
-              <TableCell className="font-mono text-xs text-gray-500">
-                {license.organization_id.substring(0, 8)}...
+
+              {isSuperAdmin && (
+                <>
+                  <TableCell>
+                    <div className={isDark ? "text-white/80" : "text-gray-700"}>
+                      {license.user_name || "N/A"}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="text-xs text-blue-400">
+                      {license.user_email || "N/A"}
+                    </div>
+                  </TableCell>
+                </>
+              )}
+
+              <TableCell>
+                <div className="text-xs flex flex-col gap-0.5">
+                  <span className="text-gray-500 whitespace-nowrap">
+                    D: {formatDate(license.starts_at)}
+                  </span>
+                  <span className={isDark ? "text-white/60" : "text-gray-400"}>
+                    H: {formatDate(license.expires_at)}
+                  </span>
+                </div>
               </TableCell>
+
               <TableCell>
                 <span
                   className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium border ${
@@ -114,7 +151,7 @@ export const ActiveLicensesTable: React.FC<ActiveLicensesTableProps> = ({
                     />
                   </div>
                   <span className="text-xs text-gray-500">
-                    {license.ip_bindings?.length || 0} active
+                    {license.ip_bindings?.length || 0}
                   </span>
                 </div>
               </TableCell>
@@ -124,7 +161,7 @@ export const ActiveLicensesTable: React.FC<ActiveLicensesTableProps> = ({
                   variant="ghost"
                   className="opacity-0 group-hover:opacity-100 transition-opacity"
                 >
-                  View
+                  Ver
                 </Button>
               </TableCell>
             </TableRow>

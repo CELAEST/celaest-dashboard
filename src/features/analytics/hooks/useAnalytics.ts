@@ -28,10 +28,10 @@ export const useAnalytics = (period: string = "month") => {
       fetchDashboardData(token, orgId, period);
       fetchLiveFeed(token, orgId);
 
-      // Poll live feed every 30 seconds
+      // Poll live feed every 5 seconds for real-time experience
       const interval = setInterval(() => {
         fetchLiveFeed(token, orgId);
-      }, 30000);
+      }, 5000);
 
       return () => clearInterval(interval);
     }

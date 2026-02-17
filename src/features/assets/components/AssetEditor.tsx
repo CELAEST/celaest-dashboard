@@ -40,10 +40,12 @@ export const AssetEditor: React.FC<AssetEditorProps> = ({
       price: 0,
       operationalCost: 0,
       status: "draft",
+      is_public: false,
       description: "",
       requirements: "",
       features: "",
       external_url: "",
+      github_repository: "",
       thumbnail_url: "",
     },
   });
@@ -53,6 +55,21 @@ export const AssetEditor: React.FC<AssetEditorProps> = ({
   const { reset, handleSubmit } = methods;
 
   useEffect(() => {
+    // Normalize legacy status values to current enum
+    const normalizeStatus = (s: string): "draft" | "published" | "archived" => {
+      switch (s) {
+        case "published":
+        case "stable":
+        case "active":
+          return "published";
+        case "archived":
+        case "deprecated":
+          return "archived";
+        default:
+          return "draft";
+      }
+    };
+
     if (asset) {
       reset({
         name: asset.name,
@@ -60,11 +77,13 @@ export const AssetEditor: React.FC<AssetEditorProps> = ({
         category: asset.category,
         price: asset.price,
         operationalCost: asset.operationalCost,
-        status: asset.status,
+        status: normalizeStatus(asset.status),
+        is_public: asset.isPublic ?? false,
         description: asset.description || "",
         requirements: asset.requirements?.join("\n") || "",
         features: asset.features?.join("\n") || "",
         external_url: asset.external_url || "",
+        github_repository: asset.github_repository || "",
         thumbnail_url: asset.thumbnail || "",
       });
     } else {
@@ -75,10 +94,12 @@ export const AssetEditor: React.FC<AssetEditorProps> = ({
         price: 0,
         operationalCost: 0,
         status: "draft",
+        is_public: false,
         description: "",
         requirements: "",
         features: "",
         external_url: "",
+        github_repository: "",
         thumbnail_url: "",
       });
     }
@@ -145,8 +166,17 @@ export const AssetEditor: React.FC<AssetEditorProps> = ({
 
           <FormProvider {...methods}>
             <form
-              onSubmit={handleSubmit((data) =>
-                onSave({ ...data, productFile: selectedFile || undefined }),
+              onSubmit={handleSubmit(
+                (data) =>
+                  onSave({ ...data, productFile: selectedFile || undefined }),
+                (errors) => {
+                  const firstError = Object.values(errors)[0];
+                  if (firstError?.message) {
+                    import("sonner").then(({ toast }) =>
+                      toast.error(`Validation: ${firstError.message}`),
+                    );
+                  }
+                },
               )}
               className="p-6 space-y-8"
             >

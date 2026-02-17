@@ -1,9 +1,47 @@
-import React, { memo } from "react";
+import React, { memo, useState, useEffect } from "react";
 import { Receipt, ArrowUpRight, Download } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useAuthStore } from "@/features/auth/stores/useAuthStore";
+import { useOrgStore } from "@/features/shared/stores/useOrgStore";
+import { billingApi } from "@/features/billing/api/billing.api";
+import { Invoice } from "@/features/billing/types";
 
 export const BillingHistory: React.FC = memo(() => {
   const { isDark } = useTheme();
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const { session } = useAuthStore();
+  const { currentOrg } = useOrgStore();
+
+  useEffect(() => {
+    const fetchInvoices = async () => {
+      if (!session?.accessToken || !currentOrg?.id) return;
+
+      try {
+        setIsLoading(true);
+        const res = await billingApi.getInvoices(
+          currentOrg.id,
+          session.accessToken,
+        );
+        setInvoices(res.invoices);
+      } catch (error) {
+        console.error("Failed to fetch invoices:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchInvoices();
+  }, [session?.accessToken, currentOrg?.id]);
+
+  if (isLoading) {
+    return (
+      <div className="settings-glass-card rounded-2xl p-6 flex justify-center py-12">
+        <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-cyan-500"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="settings-glass-card rounded-2xl p-6">
@@ -29,40 +67,46 @@ export const BillingHistory: React.FC = memo(() => {
       </div>
 
       <div className="space-y-1">
-        {[
-          { date: "Dec 12, 2023", amount: "24.00", status: "Paid" },
-          { date: "Nov 12, 2023", amount: "24.00", status: "Paid" },
-          { date: "Oct 12, 2023", amount: "24.00", status: "Paid" },
-        ].map((invoice, i) => (
-          <div
-            key={i}
-            className={`flex items-center justify-between py-4 border-b last:border-0 transition-colors ${
-              isDark ? "border-white/5" : "border-gray-100"
-            }`}
-          >
-            <div>
-              <p
-                className={`text-sm font-bold ${
-                  isDark ? "text-gray-300" : "text-gray-700"
-                }`}
-              >
-                Invoice for {invoice.date}
-              </p>
-              <p className="text-xs text-gray-500 mt-0.5 font-mono">
-                ${invoice.amount} • {invoice.status}
-              </p>
-            </div>
-            <button
-              className={`p-2 rounded-lg transition-colors ${
-                isDark
-                  ? "hover:bg-white/5 text-gray-500"
-                  : "hover:bg-gray-100 text-gray-400"
+        {invoices.length === 0 ? (
+          <p className="text-sm text-gray-500 py-4 italic text-center">
+            No invoices found.
+          </p>
+        ) : (
+          invoices.map((invoice) => (
+            <div
+              key={invoice.id}
+              className={`flex items-center justify-between py-4 border-b last:border-0 transition-colors ${
+                isDark ? "border-white/5" : "border-gray-100"
               }`}
             >
-              <Download size={16} />
-            </button>
-          </div>
-        ))}
+              <div>
+                <p
+                  className={`text-sm font-bold ${
+                    isDark ? "text-gray-300" : "text-gray-700"
+                  }`}
+                >
+                  Invoice {invoice.invoice_number}
+                </p>
+                <p className="text-xs text-gray-500 mt-0.5 font-mono">
+                  {new Date(invoice.created_at).toLocaleDateString()} • $
+                  {invoice.total} • {invoice.status.toUpperCase()}
+                </p>
+              </div>
+              <button
+                className={`p-2 rounded-lg transition-colors ${
+                  isDark
+                    ? "hover:bg-white/5 text-gray-500"
+                    : "hover:bg-gray-100 text-gray-400"
+                }`}
+                onClick={() =>
+                  invoice.pdf_url && window.open(invoice.pdf_url, "_blank")
+                }
+              >
+                <Download size={16} />
+              </button>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

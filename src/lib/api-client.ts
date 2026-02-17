@@ -4,8 +4,9 @@
  * Las features extienden este cliente, no duplican lógica
  */
 
-const BASE_URL =
-  process.env.NEXT_PUBLIC_CELAEST_API_URL || "https://celaest-back.onrender.com";
+const BASE_URL = "http://localhost:3101";
+
+console.log("DEBUG: API BASE_URL (FORCED) =", BASE_URL);
 
 export class ApiError extends Error {
   constructor(

@@ -9,26 +9,57 @@ import {
   workspaceProfileSchema,
 } from "@/lib/validation/schemas/settings";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useOrg } from "@/features/shared/contexts/OrgContext";
+import { useAuthStore } from "@/features/auth/stores/useAuthStore";
+import { settingsApi } from "../../../api/settings.api";
+import { useEffect } from "react";
 
 export const WorkspaceProfile: React.FC = memo(() => {
   const { isDark } = useTheme();
+  const { org, refreshOrgs } = useOrg();
+  const { session } = useAuthStore();
 
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    reset,
+    formState: { errors, isSubmitting },
   } = useForm<WorkspaceProfileFormData>({
     resolver: zodResolver(workspaceProfileSchema),
     defaultValues: {
-      workspaceName: "Celaest Headquarters",
-      slug: "hq",
+      workspaceName: org?.name || "",
+      slug: org?.slug || "",
     },
     mode: "onBlur",
   });
 
-  const onSubmit = (data: WorkspaceProfileFormData) => {
-    console.log("Workspace updated:", data);
-    toast.success("Workspace profile updated");
+  // Sync form when org data changes
+  useEffect(() => {
+    if (org) {
+      reset({
+        workspaceName: org.name,
+        slug: org.slug,
+      });
+    }
+  }, [org, reset]);
+
+  const onSubmit = async (data: WorkspaceProfileFormData) => {
+    if (!org?.id || !session?.accessToken) return;
+    try {
+      await settingsApi.updateOrganization(
+        org.id,
+        {
+          name: data.workspaceName,
+          slug: data.slug,
+        },
+        session.accessToken,
+      );
+
+      await refreshOrgs();
+      toast.success("Workspace profile updated");
+    } catch {
+      toast.error("Failed to update workspace");
+    }
   };
 
   return (
@@ -113,9 +144,10 @@ export const WorkspaceProfile: React.FC = memo(() => {
         <div className="flex justify-end">
           <button
             type="submit"
-            className="px-6 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-bold transition-all shadow-sm active:scale-95"
+            disabled={isSubmitting}
+            className="px-6 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-bold transition-all shadow-sm active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Save Changes
+            {isSubmitting ? "Saving..." : "Save Changes"}
           </button>
         </div>
       </form>

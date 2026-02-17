@@ -165,6 +165,7 @@ export interface SystemEvent {
   message: string;
   timestamp: string;
   source: "payment" | "user" | "system";
+  user_email?: string;
 }
 
 export interface ROIByProduct {

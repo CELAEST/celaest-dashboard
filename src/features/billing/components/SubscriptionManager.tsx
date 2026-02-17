@@ -76,7 +76,9 @@ export const SubscriptionManager: React.FC = () => {
               }`}
             >
               <Zap className="w-3.5 h-3.5" />
-              <span>{plan?.name ? plan.name.toUpperCase() : "FREE TIER"}</span>
+              <span>
+                {plan?.name ? plan.name.toUpperCase() : "PLAN NO DEFINIDO"}
+              </span>
             </div>
             <div
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full font-bold text-xs tracking-wide shadow-sm ${
@@ -111,7 +113,7 @@ export const SubscriptionManager: React.FC = () => {
                   : "text-slate-900"
               }`}
             >
-              {plan?.name || "Free Plan"}
+              {plan?.name || "Plan Nexus"}
             </h2>
             <div className="flex items-baseline gap-2">
               <span

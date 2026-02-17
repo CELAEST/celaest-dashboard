@@ -66,26 +66,26 @@ export const marketplaceApi = {
   /**
    * Crear sesión de checkout para comprar un producto (Requiere Auth)
    */
-  createCheckoutSession: async (productId: string, token: string) => {
+  createCheckoutSession: async (productId: string, token: string, orgId: string) => {
     return api.post<CheckoutResponse>(
-      "/api/v1/user/marketplace/checkout",
+      "/api/v1/org/marketplace/checkout",
       { product_id: productId },
-      { token }
+      { token, orgId }
     );
   },
 
   /**
    * Verificar estado de una compra (Polling actively)
    */
-  verifyPurchase: async (sessionId: string, token: string) => {
+  verifyPurchase: async (sessionId: string, token: string, orgId: string) => {
     return api.get<{ 
       status: string; 
       message?: string; 
       has_access: boolean;
       product_id?: string;
     }>(
-      `/api/v1/user/marketplace/checkout/verify/${sessionId}`,
-      { token }
+      `/api/v1/org/marketplace/checkout/verify/${sessionId}`,
+      { token, orgId }
     );
   }
 };

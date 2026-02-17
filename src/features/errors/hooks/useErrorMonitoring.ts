@@ -1,9 +1,10 @@
-import { useState, useMemo, useEffect, useCallback } from "react";
+﻿import { useState, useMemo, useEffect, useCallback } from "react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { useUIStore } from "@/stores/useUIStore";
 import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 import { errorsApi } from "../api/errors.api";
+import { analyticsApi, SystemEvent } from "@/features/analytics/api/analytics.api";
 import { AITask, ErrorAnalyticsResponse } from "../api/types";
 
 export type ErrorSeverity = "critical" | "warning" | "info";
@@ -26,6 +27,7 @@ export interface ErrorLog {
   };
   stackTrace?: string;
   suggestion?: string;
+  userEmail?: string;
 }
 
 export const useErrorMonitoring = () => {
@@ -95,9 +97,46 @@ export const useErrorMonitoring = () => {
         },
         stackTrace: task.error,
         suggestion: "Verify AI model availability and prompt parameters.",
+        userEmail: task.user_email || "system",
       }));
       
       setErrors(mappedErrors);
+      
+      // Fetch telemetry/system errors from live feed
+      try {
+        const liveEvents = await analyticsApi.getLiveFeed(token, orgID);
+        const telemetryErrors: ErrorLog[] = liveEvents
+          .filter(event => event.type === "error")
+          .map((event: SystemEvent) => ({
+            id: event.id,
+            timestamp: new Date(event.timestamp).toLocaleString(),
+            severity: "critical",
+            status: "failed",
+            errorCode: event.source === "system" ? "SYS-WAF" : "SYS-ERR",
+            message: event.message,
+            template: "System Telemetry",
+            version: "N/A",
+            affectedUsers: 1,
+            environment: {
+              os: "Server Runtime",
+              platform: event.source.toUpperCase(),
+            },
+            stackTrace: "Telemetry event captured in real-time.",
+            suggestion: "Check security logs or endpoint health.",
+            userEmail: event.user_email || "system",
+          }));
+        
+        setErrors(prev => {
+          // Avoid duplicates if any
+          const existingIds = new Set(prev.map(e => e.id));
+          const newEvents = telemetryErrors.filter(e => !existingIds.has(e.id));
+          return [...prev, ...newEvents].sort((a, b) => 
+            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+          );
+        });
+      } catch (feedErr) {
+        console.warn("Failed to merge live feed into error monitoring:", feedErr);
+      }
     } catch (err) {
       console.error("Failed to fetch errors:", err);
     } finally {
@@ -188,3 +227,4 @@ export const useErrorMonitoring = () => {
     platformDistribution: errorStats?.platform_distribution || [],
   };
 };
+
