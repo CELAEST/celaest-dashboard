@@ -70,7 +70,7 @@ export const TopTemplates = React.memo(({ templates }: TopTemplatesProps) => {
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{
-                    width: `${(template.executions / 458) * 100}%`,
+                    width: `${Math.min((template.executions / (Math.max(...templates.map(t => t.executions), 1))) * 100, 100)}%`,
                   }}
                   transition={{ delay: 0.7 + idx * 0.1, duration: 0.8 }}
                   className={`h-full rounded-full ${

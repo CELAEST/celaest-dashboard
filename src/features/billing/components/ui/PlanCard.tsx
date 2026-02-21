@@ -1,13 +1,12 @@
 import React from "react";
-import { Check, Sparkles, Star } from "lucide-react";
+import { Check, Sparkles, Zap, Users, HardDrive, ArrowRight } from "lucide-react";
 import { motion } from "motion/react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { Plan } from "../../types";
 
-// Extended plan type for UI only
+/* ─── Types ─── */
+
 interface PlanWithUI extends Plan {
-  price?: string;
-  period?: string;
   popular?: boolean;
   color?: "blue" | "purple" | "emerald";
 }
@@ -18,8 +17,57 @@ interface PlanCardProps {
   onClose: () => void;
   onSelect?: (plan: Plan) => void;
   isLoading?: boolean;
-  currentPlanId?: string;
+  activePlanIds?: string[];
 }
+
+/* ─── Helpers ─── */
+
+function fmtLimit(v: number): string {
+  if (v === -1) return "Unlimited";
+  if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`;
+  if (v >= 1_000) return `${(v / 1_000).toFixed(0)}K`;
+  return v.toString();
+}
+
+/* ─── Palette ─── */
+
+const palettes = {
+  blue: {
+    border:   { dark: "border-white/[0.08]",  light: "border-gray-200" },
+    bg:       { dark: "bg-white/[0.02]",       light: "bg-white" },
+    title:    { dark: "text-blue-400",         light: "text-blue-600" },
+    accent:   { dark: "text-blue-400",         light: "text-blue-500" },
+    checkBg:  { dark: "bg-blue-500/10",        light: "bg-blue-50" },
+    check:    "text-blue-500",
+    statBg:   { dark: "bg-blue-500/[0.07]",    light: "bg-blue-50/70" },
+    btn:      "bg-white/[0.07] hover:bg-white/[0.14] text-white border border-white/[0.1]",
+    btnLight: "bg-blue-600 hover:bg-blue-500 text-white",
+  },
+  purple: {
+    border:   { dark: "border-purple-500/30",  light: "border-purple-200" },
+    bg:       { dark: "bg-purple-500/[0.03]",  light: "bg-white" },
+    title:    { dark: "text-purple-300",       light: "text-purple-600" },
+    accent:   { dark: "text-purple-400",       light: "text-purple-500" },
+    checkBg:  { dark: "bg-purple-500/10",      light: "bg-purple-50" },
+    check:    "text-purple-500",
+    statBg:   { dark: "bg-purple-500/[0.07]",  light: "bg-purple-50/70" },
+    btn:      "bg-linear-to-r from-purple-600 to-violet-600 hover:from-purple-500 hover:to-violet-500 text-white shadow-lg shadow-purple-500/20",
+    btnLight: "bg-linear-to-r from-purple-600 to-violet-600 hover:from-purple-500 hover:to-violet-500 text-white shadow-lg shadow-purple-500/20",
+  },
+  emerald: {
+    border:   { dark: "border-white/[0.08]",   light: "border-gray-200" },
+    bg:       { dark: "bg-white/[0.02]",        light: "bg-white" },
+    title:    { dark: "text-emerald-400",      light: "text-emerald-600" },
+    accent:   { dark: "text-emerald-400",      light: "text-emerald-500" },
+    checkBg:  { dark: "bg-emerald-500/10",     light: "bg-emerald-50" },
+    check:    "text-emerald-500",
+    statBg:   { dark: "bg-emerald-500/[0.07]", light: "bg-emerald-50/70" },
+    btn:      "bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/15",
+    btnLight: "bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/15",
+  },
+} as const;
+
+/* ─── Component ─── */
 
 export const PlanCard: React.FC<PlanCardProps> = ({
   plan,
@@ -27,66 +75,15 @@ export const PlanCard: React.FC<PlanCardProps> = ({
   onClose,
   onSelect,
   isLoading = false,
-  currentPlanId,
+  activePlanIds,
 }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const mode = isDark ? "dark" : "light";
   const isPopular = plan.popular;
-  const isCurrent = currentPlanId === plan.id;
-
-  // Theme Colors Helper
-  const getThemeColors = (color: PlanWithUI["color"]) => {
-    switch (color) {
-      case "purple":
-        return {
-          border: isPopular
-            ? "border-purple-500"
-            : isDark
-              ? "border-purple-500/20"
-              : "border-purple-100",
-          bg: isDark ? "bg-slate-900/80" : "bg-white",
-          title: isDark ? "text-purple-200" : "text-purple-900",
-          price: isDark ? "text-white" : "text-slate-900",
-          checkBg: isDark ? "bg-purple-500/20" : "bg-purple-50",
-          check: "text-purple-500",
-          btn: "bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500",
-          glow: "shadow-purple-500/40",
-        };
-      case "emerald":
-        return {
-          border: isPopular
-            ? "border-emerald-500"
-            : isDark
-              ? "border-emerald-500/20"
-              : "border-emerald-100",
-          bg: isDark ? "bg-slate-900/60" : "bg-white",
-          title: isDark ? "text-emerald-200" : "text-emerald-900",
-          price: isDark ? "text-white" : "text-slate-900",
-          checkBg: isDark ? "bg-emerald-500/20" : "bg-emerald-50",
-          check: "text-emerald-500",
-          btn: "bg-emerald-600 hover:bg-emerald-500",
-          glow: "shadow-emerald-500/20",
-        };
-      case "blue":
-      default:
-        return {
-          border: isPopular
-            ? "border-blue-500"
-            : isDark
-              ? "border-blue-500/20"
-              : "border-blue-100",
-          bg: isDark ? "bg-slate-900/60" : "bg-white",
-          title: isDark ? "text-blue-200" : "text-blue-900",
-          price: isDark ? "text-white" : "text-slate-900",
-          checkBg: isDark ? "bg-blue-500/20" : "bg-blue-50",
-          check: "text-blue-500",
-          btn: "bg-blue-600 hover:bg-blue-500",
-          glow: "shadow-blue-500/20",
-        };
-    }
-  };
-
-  const currentTheme = getThemeColors(plan.color || "blue");
+  const isCurrent = activePlanIds?.includes(plan.id);
+  const isFree = !plan.price_monthly || plan.price_monthly === 0;
+  const p = palettes[plan.color || "blue"];
 
   const handleSelect = () => {
     if (isCurrent) return;
@@ -97,108 +94,177 @@ export const PlanCard: React.FC<PlanCardProps> = ({
     }
   };
 
+  const limits = plan.limits;
+  const aiVal      = limits?.max_ai_requests_per_month as number | undefined;
+  const teamVal    = limits?.max_team_members as number | undefined;
+  const storageVal = limits?.max_storage_gb as number | undefined;
+
+  /* Split features into 2 columns to cut vertical height */
+  const features = plan.features || [];
+  const mid = Math.ceil(features.length / 2);
+  const col1 = features.slice(0, mid);
+  const col2 = features.slice(mid);
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05 + 0.2, type: "spring", bounce: 0.3 }}
-      className={`group relative rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-5 flex flex-col h-full border backdrop-blur-xl transition-all duration-500 ${
-        currentTheme.border
-      } ${currentTheme.bg} ${
+      transition={{ delay: index * 0.07, type: "spring", bounce: 0.18 }}
+      className={[
+        "relative flex flex-col rounded-2xl border transition-all duration-300",
+        "p-4 lg:p-5",
+        p.border[mode],
+        p.bg[mode],
         isPopular
-          ? `shadow-2xl ${currentTheme.glow} ring-1 ring-white/10 z-10 sm:scale-[1.02]`
-          : "shadow-lg hover:shadow-xl hover:border-opacity-50"
-      } ${isCurrent ? "ring-2 ring-blue-500 ring-offset-2 ring-offset-current" : ""}`}
+          ? "shadow-xl shadow-purple-500/10 ring-1 ring-purple-500/20 z-10 md:scale-[1.02]"
+          : "shadow-sm hover:shadow-md",
+        isCurrent ? "ring-2 ring-green-500/50" : "",
+      ].join(" ")}
     >
-      {/* Popular Badge */}
+      {/* ── Popular badge ── */}
       {isPopular && (
-        <div className="absolute -top-3 sm:-top-4 left-0 right-0 flex justify-center z-20">
-          <div className="bg-linear-to-r from-purple-500 to-pink-500 text-white text-[10px] sm:text-xs font-bold px-2 sm:px-3 py-1 rounded-full shadow-lg shadow-purple-500/40 uppercase tracking-wider flex items-center gap-1">
-            <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-white" />
+        <div className="absolute -top-3 inset-x-0 flex justify-center">
+          <span className="inline-flex items-center gap-1.5 bg-linear-to-r from-purple-600 to-violet-600 text-white text-xs font-semibold tracking-wide uppercase px-4 py-1 rounded-full shadow-md shadow-purple-500/30">
+            <Sparkles className="w-3 h-3" />
             Most Popular
-          </div>
+          </span>
         </div>
       )}
 
-      {/* Content */}
-      <div className="text-center mb-4 sm:mb-6 lg:mb-8">
-        <h3
-          className={`text-lg sm:text-xl font-bold mb-2 sm:mb-3 ${currentTheme.title}`}
-        >
-          {plan.name}
-        </h3>
-        <div className="flex items-baseline justify-center gap-1 mb-2 sm:mb-3">
-          <span
-            className={`text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight ${currentTheme.price}`}
-          >
-            {plan.price}
+      {/* ── Plan name ── */}
+      <h3 className={`text-center text-xs font-semibold tracking-[0.15em] uppercase ${p.title[mode]}`}>
+        {plan.name}
+      </h3>
+
+      {/* ── Price ── */}
+      <div className="flex items-baseline justify-center gap-1 mt-2">
+        {isFree ? (
+          <span className={`text-3xl lg:text-4xl font-extrabold tracking-tight ${isDark ? "text-white" : "text-gray-900"}`}>
+            Free
           </span>
-          {plan.period && (
-            <span
-              className={`text-xs sm:text-sm font-medium ${
-                isDark ? "text-gray-400" : "text-gray-500"
-              }`}
-            >
-              {plan.period}
+        ) : (
+          <>
+            <span className={`text-3xl lg:text-4xl font-extrabold tracking-tight ${isDark ? "text-white" : "text-gray-900"}`}>
+              ${plan.price_monthly}
             </span>
+            <span className={`text-sm font-medium ${isDark ? "text-gray-500" : "text-gray-400"}`}>
+              /mo
+            </span>
+          </>
+        )}
+      </div>
+
+      {!isFree && plan.price_yearly ? (
+        <p className={`text-center text-xs mt-0.5 ${isDark ? "text-gray-500" : "text-gray-400"}`}>
+          ${plan.price_yearly}/yr{" "}
+          <span className="text-green-500 font-semibold">
+            save ${((plan.price_monthly ?? 0) * 12 - plan.price_yearly).toFixed(0)}
+          </span>
+        </p>
+      ) : null}
+
+      {/* ── Description ── */}
+      <p className={`text-center text-[13px] mt-2 leading-snug ${isDark ? "text-gray-400" : "text-gray-500"}`}>
+        {plan.description}
+      </p>
+
+      {/* ── Key metrics row ── */}
+      {limits && (
+        <div className={`flex items-center justify-around py-2 rounded-xl mt-3 ${p.statBg[mode]}`}>
+          {aiVal !== undefined && (
+            <div className="flex flex-col items-center gap-0.5">
+              <Zap className={`w-3.5 h-3.5 ${p.accent[mode]}`} />
+              <span className={`text-[13px] font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
+                {fmtLimit(aiVal)}
+              </span>
+              <span className={`text-[10px] ${isDark ? "text-gray-500" : "text-gray-400"}`}>AI Req</span>
+            </div>
+          )}
+          {teamVal !== undefined && (
+            <div className="flex flex-col items-center gap-0.5">
+              <Users className={`w-3.5 h-3.5 ${p.accent[mode]}`} />
+              <span className={`text-[13px] font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
+                {fmtLimit(teamVal)}
+              </span>
+              <span className={`text-[10px] ${isDark ? "text-gray-500" : "text-gray-400"}`}>Members</span>
+            </div>
+          )}
+          {storageVal !== undefined && (
+            <div className="flex flex-col items-center gap-0.5">
+              <HardDrive className={`w-3.5 h-3.5 ${p.accent[mode]}`} />
+              <span className={`text-[13px] font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
+                {storageVal === -1 ? "\u221E" : `${storageVal}GB`}
+              </span>
+              <span className={`text-[10px] ${isDark ? "text-gray-500" : "text-gray-400"}`}>Storage</span>
+            </div>
           )}
         </div>
-        <p
-          className={`text-xs sm:text-sm leading-relaxed ${
-            isDark ? "text-gray-400" : "text-gray-600"
-          }`}
-        >
-          {plan.description}
-        </p>
-      </div>
+      )}
 
-      <div className="flex-1 space-y-2 sm:space-y-3 lg:space-y-4 mb-4 sm:mb-6 lg:mb-8">
-        {plan.features?.map((feature, i) => (
-          <div key={i} className="flex items-start gap-2 sm:gap-3 group/item">
-            <div
-              className={`mt-0.5 rounded-full p-0.5 sm:p-1 shrink-0 transition-colors ${currentTheme.checkBg}`}
-            >
-              <Check
-                className={`w-2.5 h-2.5 sm:w-3 sm:h-3 ${currentTheme.check}`}
-              />
+      {/* ── Divider ── */}
+      <div className={`h-px mt-3 mb-3 ${isDark ? "bg-white/[0.06]" : "bg-gray-100"}`} />
+
+      {/* ── Features — 2 columns ── */}
+      <div className="flex-1 grid grid-cols-2 gap-x-3 gap-y-1.5 mb-4">
+        <div className="space-y-1.5">
+          {col1.map((f, i) => (
+            <div key={i} className="flex items-start gap-1.5">
+              <div className={`mt-[3px] shrink-0 rounded-full p-[2px] ${p.checkBg[mode]}`}>
+                <Check className={`w-2.5 h-2.5 ${p.check}`} />
+              </div>
+              <span className={`text-[12.5px] leading-snug ${isDark ? "text-gray-300" : "text-gray-600"}`}>
+                {f}
+              </span>
             </div>
-            <span
-              className={`text-xs sm:text-sm font-medium ${
-                isDark
-                  ? "text-gray-300 group-hover/item:text-white"
-                  : "text-gray-600 group-hover/item:text-gray-900"
-              } transition-colors`}
-            >
-              {feature}
-            </span>
-          </div>
-        ))}
+          ))}
+        </div>
+        <div className="space-y-1.5">
+          {col2.map((f, i) => (
+            <div key={i} className="flex items-start gap-1.5">
+              <div className={`mt-[3px] shrink-0 rounded-full p-[2px] ${p.checkBg[mode]}`}>
+                <Check className={`w-2.5 h-2.5 ${p.check}`} />
+              </div>
+              <span className={`text-[12.5px] leading-snug ${isDark ? "text-gray-300" : "text-gray-600"}`}>
+                {f}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
 
+      {/* ── CTA Button ── */}
       <motion.button
         whileHover={!isCurrent && !isLoading ? { scale: 1.02 } : {}}
         whileTap={!isCurrent && !isLoading ? { scale: 0.98 } : {}}
         onClick={handleSelect}
         disabled={isCurrent || isLoading}
-        className={`w-full py-2.5 sm:py-3 lg:py-4 rounded-lg sm:rounded-xl font-bold text-sm sm:text-base text-white shadow-lg transition-all duration-300 ${currentTheme.btn} relative overflow-hidden group/btn ${isCurrent ? "opacity-50 cursor-default" : ""}`}
+        className={[
+          "w-full py-2.5 rounded-xl text-sm font-semibold transition-all duration-200",
+          isCurrent
+            ? `border cursor-default ${isDark ? "border-green-500/30 bg-green-500/10 text-green-400" : "border-green-200 bg-green-50 text-green-700"}`
+            : isDark ? p.btn : p.btnLight,
+        ].join(" ")}
       >
-        <span className="relative z-10 flex items-center justify-center gap-2">
-          {isCurrent
-            ? "Current Plan"
-            : isPopular
-              ? "Get Started Now"
-              : "Choose Plan"}
-          {isPopular && !isCurrent && (
-            <Star className="w-3 h-3 sm:w-4 sm:h-4 fill-white/20" />
+        <span className="flex items-center justify-center gap-2">
+          {isCurrent ? (
+            <>
+              <Check className="w-4 h-4" />
+              Active Plan
+            </>
+          ) : isFree ? (
+            "Get Started"
+          ) : isPopular ? (
+            <>
+              Get Started
+              <ArrowRight className="w-4 h-4" />
+            </>
+          ) : (
+            "Choose Plan"
           )}
           {isLoading && !isCurrent && (
-            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            <div className="w-4 h-4 border-2 border-current/30 border-t-current rounded-full animate-spin" />
           )}
         </span>
-        {/* Shine Effect */}
-        {!isCurrent && !isLoading && (
-          <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000" />
-        )}
       </motion.button>
     </motion.div>
   );

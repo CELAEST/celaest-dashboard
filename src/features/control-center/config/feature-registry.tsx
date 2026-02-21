@@ -26,7 +26,7 @@ export interface FeatureConfig {
 export const FEATURE_REGISTRY: Record<string, FeatureConfig> = {
   dashboard: {
     id: "dashboard",
-    label: "Command Center",
+    label: "My Orders",
     icon: LayoutDashboard,
     load: () =>
       import("@/features/control-center/components/DashboardContent").then(

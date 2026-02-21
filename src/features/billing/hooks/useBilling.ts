@@ -8,6 +8,9 @@ import { toast } from "sonner";
 export interface BillingState {
   subscription: Subscription | null;
   plan: Plan | null;
+  activePlanIds: string[];
+  activePlans: Plan[];
+  allSubscriptions: Subscription[]; // All subs including superseded
   usage: {
     licenses: { used: number; total: number; percent: number };
     apiCalls: { used: number; total: number; percent: number };
@@ -24,6 +27,9 @@ export const useBilling = () => {
   const [state, setState] = useState<BillingState>({
     subscription: null,
     plan: null,
+    activePlanIds: [],
+    activePlans: [],
+    allSubscriptions: [],
     usage: {
       licenses: { used: 0, total: 0, percent: 0 },
       apiCalls: { used: 0, total: 0, percent: 0 },
@@ -48,20 +54,64 @@ export const useBilling = () => {
       ]);
 
       // 1. Process Subscription & Plan
-      const activeSub = subsResponse.subscriptions.find(
+      const allSubs = subsResponse.subscriptions;
+      const activeSubs = allSubs.filter(
         (s) => s.status === "active" || s.status === "trial"
-      ) || null;
+      );
+      
+      // Determine Effective Subscription (Highest Tier)
+      const getPlanForSub = (sub: Subscription) => {
+          if (sub.plan) return sub.plan;
+          return plansResponse.plans.find(p => p.id === sub.plan_id);
+      };
+
+      const sortedSubs = [...activeSubs].sort((a, b) => {
+          const planA = getPlanForSub(a);
+          const planB = getPlanForSub(b);
+          
+          // Sort by tier (descending: higher is better)
+          const tierA = planA?.tier || planA?.sort_order || 0;
+          const tierB = planB?.tier || planB?.sort_order || 0;
+          if (tierA !== tierB) return tierB - tierA;
+          
+          // Fallback: Price (descending)
+          const priceA = planA?.price_monthly || 0;
+          const priceB = planB?.price_monthly || 0;
+          return priceB - priceA;
+      });
+
+      // The "effective" subscription is the one for the highest tier plan
+      const activeSub = sortedSubs.length > 0 ? sortedSubs[0] : null;
+
+      const activePlansList: Plan[] = [];
+      const activePlanIdsList: string[] = [];
+
+      // Map all active subs to plans
+      activeSubs.forEach(sub => {
+          let p: Plan | undefined;
+          if (sub.plan) {
+              p = sub.plan;
+          } else {
+              p = plansResponse.plans.find(plan => plan.id === sub.plan_id);
+          }
+          if (p) {
+              activePlansList.push(p);
+              activePlanIdsList.push(p.id);
+          }
+      });
 
       let currentPlan: Plan | null = null;
       if (activeSub) {
-        // Find plan details from the plans list or use expanded plan from sub if available
         if (activeSub.plan) {
             currentPlan = activeSub.plan;
         } else {
-             // Fallback: match by ID
              currentPlan = plansResponse.plans.find(p => p.id === activeSub.plan_id) || null;
         }
       }
+      
+      // ... (Usage logic remains similar, maybe sum up usage from all active subs if needed? 
+      // For now, let's keep usage tied to the "primary" active sub to avoid complexity, 
+      // or sum distinct product usages. As per user request, we just need to SEE the plans as active.)
 
       // 2. Process Usage (if active sub exists)
       let apiUsageCount = 0;
@@ -83,7 +133,6 @@ export const useBilling = () => {
       // 3. Calculate Derived Metrics
       
       // Licenses
-      // Assuming 'quantity' in subscription refers to seats/licenses
       const totalLicenses = activeSub?.quantity || 0; 
       const usedLicenses = activeSub?.metadata?.active_users ? Number(activeSub.metadata.active_users) : 0; 
       
@@ -93,6 +142,9 @@ export const useBilling = () => {
       setState({
         subscription: activeSub,
         plan: currentPlan,
+        activePlanIds: activePlanIdsList,
+        activePlans: activePlansList,
+        allSubscriptions: allSubs,
         usage: {
           licenses: {
             used: usedLicenses,

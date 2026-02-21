@@ -183,26 +183,55 @@ export const useLicensing = () => {
     setLicenses((prev) => [newLicense, ...prev]);
   }, []);
 
+  // Determine if user is admin/super_admin
+  const isAdminUser = useMemo(() => {
+    const currentSession = useAuthStore.getState().session;
+    const role = currentSession?.user?.role;
+    return role === "super_admin" || role === "admin";
+  }, [session?.accessToken]);
+
   // Helper for filtered licenses
-  const filteredLicenses = useMemo(
-    () =>
-      licenses.filter((lic) => {
-        const searchLower = searchQuery.toLowerCase();
-        const matchesSearch =
-          searchQuery === "" ||
-          lic.id.toLowerCase().includes(searchLower) ||
-          lic.license_key.toLowerCase().includes(searchLower) ||
-          lic.status.toLowerCase().includes(searchLower) ||
-          lic.plan?.name?.toLowerCase().includes(searchLower) ||
-          lic.billing_cycle.toLowerCase().includes(searchLower);
+  // Regular users: only see the effective license (highest tier, active)
+  // Admins/Super Admins: see all licenses
+  const filteredLicenses = useMemo(() => {
+    let baseLicenses = licenses;
 
-        const matchesStatus =
-          statusFilter === "all" || lic.status === statusFilter;
+    // For regular users, only show the effective license (highest tier active)
+    if (!isAdminUser) {
+      const activeLicenses = licenses.filter(
+        (lic) => lic.status === "active" || lic.status === "trial"
+      );
 
-        return matchesSearch && matchesStatus;
-      }),
-    [licenses, searchQuery, statusFilter]
-  );
+      if (activeLicenses.length > 0) {
+        // Sort by tier descending, pick the highest
+        const sorted = [...activeLicenses].sort((a, b) => {
+          const tierA = a.plan?.tier ?? 0;
+          const tierB = b.plan?.tier ?? 0;
+          return tierB - tierA;
+        });
+        baseLicenses = [sorted[0]];
+      } else {
+        // No active licenses — show empty
+        baseLicenses = [];
+      }
+    }
+
+    return baseLicenses.filter((lic) => {
+      const searchLower = searchQuery.toLowerCase();
+      const matchesSearch =
+        searchQuery === "" ||
+        lic.id.toLowerCase().includes(searchLower) ||
+        lic.license_key.toLowerCase().includes(searchLower) ||
+        lic.status.toLowerCase().includes(searchLower) ||
+        lic.plan?.name?.toLowerCase().includes(searchLower) ||
+        lic.billing_cycle.toLowerCase().includes(searchLower);
+
+      const matchesStatus =
+        statusFilter === "all" || lic.status === statusFilter;
+
+      return matchesSearch && matchesStatus;
+    });
+  }, [licenses, searchQuery, statusFilter, isAdminUser]);
 
   // Map stats to analytics format for backward compatibility
   const analytics = useMemo(() => {

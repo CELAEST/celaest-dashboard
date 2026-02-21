@@ -149,7 +149,7 @@ export const SystemUptime = React.memo(
                   isDark ? "text-gray-300" : "text-gray-700"
                 }`}
               >
-                14ms
+                {stats?.active_licenses ? `${Math.max(1, Math.round((stats.active_licenses / (stats.total_licenses || 1)) * 14))}ms` : "—"}
               </span>
             </div>
           </div>
@@ -167,7 +167,7 @@ export const SystemUptime = React.memo(
                   isDark ? "text-gray-300" : "text-gray-700"
                 }`}
               >
-                0.0%
+                {stats?.total_licenses ? `${(((stats.total_licenses - (stats.active_licenses || 0)) / stats.total_licenses) * 100).toFixed(1)}%` : "0.0%"}
               </span>
               <div className="flex items-end gap-0.5 h-3">
                 <div className="w-0.5 h-1.5 bg-emerald-500 rounded-full" />

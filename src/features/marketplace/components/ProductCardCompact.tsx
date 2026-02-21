@@ -13,6 +13,7 @@ interface ProductCardCompactProps {
   onSelect: () => void;
   onViewDetails?: () => void;
   isOwned?: boolean;
+  accessLevel?: "owned" | "plan" | "none";
 }
 
 export const ProductCardCompact = React.memo(function ProductCardCompact({
@@ -20,10 +21,15 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
   onSelect,
   onViewDetails,
   isOwned = false,
+  accessLevel,
 }: ProductCardCompactProps) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const [isHovered, setIsHovered] = React.useState(false);
+
+  // Resolve effective access: prefer accessLevel prop, fallback to isOwned
+  const effectiveAccess = accessLevel ?? (isOwned ? "owned" : "none");
+  const hasAccess = effectiveAccess === "owned" || effectiveAccess === "plan";
 
   // Mapeo seguro de propiedades
   const {
@@ -210,24 +216,35 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
           </motion.button>
 
           <motion.button
-            whileHover={!isOwned ? { y: -4, scale: 1.02 } : {}}
-            whileTap={!isOwned ? { scale: 0.98 } : {}}
-            onClick={!isOwned ? onSelect : undefined}
+            whileHover={!hasAccess ? { y: -4, scale: 1.02 } : {}}
+            whileTap={!hasAccess ? { scale: 0.98 } : {}}
+            onClick={!hasAccess ? onSelect : undefined}
             className={`py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all ${
-              isOwned
-                ? isDark
-                  ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 cursor-default"
-                  : "bg-emerald-50 text-emerald-600 border border-emerald-200 cursor-default"
+              hasAccess
+                ? effectiveAccess === "plan"
+                  ? isDark
+                    ? "bg-violet-500/10 text-violet-400 border border-violet-500/20 cursor-default"
+                    : "bg-violet-50 text-violet-600 border border-violet-200 cursor-default"
+                  : isDark
+                    ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 cursor-default"
+                    : "bg-emerald-50 text-emerald-600 border border-emerald-200 cursor-default"
                 : isDark
                   ? "bg-cyan-500 text-black hover:bg-cyan-400 shadow-xl shadow-cyan-500/20"
                   : "bg-gray-900 text-white hover:bg-gray-800 shadow-xl shadow-gray-900/20"
             }`}
           >
-            {isOwned ? (
-              <>
-                <Check size={14} strokeWidth={3} />
-                Adquirido
-              </>
+            {hasAccess ? (
+              effectiveAccess === "plan" ? (
+                <>
+                  <Check size={14} strokeWidth={3} />
+                  En Plan
+                </>
+              ) : (
+                <>
+                  <Check size={14} strokeWidth={3} />
+                  Adquirido
+                </>
+              )
             ) : (
               <>
                 <ShoppingCart size={14} strokeWidth={3} />

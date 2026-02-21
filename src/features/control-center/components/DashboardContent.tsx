@@ -10,6 +10,7 @@ import {
   Shield,
   List,
   LayoutGrid,
+  ShoppingBag,
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "motion/react";
@@ -21,6 +22,7 @@ import { StatCard } from "@/features/shared/components/StatCard";
 import { OrdersTable } from "@/features/billing/components/OrdersTable";
 import { useApiAuth } from "@/lib/use-api-auth";
 import { useControlCenterData } from "../hooks/useControlCenterData";
+import { useRole } from "@/features/auth/hooks/useAuthorization";
 
 // Skeleton
 const ChartSkeleton = () => (
@@ -40,13 +42,27 @@ const RevenueChart = dynamic(
 const defaultSparkline = (v: number) =>
   Array.from({ length: 12 }, (_, i) => ({ value: v + i * 2 }));
 
-export const DashboardContent = () => {
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
+// ==================== SUPER ADMIN VIEW ====================
+const SuperAdminDashboard = ({
+  isDark,
+  orgId,
+  health,
+  dashboard,
+  salesSeries,
+  loading,
+  error,
+  refresh,
+}: {
+  isDark: boolean;
+  orgId: string | null;
+  health: ReturnType<typeof useControlCenterData>["health"];
+  dashboard: ReturnType<typeof useControlCenterData>["dashboard"];
+  salesSeries: ReturnType<typeof useControlCenterData>["salesSeries"];
+  loading: boolean;
+  error: string | null;
+  refresh: () => Promise<void>;
+}) => {
   const [activeTab, setActiveTab] = useState<"metrics" | "feed">("metrics");
-  const { orgId } = useApiAuth(); // Added orgId from useApiAuth
-  const { health, dashboard, salesSeries, loading, error, refresh } =
-    useControlCenterData();
 
   const handleRunDiagnostics = async () => {
     toast.info("Ejecutando diagnósticos...");
@@ -56,9 +72,8 @@ export const DashboardContent = () => {
 
   return (
     <div className="h-full w-full flex flex-col min-h-0 overflow-hidden p-2">
-      {/* Header - Fixed */}
+      {/* Header */}
       <div className="shrink-0 mb-4 flex flex-col gap-4">
-        {/* Top Bar */}
         <div className="flex justify-between items-end">
           <div>
             <h1
@@ -66,7 +81,7 @@ export const DashboardContent = () => {
                 isDark ? "text-white" : "text-gray-900"
               }`}
             >
-              Command Center
+              Orders — Admin Panel
             </h1>
             <p
               className={`${isDark ? "text-gray-400" : "text-gray-500"} text-xs font-mono flex items-center gap-3`}
@@ -151,7 +166,7 @@ export const DashboardContent = () => {
             }`}
           >
             <List size={14} />
-            Live Transactions
+            All Orders
           </button>
         </div>
       </div>
@@ -168,7 +183,7 @@ export const DashboardContent = () => {
               transition={{ duration: 0.2 }}
               className="h-full grid grid-cols-12 grid-rows-[auto_1fr] lg:grid-rows-12 gap-4 pb-2"
             >
-              {/* ROW 1: KPI CARDS (Spans 3 rows on large screens) */}
+              {/* KPI CARDS */}
               <div className="col-span-12 lg:row-span-3 grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <StatCard
                   title="Total Revenue"
@@ -250,7 +265,7 @@ export const DashboardContent = () => {
                 />
               </div>
 
-              {/* Chart + System */}
+              {/* Chart + System Health */}
               <div className="col-span-12 lg:col-span-9 lg:row-span-9 min-h-[300px] lg:min-h-0 relative">
                 <div
                   className={`absolute inset-0 backdrop-blur-xl border rounded-3xl p-6 flex flex-col ${isDark ? "bg-[#0a0a0a]/60 border-white/5" : "bg-white border-gray-200 shadow-sm"}`}
@@ -374,7 +389,7 @@ export const DashboardContent = () => {
                     <h3
                       className={`text-xs font-bold uppercase tracking-widest ${isDark ? "text-white" : "text-gray-900"}`}
                     >
-                      Live Transaction Feed
+                      All Orders
                     </h3>
                   </div>
                   <div
@@ -383,7 +398,6 @@ export const DashboardContent = () => {
                     AUTO-SCROLL: ON
                   </div>
                 </div>
-
                 <div className="flex-1 relative">
                   <div className="absolute inset-0 overflow-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent p-0">
                     <OrdersTable />
@@ -396,4 +410,88 @@ export const DashboardContent = () => {
       </div>
     </div>
   );
+};
+
+// ==================== CLIENT VIEW ====================
+const ClientDashboard = ({ isDark }: { isDark: boolean }) => {
+  return (
+    <div className="h-full w-full flex flex-col min-h-0 overflow-hidden p-2">
+      {/* Header */}
+      <div className="shrink-0 mb-4">
+        <div className="flex justify-between items-end">
+          <div>
+            <h1
+              className={`text-3xl font-black mb-1 tracking-tighter uppercase italic ${
+                isDark ? "text-white" : "text-gray-900"
+              }`}
+            >
+              My Orders
+            </h1>
+            <p
+              className={`${isDark ? "text-gray-400" : "text-gray-500"} text-xs font-mono flex items-center gap-2`}
+            >
+              <ShoppingBag className="w-3 h-3" />
+              <span>Your purchase history and active orders</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Orders Table — full height */}
+      <div className="flex-1 min-h-0 relative">
+        <div
+          className={`h-full relative backdrop-blur-xl border rounded-3xl overflow-hidden flex flex-col ${
+            isDark
+              ? "bg-[#0a0a0a]/60 border-white/5"
+              : "bg-white border-gray-200 shadow-sm"
+          }`}
+        >
+          <div
+            className={`h-12 border-b flex items-center justify-between px-6 shrink-0 ${isDark ? "border-white/5 bg-white/2" : "border-gray-100 bg-gray-50/50"}`}
+          >
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+              <h3
+                className={`text-xs font-bold uppercase tracking-widest ${isDark ? "text-white" : "text-gray-900"}`}
+              >
+                Order History
+              </h3>
+            </div>
+          </div>
+          <div className="flex-1 relative">
+            <div className="absolute inset-0 overflow-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent p-0">
+              <OrdersTable />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ==================== MAIN EXPORT ====================
+export const DashboardContent = () => {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+  const { orgId } = useApiAuth();
+  const { isSuperAdmin } = useRole();
+  const { health, dashboard, salesSeries, loading, error, refresh } =
+    useControlCenterData();
+
+  if (isSuperAdmin) {
+    return (
+      <SuperAdminDashboard
+        isDark={isDark}
+        orgId={orgId}
+        health={health}
+        dashboard={dashboard}
+        salesSeries={salesSeries}
+        loading={loading}
+        error={error}
+        refresh={refresh}
+      />
+    );
+  }
+
+  return <ClientDashboard isDark={isDark} />;
 };

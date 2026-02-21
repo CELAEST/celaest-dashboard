@@ -1,6 +1,7 @@
 import React from "react";
 import { SubscriptionManager } from "../SubscriptionManager";
 import { PaymentMethodsCard } from "../PaymentMethodsCard";
+import { LicensesList } from "../LicensesList";
 
 export const BillingOverview = () => {
   return (
@@ -11,9 +12,14 @@ export const BillingOverview = () => {
           <SubscriptionManager />
         </div>
 
-        {/* Right Column: Payment Methods */}
-        <div className="flex flex-col min-h-0 h-full">
-          <PaymentMethodsCard />
+        {/* Right Column: Licenses + Payment Methods */}
+        <div className="flex flex-col min-h-0 h-full gap-6">
+          <div className="flex-1 min-h-0">
+            <LicensesList />
+          </div>
+          <div className="shrink-0">
+            <PaymentMethodsCard />
+          </div>
         </div>
       </div>
     </div>

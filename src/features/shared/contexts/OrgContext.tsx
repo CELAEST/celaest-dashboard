@@ -55,15 +55,17 @@ export function OrgProvider({ children }: { children: ReactNode }) {
 
   const fetchOrgs = useCallback(
     async (force = false) => {
-      // Si no hay token o ya cargamos recientemente y no es force, no hacemos nada
+      // Read mutable state from store directly to avoid stale closures
+      const { isLoading: loading, lastFetched: cached, currentOrg: activeOrg } = useOrgStore.getState();
       const CACHE_TTL = 300000; // 5 minutos para organizaciones
+
       if (!token) {
         useOrgStore.getState().reset();
         return;
       }
 
-      if (!force && lastFetched && Date.now() - lastFetched < CACHE_TTL) return;
-      if (isLoading) return;
+      if (!force && cached && Date.now() - cached < CACHE_TTL) return;
+      if (loading) return;
 
       setLoading(true);
       try {
@@ -75,7 +77,7 @@ export function OrgProvider({ children }: { children: ReactNode }) {
         setOrganizations(list);
 
         // Si no hay organización seleccionada o la actual ya no está en la lista, elegir la default
-        if (!currentOrg || !list.some((o) => o.id === currentOrg.id)) {
+        if (!activeOrg || !list.some((o) => o.id === activeOrg.id)) {
           const defaultOrg = list.find((o) => o.is_default) ?? list[0];
           setCurrentOrg(defaultOrg ?? null);
         }
@@ -87,15 +89,7 @@ export function OrgProvider({ children }: { children: ReactNode }) {
         setLoading(false);
       }
     },
-    [
-      token,
-      lastFetched,
-      isLoading,
-      currentOrg,
-      setOrganizations,
-      setCurrentOrg,
-      setLoading,
-    ],
+    [token, setOrganizations, setCurrentOrg, setLoading],
   );
 
   useEffect(() => {

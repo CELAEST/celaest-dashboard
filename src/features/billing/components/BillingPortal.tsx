@@ -58,7 +58,7 @@ export const BillingPortal: React.FC = () => {
               sessionId,
             );
 
-            if (result.status === "completed" || result.access) {
+            if (result.status === "completed" || result.has_access) {
               toast.success("Subscription successfully activated!", {
                 description: "Your new plan is now active.",
                 id: toastId,

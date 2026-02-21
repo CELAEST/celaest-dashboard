@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ShoppingCart, Shield, CheckCircle, Download, Key } from "lucide-react";
+import { ShoppingCart, Shield, CheckCircle, Download, Key, Sparkles } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { MarketplaceProduct } from "../../types";
 import { formatCurrency } from "@/lib/utils";
@@ -10,6 +10,7 @@ interface ProductModalSidebarProps {
   product: MarketplaceProduct;
   onPurchase?: () => void;
   isOwned?: boolean;
+  accessLevel?: "owned" | "plan" | "none";
   onDownload?: () => void;
   onViewLicense?: () => void;
 }
@@ -18,10 +19,16 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
   product,
   onPurchase,
   isOwned = false,
+  accessLevel,
   onDownload,
   onViewLicense,
 }) => {
   const { theme } = useTheme();
+
+  // Resolve effective access
+  const effectiveAccess = accessLevel ?? (isOwned ? "owned" : "none");
+  const hasAccess = effectiveAccess === "owned" || effectiveAccess === "plan";
+  const isPlan = effectiveAccess === "plan";
 
   const formattedPrice = formatCurrency(product.base_price, product.currency);
 
@@ -32,38 +39,54 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
         className={`
           p-6 rounded-2xl border
           ${
-            isOwned
-              ? theme === "dark"
-                ? "bg-linear-to-br from-emerald-900/20 to-green-900/20 border-emerald-500/20"
-                : "bg-linear-to-br from-emerald-50 to-green-50 border-emerald-200"
+            hasAccess
+              ? isPlan
+                ? theme === "dark"
+                  ? "bg-linear-to-br from-violet-900/20 to-purple-900/20 border-violet-500/20"
+                  : "bg-linear-to-br from-violet-50 to-purple-50 border-violet-200"
+                : theme === "dark"
+                  ? "bg-linear-to-br from-emerald-900/20 to-green-900/20 border-emerald-500/20"
+                  : "bg-linear-to-br from-emerald-50 to-green-50 border-emerald-200"
               : theme === "dark"
                 ? "bg-linear-to-br from-blue-900/20 to-indigo-900/20 border-blue-500/20"
                 : "bg-linear-to-br from-blue-50 to-indigo-50 border-blue-200"
           }
         `}
       >
-        {isOwned ? (
-          /* Owned State */
+        {hasAccess ? (
+          /* Owned / Plan State */
           <>
             <div className="flex items-center gap-2 mb-4">
-              <CheckCircle
-                className={`size-6 ${theme === "dark" ? "text-emerald-400" : "text-emerald-600"}`}
-              />
+              {isPlan ? (
+                <Sparkles
+                  className={`size-6 ${theme === "dark" ? "text-violet-400" : "text-violet-600"}`}
+                />
+              ) : (
+                <CheckCircle
+                  className={`size-6 ${theme === "dark" ? "text-emerald-400" : "text-emerald-600"}`}
+                />
+              )}
               <span
                 className={`
                   text-xl font-bold
-                  ${theme === "dark" ? "text-emerald-400" : "text-emerald-700"}
+                  ${isPlan
+                    ? theme === "dark" ? "text-violet-400" : "text-violet-700"
+                    : theme === "dark" ? "text-emerald-400" : "text-emerald-700"
+                  }
                 `}
               >
-                ADQUIRIDO
+                {isPlan ? "INCLUIDO EN PLAN" : "ADQUIRIDO"}
               </span>
             </div>
             <button
               onClick={onDownload}
               className={`
                 w-full h-12 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-all mb-3
-                ${
-                  theme === "dark"
+                ${isPlan
+                  ? theme === "dark"
+                    ? "bg-linear-to-r from-violet-400 to-purple-400 text-black hover:shadow-lg hover:scale-[1.02]"
+                    : "bg-linear-to-r from-violet-600 to-purple-600 text-white hover:shadow-lg hover:scale-[1.02]"
+                  : theme === "dark"
                     ? "bg-linear-to-r from-emerald-400 to-green-400 text-black hover:shadow-lg hover:scale-[1.02]"
                     : "bg-linear-to-r from-emerald-600 to-green-600 text-white hover:shadow-lg hover:scale-[1.02]"
                 }
@@ -72,7 +95,7 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
               <Download className="size-5" />
               Descargar
             </button>
-            {onViewLicense && (
+            {!isPlan && onViewLicense && (
               <button
                 onClick={onViewLicense}
                 className={`

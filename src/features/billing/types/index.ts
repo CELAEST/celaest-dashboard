@@ -97,6 +97,7 @@ export interface Plan {
   is_active: boolean;
   is_public: boolean;
   sort_order: number;
+  tier: number; // 1=starter, 2=pro, 3=enterprise
   created_at: string;
   updated_at: string;
   
@@ -111,7 +112,7 @@ export interface Subscription {
   organization_id: string;
   product_id: string;
   plan_id: string;
-  status: string; // active, cancelled, expired, trial, pending
+  status: string; // active, cancelled, expired, trial, pending, superseded
   current_period_start: string;
   current_period_end: string;
   cancelled_at?: string;
@@ -125,6 +126,10 @@ export interface Subscription {
   // Expanded fields
   plan?: Plan;
   checkout_url?: string;
+
+  // Supersede hierarchy
+  superseded_by?: string;
+  superseded_at?: string;
 }
 
 // Backend-aligned Usage

@@ -24,7 +24,7 @@ export const menuItems: MenuItem[] = [
   {
     id: "dashboard",
     icon: LayoutDashboard,
-    label: "Control Center",
+    label: "Orders",
     scope: null,
   },
   {
@@ -69,7 +69,7 @@ export const menuItems: MenuItem[] = [
     id: "users",
     icon: UserCog,
     label: "User Management",
-    scope: "users:manage",
+    scope: null,
   },
   { id: "settings", icon: Settings, label: "Settings", scope: null },
 ];

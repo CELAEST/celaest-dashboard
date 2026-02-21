@@ -17,58 +17,71 @@ export const InvoiceHistoryTable: React.FC<InvoiceHistoryTableProps> = ({
 }) => {
   return (
     <div className="overflow-x-auto">
-      <table className="w-full">
+      {/* 
+        Refactored: Removed 'table-fixed' and hardcoded widths. 
+        Relies on standard table layout with uniform padding for robustness.
+      */}
+      <table className="w-full text-left border-collapse">
         <thead>
           <tr
-            className={`border-b ${
+            className={`border-b border-dashed ${
               isDark ? "border-white/10" : "border-gray-200"
             }`}
           >
             <th
-              className={`text-left pb-2 text-xs font-semibold tracking-wider ${
-                isDark ? "text-gray-400" : "text-gray-500"
+              className={`px-6 py-4 text-[10px] uppercase tracking-wider font-bold ${
+                isDark ? "text-gray-500" : "text-gray-400"
               }`}
             >
-              INVOICE
+              Invoice
             </th>
             <th
-              className={`text-left pb-2 text-xs font-semibold tracking-wider ${
-                isDark ? "text-gray-400" : "text-gray-500"
+              className={`px-6 py-4 text-[10px] uppercase tracking-wider font-bold ${
+                isDark ? "text-gray-500" : "text-gray-400"
               }`}
             >
-              DATE
+              Date
             </th>
             <th
-              className={`text-left pb-2 text-xs font-semibold tracking-wider ${
-                isDark ? "text-gray-400" : "text-gray-500"
+              className={`px-6 py-4 text-[10px] uppercase tracking-wider font-bold ${
+                isDark ? "text-gray-500" : "text-gray-400"
               }`}
             >
-              DESCRIPTION
+              Description
             </th>
             <th
-              className={`text-right pb-2 text-xs font-semibold tracking-wider ${
-                isDark ? "text-gray-400" : "text-gray-500"
+              className={`px-6 py-4 text-[10px] uppercase tracking-wider font-bold ${
+                isDark ? "text-gray-500" : "text-gray-400"
               }`}
             >
-              AMOUNT
+              Payment Method
             </th>
             <th
-              className={`text-center pb-2 text-xs font-semibold tracking-wider ${
-                isDark ? "text-gray-400" : "text-gray-500"
+              className={`px-6 py-4 text-right text-[10px] uppercase tracking-wider font-bold ${
+                isDark ? "text-gray-500" : "text-gray-400"
               }`}
             >
-              STATUS
+              Amount
             </th>
             <th
-              className={`text-right pb-2 text-xs font-semibold tracking-wider ${
-                isDark ? "text-gray-400" : "text-gray-500"
+              className={`px-6 py-4 text-center text-[10px] uppercase tracking-wider font-bold ${
+                isDark ? "text-gray-500" : "text-gray-400"
               }`}
             >
-              ACTIONS
+              Status
+            </th>
+            <th
+              className={`px-6 py-4 text-center text-[10px] uppercase tracking-wider font-bold ${
+                isDark ? "text-gray-500" : "text-gray-400"
+              }`}
+            >
+              Actions
             </th>
           </tr>
         </thead>
-        <tbody>
+        <tbody
+          className={`divide-y ${isDark ? "divide-white/5" : "divide-gray-50"}`}
+        >
           {invoices.map((invoice, idx) => (
             <InvoiceHistoryItem
               key={invoice.id}

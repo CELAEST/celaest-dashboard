@@ -78,7 +78,7 @@ export const BillingModal = React.memo(
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 10 }}
                 transition={{ type: "spring", duration: 0.5, bounce: 0.3 }}
-                className={`w-full relative pointer-events-auto rounded-3xl overflow-hidden shadow-2xl max-h-[90vh] flex flex-col ${
+                className={`w-full relative pointer-events-auto rounded-3xl overflow-hidden shadow-2xl max-h-[94vh] flex flex-col ${
                   isDark
                     ? "bg-[#0a0a0a] border border-white/10 shadow-cyan-900/20"
                     : "bg-white border border-gray-200 shadow-xl"

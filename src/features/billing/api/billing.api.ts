@@ -112,5 +112,5 @@ export const billingApi = {
 
   // Purchase Verification
   verifyPurchase: (token: string, sessionId: string) =>
-    api.get<{ status: string; message: string; access: boolean }>(`/api/v1/user/marketplace/checkout/verify/${sessionId}`, { token }),
+    api.get<{ status: string; message: string; has_access: boolean }>(`/api/v1/user/marketplace/checkout/verify/${sessionId}`, { token }),
 };

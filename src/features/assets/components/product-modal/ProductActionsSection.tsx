@@ -87,7 +87,7 @@ export const ProductActionsSection: React.FC<ProductActionsSectionProps> = ({
                 ) : (
                   <Download size={18} />
                 )}
-                {isProcessing ? "Downloading..." : "Download Asset"}
+                {isProcessing ? "Downloading..." : product.accessType === "subscription" ? "Download (Plan)" : "Download Asset"}
               </button>
             )}
             <button

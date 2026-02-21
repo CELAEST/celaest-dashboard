@@ -73,18 +73,30 @@ export const MarketplaceCard: React.FC<MarketplaceCardProps> = ({
           </div>
         </div>
 
-        {/* Purchased Badge */}
+        {/* Purchased / Subscription Badge */}
         {product.isPurchased && (
           <div className="absolute top-4 right-4">
-            <div
-              className={`px-3 py-1.5 rounded-lg backdrop-blur-md ${
-                isDark
-                  ? "bg-emerald-500/20 border border-emerald-500/30 text-emerald-400"
-                  : "bg-emerald-500/90 border border-emerald-600 text-white"
-              }`}
-            >
-              <span className="text-xs font-bold">OWNED</span>
-            </div>
+            {product.accessType === "subscription" ? (
+              <div
+                className={`px-3 py-1.5 rounded-lg backdrop-blur-md ${
+                  isDark
+                    ? "bg-violet-500/20 border border-violet-500/30 text-violet-400"
+                    : "bg-violet-500/90 border border-violet-600 text-white"
+                }`}
+              >
+                <span className="text-xs font-bold">PLAN</span>
+              </div>
+            ) : (
+              <div
+                className={`px-3 py-1.5 rounded-lg backdrop-blur-md ${
+                  isDark
+                    ? "bg-emerald-500/20 border border-emerald-500/30 text-emerald-400"
+                    : "bg-emerald-500/90 border border-emerald-600 text-white"
+                }`}
+              >
+                <span className="text-xs font-bold">OWNED</span>
+              </div>
+            )}
           </div>
         )}
 
@@ -164,9 +176,13 @@ export const MarketplaceCard: React.FC<MarketplaceCardProps> = ({
           onClick={() => onViewDetails(product)}
           className={`w-full py-3 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 ${
             product.isPurchased
-              ? isDark
-                ? "bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20"
-                : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200"
+              ? product.accessType === "subscription"
+                ? isDark
+                  ? "bg-violet-500/10 text-violet-400 hover:bg-violet-500/20 border border-violet-500/20"
+                  : "bg-violet-50 text-violet-700 hover:bg-violet-100 border border-violet-200"
+                : isDark
+                  ? "bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20"
+                  : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200"
               : isDark
                 ? "bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 border border-cyan-500/20"
                 : "bg-blue-600 text-white hover:bg-blue-700 shadow-sm"

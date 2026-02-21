@@ -11,7 +11,7 @@ export const usePurchaseFlow = (onClose: () => void, initialStep = 1, onSuccess?
   const [showConfetti, setShowConfetti] = useState(false);
   const [progress, setProgress] = useState(0);
   const [statusMessage, setStatusMessage] = useState("");
-  const { token, orgId } = useApiAuth();
+  const { token, orgId, isReady } = useApiAuth();
 
   // Sync internal step if initialStep changed (important for in-context return)
   useEffect(() => {
@@ -102,6 +102,12 @@ export const usePurchaseFlow = (onClose: () => void, initialStep = 1, onSuccess?
   const handlePurchase = useCallback(async (productId: string) => {
     if (isProcessing) return;
 
+    // Auth aún cargando — esperar en vez de mostrar error prematuro
+    if (!isReady) {
+      toast.info("Preparando sesión, intenta de nuevo en un momento...");
+      return;
+    }
+
     if (!token || !orgId) {
       toast.error("Debes iniciar sesión y seleccionar una organización para realizar una compra");
       return;
@@ -137,7 +143,7 @@ export const usePurchaseFlow = (onClose: () => void, initialStep = 1, onSuccess?
       setIsProcessing(false);
       setStep(1);
     }
-  }, [isProcessing, token, orgId]);
+  }, [isProcessing, isReady, token, orgId]);
 
   return {
     step,

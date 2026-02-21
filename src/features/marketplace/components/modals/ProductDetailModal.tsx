@@ -16,6 +16,7 @@ interface ProductDetailModalProps {
   onClose: () => void;
   onPurchase?: () => void;
   isOwned?: boolean;
+  accessLevel?: "owned" | "plan" | "none";
   onDownload?: () => void;
   onViewLicense?: () => void;
 }
@@ -25,6 +26,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   onClose,
   onPurchase,
   isOwned = false,
+  accessLevel,
   onDownload,
   onViewLicense,
 }) => {
@@ -204,6 +206,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                 product={product}
                 onPurchase={onPurchase}
                 isOwned={isOwned}
+                accessLevel={accessLevel}
                 onDownload={onDownload}
                 onViewLicense={onViewLicense}
               />

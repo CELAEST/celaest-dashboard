@@ -30,14 +30,20 @@ export const useBillingSettings = () => {
         const plansRes = await billingApi.getPlans(currentOrg.id, session.accessToken);
         const subsRes = await billingApi.getSubscriptions(currentOrg.id, session.accessToken);
         
-        const activeSub = subsRes.subscriptions.find(s => s.status === 'active');
+        const activeSubs = subsRes.subscriptions.filter(s => s.status === 'active' || s.status === 'trial');
+        const activePlanIds = activeSubs.map(s => s.plan_id);
+        
+        // For header display, just pick one (e.g. Pro over Starter, or just the first one)
+        const activeSub = activeSubs.length > 0 ? activeSubs[0] : null;
+
         if (activeSub) {
           const endDate = new Date(activeSub.current_period_end);
           setNextBillingDate(endDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }));
         }
 
         const mappedPlans: Plan[] = plansRes.plans.map(p => {
-          const isCurrent = activeSub ? p.id === activeSub.plan_id : p.code === 'starter';
+          // Check if this plan is in the active list
+          const isCurrent = activePlanIds.includes(p.id) || (activeSubs.length === 0 && p.code === 'starter');
           const monthlyPrice = p.price_monthly?.toString() || "0";
           const yearlyPrice = p.price_yearly ? (p.price_yearly / 12).toString() : "0";
 
@@ -50,7 +56,8 @@ export const useBillingSettings = () => {
             current: isCurrent,
             popular: p.code === 'pro',
           };
-          if (isCurrent) setActivePlan(planData);
+          // Still set primary active plan for header info
+          if (activeSub && p.id === activeSub.plan_id) setActivePlan(planData);
           return planData;
         });
 

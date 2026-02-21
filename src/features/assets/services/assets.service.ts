@@ -31,6 +31,7 @@ export interface Asset {
   thumbnail: string;
   external_url?: string;
   display_type?: string;
+  accessType?: "purchase" | "subscription";
   isPurchased: boolean;
   isPublic: boolean;
   isFeatured: boolean;
@@ -62,6 +63,7 @@ export const assetsService = {
     features: safeJsonParse(ba.product_tags) || [],
     requirements: safeJsonParse(ba.product_requirements) || [],
     thumbnail: ba.product_thumbnail_url || "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&fm=webp",
+    accessType: (ba.access_type === "subscription" ? "subscription" : "purchase") as "purchase" | "subscription",
     isPurchased: true,
     isPublic: false,
     isFeatured: false,

@@ -10,19 +10,7 @@ import {
   YAxis,
 } from "recharts";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
-
-const mockTrendData = [
-  { name: "Mon", value: 30 },
-  { name: "Tue", value: 45 },
-  { name: "Wed", value: 35 },
-  { name: "Thu", value: 55 },
-  { name: "Fri", value: 45 },
-  { name: "Sat", value: 65 },
-  { name: "Sun", value: 60 },
-  { name: "Mon2", value: 75 },
-  { name: "Tue2", value: 65 },
-  { name: "Wed2", value: 85 },
-];
+import { useAnalytics } from "@/features/analytics/hooks/useAnalytics";
 
 interface CustomTooltipProps {
   active?: boolean;
@@ -42,7 +30,7 @@ const CustomTooltip = ({ active, payload, isDark }: CustomTooltipProps) => {
       >
         <div className="flex items-center gap-2">
           <Zap className="w-3 h-3 text-cyan-400" fill="currentColor" />
-          <span>Efficiency: {payload[0].value}%</span>
+          <span>Revenue: ${payload[0].value.toLocaleString()}</span>
         </div>
       </div>
     );
@@ -53,6 +41,35 @@ const CustomTooltip = ({ active, payload, isDark }: CustomTooltipProps) => {
 export const ROICard = React.memo(() => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const { stats, salesByPeriod, roi } = useAnalytics();
+
+  // Derive real trend data from salesByPeriod
+  const trendData = React.useMemo(() => {
+    if (!salesByPeriod || salesByPeriod.length === 0) {
+      return [{ name: "—", value: 0 }];
+    }
+    return salesByPeriod.slice(-10).map((entry) => ({
+      name: entry.date?.slice(5) || "—",
+      value: Math.round(entry.revenue || 0),
+    }));
+  }, [salesByPeriod]);
+
+  // Real metrics
+  const totalOrders = stats?.total_orders ?? 0;
+  const timeSavedHours = Math.round(totalOrders * 0.166);
+  const totalRevenue = stats?.total_revenue ?? 0;
+  const revenueGrowth = stats?.revenue_growth ?? 0;
+  const roiPercentage = roi?.roi_percentage ?? 0;
+
+  const formatCurrency = (val: number) => {
+    if (val >= 1_000_000) return `$${(val / 1_000_000).toFixed(1)}M`;
+    if (val >= 1_000) return `$${(val / 1_000).toFixed(1)}k`;
+    return `$${val.toFixed(0)}`;
+  };
+
+  const formatGrowth = (val: number) => {
+    return `${val >= 0 ? "+" : ""}${val.toFixed(1)}%`;
+  };
 
   return (
     <motion.div
@@ -89,7 +106,7 @@ export const ROICard = React.memo(() => {
                 : "bg-emerald-50 text-emerald-700 border-emerald-200"
             }`}
           >
-            +12% vs last
+            {formatGrowth(revenueGrowth)} vs prev
           </div>
         </div>
         <div className="relative z-10 mt-4">
@@ -105,7 +122,7 @@ export const ROICard = React.memo(() => {
               isDark ? "text-white group-hover:text-purple-50" : "text-gray-900"
             }`}
           >
-            1,240<span className="text-xl ml-1 opacity-50">hrs</span>
+            {timeSavedHours.toLocaleString()}<span className="text-xl ml-1 opacity-50">hrs</span>
           </div>
         </div>
       </div>
@@ -135,7 +152,7 @@ export const ROICard = React.memo(() => {
                 : "bg-emerald-50 text-emerald-700 border-emerald-200"
             }`}
           >
-            +45% proj.
+            ROI {formatGrowth(roiPercentage)}
           </div>
         </div>
         <div className="relative z-10 mt-4">
@@ -144,7 +161,7 @@ export const ROICard = React.memo(() => {
               isDark ? "text-gray-400" : "text-gray-500"
             }`}
           >
-            Est. Revenue Generated
+            Revenue Total
           </div>
           <div
             className={`text-3xl lg:text-4xl font-black tracking-tighter tabular-nums transition-all duration-300 ${
@@ -153,7 +170,7 @@ export const ROICard = React.memo(() => {
                 : "text-gray-900"
             }`}
           >
-            $842.5<span className="text-xl ml-1 opacity-50">k</span>
+            {formatCurrency(totalRevenue)}
           </div>
         </div>
       </div>
@@ -181,7 +198,7 @@ export const ROICard = React.memo(() => {
                 isDark ? "text-white" : "text-gray-900"
               }`}
             >
-              +24.8%
+              {formatGrowth(roiPercentage)}
             </div>
           </div>
           <div
@@ -198,7 +215,7 @@ export const ROICard = React.memo(() => {
         {/* BOTTOM: RECHARTS Graph (Fills remaining lower space) */}
         <div className="absolute inset-x-0 bottom-0 h-[65%] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={mockTrendData}>
+            <AreaChart data={trendData}>
               {/* Gradients */}
               <defs>
                 <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">

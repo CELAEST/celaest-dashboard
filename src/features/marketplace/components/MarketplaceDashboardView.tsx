@@ -13,6 +13,7 @@ import { Store } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 import { useAssets } from "@/features/assets/hooks/useAssets";
+import { useBilling } from "@/features/billing/hooks/useBilling";
 import { LicenseModal } from "./modals/LicenseModal";
 import { toast } from "sonner";
 
@@ -68,16 +69,23 @@ export function MarketplaceDashboardView() {
     downloadAsset,
   } = useAssets();
 
-  // Helper check for ownership (Purchased OR Created/Inventory)
-  const checkIsOwned = (prod: MarketplaceProduct) => {
-    if (!prod) return false;
+  const { plan } = useBilling();
+
+  // Helper: determine product access level
+  const checkAccess = (prod: MarketplaceProduct): "owned" | "plan" | "none" => {
+    if (!prod) return "none";
     const inAssets = assets.some(
       (a) => a.productId === prod.id || a.slug === prod.slug,
     );
     const inInventory = inventory?.some(
       (a) => a.productId === prod.id || a.slug === prod.slug,
     );
-    return inAssets || inInventory;
+    if (inAssets || inInventory) return "owned";
+    // Check if product is included in user's active plan
+    if (plan && prod.min_plan_tier > 0 && plan.tier >= prod.min_plan_tier) {
+      return "plan";
+    }
+    return "none";
   };
 
   // Modal states
@@ -241,7 +249,8 @@ export function MarketplaceDashboardView() {
         <ProductDetailModal
           initialProduct={detailProduct}
           onClose={() => setDetailProduct(null)}
-          isOwned={checkIsOwned(detailProduct)}
+          isOwned={checkAccess(detailProduct) !== "none"}
+          accessLevel={checkAccess(detailProduct)}
           onDownload={() => {
             const asset = assets.find(
               (a) =>
@@ -261,6 +270,12 @@ export function MarketplaceDashboardView() {
             );
             if (invItem) {
               // Owner Bypass: Use ProductID as AssetID for backend resolution
+              downloadAsset(detailProduct.id, detailProduct.slug);
+              return;
+            }
+
+            // Plan-granted: backend handles via GetPlanGrantedAsset fallback
+            if (checkAccess(detailProduct) === "plan") {
               downloadAsset(detailProduct.id, detailProduct.slug);
               return;
             }
@@ -408,7 +423,7 @@ export function MarketplaceDashboardView() {
                     product={product}
                     onSelect={() => handleProductSelect(product)}
                     onViewDetails={() => setDetailProduct(product)}
-                    isOwned={checkIsOwned(product)}
+                    accessLevel={checkAccess(product)}
                   />
                 ))}
               </motion.div>
