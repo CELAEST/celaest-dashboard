@@ -19,7 +19,7 @@ export function useMarketplaceProducts() {
     reset: state.reset
   })));
 
-  const { token, orgId } = useApiAuth();
+  const { token } = useApiAuth();
   const queryClient = useQueryClient();
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -49,9 +49,11 @@ export function useMarketplaceProducts() {
   }, [token, queryClient]);
 
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: QUERY_KEYS.marketplace.products({ ...filters, orgId }),
+    queryKey: QUERY_KEYS.marketplace.products({ ...filters }),
     queryFn: () => marketplaceApi.search(filters),
-    enabled: !!token,
+    // El endpoint /public/marketplace/search no requiere autenticación.
+    // Se carga siempre; el socket de real-time (que sí requiere token) se suscribe por separado.
+    enabled: true,
     staleTime: 60 * 1000, // 1 minute
   });
 
