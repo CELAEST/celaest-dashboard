@@ -78,6 +78,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   const [toasts, setToasts] = useState<Notification[]>([]);
 
   // Fetch preferences for filtering
+  // staleTime 5m: notification preferences rarely change mid-session
   const { data: prefs } = useQuery({
     queryKey: [...QUERY_KEYS.users.all, "notifications"],
     queryFn: async () => {
@@ -91,6 +92,8 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
       return null;
     },
     enabled: !!token,
+    staleTime: 5 * 60 * 1000, // 5 minutes — preferences rarely change mid-session
+    gcTime: 10 * 60 * 1000,
   });
 
   const prefsRef = useRef(prefs);
