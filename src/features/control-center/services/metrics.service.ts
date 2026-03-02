@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { metricsApi } from "../api/metrics.api";
 import { DashboardMetrics } from "../types";
 
@@ -9,8 +10,8 @@ export const metricsService = {
   async getDashboardOverview(orgId: string, token: string): Promise<DashboardMetrics | null> {
     try {
       return await metricsApi.getDashboardOverview(orgId, token);
-    } catch (error) {
-      console.error("Error fetching dashboard overview:", error);
+    } catch (error: unknown) {
+      logger.error("Error fetching dashboard overview:", error);
       throw error;
     }
   },
@@ -21,8 +22,8 @@ export const metricsService = {
   async getSalesByPeriod(orgId: string, token: string, period: string = "day") {
     try {
       return await metricsApi.getSalesByPeriod(orgId, token, period);
-    } catch (error) {
-      console.error("Error fetching sales by period:", error);
+    } catch (error: unknown) {
+      logger.error("Error fetching sales by period:", error);
       return [];
     }
   }

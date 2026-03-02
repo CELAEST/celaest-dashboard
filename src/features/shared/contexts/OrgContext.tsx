@@ -7,9 +7,11 @@ import React, {
   useEffect,
   type ReactNode,
 } from "react";
-import { useApiAuth } from "@/lib/use-api-auth";
+import { useAuth } from "@/features/auth/contexts/AuthContext";
+import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 import { useShallow } from "zustand/react/shallow";
 import { useOrgStore } from "../stores/useOrgStore";
+import { logger } from "@/lib/logger";
 
 export interface Organization {
   id: string;
@@ -30,12 +32,17 @@ interface OrgContextValue {
 const OrgContext = createContext<OrgContextValue | undefined>(undefined);
 
 export function OrgProvider({ children }: { children: ReactNode }) {
-  const { isAuthReady, token } = useApiAuth();
+  const { session } = useAuth();
+  // isAuthenticated is persisted; session is not. On every reload session starts
+  // null while Supabase runs getSession() async. Gate on accessToken only after
+  // that resolves. Never reset org data while session is just loading.
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const isAuthReady = !!session?.accessToken;
+  const token = session?.accessToken || null;
   const {
     currentOrg,
     organizations,
     isLoading,
-    lastFetched,
     setOrganizations,
     setCurrentOrg,
     setLoading,
@@ -44,7 +51,6 @@ export function OrgProvider({ children }: { children: ReactNode }) {
       currentOrg: state.currentOrg,
       organizations: state.organizations,
       isLoading: state.isLoading,
-      lastFetched: state.lastFetched,
       setOrganizations: state.setOrganizations,
       setCurrentOrg: state.setCurrentOrg,
       setLoading: state.setLoading,
@@ -53,15 +59,26 @@ export function OrgProvider({ children }: { children: ReactNode }) {
 
   const fetchOrgs = useCallback(
     async (force = false) => {
-      // Si no hay token o ya cargamos recientemente y no es force, no hacemos nada
+      // Read mutable state from store directly to avoid stale closures
+      const {
+        isLoading: loading,
+        lastFetched: cached,
+        currentOrg: activeOrg,
+      } = useOrgStore.getState();
       const CACHE_TTL = 300000; // 5 minutos para organizaciones
+
       if (!token) {
-        useOrgStore.getState().reset();
+        // Only wipe org data when truly signed out, not while session is loading.
+        if (!isAuthenticated) {
+          useOrgStore.getState().reset();
+        }
         return;
       }
 
-      if (!force && lastFetched && Date.now() - lastFetched < CACHE_TTL) return;
-      if (isLoading) return;
+      // Always fetch when currentOrg is null — same TTL bypass as useOrgStore.
+      const noOrg = !activeOrg;
+      if (!force && !noOrg && cached && Date.now() - cached < CACHE_TTL) return;
+      if (loading) return;
 
       setLoading(true);
       try {
@@ -73,36 +90,29 @@ export function OrgProvider({ children }: { children: ReactNode }) {
         setOrganizations(list);
 
         // Si no hay organización seleccionada o la actual ya no está en la lista, elegir la default
-        if (!currentOrg || !list.some((o) => o.id === currentOrg.id)) {
+        if (!activeOrg || !list.some((o) => o.id === activeOrg.id)) {
           const defaultOrg = list.find((o) => o.is_default) ?? list[0];
           setCurrentOrg(defaultOrg ?? null);
         }
-      } catch (error) {
-        console.error("Failed to fetch organizations:", error);
-        setOrganizations([]);
-        setCurrentOrg(null);
+      } catch (error: unknown) {
+        logger.error("Failed to fetch organizations:", error);
+        // On transient error, preserve existing org context.
+        // Clearing currentOrg here causes "Preparando sesión..." on any network hiccup.
       } finally {
         setLoading(false);
       }
     },
-    [
-      token,
-      lastFetched,
-      isLoading,
-      currentOrg,
-      setOrganizations,
-      setCurrentOrg,
-      setLoading,
-    ],
+    [token, isAuthenticated, setOrganizations, setCurrentOrg, setLoading],
   );
 
   useEffect(() => {
     if (isAuthReady) {
       fetchOrgs();
-    } else {
+    } else if (!isAuthenticated) {
+      // Truly signed out — safe to wipe. If session is just loading, do nothing.
       useOrgStore.getState().reset();
     }
-  }, [isAuthReady, fetchOrgs]);
+  }, [isAuthReady, isAuthenticated, fetchOrgs]);
 
   const value: OrgContextValue = {
     org: currentOrg,

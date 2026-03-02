@@ -1,18 +1,20 @@
 import React from "react";
 import { RefreshCw } from "lucide-react";
 import { motion } from "motion/react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface AutoRenewToggleProps {
   autoRenew: boolean;
   renewalDate: string;
-  onToggle: () => void;
+  onToggle?: () => void;
+  disabled?: boolean;
 }
 
 export const AutoRenewToggle: React.FC<AutoRenewToggleProps> = ({
   autoRenew,
   renewalDate,
   onToggle,
+  disabled = false,
 }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
@@ -24,9 +26,13 @@ export const AutoRenewToggle: React.FC<AutoRenewToggleProps> = ({
       transition={{ delay: 0.3 }}
       whileHover={{ scale: 1.01 }}
       className={`p-5 rounded-xl transition-all duration-300 ${
-        isDark
-          ? "bg-black/40 backdrop-blur-xl border border-white/10 hover:border-cyan-500/20"
-          : "bg-white/60 border border-gray-200 hover:border-blue-500/20 shadow-sm"
+        disabled
+          ? isDark
+            ? "bg-black/20 border-white/5 opacity-60"
+            : "bg-gray-50 border-gray-100 opacity-60"
+          : isDark
+            ? "bg-black/40 backdrop-blur-xl border border-white/10 hover:border-cyan-500/20"
+            : "bg-white/60 border border-gray-200 hover:border-blue-500/20 shadow-sm"
       }`}
     >
       <div className="flex items-center justify-between">
@@ -55,16 +61,21 @@ export const AutoRenewToggle: React.FC<AutoRenewToggleProps> = ({
           </div>
         </div>
         <button
-          onClick={onToggle}
+          onClick={disabled ? undefined : onToggle}
+          disabled={disabled}
           className={`relative w-14 h-7 rounded-full transition-all duration-300 ${
-            autoRenew
+            disabled
               ? isDark
-                ? "bg-linear-to-r from-cyan-400 to-blue-500 shadow-lg shadow-cyan-500/50"
-                : "bg-linear-to-r from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/30"
-              : isDark
-                ? "bg-gray-700"
-                : "bg-gray-300"
-          }`}
+                ? "bg-gray-800"
+                : "bg-gray-200"
+              : autoRenew
+                ? isDark
+                  ? "bg-linear-to-r from-cyan-400 to-blue-500 shadow-lg shadow-cyan-500/50"
+                  : "bg-linear-to-r from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/30"
+                : isDark
+                  ? "bg-gray-700"
+                  : "bg-gray-300"
+          } ${disabled ? "cursor-not-allowed" : ""}`}
         >
           <motion.div
             animate={{ x: autoRenew ? 28 : 4 }}

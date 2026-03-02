@@ -1,7 +1,7 @@
 import React from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { ChevronDown, Check, Download, RefreshCw } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface ROIHeaderProps {
   isFilterOpen: boolean;
@@ -14,6 +14,7 @@ interface ROIHeaderProps {
   onRefresh: () => void;
   onExport: () => void;
   isLoading: boolean;
+  isSuperAdmin: boolean;
 }
 
 export const ROIHeader = React.memo(
@@ -28,6 +29,7 @@ export const ROIHeader = React.memo(
     onRefresh,
     onExport,
     isLoading,
+    isSuperAdmin,
   }: ROIHeaderProps) => {
     const { theme } = useTheme();
     const isDark = theme === "dark";
@@ -40,7 +42,7 @@ export const ROIHeader = React.memo(
               isDark ? "text-white" : "text-gray-900"
             }`}
           >
-            ROI Analytics - Global View
+            {isSuperAdmin ? "ROI Analytics - Global View" : "ROI Analytics - My Analytics"}
           </h1>
           <div className="flex items-center gap-4">
             <p
@@ -66,20 +68,22 @@ export const ROIHeader = React.memo(
               >
                 Overview
               </button>
-              <button
-                onClick={() => setActiveTab("insights")}
-                className={`px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
-                  activeTab === "insights"
-                    ? isDark
-                      ? "bg-purple-500 text-white shadow-lg shadow-purple-500/20"
-                      : "bg-white text-gray-900 shadow-sm"
-                    : isDark
-                      ? "text-gray-500 hover:text-gray-300"
-                      : "text-gray-500 hover:text-gray-700"
-                }`}
-              >
-                Deep Insights
-              </button>
+              {isSuperAdmin && (
+                <button
+                  onClick={() => setActiveTab("insights")}
+                  className={`px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
+                    activeTab === "insights"
+                      ? isDark
+                        ? "bg-purple-500 text-white shadow-lg shadow-purple-500/20"
+                        : "bg-white text-gray-900 shadow-sm"
+                      : isDark
+                        ? "text-gray-500 hover:text-gray-300"
+                        : "text-gray-500 hover:text-gray-700"
+                  }`}
+                >
+                  Deep Insights
+                </button>
+              )}
             </div>
           </div>
         </div>

@@ -1,6 +1,6 @@
 import React, { memo, useState } from "react";
 import { Smartphone, ShieldCheck, QrCode } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { SettingsModal } from "../../SettingsModal";
 
 interface SecurityTwoFactorProps {

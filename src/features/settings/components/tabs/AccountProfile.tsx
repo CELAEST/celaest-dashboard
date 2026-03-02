@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { useForm, FormProvider } from "react-hook-form";
+import { useForm } from "react-hook-form";
+import { Form } from "@/components/ui/form";
 import { useProfileSettings } from "../../hooks/useProfileSettings";
 import { ProfileAvatar } from "./AccountProfile/ProfileAvatar";
 import { ProfilePersonalInfo } from "./AccountProfile/ProfilePersonalInfo";
@@ -21,8 +22,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 export function AccountProfile() {
   const [showEmailModal, setShowEmailModal] = useState(false);
   const {
+    profile,
+    isLoading,
+    error,
     avatarUrl,
     connectedAccounts,
+    isAuthLoading,
     handleAvatarUpload,
     handleRemoveAvatar,
     handleEmailChange,
@@ -34,16 +39,24 @@ export function AccountProfile() {
   const form = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      displayName: "Rowan Estaban",
-      jobTitle: "Digital Architect",
+      displayName: "",
+      jobTitle: "",
     },
     mode: "onBlur",
   });
 
-  const onSubmit = (data: ProfileFormData) => {
-    console.log("Saving profile data:", data);
-    // In real app, we would pass data to saveProfile(data)
-    saveProfile();
+  // Sync form with profile data when it arrives
+  React.useEffect(() => {
+    if (profile) {
+      form.reset({
+        displayName: profile.display_name || "",
+        jobTitle: profile.job_title || "",
+      });
+    }
+  }, [profile, form]);
+
+  const onSubmit = async (data: ProfileFormData) => {
+    await saveProfile(data);
   };
 
   const onEmailConfirm = (email: string) => {
@@ -51,9 +64,25 @@ export function AccountProfile() {
     setShowEmailModal(false);
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-12">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-8 text-center text-red-500 bg-red-500/10 rounded-2xl border border-red-500/20">
+        <p>{error}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      <FormProvider {...form}>
+      <Form {...form}>
         <ProfileAvatar
           avatarUrl={avatarUrl}
           onUpload={handleAvatarUpload}
@@ -63,8 +92,13 @@ export function AccountProfile() {
         <ProfilePersonalInfo />
 
         <ProfileSecurity
-          email="rowan@celaest.io"
+          email={profile?.email || ""}
+          identities={(profile?.identities || []).map((id) => ({
+            ...id,
+            last_login_at: id.last_login_at || undefined,
+          }))}
           connectedAccounts={connectedAccounts}
+          isAuthLoading={isAuthLoading}
           onToggleAccount={toggleAccount}
           onChangeEmail={() => setShowEmailModal(true)}
         />
@@ -85,7 +119,7 @@ export function AccountProfile() {
           onClose={() => setShowEmailModal(false)}
           onConfirm={onEmailConfirm}
         />
-      </FormProvider>
+      </Form>
     </div>
   );
 }

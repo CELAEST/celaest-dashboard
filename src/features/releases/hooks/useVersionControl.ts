@@ -1,44 +1,43 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Version } from "../types";
 import { assetsService } from "@/features/assets/services/assets.service";
 import { useApiAuth } from "@/lib/use-api-auth";
 import { toast } from "sonner";
 import { handleApiError } from "@/lib/error-handler";
+import { useSocket } from "@/features/shared/hooks/useSocket";
+
+import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
+
+const formatBytes = (bytes: number, decimals = 2) => {
+  if (bytes === 0) return "0 Bytes";
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+};
 
 export const useVersionControl = () => {
-  const [versions, setVersions] = useState<Version[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [editingVersion, setEditingVersion] = useState<Version | null>(null);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [viewingVersion, setViewingVersion] = useState<Version | null>(null);
-  const [availableAssets, setAvailableAssets] = useState<{ id: string; name: string }[]>([]);
+  const [isSaving, setIsSaving] = useState(false);
 
   const { token, orgId } = useApiAuth();
+  const queryClient = useQueryClient();
 
-  const fetchVersions = useCallback(async () => {
-    if (!token || !orgId) {
-        console.log("[useVersionControl] Missing auth:", { hasToken: !!token, orgId });
-        // Ensure loading is false if auth is missing/pending to avoid stuck UI
-        setIsLoading(false); 
-        return;
-    }
-
-    console.log("[useVersionControl] Fetching versions for:", orgId);
-
-    try {
+  // ── Queries ──────────────────────────────────────────────────────────
+  const { data: versions = [], isLoading } = useQuery({
+    queryKey: QUERY_KEYS.releases.versions(orgId || "none"),
+    queryFn: async (): Promise<Version[]> => {
+      if (!token || !orgId) return [];
       const response = await assetsService.getGlobalReleases(token, orgId);
-      console.log("[useVersionControl] API Response:", response);
-      
-      if (!response || !response.data || !Array.isArray(response.data)) {
-        console.log("[useVersionControl] Empty or invalid response data");
-        setVersions([]);
-        return;
-      }
-      
-      const mappedVersions: Version[] = response.data.map((rel: any) => ({
+      if (!response?.data || !Array.isArray(response.data)) return [];
+
+      return response.data.map((rel) => ({
         id: rel.id,
         productId: rel.product_id,
         assetName: rel.product_name || "Unknown Asset",
@@ -48,34 +47,71 @@ export const useVersionControl = () => {
         fileSize: rel.file_size_bytes ? formatBytes(rel.file_size_bytes) : "0 KB",
         checksum: rel.file_hash || "sha256:none",
         downloads: rel.download_count || 0,
-        adoptionRate: 0, 
+        adoptionRate: 0,
         changelog: rel.changelog || [],
         compatibility: rel.min_app_version || "N/A",
       }));
+    },
+    enabled: !!token && !!orgId,
+  });
 
-      setVersions(mappedVersions);
-    } catch {
-      toast.error("Failed to load release history");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [token, orgId]);
-
-  const fetchAssets = useCallback(async () => {
-    if (!token || !orgId) return;
-    try {
+  const { data: availableAssets = [] } = useQuery({
+    queryKey: QUERY_KEYS.releases.assets(orgId || "none"),
+    queryFn: async () => {
+      if (!token || !orgId) return [];
       const assets = await assetsService.fetchInventory(token, orgId);
-      setAvailableAssets(assets.map(a => ({ id: a.id, name: a.name })));
-    } catch {
-      console.error("Failed to fetch assets for release creation");
-    }
-  }, [token, orgId]);
+      return assets.map(a => ({ id: a.id, name: a.name }));
+    },
+    enabled: !!token && !!orgId,
+  });
+
+  // ── WebSocket real-time ─────────────────────────────────────────────
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
+  const debouncedRefetch = useCallback(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.releases.all });
+    }, 500);
+  }, [queryClient]);
+
+  const handleReleaseEvent = useCallback(() => {
+    debouncedRefetch();
+  }, [debouncedRefetch]);
+
+  useSocket("release.created", handleReleaseEvent, !!token && !!orgId);
+  useSocket("release.updated", handleReleaseEvent, !!token && !!orgId);
+  useSocket("release.deleted", handleReleaseEvent, !!token && !!orgId);
 
   useEffect(() => {
-    fetchVersions();
-    fetchAssets();
-  }, [fetchVersions, fetchAssets, token, orgId]);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
 
+  // ── Mutations ───────────────────────────────────────────────────────
+  const deprecateMutation = useMutation({
+    mutationFn: async (id: string) => {
+      if (!token || !orgId) throw new Error("Missing auth");
+      await assetsService.updateRelease(token, orgId, id, { status: "deprecated" });
+      return id;
+    },
+    onMutate: async (id: string) => {
+      const key = QUERY_KEYS.releases.versions(orgId || "none");
+      await queryClient.cancelQueries({ queryKey: key });
+      const previous = queryClient.getQueryData<Version[]>(key);
+      queryClient.setQueryData<Version[]>(key, old =>
+        (old || []).map(v => v.id === id ? { ...v, status: "deprecated" as const } : v)
+      );
+      return { previous, key };
+    },
+    onError: (_err, _id, context) => {
+      if (context?.previous) queryClient.setQueryData(context.key, context.previous);
+    },
+    onSuccess: () => toast.success("Release marked as deprecated"),
+  });
+
+  // ── Handlers ────────────────────────────────────────────────────────
   const handleCreate = () => {
     setEditingVersion(null);
     setIsEditorOpen(true);
@@ -88,16 +124,9 @@ export const useVersionControl = () => {
   };
 
   const handleDeprecate = async (id: string) => {
-    if (!token || !orgId) return;
     try {
-      await assetsService.updateRelease(token, orgId, id, { status: "deprecated" });
-      setVersions(
-        versions.map((v) =>
-          v.id === id ? { ...v, status: "deprecated" as const } : v,
-        ),
-      );
-      toast.success("Release marked as deprecated");
-    } catch (err) {
+      await deprecateMutation.mutateAsync(id);
+    } catch (err: unknown) {
       toast.error(`Failed to update release status: ${handleApiError(err)}`);
     }
     setActiveMenu(null);
@@ -112,9 +141,7 @@ export const useVersionControl = () => {
       let downloadUrl = "";
       let fileSizeBytes = 0;
 
-      // 1. Upload file if present
       if (versionData.file) {
-        // Dynamic import to avoid SSR issues if any (though this hook is likely client-side)
         const { supabase } = await import("@/lib/supabase/client");
         if (!supabase) throw new Error("Supabase client not available");
 
@@ -135,78 +162,36 @@ export const useVersionControl = () => {
         fileSizeBytes = versionData.file.size;
       }
 
-      // 2. Create Release
       const productId = versionData.productId || editingVersion?.productId;
       if (!productId) throw new Error("Product ID is required");
 
+      const payload = {
+        version: versionData.versionNumber,
+        status: versionData.status,
+        download_url: downloadUrl || undefined,
+        file_size_bytes: fileSizeBytes || undefined,
+        file_hash: versionData.checksum || undefined,
+        min_app_version: versionData.compatibility || undefined,
+        changelog: versionData.changelogItems || versionData.changelog || [],
+        release_notes: versionData.changelogItems?.[0] || versionData.changelog?.[0] || "",
+      };
+
       if (editingVersion) {
-         await assetsService.updateRelease(token, orgId, editingVersion.id, {
-          version: versionData.versionNumber,
-          status: versionData.status,
-          download_url: downloadUrl || undefined,
-          file_size_bytes: fileSizeBytes || undefined,
-          file_hash: versionData.checksum || undefined,
-          min_app_version: versionData.compatibility || undefined,
-          changelog: versionData.changelogItems || versionData.changelog || [],
-          release_notes: versionData.changelogItems?.[0] || versionData.changelog?.[0] || "",
-        });
+        await assetsService.updateRelease(token, orgId, editingVersion.id, payload);
         toast.success("Release updated successfully");
       } else {
-        await assetsService.createRelease(token, orgId, productId, {
-          version: versionData.versionNumber,
-          status: versionData.status,
-          download_url: downloadUrl || undefined,
-          file_size_bytes: fileSizeBytes || undefined,
-          file_hash: versionData.checksum || undefined,
-          min_app_version: versionData.compatibility || undefined,
-          changelog: versionData.changelogItems || versionData.changelog || [],
-          release_notes: versionData.changelogItems?.[0] || versionData.changelog?.[0] || "",
-        });
+        await assetsService.createRelease(token, orgId, productId, payload);
         toast.success("Release created successfully");
       }
+
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.releases.all });
       setIsEditorOpen(false);
-      // No need to fetchVersions() here if sockets are working, but keeping it as fallback
-      // fetchVersions(); 
-    } catch (err) {
+    } catch (err: unknown) {
       toast.error(`Failed to save release: ${handleApiError(err)}`);
     } finally {
       setIsSaving(false);
     }
   };
-
-  // Socket Listeners
-  useEffect(() => {
-    const socket = (window as any).socket; // Assuming global socket instance available via context/window
-    // Ideally use useSocket hook if available
-    if (!socket) return;
-    
-    // Listen for release events
-    const handleReleaseCreated = (data: any) => {
-        // data.payload matches Release struct
-        console.log("Release created event:", data);
-        fetchVersions(); 
-    };
-    
-    const handleReleaseUpdated = (data: any) => {
-        console.log("Release updated event:", data);
-        fetchVersions();
-    };
-
-    const handleReleaseDeleted = (data: any) => {
-        console.log("Release deleted event:", data);
-        fetchVersions();
-    };
-
-    socket.on("release.created", handleReleaseCreated);
-    socket.on("release.updated", handleReleaseUpdated);
-    socket.on("release.deleted", handleReleaseDeleted); 
-
-    return () => {
-        socket.off("release.created", handleReleaseCreated);
-        socket.off("release.updated", handleReleaseUpdated);
-        socket.off("release.deleted", handleReleaseDeleted);
-    };
-  }, [fetchVersions]);
 
   const handleViewDetails = (version: Version) => {
     setViewingVersion(version);
@@ -237,13 +222,4 @@ export const useVersionControl = () => {
     availableAssets,
     isSaving,
   };
-};
-
-const formatBytes = (bytes: number, decimals = 2) => {
-  if (bytes === 0) return "0 Bytes";
-  const k = 1024;
-  const dm = decimals < 0 ? 0 : decimals;
-  const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
 };

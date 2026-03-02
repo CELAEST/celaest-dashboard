@@ -13,6 +13,7 @@ export interface AITask {
   latency_ms: number;
   error?: string;
   metadata?: Record<string, unknown>;
+  user_email?: string;
   created_at: string;
   completed_at?: string;
 }

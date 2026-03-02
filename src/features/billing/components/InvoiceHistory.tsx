@@ -1,19 +1,62 @@
 "use client";
 
 import React, { useState } from "react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
-import { Invoice } from "../types";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { InvoiceHistoryTable } from "./InvoiceHistory/InvoiceHistoryTable";
 import { useBilling } from "../hooks/useBilling";
 import { Loader2 } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuthStore } from "@/features/auth/stores/useAuthStore";
+import { useOrgStore } from "@/features/shared/stores/useOrgStore";
+import { billingApi } from "../api/billing.api";
+import { toast } from "sonner";
+import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
 
 export const InvoiceHistory: React.FC = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const { session } = useAuthStore();
+  const { currentOrg } = useOrgStore();
+
+  const token = session?.accessToken;
+  const orgId = currentOrg?.id;
 
   // Use real billing data
   const { invoices, isLoading } = useBilling();
+
+  const voidMutation = useMutation({
+    mutationFn: (invoiceId: string) => {
+      if (!token || !orgId) throw new Error("Auth required");
+      return billingApi.voidInvoice(orgId, token, invoiceId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: orgId
+          ? QUERY_KEYS.billing.profile(orgId)
+          : QUERY_KEYS.billing.all,
+      });
+      toast.success("Invoice has been voided.");
+    },
+    onError: () => toast.error("Failed to void invoice."),
+  });
+
+  const payMutation = useMutation({
+    mutationFn: (invoiceId: string) => {
+      if (!token || !orgId) throw new Error("Auth required");
+      return billingApi.payInvoice(orgId, token, invoiceId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: orgId
+          ? QUERY_KEYS.billing.profile(orgId)
+          : QUERY_KEYS.billing.all,
+      });
+      toast.success("Invoice marked as paid.");
+    },
+    onError: () => toast.error("Failed to mark invoice as paid."),
+  });
 
   const handleDownload = async (invoiceId: string) => {
     setDownloadingId(invoiceId);
@@ -82,6 +125,9 @@ export const InvoiceHistory: React.FC = () => {
           isDark={isDark}
           downloadingId={downloadingId}
           onDownload={handleDownload}
+          onVoid={(id) => voidMutation.mutate(id)}
+          onPay={(id) => payMutation.mutate(id)}
+          isLoadingAction={voidMutation.isPending || payMutation.isPending}
         />
       </div>
 

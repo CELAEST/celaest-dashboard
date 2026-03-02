@@ -1,23 +1,23 @@
-import React, { useState, useEffect } from "react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import React, { useState } from "react";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { AssetEditor } from "./AssetEditor";
 import { AssetTable } from "./AssetTable";
 import { AssetHeader } from "./AssetHeader";
 import { AssetMetrics } from "./AssetMetrics";
+import { CategoryManagementTab } from "./CategoryManagementTab";
 import { ProductDetailModal } from "./ProductDetailModal";
 import { Asset, assetsService } from "../services/assets.service";
 import { CreateProductPayload, UpdateProductPayload } from "../api/assets.api";
 import { AssetFormValues } from "../hooks/useAssetForm";
-import { useAssetStore } from "../stores/useAssetStore";
+import { useOrgInventory } from "../hooks/useAssets";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
-import { useOrg } from "@/features/shared/contexts/OrgContext";
+import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
-import { socket } from "@/lib/socket-client";
 import { ReleaseManagementModal } from "./ReleaseManagementModal";
 
 interface AssetAdminPortalProps {
-  activeTab: "inventory" | "analytics";
+  activeTab: "inventory" | "categories" | "analytics";
 }
 
 export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
@@ -26,11 +26,14 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const { session } = useAuthStore();
-  const { org } = useOrg();
+  const { currentOrg: org } = useOrgStore();
   const orgId = org?.id;
 
-  const { inventory, isInventoryLoading, fetchInventory, setInventoryLoading } =
-    useAssetStore();
+  const {
+    data: inventory = [],
+    isLoading: isInventoryLoading,
+    refetch: fetchInventory,
+  } = useOrgInventory();
 
   // Asset Editor State
   const [isEditorOpen, setIsEditorOpen] = useState(false);
@@ -38,36 +41,7 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
   const [previewingAsset, setPreviewingAsset] = useState<Asset | null>(null);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (session?.accessToken && orgId) {
-      fetchInventory(session.accessToken, orgId, {});
-    }
-  }, [session, orgId, fetchInventory]);
-
-  // Real-time updates for Inventory
-  useEffect(() => {
-    if (!session?.accessToken || !orgId) return;
-
-    // Ensure socket is connected (idempotent)
-    socket.connect(session.accessToken, orgId);
-
-    const handleRefresh = () => {
-      console.log(
-        "[AssetAdminPortal] Real-time activity detected. Refreshing inventory...",
-      );
-      fetchInventory(session.accessToken!, orgId, { silent: true });
-    };
-
-    const unsubCreated = socket.on("product.created", handleRefresh);
-    const unsubUpdated = socket.on("product.updated", handleRefresh);
-    const unsubDeleted = socket.on("product.deleted", handleRefresh);
-
-    return () => {
-      unsubCreated();
-      unsubUpdated();
-      unsubDeleted();
-    };
-  }, [session, orgId, fetchInventory]);
+  // Note: Local listeners removed - synchronized via useRealtimeDashboard globally
 
   const handleEdit = (asset: Asset) => {
     setEditingAsset(asset);
@@ -149,8 +123,10 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
 
         finalThumbnailUrl = urlData.publicUrl;
         setUploadProgress(100);
-      } catch (err) {
-        toast.error(`Upload failed: ${(err as Error).message}`);
+      } catch (err: unknown) {
+        toast.error(
+          `Upload failed: ${err instanceof Error ? err.message : "Unknown error"}`,
+        );
         setIsUploading(false);
         return;
       }
@@ -188,8 +164,10 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
         productFileUrl = urlData.publicUrl;
         productFileSize = file.size;
         setUploadProgress(100);
-      } catch (err) {
-        toast.error(`Product file upload failed: ${(err as Error).message}`);
+      } catch (err: unknown) {
+        toast.error(
+          `Product file upload failed: ${err instanceof Error ? err.message : "Unknown error"}`,
+        );
         setIsUploading(false);
         return;
       }
@@ -203,12 +181,20 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
       base_price: data.price,
       product_type: data.type,
       status: data.status,
-      category_id: data.category,
+      is_public: data.is_public,
+      category_id: data.category_id,
       thumbnail_url: finalThumbnailUrl,
       external_url: data.external_url,
+      github_repository: data.github_repository,
+      features: data.features ? data.features.split("\n").filter(Boolean) : [],
+      tags: data.tags ? data.tags.split("\n").filter(Boolean) : [],
+      technical_stack: data.technical_stack
+        ? data.technical_stack.split("\n").filter(Boolean)
+        : [],
+      min_plan_tier: data.min_plan_tier,
     };
 
-    setInventoryLoading(true);
+    // setInventoryLoading removed
 
     try {
       // Create or Update Asset
@@ -245,13 +231,13 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
         `Asset ${editingAsset ? "updated" : "created"} successfully!`,
       );
 
-      fetchInventory(session.accessToken!, orgId);
+      fetchInventory();
       setIsEditorOpen(false);
-    } catch (err) {
-      const error = err as Error;
-      toast.error(`Error: ${error.message || "Failed to save asset"}`);
+    } catch (err: unknown) {
+      toast.error(
+        `Error: ${err instanceof Error ? err.message : "Failed to save asset"}`,
+      );
     } finally {
-      setInventoryLoading(false);
       setIsUploading(false);
       setUploadProgress(0);
     }
@@ -264,10 +250,11 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
       try {
         await assetsService.deleteAsset(session.accessToken, orgId, id);
         toast.success("Asset archived");
-        fetchInventory(session.accessToken, orgId);
-      } catch (err) {
-        const error = err as Error;
-        toast.error(`Error: ${error.message}`);
+        fetchInventory();
+      } catch (err: unknown) {
+        toast.error(
+          `Error: ${err instanceof Error ? err.message : "Failed to archive"}`,
+        );
       }
     }
   };
@@ -291,10 +278,11 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
         duplicateData,
       );
       toast.success("Asset duplicated");
-      fetchInventory(session.accessToken, orgId);
-    } catch (err) {
-      const error = err as Error;
-      toast.error(`Error duplicating: ${error.message}`);
+      fetchInventory();
+    } catch (err: unknown) {
+      toast.error(
+        `Error duplicating: ${err instanceof Error ? err.message : "Unknown error"}`,
+      );
     }
   };
 
@@ -354,6 +342,69 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
                           onEdit={handleEdit}
                           onDuplicate={handleDuplicate}
                           onDelete={handleDelete}
+                          onDownload={async (asset) => {
+                            if (!session?.accessToken) {
+                              toast.error("Authentication required");
+                              return;
+                            }
+
+                            try {
+                              toast.info("Preparing secure download...");
+                              const { download_url } =
+                                await assetsService.downloadAsset(
+                                  session.accessToken,
+                                  asset.id,
+                                );
+
+                              if (!download_url) {
+                                throw new Error(
+                                  "No download URL returned from server",
+                                );
+                              }
+
+                              // download_url is already the secure proxy path
+                              const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+                              if (!apiUrl)
+                                throw new Error(
+                                  "NEXT_PUBLIC_API_URL is not configured",
+                                );
+                              const url = `${apiUrl}${download_url}`;
+
+                              const response = await fetch(url, {
+                                headers: {
+                                  Authorization: `Bearer ${session.accessToken}`,
+                                },
+                              });
+
+                              if (!response.ok) {
+                                const err = await response.json();
+                                throw new Error(err.error || "Download failed");
+                              }
+
+                              const blob = await response.blob();
+                              const objUrl = window.URL.createObjectURL(blob);
+                              const a = document.createElement("a");
+                              a.href = objUrl;
+
+                              // Extract filename from URL or response headers if possible,
+                              // but backend DownloadMyAsset includes it in the query param 'asset'
+                              const urlObj = new URL(url);
+                              const fileName =
+                                urlObj.searchParams.get("asset") ||
+                                "bundle.zip";
+
+                              a.download = fileName;
+                              document.body.appendChild(a);
+                              a.click();
+                              window.URL.revokeObjectURL(objUrl);
+                              document.body.removeChild(a);
+                              toast.success("Download completed");
+                            } catch (err: unknown) {
+                              toast.error(
+                                `Download error: ${err instanceof Error ? err.message : "Unknown error"}`,
+                              );
+                            }
+                          }}
                           onPreview={handlePreview}
                           onManageReleases={handleManageReleases}
                         />
@@ -375,7 +426,7 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
                 </div>
               </div>
             </motion.div>
-          ) : (
+          ) : activeTab === "analytics" ? (
             <motion.div
               key="analytics"
               initial={{ opacity: 0, x: 20 }}
@@ -385,6 +436,17 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
               className="h-full flex flex-col overflow-hidden"
             >
               <AssetMetrics />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="categories"
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.98 }}
+              transition={{ duration: 0.2 }}
+              className="h-full flex flex-col overflow-hidden"
+            >
+              <CategoryManagementTab isDark={isDark} />
             </motion.div>
           )}
         </AnimatePresence>

@@ -1,6 +1,6 @@
 import React from "react";
 import { Lock, Download, ShoppingCart, ExternalLink } from "lucide-react";
-import { Asset } from "../../hooks/useAssets";
+import { Asset } from "../../services/assets.service";
 
 interface ProductActionsSectionProps {
   product: Asset;
@@ -87,7 +87,11 @@ export const ProductActionsSection: React.FC<ProductActionsSectionProps> = ({
                 ) : (
                   <Download size={18} />
                 )}
-                {isProcessing ? "Downloading..." : "Download Asset"}
+                {isProcessing
+                  ? "Downloading..."
+                  : product.accessType === "subscription"
+                    ? "Download (Plan)"
+                    : "Download Asset"}
               </button>
             )}
             <button

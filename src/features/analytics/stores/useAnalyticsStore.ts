@@ -1,8 +1,9 @@
 import { create } from "zustand";
-import { 
-  analyticsApi, 
-  DashboardStats, 
-  SalesByPeriod, 
+import { logger } from "@/lib/logger";
+import {
+  analyticsApi,
+  DashboardStats,
+  SalesByPeriod,
   ROIMetrics,
   UsageReport,
   CategoryDistribution,
@@ -39,7 +40,7 @@ export const useAnalyticsStore = create<AnalyticsStore>((set, get) => ({
 
   fetchDashboardData: async (token: string, orgId: string, period = "month") => {
     if (!token || !orgId) return;
-    
+
     // Check cache
     const now = Date.now();
     const { lastFetched, isLoading } = get();
@@ -55,20 +56,20 @@ export const useAnalyticsStore = create<AnalyticsStore>((set, get) => ({
         analyticsApi.getCategoryDistribution(token, orgId),
       ]);
 
-      set({ 
-        stats, 
-        salesByPeriod, 
-        roi, 
+      set({
+        stats,
+        salesByPeriod,
+        roi,
         usage,
         categoryDistribution,
-        lastFetched: Date.now(), 
-        isLoading: false 
+        lastFetched: Date.now(),
+        isLoading: false
       });
     } catch (err: unknown) {
-      console.error("[AnalyticsStore] Error fetching analytics:", err);
-      set({ 
-        error: "Failed to load analytics data.", 
-        isLoading: false 
+      logger.error("[AnalyticsStore] Error fetching analytics:", err);
+      set({
+        error: "Failed to load analytics data.",
+        isLoading: false
       });
     }
   },
@@ -78,7 +79,7 @@ export const useAnalyticsStore = create<AnalyticsStore>((set, get) => ({
     try {
       const events = await analyticsApi.getLiveFeed(token, orgId);
       set({ eventLogs: events });
-    } catch (err) {
+    } catch (err: unknown) {
       console.warn("[AnalyticsStore] Failed to fetch live feed:", err);
     }
   },

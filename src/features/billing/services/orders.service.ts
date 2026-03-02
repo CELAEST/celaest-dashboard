@@ -1,5 +1,7 @@
+import { logger } from "@/lib/logger";
 import { ordersApi } from "../api/orders.api";
 import { Order } from "../types";
+import { formatCurrency, formatDate } from "@/features/shared/utils/formatters";
 
 export const ordersService = {
   /**
@@ -14,14 +16,19 @@ export const ordersService = {
         id: o.id,
         displayId: `#${o.order_number || o.id.substring(0, 8).toUpperCase()}`,
         product: o.items?.[0]?.name || "Product",
-        customer: o.billing_name || "Guest",
-        date: new Date(o.created_at).toLocaleDateString(),
+        customer: o.billing_name || o.user_name || "Guest",
+        date: formatDate(o.created_at),
         status: this.mapStatus(o.status),
-        amount: new Intl.NumberFormat('en-US', { style: 'currency', currency: o.currency || 'USD' }).format(o.total || 0)
+        amount: formatCurrency(o.total || 0, o.currency || 'USD'),
+        userName: o.user_name,
+        userEmail: o.user_email,
+        paymentMethod: o.payment_method_type,
+        paymentProvider: o.payment_provider,
+        rawDate: o.created_at
       }));
 
-    } catch (error) {
-      console.error("Error fetching orders:", error);
+    } catch (error: unknown) {
+      logger.error("Error fetching orders:", error);
       return [];
     }
   },
@@ -30,8 +37,8 @@ export const ordersService = {
     try {
       await ordersApi.updateOrder(orgId, token, id, data);
       return true;
-    } catch (error) {
-      console.error("Error updating order:", error);
+    } catch (error: unknown) {
+      logger.error("Error updating order:", error);
       throw error;
     }
   },
@@ -40,8 +47,8 @@ export const ordersService = {
     try {
       await ordersApi.deleteOrder(orgId, token, id);
       return true;
-    } catch (error) {
-      console.error("Error deleting order:", error);
+    } catch (error: unknown) {
+      logger.error("Error deleting order:", error);
       throw error;
     }
   },

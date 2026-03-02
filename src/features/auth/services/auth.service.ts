@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 /**
  * Feature: Auth - Domain Service
  * Lógica de negocio y coordinación de la feature.
@@ -15,8 +16,8 @@ export const authService = {
       const response = await authApi.login(email, password);
       // Aquí se podrían añadir transformaciones o logs específicos
       return response;
-    } catch (error) {
-      console.error("AuthService.login error:", error);
+    } catch (error: unknown) {
+      logger.error("AuthService.login error:", error);
       throw error;
     }
   },

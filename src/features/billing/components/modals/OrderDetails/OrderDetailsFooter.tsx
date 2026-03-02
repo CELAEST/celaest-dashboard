@@ -1,12 +1,14 @@
 import React from "react";
-import { Save, Edit2 } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { Save, Edit2, RotateCcw } from "lucide-react";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface OrderDetailsFooterProps {
   mode: "view" | "edit";
   setMode: (mode: "view" | "edit") => void;
   onClose: () => void;
   onSave: () => void;
+  onRefund?: () => void;
+  canRefund?: boolean;
   lastEditDate: string;
 }
 
@@ -15,6 +17,8 @@ export const OrderDetailsFooter: React.FC<OrderDetailsFooterProps> = ({
   setMode,
   onClose,
   onSave,
+  onRefund,
+  canRefund = false,
   lastEditDate,
 }) => {
   const { theme } = useTheme();
@@ -42,6 +46,19 @@ export const OrderDetailsFooter: React.FC<OrderDetailsFooterProps> = ({
             >
               Close
             </button>
+            {canRefund && onRefund && (
+              <button
+                onClick={onRefund}
+                className={`px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 transition-all hover:scale-105 active:scale-95 ${
+                  isDark
+                    ? "bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20"
+                    : "bg-amber-50 border border-amber-200 text-amber-700 hover:bg-amber-100"
+                }`}
+              >
+                <RotateCcw size={16} />
+                Refund
+              </button>
+            )}
             <button
               onClick={() => setMode("edit")}
               className={`px-6 py-2.5 rounded-xl text-sm font-bold text-white flex items-center gap-2 transition-all shadow-lg hover:scale-105 active:scale-95 ${

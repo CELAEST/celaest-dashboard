@@ -1,6 +1,6 @@
 import React from "react";
 import { Check, AlertCircle, Calendar, ShieldCheck } from "lucide-react";
-import { Asset } from "../../hooks/useAssets";
+import { Asset } from "../../services/assets.service";
 
 interface ProductDetailsSectionProps {
   product: Asset;
@@ -41,7 +41,7 @@ export const ProductDetailsSection: React.FC<ProductDetailsSectionProps> = ({
             Key Features
           </h3>
           <ul className="space-y-3">
-            {product.features.map((feature, index) => (
+            {product.features.map((feature: string, index: number) => (
               <li key={index} className="flex items-start gap-3">
                 <div
                   className={`mt-0.5 p-1 rounded ${
@@ -75,7 +75,7 @@ export const ProductDetailsSection: React.FC<ProductDetailsSectionProps> = ({
             Requirements
           </h3>
           <ul className="space-y-3">
-            {product.requirements.map((requirement, index) => (
+            {product.requirements.map((requirement: string, index: number) => (
               <li key={index} className="flex items-start gap-3">
                 <AlertCircle
                   size={16}

@@ -1,6 +1,6 @@
 import React from "react";
 import { CheckCircle2, Copy } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface LicenseSuccessProps {
   createdKey: string;

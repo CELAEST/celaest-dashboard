@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useMemo } from "react";
 import { Users, Shield, Clock, Activity, Fingerprint } from "lucide-react";
 import { StatCard } from "@/features/shared/components/StatCard";
 import { UserData, AuditLog } from "../types";
@@ -22,19 +22,35 @@ interface StatsOverviewProps {
   isDark: boolean;
 }
 
-// Mock Flux Data
-const fluxData = [
-  { time: "00:00", auths: 45, threats: 2 },
-  { time: "04:00", auths: 32, threats: 1 },
-  { time: "08:00", auths: 89, threats: 5 },
-  { time: "12:00", auths: 156, threats: 12 },
-  { time: "16:00", auths: 210, threats: 8 },
-  { time: "20:00", auths: 178, threats: 4 },
-  { time: "23:59", auths: 95, threats: 3 },
-];
+/** Derive hourly activity data from audit logs */
+function buildActivityData(logs: AuditLog[]): { time: string; events: number }[] {
+  const hours: Record<string, number> = {};
+  // Initialize 24h buckets
+  for (let h = 0; h < 24; h += 4) {
+    const label = `${String(h).padStart(2, "0")}:00`;
+    hours[label] = 0;
+  }
+
+  for (const log of logs) {
+    if (!log.timestamp) continue;
+    const date = new Date(log.timestamp);
+    if (isNaN(date.getTime())) continue;
+    // Round down to nearest 4-hour bucket
+    const bucket = Math.floor(date.getHours() / 4) * 4;
+    const label = `${String(bucket).padStart(2, "0")}:00`;
+    hours[label] = (hours[label] || 0) + 1;
+  }
+
+  return Object.entries(hours)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([time, events]) => ({ time, events }));
+}
 
 export const StatsOverview = memo(
   ({ users, auditLogs, isDark }: StatsOverviewProps) => {
+    const activityData = useMemo(() => buildActivityData(auditLogs), [auditLogs]);
+    const hasActivity = activityData.some((d) => d.events > 0);
+
     // Calculate Role Distribution
     const roleCounts = users.reduce(
       (acc, user) => {
@@ -56,7 +72,7 @@ export const StatsOverview = memo(
 
     return (
       <div className="h-full flex flex-col gap-6">
-        {/* Row 1: Symmetric KPI Grid (3 Master Cards) */}
+        {/* Row 1: KPI Grid */}
         <div className="shrink-0 grid grid-cols-1 md:grid-cols-3 gap-6">
           <StatCard
             title="Soberanía de Usuarios"
@@ -66,13 +82,6 @@ export const StatsOverview = memo(
             icon={<Users size={24} />}
             delay={0.1}
             gradient="from-cyan-400 to-blue-500"
-            chartData={[
-              { value: 10 },
-              { value: 12 },
-              { value: 15 },
-              { value: 14 },
-              { value: 18 },
-            ]}
           />
           <StatCard
             title="Jerarquía de Control"
@@ -84,13 +93,6 @@ export const StatsOverview = memo(
             icon={<Shield size={24} />}
             delay={0.2}
             gradient="from-purple-500 to-pink-500"
-            chartData={[
-              { value: 2 },
-              { value: 2 },
-              { value: 3 },
-              { value: 3 },
-              { value: 3 },
-            ]}
           />
           <StatCard
             title="Registro Operativo"
@@ -100,13 +102,6 @@ export const StatsOverview = memo(
             icon={<Clock size={24} />}
             delay={0.3}
             gradient="from-emerald-400 to-teal-500"
-            chartData={[
-              { value: 100 },
-              { value: 120 },
-              { value: 110 },
-              { value: 130 },
-              { value: 150 },
-            ]}
           />
         </div>
 
@@ -145,59 +140,66 @@ export const StatsOverview = memo(
               <div
                 className={`flex items-center gap-2 px-3 py-1.5 rounded-full border ${isDark ? "bg-black/40 border-white/10" : "bg-gray-100 border-gray-200"}`}
               >
-                <div className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse" />
+                <div className={`w-1.5 h-1.5 rounded-full ${hasActivity ? "bg-cyan-500 animate-pulse" : "bg-gray-500"}`} />
                 <span className="text-[10px] font-black uppercase tracking-widest opacity-60">
-                  Live Stream
+                  {hasActivity ? "Real Data" : "No Activity"}
                 </span>
               </div>
             </div>
 
             <div className="flex-1 w-full min-h-0">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart
-                  data={fluxData}
-                  margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
-                >
-                  <defs>
-                    <linearGradient id="colorAuth" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#22d3ee" stopOpacity={0.2} />
-                      <stop offset="95%" stopColor="#22d3ee" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke={
-                      isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)"
-                    }
-                    vertical={false}
-                  />
-                  <XAxis
-                    dataKey="time"
-                    stroke={isDark ? "#333" : "#ccc"}
-                    fontSize={10}
-                    fontWeight="900"
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <YAxis hide />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: isDark ? "#000" : "#fff",
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      borderRadius: "12px",
-                      fontSize: "10px",
-                      fontWeight: "900",
-                    }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="auths"
-                    stroke="#22d3ee"
-                    fill="url(#colorAuth)"
-                    strokeWidth={4}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+              {hasActivity ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart
+                    data={activityData}
+                    margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+                  >
+                    <defs>
+                      <linearGradient id="colorAuth" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#22d3ee" stopOpacity={0.2} />
+                        <stop offset="95%" stopColor="#22d3ee" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke={isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)"}
+                      vertical={false}
+                    />
+                    <XAxis
+                      dataKey="time"
+                      stroke={isDark ? "#333" : "#ccc"}
+                      fontSize={10}
+                      fontWeight="900"
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <YAxis hide />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: isDark ? "#000" : "#fff",
+                        border: "1px solid rgba(255,255,255,0.1)",
+                        borderRadius: "12px",
+                        fontSize: "10px",
+                        fontWeight: "900",
+                      }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="events"
+                      name="Events"
+                      stroke="#22d3ee"
+                      fill="url(#colorAuth)"
+                      strokeWidth={4}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-full flex items-center justify-center">
+                  <p className={`text-sm font-bold uppercase tracking-widest ${isDark ? "text-white/20" : "text-gray-300"}`}>
+                    Sin actividad registrada
+                  </p>
+                </div>
+              )}
             </div>
           </motion.div>
 

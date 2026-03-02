@@ -8,6 +8,7 @@ import { MarketplaceProduct } from "../types";
 import { formatCurrency } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
+import { useMarketplaceCouponStore } from "../store";
 
 interface ProductCardProps {
   product: MarketplaceProduct;
@@ -20,6 +21,17 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   onClick,
   disableNavigation = false,
 }) => {
+  const { activeCoupon } = useMarketplaceCouponStore();
+
+  let finalPrice = product.base_price;
+  if (activeCoupon) {
+    if (activeCoupon.type === "percentage") {
+      finalPrice = product.base_price * (1 - activeCoupon.value / 100);
+    } else if (activeCoupon.type === "fixed_amount") {
+      finalPrice = Math.max(0, product.base_price - activeCoupon.value);
+    }
+  }
+
   const handleClick = (e?: React.MouseEvent) => {
     if (disableNavigation && e) {
       e.preventDefault();
@@ -80,9 +92,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         <div className="mt-auto flex items-center justify-between pt-2 border-t border-white/5">
           <div className="flex flex-col">
             <span className="text-xs text-white/40 font-medium">Desde</span>
-            <span className="text-xl font-bold text-white tracking-tight">
-              {formatCurrency(product.base_price, product.currency)}
-            </span>
+            <div className="flex items-center gap-2">
+              {activeCoupon && (
+                <span className="text-sm line-through text-white/40 font-medium">
+                  {formatCurrency(product.base_price, product.currency)}
+                </span>
+              )}
+              <span className="text-xl font-bold text-white tracking-tight">
+                {formatCurrency(finalPrice, product.currency)}
+              </span>
+            </div>
           </div>
 
           <button className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-900/40 transition-all hover:bg-blue-500 hover:scale-105 active:scale-95 group/btn">

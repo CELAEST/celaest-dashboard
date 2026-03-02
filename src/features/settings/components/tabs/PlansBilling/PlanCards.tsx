@@ -1,9 +1,14 @@
+import { logger } from "@/lib/logger";
 import React, { memo } from "react";
 import { Check } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { toast } from "sonner";
+import { useAuthStore } from "@/features/auth/stores/useAuthStore";
+import { useOrgStore } from "@/features/shared/stores/useOrgStore";
+import { billingApi } from "@/features/billing/api/billing.api";
 
 export interface Plan {
+  id: string;
   name: string;
   price: string;
   desc: string;
@@ -18,16 +23,44 @@ interface PlanCardsProps {
 
 export const PlanCards: React.FC<PlanCardsProps> = memo(({ plans }) => {
   const { isDark } = useTheme();
+  const { session } = useAuthStore();
+  const { currentOrg } = useOrgStore();
 
-  const handleUpgrade = (plan: Plan) => {
-    if (!plan.current) {
-      toast.promise(new Promise((resolve) => setTimeout(resolve, 2000)), {
-        loading: "Processing upgrade request...",
-        success: () => {
+  const handleUpgrade = async (plan: Plan) => {
+    if (plan.current) return;
+
+    if (!session?.accessToken || !currentOrg?.id) {
+      toast.error("Authentication required");
+      return;
+    }
+
+    try {
+      const promise = billingApi.createSubscription(
+        currentOrg.id,
+        session.accessToken,
+        {
+          plan_id: plan.id,
+          organization_id: currentOrg.id,
+          product_id: plan.id, // Backend currently uses plan_id as product_id in some places
+        },
+      );
+
+      toast.promise(promise, {
+        loading: `Preparing to upgrade to ${plan.name}...`,
+        success: (res: { checkout_url?: string }) => {
+          if (res.checkout_url) {
+            window.location.href = res.checkout_url;
+            return "Redirecting to Stripe...";
+          }
           return `${plan.name} plan activated successfully!`;
         },
-        error: "Failed to upgrade",
+        error: (err: Error) => {
+          logger.error("Upgrade failed:", err);
+          return "Failed to upgrade. Please try again.";
+        },
       });
+    } catch (error: unknown) {
+      logger.error("Upgrade error:", error);
     }
   };
 

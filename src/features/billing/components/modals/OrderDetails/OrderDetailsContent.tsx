@@ -1,5 +1,5 @@
 import React from "react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { SettingsSelect } from "../../../../settings/components/SettingsSelect";
 import { Order } from "../../../types";
 

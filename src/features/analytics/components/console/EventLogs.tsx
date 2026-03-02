@@ -96,6 +96,11 @@ export const EventLogs = React.memo(() => {
                     <span className="opacity-50 mr-2 text-[10px] uppercase font-bold tracking-wider">
                       {log.source}:
                     </span>
+                    {log.user_email && (
+                      <span className="text-cyan-500/80 mr-2 font-bold">
+                        @{log.user_email}
+                      </span>
+                    )}
                     {log.message}
                   </span>
                 </div>

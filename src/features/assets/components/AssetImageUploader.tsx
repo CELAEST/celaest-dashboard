@@ -108,6 +108,7 @@ export const AssetImageUploader: React.FC<AssetImageUploaderProps> = ({
               exit={{ opacity: 0 }}
               className="absolute inset-0 w-full h-full"
             >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={previewUrl}
                 alt="Product Preview"

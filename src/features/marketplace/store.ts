@@ -72,3 +72,21 @@ export const useMarketplaceStore = create<MarketplaceState>()(
     }
   )
 );
+
+export interface ActiveCoupon {
+  code: string;
+  type: "percentage" | "fixed_amount";
+  value: number;
+}
+
+interface MarketplaceCouponState {
+  activeCoupon: ActiveCoupon | null;
+  setCoupon: (coupon: ActiveCoupon) => void;
+  clearCoupon: () => void;
+}
+
+export const useMarketplaceCouponStore = create<MarketplaceCouponState>()((set) => ({
+  activeCoupon: null,
+  setCoupon: (coupon) => set({ activeCoupon: coupon }),
+  clearCoupon: () => set({ activeCoupon: null }),
+}));

@@ -1,17 +1,36 @@
 import React, { memo } from "react";
 import { Mail, Github, AlertCircle } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface ProfileSecurityProps {
   email: string;
+  identities: Array<{
+    id: string;
+    provider: string;
+    email: string;
+    last_login_at?: string;
+  }>;
   connectedAccounts: Record<"google" | "github", boolean>;
+  isAuthLoading: boolean;
   onToggleAccount: (provider: "google" | "github") => void;
   onChangeEmail: () => void;
 }
 
 export const ProfileSecurity: React.FC<ProfileSecurityProps> = memo(
-  ({ email, connectedAccounts, onToggleAccount, onChangeEmail }) => {
+  ({
+    email,
+    identities,
+    connectedAccounts,
+    isAuthLoading,
+    onToggleAccount,
+    onChangeEmail,
+  }) => {
     const { isDark } = useTheme();
+
+    const getIdentityEmail = (provider: string) => {
+      const identity = identities.find((id) => id.provider === provider);
+      return identity?.email || "Not connected";
+    };
 
     return (
       <div className="settings-glass-card rounded-2xl p-6">
@@ -43,9 +62,10 @@ export const ProfileSecurity: React.FC<ProfileSecurityProps> = memo(
               />
               <button
                 onClick={onChangeEmail}
-                className="px-5 py-3 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-medium transition-all shadow-sm hover:shadow-cyan-500/20 whitespace-nowrap"
+                disabled={isAuthLoading}
+                className="px-5 py-3 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-medium transition-all shadow-sm hover:shadow-cyan-500/20 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Change Email
+                {isAuthLoading ? "Processing..." : "Change Email"}
               </button>
             </div>
           </div>
@@ -106,15 +126,14 @@ export const ProfileSecurity: React.FC<ProfileSecurityProps> = memo(
                         isDark ? "text-gray-500" : "text-gray-400"
                       }`}
                     >
-                      {connectedAccounts.google
-                        ? "rowan@gmail.com"
-                        : "Not connected"}
+                      {getIdentityEmail("google")}
                     </p>
                   </div>
                 </div>
                 <button
                   onClick={() => onToggleAccount("google")}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                  disabled={isAuthLoading}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                     connectedAccounts.google
                       ? "text-red-500 hover:bg-red-500/10 border border-red-500/20"
                       : isDark
@@ -122,7 +141,11 @@ export const ProfileSecurity: React.FC<ProfileSecurityProps> = memo(
                         : "text-gray-600 border border-gray-200 hover:bg-gray-100"
                   }`}
                 >
-                  {connectedAccounts.google ? "Disconnect" : "Connect"}
+                  {isAuthLoading
+                    ? "..."
+                    : connectedAccounts.google
+                      ? "Disconnect"
+                      : "Connect"}
                 </button>
               </div>
 
@@ -155,13 +178,14 @@ export const ProfileSecurity: React.FC<ProfileSecurityProps> = memo(
                         isDark ? "text-gray-500" : "text-gray-400"
                       }`}
                     >
-                      {connectedAccounts.github ? "rowan-dev" : "Not connected"}
+                      {getIdentityEmail("github")}
                     </p>
                   </div>
                 </div>
                 <button
                   onClick={() => onToggleAccount("github")}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                  disabled={isAuthLoading}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                     connectedAccounts.github
                       ? "text-red-500 hover:bg-red-500/10 border border-red-500/20"
                       : isDark
@@ -169,7 +193,11 @@ export const ProfileSecurity: React.FC<ProfileSecurityProps> = memo(
                         : "text-gray-600 border border-gray-200 hover:bg-gray-100"
                   }`}
                 >
-                  {connectedAccounts.github ? "Disconnect" : "Connect"}
+                  {isAuthLoading
+                    ? "..."
+                    : connectedAccounts.github
+                      ? "Disconnect"
+                      : "Connect"}
                 </button>
               </div>
             </div>

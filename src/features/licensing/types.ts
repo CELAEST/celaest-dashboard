@@ -28,8 +28,13 @@ export interface License {
   updated_at: string;
   suspended_at?: string;
   cancelled_at?: string;
+  superseded_by?: string;
+  superseded_at?: string;
+  active_activations: number; // Count of current IP bindings
   plan?: PlanInfo;
   ip_bindings?: IPBinding[];
+  user_name?: string;
+  user_email?: string;
 }
 
 export type LicenseStatus =
@@ -38,7 +43,8 @@ export type LicenseStatus =
   | "expired"
   | "cancelled"
   | "trial"
-  | "revoked";
+  | "revoked"
+  | "superseded";
 
 export type BillingCycle =
   | "monthly"
@@ -51,6 +57,8 @@ export interface PlanInfo {
   id: string;
   code: string;
   name: string;
+  tier?: number;
+  limits?: Record<string, unknown>;
 }
 
 export interface IPBinding {
@@ -161,6 +169,8 @@ export interface LicenseFilter {
   plan_id?: string;
   page?: number;
   limit?: number;
+  search?: string;
+  view?: string;
 }
 
 export interface LimitsStatus {

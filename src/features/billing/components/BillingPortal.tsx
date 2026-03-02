@@ -1,19 +1,30 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Shield, Crown, User, LayoutGrid, Receipt } from "lucide-react";
+import {
+  Shield,
+  Crown,
+  User,
+  LayoutGrid,
+  Receipt,
+  Package,
+} from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { BillingOverview } from "./views/BillingOverview";
 import { InvoicesView } from "./views/InvoicesView";
 import { AdminOverviewView } from "./views/AdminOverviewView";
 import { AdminControlsView } from "./views/AdminControlsView";
+import { AdminProductCatalog } from "./AdminProductCatalog";
 import { AnimatePresence, motion } from "motion/react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useBilling } from "../hooks/useBilling";
+import { useAuth } from "@/features/auth/contexts/AuthContext";
+import { logger } from "@/lib/logger";
+import { billingApi } from "../api/billing.api";
 
 type BillingTab = "overview" | "invoices";
-type AdminTab = "overview" | "controls";
+type AdminTab = "overview" | "catalog" | "controls";
 
 export const BillingPortal: React.FC = () => {
   const { theme } = useTheme();
@@ -21,6 +32,7 @@ export const BillingPortal: React.FC = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { refresh } = useBilling();
+  const { session } = useAuth();
 
   const [viewMode, setViewMode] = useState<"customer" | "admin">("customer");
   const [activeTab, setActiveTab] = useState<BillingTab>("overview");
@@ -41,24 +53,62 @@ export const BillingPortal: React.FC = () => {
 
     const success = searchParams.get("success");
     const cancel = searchParams.get("cancel");
+    const sessionId = searchParams.get("session_id");
+
+    const handleSuccess = async () => {
+      if (success === "true") {
+        // If we have a session ID, verify it actively to ensure immediate access
+        if (sessionId && session?.accessToken) {
+          const toastId = toast.loading("Verifying purchase...");
+          try {
+            // Active verification against backend
+            const result = await billingApi.verifyPurchase(
+              session.accessToken,
+              sessionId,
+            );
+
+            if (result.status === "completed" || result.has_access) {
+              toast.success("Subscription successfully activated!", {
+                description: "Your new plan is now active.",
+                id: toastId,
+                duration: 5000,
+              });
+            } else {
+              toast.info("Purchase pending processing", {
+                description: "Your plan will be active shortly.",
+                id: toastId,
+              });
+            }
+          } catch (e: unknown) {
+            logger.error("Verification failed", e);
+            // Fallback: still show success but maybe warn or just rely on webhook
+            toast.success("Purchase recorded", {
+              description: "Updating your subscription details...",
+              id: toastId,
+            });
+          }
+        } else {
+          toast.success("Subscription successfully activated!", {
+            description: "Your new plan is now active.",
+            duration: 5000,
+          });
+        }
+
+        // Always refresh and clean URL
+        await refresh();
+        router.replace(`/?tab=billing`, { scroll: false });
+      }
+    };
 
     if (success === "true") {
-      toast.success("Subscription successfully activated!", {
-        description: "Your new plan is now active.",
-        duration: 5000,
-      });
-      // Refresh data to show new plan
-      refresh();
-      // Clean up URL
-      router.replace(`/?tab=billing`, { scroll: false });
+      handleSuccess();
     } else if (cancel === "true") {
       toast.error("Payment cancelled", {
         description: "Your subscription remains unchanged.",
       });
-      // Clean up URL
       router.replace(`/?tab=billing`, { scroll: false });
     }
-  }, [searchParams, router, refresh]);
+  }, [searchParams, router, refresh, session?.accessToken]);
 
   return (
     <div className="flex-1 flex flex-col min-h-0 h-full">
@@ -186,6 +236,19 @@ export const BillingPortal: React.FC = () => {
                 Financial
               </button>
               <button
+                onClick={() => setActiveAdminTab("catalog")}
+                className={`pt-2.5 pb-2 flex items-center gap-2 text-[11px] font-black uppercase tracking-widest border-b-[3px] transition-all duration-300 ${
+                  activeAdminTab === "catalog"
+                    ? isDark
+                      ? "text-purple-400 border-purple-400"
+                      : "text-purple-600 border-purple-600"
+                    : "text-gray-400 border-transparent hover:text-gray-300 mb-[3px]"
+                }`}
+              >
+                <Package size={14} className="mb-0.5" />
+                Catalog
+              </button>
+              <button
                 onClick={() => setActiveAdminTab("controls")}
                 className={`pt-2.5 pb-2 flex items-center gap-2 text-[11px] font-black uppercase tracking-widest border-b-[3px] transition-all duration-300 ${
                   activeAdminTab === "controls"
@@ -258,6 +321,11 @@ export const BillingPortal: React.FC = () => {
               className="w-full min-h-full lg:h-full flex flex-col"
             >
               {activeAdminTab === "overview" && <AdminOverviewView />}
+              {activeAdminTab === "catalog" && (
+                <div className="p-4 sm:p-6 w-full h-full min-h-0 overflow-y-auto">
+                  <AdminProductCatalog />
+                </div>
+              )}
               {activeAdminTab === "controls" && <AdminControlsView />}
             </motion.div>
           ) : (

@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import { ExternalLink } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 
 export const ApiDocs: React.FC = memo(() => {
   const { isDark } = useTheme();

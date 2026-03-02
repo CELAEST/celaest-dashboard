@@ -7,10 +7,11 @@ import {
   Sparkles,
   AlertCircle,
 } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { ManageSubscriptionModal } from "./modals/ManageSubscriptionModal";
 import { UpgradePlanModal } from "./modals/UpgradePlanModal";
 import { useBilling } from "../hooks/useBilling";
+import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 
 export const SubscriptionManager: React.FC = () => {
   const { theme } = useTheme();
@@ -20,6 +21,20 @@ export const SubscriptionManager: React.FC = () => {
 
   // Use real billing data
   const { subscription, plan, usage, isLoading, error } = useBilling();
+  const { currentOrg } = useOrgStore();
+
+  // Allow billing management if the user is an owner/admin in their org, OR if they
+  // are viewing their personal Celaest workspace (slug = "celaest" or "celaest-official").
+  // The backend SQL exposes both slugs for the system org, so we check both.
+  // In their personal Celaest space every user should be able to upgrade/manage.
+  const isCelaestPersonal =
+    currentOrg?.slug === "celaest-official" ||
+    currentOrg?.slug === "celaest";
+
+  const canBilling =
+    currentOrg?.role === "owner" ||
+    currentOrg?.role === "super_admin" ||
+    isCelaestPersonal;
 
   if (isLoading) {
     return (
@@ -76,7 +91,9 @@ export const SubscriptionManager: React.FC = () => {
               }`}
             >
               <Zap className="w-3.5 h-3.5" />
-              <span>{plan?.name ? plan.name.toUpperCase() : "FREE TIER"}</span>
+              <span>
+                {plan?.name ? plan.name.toUpperCase() : "PLAN NO DEFINIDO"}
+              </span>
             </div>
             <div
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full font-bold text-xs tracking-wide shadow-sm ${
@@ -111,7 +128,7 @@ export const SubscriptionManager: React.FC = () => {
                   : "text-slate-900"
               }`}
             >
-              {plan?.name || "Free Plan"}
+              {plan?.name || "Plan Nexus"}
             </h2>
             <div className="flex items-baseline gap-2">
               <span
@@ -244,13 +261,18 @@ export const SubscriptionManager: React.FC = () => {
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 mt-auto">
             <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setIsUpgradeModalOpen(true)}
+              whileHover={canBilling ? { scale: 1.02 } : {}}
+              whileTap={canBilling ? { scale: 0.98 } : {}}
+              onClick={
+                canBilling ? () => setIsUpgradeModalOpen(true) : undefined
+              }
+              title={!canBilling ? "Solo Propietarios" : undefined}
               className={`relative overflow-hidden flex-1 py-3.5 px-6 rounded-xl font-bold text-sm tracking-wide transition-all duration-300 group ${
-                isDark
-                  ? "bg-linear-to-r from-cyan-500 to-blue-600 text-white shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(6,182,212,0.5)] border border-cyan-400/20"
-                  : "bg-linear-to-r from-blue-600 to-indigo-700 text-white shadow-lg hover:shadow-xl shadow-blue-500/30"
+                !canBilling
+                  ? "bg-gray-200 text-gray-400 border border-gray-300 cursor-not-allowed dark:bg-zinc-800 dark:text-gray-500 dark:border-zinc-700"
+                  : isDark
+                    ? "bg-linear-to-r from-cyan-500 to-blue-600 text-white shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(6,182,212,0.5)] border border-cyan-400/20"
+                    : "bg-linear-to-r from-blue-600 to-indigo-700 text-white shadow-lg hover:shadow-xl shadow-blue-500/30"
               }`}
             >
               <span className="relative z-10 flex items-center justify-center gap-2">
@@ -258,17 +280,24 @@ export const SubscriptionManager: React.FC = () => {
                 UPGRADE PLAN
               </span>
               {/* Button Shine Animation */}
-              <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+              {canBilling && (
+                <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+              )}
             </motion.button>
 
             <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setIsManageModalOpen(true)}
+              whileHover={canBilling ? { scale: 1.02 } : {}}
+              whileTap={canBilling ? { scale: 0.98 } : {}}
+              onClick={
+                canBilling ? () => setIsManageModalOpen(true) : undefined
+              }
+              title={!canBilling ? "Solo Propietarios" : undefined}
               className={`px-6 py-3.5 rounded-xl font-bold text-sm tracking-wide transition-all duration-300 ${
-                isDark
-                  ? "bg-white/5 border border-white/10 text-slate-300 hover:bg-white/10 hover:text-white"
-                  : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300"
+                !canBilling
+                  ? "bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed dark:bg-zinc-800/50 dark:text-gray-600 dark:border-zinc-800"
+                  : isDark
+                    ? "bg-white/5 border border-white/10 text-slate-300 hover:bg-white/10 hover:text-white"
+                    : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300"
               }`}
             >
               Manage

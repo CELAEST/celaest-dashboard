@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "motion/react";
 import { AlertTriangle } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface User {
   email: string;

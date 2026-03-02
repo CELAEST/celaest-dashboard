@@ -4,7 +4,7 @@ import React, { useEffect } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { motion, AnimatePresence } from "motion/react";
 import { X } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { assetSchema, AssetFormValues } from "../hooks/useAssetForm";
 import { Asset, AssetType } from "../services/assets.service";
 import { AssetFileUploader } from "./AssetFileUploader";
@@ -36,14 +36,19 @@ export const AssetEditor: React.FC<AssetEditorProps> = ({
     defaultValues: {
       name: "",
       type: "excel",
-      category: "",
+      category_id: "",
       price: 0,
       operationalCost: 0,
       status: "draft",
+      is_public: false,
       description: "",
       requirements: "",
       features: "",
+      tags: "",
+      technical_stack: "",
+      min_plan_tier: 0,
       external_url: "",
+      github_repository: "",
       thumbnail_url: "",
     },
   });
@@ -53,32 +58,57 @@ export const AssetEditor: React.FC<AssetEditorProps> = ({
   const { reset, handleSubmit } = methods;
 
   useEffect(() => {
+    // Normalize legacy status values to current enum
+    const normalizeStatus = (s: string): "draft" | "published" | "archived" => {
+      switch (s) {
+        case "published":
+        case "stable":
+        case "active":
+          return "published";
+        case "archived":
+        case "deprecated":
+          return "archived";
+        default:
+          return "draft";
+      }
+    };
+
     if (asset) {
       reset({
         name: asset.name,
         type: (asset.display_type || asset.type) as AssetType,
-        category: asset.category,
+        category_id: asset.categoryId || "",
         price: asset.price,
         operationalCost: asset.operationalCost,
-        status: asset.status,
+        status: normalizeStatus(asset.status),
+        is_public: asset.isPublic ?? false,
         description: asset.description || "",
         requirements: asset.requirements?.join("\n") || "",
         features: asset.features?.join("\n") || "",
+        tags: asset.tags?.join("\n") || "",
+        technical_stack: asset.technicalStack?.join("\n") || "",
+        min_plan_tier: asset.minPlanTier || 0,
         external_url: asset.external_url || "",
+        github_repository: asset.github_repository || "",
         thumbnail_url: asset.thumbnail || "",
       });
     } else {
       reset({
         name: "",
         type: "excel",
-        category: "",
+        category_id: "",
         price: 0,
         operationalCost: 0,
         status: "draft",
+        is_public: false,
         description: "",
         requirements: "",
         features: "",
+        tags: "",
+        technical_stack: "",
+        min_plan_tier: 0,
         external_url: "",
+        github_repository: "",
         thumbnail_url: "",
       });
     }
@@ -145,8 +175,20 @@ export const AssetEditor: React.FC<AssetEditorProps> = ({
 
           <FormProvider {...methods}>
             <form
-              onSubmit={handleSubmit((data) =>
-                onSave({ ...data, productFile: selectedFile || undefined }),
+              onSubmit={handleSubmit(
+                (data) =>
+                  onSave({
+                    ...data,
+                    productFile: selectedFile || undefined,
+                  } as AssetFormValues),
+                (errors) => {
+                  const firstError = Object.values(errors)[0];
+                  if (firstError?.message) {
+                    import("sonner").then(({ toast }) =>
+                      toast.error(`Validation: ${firstError.message}`),
+                    );
+                  }
+                },
               )}
               className="p-6 space-y-8"
             >

@@ -1,16 +1,60 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useApiAuth } from "@/lib/use-api-auth";
+import { settingsApi } from "../api/settings.api";
 import {
   TimezoneOption,
   DateFormatOption,
   TimeFormatOption,
 } from "@/features/settings/components/types";
+import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
+
+const PREFS_QUERY_KEY = [...QUERY_KEYS.users.all, "preferences"] as const;
 
 export const usePreferencesSettings = () => {
+  const { token, isReady } = useApiAuth();
   const { setTheme, theme: currentTheme } = useTheme();
   const [timezone, setTimezone] = useState("America/Los_Angeles");
   const [dateFormat, setDateFormat] = useState("MM/DD/YYYY");
   const [timeFormat, setTimeFormat] = useState("12h");
+
+  const { isLoading } = useQuery({
+    queryKey: PREFS_QUERY_KEY,
+    queryFn: async () => {
+      if (!token) return null;
+      const response = await settingsApi.getPreferences(token);
+      const { preferences } = response;
+      
+      if (preferences.timezone) setTimezone(preferences.timezone);
+      if (preferences.theme) setTheme(preferences.theme as "light" | "dark");
+      return preferences;
+    },
+    enabled: isReady && !!token,
+  });
+
+  const saveMutation = useMutation({
+    mutationFn: async () => {
+      if (!token) throw new Error("No token");
+      await settingsApi.updatePreferences({
+        timezone,
+        theme: currentTheme,
+        date_format: dateFormat,
+        time_format: timeFormat,
+      }, token);
+    },
+    onSuccess: () => {
+      toast.success("Preferences saved successfully");
+    },
+    onError: () => {
+      toast.error("Failed to save preferences");
+    },
+  });
+
+  const savePreferences = useCallback(() => {
+    saveMutation.mutate();
+  }, [saveMutation]);
 
   const timezones: TimezoneOption[] = useMemo(
     () => [
@@ -65,5 +109,8 @@ export const usePreferencesSettings = () => {
     timezones,
     dateFormats,
     timeFormats,
+    isLoading,
+    isSaving: saveMutation.isPending,
+    savePreferences,
   };
 };

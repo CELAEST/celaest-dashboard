@@ -4,7 +4,7 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { motion } from "motion/react";
 import {
   Shield,
@@ -27,7 +27,15 @@ import {
   initialSetupSchema,
   InitialSetupFormData,
 } from "@/lib/validation/schemas/auth";
-import { FormInput } from "@/components/forms";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 
 const projectId =
   process.env.NEXT_PUBLIC_SUPABASE_PROJECT_ID || "your-project-id";
@@ -39,11 +47,7 @@ export const InitialSetup: React.FC = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
-  const {
-    control,
-    handleSubmit,
-    formState: { isSubmitting },
-  } = useForm<InitialSetupFormData>({
+  const form = useForm<InitialSetupFormData>({
     resolver: zodResolver(initialSetupSchema),
     defaultValues: {
       name: "",
@@ -51,6 +55,8 @@ export const InitialSetup: React.FC = () => {
       password: "",
     },
   });
+
+  const { isSubmitting } = form.formState;
 
   const onSubmit = async (data: InitialSetupFormData) => {
     setError("");
@@ -186,81 +192,113 @@ export const InitialSetup: React.FC = () => {
               </Alert>
             )}
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <FormInput
-                control={control}
-                name="name"
-                label="Full Name"
-                placeholder="Admin Name"
-                icon={
-                  <User
-                    className={`w-4 h-4 ${isDark ? "text-gray-500" : "text-gray-400"}`}
-                  />
-                }
-              />
-
-              <FormInput
-                control={control}
-                name="email"
-                label="Email Address"
-                placeholder="admin@celaest.com"
-                type="email"
-                icon={
-                  <Mail
-                    className={`w-4 h-4 ${isDark ? "text-gray-500" : "text-gray-400"}`}
-                  />
-                }
-              />
-
-              <FormInput
-                control={control}
-                name="password"
-                label="Password"
-                placeholder="••••••••"
-                type="password"
-                icon={
-                  <Lock
-                    className={`w-4 h-4 ${isDark ? "text-gray-500" : "text-gray-400"}`}
-                  />
-                }
-              />
-
-              <Alert
-                className={`border ${isDark ? "border-purple-500/30 bg-purple-500/10" : "border-purple-300 bg-purple-50"}`}
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-4"
               >
-                <Shield className="h-4 w-4 text-purple-500" />
-                <AlertDescription
-                  className={isDark ? "text-purple-300" : "text-purple-700"}
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Full Name</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                          <Input
+                            placeholder="Admin Name"
+                            className="pl-10 h-11"
+                            {...field}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email Address</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                          <Input
+                            type="email"
+                            placeholder="admin@celaest.com"
+                            className="pl-10 h-11"
+                            {...field}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                          <Input
+                            type="password"
+                            placeholder="••••••••"
+                            className="pl-10 h-11"
+                            {...field}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <Alert
+                  className={`border ${isDark ? "border-purple-500/30 bg-purple-500/10" : "border-purple-300 bg-purple-50"}`}
                 >
-                  This account will have full system access including user
-                  management.
-                </AlertDescription>
-              </Alert>
+                  <Shield className="h-4 w-4 text-purple-500" />
+                  <AlertDescription
+                    className={isDark ? "text-purple-300" : "text-purple-700"}
+                  >
+                    This account will have full system access including user
+                    management.
+                  </AlertDescription>
+                </Alert>
 
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className={`w-full ${
-                  isDark
-                    ? "bg-purple-500 hover:bg-purple-600 text-white"
-                    : "bg-purple-600 hover:bg-purple-700 text-white"
-                }`}
-              >
-                {isSubmitting ? (
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{
-                      duration: 1,
-                      repeat: Infinity,
-                      ease: "linear",
-                    }}
-                    className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
-                  />
-                ) : (
-                  "Create Super Admin"
-                )}
-              </Button>
-            </form>
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className={`w-full ${
+                    isDark
+                      ? "bg-purple-500 hover:bg-purple-600 text-white"
+                      : "bg-purple-600 hover:bg-purple-700 text-white"
+                  }`}
+                >
+                  {isSubmitting ? (
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{
+                        duration: 1,
+                        repeat: Infinity,
+                        ease: "linear",
+                      }}
+                      className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
+                    />
+                  ) : (
+                    "Create Super Admin"
+                  )}
+                </Button>
+              </form>
+            </Form>
           </CardContent>
         </Card>
       </motion.div>

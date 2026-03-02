@@ -1,59 +1,83 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { PaymentGateway } from "../types";
 import { billingApi } from "../api/billing.api";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { toast } from "sonner";
+import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
 
 export const usePaymentGateways = () => {
   const { session } = useAuth();
-  const [gateways, setGateways] = useState<PaymentGateway[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const token = session?.accessToken ?? null;
+  const queryClient = useQueryClient();
+
   const [editingGatewayId, setEditingGatewayId] = useState<string | null>(null);
   const [showApiKey, setShowApiKey] = useState<Record<string, boolean>>({});
   const [editForm, setEditForm] = useState<Partial<PaymentGateway>>({});
 
-  const fetchGateways = useCallback(async () => {
-    if (!session?.accessToken) return;
-    setIsLoading(true);
-    try {
-      const data = await billingApi.getAdminGateways(session.accessToken);
-      setGateways(data);
-    } catch (err) {
-      console.error("Failed to fetch gateways:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [session?.accessToken]);
+  // ── Query ───────────────────────────────────────────────────────────
+  const { data: gateways = [], isLoading } = useQuery({
+    queryKey: QUERY_KEYS.billing.gateways,
+    queryFn: () => billingApi.getAdminGateways(token!),
+    enabled: !!token,
+  });
 
-  useEffect(() => {
-    fetchGateways();
-  }, [fetchGateways]);
+  // ── Mutations ───────────────────────────────────────────────────────
+  const saveConfigMutation = useMutation({
+    mutationFn: async ({ id, config }: { id: string; config: Partial<PaymentGateway> }) => {
+      await billingApi.updateAdminGatewayConfig(token!, id, config);
+      return { id, config };
+    },
+    onMutate: async ({ id, config }) => {
+      await queryClient.cancelQueries({ queryKey: QUERY_KEYS.billing.gateways });
+      const previous = queryClient.getQueryData<PaymentGateway[]>(QUERY_KEYS.billing.gateways);
+      queryClient.setQueryData<PaymentGateway[]>(QUERY_KEYS.billing.gateways, old =>
+        (old || []).map(g => g.id === id ? { ...g, ...config } : g)
+      );
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) queryClient.setQueryData(QUERY_KEYS.billing.gateways, context.previous);
+      toast.error("Failed to save gateway configuration");
+    },
+    onSuccess: () => {
+      setEditingGatewayId(null);
+      setEditForm({});
+      toast.success("Gateway configuration saved successfully");
+    },
+  });
 
+  const toggleStatusMutation = useMutation({
+    mutationFn: async ({ id, newActive }: { id: string; newActive: boolean }) => {
+      await billingApi.updateAdminGatewayStatus(token!, id, newActive);
+      return { id, newActive };
+    },
+    onMutate: async ({ id, newActive }) => {
+      await queryClient.cancelQueries({ queryKey: QUERY_KEYS.billing.gateways });
+      const previous = queryClient.getQueryData<PaymentGateway[]>(QUERY_KEYS.billing.gateways);
+      queryClient.setQueryData<PaymentGateway[]>(QUERY_KEYS.billing.gateways, old =>
+        (old || []).map(g =>
+          g.id === id ? { ...g, status: newActive ? "active" : "disabled" } : g
+        )
+      );
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) queryClient.setQueryData(QUERY_KEYS.billing.gateways, context.previous);
+      toast.error("Failed to update gateway status");
+    },
+    onSuccess: (_, { id }) => toast.success(`Gateway ${id} status updated`),
+  });
+
+  // ── Handlers ────────────────────────────────────────────────────────
   const handleEdit = (gateway: PaymentGateway) => {
     setEditingGatewayId(gateway.id);
     setEditForm(gateway);
   };
 
-  const handleSaveEdit = async () => {
-    if (editingGatewayId && editForm && session?.accessToken) {
-      try {
-        await billingApi.updateAdminGatewayConfig(
-          session.accessToken,
-          editingGatewayId,
-          editForm
-        );
-        setGateways(
-          gateways.map((g) =>
-            g.id === editingGatewayId ? { ...g, ...editForm } : g
-          )
-        );
-        setEditingGatewayId(null);
-        setEditForm({});
-        toast.success("Gateway configuration saved successfully");
-      } catch (err) {
-        console.error("Failed to save gateway config:", err);
-        toast.error("Failed to save gateway configuration");
-      }
+  const handleSaveEdit = () => {
+    if (editingGatewayId && editForm && token) {
+      saveConfigMutation.mutate({ id: editingGatewayId, config: editForm });
     }
   };
 
@@ -62,30 +86,15 @@ export const usePaymentGateways = () => {
     setEditForm({});
   };
 
-  const handleToggleStatus = async (id: string) => {
-    if (!session?.accessToken) return;
-    
+  const handleToggleStatus = (id: string) => {
+    if (!token) return;
     const gateway = gateways.find(g => g.id === id);
     if (!gateway) return;
-
-    const newActive = gateway.status !== "active";
-    
-    try {
-      await billingApi.updateAdminGatewayStatus(session.accessToken, id, newActive);
-      setGateways(
-        gateways.map((g) =>
-          g.id === id ? { ...g, status: newActive ? "active" : "disabled" } : g
-        )
-      );
-      toast.success(`Gateway ${id} status updated`);
-    } catch (err) {
-      console.error("Failed to toggle gateway status:", err);
-      toast.error("Failed to update gateway status");
-    }
+    toggleStatusMutation.mutate({ id, newActive: gateway.status !== "active" });
   };
 
   const toggleApiKeyVisibility = (id: string) => {
-    setShowApiKey((prev) => ({ ...prev, [id]: !prev[id] }));
+    setShowApiKey(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
   return {
@@ -100,6 +109,6 @@ export const usePaymentGateways = () => {
     handleCancelEdit,
     handleToggleStatus,
     toggleApiKeyVisibility,
-    refresh: fetchGateways,
+    refresh: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.billing.gateways }),
   };
 };

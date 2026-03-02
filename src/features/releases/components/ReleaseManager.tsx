@@ -13,6 +13,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
+import { logger } from "@/lib/logger";
 import { useOrg } from "@/features/shared/contexts/OrgContext";
 import { assetsApi } from "@/features/assets/api/assets.api";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
@@ -28,13 +29,19 @@ import { motion, AnimatePresence } from "motion/react";
 import { useReleaseOverview } from "@/features/releases/hooks/useReleaseOverview";
 import { usePipeline } from "@/features/releases/hooks/usePipeline";
 
+import { useSearchParams } from "next/navigation";
+
 export const ReleaseManager: React.FC = () => {
   const { theme } = useTheme();
   const { session } = useAuth();
   const { org } = useOrg();
   const token = session?.accessToken;
   const isDark = theme === "dark";
-  const [viewMode, setViewMode] = useState<"admin" | "customer">("admin");
+
+  const searchParams = useSearchParams();
+  const initialView =
+    searchParams.get("view") === "customer" ? "customer" : "admin";
+  const [viewMode, setViewMode] = useState<"admin" | "customer">(initialView);
   const [activeTab, setActiveTab] = useState<
     "overview" | "pipeline" | "history"
   >("history");
@@ -492,8 +499,8 @@ export const ReleaseManager: React.FC = () => {
                                         () => setAbortState("idle"),
                                         1000,
                                       );
-                                    } catch (err) {
-                                      console.error(
+                                    } catch (err: unknown) {
+                                      logger.error(
                                         "Failed to abort pipeline:",
                                         err,
                                       );

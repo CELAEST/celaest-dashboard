@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore, useEffect, startTransition } from "react";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 import { motion } from "motion/react";
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
 import { useSearchParams } from "next/navigation";
@@ -25,8 +26,54 @@ export function DashboardShell() {
   const searchParams = useSearchParams();
   const [showLoginModal, setShowLoginModal] = useState(false);
 
+  // Landing Guard
+  const isRevokedLanding = searchParams.get("revoked") === "true";
+
   // Custom hooks from new architecture
   const { activeTab, navigateTo } = useDashboardRouter();
+  const clearOrgSync = useOrgStore((s) => s.clearSync);
+  const currentOrg = useOrgStore((s) => s.currentOrg);
+
+  // wasRevoked tracks recovery in memory so the spinner persists past the
+  // URL cleanup (replaceState removes ?revoked=true almost immediately, before
+  // fetchOrgs completes). Without this, the shell renders with currentOrg=null
+  // → isReady=false → "Preparando sesión" every time.
+  const [wasRevoked, setWasRevoked] = useState(false);
+
+  // Circuit Breaker: If we land with ?revoked=true, force a clean state
+  useEffect(() => {
+    if (searchParams.get("revoked") === "true") {
+      console.warn(
+        "[DashboardShell] Revoked landing detected. Clearing stale org context. currentOrg before clear:",
+        useOrgStore.getState().currentOrg?.slug ?? "null",
+      );
+      startTransition(() => setWasRevoked(true));
+      clearOrgSync();
+
+      // Clean up the URL without re-triggering navigation logic
+      const url = new URL(window.location.href);
+      url.searchParams.delete("revoked");
+      window.history.replaceState({}, "", url.toString());
+    }
+  }, [searchParams, clearOrgSync]);
+
+  // Once org is recovered (or timeout), stop blocking render.
+  // Early-exit when wasRevoked=false avoids running on every org switch
+  // during normal navigation.
+  useEffect(() => {
+    if (!wasRevoked) return;
+    if (currentOrg) {
+      console.log("[DashboardShell] Org recovered:", currentOrg.slug);
+      startTransition(() => setWasRevoked(false));
+      return;
+    }
+    // Safety: never block more than 5 seconds regardless of fetchOrgs outcome
+    const t = setTimeout(() => {
+      console.warn("[DashboardShell] wasRevoked timeout — releasing spinner. currentOrg still null.");
+      setWasRevoked(false);
+    }, 5000);
+    return () => clearTimeout(t);
+  }, [wasRevoked, currentOrg]);
 
   const { theme } = useTheme();
   const { user, isLoading } = useAuth();
@@ -49,7 +96,12 @@ export function DashboardShell() {
     () => false,
   );
 
-  if (!mounted || isLoading) {
+  // Block render while:
+  // 1. Auth is loading
+  // 2. URL still has ?revoked=true (isRevokedLanding)
+  // 3. wasRevoked=true but currentOrg not yet recovered (fetchOrgs in-flight)
+  const isRecoveringOrg = wasRevoked && !currentOrg;
+  if (!mounted || isLoading || isRevokedLanding || isRecoveringOrg) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#050505]">
         <motion.div

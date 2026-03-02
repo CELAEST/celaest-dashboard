@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CardHeader, CardDescription, CardTitle } from "@/components/ui/card";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface UserFiltersProps {
   searchQuery: string;

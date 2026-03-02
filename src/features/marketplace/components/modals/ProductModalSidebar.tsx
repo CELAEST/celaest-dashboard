@@ -1,15 +1,24 @@
 "use client";
 
 import React from "react";
-import { ShoppingCart, Shield, CheckCircle, Download, Key } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import {
+  ShoppingCart,
+  Shield,
+  CheckCircle,
+  Download,
+  Key,
+  Sparkles,
+} from "lucide-react";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { MarketplaceProduct } from "../../types";
 import { formatCurrency } from "@/lib/utils";
+import { useMarketplaceCouponStore } from "../../store";
 
 interface ProductModalSidebarProps {
   product: MarketplaceProduct;
   onPurchase?: () => void;
   isOwned?: boolean;
+  accessLevel?: "owned" | "plan" | "none";
   onDownload?: () => void;
   onViewLicense?: () => void;
 }
@@ -18,12 +27,33 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
   product,
   onPurchase,
   isOwned = false,
+  accessLevel,
   onDownload,
   onViewLicense,
 }) => {
   const { theme } = useTheme();
 
-  const formattedPrice = formatCurrency(product.base_price, product.currency);
+  // Resolve effective access
+  const effectiveAccess = accessLevel ?? (isOwned ? "owned" : "none");
+  const hasAccess = effectiveAccess === "owned" || effectiveAccess === "plan";
+  const isPlan = effectiveAccess === "plan";
+
+  const { activeCoupon } = useMarketplaceCouponStore();
+
+  let finalPrice = product.base_price;
+  if (activeCoupon) {
+    if (activeCoupon.type === "percentage") {
+      finalPrice = product.base_price * (1 - activeCoupon.value / 100);
+    } else if (activeCoupon.type === "fixed_amount") {
+      finalPrice = Math.max(0, product.base_price - activeCoupon.value);
+    }
+  }
+
+  const formattedOriginalPrice = formatCurrency(
+    product.base_price,
+    product.currency,
+  );
+  const formattedFinalPrice = formatCurrency(finalPrice, product.currency);
 
   return (
     <div className="sticky top-24 space-y-4">
@@ -32,30 +62,48 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
         className={`
           p-6 rounded-2xl border
           ${
-            isOwned
-              ? theme === "dark"
-                ? "bg-linear-to-br from-emerald-900/20 to-green-900/20 border-emerald-500/20"
-                : "bg-linear-to-br from-emerald-50 to-green-50 border-emerald-200"
+            hasAccess
+              ? isPlan
+                ? theme === "dark"
+                  ? "bg-linear-to-br from-violet-900/20 to-purple-900/20 border-violet-500/20"
+                  : "bg-linear-to-br from-violet-50 to-purple-50 border-violet-200"
+                : theme === "dark"
+                  ? "bg-linear-to-br from-emerald-900/20 to-green-900/20 border-emerald-500/20"
+                  : "bg-linear-to-br from-emerald-50 to-green-50 border-emerald-200"
               : theme === "dark"
                 ? "bg-linear-to-br from-blue-900/20 to-indigo-900/20 border-blue-500/20"
                 : "bg-linear-to-br from-blue-50 to-indigo-50 border-blue-200"
           }
         `}
       >
-        {isOwned ? (
-          /* Owned State */
+        {hasAccess ? (
+          /* Owned / Plan State */
           <>
             <div className="flex items-center gap-2 mb-4">
-              <CheckCircle
-                className={`size-6 ${theme === "dark" ? "text-emerald-400" : "text-emerald-600"}`}
-              />
+              {isPlan ? (
+                <Sparkles
+                  className={`size-6 ${theme === "dark" ? "text-violet-400" : "text-violet-600"}`}
+                />
+              ) : (
+                <CheckCircle
+                  className={`size-6 ${theme === "dark" ? "text-emerald-400" : "text-emerald-600"}`}
+                />
+              )}
               <span
                 className={`
                   text-xl font-bold
-                  ${theme === "dark" ? "text-emerald-400" : "text-emerald-700"}
+                  ${
+                    isPlan
+                      ? theme === "dark"
+                        ? "text-violet-400"
+                        : "text-violet-700"
+                      : theme === "dark"
+                        ? "text-emerald-400"
+                        : "text-emerald-700"
+                  }
                 `}
               >
-                ADQUIRIDO
+                {isPlan ? "INCLUIDO EN PLAN" : "ADQUIRIDO"}
               </span>
             </div>
             <button
@@ -63,16 +111,20 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
               className={`
                 w-full h-12 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-all mb-3
                 ${
-                  theme === "dark"
-                    ? "bg-linear-to-r from-emerald-400 to-green-400 text-black hover:shadow-lg hover:scale-[1.02]"
-                    : "bg-linear-to-r from-emerald-600 to-green-600 text-white hover:shadow-lg hover:scale-[1.02]"
+                  isPlan
+                    ? theme === "dark"
+                      ? "bg-linear-to-r from-violet-400 to-purple-400 text-black hover:shadow-lg hover:scale-[1.02]"
+                      : "bg-linear-to-r from-violet-600 to-purple-600 text-white hover:shadow-lg hover:scale-[1.02]"
+                    : theme === "dark"
+                      ? "bg-linear-to-r from-emerald-400 to-green-400 text-black hover:shadow-lg hover:scale-[1.02]"
+                      : "bg-linear-to-r from-emerald-600 to-green-600 text-white hover:shadow-lg hover:scale-[1.02]"
                 }
               `}
             >
               <Download className="size-5" />
               Descargar
             </button>
-            {onViewLicense && (
+            {!isPlan && onViewLicense && (
               <button
                 onClick={onViewLicense}
                 className={`
@@ -93,18 +145,32 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
           /* Not Owned State */
           <>
             <div className="mb-4">
-              <span
-                className={`
-                  text-4xl font-bold bg-linear-to-r bg-clip-text text-transparent
-                  ${
-                    theme === "dark"
-                      ? "from-cyan-400 to-blue-400"
-                      : "from-blue-600 to-indigo-600"
-                  }
-                `}
-              >
-                {formattedPrice}
-              </span>
+              <div className="flex flex-col gap-1 items-start">
+                {activeCoupon && (
+                  <span className="text-sm line-through text-gray-400 font-medium">
+                    {formattedOriginalPrice}
+                  </span>
+                )}
+                <span
+                  className={`
+                    text-4xl font-bold bg-linear-to-r bg-clip-text text-transparent
+                    ${
+                      activeCoupon
+                        ? "from-emerald-400 to-green-500"
+                        : theme === "dark"
+                          ? "from-cyan-400 to-blue-400"
+                          : "from-blue-600 to-indigo-600"
+                    }
+                  `}
+                >
+                  {formattedFinalPrice}
+                </span>
+                {activeCoupon && (
+                  <span className="text-xs font-semibold text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-full uppercase tracking-wider mt-1">
+                    Coupon Applied
+                  </span>
+                )}
+              </div>
             </div>
             <button
               onClick={onPurchase}
@@ -148,6 +214,19 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
             {
               label: "Published",
               value: new Date(product.created_at).toLocaleDateString(),
+            },
+            {
+              label: "Min Plan",
+              value:
+                product.min_plan_tier === 0
+                  ? "All"
+                  : product.min_plan_tier === 1
+                    ? "Basic"
+                    : product.min_plan_tier === 2
+                      ? "Pro"
+                      : product.min_plan_tier === 3
+                        ? "Enterprise"
+                        : "Private",
             },
           ].map((item) => (
             <div key={item.label} className="flex justify-between">

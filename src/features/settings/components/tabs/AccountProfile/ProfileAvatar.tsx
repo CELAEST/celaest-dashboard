@@ -1,7 +1,7 @@
 import React, { memo, useRef } from "react";
 import Image from "next/image";
 import { User, Upload, Trash2 } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface ProfileAvatarProps {
   avatarUrl: string | null;

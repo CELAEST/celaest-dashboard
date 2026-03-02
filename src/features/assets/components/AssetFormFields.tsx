@@ -1,24 +1,16 @@
 import React from "react";
 import { useFormContext } from "react-hook-form";
-import { FileSpreadsheet, Code, Globe } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { FileSpreadsheet, Code, Globe, Github } from "lucide-react";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { SettingsSelect } from "../../settings/components/SettingsSelect";
 import { AssetFormValues } from "../hooks/useAssetForm";
 import { AssetImageUploader } from "./AssetImageUploader";
-
-const CATEGORY_OPTIONS = [
-  { value: "Finance", label: "Finance" },
-  { value: "Automation", label: "Automation" },
-  { value: "Operations", label: "Operations" },
-  { value: "Sales", label: "Sales" },
-  { value: "Marketing", label: "Marketing" },
-  { value: "Analytics", label: "Analytics" },
-];
+import { useCategories } from "../hooks/useCategories";
 
 const STATUS_OPTIONS = [
   { value: "draft", label: "Draft (Hidden from marketplace)" },
-  { value: "active", label: "Active (Visible to customers)" },
-  { value: "archived", label: "Archived (Legacy version)" },
+  { value: "published", label: "Published (Visible in marketplace)" },
+  { value: "archived", label: "Archived (No longer available)" },
 ];
 
 interface AssetFormFieldsProps {
@@ -39,9 +31,18 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
     formState: { errors },
   } = useFormContext<AssetFormValues>();
 
+  const { categories, isLoading: isLoadingCategories } = useCategories();
   const selectedType = watch("type");
   const watchExternalUrl = watch("external_url");
   const watchThumbnailUrl = watch("thumbnail_url");
+  const watchCategoryId = watch("category_id");
+
+  const categoryOptions = React.useMemo(() => {
+    return categories.map((c) => ({
+      value: c.id,
+      label: c.name,
+    }));
+  }, [categories]);
 
   // Use watchExternalUrl in a subtle way to avoid unused warning if needed,
   // or just ensure uploader logic stays intact.
@@ -136,14 +137,15 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
         <div>
           <SettingsSelect
             label="Category *"
-            value={watch("category")}
-            onChange={(val) => setValue("category", val)}
-            options={CATEGORY_OPTIONS}
-            placeholder="Select category"
+            value={watchCategoryId}
+            onChange={(val) => setValue("category_id", val)}
+            options={categoryOptions}
+            placeholder={isLoadingCategories ? "Loading..." : "Select category"}
+            disabled={isLoadingCategories}
           />
-          {errors.category && (
+          {errors.category_id && (
             <p className="text-red-500 text-xs mt-1">
-              {errors.category.message}
+              {errors.category_id.message}
             </p>
           )}
         </div>
@@ -193,6 +195,47 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
           If this is a Google Sheet or external web tool, provide the direct
           link here.
         </p>
+
+        {/* GitHub Repository */}
+        <div>
+          <label
+            htmlFor="github_repository"
+            className={`block text-xs uppercase tracking-wider font-bold mb-2 ${
+              isDark ? "text-gray-500" : "text-gray-400"
+            }`}
+          >
+            GitHub Repository (Private Distribution)
+          </label>
+          <div className="relative">
+            <Github
+              size={18}
+              className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors pointer-events-none ${
+                watch("github_repository")
+                  ? "text-cyan-500"
+                  : isDark
+                    ? "text-gray-500"
+                    : "text-gray-400"
+              }`}
+            />
+            <input
+              id="github_repository"
+              type="text"
+              {...register("github_repository")}
+              className={`w-full pl-11 pr-4 py-3 rounded-lg border transition-all outline-none ${
+                isDark
+                  ? "bg-white/5 border-white/10 text-white placeholder-gray-500 focus:border-cyan-500/30 focus:bg-white/10"
+                  : "bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
+              }`}
+              placeholder="e.g. owner/repo"
+            />
+          </div>
+          <p
+            className={`text-[10px] mt-2 ml-1 ${isDark ? "text-gray-600" : "text-gray-400"}`}
+          >
+            Format: owner/repo. Used for secure release distribution via GitHub
+            API.
+          </p>
+        </div>
       </div>
 
       {/* Product Image / Thumbnail */}
@@ -305,16 +348,67 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
         </div>
       </div>
 
-      {/* Status */}
-      <div>
+      {/* Status & Visibility */}
+      <div className="space-y-4">
         <SettingsSelect
           label="Publish Status"
           value={watch("status")}
           onChange={(val) =>
-            setValue("status", val as "active" | "draft" | "archived")
+            setValue("status", val as "draft" | "published" | "archived")
           }
           options={STATUS_OPTIONS}
         />
+
+        {/* Marketplace Visibility Toggle */}
+        <div
+          className={`flex items-center justify-between p-4 rounded-xl border transition-all ${
+            watch("is_public")
+              ? isDark
+                ? "bg-cyan-500/10 border-cyan-500/30"
+                : "bg-blue-50 border-blue-300"
+              : isDark
+                ? "bg-white/5 border-white/10"
+                : "bg-gray-50 border-gray-200"
+          }`}
+        >
+          <div>
+            <p
+              className={`text-sm font-bold ${
+                isDark ? "text-white" : "text-gray-900"
+              }`}
+            >
+              Marketplace Visibility
+            </p>
+            <p
+              className={`text-xs mt-0.5 ${
+                isDark ? "text-gray-500" : "text-gray-500"
+              }`}
+            >
+              {watch("is_public")
+                ? "This product is visible in the public marketplace"
+                : "This product is only visible to your organization"}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setValue("is_public", !watch("is_public"))}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+              watch("is_public")
+                ? isDark
+                  ? "bg-cyan-500"
+                  : "bg-blue-600"
+                : isDark
+                  ? "bg-white/20"
+                  : "bg-gray-300"
+            }`}
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm ${
+                watch("is_public") ? "translate-x-6" : "translate-x-1"
+              }`}
+            />
+          </button>
+        </div>
       </div>
 
       {/* Details */}
@@ -383,6 +477,89 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
               : "bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
           }`}
         />
+      </div>
+
+      {/* Tags & Tech Stack */}
+      <div className="grid grid-cols-2 gap-6">
+        <div>
+          <label
+            htmlFor="tags"
+            className={`block text-xs uppercase tracking-wider font-bold mb-2 ${
+              isDark ? "text-gray-500" : "text-gray-400"
+            }`}
+          >
+            Search Tags (One per line)
+          </label>
+          <textarea
+            id="tags"
+            {...register("tags")}
+            rows={3}
+            placeholder="Finanzas&#10;Excel&#10;Automatización..."
+            className={`w-full px-4 py-3 rounded-lg border transition-all outline-none resize-none ${
+              isDark
+                ? "bg-white/5 border-white/10 text-white placeholder-gray-500 focus:border-cyan-500/30 focus:bg-white/10"
+                : "bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
+            }`}
+          />
+        </div>
+        <div>
+          <label
+            htmlFor="technical_stack"
+            className={`block text-xs uppercase tracking-wider font-bold mb-2 ${
+              isDark ? "text-gray-500" : "text-gray-400"
+            }`}
+          >
+            Technical Stack (One per line)
+          </label>
+          <textarea
+            id="technical_stack"
+            {...register("technical_stack")}
+            rows={3}
+            placeholder="VBA&#10;TypeScript&#10;PostgreSQL..."
+            className={`w-full px-4 py-3 rounded-lg border transition-all outline-none resize-none ${
+              isDark
+                ? "bg-white/5 border-white/10 text-white placeholder-gray-500 focus:border-cyan-500/30 focus:bg-white/10"
+                : "bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
+            }`}
+          />
+        </div>
+      </div>
+
+      {/* Minimum Plan Tier */}
+      <div>
+        <label
+          htmlFor="min_plan_tier"
+          className={`block text-xs uppercase tracking-wider font-bold mb-2 ${
+            isDark ? "text-gray-500" : "text-gray-400"
+          }`}
+        >
+          Minimum Required Plan Tier
+        </label>
+        <div className="flex items-center gap-4">
+          <input
+            id="min_plan_tier"
+            type="range"
+            min="0"
+            max="4"
+            step="1"
+            {...register("min_plan_tier", { valueAsNumber: true })}
+            className="flex-1 accent-cyan-500"
+          />
+          <div
+            className={`px-4 py-2 rounded-lg font-bold border ${
+              isDark
+                ? "bg-white/5 border-white/10 text-cyan-400"
+                : "bg-gray-100 border-gray-200 text-blue-600"
+            }`}
+          >
+            Level {watch("min_plan_tier")}
+          </div>
+        </div>
+        <p
+          className={`text-[10px] mt-2 ml-1 ${isDark ? "text-gray-600" : "text-gray-400"}`}
+        >
+          0: Free/All, 1: Basic, 2: Pro, 3: Enterprise, 4: Private
+        </p>
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { api } from "@/lib/api-client";
 
 // Product - response from /org/:id/products (inventory items)
@@ -10,6 +11,7 @@ export interface BackendProduct {
   short_description?: string;
   description?: string;
   category_id?: string;
+  category_name?: string;
   product_type: string;
   status: string;
   base_price: number;
@@ -18,15 +20,33 @@ export interface BackendProduct {
   is_public: boolean;
   thumbnail_url?: string;
   images?: string;
-  tags?: string;
+  tags?: string[];
+  features?: string[];
+  technical_stack?: string[];
   requirements?: string;
   download_count: number;
   purchase_count: number;
   rating_avg: number;
   rating_count: number;
+  min_plan_tier: number;
   display_type?: string;
   external_url?: string;
+  github_repository?: string;
   version?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BackendCategory {
+  id: string;
+  slug: string;
+  name: string;
+  description?: string;
+  parent_id?: string;
+  icon?: string;
+  color?: string;
+  sort_order: number;
+  is_active: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -47,6 +67,22 @@ export interface CreateProductPayload {
   is_public?: boolean;
   thumbnail_url?: string;
   external_url?: string;
+  github_repository?: string;
+  tags?: string[];
+  features?: string[];
+  technical_stack?: string[];
+  min_plan_tier?: number;
+}
+
+// Product Categories (Centralized Reference)
+
+export interface CreateCategoryPayload {
+  name: string;
+  slug: string;
+  description?: string;
+  parent_id?: string;
+  icon?: string;
+  color?: string;
 }
 
 // Payload for updating a product
@@ -61,6 +97,12 @@ export interface UpdateProductPayload {
   is_featured?: boolean;
   is_public?: boolean;
   thumbnail_url?: string;
+  external_url?: string;
+  github_repository?: string;
+  tags?: string[];
+  features?: string[];
+  technical_stack?: string[];
+  min_plan_tier?: number;
 }
 
 // License response type
@@ -133,13 +175,17 @@ export interface BackendCustomerAsset {
   product_short_desc: string;
   product_description: string;
   product_category: string;
+  product_category_id?: string;
   product_rating: number;
   product_reviews: number;
   product_downloads: number;
   product_version: string;
   product_updated_at: string;
-  product_tags?: string;
+  product_tags?: string[];
+  product_features?: string[];
+  product_technical_stack?: string[];
   product_requirements?: string;
+  product_min_plan_tier: number;
   product_file_size: number;
 }
 
@@ -227,6 +273,16 @@ export const assetsApi = {
   },
 
   /**
+   * Obtener todos los productos de la plataforma (Super Admin)
+   */
+  getAllProducts: async (token: string, page = 1, limit = 20) => {
+    return api.get<BackendProduct[]>(`/api/v1/admin/products`, {
+      params: { page: page.toString(), per_page: limit.toString() },
+      token
+    });
+  },
+
+  /**
    * Crear nuevo producto en el catálogo
    */
   createProduct: async (token: string, orgId: string, data: CreateProductPayload) => {
@@ -269,16 +325,16 @@ export const assetsApi = {
    */
   getLicense: async (token: string, licenseId: string) => {
     const url = `/api/v1/user/licenses/${licenseId}`;
-    console.log(`[AssetsAPI] Requesting license from: ${url}`);
+    logger.log(`[AssetsAPI] Requesting license from: ${url}`);
     try {
       const response = await api.get<BackendLicense>(url, { token });
-      console.log("[AssetsAPI] License response success:", response);
+      logger.log("[AssetsAPI] License response success:", response);
       if (!response || !response.license_key) {
-        console.warn("[AssetsAPI] Warning: Response received but license_key is missing or empty", response);
+        logger.warn("[AssetsAPI] Warning: Response received but license_key is missing or empty", response);
       }
       return response;
-    } catch (err) {
-      console.error("[AssetsAPI] License response error:", err);
+    } catch (err: unknown) {
+      logger.error("[AssetsAPI] License response error:", err);
       throw err;
     }
   },
@@ -351,5 +407,21 @@ export const assetsApi = {
 
   getMyAsset: async (token: string, assetId: string) => {
     return api.get<{ asset: BackendCustomerAsset }>(`/api/v1/user/my/assets/${assetId}`, { token });
+  },
+
+  /**
+   * Obtener todas las categorías de productos (Public o Org Context)
+   */
+  getCategories: async (token?: string, orgId?: string) => {
+    // Categories are usually public but can be org-scoped in some contexts
+    const path = orgId ? "/api/v1/org/product-categories" : "/api/v1/public/product-categories";
+    return api.get<{ categories: BackendCategory[] }>(path, { token, orgId });
+  },
+
+  /**
+   * Crear una nueva categoría de producto (Requiere Auth de Organización)
+   */
+  createCategory: async (token: string, orgId: string, data: CreateCategoryPayload) => {
+    return api.post<{ category: BackendCategory }>("/api/v1/org/product-categories", data, { token, orgId });
   }
 };

@@ -3,7 +3,7 @@
 import React from "react";
 import { motion } from "motion/react";
 import { Key, CheckCircle, AlertTriangle, TrendingUp } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { LicenseStats } from "@/features/licensing/types";
 import type { IPBinding } from "@/features/licensing/types";
 

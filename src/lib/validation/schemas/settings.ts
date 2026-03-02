@@ -78,6 +78,9 @@ export const workspaceProfileSchema = z.object({
     .string()
     .min(3, "Slug must be at least 3 characters")
     .regex(/^[a-z0-9-]+$/, "Slug can only contain lowercase letters, numbers, and dashes"),
+    
+  logoUrl: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  primaryColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "Must be a valid Hex color (#RRGGBB)").optional().or(z.literal("")),
 });
 
 export type WorkspaceProfileFormData = z.infer<typeof workspaceProfileSchema>;

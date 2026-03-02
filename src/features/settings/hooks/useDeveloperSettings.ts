@@ -1,52 +1,97 @@
-import { useState } from "react";
+import { useCallback } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ApiKey } from "../components/tabs/DeveloperAPI/ApiKeys";
+import { useAuth } from "@/features/auth/contexts/AuthContext";
+import api from "@/lib/api-client";
+import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
+
+interface BackendApiKey {
+  id: string;
+  name: string;
+  key_prefix: string;
+  key_secret?: string; 
+  last_used_at?: string;
+  created_at: string;
+}
+
+const API_KEYS_QUERY_KEY = [...QUERY_KEYS.users.all, "api-keys"] as const;
+
+const mapApiKey = (k: BackendApiKey): ApiKey => ({
+  id: k.id,
+  name: k.name,
+  key: k.key_secret || `${k.key_prefix}••••••••`,
+  created: new Date(k.created_at).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }),
+  lastUsed: k.last_used_at ? new Date(k.last_used_at).toLocaleDateString() : "Never",
+});
 
 export const useDeveloperSettings = () => {
-  const [apiKeys, setApiKeys] = useState<ApiKey[]>([
-    {
-      id: "1",
-      name: "Production API Key",
-      key: "pk_live_f7a2b9c8d1e3f4a5b6c7d8e9f0a1b2c3d4",
-      created: "Oct 12, 2023",
-      lastUsed: "2 mins ago",
-    },
-    {
-      id: "2",
-      name: "Development Key",
-      key: "pk_test_b9c8d1e3f4a5b6c7d8e9f0a1b2c3d4e5f6",
-      created: "Dec 05, 2023",
-      lastUsed: "Yesterday",
-    },
-  ]);
+  const { session } = useAuth();
+  const queryClient = useQueryClient();
 
-  const copyToClipboard = (text: string) => {
+  const { data: apiKeys = [], isLoading } = useQuery({
+    queryKey: API_KEYS_QUERY_KEY,
+    queryFn: async () => {
+      if (!session) return [];
+      const response = await api.get<{ api_keys: BackendApiKey[] }>("/api/v1/user/api-keys", {
+        token: session.accessToken,
+      });
+      return response.api_keys ? response.api_keys.map(mapApiKey) : [];
+    },
+    enabled: !!session,
+  });
+
+  const copyToClipboard = useCallback((text: string) => {
     navigator.clipboard.writeText(text);
     toast.success("API Key copied to clipboard");
-  };
+  }, []);
 
-  const generateKey = () => {
-    toast.promise(new Promise((resolve) => setTimeout(resolve, 1500)), {
-      loading: "Generating cryptographically secure key...",
-      success: () => {
-        setApiKeys((prev) => [
-          ...prev,
-          {
-            id: Date.now().toString(),
-            name: "New Live Key",
-            key: `pk_live_${Math.random().toString(36).substring(2)}`,
-            created: "Just now",
-            lastUsed: "Never",
-          },
-        ]);
-        return "New API key generated successfully";
-      },
-    });
-  };
+  const generateMutation = useMutation({
+    mutationFn: async () => {
+      if (!session) throw new Error("No session");
+      const name = `API Key ${apiKeys.length + 1}`;
+      await api.post<{ api_key: BackendApiKey; message: string }>("/api/v1/user/api-keys", 
+        { name },
+        { token: session.accessToken }
+      );
+    },
+    onSuccess: () => {
+      toast.success("New API key generated successfully");
+      queryClient.invalidateQueries({ queryKey: API_KEYS_QUERY_KEY });
+    },
+    onError: () => toast.error("Failed to generate API key"),
+  });
+
+  const revokeMutation = useMutation({
+    mutationFn: async (id: string) => {
+      if (!session) throw new Error("No session");
+      await api.delete(`/api/v1/user/api-keys/${id}`, {
+        token: session.accessToken,
+      });
+      return id;
+    },
+    onMutate: async (id: string) => {
+      await queryClient.cancelQueries({ queryKey: API_KEYS_QUERY_KEY });
+      const previous = queryClient.getQueryData<ApiKey[]>(API_KEYS_QUERY_KEY);
+      queryClient.setQueryData<ApiKey[]>(API_KEYS_QUERY_KEY, old => (old || []).filter(k => k.id !== id));
+      return { previous };
+    },
+    onError: (_err, _id, context) => {
+      if (context?.previous) queryClient.setQueryData(API_KEYS_QUERY_KEY, context.previous);
+      toast.error("Failed to revoke API key");
+    },
+    onSuccess: () => toast.success("API key revoked"),
+  });
 
   return {
     apiKeys,
+    isLoading,
     copyToClipboard,
-    generateKey,
+    generateKey: () => generateMutation.mutate(),
+    revokeKey: (id: string) => revokeMutation.mutate(id),
   };
 };

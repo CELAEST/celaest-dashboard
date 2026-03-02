@@ -172,4 +172,5 @@ export interface SettingsSelectProps {
   onChange: (value: string) => void;
   placeholder?: string;
   label?: string;
+  disabled?: boolean;
 }

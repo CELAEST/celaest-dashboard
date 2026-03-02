@@ -1,12 +1,9 @@
-import { useCallback, useEffect } from "react";
-import { useShallow } from 'zustand/react/shallow';
+import { useQuery } from "@tanstack/react-query";
 import { useApiAuth } from "@/lib/use-api-auth";
 import { useSystemHealth } from "@/features/system/hooks/useSystemHealth";
-import { useControlCenterStore } from "@/features/control-center/stores/useControlCenterStore";
-import { socket } from "@/lib/socket-client";
+import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
 import type { HealthResponse, DashboardStats } from "../types";
 import { SalesByPeriod } from "../types";
-
 
 interface ControlCenterData {
   health: HealthResponse | null;
@@ -20,41 +17,13 @@ interface ControlCenterData {
 export function useControlCenterData(): ControlCenterData {
   const { token, orgId, isReady } = useApiAuth();
   const { health, checkHealth } = useSystemHealth();
-  
-  // Usar Zustand con useShallow para prevenir re-renders innecesarios
-  const { 
-    dashboard, 
-    salesSeries, 
-    isLoading, 
-    error, 
-    lastFetched,
-    setData,
-    setLoading,
-    setError 
-  } = useControlCenterStore(useShallow((state) => ({
-    dashboard: state.dashboard,
-    salesSeries: state.salesSeries,
-    isLoading: state.isLoading,
-    error: state.error,
-    lastFetched: state.lastFetched,
-    setData: state.setData,
-    setLoading: state.setLoading,
-    setError: state.setError,
-  })));
 
-  const fetchData = useCallback(async (isRefresh = false) => {
-    const CACHE_TTL = 60000;
-    if (!isReady || !token || !orgId) return;
-    if (!isRefresh && lastFetched && (Date.now() - lastFetched < CACHE_TTL)) return;
-    if (isLoading) return;
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      // Disparar salud en paralelo pero usando su propio hook/logic
-      checkHealth(isRefresh);
-
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: QUERY_KEYS.analytics.dashboard(orgId || "none", "day"),
+    queryFn: async () => {
+      if (!token || !orgId) return null;
+      
+      checkHealth(true);
       const { metricsService } = await import("../services/metrics.service");
       
       const [dashboardRes, salesRes] = await Promise.allSettled([
@@ -84,73 +53,24 @@ export function useControlCenterData(): ControlCenterData {
           period_start: metrics.period_start || "",
           period_end: metrics.period_end || "",
         };
-
-
       }
 
       if (salesRes.status === "fulfilled" && salesRes.value) {
         salesSeries = salesRes.value;
       }
 
-      setData({ dashboard, salesSeries });
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Error al cargar datos");
-    } finally {
-      setLoading(false);
-    }
-  }, [token, orgId, isReady, lastFetched, isLoading, setData, setLoading, setError, checkHealth]);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  // Real-time updates via WebSocket with Debounce
-  useEffect(() => {
-    if (!token) return;
-
-    // Connect socket
-    socket.connect(token, orgId || undefined);
-
-    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
-
-    const handleRefresh = () => {
-      if (debounceTimer) clearTimeout(debounceTimer);
-      
-      debounceTimer = setTimeout(() => {
-        console.log("WebSocket event received (debounced), refreshing dashboard...");
-        fetchData(true);
-      }, 1000); // 1 second debounce
-    };
-
-    // Subscribe to relevant events
-    const offs = [
-      socket.on("order.created", handleRefresh),
-      socket.on("order.updated", handleRefresh),
-      socket.on("order.deleted", handleRefresh),
-      socket.on("order.paid", handleRefresh),
-      socket.on("user.created", handleRefresh),
-      socket.on("user.updated", handleRefresh),
-      socket.on("user.deleted", handleRefresh),
-      socket.on("product.asset_created", handleRefresh),
-      socket.on("payment.succeeded", handleRefresh),
-    ];
-
-    return () => {
-      if (debounceTimer) clearTimeout(debounceTimer);
-      offs.forEach((off) => off());
-    };
-  }, [token, fetchData, orgId]);
-
+      return { dashboard, salesSeries };
+    },
+    enabled: isReady && !!token && !!orgId,
+    staleTime: 60000,
+  });
 
   return { 
     health, 
-    dashboard, 
-    salesSeries, 
+    dashboard: data?.dashboard || null, 
+    salesSeries: data?.salesSeries || [], 
     loading: isLoading, 
-    error, 
-    refresh: () => fetchData(true) 
+    error: error ? (error instanceof Error ? error.message : String(error)) : null, 
+    refresh: async () => { await refetch(); } 
   };
 }
-
-
-

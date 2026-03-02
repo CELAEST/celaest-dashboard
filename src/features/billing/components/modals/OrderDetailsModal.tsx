@@ -14,6 +14,8 @@ interface OrderDetailsModalProps {
   order: Order | null;
   initialMode?: "view" | "edit";
   onSave?: (updatedOrder: Order) => void;
+  onRefund?: () => void;
+  canRefund?: boolean;
 }
 
 export function OrderDetailsModal({
@@ -22,6 +24,8 @@ export function OrderDetailsModal({
   order,
   initialMode = "view",
   onSave,
+  onRefund,
+  canRefund = false,
 }: OrderDetailsModalProps) {
   const { mode, setMode, formData, updateField, handleSave } = useOrderDetails(
     order,
@@ -66,6 +70,8 @@ export function OrderDetailsModal({
         setMode={setMode}
         onClose={onClose}
         onSave={handleSave}
+        onRefund={onRefund}
+        canRefund={canRefund}
         lastEditDate={formData.date}
       />
     </BillingModal>

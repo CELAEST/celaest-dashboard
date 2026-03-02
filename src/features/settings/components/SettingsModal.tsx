@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 import { X } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useEscapeKey } from "@/features/shared/hooks/useEscapeKey";
 import type { SettingsModalProps } from "../types";
 

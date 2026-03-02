@@ -10,6 +10,7 @@ import {
   Activity,
   AlertTriangle,
   LucideIcon,
+  Tag,
 } from "lucide-react";
 
 export type FeatureAccessLevel = "public" | "user" | "admin";
@@ -26,7 +27,7 @@ export interface FeatureConfig {
 export const FEATURE_REGISTRY: Record<string, FeatureConfig> = {
   dashboard: {
     id: "dashboard",
-    label: "Command Center",
+    label: "My Orders",
     icon: LayoutDashboard,
     load: () =>
       import("@/features/control-center/components/DashboardContent").then(
@@ -80,6 +81,19 @@ export const FEATURE_REGISTRY: Record<string, FeatureConfig> = {
       import("@/features/billing/components/BillingPortal").then((m) => ({
         default: m.BillingPortal,
       })),
+    access: "user",
+    ssr: true,
+  },
+  coupons: {
+    id: "coupons",
+    label: "Coupons",
+    icon: Tag,
+    load: () =>
+      import("@/features/coupons/components/CouponsDashboardView").then(
+        (m) => ({
+          default: m.CouponsDashboardView,
+        }),
+      ),
     access: "user",
     ssr: true,
   },
@@ -143,6 +157,43 @@ export const FEATURE_REGISTRY: Record<string, FeatureConfig> = {
       import("@/features/settings").then((m) => ({ default: m.SettingsView })),
     access: "user",
     ssr: true,
+  },
+  ai: {
+    id: "ai",
+    label: "AI Console",
+    icon: Activity,
+    load: () =>
+      import("@/features/ai/components/AIConsole").then((m) => ({
+        default: m.AIConsole,
+      })),
+    access: "user",
+    ssr: false,
+  },
+  admin_portal: {
+    id: "admin_portal",
+    label: "Super Admin",
+    icon: Activity,
+    load: () =>
+      import("@/features/control-center/components/SuperAdminView").then(
+        (m) => ({
+          default: m.SuperAdminView,
+        }),
+      ),
+    access: "admin",
+    ssr: false,
+  },
+  operations: {
+    id: "operations",
+    label: "Operations & DevOps",
+    icon: Activity,
+    load: () =>
+      import("@/features/operations/components/OperationsDashboardView").then(
+        (m) => ({
+          default: m.OperationsDashboardView,
+        }),
+      ),
+    access: "user",
+    ssr: false,
   },
 };
 

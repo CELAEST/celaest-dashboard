@@ -1,6 +1,6 @@
 import React from "react";
 import { Zap, Code, Server, Layers } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 
 export const PRODUCT_TYPES = [
   {

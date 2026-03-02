@@ -1,6 +1,6 @@
 import React from "react";
 import { Check, Star, Download } from "lucide-react";
-import { Asset } from "../../hooks/useAssets";
+import { Asset } from "../../services/assets.service";
 
 interface ProductInfoSectionProps {
   product: Asset;
@@ -48,13 +48,19 @@ export const ProductInfoSection: React.FC<ProductInfoSectionProps> = ({
           {product.isPurchased && (
             <span
               className={`inline-flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-full ${
-                isDark
-                  ? "bg-emerald-500/20 text-emerald-400"
-                  : "bg-emerald-100 text-emerald-700"
+                product.accessType === "subscription"
+                  ? isDark
+                    ? "bg-violet-500/20 text-violet-400"
+                    : "bg-violet-100 text-violet-700"
+                  : isDark
+                    ? "bg-emerald-500/20 text-emerald-400"
+                    : "bg-emerald-100 text-emerald-700"
               }`}
             >
               <Check size={12} />
-              PURCHASED
+              {product.accessType === "subscription"
+                ? "INCLUDED IN PLAN"
+                : "PURCHASED"}
             </span>
           )}
         </div>

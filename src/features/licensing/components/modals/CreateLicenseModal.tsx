@@ -1,7 +1,8 @@
+import { logger } from "@/lib/logger";
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X, Sparkles } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useEscapeKey } from "@/features/shared/hooks/useEscapeKey";
 import { useCreateLicense } from "@/features/licensing/hooks/useCreateLicense";
 import { LicenseTypeSelector } from "./create-license/LicenseTypeSelector";
@@ -9,6 +10,7 @@ import { LicenseForm } from "./create-license/LicenseForm";
 import { LicenseSuccess } from "./create-license/LicenseSuccess";
 
 import { LicenseFormData } from "@/features/licensing/hooks/useCreateLicense";
+import { Form } from "@/components/ui/form";
 
 interface CreateLicenseModalProps {
   isOpen: boolean;
@@ -38,8 +40,8 @@ export const CreateLicenseModal = ({
       const key = await onCreate(data);
       setCreatedKey(key || "key_mock_" + Date.now());
       setStep(3);
-    } catch (error) {
-      console.error(error);
+    } catch (error: unknown) {
+      logger.error(error);
     } finally {
       setLoading(false);
     }
@@ -134,11 +136,24 @@ export const CreateLicenseModal = ({
                       }
                     />
 
-                    <LicenseForm
-                      form={form}
-                      onSubmit={form.handleSubmit(onSubmit)}
-                      loading={loading}
-                    />
+                    <div
+                      className={`p-4 rounded-xl border ${isDark ? "bg-white/5 border-white/10" : "bg-gray-50 border-gray-200"}`}
+                    >
+                      <legend
+                        className={`text-xs font-bold uppercase tracking-wider mb-4 ${isDark ? "text-gray-500" : "text-gray-400"}`}
+                      >
+                        Order Details
+                      </legend>
+                      <div className="space-y-4">
+                        <Form {...form}>
+                          <LicenseForm
+                            form={form}
+                            onSubmit={form.handleSubmit(onSubmit)}
+                            loading={loading}
+                          />
+                        </Form>
+                      </div>
+                    </div>
                   </motion.div>
                 )}
 

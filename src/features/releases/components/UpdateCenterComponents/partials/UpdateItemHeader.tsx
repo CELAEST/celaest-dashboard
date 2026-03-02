@@ -1,7 +1,7 @@
 import React, { memo } from "react";
 import { Download, Clock, AlertCircle, CheckCircle2 } from "lucide-react";
 import { CustomerAsset } from "../../../types";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface UpdateItemHeaderProps {
   asset: CustomerAsset;

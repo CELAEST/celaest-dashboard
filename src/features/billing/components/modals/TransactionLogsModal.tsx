@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useMemo } from "react";
 import {
   X,
   Search,
@@ -15,11 +15,12 @@ import {
   DollarSign,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { billingApi } from "../../api/billing.api";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { Payment } from "../../types";
-import { toast } from "sonner";
+import { useTransactionQuery } from "../../hooks/useBillingQuery";
 import { format } from "date-fns";
+import { type ColumnDef } from "@tanstack/react-table";
+import { DataTable } from "@/components/ui/data-table";
 
 interface TransactionLogsModalProps {
   isOpen: boolean;
@@ -31,36 +32,126 @@ export const TransactionLogsModal: React.FC<TransactionLogsModalProps> = ({
   onClose,
 }) => {
   const { session } = useAuth();
-  const [transactions, setTransactions] = useState<Payment[]>([]);
-  const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
   const limit = 10;
 
-  const fetchTransactions = useCallback(async () => {
-    if (!session?.accessToken) return;
-    setIsLoading(true);
-    try {
-      const data = await billingApi.getAdminTransactions(
-        session.accessToken,
-        page,
-        limit,
-      );
-      setTransactions(data.payments);
-      setTotal(data.total);
-    } catch (err) {
-      console.error("Failed to fetch transactions:", err);
-      toast.error("Failed to load transaction history");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [session?.accessToken, page]);
+  const { data, isLoading } = useTransactionQuery(
+    session?.accessToken ?? null,
+    page,
+    limit,
+  );
 
-  useEffect(() => {
-    if (isOpen) {
-      fetchTransactions();
-    }
-  }, [isOpen, page, fetchTransactions]);
+  const transactions = data?.payments ?? [];
+  const total = data?.total ?? 0;
+
+  const columns: ColumnDef<Payment>[] = useMemo(
+    () => [
+      {
+        id: "date",
+        header: "Date & Time",
+        cell: ({ row }) => {
+          const tx = row.original;
+          return (
+            <div className="flex flex-col">
+              <span className="text-sm font-medium text-white">
+                {format(new Date(tx.created_at), "MMM d, yyyy")}
+              </span>
+              <span className="text-xs text-gray-500">
+                {format(new Date(tx.created_at), "HH:mm:ss")}
+              </span>
+            </div>
+          );
+        },
+      },
+      {
+        id: "amount",
+        header: "Amount",
+        cell: ({ row }) => {
+          const tx = row.original;
+          return (
+            <div className="flex items-center gap-2 text-sm font-bold text-white">
+              <DollarSign className="w-4 h-4 text-emerald-400" />
+              {(tx.amount / 1).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+              })}
+              <span className="text-[10px] text-gray-500 uppercase ml-1">
+                {tx.currency}
+              </span>
+            </div>
+          );
+        },
+      },
+      {
+        id: "status",
+        header: "Status",
+        cell: ({ row }) => {
+          const tx = row.original;
+          const status = tx.status;
+          return (
+            <span
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${
+                status === "completed" || status === "succeeded"
+                  ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                  : status === "failed"
+                    ? "bg-rose-500/10 text-rose-400 border border-rose-500/20"
+                    : status === "refund_requested"
+                      ? "bg-orange-500/10 text-orange-400 border border-orange-500/20"
+                      : "bg-white/5 text-gray-400 border border-white/10"
+              }`}
+            >
+              {status === "completed" || status === "succeeded" ? (
+                <CheckCircle2 className="w-3 h-3" />
+              ) : status === "failed" ? (
+                <XCircle className="w-3 h-3" />
+              ) : (
+                <Clock className="w-3 h-3" />
+              )}
+              {status.toUpperCase()}
+            </span>
+          );
+        },
+      },
+      {
+        id: "org",
+        header: "Organization ID",
+        cell: ({ row }) => {
+          const tx = row.original;
+          return (
+            <div className="flex items-center gap-2 text-xs text-gray-400 bg-white/5 py-1 px-2 rounded-lg w-fit">
+              <Building2 className="w-3 h-3" />
+              {tx.organization_id.slice(0, 8)}...
+            </div>
+          );
+        },
+      },
+      {
+        id: "details",
+        header: "Details",
+        cell: ({ row }) => {
+          const tx = row.original;
+          return (
+            <div className="flex items-center gap-3">
+              <div className="flex flex-col">
+                <span className="text-xs text-gray-300 capitalize">
+                  {tx.provider}
+                </span>
+                <span className="text-[10px] text-gray-500 font-mono tracking-tighter">
+                  {tx.external_payment_id || "LOCAL_TX"}
+                </span>
+              </div>
+              <motion.button
+                whileHover={{ x: 4 }}
+                className="p-1.5 bg-white/5 rounded-lg text-gray-400 hover:text-white"
+              >
+                <ArrowRight className="w-3.5 h-3.5" />
+              </motion.button>
+            </div>
+          );
+        },
+      },
+    ],
+    [],
+  );
 
   const totalPages = Math.ceil(total / limit);
 
@@ -127,118 +218,15 @@ export const TransactionLogsModal: React.FC<TransactionLogsModalProps> = ({
           </div>
 
           {/* Table */}
-          <div className="flex-1 overflow-auto">
-            {isLoading ? (
-              <div className="h-full flex flex-col items-center justify-center gap-4 text-gray-500">
-                <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-                <span className="text-sm font-medium">Loading history...</span>
-              </div>
-            ) : transactions.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center gap-4 text-gray-500 italic">
-                <History className="w-12 h-12 opacity-20" />
-                <span>No transactions found</span>
-              </div>
-            ) : (
-              <table className="w-full text-left border-collapse">
-                <thead className="sticky top-0 bg-slate-900 shadow-sm text-white">
-                  <tr className="border-b border-white/10">
-                    <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider">
-                      Date & Time
-                    </th>
-                    <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider">
-                      Amount
-                    </th>
-                    <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider">
-                      Organization ID
-                    </th>
-                    <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider">
-                      Details
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5">
-                  {transactions.map((tx) => (
-                    <tr
-                      key={tx.id}
-                      className="hover:bg-white/2 transition-colors group"
-                    >
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex flex-col">
-                          <span className="text-sm font-medium text-white">
-                            {format(new Date(tx.created_at), "MMM d, yyyy")}
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            {format(new Date(tx.created_at), "HH:mm:ss")}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2 text-sm font-bold text-white">
-                          <DollarSign className="w-4 h-4 text-emerald-400" />
-                          {(tx.amount / 1).toLocaleString(undefined, {
-                            minimumFractionDigits: 2,
-                          })}
-                          <span className="text-[10px] text-gray-500 uppercase ml-1">
-                            {tx.currency}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${
-                            tx.status === "completed" ||
-                            tx.status === "succeeded"
-                              ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                              : tx.status === "failed"
-                                ? "bg-rose-500/10 text-rose-400 border border-rose-500/20"
-                                : tx.status === "refund_requested"
-                                  ? "bg-orange-500/10 text-orange-400 border border-orange-500/20"
-                                  : "bg-white/5 text-gray-400 border border-white/10"
-                          }`}
-                        >
-                          {tx.status === "completed" ||
-                          tx.status === "succeeded" ? (
-                            <CheckCircle2 className="w-3 h-3" />
-                          ) : tx.status === "failed" ? (
-                            <XCircle className="w-3 h-3" />
-                          ) : (
-                            <Clock className="w-3 h-3" />
-                          )}
-                          {tx.status.toUpperCase()}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2 text-xs text-gray-400 bg-white/5 py-1 px-2 rounded-lg w-fit">
-                          <Building2 className="w-3 h-3" />
-                          {tx.organization_id.slice(0, 8)}...
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-3">
-                          <div className="flex flex-col">
-                            <span className="text-xs text-gray-300 capitalize">
-                              {tx.provider}
-                            </span>
-                            <span className="text-[10px] text-gray-500 font-mono tracking-tighter">
-                              {tx.external_payment_id || "LOCAL_TX"}
-                            </span>
-                          </div>
-                          <motion.button
-                            whileHover={{ x: 4 }}
-                            className="p-1.5 bg-white/5 rounded-lg text-gray-400 hover:text-white"
-                          >
-                            <ArrowRight className="w-3.5 h-3.5" />
-                          </motion.button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
+          <div className="flex-1 overflow-auto bg-slate-900 custom-scrollbar dark">
+            <DataTable
+              columns={columns}
+              data={transactions}
+              isLoading={isLoading}
+              emptyMessage="No transactions found"
+              emptySubmessage="Transaction history will appear here."
+              hidePagination={true}
+            />
           </div>
 
           {/* Footer / Pagination */}

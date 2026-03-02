@@ -1,82 +1,70 @@
-/**
- * useSellerProfile - Hook para perfil de vendedor
- * Responsabilidad única: fetch de perfil público de vendedor
- */
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { SellerProfile } from "../types";
-import { marketplaceService } from "../services/marketplace.service";
+import { marketplaceApi } from "../api/marketplace.api";
+import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
+import { useApiAuth } from "@/lib/use-api-auth";
+import { toast } from "sonner";
 
-interface SellerProfileState {
-  seller: SellerProfile | null;
-  loading: boolean;
-  error: string | null;
-}
-
+/**
+ * useSellerProfile - Hook para perfil de vendedor público.
+ */
 export function useSellerProfile(sellerId: string | null) {
-  const isMounted = useRef(true);
-  const [state, setState] = useState<SellerProfileState>({
-    seller: null,
-    loading: false,
-    error: null,
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: QUERY_KEYS.marketplace.seller(sellerId || "none"),
+    queryFn: () => sellerId ? marketplaceApi.getSellerProfile(sellerId) : null,
+    enabled: !!sellerId,
   });
 
-  const fetchSeller = useCallback(async () => {
-    if (!sellerId) return;
+  return {
+    seller: data,
+    loading: isLoading,
+    error: error instanceof Error ? error.message : error ? String(error) : null,
+    refresh: refetch,
+  };
+}
 
-    if (isMounted.current) {
-        setState((prev) => ({ ...prev, loading: true, error: null }));
-    }
+/**
+ * useUpdateSellerProfile - Hook para actualizar el perfil propio (Optimistic)
+ */
+export function useUpdateSellerProfile() {
+  const { token, orgId } = useApiAuth();
+  const queryClient = useQueryClient();
 
-    try {
-      const data = await marketplaceService.getSellerProfile(sellerId);
-      if (isMounted.current) {
-        setState({
-          seller: data,
-          loading: false,
-          error: null,
+  return useMutation({
+    mutationFn: async (data: Partial<SellerProfile>) => {
+      if (!token || !orgId) throw new Error("Auth required");
+      return marketplaceApi.updateProfile(data, token, orgId);
+    },
+    onMutate: async (newProfile) => {
+      // Cancelar refetches salientes
+      await queryClient.cancelQueries({ queryKey: QUERY_KEYS.marketplace.seller("none") });
+
+      // Snapshot del valor previo
+      const previousProfiles = queryClient.getQueriesData<SellerProfile>({ queryKey: QUERY_KEYS.marketplace.seller("none") });
+
+      // Actualización optimista de todas las instancias del perfil
+      queryClient.setQueriesData({ queryKey: QUERY_KEYS.marketplace.seller("none") }, (old: SellerProfile | undefined) => {
+        if (!old) return old;
+        return { ...old, ...newProfile };
+      });
+
+      return { previousProfiles };
+    },
+    onError: (_err, _newProfile, context) => {
+      // Rollback si falla
+      if (context?.previousProfiles) {
+        context.previousProfiles.forEach(([key, profile]) => {
+          queryClient.setQueryData(key, profile);
         });
       }
-    } catch (err: unknown) {
-      if (isMounted.current) {
-        const message = err instanceof Error ? err.message : "Error al cargar vendedor";
-        setState((prev) => ({
-          ...prev,
-          loading: false,
-          error: message,
-        }));
-      }
-    }
-  }, [sellerId]);
-
-  useEffect(() => {
-    isMounted.current = true;
-    
-    if (sellerId) {
-      // Wrap in microtask to avoid synchronous setState warning
-      Promise.resolve().then(() => {
-        if (isMounted.current) {
-          fetchSeller();
-        }
-      });
-    } else {
-      Promise.resolve().then(() => {
-        if (isMounted.current) {
-          setState({
-            seller: null,
-            loading: false,
-            error: null,
-          });
-        }
-      });
-    }
-
-    return () => {
-      isMounted.current = false;
-    };
-  }, [sellerId, fetchSeller]);
-
-  return {
-    ...state,
-    refresh: fetchSeller,
-  };
+      toast.error(_err.message || "Failed to update profile");
+    },
+    onSuccess: () => {
+      toast.success("Perfil de vendedor actualizado");
+    },
+    onSettled: () => {
+      // Sincronizar con backend si o si
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.marketplace.seller("none") });
+    },
+  });
 }

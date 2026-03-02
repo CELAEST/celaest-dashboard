@@ -1,41 +1,28 @@
-import { useState, useCallback, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
-import { assetsApi, ReleaseOverviewResponse } from "@/features/assets/api/assets.api";
-import { useOrg } from "@/features/shared/contexts/OrgContext";
-import { handleApiError } from "@/lib/error-handler";
+import { assetsApi } from "@/features/assets/api/assets.api";
+import { useOrgStore } from "@/features/shared/stores/useOrgStore";
+import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
 
 export const useReleaseOverview = (options: { enabled?: boolean } = {}) => {
   const { session } = useAuth();
-  const { org } = useOrg();
-  const [data, setData] = useState<ReleaseOverviewResponse | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { currentOrg: org } = useOrgStore();
+  const token = session?.accessToken;
+  const orgId = org?.id;
 
-  const fetchOverview = useCallback(async () => {
-    if (!options.enabled) return;
-    if (!session?.accessToken || !org?.id) return;
-    
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await assetsApi.getReleaseOverview(session.accessToken, org.id);
-      setData(response);
-    } catch (err: any) {
-      console.error("Failed to fetch release overview:", err);
-      setError(handleApiError(err));
-    } finally {
-      setIsLoading(false);
-    }
-  }, [session?.accessToken, org?.id, options.enabled]);
-
-  useEffect(() => {
-    fetchOverview();
-  }, [fetchOverview]);
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: QUERY_KEYS.releases.overview(orgId || "none"),
+    queryFn: async () => {
+      if (!token || !orgId) return null;
+      return assetsApi.getReleaseOverview(token, orgId);
+    },
+    enabled: !!options.enabled && !!token && !!orgId,
+  });
 
   return {
-    data,
+    data: data ?? null,
     isLoading,
-    error,
-    refetch: fetchOverview
+    error: error ? (error instanceof Error ? error.message : "Unknown error") : null,
+    refetch,
   };
 };

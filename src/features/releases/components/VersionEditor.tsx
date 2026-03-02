@@ -3,7 +3,7 @@
 import React, { useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X, Loader2 } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { Version } from "../types";
 import { useVersionEditor } from "../hooks/useVersionEditor";
 import { VersionFileUpload } from "./VersionEditor/VersionFileUpload";
@@ -14,7 +14,13 @@ import { VersionSecurity } from "./VersionEditor/VersionSecurity";
 interface VersionEditorProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: any) => void;
+  onSave: (
+    data: Partial<Version> & {
+      productId?: string;
+      file?: File;
+      changelogItems?: string[];
+    },
+  ) => void;
   version?: Version | null;
   assets?: { id: string; name: string }[];
   isSubmitting?: boolean;

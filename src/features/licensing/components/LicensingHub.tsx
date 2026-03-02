@@ -27,6 +27,9 @@ export const LicensingHub: React.FC = () => {
     setSearchQuery,
     statusFilter,
     setStatusFilter,
+    page,
+    setPage,
+    total,
     activeTab,
     setActiveTab,
     selectedLicense,
@@ -36,6 +39,9 @@ export const LicensingHub: React.FC = () => {
     selectLicense,
     addNewLicense,
     revokeLicense,
+    renewLicense,
+    convertTrial,
+    reactivateLicense,
   } = useLicensing();
 
   // Handle License Creation — delegates to real API
@@ -46,7 +52,7 @@ export const LicensingHub: React.FC = () => {
       notes: data.notes,
     });
     // Add the newly created license to the local list
-    addNewLicense(created);
+    addNewLicense();
     return created.license_key;
   };
 
@@ -125,6 +131,9 @@ export const LicensingHub: React.FC = () => {
               setSearchQuery={setSearchQuery}
               statusFilter={statusFilter}
               setStatusFilter={setStatusFilter}
+              page={page}
+              setPage={setPage}
+              total={total}
               onSelectLicense={selectLicense}
             />
           )}
@@ -148,6 +157,13 @@ export const LicensingHub: React.FC = () => {
         }
         onUnbindIp={(ip) =>
           selectedLicense && handleUnbindIp(selectedLicense.id, ip)
+        }
+        onRenew={() => selectedLicense && renewLicense(selectedLicense.id)}
+        onConvertTrial={() =>
+          selectedLicense && convertTrial(selectedLicense.id)
+        }
+        onReactivate={() =>
+          selectedLicense && reactivateLicense(selectedLicense.id)
         }
       />
     </div>

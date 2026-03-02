@@ -2,7 +2,7 @@
 
 import React, { useMemo } from "react";
 import { motion } from "motion/react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { Monitor, ShieldCheck, CheckCircle2, AlertCircle } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
@@ -12,6 +12,14 @@ export interface PlatformStat {
   details: string;
 }
 
+const PLATFORM_COLORS = [
+  "#06b6d4",
+  "#3b82f6",
+  "#8b5cf6",
+  "#6366f1",
+  "#ec4899",
+];
+
 interface ErrorAnalyticsProps {
   data?: PlatformStat[];
 }
@@ -19,14 +27,6 @@ interface ErrorAnalyticsProps {
 export const ErrorAnalytics: React.FC<ErrorAnalyticsProps> = ({ data }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
-
-  const platformColors = [
-    "#06b6d4",
-    "#3b82f6",
-    "#8b5cf6",
-    "#6366f1",
-    "#ec4899",
-  ];
 
   const ecosystemData = useMemo(() => {
     if (!data || data.length === 0) {
@@ -44,7 +44,7 @@ export const ErrorAnalytics: React.FC<ErrorAnalyticsProps> = ({ data }) => {
     return data.map((item, index) => ({
       name: item.name,
       value: item.value,
-      color: platformColors[index % platformColors.length],
+      color: PLATFORM_COLORS[index % PLATFORM_COLORS.length],
       details: item.details,
       status: (item.value > 80
         ? "optimal"

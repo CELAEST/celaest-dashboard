@@ -1,98 +1,115 @@
-import { useState, useEffect, useCallback } from "react";
+import { logger } from "@/lib/logger";
+import { useQuery } from "@tanstack/react-query";
 import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { billingApi } from "../api/billing.api";
-import { Subscription, SubscriptionUsage, Invoice, Plan } from "../types";
-import { toast } from "sonner";
+import { Subscription, Plan } from "../types";
+import { useEffect } from "react";
+import { socket } from "@/lib/socket-client";
+import { useQueryClient } from "@tanstack/react-query";
 
-export interface BillingState {
-  subscription: Subscription | null;
-  plan: Plan | null;
-  usage: {
-    licenses: { used: number; total: number; percent: number };
-    apiCalls: { used: number; total: number; percent: number };
-  };
-  invoices: Invoice[];
-  plans: Plan[];
-  isLoading: boolean;
-  error: string | null;
-}
+import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
 
 export const useBilling = () => {
   const { currentOrg } = useOrgStore();
   const { session } = useAuth();
-  const [state, setState] = useState<BillingState>({
-    subscription: null,
-    plan: null,
-    usage: {
-      licenses: { used: 0, total: 0, percent: 0 },
-      apiCalls: { used: 0, total: 0, percent: 0 },
-    },
-    invoices: [],
-    plans: [],
-    isLoading: true,
-    error: null,
-  });
+  const token = session?.accessToken;
+  const orgId = currentOrg?.id;
+  const queryClient = useQueryClient();
 
-  const fetchBillingData = useCallback(async () => {
-    if (!currentOrg?.id || !session?.accessToken) return;
+  // Sincronización Real-Time
+  useEffect(() => {
+    if (!token) return;
 
-    setState((prev) => ({ ...prev, isLoading: true, error: null }));
+    const handler = () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.billing.all });
+    };
 
-    try {
-      // Parallel fetching
+    const unsubscribers = [
+      socket.on("subscription.created", handler),
+      socket.on("subscription.updated", handler),
+      socket.on("subscription.cancelled", handler),
+      socket.on("license.activated", handler),
+      socket.on("license.created", handler),
+      socket.on("order.paid", handler),
+    ];
+
+    return () => {
+      unsubscribers.forEach((unsub) => unsub());
+    };
+  }, [token, queryClient]);
+
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: orgId ? QUERY_KEYS.billing.profile(orgId) : QUERY_KEYS.billing.all,
+    queryFn: async () => {
+      if (!orgId || !token) throw new Error("Auth required");
+
       const [subsResponse, invoicesResponse, plansResponse] = await Promise.all([
-        billingApi.getSubscriptions(currentOrg.id, session.accessToken),
-        billingApi.getInvoices(currentOrg.id, session.accessToken),
-        billingApi.getPlans(currentOrg.id, session.accessToken),
+        billingApi.getSubscriptions(orgId, token),
+        billingApi.getInvoices(orgId, token),
+        billingApi.getPlans(orgId, token),
       ]);
 
-      // 1. Process Subscription & Plan
-      const activeSub = subsResponse.subscriptions.find(
+      const allSubs = subsResponse.subscriptions;
+      const activeSubs = allSubs.filter(
         (s) => s.status === "active" || s.status === "trial"
-      ) || null;
+      );
+      
+      const getPlanForSub = (sub: Subscription) => {
+          if (sub.plan) return sub.plan;
+          return plansResponse.plans.find(p => p.id === sub.plan_id);
+      };
 
-      let currentPlan: Plan | null = null;
-      if (activeSub) {
-        // Find plan details from the plans list or use expanded plan from sub if available
-        if (activeSub.plan) {
-            currentPlan = activeSub.plan;
-        } else {
-             // Fallback: match by ID
-             currentPlan = plansResponse.plans.find(p => p.id === activeSub.plan_id) || null;
-        }
-      }
+      const sortedSubs = [...activeSubs].sort((a, b) => {
+          const planA = getPlanForSub(a);
+          const planB = getPlanForSub(b);
+          const tierA = planA?.tier || planA?.sort_order || 0;
+          const tierB = planB?.tier || planB?.sort_order || 0;
+          if (tierA !== tierB) return tierB - tierA;
+          const priceA = planA?.price_monthly || 0;
+          const priceB = planB?.price_monthly || 0;
+          return priceB - priceA;
+      });
 
-      // 2. Process Usage (if active sub exists)
+      const activeSub = sortedSubs.length > 0 ? sortedSubs[0] : null;
+
+      const activePlansList: Plan[] = [];
+      const activePlanIdsList: string[] = [];
+
+      activeSubs.forEach(sub => {
+          const p = sub.plan || plansResponse.plans.find(plan => plan.id === sub.plan_id);
+          if (p) {
+              activePlansList.push(p);
+              activePlanIdsList.push(p.id);
+          }
+      });
+
+      const currentPlan = activeSub ? (activeSub.plan || plansResponse.plans.find(p => p.id === activeSub.plan_id) || null) : null;
+      
       let apiUsageCount = 0;
       if (activeSub) {
         try {
-          const usageData = await billingApi.getUsage(currentOrg.id, session.accessToken, activeSub.id);
-          // Sum up 'ai_requests' metric
+          const usageData = await billingApi.getUsage(orgId, token, activeSub.id);
           if (Array.isArray(usageData)) {
             apiUsageCount = usageData
               .filter(u => u.metric_name === 'ai_requests')
               .reduce((acc, curr) => acc + curr.quantity, 0);
           }
-        } catch (err) {
-            console.warn("Failed to fetch usage:", err);
-            // Don't fail the whole view for usage error
+        } catch (err: unknown) {
+            logger.warn("Failed to fetch usage:", err);
         }
       }
 
-      // 3. Calculate Derived Metrics
-      
-      // Licenses
-      // Assuming 'quantity' in subscription refers to seats/licenses
       const totalLicenses = activeSub?.quantity || 0; 
       const usedLicenses = activeSub?.metadata?.active_users ? Number(activeSub.metadata.active_users) : 0; 
-      
-      // API Limits (from Plan limits)
       const apiLimit = currentPlan?.limits?.api_calls_monthly ? Number(currentPlan.limits.api_calls_monthly) : 0;
       
-      setState({
+      return {
         subscription: activeSub,
         plan: currentPlan,
+        activePlanIds: activePlanIdsList,
+        activePlans: activePlansList,
+        allSubscriptions: allSubs,
         usage: {
           licenses: {
             used: usedLicenses,
@@ -107,27 +124,27 @@ export const useBilling = () => {
         },
         invoices: invoicesResponse.invoices || [],
         plans: plansResponse.plans || [],
-        isLoading: false,
-        error: null,
-      });
-
-    } catch (err: any) {
-      console.error("Billing fetch error:", err);
-      setState((prev) => ({
-        ...prev,
-        isLoading: false,
-        error: err.message || "Failed to load billing information",
-      }));
-      toast.error("Failed to load billing information");
-    }
-  }, [currentOrg?.id, session?.accessToken]);
-
-  useEffect(() => {
-    fetchBillingData();
-  }, [fetchBillingData]);
+      };
+    },
+    enabled: !!orgId && !!token,
+  });
 
   return {
-    ...state,
-    refresh: fetchBillingData,
+    ...(data || {
+      subscription: null,
+      plan: null,
+      activePlanIds: [],
+      activePlans: [],
+      allSubscriptions: [],
+      usage: {
+        licenses: { used: 0, total: 0, percent: 0 },
+        apiCalls: { used: 0, total: 0, percent: 0 },
+      },
+      invoices: [],
+      plans: [],
+    }),
+    isLoading,
+    error: error ? (error instanceof Error ? error.message : String(error)) : null,
+    refresh: refetch,
   };
 };

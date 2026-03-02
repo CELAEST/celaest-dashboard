@@ -11,6 +11,7 @@ import { AutoRenewToggle } from "./ManageSubscription/AutoRenewToggle";
 import { SubscriptionActions } from "./ManageSubscription/SubscriptionActions";
 import { ConfirmationAlert } from "./ManageSubscription/ConfirmationAlert";
 import { ManageSubscriptionFooter } from "./ManageSubscription/ManageSubscriptionFooter";
+import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 
 interface ManageSubscriptionModalProps {
   isOpen: boolean;
@@ -22,6 +23,12 @@ export function ManageSubscriptionModal({
   onClose,
 }: ManageSubscriptionModalProps) {
   const { subscription, plan } = useBilling();
+  const { currentOrg } = useOrgStore();
+
+  const canManage =
+    currentOrg?.role === "owner" ||
+    currentOrg?.role === "super_admin" ||
+    currentOrg?.slug === "celaest-official";
   const {
     showCancelConfirm,
     setShowCancelConfirm,
@@ -64,14 +71,16 @@ export function ManageSubscriptionModal({
         <AutoRenewToggle
           autoRenew={autoRenew}
           renewalDate={subscriptionDetails.renewalDate}
-          onToggle={handleToggleAutoRenew}
+          onToggle={canManage ? handleToggleAutoRenew : undefined}
+          disabled={!canManage}
         />
 
         <SubscriptionActions
           showPauseConfirm={showPauseConfirm}
           showCancelConfirm={showCancelConfirm}
-          onTogglePause={handleTogglePause}
-          onToggleCancel={handleToggleCancel}
+          onTogglePause={canManage ? handleTogglePause : undefined}
+          onToggleCancel={canManage ? handleToggleCancel : undefined}
+          disabled={!canManage}
         />
 
         <ConfirmationAlert

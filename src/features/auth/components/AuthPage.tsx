@@ -3,10 +3,10 @@
 // Login and Registration page for CELAEST with split screen transition
 import React, { useState } from "react";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useNotifications } from "@/features/shared/contexts/NotificationContext";
 import { motion, AnimatePresence } from "motion/react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import {
   LoginFormValues,
   SignupFormValues,
@@ -20,6 +20,7 @@ import { AuthFormContainer } from "./layout/AuthFormContainer";
 
 export const AuthPage: React.FC = () => {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const { signIn, signUp } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { addNotification } = useNotifications();
@@ -50,6 +51,8 @@ export const AuthPage: React.FC = () => {
         message: "Has iniciado sesión exitosamente.",
         timestamp: new Date(),
       });
+      const redirectTo = searchParams.get("redirect") || "/?tab=marketplace";
+      router.push(redirectTo);
     }
     setLoading(false);
   };
@@ -71,6 +74,8 @@ export const AuthPage: React.FC = () => {
         message: "Tu cuenta ha sido creada exitosamente. ¡Bienvenido!",
         timestamp: new Date(),
       });
+      const redirectTo = searchParams.get("redirect") || "/?tab=marketplace";
+      router.push(redirectTo);
     }
     setLoading(false);
   };

@@ -1,5 +1,5 @@
 import React from "react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { TabOverview } from "./product-tabs/TabOverview";
 import { TabFeatures } from "./product-tabs/TabFeatures";
 import { TabReviews } from "./product-tabs/TabReviews";

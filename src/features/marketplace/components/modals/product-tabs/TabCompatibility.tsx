@@ -1,6 +1,6 @@
 import React from "react";
 import { Shield } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 
 export const TabCompatibility: React.FC = React.memo(() => {
   const { theme } = useTheme();

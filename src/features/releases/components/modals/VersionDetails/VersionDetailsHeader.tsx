@@ -1,7 +1,7 @@
 import React, { memo } from "react";
 import { Hash, X, CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
 
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { Version } from "@/features/releases/types";
 
 interface VersionDetailsHeaderProps {

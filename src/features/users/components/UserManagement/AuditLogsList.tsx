@@ -1,7 +1,11 @@
-import React, { memo } from "react";
+import React, { memo, useState } from "react";
 import { motion } from "motion/react";
+import { Download, Loader2 } from "lucide-react";
 import { AuditLog } from "../types";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
+import { auditApi } from "../../api/audit.api";
+import { useApiAuth } from "@/lib/use-api-auth";
+import { toast } from "sonner";
 
 interface AuditLogsListProps {
   logs: AuditLog[];
@@ -9,6 +13,21 @@ interface AuditLogsListProps {
 
 export const AuditLogsList = memo(({ logs }: AuditLogsListProps) => {
   const { isDark } = useTheme();
+  const { token, orgId } = useApiAuth();
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExportCSV = async () => {
+    if (!token || !orgId) return;
+    setIsExporting(true);
+    try {
+      await auditApi.exportAuditLogs(token, orgId);
+      toast.success("Audit logs exported successfully");
+    } catch {
+      toast.error("Failed to export audit logs");
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   const getActionColor = (action: string) => {
     if (action.includes("login"))
@@ -36,10 +55,28 @@ export const AuditLogsList = memo(({ logs }: AuditLogsListProps) => {
             Real-time Event Logging
           </p>
         </div>
-        <div
-          className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${isDark ? "bg-white/5 text-cyan-400 border border-white/5" : "bg-gray-100 text-gray-500"}`}
-        >
-          {logs.length} Events Logged
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleExportCSV}
+            disabled={isExporting || logs.length === 0}
+            className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed ${
+              isDark
+                ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-500/40"
+                : "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
+            }`}
+          >
+            {isExporting ? (
+              <Loader2 size={12} className="animate-spin" />
+            ) : (
+              <Download size={12} />
+            )}
+            Export CSV
+          </button>
+          <div
+            className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${isDark ? "bg-white/5 text-cyan-400 border border-white/5" : "bg-gray-100 text-gray-500"}`}
+          >
+            {logs.length} Events Logged
+          </div>
         </div>
       </div>
 

@@ -27,6 +27,7 @@ export const ROIMetrics: React.FC = () => {
     refresh,
     isLoading,
     exportReport,
+    isSuperAdmin,
   } = useROIMetrics();
 
   const [activeTab, setActiveTab] = React.useState<"overview" | "insights">(
@@ -47,6 +48,7 @@ export const ROIMetrics: React.FC = () => {
         onRefresh={refresh}
         onExport={exportReport}
         isLoading={isLoading}
+        isSuperAdmin={isSuperAdmin}
       />
 
       {/* Content Area (Scrollable if needed, but aimed for Zero Scroll) */}
@@ -76,7 +78,7 @@ export const ROIMetrics: React.FC = () => {
                 <TaskCompletionChart data={monthlyData} />
               </div>
             </motion.div>
-          ) : (
+          ) : isSuperAdmin ? (
             <motion.div
               key="insights"
               initial={{ opacity: 0, x: 20 }}
@@ -93,7 +95,7 @@ export const ROIMetrics: React.FC = () => {
                 <ZombieUsers users={zombieUsers} />
               </div>
             </motion.div>
-          )}
+          ) : null}
         </AnimatePresence>
       </div>
     </div>

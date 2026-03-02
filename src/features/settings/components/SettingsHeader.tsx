@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { Settings, Zap } from "lucide-react";
 
 export const SettingsHeader: React.FC = memo(() => {

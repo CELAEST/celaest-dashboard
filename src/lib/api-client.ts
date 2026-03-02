@@ -4,8 +4,34 @@
  * Las features extienden este cliente, no duplican lógica
  */
 
-const BASE_URL =
-  process.env.NEXT_PUBLIC_CELAEST_API_URL || "https://celaest-back.onrender.com";
+import { z } from "zod";
+import { logger } from "./logger";
+
+const BASE_URL = process.env.NEXT_PUBLIC_CELAEST_API_URL || "http://127.0.0.1:3101";
+
+// Persistence-aware blacklist for revoked organizations.
+// Using sessionStorage ensures that if a 403 occurs and triggers a reload, 
+// the next instance of the app still knows that the Org ID is forbidden.
+const getBlacklist = (): Set<string> => {
+  if (typeof window === 'undefined') return new Set();
+  try {
+    const data = sessionStorage.getItem('celaest:revoked_orgs');
+    return new Set(data ? JSON.parse(data) : []);
+  } catch {
+    return new Set();
+  }
+};
+
+const saveToBlacklist = (orgId: string) => {
+  if (typeof window === 'undefined') return;
+  try {
+    const list = getBlacklist();
+    list.add(orgId);
+    sessionStorage.setItem('celaest:revoked_orgs', JSON.stringify(Array.from(list)));
+  } catch (e) {
+    console.error("[api-client] Failed to save to blacklist:", e);
+  }
+};
 
 export class ApiError extends Error {
   constructor(
@@ -34,49 +60,51 @@ export interface ApiResponse<T = unknown> {
   };
 }
 
-type RequestConfig = RequestInit & {
+type RequestConfig<T = unknown> = RequestInit & {
   params?: Record<string, string>;
   token?: string | null;
   orgId?: string | null;
   skipUnwrap?: boolean;
+  schema?: z.ZodType<T>;
 };
-
-// Map para deduplicar peticiones en vuelo
-const pendingRequests = new Map<string, Promise<unknown>>();
 
 async function request<T>(
   path: string,
-  config: RequestConfig & ApiClientConfig = {}
+  config: RequestConfig<T> & ApiClientConfig = {}
 ): Promise<T> {
   const { params, token, orgId, skipUnwrap, ...init } = config;
 
-  // Solo deduplicamos peticiones GET
-  const isGet = init.method === "GET" || !init.method;
-  const cacheKey = isGet ? `${path}:${JSON.stringify(params)}:${token}:${orgId}` : null;
-
-  if (cacheKey && pendingRequests.has(cacheKey)) {
-    return pendingRequests.get(cacheKey) as Promise<T>;
+  let url = path.startsWith("http") ? path : `${BASE_URL}${path}`;
+  if (params) {
+    const search = new URLSearchParams(params).toString();
+    url += (url.includes("?") ? "&" : "?") + search;
   }
 
-  const promise = (async () => {
-    let url = path.startsWith("http") ? path : `${BASE_URL}${path}`;
-    if (params) {
-      const search = new URLSearchParams(params).toString();
-      url += (url.includes("?") ? "&" : "?") + search;
-    }
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+    ...init.headers,
+  };
 
-    const headers: HeadersInit = {
-      "Content-Type": "application/json",
-      ...init.headers,
-    };
-
-    if (token) {
-      (headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
+  if (token) {
+    (headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
+  }
+  if (orgId) {
+    const blacklist = getBlacklist();
+    if (blacklist.has(orgId)) {
+      logger.error(`🚫 Request blocked: Organization ${orgId} is blacklisted for this session.`);
+      throw new ApiError(
+        "Acceso denegado: Workspace revocado",
+        403,
+        "FORBIDDEN"
+      );
     }
-    if (orgId) {
-      (headers as Record<string, string>)["X-Organization-ID"] = orgId;
-    }
+    (headers as Record<string, string>)["X-Organization-ID"] = orgId;
+  }
 
+  const MAX_RETRIES = 2;
+  let attempt = 0;
+
+  while (attempt <= MAX_RETRIES) {
     try {
       const response = await fetch(url, {
         ...init,
@@ -98,6 +126,51 @@ async function request<T>(
 
       if (!response.ok) {
         const errorData = (data.error || {}) as NonNullable<ApiResponse<T>["error"]>;
+        
+        if (response.status === 401) {
+          if (typeof window !== "undefined") {
+            logger.error("🚨 TRIGGERING 401 UNAUTHORIZED LOGOUT. FAILED URL:", url);
+            window.dispatchEvent(new CustomEvent('celaest:unauthorized'));
+          }
+        }
+
+        if (response.status === 403 && (errorData.code === "FORBIDDEN" && (errorData.message?.toLowerCase().includes("not a member") || errorData.message?.toLowerCase().includes("miembro")))) {
+          if (typeof window !== "undefined") {
+            const currentOrgId = (headers as Record<string, string>)["X-Organization-ID"];
+
+            // NEVER blacklist the home/system org (Celaest).
+            // If Celaest itself returns 403 due to a transient backend issue or a
+            // stale JWT, blacklisting it creates an unrecoverable loop:
+            //   request → 403 → blacklist Celaest → celaest:org_not_found → clearSync
+            //   → redirect → fetchOrgs → Celaest is currentOrg again → request → 403 → ∞
+            // The home org ID is written to sessionStorage by useOrgStore.fetchOrgs.
+            const homeOrgId = sessionStorage.getItem('celaest:home_org_id');
+            const isHomeOrg = currentOrgId && homeOrgId && currentOrgId === homeOrgId;
+
+            const blacklist = getBlacklist();
+            if (currentOrgId && !blacklist.has(currentOrgId) && !isHomeOrg) {
+              saveToBlacklist(currentOrgId);
+              logger.warn("🚨 MEMBERSHIP REVOKED (403). Redirection triggered for Org:", currentOrgId);
+              window.dispatchEvent(new CustomEvent('celaest:org_not_found'));
+            } else if (isHomeOrg) {
+              logger.warn("⚠️ 403 on home org (Celaest) — NOT blacklisting. Backend may need a restart or token refresh.", currentOrgId);
+            }
+          }
+        }
+
+        if (response.status === 404 && errorData.message?.includes("Organization not found")) {
+          // Only trigger nuclear recovery when the ORGANIZATION itself is missing,
+          // NOT for other 404s like "Subscription not found", "Plan not found",
+          // "License not found", etc. Those are normal app states (org has no plan),
+          // not signs that the user was revoked. Triggering celaest:org_not_found
+          // on those 404s was wiping currentOrg whenever a Juli org had no plan,
+          // causing "Preparando sesión" for any user in a workspace without a paid tier.
+          if (typeof window !== "undefined") {
+            logger.warn("🚨 ORGANIZATION NOT FOUND (404). URL:", url);
+            window.dispatchEvent(new CustomEvent('celaest:org_not_found'));
+          }
+        }
+        
         throw new ApiError(
           errorData.message || "Request failed",
           response.status,
@@ -106,38 +179,75 @@ async function request<T>(
         );
       }
 
+      let responseData = (data.data !== undefined ? data.data : data) as T;
+
+      if (config.schema) {
+        try {
+          responseData = config.schema.parse(responseData);
+        } catch (err: unknown) {
+          if (err instanceof z.ZodError) {
+            logger.error(`🚨 [Zod ERROR] Path: ${path}`, err.issues);
+            throw new ApiError(
+              "Respuesta inválida desde el servidor",
+              500,
+              "SCHEMA_MISMATCH",
+              { issues: err.issues } as Record<string, unknown>
+            );
+          }
+          throw err;
+        }
+      }
+
       if (skipUnwrap) {
         return data as unknown as T;
       }
 
-      return (data.data !== undefined ? data.data : data) as T;
-    } catch (error) {
+      return responseData;
+    } catch (error: unknown) {
       if (error instanceof ApiError) throw error;
-      throw new ApiError(
-        error instanceof Error ? error.message : "Error de red desconocido",
-        500,
-        "NETWORK_ERROR"
-      );
-    } finally {
-      if (cacheKey) pendingRequests.delete(cacheKey);
+      
+      const isNetworkError = error instanceof TypeError || 
+                             (error instanceof Error && (error.name === 'TypeError' || (error as { code?: string }).code === 'NETWORK_ERROR'));
+      
+      let errorMessage = error instanceof Error ? error.message : "Error de red desconocido";
+      const isConnectionRefused = errorMessage === "Failed to fetch" || errorMessage.includes("ERR_CONNECTION_REFUSED");
+      
+      // Si el servidor está completamente apagado (Failed to fetch), no hacemos retry (evita spam 3x en consola browser)
+      if (isNetworkError && attempt < MAX_RETRIES && !isConnectionRefused) {
+        attempt++;
+        const delay = 500 * Math.pow(2, attempt); // Exponential backoff: 1s, 2s
+        console.warn(`[api-client] Retrying request (${attempt}/${MAX_RETRIES}) after network error. Delay: ${delay}ms`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        continue;
+      }
+
+      if (errorMessage === "Failed to fetch") {
+        errorMessage = `Error de conexión: El servidor no responde (${BASE_URL}). Asegúrese de que el backend esté ejecutándose.`;
+      }
+
+      // Devolvemos el error; Next.js no lo interceptará con Overlay rojo asumiendo que el que llama hace un catch.
+      const apiError = new ApiError(errorMessage, 500, "NETWORK_ERROR");
+      
+      // Hacker alert: Ocultarle el stack a Turbopack para que no salte el error en pantalla
+      // solo en caso de errores de RED puros.
+      if (isConnectionRefused && typeof window !== 'undefined') {
+         apiError.stack = "";
+      }
+      throw apiError;
     }
-  })();
-
-  if (cacheKey) {
-    pendingRequests.set(cacheKey, promise);
   }
-
-  return promise;
+  
+  throw new ApiError("Maximum retries reached", 500, "NETWORK_ERROR");
 }
 
 export const api = {
-  get: <T>(path: string, config?: RequestConfig & ApiClientConfig) =>
+  get: <T>(path: string, config?: RequestConfig<T> & ApiClientConfig) =>
     request<T>(path, { ...config, method: "GET" }),
 
   post: <T>(
     path: string,
     body?: unknown,
-    config?: RequestConfig & ApiClientConfig
+    config?: RequestConfig<T> & ApiClientConfig
   ) =>
     request<T>(path, {
       ...config,
@@ -148,7 +258,7 @@ export const api = {
   put: <T>(
     path: string,
     body?: unknown,
-    config?: RequestConfig & ApiClientConfig
+    config?: RequestConfig<T> & ApiClientConfig
   ) =>
     request<T>(path, {
       ...config,
@@ -159,7 +269,7 @@ export const api = {
   patch: <T>(
     path: string,
     body?: unknown,
-    config?: RequestConfig & ApiClientConfig
+    config?: RequestConfig<T> & ApiClientConfig
   ) =>
     request<T>(path, {
       ...config,
@@ -167,7 +277,7 @@ export const api = {
       body: body ? JSON.stringify(body) : undefined,
     }),
 
-  delete: <T>(path: string, config?: RequestConfig & ApiClientConfig) =>
+  delete: <T>(path: string, config?: RequestConfig<T> & ApiClientConfig) =>
     request<T>(path, { ...config, method: "DELETE" }),
 };
 

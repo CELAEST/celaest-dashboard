@@ -9,7 +9,7 @@ import {
   Loader2,
   PlayCircle,
 } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { motion } from "motion/react";
 
 import { BackendPipelineStage } from "@/features/assets/api/assets.api";

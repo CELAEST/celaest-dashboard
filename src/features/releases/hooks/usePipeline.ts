@@ -1,41 +1,28 @@
-import { useState, useCallback, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
-import { assetsApi, BackendPipelineStatus } from "@/features/assets/api/assets.api";
-import { useOrg } from "@/features/shared/contexts/OrgContext";
-import { handleApiError } from "@/lib/error-handler";
+import { assetsApi } from "@/features/assets/api/assets.api";
+import { useOrgStore } from "@/features/shared/stores/useOrgStore";
+import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
 
 export const usePipeline = (options: { enabled?: boolean } = {}) => {
   const { session } = useAuth();
-  const { org } = useOrg();
-  const [data, setData] = useState<BackendPipelineStatus | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { currentOrg: org } = useOrgStore();
+  const token = session?.accessToken;
+  const orgId = org?.id;
 
-  const fetchStatus = useCallback(async () => {
-    if (!options.enabled) return;
-    if (!session?.accessToken || !org?.id) return;
-    
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await assetsApi.getPipelineStatus(session.accessToken, org.id);
-      setData(response);
-    } catch (err: any) {
-      console.error("Failed to fetch pipeline status:", err);
-      setError(handleApiError(err));
-    } finally {
-      setIsLoading(false);
-    }
-  }, [session?.accessToken, org?.id, options.enabled]);
-
-  useEffect(() => {
-    fetchStatus();
-  }, [fetchStatus]);
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: QUERY_KEYS.releases.pipeline(orgId || "none"),
+    queryFn: async () => {
+      if (!token || !orgId) return null;
+      return assetsApi.getPipelineStatus(token, orgId);
+    },
+    enabled: !!options.enabled && !!token && !!orgId,
+  });
 
   return {
-    data,
+    data: data ?? null,
     isLoading,
-    error,
-    refetch: fetchStatus
+    error: error ? (error instanceof Error ? error.message : "Unknown error") : null,
+    refetch,
   };
 };

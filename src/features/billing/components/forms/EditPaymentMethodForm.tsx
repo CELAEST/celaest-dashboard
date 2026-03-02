@@ -1,6 +1,6 @@
 import React from "react";
 import { User, Calendar, Check } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface EditPaymentMethodFormProps {
   formState: {

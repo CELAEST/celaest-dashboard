@@ -15,7 +15,7 @@ export const playSuccessSound = () => {
   /*
   const audio = new Audio('/sounds/success.mp3');
   audio.volume = 0.3;
-  audio.play().catch(e => console.log('Audio play prevented:', e));
+  audio.play().catch(e => logger.log('Audio play prevented:', e));
   */
 };
 
@@ -24,7 +24,7 @@ export const playClickSound = () => {
   /*
   const audio = new Audio('/sounds/click.mp3');
   audio.volume = 0.2;
-  audio.play().catch(e => console.log('Audio play prevented:', e));
+  audio.play().catch(e => logger.log('Audio play prevented:', e));
   */
 };
 
@@ -33,7 +33,7 @@ export const playNotificationSound = () => {
   /*
   const audio = new Audio('/sounds/notification.mp3');
   audio.volume = 0.25;
-  audio.play().catch(e => console.log('Audio play prevented:', e));
+  audio.play().catch(e => logger.log('Audio play prevented:', e));
   */
 };
 

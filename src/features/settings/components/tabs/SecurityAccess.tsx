@@ -14,14 +14,17 @@ export function SecurityAccess() {
   const {
     faEnabled,
     sessions,
+    logs,
+    isLoading,
     handleEnable2FA,
     handleDisable2FA,
     handleLogoutSession,
+    refreshLogs,
   } = useSecuritySettings();
 
   return (
     <div className="space-y-6">
-      <SecurityPassword />
+      <SecurityPassword onPasswordChanged={refreshLogs} />
       <SecurityTwoFactor
         isEnabled={faEnabled}
         onEnable={handleEnable2FA}
@@ -31,7 +34,7 @@ export function SecurityAccess() {
         sessions={sessions}
         onLogoutSession={handleLogoutSession}
       />
-      <SecurityLogs />
+      <SecurityLogs logs={logs} isLoading={isLoading} />
     </div>
   );
 }

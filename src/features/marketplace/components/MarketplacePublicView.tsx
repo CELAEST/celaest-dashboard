@@ -4,12 +4,13 @@ import { MarketplaceSearch } from "./MarketplaceSearch";
 import { ProductCardPremium } from "./ProductCardPremium";
 import { VideoDemoSection } from "./VideoDemoSection";
 import { ProductSkeleton } from "./ProductSkeleton";
+import { CouponFAB } from "./CouponFAB";
 import { useMarketplaceProducts } from "../hooks/useMarketplaceProducts";
 import { MarketplaceProduct } from "../types";
 import { Store } from "lucide-react";
 import { AnimatePresence } from "motion/react";
 import dynamic from "next/dynamic";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 
 const LoginModal = dynamic(
   () =>
@@ -142,6 +143,9 @@ export function MarketplacePublicView() {
           }}
         />
       )}
+
+      {/* Floating Action Button for Coupons */}
+      <CouponFAB />
     </div>
   );
 }

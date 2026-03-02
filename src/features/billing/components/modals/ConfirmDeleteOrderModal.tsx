@@ -1,7 +1,7 @@
 "use client";
 
 import { AlertOctagon, Trash2 } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { BillingModal } from "./shared/BillingModal";
 
 interface ConfirmDeleteOrderModalProps {

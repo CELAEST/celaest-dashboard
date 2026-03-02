@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React from "react";
 import {
   X,
   AlertCircle,
@@ -12,9 +12,10 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
-import { billingApi } from "../../api/billing.api";
-import { Payment } from "../../types";
-import { toast } from "sonner";
+import {
+  useAlertsQuery,
+  useResolveRefundMutation,
+} from "../../hooks/useBillingQuery";
 import { format } from "date-fns";
 
 interface CriticalAlertsModalProps {
@@ -31,48 +32,20 @@ export const CriticalAlertsModal: React.FC<CriticalAlertsModalProps> = ({
   onResolve,
 }) => {
   const { session } = useAuth();
-  const [alerts, setAlerts] = useState<Payment[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [processingId, setProcessingId] = useState<string | null>(null);
+  const token = session?.accessToken ?? null;
 
-  const fetchAlerts = useCallback(async () => {
-    if (!session?.accessToken) return;
-    setIsLoading(true);
-    try {
-      const data = await billingApi.getAdminAlerts(session.accessToken, type);
-      setAlerts(data);
-    } catch (err) {
-      console.error("Failed to fetch alerts:", err);
-      toast.error("Failed to load alerts");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [session?.accessToken, type]);
-
-  useEffect(() => {
-    if (isOpen) {
-      fetchAlerts();
-    }
-  }, [isOpen, fetchAlerts]);
+  const { data: alerts = [], isLoading } = useAlertsQuery(token, type);
+  const resolveMutation = useResolveRefundMutation(token);
 
   const handleResolve = async (id: string, approveStatus: boolean) => {
-    if (!session?.accessToken) return;
-    setProcessingId(id);
-    try {
-      await billingApi.resolveAdminRefund(
-        session.accessToken,
-        id,
-        approveStatus,
-      );
-      toast.success(approveStatus ? "Refund approved" : "Refund declined");
-      fetchAlerts();
-      onResolve?.();
-    } catch (err) {
-      console.error("Failed to resolve refund:", err);
-      toast.error("Failed to resolve refund");
-    } finally {
-      setProcessingId(null);
-    }
+    resolveMutation.mutate(
+      { id, approve: approveStatus },
+      {
+        onSuccess: () => {
+          onResolve?.();
+        },
+      },
+    );
   };
 
   if (!isOpen) return null;
@@ -84,6 +57,10 @@ export const CriticalAlertsModal: React.FC<CriticalAlertsModalProps> = ({
     ) : (
       <Clock className="w-5 h-5 text-orange-500" />
     );
+
+  const processingId = resolveMutation.isPending
+    ? resolveMutation.variables?.id
+    : null;
 
   return (
     <AnimatePresence>

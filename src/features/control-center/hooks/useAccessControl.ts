@@ -33,7 +33,7 @@ export const useAccessControl = (feature: FeatureConfig): AccessResult => {
   // Admin check (if feature requires admin)
   if (feature.access === "admin") {
     const safeUser = user as unknown as UserWithRole;
-    const isAdmin = safeUser?.role === 'admin' || safeUser?.isAdmin === true;
+    const isAdmin = safeUser?.role === 'admin' || safeUser?.role === 'super_admin' || safeUser?.isAdmin === true;
     
     if (!isAdmin) {
       return { granted: false, reason: "forbidden" };

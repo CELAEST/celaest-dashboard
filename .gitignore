@@ -56,3 +56,19 @@ lint_*.json
 *_error.txt
 *_output.txt
 *_report.json
+
+# Playwright
+/test-results/
+/playwright-report/
+
+# TypeScript diagnostic dumps
+ts-errors*.txt
+ts-out*.txt
+tsc_errors*.txt
+tsc_output*.txt
+compile_errors*.txt
+
+# Misc debris
+deleted.txt
+login_res.json
+eslint.json

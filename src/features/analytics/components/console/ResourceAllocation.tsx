@@ -56,7 +56,7 @@ export const ResourceAllocation = React.memo(
           <div
             className={`text-[10px] font-mono opacity-50 ${isDark ? "text-gray-400" : "text-gray-500"}`}
           >
-            cluster-01
+            org-node
           </div>
         </div>
 
@@ -118,7 +118,7 @@ export const ResourceAllocation = React.memo(
           <span
             className={`text-xs font-mono font-bold ${isDark ? "text-blue-400" : "text-blue-600"}`}
           >
-            12/16
+            {usage?.api_requests ? Math.min(Math.round(usage.api_requests / 625), 16) : 0}/16
           </span>
         </div>
       </motion.div>

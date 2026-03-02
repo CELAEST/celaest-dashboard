@@ -37,14 +37,14 @@ export const marketplaceService = {
   /**
    * Crear sesión de pago
    */
-  async buyProduct(productId: string, token: string) {
-    return marketplaceApi.createCheckoutSession(productId, token);
+  async buyProduct(productId: string, token: string, orgId: string, couponCode?: string) {
+    return marketplaceApi.createCheckoutSession(productId, token, orgId, couponCode);
   },
 
   /**
    * Verificar compra
    */
-  async verifyPurchase(sessionId: string, token: string) {
-    return marketplaceApi.verifyPurchase(sessionId, token);
+  async verifyPurchase(sessionId: string, token: string, orgId: string) {
+    return marketplaceApi.verifyPurchase(sessionId, token, orgId);
   }
 };

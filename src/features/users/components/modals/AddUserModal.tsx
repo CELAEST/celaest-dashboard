@@ -3,8 +3,8 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Mail, User, Shield, Check, X } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { Loader2, Mail, User, Shield, Check } from "lucide-react";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "@/lib/utils";
 
@@ -78,7 +78,7 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
       setTimeout(() => {
         onClose();
       }, 1500);
-    } catch (error) {
+    } catch {
       // Error handled by parent toast
     } finally {
       setLoading(false);

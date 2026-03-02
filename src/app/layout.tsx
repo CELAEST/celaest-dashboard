@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
+import { QueryProvider } from "@/components/providers/QueryProvider";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/features/auth/contexts/AuthContext";
-import { OrgProvider } from "@/features/shared/contexts/OrgContext";
 import { NotificationProvider } from "@/features/shared/contexts/NotificationContext";
 import { Toaster } from "sonner";
 import { ThemeSync } from "@/features/shared/components/ThemeSync";
+import { OrgSync } from "@/features/shared/components/OrgSync";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
 
 const geistSans = Geist({
@@ -82,17 +83,24 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning
       >
-        <ThemeSync />
-        <ErrorBoundary>
-          <NotificationProvider>
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-100 focus:px-4 focus:py-2 focus:bg-blue-600 focus:text-white focus:rounded-lg"
+        >
+          Saltar al contenido
+        </a>
+        <QueryProvider>
+          <ThemeSync />
+          <ErrorBoundary>
             <AuthProvider>
-              <OrgProvider>
-                {children}
+              <OrgSync />
+              <NotificationProvider>
+                <main id="main-content">{children}</main>
                 <Toaster />
-              </OrgProvider>
+              </NotificationProvider>
             </AuthProvider>
-          </NotificationProvider>
-        </ErrorBoundary>
+          </ErrorBoundary>
+        </QueryProvider>
       </body>
     </html>
   );

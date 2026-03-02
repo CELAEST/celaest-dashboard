@@ -1,54 +1,33 @@
-import { useState, useEffect, useCallback } from "react";
+import { useMemo } from "react";
 import {
   Users,
   Percent,
   Zap,
 } from "lucide-react";
-import { FinancialMetric, TaxRate, GlobalFinancialStats } from "../types";
-import { billingApi } from "../api/billing.api";
+import { FinancialMetric } from "../types";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
-import { toast } from "sonner";
+import { useAdminStatsQuery, useTaxRatesQuery } from "./useBillingQuery";
 
 export const useFinancialDashboard = () => {
   const { session } = useAuth();
-  const [stats, setStats] = useState<GlobalFinancialStats>({
-    totalRevenue: 0,
-    paidInvoices: 0,
-    refundedFunds: 0,
-    mrr: 0,
-    mrrGrowth: 0,
-    pendingRefunds: 0,
-    failedPayments: 0,
-    stripeGatewayActive: false,
-  });
-  const [taxRates, setTaxRates] = useState<TaxRate[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const token = session?.accessToken ?? null;
 
-  const fetchData = useCallback(async () => {
-    if (!session?.accessToken) return;
+  // Query hooks
+  const statsQuery = useAdminStatsQuery(token);
+  const taxRatesQuery = useTaxRatesQuery(token);
 
-    setIsLoading(true);
-    try {
-      const [statsData, taxData] = await Promise.all([
-        billingApi.getAdminStats(session.accessToken),
-        billingApi.getAdminTaxRates(session.accessToken),
-      ]);
+  const stats = useMemo(() => ({
+    totalRevenue: statsQuery.data?.totalRevenue ?? 0,
+    paidInvoices: statsQuery.data?.paidInvoices ?? 0,
+    refundedFunds: statsQuery.data?.refundedFunds ?? 0,
+    mrr: statsQuery.data?.mrr ?? 0,
+    mrrGrowth: statsQuery.data?.mrrGrowth ?? 0,
+    pendingRefunds: statsQuery.data?.pendingRefunds ?? 0,
+    failedPayments: statsQuery.data?.failedPayments ?? 0,
+    stripeGatewayActive: statsQuery.data?.stripeGatewayActive ?? false,
+  }), [statsQuery.data]);
 
-      setStats(statsData);
-      setTaxRates(taxData);
-    } catch (err: any) {
-      console.error("Financial dashboard fetch error:", err);
-      toast.error("Failed to load financial dashboard data");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [session?.accessToken]);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  const metrics: FinancialMetric[] = [
+  const metrics: FinancialMetric[] = useMemo(() => [
     {
       icon: Users,
       label: "ACTIVE SUBSCRIPTIONS",
@@ -73,13 +52,16 @@ export const useFinancialDashboard = () => {
       changeLabel: "per user average",
       color: "purple",
     },
-  ];
+  ], [stats]);
 
   return {
     ...stats,
     metrics,
-    taxRates,
-    isLoading,
-    refresh: fetchData,
+    taxRates: taxRatesQuery.data ?? [],
+    isLoading: statsQuery.isLoading || taxRatesQuery.isLoading,
+    refresh: () => {
+      statsQuery.refetch();
+      taxRatesQuery.refetch();
+    },
   };
 };

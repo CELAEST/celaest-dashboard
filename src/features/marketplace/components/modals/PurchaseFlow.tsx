@@ -3,8 +3,10 @@
 import React, { useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X, CheckCircle, CreditCard, Download } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { SuccessConfetti } from "@/features/shared/components/SuccessConfetti";
+import { useMarketplaceCouponStore } from "@/features/marketplace/store";
+import { formatCurrency } from "@/lib/utils";
 import { usePurchaseFlow } from "@/features/marketplace/hooks/usePurchaseFlow";
 import { ConfirmationStep } from "./purchase-steps/ConfirmationStep";
 import { PaymentStep } from "./purchase-steps/PaymentStep";
@@ -16,7 +18,8 @@ interface PurchaseFlowProps {
   product: {
     id: string;
     title: string;
-    price: string;
+    base_price: number;
+    currency: string;
     image: string;
   } | null;
   initialStep?: number;
@@ -33,7 +36,6 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
   const { theme } = useTheme();
   const {
     step,
-    setStep,
     isProcessing,
     purchaseComplete,
     showConfetti,
@@ -42,6 +44,24 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
     handlePurchase,
     resetFlow,
   } = usePurchaseFlow(onClose, initialStep, onSuccess);
+
+  const { activeCoupon } = useMarketplaceCouponStore();
+
+  let finalPrice = product?.base_price ?? 0;
+  if (activeCoupon && product) {
+    if (activeCoupon.type === "percentage") {
+      finalPrice = product.base_price * (1 - activeCoupon.value / 100);
+    } else if (activeCoupon.type === "fixed_amount") {
+      finalPrice = Math.max(0, product.base_price - activeCoupon.value);
+    }
+  }
+
+  const formattedOriginalPrice = product
+    ? formatCurrency(product.base_price, product.currency)
+    : "";
+  const formattedFinalPrice = product
+    ? formatCurrency(finalPrice, product.currency)
+    : "";
 
   // Close on Escape key
   useEffect(() => {
@@ -147,14 +167,17 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
             <div className="p-8">
               {step === 1 && product && (
                 <ConfirmationStep
-                  product={product}
-                  onContinue={() => setStep(2)}
+                  product={{ title: product.title, image: product.image }}
+                  originalPrice={formattedOriginalPrice}
+                  finalPrice={formattedFinalPrice}
+                  hasCoupon={!!activeCoupon}
+                  onContinue={() => handlePurchase(product.id)}
                 />
               )}
 
               {step === 2 && product && (
                 <PaymentStep
-                  productPrice={product.price}
+                  finalPrice={formattedFinalPrice}
                   isProcessing={isProcessing}
                   progress={progress}
                   onPurchase={() => handlePurchase(product.id)}

@@ -3,7 +3,7 @@
 import React from "react";
 import { motion } from "motion/react";
 import { Play } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
 import { TrustBadges } from "@/features/marketplace/components/TrustBadges";
 import { TestimonialsSection } from "@/features/marketplace/components/TestimonialsSection";

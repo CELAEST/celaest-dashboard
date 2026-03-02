@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import { LogOut, X } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface SignOutCardProps {
   isDemo?: boolean;

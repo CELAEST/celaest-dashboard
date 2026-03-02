@@ -1,7 +1,7 @@
 import React from "react";
 import { ShieldCheck } from "lucide-react";
 import { motion } from "motion/react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { PaymentGateway } from "../../../types";
 import { GatewayItem } from "./GatewayItem";
 

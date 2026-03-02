@@ -1,6 +1,6 @@
 import React from "react";
 import { Key, Eye, EyeOff, Activity } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { PaymentGateway } from "../../../types";
 
 interface GatewayDisplayProps {

@@ -1,7 +1,7 @@
 import React from "react";
 import { User, CreditCard, Key, Mail, FileText } from "lucide-react";
 import { toast } from "sonner";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { Order } from "../../../types";
 
 interface OrderDetailsSidebarProps {
@@ -124,11 +124,12 @@ export const OrderDetailsSidebar: React.FC<OrderDetailsSidebarProps> = ({
               Method
             </div>
             <div
-              className={`text-sm ${
+              className={`text-sm capitalize ${
                 isDark ? "text-gray-300" : "text-gray-600"
               }`}
             >
-              Stripe •••• 4242
+              {formData.paymentProvider || "Stripe"}{" "}
+              {formData.paymentMethod === "card" ? "• Card" : ""}
             </div>
           </div>
         </div>
@@ -182,11 +183,11 @@ export const OrderDetailsSidebar: React.FC<OrderDetailsSidebarProps> = ({
               Delivery Email
             </div>
             <div
-              className={`text-sm truncate w-32 ${
+              className={`text-sm truncate w-48 ${
                 isDark ? "text-gray-300" : "text-gray-600"
               }`}
             >
-              user@example.com
+              {formData.userEmail || "N/A"}
             </div>
           </div>
         </div>

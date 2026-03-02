@@ -15,11 +15,15 @@ import type {
 function getAuthContext() {
   const session = useAuthStore.getState().session;
   const org = useOrgStore.getState().currentOrg;
+  const user = session?.user;
   const token = session?.accessToken;
   const orgId = org?.id;
 
   if (!token) throw new Error("Not authenticated");
-  if (!orgId) throw new Error("No active organization");
+  
+  // Super Admin can list without org context (for global view)
+  const isSuperAdmin = user?.role === "super_admin";
+  if (!orgId && !isSuperAdmin) throw new Error("No active organization");
 
   return { token, orgId };
 }
@@ -28,7 +32,8 @@ function getAuthContext() {
 export function isServiceReady(): boolean {
   const session = useAuthStore.getState().session;
   const org = useOrgStore.getState().currentOrg;
-  return !!(session?.accessToken && org?.id);
+  const isSuperAdmin = session?.user?.role === "super_admin";
+  return !!(session?.accessToken && (org?.id || isSuperAdmin));
 }
 
 export const licensingService = {

@@ -1,52 +1,64 @@
 "use client";
 
-import { useEffect } from "react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
-import { useAnalyticsStore } from "../stores/useAnalyticsStore";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useApiAuth } from "@/lib/use-api-auth";
+import { 
+  useDashboardStats, 
+  useSalesByPeriod, 
+  useROIMetrics, 
+  useUsageReport, 
+  useCategoryDistribution, 
+  useLiveFeed 
+} from "./useAnalyticsQuery";
+import { useRealtimeDashboard } from "./useRealtimeDashboard";
 
 export const useAnalytics = (period: string = "month") => {
   const { theme } = useTheme();
-  const { token, orgId, isAuthReady } = useApiAuth();
+  const { token, orgId } = useApiAuth();
   const isDark = theme === "dark";
 
-  const {
-    stats,
-    salesByPeriod,
-    roi,
-    usage,
-    categoryDistribution,
-    eventLogs,
-    isLoading,
-    error,
-    fetchDashboardData,
-    fetchLiveFeed
-  } = useAnalyticsStore();
+  // New TanStack Query based hooks
+  const statsQuery = useDashboardStats(token, orgId, period);
+  const salesQuery = useSalesByPeriod(token, orgId, "day");
+  const roiQuery = useROIMetrics(token, orgId, period);
+  const usageQuery = useUsageReport(token, orgId, period);
+  const distributionQuery = useCategoryDistribution(token, orgId);
+  const liveFeedQuery = useLiveFeed(token, orgId);
 
-  useEffect(() => {
-    if (isAuthReady && token && orgId) {
-      fetchDashboardData(token, orgId, period);
-      fetchLiveFeed(token, orgId);
+  // Initialize real-time synchronization
+  useRealtimeDashboard();
 
-      // Poll live feed every 30 seconds
-      const interval = setInterval(() => {
-        fetchLiveFeed(token, orgId);
-      }, 30000);
+  const isLoading = 
+    statsQuery.isLoading || 
+    salesQuery.isLoading || 
+    roiQuery.isLoading || 
+    usageQuery.isLoading || 
+    distributionQuery.isLoading;
 
-      return () => clearInterval(interval);
-    }
-  }, [isAuthReady, token, orgId, fetchDashboardData, fetchLiveFeed, period]);
+  const error = 
+    statsQuery.error || 
+    salesQuery.error || 
+    roiQuery.error || 
+    usageQuery.error || 
+    distributionQuery.error;
 
   return {
     isDark,
-    stats,
-    salesByPeriod,
-    roi,
-    usage,
-    categoryDistribution,
-    eventLogs,
+    stats: statsQuery.data ?? null,
+    salesByPeriod: salesQuery.data ?? [],
+    roi: roiQuery.data ?? null,
+    usage: usageQuery.data ?? null,
+    categoryDistribution: distributionQuery.data ?? [],
+    eventLogs: liveFeedQuery.data ?? [],
     isLoading,
-    error,
-    refresh: () => token && orgId && fetchDashboardData(token, orgId),
+    error: error ? "Failed to load analytics data." : null,
+    refresh: () => {
+      statsQuery.refetch();
+      salesQuery.refetch();
+      roiQuery.refetch();
+      usageQuery.refetch();
+      distributionQuery.refetch();
+      liveFeedQuery.refetch();
+    },
   };
 };

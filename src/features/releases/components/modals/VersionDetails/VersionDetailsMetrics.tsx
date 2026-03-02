@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import { Calendar, HardDrive, Download, Activity } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { Version } from "@/features/releases/types";
 
 

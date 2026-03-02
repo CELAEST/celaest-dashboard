@@ -1,7 +1,7 @@
 import React from "react";
 import { Globe, Edit2, Trash2 } from "lucide-react";
 import { motion } from "motion/react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { TaxRate } from "../../../types";
 
 interface TaxRateListProps {

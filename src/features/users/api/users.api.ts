@@ -34,6 +34,7 @@ export interface UpdateUserInput {
   first_name?: string;
   last_name?: string;
   role?: string;
+  organization_id?: string;
 }
 
 export const usersApi = {
@@ -56,8 +57,15 @@ export const usersApi = {
     await api.put(`/api/v1/org/users/${userId}`, data, { token, orgId });
   },
 
+  updateMe: async (data: UpdateUserInput, token: string): Promise<UserData> => {
+    const response = await api.put<UserData>("/api/v1/user/me", data, { token });
+    return response;
+  },
+
   deleteUser: async (userId: string, token: string, orgId: string): Promise<void> => {
-    await api.delete(`/api/v1/org/users/${userId}`, { token, orgId });
+    // We use the organizations endpoint to safely remove the member from the workspace 
+    // instead of deleting the entire user account.
+    await api.delete(`/api/v1/org/organizations/${orgId}/members/${userId}`, { token, orgId });
   },
 
   // Alias for legacy support or convenience
@@ -65,9 +73,7 @@ export const usersApi = {
     await api.put(`/api/v1/org/users/${userId}`, { role }, { token, orgId });
   },
 
-  signOut: async (userId: string, token: string): Promise<void> => {
-    await api.post(`/api/v1/user/sessions/revoke-all`, { user_id: userId }, { token }); 
-    // Note: This endpoint is usually user-centric, so orgId might not be strictly required by middleware if it's in a /user group, 
-    // but the implementation above uses /user/sessions/revoke-all which is likely in jwtGroup (no org required).
+  signOut: async (_userId: string, token: string): Promise<void> => {
+    await api.delete("/api/v1/user/sessions", { token });
   },
 };

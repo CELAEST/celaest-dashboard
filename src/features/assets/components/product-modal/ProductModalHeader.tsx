@@ -1,6 +1,6 @@
 import React from "react";
 import { X } from "lucide-react";
-import { Asset } from "../../hooks/useAssets";
+import { Asset } from "../../services/assets.service";
 import { AssetTypeIcon } from "../shared/AssetTypeIcon";
 import { getAssetTypeLabel } from "../../utils/assetUtils";
 
