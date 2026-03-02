@@ -50,6 +50,8 @@ export const useNotificationSettings = () => {
       return null;
     },
     enabled: !!token,
+    staleTime: 5 * 60 * 1000, // 5 minutes — preferences rarely change mid-session
+    gcTime: 10 * 60 * 1000,
   });
 
   // Real-time synchronization: Listen for preference updates from other devices
