@@ -1,6 +1,6 @@
 import React from "react";
 import { Upload, AlertCircle } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface AssetFileUploaderProps {
   onFileSelect: (file: File) => void;

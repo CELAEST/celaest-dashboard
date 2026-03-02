@@ -1,6 +1,7 @@
+import { logger } from "@/lib/logger";
 import React, { memo, useState, useEffect } from "react";
 import { CreditCard, Plus } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { toast } from "sonner";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 import { useOrgStore } from "@/features/shared/stores/useOrgStore";
@@ -26,8 +27,8 @@ export const PaymentMethod: React.FC = memo(() => {
           session.accessToken,
         );
         setMethods(res);
-      } catch (error) {
-        console.error("Failed to fetch payment methods:", error);
+      } catch (error: unknown) {
+        logger.error("Failed to fetch payment methods:", error);
       } finally {
         setIsLoading(false);
       }

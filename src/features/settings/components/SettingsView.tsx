@@ -17,7 +17,7 @@ import { Notifications } from "./tabs/Notifications";
 import { DeveloperAPI } from "./tabs/DeveloperAPI";
 import { Preferences } from "./tabs/Preferences";
 import { PlansBilling } from "./tabs/PlansBilling";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import type { SettingsTabId } from "./types";
 import { motion, AnimatePresence } from "motion/react";
 

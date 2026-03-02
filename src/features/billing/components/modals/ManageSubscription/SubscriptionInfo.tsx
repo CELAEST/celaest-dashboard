@@ -1,7 +1,7 @@
 import React from "react";
 import { Calendar, CheckCircle } from "lucide-react";
 import { motion } from "motion/react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface SubscriptionInfoProps {
   nextBillingDate: string;

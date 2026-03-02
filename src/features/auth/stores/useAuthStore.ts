@@ -36,21 +36,25 @@ export const useAuthStore = create<AuthStore>()(
       
       setError: (error) => set({ error, isLoading: false }),
       
-      reset: () => set({ 
-        user: null, 
-        session: null, 
-        isAuthenticated: false, 
-        isLoading: false, 
-        isBackendSynced: false, 
-        error: null 
-      }),
+      reset: () => {
+        if (typeof window !== 'undefined') {
+          sessionStorage.removeItem('celaest:revoked_orgs');
+        }
+        set({ 
+          user: null, 
+          session: null, 
+          isAuthenticated: false, 
+          isLoading: false, 
+          isBackendSynced: false, 
+          error: null 
+        });
+      },
     }),
     {
       name: 'celaest-auth-storage',
       storage: createJSONStorage(() => localStorage),
-      // Solo persistimos la sesión y el usuario para rapidez en el re-hidrate
+      // Solo persistimos la autenticación superficial y el usuario para la UI
       partialize: (state) => ({ 
-        session: state.session, 
         user: state.user,
         isAuthenticated: state.isAuthenticated
       }),

@@ -1,13 +1,14 @@
 import React from "react";
 import { PauseCircle, XCircle, ArrowDownCircle } from "lucide-react";
 import { motion } from "motion/react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface SubscriptionActionsProps {
   showPauseConfirm: boolean;
   showCancelConfirm: boolean;
-  onTogglePause: () => void;
-  onToggleCancel: () => void;
+  onTogglePause?: () => void;
+  onToggleCancel?: () => void;
+  disabled?: boolean;
 }
 
 export const SubscriptionActions: React.FC<SubscriptionActionsProps> = ({
@@ -15,6 +16,7 @@ export const SubscriptionActions: React.FC<SubscriptionActionsProps> = ({
   showCancelConfirm,
   onTogglePause,
   onToggleCancel,
+  disabled = false,
 }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
@@ -26,13 +28,17 @@ export const SubscriptionActions: React.FC<SubscriptionActionsProps> = ({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
-        whileHover={{ scale: 1.02, y: -2 }}
-        whileTap={{ scale: 0.98 }}
-        onClick={onTogglePause}
+        whileHover={disabled ? {} : { scale: 1.02, y: -2 }}
+        whileTap={disabled ? {} : { scale: 0.98 }}
+        onClick={disabled ? undefined : onTogglePause}
         className={`p-4 rounded-xl transition-all duration-300 group ${
-          isDark
-            ? "bg-orange-500/10 border border-orange-500/20 hover:bg-orange-500/20 hover:border-orange-500/40"
-            : "bg-orange-500/10 border border-orange-500/20 hover:bg-orange-500/20 hover:border-orange-500/40 shadow-sm"
+          disabled
+            ? isDark
+              ? "bg-gray-800/20 border-white/5 opacity-50 cursor-not-allowed"
+              : "bg-gray-100 border-gray-200 opacity-50 cursor-not-allowed"
+            : isDark
+              ? "bg-orange-500/10 border border-orange-500/20 hover:bg-orange-500/20 hover:border-orange-500/40"
+              : "bg-orange-500/10 border border-orange-500/20 hover:bg-orange-500/20 hover:border-orange-500/40 shadow-sm"
         } ${showPauseConfirm ? "ring-2 ring-orange-500/50" : ""}`}
       >
         <div className="flex items-center justify-between">
@@ -70,13 +76,17 @@ export const SubscriptionActions: React.FC<SubscriptionActionsProps> = ({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
-        whileHover={{ scale: 1.02, y: -2 }}
-        whileTap={{ scale: 0.98 }}
-        onClick={onToggleCancel}
+        whileHover={disabled ? {} : { scale: 1.02, y: -2 }}
+        whileTap={disabled ? {} : { scale: 0.98 }}
+        onClick={disabled ? undefined : onToggleCancel}
         className={`p-4 rounded-xl transition-all duration-300 group ${
-          isDark
-            ? "bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 hover:border-red-500/40"
-            : "bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 hover:border-red-500/40 shadow-sm"
+          disabled
+            ? isDark
+              ? "bg-gray-800/20 border-white/5 opacity-50 cursor-not-allowed"
+              : "bg-gray-100 border-gray-200 opacity-50 cursor-not-allowed"
+            : isDark
+              ? "bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 hover:border-red-500/40"
+              : "bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 hover:border-red-500/40 shadow-sm"
         } ${showCancelConfirm ? "ring-2 ring-red-500/50" : ""}`}
       >
         <div className="flex items-center justify-between">

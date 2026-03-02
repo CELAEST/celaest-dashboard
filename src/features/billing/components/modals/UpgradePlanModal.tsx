@@ -1,11 +1,13 @@
+import { logger } from "@/lib/logger";
 import { useState } from "react";
 import { X } from "lucide-react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { BillingModal } from "./shared/BillingModal";
 import { Plan } from "../../types";
 import { PlanCard } from "../ui/PlanCard";
+import { CardGridSkeleton } from "@/components/ui/skeletons";
 import { useBilling } from "../../hooks/useBilling";
 import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
@@ -20,12 +22,7 @@ interface UpgradePlanModalProps {
 export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
-  const {
-    plans,
-    subscription,
-    activePlanIds,
-    isLoading: isBillingLoading,
-  } = useBilling();
+  const { plans, activePlanIds, isLoading: isBillingLoading } = useBilling();
   const { currentOrg } = useOrgStore();
   const { session } = useAuth();
   const [isUpgrading, setIsUpgrading] = useState(false);
@@ -38,24 +35,34 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
 
     setIsUpgrading(true);
     try {
-      let response: any;
-      // ALWAYS create a new subscription for a different plan to support multi-plan persistence.
-      // We only update if it's the SAME plan (e.g. reactivation or quantity change, which this modal doesn't usually handle).
-      // If we used updateSubscription with a new PlanID, it would overwrite the existing license, losing its history/validity.
-
-      response = await billingApi.createSubscription(
+      const response: {
+        data?: { checkout_url?: string };
+        checkout_url?: string;
+      } = await billingApi.createSubscription(
         currentOrg.id,
         session.accessToken,
         {
           organization_id: currentOrg.id,
+          user_id: session.user.id,
           plan_id: plan.id,
+          ...(plan.productId || plan.product_id
+            ? { product_id: plan.productId || plan.product_id }
+            : {}),
         },
       );
 
       // Check for Stripe Checkout URL
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const resAny = response as any;
       const checkoutUrl =
-        response?.data?.checkout_url || response?.checkout_url;
-      if (checkoutUrl) {
+        resAny?.data?.checkout_url ||
+        resAny?.checkout_url ||
+        resAny?.data?.subscription?.checkout_url ||
+        resAny?.subscription?.checkout_url ||
+        resAny?.url ||
+        resAny?.data?.url;
+
+      if (checkoutUrl && typeof checkoutUrl === "string") {
         toast.info("Redirecting to Stripe for payment...");
         window.location.href = checkoutUrl;
         return; // Don't close modal yet, we are leaving the page
@@ -65,7 +72,7 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
       onClose();
       // Optional: force reload to refresh all data
       window.location.reload();
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Handle "already exists" as a success case (409 Conflict)
       if (
         error instanceof ApiError &&
@@ -77,12 +84,19 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
         window.location.reload();
         return;
       }
-      console.error("Upgrade failed:", error);
-      toast.error(error.message || "Failed to upgrade plan");
+      logger.error("Upgrade failed:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to upgrade plan",
+      );
     } finally {
       setIsUpgrading(false);
     }
   };
+
+  const isRestricted =
+    currentOrg?.slug !== "celaest-official" &&
+    currentOrg?.role !== "owner" &&
+    currentOrg?.role !== "super_admin";
 
   // Filter and sort plans — map color by plan code
   const planColorMap: Record<string, "blue" | "purple" | "emerald"> = {
@@ -110,7 +124,7 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
       <div
         className={`relative w-full rounded-2xl flex flex-col ${
           isDark
-            ? "bg-[#0c1221] border border-white/[0.06] shadow-2xl"
+            ? "bg-[#0c1221] border border-white/6 shadow-2xl"
             : "bg-white border border-gray-200 shadow-2xl"
         }`}
         onClick={(e) => e.stopPropagation()}
@@ -153,25 +167,26 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
 
         {/* Plans Grid */}
         <div className="px-3 sm:px-5 lg:px-6 pb-4 pt-3">
-            {isBillingLoading ? (
-              <div className="flex items-center justify-center py-16">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-500" />
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 lg:gap-4 mx-auto items-stretch">
-                {displayPlans.map((plan, index) => (
-                  <PlanCard
-                    key={plan.id}
-                    plan={plan as any}
-                    index={index}
-                    onClose={onClose}
-                    onSelect={() => handleUpgrade(plan)}
-                    isLoading={isUpgrading}
-                    activePlanIds={activePlanIds}
-                  />
-                ))}
-              </div>
-            )}
+          {isBillingLoading ? (
+            <CardGridSkeleton count={3} />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 lg:gap-4 mx-auto items-stretch">
+              {displayPlans.map((plan, index) => (
+                <PlanCard
+                  key={plan.id}
+                  plan={plan}
+                  index={index}
+                  onClose={onClose}
+                  onSelect={
+                    isRestricted ? undefined : () => handleUpgrade(plan)
+                  }
+                  isLoading={isUpgrading}
+                  activePlanIds={activePlanIds}
+                  isReadOnly={isRestricted}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </BillingModal>

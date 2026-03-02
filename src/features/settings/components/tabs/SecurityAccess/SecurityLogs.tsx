@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import { AlertTriangle, RefreshCcw } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { SecurityLog } from "../../../hooks/useSecuritySettings";
 
 interface SecurityLogsProps {

@@ -1,6 +1,6 @@
 import React from "react";
 import { X, User, Mail, Calendar } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useRole } from "@/features/auth/hooks/useAuthorization";
 import type { LicenseResponse } from "@/features/licensing/types";
 

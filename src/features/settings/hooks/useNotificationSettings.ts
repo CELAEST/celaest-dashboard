@@ -1,8 +1,12 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useMemo, useCallback } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Mail, Smartphone, LucideIcon } from "lucide-react";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 import { settingsApi } from "../api/settings.api";
 import { toast } from "sonner";
+import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
+import { socket } from "@/lib/socket-client";
+import { useEffect } from "react";
 
 export interface NotificationItem {
   id: string;
@@ -16,57 +20,79 @@ export interface NotificationSection {
   items: NotificationItem[];
 }
 
+const NOTIF_QUERY_KEY = [...QUERY_KEYS.users.all, "notifications"] as const;
+
 /**
  * useNotificationSettings — Persisted in Backend
  */
 export const useNotificationSettings = () => {
   const { session } = useAuthStore();
-  const [prefs, setPrefs] = useState<Record<string, boolean>>({
+  const token = session?.accessToken;
+  const queryClient = useQueryClient();
+
+  const { data: prefs = {
     email_activity: true,
     email_newsletter: false,
     push_security: true,
     push_mentions: true,
     browser_all: false,
-  });
-  const [isLoading, setIsLoading] = useState(false);
-
-  const fetchPrefs = useCallback(async () => {
-    if (!session?.accessToken) return;
-    try {
-      setIsLoading(true);
-      const response = await settingsApi.getNotificationPreferences(session.accessToken);
+  }, isLoading } = useQuery({
+    queryKey: NOTIF_QUERY_KEY,
+    queryFn: async () => {
+      if (!token) return null;
+      const response = await settingsApi.getNotificationPreferences(token);
       if (response.notifications) {
-        try {
-          const parsed = typeof response.notifications === 'string'
-            ? JSON.parse(response.notifications)
-            : response.notifications;
-          setPrefs(parsed);
-        } catch (e) {
-          console.error("Failed to parse notifications", e);
-        }
+        const parsed = typeof response.notifications === 'string'
+          ? JSON.parse(response.notifications)
+          : response.notifications;
+        return parsed as Record<string, boolean>;
       }
-    } catch (error) {
-      console.error("Failed to fetch notification preferences:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [session?.accessToken]);
+      return null;
+    },
+    enabled: !!token,
+  });
 
+  // Real-time synchronization: Listen for preference updates from other devices
   useEffect(() => {
-    fetchPrefs();
-  }, [fetchPrefs]);
+    if (!token) return;
+
+    const unsubscribe = socket.on("user.updated", (payload: unknown) => {
+      const p = payload as { action?: string };
+      if (p.action === "notifications_updated" || p.action === "preferences_updated") {
+        queryClient.invalidateQueries({ queryKey: NOTIF_QUERY_KEY });
+      }
+    });
+
+    return () => unsubscribe();
+  }, [token, queryClient]);
+
+  const toggleMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const currentPrefs = prefs ?? {};
+      const newPrefs = { ...currentPrefs, [id]: !currentPrefs[id] };
+      await settingsApi.updateNotificationPreferences(newPrefs, token!);
+      return newPrefs;
+    },
+    onMutate: async (id: string) => {
+      await queryClient.cancelQueries({ queryKey: NOTIF_QUERY_KEY });
+      const previous = queryClient.getQueryData<Record<string, boolean>>(NOTIF_QUERY_KEY);
+      queryClient.setQueryData<Record<string, boolean>>(NOTIF_QUERY_KEY, old => ({
+        ...(old || {}),
+        [id]: !(old?.[id] ?? false),
+      }));
+      return { previous };
+    },
+    onError: (_err, _id, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(NOTIF_QUERY_KEY, context.previous);
+      }
+      toast.error("Failed to save preference");
+    },
+  });
 
   const togglePref = useCallback((id: string) => {
-    setPrefs((prev) => {
-      const newPrefs = { ...prev, [id]: !prev[id] };
-      // Save to backend
-      if (session?.accessToken) {
-        settingsApi.updateNotificationPreferences(newPrefs, session.accessToken)
-          .catch(() => toast.error("Failed to save preference"));
-      }
-      return newPrefs;
-    });
-  }, [session?.accessToken]);
+    toggleMutation.mutate(id);
+  }, [toggleMutation]);
 
   const notificationSections: NotificationSection[] = useMemo(
     () => [

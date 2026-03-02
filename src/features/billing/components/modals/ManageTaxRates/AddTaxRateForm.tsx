@@ -2,7 +2,7 @@ import React from "react";
 import { Plus, Save, RotateCcw } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { SettingsSelect } from "../../../../settings/components/SettingsSelect";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { TaxRate } from "../../../types";
 import { COUNTRIES } from "../../../constants/countries";
 

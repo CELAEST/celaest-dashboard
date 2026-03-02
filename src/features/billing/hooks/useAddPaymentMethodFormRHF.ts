@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 /**
  * useAddPaymentMethodForm - React Hook Form + Zod version
  *
@@ -5,7 +6,7 @@
  * This is the recommended pattern for all forms.
  */
 
-import { useForm, UseFormReturn } from "react-hook-form";
+import { useForm, UseFormReturn, Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { formatCardNumber, getCardType } from "@/lib/validation/schemas/billing";
@@ -80,8 +81,7 @@ export const useAddPaymentMethodFormRHF = (
   onClose: () => void
 ): UseAddPaymentMethodFormResult => {
   const form = useForm<AddPaymentMethodFormData>({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    resolver: zodResolver(addPaymentMethodFormSchema) as any,
+    resolver: zodResolver(addPaymentMethodFormSchema) as unknown as Resolver<AddPaymentMethodFormData>,
     mode: "onBlur", // Validate on blur for better UX
     reValidateMode: "onChange", // Re-validate on change after first submit
     defaultValues: {
@@ -137,9 +137,9 @@ export const useAddPaymentMethodFormRHF = (
 
       toast.success("Payment method added successfully");
       onClose();
-    } catch (err: any) {
-      console.error("Failed to add payment method:", err);
-      toast.error(err.message || "Failed to add payment method");
+    } catch (err: unknown) {
+      logger.error("Failed to add payment method:", err);
+      toast.error(err instanceof Error ? err.message : "Failed to add payment method");
     }
   });
 

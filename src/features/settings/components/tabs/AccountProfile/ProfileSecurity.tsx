@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import { Mail, Github, AlertCircle } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface ProfileSecurityProps {
   email: string;

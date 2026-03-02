@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, User, Shield, Check } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { UserData } from "../types";
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "@/lib/utils";
@@ -89,7 +89,7 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
       setTimeout(() => {
         onClose();
       }, 1500);
-    } catch (error) {
+    } catch {
       // Error handled by parent
     } finally {
       setLoading(false);

@@ -2,7 +2,7 @@
 
 import React, { forwardRef } from "react";
 import { Search, Filter } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useMarketplaceProducts } from "../hooks/useMarketplaceProducts";
 
 export const MarketplaceSearch = React.memo(

@@ -30,7 +30,7 @@ export function Notifications() {
         <NotificationHeader />
         <NotificationPreferences
           sections={notificationSections}
-          prefs={prefs}
+          prefs={prefs || {}}
           onToggle={togglePref}
         />
       </div>

@@ -1,6 +1,46 @@
 
 export type CurrencyCode = "USD" | "EUR" | "GBP";
 
+// --- Tipos para JSONB Estrictos ---
+
+export interface PlanLimits {
+  users?: number;
+  storage_gb?: number;
+  api_requests_per_month?: number;
+  api_calls_monthly?: number;
+  custom_domains?: number;
+  support_level?: "standard" | "priority" | "dedicated";
+  [key: string]: number | string | boolean | undefined; // Fallback for dynamic limits
+}
+
+export interface SubscriptionMetadata {
+  stripe_customer_id?: string;
+  stripe_subscription_id?: string;
+  source_campaign?: string;
+  auto_renew?: boolean;
+  active_users?: number;
+  [key: string]: number | string | boolean | undefined;
+}
+
+export interface BillingAddress {
+  line1?: string;
+  line2?: string;
+  city?: string;
+  state?: string;
+  postal_code?: string;
+  country?: string;
+}
+
+export interface PaymentMetadata {
+  stripe_charge_id?: string;
+  payment_intent_id?: string;
+  receipt_url?: string;
+  failure_code?: string;
+  failure_message?: string;
+}
+
+// ------------------------------------
+
 export interface Money {
   amount: number;
   currency: CurrencyCode;
@@ -93,13 +133,15 @@ export interface Plan {
   price_yearly?: number;
   currency: string;
   features: string[];
-  limits?: Record<string, any>;
+  limits?: PlanLimits;
   is_active: boolean;
   is_public: boolean;
   sort_order: number;
   tier: number; // 1=starter, 2=pro, 3=enterprise
   created_at: string;
   updated_at: string;
+  product_id?: string;
+  productId?: string; // Add both for compatibility
   
   // Frontend helpers
   popular?: boolean;
@@ -119,9 +161,11 @@ export interface Subscription {
   trial_start?: string;
   trial_end?: string;
   quantity: number;
-  metadata?: Record<string, any>;
+  metadata?: SubscriptionMetadata;
   created_at: string;
   updated_at: string;
+  user_id?: string;
+  userId?: string;
   
   // Expanded fields
   plan?: Plan;
@@ -160,7 +204,7 @@ export interface Invoice {
   amount_due: number;
   billing_name?: string;
   billing_email?: string;
-  billing_address?: Record<string, any>;
+  billing_address?: BillingAddress;
   due_date?: string;
   pdf_url?: string;
   paid_at?: string;
@@ -218,7 +262,7 @@ export interface Payment {
   external_payment_id?: string;
   provider?: string;
   description?: string;
-  metadata?: Record<string, any>;
+  metadata?: PaymentMetadata;
   created_at: string;
   updated_at: string;
 }

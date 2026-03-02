@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "motion/react";
 import { Loader } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { Progress } from "@/components/ui/progress";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,14 +18,14 @@ const paymentSchema = z.object({
 type PaymentFormData = z.infer<typeof paymentSchema>;
 
 interface PaymentStepProps {
-  productPrice: string;
+  finalPrice: string;
   isProcessing: boolean;
   progress: number;
   onPurchase: () => void;
 }
 
 export const PaymentStep: React.FC<PaymentStepProps> = ({
-  productPrice,
+  finalPrice,
   isProcessing,
   progress,
   onPurchase,
@@ -170,7 +170,7 @@ export const PaymentStep: React.FC<PaymentStepProps> = ({
               }
             `}
           >
-            Confirmar Pago {productPrice}
+            Confirmar Pago {finalPrice}
           </button>
         </form>
       )}

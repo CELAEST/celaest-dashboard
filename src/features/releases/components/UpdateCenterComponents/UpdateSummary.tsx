@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import { Sparkles } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface UpdateSummaryProps {
   updateCount: number;

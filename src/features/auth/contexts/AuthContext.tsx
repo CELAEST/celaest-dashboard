@@ -12,9 +12,11 @@ import React, {
   useMemo,
   type ReactNode,
 } from "react";
+import { useShallow } from "zustand/react/shallow";
 import { type AuthActions, type AuthState } from "../lib/types";
 import { useAuthSession } from "../hooks/useAuthSession";
 import { useAuthActions } from "../hooks/useAuthActions";
+import { useUserSync } from "@/features/users/hooks/useUserSync";
 
 // ==================== CONTEXT VALUE ====================
 
@@ -34,17 +36,60 @@ import { useAuthStore } from "../stores/useAuthStore";
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const { supabase } = useAuthSession();
-  const store = useAuthStore();
+
+  // Use selective subscription for performance
+  const storeValues = useAuthStore(
+    useShallow((state) => ({
+      user: state.user,
+      session: state.session,
+      isAuthenticated: state.isAuthenticated,
+      isLoading: state.isLoading,
+      isBackendSynced: state.isBackendSynced,
+      error: state.error,
+    })),
+  );
+
   const actions = useAuthActions(supabase);
+
+  // Keep React Query user profile fresh based on WS events
+  useUserSync(storeValues.session?.accessToken);
+
+  // Sync Socket Connection
+  const accessToken = storeValues.session?.accessToken;
+  React.useEffect(() => {
+    import("@/lib/socket-client").then(({ socket }) => {
+      if (accessToken) {
+        socket.connect(accessToken);
+      } else {
+        socket.disconnect();
+      }
+    });
+  }, [accessToken]);
+
+  // Global unauthorized listener (from api-client)
+  React.useEffect(() => {
+    const handleUnauthorized = () => {
+      if (
+        typeof window !== "undefined" &&
+        !window.location.pathname.startsWith("/auth")
+      ) {
+        actions.signOut();
+      }
+    };
+
+    window.addEventListener("celaest:unauthorized", handleUnauthorized);
+    return () =>
+      window.removeEventListener("celaest:unauthorized", handleUnauthorized);
+  }, [actions]);
 
   // ==================== VALUE ====================
 
   const value = useMemo<AuthContextValue>(
     () => ({
-      ...store,
+      ...storeValues,
       ...actions,
     }),
-    [store, actions],
+    [storeValues, actions],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

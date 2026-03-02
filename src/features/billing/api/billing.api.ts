@@ -22,10 +22,26 @@ export interface PaymentListResponse {
   limit: number;
 }
 
+import { z } from "zod";
+
+const subscriptionSchema = z.object({
+  id: z.string(),
+  organization_id: z.string(),
+  product_id: z.string(),
+  plan_id: z.string(),
+  status: z.string(),
+  quantity: z.number()
+}).passthrough() as unknown as z.ZodType<Subscription>;
+
+const subscriptionListSchema = z.object({
+  subscriptions: z.array(subscriptionSchema),
+  total: z.number()
+}) as z.ZodType<SubscriptionListResponse>;
+
 export const billingApi = {
   // Subscriptions
   getSubscriptions: (orgId: string, token: string) =>
-    api.get<SubscriptionListResponse>(`/api/v1/org/subscriptions`, { orgId, token }),
+    api.get<SubscriptionListResponse>(`/api/v1/org/subscriptions`, { orgId, token, schema: subscriptionListSchema }),
 
   getSubscription: (orgId: string, token: string, id: string) =>
     api.get<Subscription>(`/api/v1/org/subscriptions/${id}`, { orgId, token }),
@@ -56,12 +72,24 @@ export const billingApi = {
   getPlans: (orgId: string, token: string, activeOnly: boolean = true) =>
     api.get<PlanListResponse>(`/api/v1/org/plans?active_only=${activeOnly}`, { orgId, token }),
 
+  createPlan: (orgId: string, token: string, data: Partial<Plan>) =>
+    api.post<Plan>("/api/v1/org/plans", data, { orgId, token }),
+
+  updatePlan: (orgId: string, token: string, id: string, data: Partial<Plan>) =>
+    api.put<Plan>(`/api/v1/org/plans/${id}`, data, { orgId, token }),
+
   // Invoices
   getInvoices: (orgId: string, token: string) =>
     api.get<InvoiceListResponse>(`/api/v1/org/invoices`, { orgId, token }),
     
   getInvoice: (orgId: string, token: string, id: string) =>
       api.get<Invoice>(`/api/v1/org/invoices/${id}`, { orgId, token }),
+
+  voidInvoice: (orgId: string, token: string, id: string) =>
+      api.post(`/api/v1/org/invoices/${id}/void`, {}, { orgId, token }),
+
+  payInvoice: (orgId: string, token: string, id: string) =>
+      api.post(`/api/v1/org/invoices/${id}/pay`, {}, { orgId, token }),
 
   // Payment Methods
   getPaymentMethods: (orgId: string, token: string) =>

@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { SettingsSelect } from "@/features/settings/components/SettingsSelect";
 import { Version } from "../../types";
 

@@ -1,6 +1,6 @@
 import React from "react";
 import { Clock, AlertTriangle } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { ValidationLog } from "@/features/licensing/constants/mock-data";
 
 interface LicenseActivityLogProps {

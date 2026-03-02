@@ -1,4 +1,5 @@
 "use client";
+import { logger } from "@/lib/logger";
 
 import { useCallback } from "react";
 import { useRouter } from "next/navigation";
@@ -37,7 +38,7 @@ export function useAuthActions(
           success: false,
           error: { code: "UNKNOWN_ERROR", message: "Error al iniciar sesión" },
         };
-      } catch (error) {
+      } catch (error: unknown) {
         return {
           success: false,
           error: { 
@@ -189,8 +190,8 @@ export function useAuthActions(
 
     try {
       await supabase.auth.signOut();
-    } catch (error) {
-      console.error("Supabase signOut error:", error);
+    } catch (error: unknown) {
+      logger.error("Supabase signOut error:", error);
       // Continue cleanup even if server call fails
     }
 
@@ -216,8 +217,8 @@ export function useAuthActions(
       router.refresh(); // Refresh server components
       router.push("/?mode=signin");
       return { success: true };
-    } catch (error) {
-      console.error("Client cleanup error:", error);
+    } catch (error: unknown) {
+      logger.error("Client cleanup error:", error);
       return {
         success: false,
         error: { code: "UNKNOWN_ERROR", message: "Error al cerrar sesión" },

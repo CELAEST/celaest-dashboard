@@ -1,6 +1,7 @@
+import { logger } from "@/lib/logger";
 import React, { memo, useState, useEffect } from "react";
 import { Receipt, ArrowUpRight, Download } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 import { billingApi } from "@/features/billing/api/billing.api";
@@ -25,8 +26,8 @@ export const BillingHistory: React.FC = memo(() => {
           session.accessToken,
         );
         setInvoices(res.invoices);
-      } catch (error) {
-        console.error("Failed to fetch invoices:", error);
+      } catch (error: unknown) {
+        logger.error("Failed to fetch invoices:", error);
       } finally {
         setIsLoading(false);
       }

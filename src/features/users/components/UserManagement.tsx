@@ -6,7 +6,7 @@
 import React, { useState, useCallback } from "react";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { useRole } from "@/features/auth/hooks/useAuthorization";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { motion, AnimatePresence } from "motion/react";
 import { Users, Clock, LayoutGrid, Plus, User, Mail, Shield, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -89,7 +89,6 @@ const SuperAdminUserManagement: React.FC<{ isDark: boolean }> = ({ isDark }) => 
     roleFilter,
     setRoleFilter,
     loading: usersLoading,
-    handleChangeRole,
     createUser,
     updateUser,
     deleteUser,

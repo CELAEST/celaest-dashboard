@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Plus, Shield } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { AddPaymentMethodModal } from "./modals/AddPaymentMethodModal";
 import { EditPaymentMethodModal } from "./modals/EditPaymentMethodModal";
 import { usePaymentMethods } from "../hooks/usePaymentMethods";
@@ -21,7 +21,7 @@ export const PaymentMethodsCard: React.FC = () => {
     setActiveMenu,
     handleSetDefault,
     handleDelete,
-    handleUpdateMethod,
+    refresh,
   } = usePaymentMethods();
 
   const [isAddCardOpen, setIsAddCardOpen] = useState(false);
@@ -36,8 +36,8 @@ export const PaymentMethodsCard: React.FC = () => {
     setActiveMenu(null);
   };
 
-  const onUpdate = (updatedMethod: PaymentMethod) => {
-    handleUpdateMethod(updatedMethod);
+  const onUpdate = () => {
+    refresh();
     setIsEditCardOpen(false);
     setEditingMethod(null);
   };

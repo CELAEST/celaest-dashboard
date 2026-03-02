@@ -2,13 +2,15 @@
 
 import React, { useState, useMemo } from "react";
 import { AnimatePresence } from "motion/react";
-import { Search, Code, Box, Music, Zap } from "lucide-react";
+import { Search, Box } from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { toast } from "sonner";
+import { logger } from "@/lib/logger";
 import { ProductDetailModal } from "./ProductDetailModal";
 import { Asset } from "../services/assets.service";
 import { MarketplaceCard } from "./MarketplaceCard";
 import { useAssets } from "../hooks/useAssets";
+import { useCategories } from "../hooks/useCategories";
 
 interface AssetCustomerCatalogProps {
   assets: Asset[];
@@ -20,12 +22,11 @@ export const AssetCustomerCatalog: React.FC<
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const [selectedProduct, setSelectedProduct] = useState<Asset | null>(null);
-  const [filter, setFilter] = useState<
-    "all" | "3d" | "script" | "audio" | "template"
-  >("all");
+  const [filter, setFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
 
   const { assets, isLoading, refresh, downloadAsset } = useAssets();
+  const { categories, isLoading: isLoadingCategories } = useCategories(true);
   const [downloading, setDownloading] = useState<string | null>(null);
 
   // Use real assets (purchased items)
@@ -40,29 +41,12 @@ export const AssetCustomerCatalog: React.FC<
 
   const filteredAssets = useMemo(() => {
     return displayAssets.filter((item) => {
-      // Map filter keys to AssetTypes
-      // Filter keys: "all" | "3d" | "script" | "audio" | "template"
-      // AssetTypes: "excel" | "script" | "google-sheet" | "software" | "plugin" | "theme" | "template" | "asset" | "service"
-
       let matchesFilter = filter === "all";
 
       if (!matchesFilter) {
-        if (filter === "3d") {
-          matchesFilter =
-            item.type === "asset" || item.display_type === "3d-model"; // Assuming 'asset' or specific display_type
-        } else if (filter === "script") {
-          matchesFilter = item.type === "script" || item.type === "plugin";
-        } else if (filter === "audio") {
-          // We don't have an explicit audio type in AssetType yet, might be under 'asset'
-          matchesFilter =
-            item.type === "asset" && item.display_type === "audio";
-        } else if (filter === "template") {
-          matchesFilter =
-            item.type === "template" ||
-            item.type === "theme" ||
-            item.type === "excel" ||
-            item.type === "google-sheet";
-        }
+        // En el catálogo de clientes, los items tienen categoryName o categoryId
+        matchesFilter =
+          item.categoryName === filter || item.categoryId === filter;
       }
 
       const matchesSearch = item.name
@@ -81,8 +65,8 @@ export const AssetCustomerCatalog: React.FC<
       try {
         await downloadAsset(product.id, product.slug);
         toast.success("Download started");
-      } catch (error) {
-        console.error("Download failed", error);
+      } catch (error: unknown) {
+        logger.error("Download failed", error);
         toast.error("Download failed");
       } finally {
         setDownloading(null);
@@ -106,7 +90,7 @@ export const AssetCustomerCatalog: React.FC<
           </div>
           <input
             type="text"
-            placeholder="Search marketplace..."
+            placeholder="Search assets..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className={`w-full pl-10 pr-4 py-2.5 rounded-xl border outline-none transition-all ${
@@ -119,38 +103,48 @@ export const AssetCustomerCatalog: React.FC<
 
         {/* Filter Chips */}
         <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-none">
-          {[
-            { id: "all", label: "All Assets" },
-            { id: "script", label: "Software & Agents", icon: Code }, // Was Scripts
-            { id: "template", label: "Templates & Prompts", icon: Zap }, // Was Templates
-            { id: "3d", label: "3D & Visuals", icon: Box }, // Was 3D Models
-            { id: "audio", label: "Audio & Voice", icon: Music }, // Was Audio
-          ].map((chip) => {
-            const Icon = chip.icon;
-            const isActive = filter === chip.id;
-            return (
-              <button
-                key={chip.id}
-                onClick={() =>
-                  setFilter(
-                    chip.id as "all" | "3d" | "script" | "audio" | "template",
-                  )
-                }
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all border ${
-                  isActive
-                    ? isDark
-                      ? "bg-cyan-500/20 text-cyan-400 border-cyan-500/30 shadow-[0_0_15px_rgba(34,211,238,0.2)]"
-                      : "bg-blue-600 text-white border-blue-600 shadow-md"
-                    : isDark
-                      ? "bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white"
-                      : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50 hover:text-gray-900"
-                }`}
-              >
-                {Icon && <Icon size={14} />}
-                {chip.label}
-              </button>
-            );
-          })}
+          <button
+            key="all"
+            onClick={() => setFilter("all")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all border ${
+              filter === "all"
+                ? isDark
+                  ? "bg-cyan-500/20 text-cyan-400 border-cyan-500/30 shadow-[0_0_15px_rgba(34,211,238,0.2)]"
+                  : "bg-blue-600 text-white border-blue-600 shadow-md"
+                : isDark
+                  ? "bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white"
+                  : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50 hover:text-gray-900"
+            }`}
+          >
+            All Assets
+          </button>
+
+          {isLoadingCategories ? (
+            <div className="px-4 py-2">
+              <div className="w-4 h-4 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : (
+            categories.map((cat) => {
+              const isActive = filter === cat.name;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => setFilter(cat.name)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all border ${
+                    isActive
+                      ? isDark
+                        ? "bg-cyan-500/20 text-cyan-400 border-cyan-500/30 shadow-[0_0_15px_rgba(34,211,238,0.2)]"
+                        : "bg-blue-600 text-white border-blue-600 shadow-md"
+                      : isDark
+                        ? "bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white"
+                        : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50 hover:text-gray-900"
+                  }`}
+                >
+                  {cat.name}
+                </button>
+              );
+            })
+          )}
         </div>
       </div>
 

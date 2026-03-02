@@ -13,6 +13,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
+import { logger } from "@/lib/logger";
 import { useOrg } from "@/features/shared/contexts/OrgContext";
 import { assetsApi } from "@/features/assets/api/assets.api";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
@@ -498,8 +499,8 @@ export const ReleaseManager: React.FC = () => {
                                         () => setAbortState("idle"),
                                         1000,
                                       );
-                                    } catch (err) {
-                                      console.error(
+                                    } catch (err: unknown) {
+                                      logger.error(
                                         "Failed to abort pipeline:",
                                         err,
                                       );

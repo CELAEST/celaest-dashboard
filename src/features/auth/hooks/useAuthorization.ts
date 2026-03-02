@@ -1,4 +1,5 @@
 'use client'
+import { logger } from "@/lib/logger";
 
 /**
  * Hooks de autorización
@@ -144,7 +145,7 @@ export function useProtectedAction<T extends (...args: unknown[]) => unknown>(
       return action
     }
     return () => {
-      console.warn(`Action blocked: missing permission "${requiredPermission}"`)
+      logger.warn(`Action blocked: missing permission "${requiredPermission}"`)
     }
   }, [action, hasPermission, requiredPermission]) as T | (() => void)
 }

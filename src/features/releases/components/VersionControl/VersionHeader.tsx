@@ -1,7 +1,7 @@
 import React, { memo } from "react";
 import { motion } from "motion/react";
 import { Plus } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface VersionHeaderProps {
   onCreate: () => void;

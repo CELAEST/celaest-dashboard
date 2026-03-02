@@ -2,10 +2,16 @@
 
 import React from "react";
 import { useFormContext } from "react-hook-form";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { CardInformationSectionRHF } from "./AddPaymentMethod/CardInformationSectionRHF";
 import { BillingInformationSectionRHF } from "./AddPaymentMethod/BillingInformationSectionRHF";
-import { FormCheckbox } from "@/components/forms";
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+} from "@/components/ui/form";
+import { Checkbox } from "@/components/ui/checkbox";
 
 /**
  * AddPaymentMethodFormRHF - Pure presentation component.
@@ -26,11 +32,24 @@ export const AddPaymentMethodFormRHF: React.FC = () => {
         <BillingInformationSectionRHF isDark={isDark} />
 
         <div className="pt-2">
-          <FormCheckbox
+          <FormField
             control={control}
             name="isDefault"
-            label="Set as default payment method"
-            variant="switch"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center space-x-3 space-y-0 p-4 border rounded-xl dark:border-white/10">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel className="font-normal cursor-pointer text-sm">
+                    Set as default payment method
+                  </FormLabel>
+                </div>
+              </FormItem>
+            )}
           />
         </div>
 

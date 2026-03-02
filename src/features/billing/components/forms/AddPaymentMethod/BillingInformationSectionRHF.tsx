@@ -3,7 +3,14 @@
 import React from "react";
 import { Mail, MapPin, Building } from "lucide-react";
 import { useFormContext } from "react-hook-form";
-import { FormInput } from "@/components/forms";
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { AddPaymentMethodFormData } from "@/features/billing/hooks/useAddPaymentMethodFormRHF";
 
 interface BillingInformationSectionRHFProps {
@@ -27,38 +34,88 @@ export const BillingInformationSectionRHF: React.FC<
 
       <div className="space-y-3">
         {/* Email */}
-        <FormInput
+        <FormField
           control={control}
           name="billingEmail"
-          label="Email"
-          type="email"
-          placeholder="john@example.com"
-          icon={<Mail className="w-4 h-4" />}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    type="email"
+                    placeholder="john@example.com"
+                    className="pl-10 h-11 rounded-xl"
+                    {...field}
+                  />
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
 
         {/* Address */}
-        <FormInput
+        <FormField
           control={control}
           name="billingAddress"
-          label="Address"
-          placeholder="123 Main Street"
-          icon={<MapPin className="w-4 h-4" />}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Address</FormLabel>
+              <FormControl>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder="123 Main Street"
+                    className="pl-10 h-11 rounded-xl"
+                    {...field}
+                  />
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
 
         {/* City & Zip */}
         <div className="grid grid-cols-2 gap-2">
-          <FormInput
+          <FormField
             control={control}
             name="billingCity"
-            label="City"
-            placeholder="New York"
-            icon={<Building className="w-4 h-4" />}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>City</FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      placeholder="New York"
+                      className="pl-10 h-11 rounded-xl"
+                      {...field}
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-          <FormInput
+          <FormField
             control={control}
             name="billingZip"
-            label="Zip"
-            placeholder="10001"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Zip</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="10001"
+                    className="h-11 rounded-xl"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
         </div>
       </div>

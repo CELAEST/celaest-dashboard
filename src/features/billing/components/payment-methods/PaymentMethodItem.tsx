@@ -4,7 +4,7 @@ import React from "react";
 import { motion } from "motion/react";
 import { CreditCard, MoreVertical, Check, Edit2, Trash2 } from "lucide-react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { PaymentMethod } from "../../types";
 import {
   getCardGradient,

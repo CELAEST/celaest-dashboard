@@ -11,7 +11,8 @@ import { ApiSecurityAlert } from "./DeveloperAPI/ApiSecurityAlert";
  * Developer & API Settings Tab
  */
 export function DeveloperAPI() {
-  const { apiKeys, copyToClipboard, generateKey } = useDeveloperSettings();
+  const { apiKeys, copyToClipboard, generateKey, revokeKey } =
+    useDeveloperSettings();
 
   return (
     <div className="space-y-6 pb-8">
@@ -19,6 +20,7 @@ export function DeveloperAPI() {
         apiKeys={apiKeys}
         onGenerate={generateKey}
         onCopy={copyToClipboard}
+        onRevoke={revokeKey}
       />
       <Webhooks />
       <ApiDocs />

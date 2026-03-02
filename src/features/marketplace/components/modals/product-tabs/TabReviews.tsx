@@ -1,6 +1,6 @@
 import React from "react";
 import { Star } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { Review } from "../../../types";
 
 interface TabReviewsProps {

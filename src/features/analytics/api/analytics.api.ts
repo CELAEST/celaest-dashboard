@@ -157,6 +157,46 @@ export const analyticsApi = {
       orgId
     });
   },
+
+  async getSales(token: string, orgId: string, period = "month"): Promise<SalesAnalytics> {
+    return api.get<SalesAnalytics>("/api/v1/org/analytics/sales", {
+      params: { period },
+      token,
+      orgId
+    });
+  },
+
+  async getLicenseAnalytics(token: string, orgId: string, period = "month"): Promise<LicenseAnalytics> {
+    return api.get<LicenseAnalytics>("/api/v1/org/analytics/licenses", {
+      params: { period },
+      token,
+      orgId
+    });
+  },
+
+  async getLicenseValidations(token: string, orgId: string, period = "month"): Promise<LicenseValidation[]> {
+    return api.get<LicenseValidation[]>("/api/v1/org/analytics/licenses/validations", {
+      params: { period },
+      token,
+      orgId
+    });
+  },
+
+  async getAIUsageByProvider(token: string, orgId: string, period = "month"): Promise<AIUsageByProvider[]> {
+    return api.get<AIUsageByProvider[]>("/api/v1/org/analytics/ai-usage/by-provider", {
+      params: { period },
+      token,
+      orgId
+    });
+  },
+
+  async getAICosts(token: string, orgId: string, period = "month"): Promise<AICostMetrics> {
+    return api.get<AICostMetrics>("/api/v1/org/analytics/ai-usage/costs", {
+      params: { period },
+      token,
+      orgId
+    });
+  },
 };
 
 export interface SystemEvent {
@@ -202,4 +242,36 @@ export interface ActiveUserStats {
   monthly_active_users: number;
   peak_hour: number;
   peak_day: string;
+}
+
+export interface LicenseAnalytics {
+  total_licenses: number;
+  active_licenses: number;
+  expired_licenses: number;
+  revoked_licenses: number;
+  activation_rate: number;
+  period: string;
+}
+
+export interface LicenseValidation {
+  id: string;
+  license_id: string;
+  status: string;
+  ip_address: string;
+  validated_at: string;
+}
+
+export interface AIUsageByProvider {
+  provider: string;
+  requests: number;
+  tokens_used: number;
+  avg_latency_ms: number;
+  error_rate: number;
+}
+
+export interface AICostMetrics {
+  total_cost: number;
+  cost_by_provider: Record<string, number>;
+  cost_by_model: Record<string, number>;
+  period: string;
 }

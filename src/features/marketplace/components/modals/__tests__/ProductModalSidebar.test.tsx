@@ -8,7 +8,7 @@ import { ProductModalSidebar } from "../ProductModalSidebar";
 import { MarketplaceProduct } from "../../../types";
 
 // Mock ThemeContext
-vi.mock("@/features/shared/contexts/ThemeContext", () => ({
+vi.mock("@/features/shared/hooks/useTheme", () => ({
   useTheme: () => ({ theme: "dark" }),
 }));
 

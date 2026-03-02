@@ -1,22 +1,28 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { toast } from "sonner";
-import { licensingService, isServiceReady } from "@/features/licensing/services/licensing.service";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
+import { licensingService } from "@/features/licensing/services/licensing.service";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
-import { useOrgStore } from "@/features/shared/stores/useOrgStore";
+import { socket } from "@/lib/socket-client";
+import { useEffect } from "react";
+
+import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
+import {
+  useLicensesQuery,
+  useLicenseStatsQuery,
+} from "./useLicensesQuery";
 import type {
   LicenseResponse,
-  LicenseStats,
   IPBinding,
   LicenseStatus,
 } from "@/features/licensing/types";
 import type { ValidationLog } from "@/features/licensing/constants/mock-data";
 
 export const useLicensing = () => {
-  const [licenses, setLicenses] = useState<LicenseResponse[]>([]);
-  const [stats, setStats] = useState<LicenseStats | null>(null);
-  const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(20);
   const [activeTab, setActiveTab] = useState<
     "licenses" | "collisions" | "analytics"
   >("licenses");
@@ -26,63 +32,168 @@ export const useLicensing = () => {
     useState<LicenseResponse | null>(null);
   const [validationLogs, setValidationLogs] = useState<ValidationLog[]>([]);
 
-  // Watch auth/org readiness to trigger data loading
   const session = useAuthStore((s) => s.session);
-  const currentOrg = useOrgStore((s) => s.currentOrg);
+  const queryClient = useQueryClient();
 
-  const loadData = useCallback(async () => {
-    // Don't attempt to load if auth/org context isn't ready
-    // STRICT: We need org_id for the API calls in this hook
-    if (!session?.accessToken || !currentOrg?.id) {
-      return;
-    }
+  // Queries
+  const { data: listData, isLoading: loadingLicenses } = useLicensesQuery({
+    search: searchQuery || undefined,
+    status: statusFilter === "all" ? undefined : (statusFilter as LicenseStatus),
+    page,
+    limit,
+  });
 
-    setLoading(true);
-    try {
-      const currentSession = useAuthStore.getState().session;
-      const isSuperAdmin = currentSession?.user?.role === "super_admin";
-      const isAdmin = currentSession?.user?.role === "admin";
-      const viewMode = isSuperAdmin || isAdmin ? "all" : undefined;
+  const { data: statsData } = useLicenseStatsQuery();
 
-      const [listResult, statsResult] = await Promise.allSettled([
-        licensingService.list({ page: 1, limit: 100, view: viewMode }),
-        licensingService.getStats(),
-      ]);
-
-      if (listResult.status === "fulfilled") {
-        setLicenses(listResult.value.licenses);
-      } else {
-        console.error("Failed to load licenses:", listResult.reason);
-      }
-
-      if (statsResult.status === "fulfilled") {
-        setStats(statsResult.value);
-      } else {
-        console.error("Failed to load stats:", statsResult.reason);
-      }
-    } catch (err) {
-      console.error("Error loading licensing data:", err);
-      toast.error("Failed to load licensing data");
-    } finally {
-      setLoading(false);
-    }
-  }, [session?.accessToken, currentOrg?.id]);
-
-  // Load data when auth + org become available (or just auth for super_admins)
+  // Real-time synchronization for Licensing Hub
   useEffect(() => {
     if (!session?.accessToken) return;
-    
-    // Check readiness (handled global view for Super Admins in isServiceReady)
-    if (!isServiceReady()) return;
 
-    // Small delay to ensure Zustand stores are fully synchronized
-    const timeout = setTimeout(loadData, 100);
-    const interval = setInterval(loadData, 30000); // Refresh every 30s
-    return () => {
-      clearTimeout(timeout);
-      clearInterval(interval);
+    const handler = () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.licensing.all });
     };
-  }, [session?.accessToken, currentOrg?.id, loadData]); // Still depend on currentOrg.id to re-load if it changes
+
+    const unsubscribers = [
+      socket.on("license.created", handler),
+      socket.on("license.updated", handler),
+      socket.on("license.activated", handler),
+      socket.on("subscription.created", handler),
+      socket.on("subscription.updated", handler),
+      socket.on("subscription.cancelled", handler),
+    ];
+
+    return () => {
+      unsubscribers.forEach((unsub) => unsub());
+    };
+  }, [session?.accessToken, queryClient]);
+
+  // Determine if user is admin/super_admin
+  const isAdminUser = useMemo(() => {
+    const role = session?.user?.role;
+    return role === "super_admin" || role === "admin";
+  }, [session]);
+
+  // Mutations
+  const updateMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: LicenseStatus }) =>
+      licensingService.changeStatus(id, status),
+    onMutate: async ({ id, status }) => {
+      await queryClient.cancelQueries({ queryKey: QUERY_KEYS.licensing.all });
+      const snapshots = queryClient.getQueriesData<{ licenses: LicenseResponse[]; total: number }>({ queryKey: QUERY_KEYS.licensing.all });
+      queryClient.setQueriesData<{ licenses: LicenseResponse[]; total: number }>(
+        { queryKey: QUERY_KEYS.licensing.all },
+        (old) => {
+          if (!old || !old.licenses) return old;
+          return {
+            ...old,
+            licenses: old.licenses.map((l) =>
+              l.id === id ? { ...l, status } : l
+            ),
+          };
+        }
+      );
+      return { snapshots };
+    },
+    onError: (_err, _vars, context) => {
+      context?.snapshots?.forEach(([key, data]) => queryClient.setQueryData(key, data));
+      toast.error("Failed to update license status");
+    },
+    onSuccess: (updated) => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.licensing.all });
+      if (selectedLicense?.id === updated.id) setSelectedLicense(updated);
+      toast.success(`License status changed to ${updated.status}`);
+    },
+  });
+
+  const revokeMutation = useMutation({
+    mutationFn: (id: string) =>
+      licensingService.revoke(id, "Revoked via dashboard"),
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: QUERY_KEYS.licensing.all });
+      const snapshots = queryClient.getQueriesData<{ licenses: LicenseResponse[]; total: number }>({ queryKey: QUERY_KEYS.licensing.all });
+      queryClient.setQueriesData<{ licenses: LicenseResponse[]; total: number }>(
+        { queryKey: QUERY_KEYS.licensing.all },
+        (old) => {
+          if (!old || !old.licenses) return old;
+          return {
+            ...old,
+            licenses: old.licenses.map((l) =>
+              l.id === id ? { ...l, status: "revoked" as LicenseStatus } : l
+            ),
+          };
+        }
+      );
+      return { snapshots };
+    },
+    onError: (_err, _id, context) => {
+      context?.snapshots?.forEach(([key, data]) => queryClient.setQueryData(key, data));
+      toast.error("Failed to revoke license");
+    },
+    onSuccess: (updated) => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.licensing.all });
+      if (selectedLicense?.id === updated.id) setSelectedLicense(updated);
+      toast.success(`License revoked successfully`);
+    },
+  });
+
+  const renewMutation = useMutation({
+    mutationFn: (id: string) => licensingService.renew(id),
+    onSuccess: (updated) => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.licensing.all });
+      if (selectedLicense?.id === updated.id) setSelectedLicense(updated);
+      toast.success("License renewed successfully");
+    },
+    onError: () => toast.error("Failed to renew license"),
+  });
+
+  const convertTrialMutation = useMutation({
+    mutationFn: (id: string) => licensingService.convertTrial(id),
+    onSuccess: (updated) => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.licensing.all });
+      if (selectedLicense?.id === updated.id) setSelectedLicense(updated);
+      toast.success("Trial converted to paid license");
+    },
+    onError: () => toast.error("Failed to convert trial"),
+  });
+
+  const reactivateMutation = useMutation({
+    mutationFn: (id: string) => licensingService.reactivate(id),
+    onSuccess: (updated) => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.licensing.all });
+      if (selectedLicense?.id === updated.id) setSelectedLicense(updated);
+      toast.success("License reactivated successfully");
+    },
+    onError: () => toast.error("Failed to reactivate license"),
+  });
+
+  const unbindMutation = useMutation({
+    mutationFn: ({ id, ip }: { id: string; ip: string }) =>
+      licensingService.unbindIP(id, ip),
+    onMutate: async ({ id, ip }) => {
+      await queryClient.cancelQueries({ queryKey: QUERY_KEYS.licensing.all });
+      const snapshots = queryClient.getQueriesData<{ licenses: LicenseResponse[]; total: number }>({ queryKey: QUERY_KEYS.licensing.all });
+      queryClient.setQueriesData<{ licenses: LicenseResponse[]; total: number }>(
+        { queryKey: QUERY_KEYS.licensing.all },
+        (old) => old ? {
+          ...old,
+          licenses: old.licenses.map(l => l.id === id
+            ? { ...l, ip_bindings: (l.ip_bindings || []).filter((b: IPBinding) => b.ip_address !== ip) }
+            : l
+          )
+        } : old
+      );
+      return { snapshots };
+    },
+    onError: (_err, _vars, context) => {
+      context?.snapshots?.forEach(([key, data]) => queryClient.setQueryData(key, data));
+      toast.error("Failed to unbind IP");
+    },
+    onSuccess: (_, { id, ip }) => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.licensing.all });
+      toast.success(`IP ${ip} unbound`);
+      licensingService.getById(id).then(setSelectedLicense);
+    },
+  });
 
   // --- Handlers ---
 
@@ -116,148 +227,95 @@ export const useLicensing = () => {
   );
 
   const handleChangeStatus = useCallback(
-    async (licenseId: string, newStatus: LicenseStatus) => {
-      try {
-        const updated = await licensingService.changeStatus(
-          licenseId,
-          newStatus
-        );
-        setLicenses((prev) =>
-          prev.map((lic) => (lic.id === licenseId ? updated : lic))
-        );
-        if (selectedLicense?.id === licenseId) {
-          setSelectedLicense(updated);
-        }
-        toast.success(`License status changed to ${newStatus}`);
-      } catch (err) {
-        console.error("Failed to change status:", err);
-        toast.error("Failed to change license status");
-      }
+    (licenseId: string, newStatus: LicenseStatus) => {
+      updateMutation.mutate({ id: licenseId, status: newStatus });
     },
-    [selectedLicense]
+    [updateMutation]
   );
 
   const handleUnbindIp = useCallback(
-    async (licenseId: string, ipAddress: string) => {
-      try {
-        await licensingService.unbindIP(licenseId, ipAddress);
-        if (selectedLicense?.id === licenseId) {
-          const updated = await licensingService.getById(licenseId);
-          setSelectedLicense(updated);
-          setLicenses((prev) =>
-            prev.map((lic) => (lic.id === licenseId ? updated : lic))
-          );
-        }
-        toast.success(`IP ${ipAddress} unbound`);
-      } catch (err) {
-        console.error("Failed to unbind IP:", err);
-        toast.error("Failed to unbind IP address");
-      }
+    (licenseId: string, ipAddress: string) => {
+      unbindMutation.mutate({ id: licenseId, ip: ipAddress });
     },
-    [selectedLicense]
+    [unbindMutation]
   );
 
   const revokeLicense = useCallback(
-    async (licenseId: string) => {
-      try {
-        const updated = await licensingService.revoke(
-          licenseId,
-          "Revoked via dashboard"
-        );
-        setLicenses((prev) =>
-          prev.map((lic) => (lic.id === licenseId ? updated : lic))
-        );
-        if (selectedLicense?.id === licenseId) {
-          setSelectedLicense(updated);
-        }
-        toast.success(`License revoked successfully`);
-      } catch (err) {
-        console.error("Failed to revoke license:", err);
-        toast.error("Failed to revoke license");
-      }
+    (licenseId: string) => {
+      revokeMutation.mutate(licenseId);
     },
-    [selectedLicense]
+    [revokeMutation]
   );
 
-  const addNewLicense = useCallback((newLicense: LicenseResponse) => {
-    setLicenses((prev) => [newLicense, ...prev]);
-  }, []);
+  const renewLicense = useCallback(
+    (licenseId: string) => renewMutation.mutate(licenseId),
+    [renewMutation]
+  );
 
-  // Determine if user is admin/super_admin
-  const isAdminUser = useMemo(() => {
-    const currentSession = useAuthStore.getState().session;
-    const role = currentSession?.user?.role;
-    return role === "super_admin" || role === "admin";
-  }, [session?.accessToken]);
+  const convertTrial = useCallback(
+    (licenseId: string) => convertTrialMutation.mutate(licenseId),
+    [convertTrialMutation]
+  );
 
-  // Helper for filtered licenses
-  // Regular users: only see the effective license (highest tier, active)
-  // Admins/Super Admins: see all licenses
+  const reactivateLicense = useCallback(
+    (licenseId: string) => reactivateMutation.mutate(licenseId),
+    [reactivateMutation]
+  );
+
+  const addNewLicense = useCallback(() => {
+    // With TanStack Query, we just invalidate
+    queryClient.invalidateQueries({ queryKey: QUERY_KEYS.licensing.all });
+  }, [queryClient]);
+
+  // Derived Data
   const filteredLicenses = useMemo(() => {
-    let baseLicenses = licenses;
+    const baseLicenses = listData?.licenses || [];
 
-    // For regular users, only show the effective license (highest tier active)
-    if (!isAdminUser) {
-      const activeLicenses = licenses.filter(
-        (lic) => lic.status === "active" || lic.status === "trial"
+    // For regular users, show their licenses sorted by tier, excluding revoked
+    if (!isAdminUser && baseLicenses.length > 0) {
+      const displayLicenses = baseLicenses.filter(
+        (lic) => lic.status !== "revoked"
       );
 
-      if (activeLicenses.length > 0) {
-        // Sort by tier descending, pick the highest
-        const sorted = [...activeLicenses].sort((a, b) => {
+      if (displayLicenses.length > 0) {
+        // Sort by tier descending so the best plan appears first
+        return [...displayLicenses].sort((a, b) => {
           const tierA = a.plan?.tier ?? 0;
           const tierB = b.plan?.tier ?? 0;
           return tierB - tierA;
         });
-        baseLicenses = [sorted[0]];
-      } else {
-        // No active licenses — show empty
-        baseLicenses = [];
       }
+      return [];
     }
 
-    return baseLicenses.filter((lic) => {
-      const searchLower = searchQuery.toLowerCase();
-      const matchesSearch =
-        searchQuery === "" ||
-        lic.id.toLowerCase().includes(searchLower) ||
-        lic.license_key.toLowerCase().includes(searchLower) ||
-        lic.status.toLowerCase().includes(searchLower) ||
-        lic.plan?.name?.toLowerCase().includes(searchLower) ||
-        lic.billing_cycle.toLowerCase().includes(searchLower);
-
-      const matchesStatus =
-        statusFilter === "all" || lic.status === statusFilter;
-
-      return matchesSearch && matchesStatus;
-    });
-  }, [licenses, searchQuery, statusFilter, isAdminUser]);
-
-  // Map stats to analytics format for backward compatibility
-  const analytics = useMemo(() => {
-    if (!stats) return null;
-    return stats;
-  }, [stats]);
+    return baseLicenses;
+  }, [listData, isAdminUser]);
 
   return {
     licenses: filteredLicenses,
-    allLicenses: licenses,
-    analytics,
-    collisions: [] as IPBinding[], // Loaded per-license now
-    loading,
+    total: listData?.total || 0,
+    analytics: statsData || null,
+    collisions: [] as IPBinding[], 
+    loading: loadingLicenses,
     searchQuery,
     setSearchQuery,
     statusFilter,
     setStatusFilter,
+    page,
+    setPage,
+    limit,
+    setLimit,
     activeTab,
     setActiveTab,
     selectedLicense,
     validationLogs,
-    loadData,
     handleChangeStatus,
     handleUnbindIp,
     selectLicense,
     addNewLicense,
     revokeLicense,
+    renewLicense,
+    convertTrial,
+    reactivateLicense,
   };
 };

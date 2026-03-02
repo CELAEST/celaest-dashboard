@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import { Shield, History, LogOut } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 
 export interface Session {
   id: string;

@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Search, Filter, RefreshCw } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {

@@ -4,7 +4,7 @@ import React, { useEffect } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { motion, AnimatePresence } from "motion/react";
 import { X } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { assetSchema, AssetFormValues } from "../hooks/useAssetForm";
 import { Asset, AssetType } from "../services/assets.service";
 import { AssetFileUploader } from "./AssetFileUploader";
@@ -36,7 +36,7 @@ export const AssetEditor: React.FC<AssetEditorProps> = ({
     defaultValues: {
       name: "",
       type: "excel",
-      category: "",
+      category_id: "",
       price: 0,
       operationalCost: 0,
       status: "draft",
@@ -44,6 +44,9 @@ export const AssetEditor: React.FC<AssetEditorProps> = ({
       description: "",
       requirements: "",
       features: "",
+      tags: "",
+      technical_stack: "",
+      min_plan_tier: 0,
       external_url: "",
       github_repository: "",
       thumbnail_url: "",
@@ -74,7 +77,7 @@ export const AssetEditor: React.FC<AssetEditorProps> = ({
       reset({
         name: asset.name,
         type: (asset.display_type || asset.type) as AssetType,
-        category: asset.category,
+        category_id: asset.categoryId || "",
         price: asset.price,
         operationalCost: asset.operationalCost,
         status: normalizeStatus(asset.status),
@@ -82,6 +85,9 @@ export const AssetEditor: React.FC<AssetEditorProps> = ({
         description: asset.description || "",
         requirements: asset.requirements?.join("\n") || "",
         features: asset.features?.join("\n") || "",
+        tags: asset.tags?.join("\n") || "",
+        technical_stack: asset.technicalStack?.join("\n") || "",
+        min_plan_tier: asset.minPlanTier || 0,
         external_url: asset.external_url || "",
         github_repository: asset.github_repository || "",
         thumbnail_url: asset.thumbnail || "",
@@ -90,7 +96,7 @@ export const AssetEditor: React.FC<AssetEditorProps> = ({
       reset({
         name: "",
         type: "excel",
-        category: "",
+        category_id: "",
         price: 0,
         operationalCost: 0,
         status: "draft",
@@ -98,6 +104,9 @@ export const AssetEditor: React.FC<AssetEditorProps> = ({
         description: "",
         requirements: "",
         features: "",
+        tags: "",
+        technical_stack: "",
+        min_plan_tier: 0,
         external_url: "",
         github_repository: "",
         thumbnail_url: "",
@@ -168,7 +177,10 @@ export const AssetEditor: React.FC<AssetEditorProps> = ({
             <form
               onSubmit={handleSubmit(
                 (data) =>
-                  onSave({ ...data, productFile: selectedFile || undefined }),
+                  onSave({
+                    ...data,
+                    productFile: selectedFile || undefined,
+                  } as AssetFormValues),
                 (errors) => {
                   const firstError = Object.values(errors)[0];
                   if (firstError?.message) {

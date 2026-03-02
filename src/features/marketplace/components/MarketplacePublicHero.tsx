@@ -5,7 +5,7 @@ import { motion } from "motion/react";
 import { ChevronDown } from "lucide-react";
 import { TrustBadges } from "@/features/marketplace/components/TrustBadges";
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 
 export const MarketplacePublicHero: React.FC = () => {
   const { theme } = useTheme();

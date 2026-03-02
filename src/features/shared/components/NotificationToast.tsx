@@ -3,7 +3,7 @@
 import React, { useMemo } from "react";
 import { motion } from "motion/react";
 import { CheckCircle, AlertTriangle, XCircle, Info, X } from "lucide-react";
-import { useTheme } from "../contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import type { Notification } from "../contexts/NotificationContext";
 
 // ============================================================================

@@ -1,6 +1,6 @@
 import React from "react";
 import { Layers, Server, Clock } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface LicenseStatsProps {
   tier?: string;

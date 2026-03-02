@@ -5,6 +5,7 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import { mapSupabaseUser } from "../lib/mappers";
 import { useAuthStore } from "../stores/useAuthStore";
+import { logger } from "@/lib/logger";
 
 /**
  * Hook to manage Supabase session state.
@@ -18,7 +19,7 @@ export function useAuthSession() {
     try {
       return getSupabaseBrowserClient();
     } catch {
-      console.error("Failed to initialize Supabase client");
+      logger.error("Failed to initialize Supabase client");
       return null;
     }
   }, []);
@@ -53,12 +54,15 @@ export function useAuthSession() {
           
           if (res.valid) {
             setBackendSynced(true);
-            console.log("✅ Authenticated with Backend via API Proxy.");
+            // Logging removed
           } else {
             console.warn("⚠️ Backend rejected the token. Check JWT_ISSUER/AUDIENCE configs.");
           }
-        } catch (error) {
-          console.error("❌ Proactive backend session verification failed:", error);
+        } catch (error: unknown) {
+          // Usamos console.warn en vez de console.error para evitar que Next.js lance un "Unhandled Error Overlay"
+          // cuando el backend simplemente está apagado durante el desarrollo.
+          const msg = error instanceof Error ? error.message : "Error desconocido";
+          console.warn("❌ Proactive backend session verification failed:", msg);
         }
       };
 
@@ -78,8 +82,8 @@ export function useAuthSession() {
           data: { session: currentSession },
         } = await supabase.auth.getSession();
         syncSession(currentSession);
-      } catch (error) {
-        console.error("Failed to initialize auth:", error);
+      } catch (error: unknown) {
+        logger.error("Failed to initialize auth:", error);
         reset();
       } finally {
         setLoading(false);

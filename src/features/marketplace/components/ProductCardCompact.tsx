@@ -4,9 +4,10 @@ import React from "react";
 import { motion } from "motion/react";
 import { Check, ShoppingCart, Star, Eye, Zap, ArrowRight } from "lucide-react";
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { MarketplaceProduct } from "../types";
 import { formatCurrency } from "@/lib/utils";
+import { useMarketplaceCouponStore } from "../store";
 
 interface ProductCardCompactProps {
   product: MarketplaceProduct;
@@ -14,6 +15,7 @@ interface ProductCardCompactProps {
   onViewDetails?: () => void;
   isOwned?: boolean;
   accessLevel?: "owned" | "plan" | "none";
+  disabledReason?: string;
 }
 
 export const ProductCardCompact = React.memo(function ProductCardCompact({
@@ -22,10 +24,12 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
   onViewDetails,
   isOwned = false,
   accessLevel,
+  disabledReason,
 }: ProductCardCompactProps) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const [isHovered, setIsHovered] = React.useState(false);
+  const { activeCoupon } = useMarketplaceCouponStore();
 
   // Resolve effective access: prefer accessLevel prop, fallback to isOwned
   const effectiveAccess = accessLevel ?? (isOwned ? "owned" : "none");
@@ -52,7 +56,17 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
         ? product.tags
         : ["Instant Delivery", "Secure Payment", "24/7 Support"];
 
+  let finalPrice = base_price;
+  if (activeCoupon) {
+    if (activeCoupon.type === "percentage") {
+      finalPrice = base_price * (1 - activeCoupon.value / 100);
+    } else if (activeCoupon.type === "fixed_amount") {
+      finalPrice = Math.max(0, base_price - activeCoupon.value);
+    }
+  }
+
   const formattedPrice = formatCurrency(base_price, currency);
+  const formattedFinalPrice = formatCurrency(finalPrice, currency);
 
   // Badge derivado (ej. si tiene rating alto)
   const badge = rating >= 4.5 ? "BESTSELLER" : undefined;
@@ -113,6 +127,17 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
               {badge}
             </div>
           )}
+          {product.category_name && (
+            <div
+              className={`px-2 py-0.5 rounded-full backdrop-blur-md border text-[8px] font-black uppercase tracking-widest flex items-center gap-1 ${
+                isDark
+                  ? "bg-black/40 border-white/10 text-gray-300"
+                  : "bg-white/60 border-gray-200 text-gray-600 shadow-sm"
+              }`}
+            >
+              {product.category_name}
+            </div>
+          )}
         </div>
 
         {/* Price Tag - Compact */}
@@ -121,9 +146,18 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
             <span className="text-white/60 text-[8px] font-bold uppercase tracking-widest mb-0.5">
               Price
             </span>
-            <span className="text-white text-xl font-black tracking-tight drop-shadow-2xl">
-              {formattedPrice}
-            </span>
+            <div className="flex flex-col items-start leading-[1.1]">
+              {activeCoupon && (
+                <span className="text-white/60 text-xs font-medium line-through">
+                  {formattedPrice}
+                </span>
+              )}
+              <span
+                className={`text-xl font-black tracking-tight drop-shadow-2xl ${activeCoupon ? "text-emerald-400" : "text-white"}`}
+              >
+                {formattedFinalPrice}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -216,24 +250,34 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
           </motion.button>
 
           <motion.button
-            whileHover={!hasAccess ? { y: -4, scale: 1.02 } : {}}
-            whileTap={!hasAccess ? { scale: 0.98 } : {}}
-            onClick={!hasAccess ? onSelect : undefined}
+            whileHover={
+              !hasAccess && !disabledReason ? { y: -4, scale: 1.02 } : {}
+            }
+            whileTap={!hasAccess && !disabledReason ? { scale: 0.98 } : {}}
+            onClick={!hasAccess && !disabledReason ? onSelect : undefined}
+            title={disabledReason}
             className={`py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all ${
-              hasAccess
-                ? effectiveAccess === "plan"
-                  ? isDark
-                    ? "bg-violet-500/10 text-violet-400 border border-violet-500/20 cursor-default"
-                    : "bg-violet-50 text-violet-600 border border-violet-200 cursor-default"
+              disabledReason
+                ? "bg-gray-200 text-gray-400 border border-gray-300 cursor-not-allowed dark:bg-zinc-800 dark:text-gray-500 dark:border-zinc-700"
+                : hasAccess
+                  ? effectiveAccess === "plan"
+                    ? isDark
+                      ? "bg-violet-500/10 text-violet-400 border border-violet-500/20 cursor-default"
+                      : "bg-violet-50 text-violet-600 border border-violet-200 cursor-default"
+                    : isDark
+                      ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 cursor-default"
+                      : "bg-emerald-50 text-emerald-600 border border-emerald-200 cursor-default"
                   : isDark
-                    ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 cursor-default"
-                    : "bg-emerald-50 text-emerald-600 border border-emerald-200 cursor-default"
-                : isDark
-                  ? "bg-cyan-500 text-black hover:bg-cyan-400 shadow-xl shadow-cyan-500/20"
-                  : "bg-gray-900 text-white hover:bg-gray-800 shadow-xl shadow-gray-900/20"
+                    ? "bg-cyan-500 text-black hover:bg-cyan-400 shadow-xl shadow-cyan-500/20"
+                    : "bg-gray-900 text-white hover:bg-gray-800 shadow-xl shadow-gray-900/20"
             }`}
           >
-            {hasAccess ? (
+            {disabledReason ? (
+              <>
+                <Check size={14} strokeWidth={3} />
+                {disabledReason}
+              </>
+            ) : hasAccess ? (
               effectiveAccess === "plan" ? (
                 <>
                   <Check size={14} strokeWidth={3} />

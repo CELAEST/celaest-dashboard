@@ -1,11 +1,16 @@
-﻿import { useState, useMemo, useEffect, useCallback } from "react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { logger } from "@/lib/logger";
+import { useState, useMemo, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { useUIStore } from "@/stores/useUIStore";
+import { useErrorStore } from "../stores/useErrorStore";
 import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 import { errorsApi } from "../api/errors.api";
 import { analyticsApi, SystemEvent } from "@/features/analytics/api/analytics.api";
 import { AITask, ErrorAnalyticsResponse } from "../api/types";
+import { useShallow } from "zustand/react/shallow";
+import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
 
 export type ErrorSeverity = "critical" | "warning" | "info";
 export type ErrorStatus = "failed" | "reviewing" | "resolved" | "ignored";
@@ -30,134 +35,148 @@ export interface ErrorLog {
   userEmail?: string;
 }
 
+// ── Mapping helpers ─────────────────────────────────────────────────
+const severityMap: Record<string, ErrorSeverity> = {
+  failed: "critical",
+  reviewing: "warning",
+  resolved: "info",
+  ignored: "info",
+};
+
+function mapTaskToError(task: AITask): ErrorLog {
+  return {
+    id: task.id,
+    timestamp: new Date(task.created_at).toLocaleString(),
+    severity: severityMap[task.status] || "critical",
+    status: task.status as ErrorStatus,
+    errorCode: `AI-${task.type.toUpperCase()}`,
+    message: task.error || "Unknown AI Processing Error",
+    template: (task.metadata?.template_name as string) || `AI ${task.type}`,
+    version: (task.metadata?.version as string) || "1.0.0",
+    affectedUsers: 1,
+    environment: {
+      os: (task.metadata?.os as string) || "AI Runtime",
+      platform: "IA-Mesh",
+    },
+    stackTrace: task.error,
+    suggestion: "Verify AI model availability and prompt parameters.",
+    userEmail: task.user_email || "system",
+  };
+}
+
+function mapEventToError(event: SystemEvent): ErrorLog {
+  return {
+    id: event.id,
+    timestamp: new Date(event.timestamp).toLocaleString(),
+    severity: "critical",
+    status: "failed",
+    errorCode: event.source === "system" ? "SYS-WAF" : "SYS-ERR",
+    message: event.message,
+    template: "System Telemetry",
+    version: "N/A",
+    affectedUsers: 1,
+    environment: {
+      os: "Server Runtime",
+      platform: event.source.toUpperCase(),
+    },
+    stackTrace: "Telemetry event captured in real-time.",
+    suggestion: "Check security logs or endpoint health.",
+    userEmail: event.user_email || "system",
+  };
+}
+
+// ── Main Hook ───────────────────────────────────────────────────────
 export const useErrorMonitoring = () => {
   const { theme } = useTheme();
   const { user, session } = useAuth();
   const { currentOrg } = useOrgStore();
   const token = session?.accessToken;
   const orgID = currentOrg?.id;
-  const { 
-    searchQuery, 
-    setSearchQuery, 
-    errorFilters, 
-    setErrorFilters,
-    setShowErrorControls 
-  } = useUIStore();
+  const queryClient = useQueryClient();
+
+  const { searchQuery, setSearchQuery } = useUIStore(useShallow(state => ({
+    searchQuery: state.searchQuery,
+    setSearchQuery: state.setSearchQuery,
+  })));
+
+  const { errorFilters, setErrorFilters, setShowErrorControls } = useErrorStore(useShallow(state => ({
+    errorFilters: state.errorFilters,
+    setErrorFilters: state.setErrorFilters,
+    setShowErrorControls: state.setShowErrorControls
+  })));
 
   const isDark = theme === "dark";
   const isAdmin = user?.role === "super_admin" || !user;
-
-  const [errors, setErrors] = useState<ErrorLog[]>([]);
-  const [errorStats, setErrorStats] = useState<ErrorAnalyticsResponse | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [expandedError, setExpandedError] = useState<string | null>(null);
 
-  const fetchStats = useCallback(async () => {
-    if (!token || !orgID) return;
-    try {
-      const stats = await errorsApi.getErrorStats(token, orgID);
-      setErrorStats(stats);
-    } catch (err) {
-      console.error("Failed to fetch error stats:", err);
-    }
-  }, [token, orgID]);
+  // ── Queries ──────────────────────────────────────────────────────
+  const { data: errors = [], isLoading: errorsLoading } = useQuery<ErrorLog[]>({
+    queryKey: QUERY_KEYS.errors.tasks(orgID || ""),
+    queryFn: async () => {
+      if (!token || !orgID) return [];
 
-  const fetchErrors = useCallback(async () => {
-    if (!token || !orgID) return;
-    
-    setIsLoading(true);
-    try {
-      // Fetch all error-relevant statuses so filters and status buttons work
+      // Fetch all statuses in parallel
       const statuses = ["failed", "reviewing", "resolved", "ignored"];
       const results = await Promise.all(
-        statuses.map((s) => errorsApi.getFailedTasks(token, orgID, 1, 50, s))
+        statuses.map(s => errorsApi.getFailedTasks(token, orgID, 1, 50, s))
       );
-      const allTasks = results.flat();
-      
-      const severityMap: Record<string, ErrorSeverity> = {
-        failed: "critical",
-        reviewing: "warning",
-        resolved: "info",
-        ignored: "info",
-      };
-      
-      const mappedErrors: ErrorLog[] = allTasks.map((task: AITask) => ({
-        id: task.id,
-        timestamp: new Date(task.created_at).toLocaleString(),
-        severity: severityMap[task.status] || "critical",
-        status: task.status as ErrorStatus,
-        errorCode: `AI-${task.type.toUpperCase()}`,
-        message: task.error || "Unknown AI Processing Error",
-        template: (task.metadata?.template_name as string) || `AI ${task.type}`,
-        version: (task.metadata?.version as string) || "1.0.0",
-        affectedUsers: 1,
-        environment: {
-          os: (task.metadata?.os as string) || "AI Runtime",
-          platform: "IA-Mesh",
-        },
-        stackTrace: task.error,
-        suggestion: "Verify AI model availability and prompt parameters.",
-        userEmail: task.user_email || "system",
-      }));
-      
-      setErrors(mappedErrors);
-      
-      // Fetch telemetry/system errors from live feed
+      const aiErrors = results.flat().map(mapTaskToError);
+
+      // Merge live feed telemetry errors
+      let telemetryErrors: ErrorLog[] = [];
       try {
         const liveEvents = await analyticsApi.getLiveFeed(token, orgID);
-        const telemetryErrors: ErrorLog[] = liveEvents
+        telemetryErrors = liveEvents
           .filter(event => event.type === "error")
-          .map((event: SystemEvent) => ({
-            id: event.id,
-            timestamp: new Date(event.timestamp).toLocaleString(),
-            severity: "critical",
-            status: "failed",
-            errorCode: event.source === "system" ? "SYS-WAF" : "SYS-ERR",
-            message: event.message,
-            template: "System Telemetry",
-            version: "N/A",
-            affectedUsers: 1,
-            environment: {
-              os: "Server Runtime",
-              platform: event.source.toUpperCase(),
-            },
-            stackTrace: "Telemetry event captured in real-time.",
-            suggestion: "Check security logs or endpoint health.",
-            userEmail: event.user_email || "system",
-          }));
-        
-        setErrors(prev => {
-          // Avoid duplicates if any
-          const existingIds = new Set(prev.map(e => e.id));
-          const newEvents = telemetryErrors.filter(e => !existingIds.has(e.id));
-          return [...prev, ...newEvents].sort((a, b) => 
-            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-          );
-        });
-      } catch (feedErr) {
-        console.warn("Failed to merge live feed into error monitoring:", feedErr);
+          .map(mapEventToError);
+      } catch {
+        // Silently ignore live feed failures
       }
-    } catch (err) {
-      console.error("Failed to fetch errors:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [token, orgID]);
 
-  useEffect(() => {
-    fetchErrors();
-    fetchStats();
-  }, [fetchErrors, fetchStats]);
+      // Dedupe and sort
+      const existingIds = new Set(aiErrors.map(e => e.id));
+      const combined = [
+        ...aiErrors,
+        ...telemetryErrors.filter(e => !existingIds.has(e.id)),
+      ];
+      return combined.sort((a, b) =>
+        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+      );
+    },
+    enabled: !!token && !!orgID,
+  });
 
-  // Manage control visibility
+  const { data: errorStats } = useQuery<ErrorAnalyticsResponse>({
+    queryKey: QUERY_KEYS.errors.analytics(orgID || ""),
+    queryFn: () => errorsApi.getErrorStats(token!, orgID!),
+    enabled: !!token && !!orgID,
+  });
+
+  // ── Mutations ────────────────────────────────────────────────────
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ taskId, status }: { taskId: string; status: ErrorStatus }) => {
+      if (!token || !orgID) throw new Error("Missing auth");
+      await errorsApi.updateTaskStatus(token, orgID, taskId, status);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.errors.tasks(orgID || "") });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.errors.analytics(orgID || "") });
+    },
+    onError: (err: unknown) => {
+      logger.error("Failed to update task status:", err);
+    },
+  });
+
+  // ── UI Effects ───────────────────────────────────────────────────
   useEffect(() => {
     setShowErrorControls(true);
     return () => {
-        setShowErrorControls(false);
-        setSearchQuery(""); 
+      setShowErrorControls(false);
+      setSearchQuery("");
     };
   }, [setShowErrorControls, setSearchQuery]);
 
+  // ── Derived Data ─────────────────────────────────────────────────
   const filteredErrors = useMemo(() => {
     return errors.filter((error) => {
       const matchesSeverity =
@@ -187,8 +206,8 @@ export const useErrorMonitoring = () => {
       warningCount: errorStats.pending_tasks,
       resolvedCount: errorStats.resolved_tasks,
       totalAffectedUsers: errorStats.total_tasks,
-      mttr: errorStats.avg_resolution_time_min > 0 
-        ? `${Math.round(errorStats.avg_resolution_time_min)}m` 
+      mttr: errorStats.avg_resolution_time_min > 0
+        ? `${Math.round(errorStats.avg_resolution_time_min)}m`
         : "N/A",
     };
   }, [errorStats]);
@@ -198,21 +217,17 @@ export const useErrorMonitoring = () => {
   };
 
   const updateTaskStatus = async (taskId: string, status: ErrorStatus) => {
-    if (!token || !orgID) return;
-    try {
-      await errorsApi.updateTaskStatus(token, orgID, taskId, status);
-      await Promise.all([fetchErrors(), fetchStats()]);
-    } catch (err) {
-      console.error("Failed to update task status:", err);
-    }
+    await updateStatusMutation.mutateAsync({ taskId, status });
   };
 
   return {
     isDark,
     isAdmin,
-    isLoading,
-    refresh: () => Promise.all([fetchErrors(), fetchStats()]),
-    // Return compatibility props for now, though they point to global state
+    isLoading: errorsLoading,
+    refresh: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.errors.tasks(orgID || "") });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.errors.analytics(orgID || "") });
+    },
     selectedSeverity: errorFilters.severity as ErrorSeverity | "all",
     setSelectedSeverity: (severity: string) => setErrorFilters({ ...errorFilters, severity }),
     selectedStatus: errorFilters.status as ErrorStatus | "all",
@@ -227,4 +242,3 @@ export const useErrorMonitoring = () => {
     platformDistribution: errorStats?.platform_distribution || [],
   };
 };
-

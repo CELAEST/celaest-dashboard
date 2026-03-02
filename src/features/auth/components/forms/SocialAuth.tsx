@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { logger } from "@/lib/logger";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { useNotifications } from "@/features/shared/contexts/NotificationContext";
@@ -36,8 +37,8 @@ export const SocialAuth: React.FC<SocialAuthProps> = ({
           timestamp: new Date(),
         });
       }
-    } catch (error) {
-      console.error(`${provider} sign in error`, error);
+    } catch (error: unknown) {
+      logger.error(`${provider} sign in error`, error);
       addNotification({
         type: "error",
         title: "Error Inesperado",

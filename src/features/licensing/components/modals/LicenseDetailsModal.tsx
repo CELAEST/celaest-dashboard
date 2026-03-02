@@ -1,6 +1,6 @@
 import React from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useEscapeKey } from "@/features/shared/hooks/useEscapeKey";
 import { ValidationLog } from "@/features/licensing/constants/mock-data";
 import type { LicenseResponse } from "@/features/licensing/types";
@@ -17,6 +17,9 @@ interface LicenseDetailsModalProps {
   logs: ValidationLog[];
   onStatusChange: (status: string) => void;
   onUnbindIp: (ip: string) => void;
+  onRenew?: () => void;
+  onConvertTrial?: () => void;
+  onReactivate?: () => void;
 }
 
 export const LicenseDetailsModal = ({
@@ -26,6 +29,9 @@ export const LicenseDetailsModal = ({
   logs,
   onStatusChange,
   onUnbindIp,
+  onRenew,
+  onConvertTrial,
+  onReactivate,
 }: LicenseDetailsModalProps) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
@@ -63,6 +69,9 @@ export const LicenseDetailsModal = ({
                 <LicenseActions
                   status={license.status}
                   onStatusChange={onStatusChange}
+                  onRenew={onRenew}
+                  onConvertTrial={onConvertTrial}
+                  onReactivate={onReactivate}
                 />
 
                 <LicenseStats

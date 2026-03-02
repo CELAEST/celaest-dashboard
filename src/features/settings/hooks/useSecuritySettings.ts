@@ -1,8 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
-import { Session } from "../components/tabs/SecurityAccess/SecuritySessions";
+import { logger } from "@/lib/logger";
+import { useCallback } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
-import { supabase } from "@/lib/supabase/client";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import api from "@/lib/api-client";
+import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
 
 export interface SecurityLog {
   event: string;
@@ -28,71 +30,62 @@ interface BackendAuditLog {
 
 export const useSecuritySettings = () => {
   const { session: currentAuthSession } = useAuth();
-  const [faEnabled, setFaEnabled] = useState(false);
-  const [sessions, setSessions] = useState<Session[]>([]);
-  const [logs, setLogs] = useState<SecurityLog[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const supabase = getSupabaseBrowserClient();
+  const token = currentAuthSession?.accessToken;
 
-  const fetchSecurityData = useCallback(async () => {
-    if (!supabase || !currentAuthSession) return;
-    
-    try {
-      setIsLoading(true);
-      const token = currentAuthSession.accessToken;
-
-      // 1. Fetch Sessions from Backend
-      const sessionsResponse = await api.get<{ sessions: BackendSession[] }>("/api/v1/user/sessions", { token });
-      if (sessionsResponse.sessions) {
-        const mappedSessions: Session[] = sessionsResponse.sessions.map((s) => ({
-          id: s.id,
-          device: s.device_name || s.browser || "Unknown Device",
-          location: s.location_city ? `${s.location_city}, ${s.location_country}` : "Unknown location",
-          ip: s.ip_address || "Unknown IP",
-          current: s.session_token === token,
-          lastActive: formatLastActive(s.last_activity_at),
-        }));
-        setSessions(mappedSessions);
-      }
-
-      // 2. Fetch Security Logs from Backend
-      const logsResponse = await api.get<BackendAuditLog[]>("/api/v1/user/security-logs", { token });
-      if (Array.isArray(logsResponse)) {
-        const mappedLogs: SecurityLog[] = logsResponse.map((l) => ({
-          event: l.action,
-          time: new Date(l.created_at).toLocaleString(),
-          type: mapLogType(l.action),
-        }));
-        setLogs(mappedLogs);
-      }
-
-      // 3. Check MFA status from Supabase
-      const { data: factors } = await supabase.auth.mfa.listFactors();
-      if (factors && factors.totp && factors.totp.length > 0) {
-        setFaEnabled(true);
-      }
-    } catch (error) {
-      console.error("[Security] Error fetching data:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [currentAuthSession]);
-
-  useEffect(() => {
-    fetchSecurityData();
-  }, [fetchSecurityData]);
-
-  const handleLogoutSession = useCallback(
-    async (id: string) => {
-      if (!currentAuthSession) return;
-      try {
-        await api.delete(`/api/v1/user/sessions/${id}`, { token: currentAuthSession.accessToken });
-        setSessions((prev) => prev.filter((s) => s.id !== id));
-      } catch (error) {
-        console.error("[Security] Error revoking session:", error);
-      }
+  // Fetch Sessions
+  const { data: sessions = [], isLoading: isSessionsLoading } = useQuery({
+    queryKey: QUERY_KEYS.users.security.sessions,
+    queryFn: async () => {
+      const response = await api.get<{ sessions: BackendSession[] }>("/api/v1/user/sessions", { token });
+      return (response.sessions || []).map((s) => ({
+        id: s.id,
+        device: s.device_name || s.browser || "Unknown Device",
+        location: s.location_city ? `${s.location_city}, ${s.location_country}` : "Unknown location",
+        ip: s.ip_address || "Unknown IP",
+        current: s.session_token === token,
+        lastActive: formatLastActive(s.last_activity_at),
+      }));
     },
-    [currentAuthSession],
-  );
+    enabled: !!token,
+  });
+
+  // Fetch Security Logs
+  const { data: logs = [], isLoading: isLogsLoading } = useQuery({
+    queryKey: QUERY_KEYS.users.security.logs,
+    queryFn: async () => {
+      const response = await api.get<BackendAuditLog[]>("/api/v1/user/security-logs", { token });
+      return (Array.isArray(response) ? response : []).map((l) => ({
+        event: l.action,
+        time: new Date(l.created_at).toLocaleString(),
+        type: mapLogType(l.action),
+      }));
+    },
+    enabled: !!token,
+  });
+
+  // Fetch MFA Status
+  const { data: faEnabled = false, refetch: refetchMfa } = useQuery({
+    queryKey: QUERY_KEYS.users.security.mfa,
+    queryFn: async () => {
+      if (!supabase) return false;
+      const { data: factors } = await supabase.auth.mfa.listFactors();
+      return !!(factors && factors.totp && factors.totp.length > 0);
+    },
+    enabled: !!supabase && !!token,
+  });
+
+  // Mutations
+  const logoutSessionMutation = useMutation({
+    mutationFn: (id: string) => api.delete(`/api/v1/user/sessions/${id}`, { token }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.users.security.sessions });
+    },
+    onError: (error) => {
+      logger.error("[Security] Error revoking session:", error);
+    }
+  });
 
   const handleEnable2FA = useCallback(async () => {
     if (!supabase) return;
@@ -101,11 +94,11 @@ export const useSecuritySettings = () => {
         factorType: "totp",
       });
       if (error) throw error;
-      setFaEnabled(true);
-    } catch {
-      setFaEnabled(false);
+      refetchMfa();
+    } catch (err: unknown) {
+      logger.error("[Security] Error enrolling MFA:", err);
     }
-  }, []);
+  }, [supabase, refetchMfa]);
 
   const handleDisable2FA = useCallback(async () => {
     if (!supabase) return;
@@ -114,21 +107,23 @@ export const useSecuritySettings = () => {
       if (factors?.totp?.[0]) {
         await supabase.auth.mfa.unenroll({ factorId: factors.totp[0].id });
       }
-      setFaEnabled(false);
-    } catch {
-      // Keep current state on failure
+      refetchMfa();
+    } catch (err: unknown) {
+      logger.error("[Security] Error unenrolling MFA:", err);
     }
-  }, []);
+  }, [supabase, refetchMfa]);
 
   return {
     faEnabled,
     sessions,
     logs,
-    isLoading,
+    isLoading: isSessionsLoading || isLogsLoading,
     handleEnable2FA,
     handleDisable2FA,
-    handleLogoutSession,
-    refreshLogs: fetchSecurityData,
+    handleLogoutSession: (id: string) => logoutSessionMutation.mutate(id),
+    refreshLogs: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.users.security.logs });
+    },
   };
 };
 

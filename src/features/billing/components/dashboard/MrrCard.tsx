@@ -3,7 +3,7 @@
 import React from "react";
 import { motion } from "motion/react";
 import { TrendingUp } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface MrrCardProps {
   mrr: number;

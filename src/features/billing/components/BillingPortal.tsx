@@ -1,21 +1,30 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Shield, Crown, User, LayoutGrid, Receipt } from "lucide-react";
+import {
+  Shield,
+  Crown,
+  User,
+  LayoutGrid,
+  Receipt,
+  Package,
+} from "lucide-react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { BillingOverview } from "./views/BillingOverview";
 import { InvoicesView } from "./views/InvoicesView";
 import { AdminOverviewView } from "./views/AdminOverviewView";
 import { AdminControlsView } from "./views/AdminControlsView";
+import { AdminProductCatalog } from "./AdminProductCatalog";
 import { AnimatePresence, motion } from "motion/react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useBilling } from "../hooks/useBilling";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
+import { logger } from "@/lib/logger";
 import { billingApi } from "../api/billing.api";
 
 type BillingTab = "overview" | "invoices";
-type AdminTab = "overview" | "controls";
+type AdminTab = "overview" | "catalog" | "controls";
 
 export const BillingPortal: React.FC = () => {
   const { theme } = useTheme();
@@ -70,8 +79,8 @@ export const BillingPortal: React.FC = () => {
                 id: toastId,
               });
             }
-          } catch (e) {
-            console.error("Verification failed", e);
+          } catch (e: unknown) {
+            logger.error("Verification failed", e);
             // Fallback: still show success but maybe warn or just rely on webhook
             toast.success("Purchase recorded", {
               description: "Updating your subscription details...",
@@ -227,6 +236,19 @@ export const BillingPortal: React.FC = () => {
                 Financial
               </button>
               <button
+                onClick={() => setActiveAdminTab("catalog")}
+                className={`pt-2.5 pb-2 flex items-center gap-2 text-[11px] font-black uppercase tracking-widest border-b-[3px] transition-all duration-300 ${
+                  activeAdminTab === "catalog"
+                    ? isDark
+                      ? "text-purple-400 border-purple-400"
+                      : "text-purple-600 border-purple-600"
+                    : "text-gray-400 border-transparent hover:text-gray-300 mb-[3px]"
+                }`}
+              >
+                <Package size={14} className="mb-0.5" />
+                Catalog
+              </button>
+              <button
                 onClick={() => setActiveAdminTab("controls")}
                 className={`pt-2.5 pb-2 flex items-center gap-2 text-[11px] font-black uppercase tracking-widest border-b-[3px] transition-all duration-300 ${
                   activeAdminTab === "controls"
@@ -299,6 +321,11 @@ export const BillingPortal: React.FC = () => {
               className="w-full min-h-full lg:h-full flex flex-col"
             >
               {activeAdminTab === "overview" && <AdminOverviewView />}
+              {activeAdminTab === "catalog" && (
+                <div className="p-4 sm:p-6 w-full h-full min-h-0 overflow-y-auto">
+                  <AdminProductCatalog />
+                </div>
+              )}
               {activeAdminTab === "controls" && <AdminControlsView />}
             </motion.div>
           ) : (

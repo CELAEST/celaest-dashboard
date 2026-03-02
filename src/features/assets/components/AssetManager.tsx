@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { User, Crown, LayoutGrid, List } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { User, Crown, LayoutGrid, List, FolderTree } from "lucide-react";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { AssetAdminPortal } from "./AssetAdminPortal";
 import { AssetCustomerCatalog } from "./AssetCustomerCatalog";
 import { useAssets } from "../hooks/useAssets";
@@ -11,9 +11,9 @@ export const AssetManager: React.FC = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const [viewMode, setViewMode] = useState<"admin" | "customer">("admin");
-  const [adminTab, setAdminTab] = useState<"inventory" | "analytics">(
-    "inventory",
-  );
+  const [adminTab, setAdminTab] = useState<
+    "inventory" | "categories" | "analytics"
+  >("inventory");
 
   const { activeAssets } = useAssets();
 
@@ -56,6 +56,21 @@ export const AssetManager: React.FC = () => {
               >
                 <LayoutGrid size={14} />
                 Analytics
+              </button>
+              <button
+                onClick={() => setAdminTab("categories")}
+                className={`px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-all ${
+                  adminTab === "categories"
+                    ? isDark
+                      ? "bg-amber-500/20 text-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.2)]"
+                      : "bg-white text-amber-600 shadow-sm"
+                    : isDark
+                      ? "text-gray-500 hover:text-gray-300"
+                      : "text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                <FolderTree size={14} />
+                Categories
               </button>
             </div>
           ) : (

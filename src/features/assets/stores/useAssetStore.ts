@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { assetsService, Asset } from "../services/assets.service";
+import { logger } from "@/lib/logger";
 
 interface AssetStore {
   assets: Asset[]; // Customer purchased assets
@@ -53,7 +54,7 @@ export const useAssetStore = create<AssetStore>((set, get) => ({
       const assets = await assetsService.getMyAssets(token);
       set({ assets, lastFetched: Date.now(), isLoading: false });
     } catch (err: unknown) {
-      console.error("[AssetStore] Error fetching assets:", err);
+      logger.error("[AssetStore] Error fetching assets:", err);
       set({ error: "No se pudieron cargar tus activos.", isLoading: false });
     }
   },
@@ -70,7 +71,7 @@ export const useAssetStore = create<AssetStore>((set, get) => ({
       const inventory = await assetsService.fetchInventory(token, orgId);
       set({ inventory, lastInventoryFetched: Date.now(), isInventoryLoading: false });
     } catch (err: unknown) {
-      console.error("[AssetStore] Error fetching inventory:", err);
+      logger.error("[AssetStore] Error fetching inventory:", err);
       if (!options.silent) set({ error: "No se pudo cargar el inventario.", isInventoryLoading: false });
     }
   },

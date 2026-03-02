@@ -1,9 +1,17 @@
 import React, { memo } from "react";
 import { useForm } from "react-hook-form";
 import { Key } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { toast } from "sonner";
-import { FormInput } from "@/components/forms";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   ChangePasswordFormData,
   changePasswordSchema,
@@ -19,12 +27,7 @@ export const SecurityPassword: React.FC<SecurityPasswordProps> = memo(
   ({ onPasswordChanged }) => {
     const { isDark } = useTheme();
 
-    const {
-      control,
-      handleSubmit,
-      reset,
-      formState: { isSubmitting },
-    } = useForm<ChangePasswordFormData>({
+    const form = useForm<ChangePasswordFormData>({
       resolver: zodResolver(changePasswordSchema),
       defaultValues: {
         currentPassword: "",
@@ -32,6 +35,8 @@ export const SecurityPassword: React.FC<SecurityPasswordProps> = memo(
         confirmPassword: "",
       },
     });
+
+    const { isSubmitting } = form.formState;
 
     const onSubmit = async (data: ChangePasswordFormData) => {
       if (!supabase) return;
@@ -42,9 +47,9 @@ export const SecurityPassword: React.FC<SecurityPasswordProps> = memo(
 
         if (error) throw error;
         toast.success("Password updated successfully");
-        reset();
+        form.reset();
         onPasswordChanged?.();
-      } catch (error) {
+      } catch (error: unknown) {
         const message =
           error instanceof Error ? error.message : "Failed to update password";
         toast.error(message);
@@ -62,48 +67,83 @@ export const SecurityPassword: React.FC<SecurityPasswordProps> = memo(
           Update Password
         </h3>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-xl">
-          <FormInput
-            control={control}
-            name="currentPassword"
-            label="Current Password"
-            type="password"
-            placeholder="••••••••••••"
-            className="font-mono"
-          />
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormInput
-              control={control}
-              name="newPassword"
-              label="New Password"
-              type="password"
-              placeholder="••••••••••••"
-              className="font-mono"
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-4 max-w-xl"
+          >
+            <FormField
+              control={form.control}
+              name="currentPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Current Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      placeholder="••••••••••••"
+                      className="font-mono h-11 rounded-xl"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
 
-            <FormInput
-              control={control}
-              name="confirmPassword"
-              label="Confirm New Password"
-              type="password"
-              placeholder="••••••••••••"
-              className="font-mono"
-            />
-          </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="newPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>New Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        placeholder="••••••••••••"
+                        className="font-mono h-11 rounded-xl"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-          <div className="flex justify-end pt-2">
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-sm active:scale-95 flex items-center gap-2 ${
-                isSubmitting ? "opacity-70 cursor-not-allowed" : ""
-              } bg-cyan-600 hover:bg-cyan-500 text-white`}
-            >
-              {isSubmitting ? "Updating..." : "Update Password"}
-            </button>
-          </div>
-        </form>
+              <FormField
+                control={form.control}
+                name="confirmPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Confirm New Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        placeholder="••••••••••••"
+                        className="font-mono h-11 rounded-xl"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-sm active:scale-95 flex items-center gap-2 ${
+                  isSubmitting ? "opacity-70 cursor-not-allowed" : ""
+                } bg-cyan-600 hover:bg-cyan-500 text-white`}
+              >
+                {isSubmitting ? "Updating..." : "Update Password"}
+              </button>
+            </div>
+          </form>
+        </Form>
       </div>
     );
   },

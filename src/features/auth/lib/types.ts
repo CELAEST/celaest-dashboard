@@ -76,6 +76,7 @@ export interface UserOrganization {
   slug: string;
   role: string;
   is_default: boolean;
+  is_system_default?: boolean;
 }
 
 export interface UserOrganizationsResponse {

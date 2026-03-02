@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import { Zap } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface CurrentPlanProps {
   currentPlanName: string;

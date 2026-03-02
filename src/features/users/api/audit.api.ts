@@ -47,4 +47,42 @@ export const auditApi = {
       total,
     };
   },
+
+  exportAuditLogs: async (token: string, orgId: string): Promise<void> => {
+    const response = await api.get<BackendAuditLog[] | { logs: BackendAuditLog[]; total: number }>("/api/v1/org/audit-logs/export", {
+      token,
+      orgId,
+      skipUnwrap: true,
+    });
+
+    const logs = Array.isArray(response) ? response : (response.logs || []);
+
+    // Build CSV
+    const headers = ["Timestamp", "Action", "User ID", "IP Address", "User Agent", "Entity Type", "Entity ID", "Metadata"];
+    const rows = logs.map((log) => [
+      log.created_at,
+      log.action,
+      log.user_id || "System",
+      log.ip_address || "",
+      (log.user_agent || "").replace(/"/g, '""'),
+      log.entity_type || "",
+      log.entity_id || "",
+      JSON.stringify(log.metadata || {}).replace(/"/g, '""'),
+    ]);
+
+    const csv = [
+      headers.join(","),
+      ...rows.map((row) => row.map((cell) => `"${cell}"`).join(",")),
+    ].join("\n");
+
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `audit-logs-${new Date().toISOString().split("T")[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  },
 };

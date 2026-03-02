@@ -413,7 +413,13 @@ const SuperAdminDashboard = ({
 };
 
 // ==================== CLIENT VIEW ====================
-const ClientDashboard = ({ isDark }: { isDark: boolean }) => {
+const ClientDashboard = ({
+  isDark,
+  orgId,
+}: {
+  isDark: boolean;
+  orgId: string | null;
+}) => {
   return (
     <div className="h-full w-full flex flex-col min-h-0 overflow-hidden p-2">
       {/* Header */}
@@ -425,13 +431,17 @@ const ClientDashboard = ({ isDark }: { isDark: boolean }) => {
                 isDark ? "text-white" : "text-gray-900"
               }`}
             >
-              My Orders
+              {orgId ? "My Orders" : "Welcome to Celaest"}
             </h1>
             <p
               className={`${isDark ? "text-gray-400" : "text-gray-500"} text-xs font-mono flex items-center gap-2`}
             >
               <ShoppingBag className="w-3 h-3" />
-              <span>Your purchase history and active orders</span>
+              <span>
+                {orgId
+                  ? "Your purchase history and active orders"
+                  : "Activate your account by choosing a workspace plan"}
+              </span>
             </p>
           </div>
         </div>
@@ -493,5 +503,5 @@ export const DashboardContent = () => {
     );
   }
 
-  return <ClientDashboard isDark={isDark} />;
+  return <ClientDashboard isDark={isDark} orgId={orgId} />;
 };

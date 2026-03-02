@@ -6,21 +6,10 @@ import { FEATURE_REGISTRY, ValidTabId } from "../config/feature-registry";
 import { useAccessControl } from "../hooks/useAccessControl";
 import { Server } from "lucide-react";
 import { useDashboardRouter } from "../hooks/useDashboardRouter";
+import { PageSkeleton } from "@/components/ui/skeletons";
 
 // Standard Skeleton used for all features
-const ViewSkeleton = () => (
-  <div className="space-y-4 p-4">
-    <div className="h-8 w-48 animate-pulse bg-gray-200/10 dark:bg-white/5 rounded" />
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {[...Array(6)].map((_, i) => (
-        <div
-          key={i}
-          className="h-40 animate-pulse bg-gray-200/10 dark:bg-white/5 rounded-lg"
-        />
-      ))}
-    </div>
-  </div>
-);
+const ViewSkeleton = () => <PageSkeleton type="table" />;
 
 // Cache for dynamic components to prevent recreation on render
 const featureCache = new Map<string, React.ComponentType>();

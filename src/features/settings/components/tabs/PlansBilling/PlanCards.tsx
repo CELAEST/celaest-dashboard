@@ -1,6 +1,7 @@
+import { logger } from "@/lib/logger";
 import React, { memo } from "react";
 import { Check } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { toast } from "sonner";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 import { useOrgStore } from "@/features/shared/stores/useOrgStore";
@@ -54,12 +55,12 @@ export const PlanCards: React.FC<PlanCardsProps> = memo(({ plans }) => {
           return `${plan.name} plan activated successfully!`;
         },
         error: (err: Error) => {
-          console.error("Upgrade failed:", err);
+          logger.error("Upgrade failed:", err);
           return "Failed to upgrade. Please try again.";
         },
       });
-    } catch (error) {
-      console.error("Upgrade error:", error);
+    } catch (error: unknown) {
+      logger.error("Upgrade error:", error);
     }
   };
 

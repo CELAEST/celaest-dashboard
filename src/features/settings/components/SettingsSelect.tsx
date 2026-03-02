@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { ChevronDown, Check } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import type { SettingsSelectProps } from "../types";
 
 /**
@@ -14,6 +14,7 @@ export function SettingsSelect({
   onChange,
   placeholder,
   label,
+  disabled,
 }: SettingsSelectProps) {
   const { isDark } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
@@ -99,12 +100,17 @@ export function SettingsSelect({
       <button
         ref={buttonRef}
         type="button"
+        disabled={disabled}
         onClick={() => setIsOpen(!isOpen)}
         onKeyDown={handleKeyDown}
         className={`w-full rounded-xl px-4 py-3 border transition-all duration-300 flex items-center justify-between outline-none group text-left ${
-          isDark
-            ? "bg-white/5 border-white/10 text-white hover:border-cyan-500/30 focus:border-cyan-500/30 focus:bg-white/10"
-            : "bg-white border-gray-200 text-gray-900 hover:border-gray-300 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50"
+          disabled
+            ? isDark
+              ? "bg-white/5 border-white/5 text-gray-600 cursor-not-allowed opacity-50"
+              : "bg-gray-50 border-gray-100 text-gray-400 cursor-not-allowed opacity-50"
+            : isDark
+              ? "bg-white/5 border-white/10 text-white hover:border-cyan-500/30 focus:border-cyan-500/30 focus:bg-white/10"
+              : "bg-white border-gray-200 text-gray-900 hover:border-gray-300 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50"
         }`}
         aria-expanded={isOpen}
         aria-haspopup="listbox"

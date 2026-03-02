@@ -1,4 +1,6 @@
+import { logger } from "@/lib/logger";
 import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -18,7 +20,6 @@ export const useCreateLicense = (
   onLicenseCreated: (license: LicenseResponse) => void
 ) => {
   const [step, setStep] = useState(1);
-  const [loading, setLoading] = useState(false);
   const [createdKey, setCreatedKey] = useState("");
 
   const form = useForm<LicenseFormData>({
@@ -30,37 +31,40 @@ export const useCreateLicense = (
     },
   });
 
+  const createMutation = useMutation({
+    mutationFn: async (data: LicenseFormData) => {
+      return licensingService.create({
+        plan_id: data.plan_id,
+        billing_cycle: data.billing_cycle,
+        notes: data.notes || undefined,
+      });
+    },
+    onSuccess: (result) => {
+      onLicenseCreated(result);
+      setCreatedKey(result.license_key);
+      setStep(3);
+      toast.success("License created successfully!");
+    },
+    onError: (error: unknown) => {
+      logger.error("Failed to create license:", error);
+      toast.error("Failed to create license");
+    },
+  });
+
   const resetForm = () => {
     setStep(1);
     setCreatedKey("");
     form.reset();
   };
 
-  const handleCreateLicense = async (data: LicenseFormData) => {
-    setLoading(true);
-    try {
-      const result = await licensingService.create({
-        plan_id: data.plan_id,
-        billing_cycle: data.billing_cycle,
-        notes: data.notes || undefined,
-      });
-
-      onLicenseCreated(result);
-      setCreatedKey(result.license_key);
-      setStep(3); // Move to success step
-      toast.success("License created successfully!");
-    } catch (error) {
-      console.error("Failed to create license:", error);
-      toast.error("Failed to create license");
-    } finally {
-      setLoading(false);
-    }
+  const handleCreateLicense = (data: LicenseFormData) => {
+    createMutation.mutate(data);
   };
 
   return {
     step,
     setStep,
-    loading,
+    loading: createMutation.isPending,
     createdKey,
     form,
     resetForm,

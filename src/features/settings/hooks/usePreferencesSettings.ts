@@ -1,4 +1,5 @@
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useApiAuth } from "@/lib/use-api-auth";
@@ -8,6 +9,9 @@ import {
   DateFormatOption,
   TimeFormatOption,
 } from "@/features/settings/components/types";
+import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
+
+const PREFS_QUERY_KEY = [...QUERY_KEYS.users.all, "preferences"] as const;
 
 export const usePreferencesSettings = () => {
   const { token, isReady } = useApiAuth();
@@ -15,52 +19,42 @@ export const usePreferencesSettings = () => {
   const [timezone, setTimezone] = useState("America/Los_Angeles");
   const [dateFormat, setDateFormat] = useState("MM/DD/YYYY");
   const [timeFormat, setTimeFormat] = useState("12h");
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
 
-  const fetchPreferences = useCallback(async () => {
-    if (!token) return;
-    setIsLoading(true);
-    try {
+  const { isLoading } = useQuery({
+    queryKey: PREFS_QUERY_KEY,
+    queryFn: async () => {
+      if (!token) return null;
       const response = await settingsApi.getPreferences(token);
       const { preferences } = response;
       
       if (preferences.timezone) setTimezone(preferences.timezone);
       if (preferences.theme) setTheme(preferences.theme as "light" | "dark");
-      // Date and time formats might be in the raw string or handled separately
-      // For now, let's assume standard mapping
-    } catch (err) {
-      console.error("Error fetching preferences:", err);
-      toast.error("Failed to load generic preferences");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [token, setTheme]);
+      return preferences;
+    },
+    enabled: isReady && !!token,
+  });
 
-  useEffect(() => {
-    if (isReady) {
-      fetchPreferences();
-    }
-  }, [isReady, fetchPreferences]);
-
-  const savePreferences = useCallback(async () => {
-    if (!token) return;
-    setIsSaving(true);
-    try {
+  const saveMutation = useMutation({
+    mutationFn: async () => {
+      if (!token) throw new Error("No token");
       await settingsApi.updatePreferences({
         timezone,
         theme: currentTheme,
         date_format: dateFormat,
         time_format: timeFormat,
       }, token);
+    },
+    onSuccess: () => {
       toast.success("Preferences saved successfully");
-    } catch (err) {
-      console.error("Error saving preferences:", err);
+    },
+    onError: () => {
       toast.error("Failed to save preferences");
-    } finally {
-      setIsSaving(false);
-    }
-  }, [token, timezone, currentTheme, dateFormat, timeFormat]);
+    },
+  });
+
+  const savePreferences = useCallback(() => {
+    saveMutation.mutate();
+  }, [saveMutation]);
 
   const timezones: TimezoneOption[] = useMemo(
     () => [
@@ -116,7 +110,7 @@ export const usePreferencesSettings = () => {
     dateFormats,
     timeFormats,
     isLoading,
-    isSaving,
+    isSaving: saveMutation.isPending,
     savePreferences,
   };
 };

@@ -33,12 +33,10 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({
     e.preventDefault();
     if (rating === 0) return;
 
-    const submitted = await submitReview(productId, rating, comment);
-    if (submitted) {
-      setRating(0);
-      setComment("");
-      onSuccess?.();
-    }
+    await submitReview(productId, rating, comment);
+    setRating(0);
+    setComment("");
+    onSuccess?.();
   };
 
   // Reset success state after showing

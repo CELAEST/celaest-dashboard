@@ -4,23 +4,29 @@ import React from "react";
 import { motion } from "motion/react";
 import { Check, ShoppingCart, Star, Eye } from "lucide-react";
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { MarketplaceProduct } from "../types";
 import { formatCurrency } from "@/lib/utils";
+import { useMarketplaceCouponStore } from "../store";
 
 interface ProductCardPremiumProps {
   product: MarketplaceProduct;
   onSelect: () => void;
   onViewDetails?: () => void;
+  disabledReason?: string;
+  isOwned?: boolean;
 }
 
 export const ProductCardPremium = React.memo(function ProductCardPremium({
   product,
   onSelect,
   onViewDetails,
+  disabledReason,
+  isOwned = false,
 }: ProductCardPremiumProps) {
   const { theme } = useTheme();
   const [isHovered, setIsHovered] = React.useState(false);
+  const { activeCoupon } = useMarketplaceCouponStore();
 
   // Mapping props from MarketplaceProduct
   const {
@@ -29,22 +35,32 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
     base_price,
     currency,
     thumbnail_url,
-    tags,
     rating_avg: rating = 0,
     rating_count: reviews = 0,
   } = product;
 
-  // Derive features from tags or use defaults
-  const features =
-    tags && tags.length > 0
-      ? tags.slice(0, 3)
+  // Actual features from backend
+  const displayFeatures =
+    product.features && product.features.length > 0
+      ? product.features.slice(0, 3)
       : ["Enterprise Ready", "Secure", "24/7 Support"];
 
-  const price = formatCurrency(base_price, currency);
   const image =
     thumbnail_url ||
     "https://images.unsplash.com/photo-1551288049-bebda4e38f71";
   const badge = rating >= 4.5 ? "PREMIUM" : undefined;
+
+  let finalPrice = base_price;
+  if (activeCoupon) {
+    if (activeCoupon.type === "percentage") {
+      finalPrice = base_price * (1 - activeCoupon.value / 100);
+    } else if (activeCoupon.type === "fixed_amount") {
+      finalPrice = Math.max(0, base_price - activeCoupon.value);
+    }
+  }
+
+  const priceStr = formatCurrency(base_price, currency);
+  const finalPriceStr = formatCurrency(finalPrice, currency);
 
   return (
     <motion.div
@@ -68,20 +84,36 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
       }}
     >
       {/* Badge if premium/featured */}
-      {badge && (
-        <div
-          className={`
-          absolute top-4 left-4 z-20 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest
-          ${
-            theme === "dark"
-              ? "bg-cyan-500/20 border border-cyan-500/40 text-cyan-300"
-              : "bg-cyan-500 text-white"
-          }
-        `}
-        >
-          {badge}
-        </div>
-      )}
+      <div className="absolute top-4 left-4 z-20 flex flex-col gap-2 items-start">
+        {badge && (
+          <div
+            className={`
+            px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest
+            ${
+              theme === "dark"
+                ? "bg-cyan-500/20 border border-cyan-500/40 text-cyan-300"
+                : "bg-cyan-500 text-white shadow-lg"
+            }
+          `}
+          >
+            {badge}
+          </div>
+        )}
+        {product.category_name && (
+          <div
+            className={`
+            px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest backdrop-blur-md border
+            ${
+              theme === "dark"
+                ? "bg-black/60 border-white/10 text-gray-400"
+                : "bg-white/80 border-gray-200 text-gray-500 shadow-sm"
+            }
+          `}
+          >
+            {product.category_name}
+          </div>
+        )}
+      </div>
 
       {/* Image Container */}
       <div className="relative h-[220px] w-full overflow-hidden shrink-0">
@@ -164,7 +196,7 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
 
         {/* Features - Human language */}
         <div className="space-y-2 pt-2 flex-1">
-          {features.map((feature, index) => (
+          {displayFeatures.map((feature, index) => (
             <div key={index} className="flex items-start gap-2">
               <Check
                 size={16}
@@ -194,12 +226,23 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
               >
                 Inversión
               </div>
-              <div
-                className={`text-2xl font-bold ${
-                  theme === "dark" ? "text-white" : "text-gray-900"
-                }`}
-              >
-                {price}
+              <div className="flex items-center gap-2">
+                {activeCoupon && (
+                  <span className="text-sm line-through text-gray-500 font-medium">
+                    {priceStr}
+                  </span>
+                )}
+                <div
+                  className={`text-2xl font-bold ${
+                    activeCoupon
+                      ? "text-emerald-400"
+                      : theme === "dark"
+                        ? "text-white"
+                        : "text-gray-900"
+                  }`}
+                >
+                  {finalPriceStr}
+                </div>
               </div>
             </div>
           </div>
@@ -222,20 +265,31 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
               Ver Detalles
             </motion.button>
             <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={onSelect}
+              whileHover={!isOwned && !disabledReason ? { scale: 1.02 } : {}}
+              whileTap={!isOwned && !disabledReason ? { scale: 0.98 } : {}}
+              onClick={!isOwned && !disabledReason ? onSelect : undefined}
+              title={disabledReason}
               className={`
                 py-3 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-all
                 ${
-                  theme === "dark"
-                    ? "bg-cyan-500 text-black hover:bg-cyan-400 shadow-[0_0_20px_rgba(0,255,255,0.3)]"
-                    : "bg-gray-900 text-white hover:bg-gray-800 shadow-xl"
+                  disabledReason
+                    ? "bg-gray-200 text-gray-400 border border-gray-300 cursor-not-allowed dark:bg-zinc-800 dark:text-gray-500 dark:border-zinc-700"
+                    : isOwned
+                      ? theme === "dark"
+                        ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 cursor-default"
+                        : "bg-emerald-50 text-emerald-600 border border-emerald-200 cursor-default"
+                      : theme === "dark"
+                        ? "bg-cyan-500 text-black hover:bg-cyan-400 shadow-[0_0_20px_rgba(0,255,255,0.3)]"
+                        : "bg-gray-900 text-white hover:bg-gray-800 shadow-xl"
                 }
               `}
             >
               <ShoppingCart size={16} />
-              Adquirir
+              {disabledReason
+                ? disabledReason
+                : isOwned
+                  ? "Adquirido"
+                  : "Adquirir"}
             </motion.button>
           </div>
         </div>

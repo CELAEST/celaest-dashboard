@@ -9,7 +9,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useAnalytics } from "@/features/analytics/hooks/useAnalytics";
 
 interface CustomTooltipProps {
@@ -50,7 +50,7 @@ export const ROICard = React.memo(() => {
     }
     return salesByPeriod.slice(-10).map((entry) => ({
       name: entry.date?.slice(5) || "—",
-      value: Math.round(entry.revenue || 0),
+      value: Math.round(entry.sales || 0),
     }));
   }, [salesByPeriod]);
 
@@ -122,7 +122,8 @@ export const ROICard = React.memo(() => {
               isDark ? "text-white group-hover:text-purple-50" : "text-gray-900"
             }`}
           >
-            {timeSavedHours.toLocaleString()}<span className="text-xl ml-1 opacity-50">hrs</span>
+            {timeSavedHours.toLocaleString()}
+            <span className="text-xl ml-1 opacity-50">hrs</span>
           </div>
         </div>
       </div>

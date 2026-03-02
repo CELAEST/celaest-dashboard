@@ -1,6 +1,6 @@
 import React from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useErrorMonitoring } from "@/features/errors/hooks/useErrorMonitoring";
 import { ErrorStats } from "./ErrorStats";
 import { ErrorList } from "./ErrorList";

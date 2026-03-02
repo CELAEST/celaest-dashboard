@@ -2,19 +2,24 @@ import React from "react";
 import Image from "next/image";
 import { motion } from "motion/react";
 import { ShieldCheck } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface ConfirmationStepProps {
   product: {
     title: string;
-    price: string;
     image: string;
   };
+  originalPrice: string;
+  finalPrice: string;
+  hasCoupon: boolean;
   onContinue: () => void;
 }
 
 export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
   product,
+  originalPrice,
+  finalPrice,
+  hasCoupon,
   onContinue,
 }) => {
   const { theme } = useTheme();
@@ -58,11 +63,24 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
             >
               {product.title}
             </h3>
-            <p
-              className={`text-2xl font-bold ${theme === "dark" ? "text-cyan-400" : "text-cyan-600"}`}
-            >
-              {product.price}
-            </p>
+            <div className="flex flex-col">
+              {hasCoupon && (
+                <span className="text-sm line-through text-gray-500 font-medium">
+                  {originalPrice}
+                </span>
+              )}
+              <p
+                className={`text-2xl font-bold ${
+                  hasCoupon
+                    ? "text-emerald-500"
+                    : theme === "dark"
+                      ? "text-cyan-400"
+                      : "text-cyan-600"
+                }`}
+              >
+                {finalPrice}
+              </p>
+            </div>
           </div>
         </div>
       </div>

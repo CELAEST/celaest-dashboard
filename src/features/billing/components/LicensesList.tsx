@@ -7,7 +7,7 @@ import {
   Crown,
   AlertCircle,
 } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useBilling } from "../hooks/useBilling";
 import type { Subscription } from "../types";
 

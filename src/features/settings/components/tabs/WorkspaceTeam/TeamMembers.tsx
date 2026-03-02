@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import { Users, UserPlus, Trash2 } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 
 export interface Member {
   id: string;
@@ -13,15 +13,22 @@ export interface Member {
 
 interface TeamMembersProps {
   members: Member[];
-  onRemoveMember: (id: string) => void;
-  onUpdateRole: (id: string, role: string) => void;
-  onInviteClick: () => void;
+  onRemoveMember?: (id: string) => void;
+  onUpdateRole?: (id: string, role: string) => void;
+  onInviteClick?: () => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
+  readOnly?: boolean;
 }
 
 export const TeamMembers: React.FC<TeamMembersProps> = memo(
-  ({ members, onRemoveMember, onUpdateRole, onInviteClick }) => {
+  ({
+    members,
+    onRemoveMember,
+    onUpdateRole,
+    onInviteClick,
+    readOnly = false,
+  }) => {
     const { isDark } = useTheme();
 
     return (
@@ -99,14 +106,24 @@ export const TeamMembers: React.FC<TeamMembersProps> = memo(
               </div>
 
               <div className="flex items-center gap-4">
-                {member.role === "owner" ? (
-                  <div className="px-2.5 py-1 rounded-lg text-[10px] font-black tracking-widest uppercase bg-cyan-500/10 text-cyan-500 border border-cyan-500/20">
+                {member.role === "owner" || readOnly ? (
+                  <div
+                    className={`px-2.5 py-1 rounded-lg text-[10px] font-black tracking-widest uppercase border transition-all ${
+                      member.role === "owner"
+                        ? "bg-cyan-500/10 text-cyan-500 border-cyan-500/20"
+                        : isDark
+                          ? "bg-gray-800 text-gray-500 border-white/5"
+                          : "bg-gray-200 text-gray-500 border-gray-100"
+                    }`}
+                  >
                     {member.role}
                   </div>
                 ) : (
                   <select
                     value={member.role}
-                    onChange={(e) => onUpdateRole(member.id, e.target.value)}
+                    onChange={(e) =>
+                      onUpdateRole && onUpdateRole(member.id, e.target.value)
+                    }
                     className={`px-2.5 py-1 rounded-lg text-[10px] font-black tracking-widest uppercase border transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-cyan-500/50 ${
                       member.role === "admin"
                         ? "bg-purple-500/10 text-purple-500 border-purple-500/20"
@@ -121,9 +138,9 @@ export const TeamMembers: React.FC<TeamMembersProps> = memo(
                     <option value="viewer">VIEWER</option>
                   </select>
                 )}
-                {member.role !== "owner" && (
+                {member.role !== "owner" && !readOnly && (
                   <button
-                    onClick={() => onRemoveMember(member.id)}
+                    onClick={() => onRemoveMember && onRemoveMember(member.id)}
                     className={`p-2 rounded-lg transition-colors ${
                       isDark
                         ? "text-gray-600 hover:text-red-400 hover:bg-red-500/10"

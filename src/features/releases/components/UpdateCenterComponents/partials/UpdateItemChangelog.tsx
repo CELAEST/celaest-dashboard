@@ -2,7 +2,7 @@ import React, { memo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { FileText, ChevronUp, ChevronDown, Shield } from "lucide-react";
 import { CustomerAsset } from "../../../types";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface UpdateItemChangelogProps {
   asset: CustomerAsset;

@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import { Plus, Trash2 } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface VersionChangelogProps {
   changelog: string[];

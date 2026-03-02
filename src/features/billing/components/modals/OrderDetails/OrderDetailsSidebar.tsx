@@ -1,7 +1,7 @@
 import React from "react";
 import { User, CreditCard, Key, Mail, FileText } from "lucide-react";
 import { toast } from "sonner";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { Order } from "../../../types";
 
 interface OrderDetailsSidebarProps {

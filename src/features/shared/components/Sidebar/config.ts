@@ -11,6 +11,8 @@ import {
   UserCog,
   Settings,
   LucideIcon,
+  Tag,
+  Bot,
 } from "lucide-react";
 
 export interface MenuItem {
@@ -25,6 +27,12 @@ export const menuItems: MenuItem[] = [
     id: "dashboard",
     icon: LayoutDashboard,
     label: "Orders",
+    scope: null,
+  },
+  {
+    id: "ai",
+    icon: Bot,
+    label: "AI Console",
     scope: null,
   },
   {
@@ -59,6 +67,7 @@ export const menuItems: MenuItem[] = [
     scope: "analytics:read",
   },
   { id: "billing", icon: CreditCard, label: "Billing", scope: "billing:read" },
+  { id: "coupons", icon: Tag, label: "Coupons", scope: "billing:write" },
   {
     id: "analytics",
     icon: Activity,
@@ -66,10 +75,22 @@ export const menuItems: MenuItem[] = [
     scope: "analytics:read",
   },
   {
+    id: "operations",
+    icon: Activity,
+    label: "Operations & DevOps",
+    scope: null, // Depending on permissions, "operations:read" could be added later
+  },
+  {
     id: "users",
     icon: UserCog,
     label: "User Management",
     scope: null,
+  },
+  {
+    id: "admin_portal",
+    icon: Shield,
+    label: "Super Admin",
+    scope: "users:manage",
   },
   { id: "settings", icon: Settings, label: "Settings", scope: null },
 ];

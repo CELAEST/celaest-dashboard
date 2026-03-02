@@ -1,8 +1,15 @@
 import React, { memo } from "react";
 import { useFormContext } from "react-hook-form";
 import { User, Briefcase } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
-import { FormInput } from "@/components/forms";
+import { useTheme } from "@/features/shared/hooks/useTheme";
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { ProfileFormData } from "@/lib/validation/schemas/settings";
 
 export const ProfilePersonalInfo: React.FC = memo(() => {
@@ -20,21 +27,46 @@ export const ProfilePersonalInfo: React.FC = memo(() => {
       </h3>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <FormInput
+        <FormField
           control={control}
           name="displayName"
-          label="Display Name"
-          placeholder="Enter your name"
-          required
-          icon={<User className="w-4 h-4" />}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Display Name</FormLabel>
+              <FormControl>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Enter your name"
+                    className="pl-10 h-11 rounded-xl"
+                    {...field}
+                  />
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
 
-        <FormInput
+        <FormField
           control={control}
           name="jobTitle"
-          label="Job Title"
-          placeholder="Your role"
-          icon={<Briefcase className="w-4 h-4" />}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Job Title</FormLabel>
+              <FormControl>
+                <div className="relative">
+                  <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Your role"
+                    className="pl-10 h-11 rounded-xl"
+                    {...field}
+                  />
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
       </div>
     </div>

@@ -1,17 +1,21 @@
 "use client";
 
 import React, { useState, useMemo, useCallback } from "react";
+import { useShallow } from "zustand/react/shallow";
 import { motion } from "motion/react";
-import { LogOut } from "lucide-react";
+import { LogOut, Bomb } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
+import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 import { usePermissions } from "@/features/auth/hooks/useAuthorization";
 import { type Permission } from "@/features/auth/lib/permissions";
 import { SignOutModal } from "./SignOutModal";
 import Logo from "@/components/icons/Logo";
 import { menuItems } from "./Sidebar/config";
 import { SidebarMenuItem } from "./Sidebar/SidebarMenuItem";
+import { OrgSwitcher } from "./Sidebar/OrgSwitcher";
+import { useOrgStore } from "../stores/useOrgStore";
 
 interface SidebarProps {
   activeTab: string;
@@ -30,7 +34,17 @@ export const AppSidebar = React.memo(function AppSidebar({
   const [isHovered, setIsHovered] = useState(false);
   const [showSignOutModal, setShowSignOutModal] = useState(false);
   const { theme } = useTheme();
-  const { signOut, user } = useAuth();
+  const { signOut } = useAuth();
+
+  // Selective subscriptions for performance and reactivity
+  const user = useAuthStore(useShallow((state) => state.user));
+  const { currentOrg } = useOrgStore(
+    useShallow((state) => ({
+      currentOrg: state.currentOrg,
+    })),
+  );
+  const currentOrgId = currentOrg?.id;
+
   const { hasPermission } = usePermissions();
   const isDark = theme === "dark";
 
@@ -165,6 +179,9 @@ export const AppSidebar = React.memo(function AppSidebar({
           </motion.div>
         </div>
 
+        {/* Org Switcher (multi-org dropdown) */}
+        {!isGuest && <OrgSwitcher isExpanded={isHovered} />}
+
         <nav className="flex-1 py-8 flex flex-col gap-2 px-4 overflow-hidden">
           {visibleMenuItems.map((item) => (
             <SidebarMenuItem
@@ -181,13 +198,36 @@ export const AppSidebar = React.memo(function AppSidebar({
 
         {!isGuest && (
           <div
-            className={`p-4 border-t ${
+            className={`p-4 border-t flex flex-col gap-3 ${
               isDark ? "border-white/5" : "border-gray-200"
             }`}
           >
+            {/* Live Connection Status */}
+            <motion.div
+              className="flex items-center gap-2 px-1"
+              animate={{ opacity: isHovered ? 1 : 0 }}
+            >
+              <div className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+              </div>
+              <div className="flex flex-col">
+                <span
+                  className={`text-[9px] font-black uppercase tracking-widest ${isDark ? "text-cyan-400/80" : "text-blue-600/80"}`}
+                >
+                  Live Connection
+                </span>
+                <span
+                  className={`text-[8px] font-mono truncate max-w-[140px] ${isDark ? "text-gray-600" : "text-gray-400"}`}
+                >
+                  ID: {currentOrgId || "N/A"}
+                </span>
+              </div>
+            </motion.div>
+
             <button
               onClick={handleSignOutClick}
-              className={`flex items-center w-full h-12 transition-colors rounded-xl px-3 ${
+              className={`flex items-center w-full h-10 transition-colors rounded-xl px-3 ${
                 isDark
                   ? "text-gray-400 hover:text-red-400 hover:bg-red-500/10"
                   : "text-gray-500 hover:text-red-600 hover:bg-red-50"
@@ -202,6 +242,38 @@ export const AppSidebar = React.memo(function AppSidebar({
                 Sign Out
               </motion.span>
             </button>
+
+            {/* Development Tools */}
+            {process.env.NODE_ENV === "development" && (
+              <button
+                onClick={() => {
+                  if (
+                    window.confirm(
+                      "☢️ NUCLEAR RESET: Are you sure you want to clear ALL local storage and session data?",
+                    )
+                  ) {
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    window.location.href = "/";
+                  }
+                }}
+                className={`flex items-center w-full h-10 transition-colors rounded-xl px-3 ${
+                  isDark
+                    ? "text-orange-400 hover:text-white hover:bg-orange-500"
+                    : "text-orange-600 hover:text-white hover:bg-orange-500"
+                }`}
+                title="Nuclear Reset (Dev Only)"
+              >
+                <Bomb size={20} />
+                <motion.span
+                  className="ml-3 whitespace-nowrap font-medium"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: isHovered ? 1 : 0 }}
+                >
+                  Clear Storage
+                </motion.span>
+              </button>
+            )}
           </div>
         )}
       </motion.div>

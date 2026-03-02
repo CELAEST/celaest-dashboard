@@ -1,6 +1,6 @@
 import React from "react";
 import { Check, Star, Download } from "lucide-react";
-import { Asset } from "../../hooks/useAssets";
+import { Asset } from "../../services/assets.service";
 
 interface ProductInfoSectionProps {
   product: Asset;
@@ -58,7 +58,9 @@ export const ProductInfoSection: React.FC<ProductInfoSectionProps> = ({
               }`}
             >
               <Check size={12} />
-              {product.accessType === "subscription" ? "INCLUDED IN PLAN" : "PURCHASED"}
+              {product.accessType === "subscription"
+                ? "INCLUDED IN PLAN"
+                : "PURCHASED"}
             </span>
           )}
         </div>

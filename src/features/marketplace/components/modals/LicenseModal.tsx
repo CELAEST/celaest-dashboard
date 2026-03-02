@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import React, { useEffect, useState } from "react";
 import {
   Dialog,
@@ -61,13 +62,26 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
     const fetchLicense = async () => {
       if (!licenseId || !token) return;
 
+      if (licenseId === "OWNER_PREVIEW") {
+        setLicense({
+          id: "owner-preview-id",
+          license_key: "DEV-MODE-BYPASS-KEY-0000",
+          status: "owner",
+          starts_at: new Date().toISOString(),
+          plan: {
+            id: "dev",
+            code: "dev",
+            name: "Developer / Inventory Owner",
+          },
+          activation_count: 0,
+          max_activations: 999,
+        });
+        return;
+      }
+
       setLoading(true);
       try {
-        console.log("[LicenseModal] Fetching license for ID:", licenseId);
         const response = await assetsService.getLicense(token, licenseId);
-        console.log("[LicenseModal] Received response:", response);
-
-        // Map BackendLicense (response) to LicenseDetails (state)
         if (response && response.license_key) {
           setLicense({
             id: response.id,
@@ -86,18 +100,10 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
             activation_count: 0,
             max_activations: response.status === "owner" ? 999 : 1,
           });
-        } else {
-          console.warn(
-            "[LicenseModal] Response missing license_key or invalid:",
-            response,
-          );
-          toast.error("La licencia devuelta no es válida");
         }
-      } catch (error) {
-        console.error("[LicenseModal] Error fetching license:", error);
-        toast.error(
-          "No se pudo cargar la licencia real. Verifique su conexión.",
-        );
+      } catch (error: unknown) {
+        logger.error("[LicenseModal] Error fetching license:", error);
+        toast.error("No se pudo cargar la licencia real.");
       } finally {
         setLoading(false);
       }
@@ -105,10 +111,11 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
 
     if (isOpen && licenseId && token) {
       fetchLicense();
-    } else {
+    } else if (!isOpen && license !== null) {
+      // Solo limpiamos si estaba abierto y se cerró, evitando el bucle infinito
       setLicense(null);
     }
-  }, [isOpen, licenseId, token, onClose]);
+  }, [isOpen, licenseId, token, license]);
 
   const handleCopy = () => {
     if (license?.license_key) {
@@ -142,7 +149,7 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
       // Note: Real implementation would need IP.
       // We'll proceed with basic UI for now and improve if user needs full binding mgmt.
       toast.success("Licencia lista para nueva activación.");
-    } catch (error) {
+    } catch {
       toast.error("Error al desactivar la licencia.");
     } finally {
       setLoading(false);

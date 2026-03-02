@@ -1,7 +1,7 @@
 import React from "react";
 import { Layers, ArrowRightCircle, Hash, CreditCard } from "lucide-react";
 import { motion } from "motion/react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { PaymentGateway } from "../../../types";
 import { GatewayDisplay } from "./GatewayDisplay";
 import { GatewayEditForm } from "./GatewayEditForm";

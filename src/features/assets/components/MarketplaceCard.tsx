@@ -5,7 +5,7 @@ import { motion } from "motion/react";
 import { Star, Download, ChevronRight, Lock } from "lucide-react";
 import { AssetTypeIcon } from "./shared/AssetTypeIcon";
 import { getAssetTypeLabel } from "../utils/assetUtils";
-import { Asset } from "../hooks/useAssets";
+import { Asset } from "../services/assets.service";
 
 interface MarketplaceCardProps {
   product: Asset; // Expecting Asset or MockAsset

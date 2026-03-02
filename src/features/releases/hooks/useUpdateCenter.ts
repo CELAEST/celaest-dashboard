@@ -1,122 +1,106 @@
-import { useState, useCallback, useEffect } from "react";
+import { logger } from "@/lib/logger";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { CustomerAsset } from "../types";
 import { assetsService } from "@/features/assets/services/assets.service";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { handleApiError } from "@/lib/error-handler";
 
+import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
+
 export const useUpdateCenter = (options: { enabled?: boolean } = {}) => {
   const { session } = useAuth();
+  const token = session?.accessToken;
   const [expandedAsset, setExpandedAsset] = useState<string | null>(null);
-  const [assets, setAssets] = useState<CustomerAsset[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  const fetchAssets = useCallback(async () => {
-    if (!options.enabled || !session?.accessToken) return;
-    
-    setIsLoading(true);
-    try {
-      const myAssets = await assetsService.getMyAssets(session.accessToken);
+  const { data: assets = [], isLoading, error } = useQuery({
+    queryKey: QUERY_KEYS.releases.updateCenter,
+    queryFn: async (): Promise<CustomerAsset[]> => {
+      if (!token) return [];
+      const myAssets = await assetsService.getMyAssets(token);
       
-      const mappedAssets: CustomerAsset[] = myAssets.map(a => ({
+      return myAssets.map(a => ({
         id: a.id,
         name: a.name,
-        currentVersion: "v1.0.0", // Fallback current version
+        currentVersion: "v1.0.0",
         latestVersion: a.version || "v1.0.0",
         hasUpdate: a.version !== "v1.0.0" && a.version !== "", 
         purchaseDate: a.createdAt,
         lastDownload: a.updatedAt,
-        changelog: [], // Will be fetched on demand or from preview
+        changelog: [],
         compatibility: a.requirements[0] || "Universal",
         checksum: "sha256:pending...",
       }));
-      
-      setAssets(mappedAssets);
-    } catch (err) {
-      console.error("Failed to fetch customer assets:", err);
-      setError(handleApiError(err));
-    } finally {
-      setIsLoading(false);
-    }
-  }, [session?.accessToken, options.enabled]);
-
-  useEffect(() => {
-    fetchAssets();
-  }, [fetchAssets]);
+    },
+    enabled: !!options.enabled && !!token,
+  });
 
   const toggleExpanded = async (id: string) => {
     const isExpanding = expandedAsset !== id;
     setExpandedAsset(isExpanding ? id : null);
     
-    // On demand changelog fetch
-    if (isExpanding && session?.accessToken) {
+    if (isExpanding && token) {
       const asset = assets.find(a => a.id === id);
       if (asset && asset.changelog.length === 0) {
         try {
-          // Fetch releases for the product linked to this asset
-          // We need the productId, which is available in the Asset object from service
-          const myAssets = await assetsService.getMyAssets(session.accessToken);
+          const myAssets = await assetsService.getMyAssets(token);
           const targetAsset = myAssets.find(a => a.id === id);
           
           if (targetAsset) {
-            // Use empty string for orgId to trigger public route in assetsApi.getReleases
-            const releases = await assetsService.getReleases(session.accessToken, "", targetAsset.productId);
+            const releases = await assetsService.getReleases(token, "", targetAsset.productId);
             if (releases && releases.length > 0) {
               const latestRelease = releases[0];
-              setAssets(prev => prev.map(a => 
-                a.id === id 
-                  ? { ...a, changelog: latestRelease.changelog || [latestRelease.release_notes || "No release notes available"] } 
-                  : a
-              ));
+              queryClient.setQueryData<CustomerAsset[]>(QUERY_KEYS.releases.updateCenter, old =>
+                (old || []).map(a =>
+                  a.id === id 
+                    ? { ...a, changelog: latestRelease.changelog || [latestRelease.release_notes || "No release notes available"] } 
+                    : a
+                )
+              );
             }
           }
-        } catch (err) {
-          console.error("Failed to fetch changelog:", err);
+        } catch (err: unknown) {
+          logger.error("Failed to fetch changelog:", err);
         }
       }
     }
   };
 
-
-
-  const downloadUpdate = async (assetId: string) => {
-    if (!session?.accessToken) return;
-    try {
-      const response = await assetsService.downloadAsset(session.accessToken, assetId);
-      if (response && response.download_url) {
-        // Trigger download
+  const downloadMutation = useMutation({
+    mutationFn: async (assetId: string) => {
+      if (!token) throw new Error("No token");
+      return assetsService.downloadAsset(token, assetId);
+    },
+    onSuccess: (response) => {
+      if (response?.download_url) {
         const link = document.createElement('a');
         link.href = response.download_url;
-        link.setAttribute('download', ''); // Optional: sets download attribute
+        link.setAttribute('download', '');
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
       }
-    } catch (err) {
-      console.error("Failed to download update:", err);
-      setError(handleApiError(err));
-    }
-  };
+    },
+  });
 
-  const skipUpdate = async (assetId: string, version: string) => {
-    if (!session?.accessToken) return;
-    try {
-      await assetsService.skipVersion(session.accessToken, assetId, version);
-      
-      // Update local state to hide the update
-      setAssets(prev => prev.map(a => 
-        a.id === assetId 
-          ? { ...a, hasUpdate: false } 
-          : a
-      ));
-      
-      // Optionally re-fetch to ensure sync
-      // fetchAssets();
-    } catch (err) {
-      console.error("Failed to skip update:", err);
-      setError(handleApiError(err));
-    }
-  };
+  const skipMutation = useMutation({
+    mutationFn: async ({ assetId, version }: { assetId: string; version: string }) => {
+      if (!token) throw new Error("No token");
+      await assetsService.skipVersion(token, assetId, version);
+      return assetId;
+    },
+    onMutate: async ({ assetId }) => {
+      const previous = queryClient.getQueryData<CustomerAsset[]>(QUERY_KEYS.releases.updateCenter);
+      queryClient.setQueryData<CustomerAsset[]>(QUERY_KEYS.releases.updateCenter, old =>
+        (old || []).map(a => a.id === assetId ? { ...a, hasUpdate: false } : a)
+      );
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) queryClient.setQueryData(QUERY_KEYS.releases.updateCenter, context.previous);
+    },
+  });
 
   const updateCount = assets.filter((a) => a.hasUpdate).length;
 
@@ -124,10 +108,10 @@ export const useUpdateCenter = (options: { enabled?: boolean } = {}) => {
     assets,
     expandedAsset,
     toggleExpanded,
-    downloadUpdate,
-    skipUpdate,
+    downloadUpdate: (assetId: string) => downloadMutation.mutate(assetId),
+    skipUpdate: (assetId: string, version: string) => skipMutation.mutate({ assetId, version }),
     updateCount,
     isLoading,
-    error
+    error: error ? handleApiError(error) : null,
   };
 };

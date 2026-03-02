@@ -2,7 +2,7 @@
 
 import React from "react";
 import { AlertCircle } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useUpdateCenter } from "../hooks/useUpdateCenter";
 import { UpdateSummary } from "./UpdateCenterComponents/UpdateSummary";
 import { UpdateList } from "./UpdateCenterComponents/UpdateList";

@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "motion/react";
 import { Lock, Sparkles } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface CreditCardPreviewProps {
   cardNumber?: string;

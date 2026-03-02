@@ -1,9 +1,24 @@
+import { logger } from "@/lib/logger";
 import React, { useEffect, useState } from "react";
 import { Sparkles } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { LicenseFormData } from "@/features/licensing/hooks/useCreateLicense";
 import { UseFormReturn } from "react-hook-form";
-import { FormInput, FormSelect } from "@/components/forms";
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { licensingService } from "@/features/licensing/services/licensing.service";
 import { SubscriptionPlan } from "@/features/licensing/types";
 
@@ -44,8 +59,8 @@ export const LicenseForm: React.FC<LicenseFormProps> = ({
             setValue("plan_id", plans[0].id);
           }
         }
-      } catch (err) {
-        console.error("Failed to fetch plans", err);
+      } catch (err: unknown) {
+        logger.error("Failed to fetch plans", err);
       } finally {
         setFetchingPlans(false);
       }
@@ -108,23 +123,58 @@ export const LicenseForm: React.FC<LicenseFormProps> = ({
             />
           </div>
         ) : (
-          <FormSelect
+          <FormField
             control={form.control}
             name="plan_id"
-            label="Subscription Plan"
-            options={planOptions}
-            placeholder={
-              plans.length === 0 ? "No plans available" : "Select a plan..."
-            }
-            disabled={plans.length === 0}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Subscription Plan</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                  disabled={plans.length === 0}
+                >
+                  <FormControl>
+                    <SelectTrigger className="h-11 rounded-xl">
+                      <SelectValue
+                        placeholder={
+                          plans.length === 0
+                            ? "No plans available"
+                            : "Select a plan..."
+                        }
+                      />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {planOptions.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
           />
         )}
 
-        <FormInput
+        <FormField
           control={form.control}
           name="notes"
-          label="Notes (optional)"
-          placeholder="Internal notes..."
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Notes (optional)</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Internal notes..."
+                  className="h-11 rounded-xl"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
       </div>
 

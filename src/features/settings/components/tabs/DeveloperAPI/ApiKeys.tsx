@@ -1,7 +1,6 @@
 import React, { memo } from "react";
-import { Code, RefreshCw, Key, Copy, LayoutGrid } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
-import { toast } from "sonner";
+import { Code, Key, Copy, LayoutGrid, Trash2 } from "lucide-react";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 
 export interface ApiKey {
   id: string;
@@ -15,10 +14,11 @@ interface ApiKeysProps {
   apiKeys: ApiKey[];
   onGenerate: () => void;
   onCopy: (text: string) => void;
+  onRevoke: (id: string) => void;
 }
 
 export const ApiKeys: React.FC<ApiKeysProps> = memo(
-  ({ apiKeys, onGenerate, onCopy }) => {
+  ({ apiKeys, onGenerate, onCopy, onRevoke }) => {
     const { isDark } = useTheme();
 
     return (
@@ -82,15 +82,15 @@ export const ApiKeys: React.FC<ApiKeysProps> = memo(
                 </div>
                 <div className="flex gap-1.5">
                   <button
-                    onClick={() => toast.success("API Key regenerated")}
+                    onClick={() => onRevoke(key.id)}
                     className={`p-2 rounded-lg transition-colors ${
                       isDark
-                        ? "text-gray-500 hover:text-white hover:bg-white/5"
-                        : "text-gray-400 hover:text-gray-900 hover:bg-gray-200"
+                        ? "text-red-500/70 hover:text-red-400 hover:bg-red-500/10"
+                        : "text-red-400 hover:text-red-600 hover:bg-red-50"
                     }`}
-                    title="Regenerate"
+                    title="Revoke Key"
                   >
-                    <RefreshCw size={15} />
+                    <Trash2 size={15} />
                   </button>
                 </div>
               </div>

@@ -3,9 +3,11 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 // Rutas públicas que no requieren autenticación
 const PUBLIC_ROUTES = [
+  '/',
   '/auth',
   '/auth/callback',
   '/auth/confirm',
+  '/marketplace'
 ]
 
 // Rutas que requieren roles específicos
@@ -82,35 +84,36 @@ export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
   // Allow public routes
-  const isPublicRoute = PUBLIC_ROUTES.some(route => pathname.startsWith(route))
-  if (isPublicRoute) {
+  const isPublicRoute = PUBLIC_ROUTES.some(route => pathname === route || pathname.startsWith(`${route}/`))
+  
+  // Prevent infinite loops if we are already at the auth page
+  const mode = request.nextUrl.searchParams.get('mode')
+  const isAuthPage = pathname === '/' && (mode === 'signin' || mode === 'signup')
+
+  if (isPublicRoute || isAuthPage) {
     return response
   }
 
-  // Check authentication for protected routes
+  // Check authentication for ALL other routes (default deny)
   if (!session) {
-    // Si no hay sesión, redirigir a la página principal (que maneja el auth)
-    // Solo para rutas protegidas explícitamente
-    const isProtectedRoute = Object.keys(PROTECTED_ROUTES).some(route => 
-      pathname.startsWith(route)
-    )
-    
-    if (isProtectedRoute) {
-      const redirectUrl = new URL('/', request.url)
+    // Si no hay sesión y la ruta no es pública, redirigir a la vista de login en la raíz
+    const redirectUrl = new URL('/', request.url)
+    redirectUrl.searchParams.set('mode', 'signin')
+    if (pathname !== '/') {
       redirectUrl.searchParams.set('redirect', pathname)
-      return NextResponse.redirect(redirectUrl)
     }
+    return NextResponse.redirect(redirectUrl)
   }
 
-  // Check role-based access
+  // Check role-based access for explicitly protected endpoints
   if (session) {
     const userRole = session.user.user_metadata?.role || 'client'
     
     for (const [route, allowedRoles] of Object.entries(PROTECTED_ROUTES)) {
-      if (pathname.startsWith(route)) {
+      if (pathname === route || pathname.startsWith(`${route}/`)) {
         if (!allowedRoles.includes(userRole)) {
           // Forbidden - user doesn't have required role
-          const redirectUrl = new URL('/', request.url)
+          const redirectUrl = new URL(PUBLIC_ROUTES.includes(pathname) ? pathname : '/', request.url)
           redirectUrl.searchParams.set('error', 'forbidden')
           return NextResponse.redirect(redirectUrl)
         }

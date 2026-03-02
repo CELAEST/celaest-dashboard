@@ -42,6 +42,7 @@ export const SidebarMenuItem = React.memo(
         onClick={onClick}
         className={buttonClassName}
         aria-label={item.label}
+        aria-current={isActive ? "page" : undefined}
       >
         <div
           className={`absolute left-0 w-1 h-full rounded-r-full transition-opacity duration-300 ${

@@ -1,32 +1,44 @@
-import { useState, useCallback, useEffect } from "react";
-import { useShallow } from 'zustand/react/shallow';
+import { useState, useCallback } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Order } from "../types";
 import { toast } from "sonner";
 import { useApiAuth } from "@/lib/use-api-auth";
-import { useOrdersStore } from "../stores/useOrdersStore";
+import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
+import { socket } from "@/lib/socket-client";
+import { useEffect } from "react";
 
 export const useOrders = () => {
   const { token, orgId, isReady } = useApiAuth();
-  
-  const { 
-    orders, 
-    isLoading, 
-    lastFetched,
-    setOrders,
-    setLoading,
-    setError,
-    updateOrder: updateOrderInStore,
-    removeOrder: removeOrderFromStore 
-  } = useOrdersStore(useShallow((state) => ({
-    orders: state.orders,
-    isLoading: state.isLoading,
-    lastFetched: state.lastFetched,
-    setOrders: state.setOrders,
-    setLoading: state.setLoading,
-    setError: state.setError,
-    updateOrder: state.updateOrder,
-    removeOrder: state.removeOrder,
-  })));
+  const queryClient = useQueryClient();
+
+  // Real-time synchronization for Orders Hub
+  useEffect(() => {
+    if (!token) return;
+
+    const handler = () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.billing.all });
+    };
+
+    const unsubscribers = [
+      socket.on("order.created", handler),
+      socket.on("order.updated", handler),
+      socket.on("order.paid", handler),
+    ];
+
+    return () => {
+      unsubscribers.forEach((unsub) => unsub());
+    };
+  }, [token, queryClient]);
+
+  const { data: orders = [], isLoading, refetch } = useQuery({
+    queryKey: QUERY_KEYS.billing.all,
+    queryFn: async () => {
+      if (!orgId || !token) return [];
+      const { ordersService } = await import("../services/orders.service");
+      return await ordersService.getOrders(orgId, token);
+    },
+    enabled: isReady && !!token && !!orgId,
+  });
 
   const [activeMenu, setActiveMenu] = useState<{
     id: string;
@@ -37,53 +49,9 @@ export const useOrders = () => {
 
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [refundModalOpen, setRefundModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [detailsMode, setDetailsMode] = useState<"view" | "edit">("view");
-
-  const fetchOrders = useCallback(async (isRefresh = false) => {
-    const CACHE_TTL = 60000; // 1 minuto
-    if (!isReady || !token || !orgId) return;
-    if (!isRefresh && lastFetched && (Date.now() - lastFetched < CACHE_TTL)) return;
-    if (isLoading) return;
-    
-    setLoading(true);
-    try {
-      const { ordersService } = await import("../services/orders.service");
-      const data = await ordersService.getOrders(orgId, token);
-      setOrders(data);
-    } catch (error) {
-      console.error("Error fetching orders:", error);
-      setError("Error al cargar órdenes");
-      toast.error("Error al cargar órdenes");
-    } finally {
-      setLoading(false);
-    }
-  }, [token, orgId, isReady, lastFetched, isLoading, setOrders, setLoading, setError]);
-
-  useEffect(() => {
-    fetchOrders();
-
-    if (!token) return;
-
-    // Connect socket for real-time updates
-    import("@/lib/socket-client").then(({ socket }) => {
-      socket.connect(token);
-
-      const handleRefresh = () => {
-        fetchOrders(true);
-      };
-
-      const offs = [
-        socket.on("order.created", handleRefresh),
-        socket.on("order.updated", handleRefresh),
-        socket.on("order.deleted", handleRefresh),
-      ];
-
-      return () => {
-        offs.forEach(off => off());
-      };
-    });
-  }, [fetchOrders, token]);
 
   const handleOpenMenu = useCallback((e: React.MouseEvent, id: string) => {
     e.preventDefault();
@@ -141,47 +109,100 @@ export const useOrders = () => {
     [activeMenu, orders, handleCloseMenu]
   );
 
-  const handleSaveOrder = useCallback(async (updatedOrder: Order) => {
-    if (!token || !orgId) {
-      toast.error("Sesión no válida o expirada");
-      return;
-    }
-    
-    try {
+  const saveMutation = useMutation({
+    mutationFn: async (updatedOrder: Order) => {
+      if (!token || !orgId) throw new Error("Missing auth");
       const { ordersService } = await import("../services/orders.service");
       await ordersService.updateOrder(orgId, token, updatedOrder.id, updatedOrder);
-      
-      updateOrderInStore(updatedOrder);
-      toast.success("Orden actualizada correctamente");
-    } catch (error) {
-      console.error("Error updating order:", error);
-      const msg = error instanceof Error ? error.message : "Error al actualizar la orden";
+      return updatedOrder;
+    },
+    onMutate: async (updatedOrder: Order) => {
+      await queryClient.cancelQueries({ queryKey: QUERY_KEYS.billing.all });
+      const previous = queryClient.getQueryData<Order[]>(QUERY_KEYS.billing.all);
+      queryClient.setQueryData<Order[]>(QUERY_KEYS.billing.all, old =>
+        (old || []).map(o => o.id === updatedOrder.id ? updatedOrder : o)
+      );
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) queryClient.setQueryData(QUERY_KEYS.billing.all, context.previous);
+      const msg = _err instanceof Error ? _err.message : "Error al actualizar la orden";
       toast.error(msg);
-    }
-  }, [token, orgId, updateOrderInStore]);
+    },
+    onSuccess: () => toast.success("Orden actualizada correctamente"),
+  });
 
-  const handleDeleteOrder = useCallback(async () => {
-    if (!selectedOrder) return;
-    if (!token || !orgId) {
-      toast.error("Sesión no válida o expirada");
-      return;
-    }
-    
-    try {
+  const deleteMutation = useMutation({
+    mutationFn: async (orderId: string) => {
+      if (!token || !orgId) throw new Error("Missing auth");
       const { ordersService } = await import("../services/orders.service");
-      await ordersService.deleteOrder(orgId, token, selectedOrder.id);
-      
-      removeOrderFromStore(selectedOrder.id);
+      await ordersService.deleteOrder(orgId, token, orderId);
+      return orderId;
+    },
+    onMutate: async (orderId: string) => {
+      await queryClient.cancelQueries({ queryKey: QUERY_KEYS.billing.all });
+      const previous = queryClient.getQueryData<Order[]>(QUERY_KEYS.billing.all);
+      queryClient.setQueryData<Order[]>(QUERY_KEYS.billing.all, old =>
+        (old || []).filter(o => o.id !== orderId)
+      );
+      return { previous };
+    },
+    onError: (_err, _id, context) => {
+      if (context?.previous) queryClient.setQueryData(QUERY_KEYS.billing.all, context.previous);
+      const msg = _err instanceof Error ? _err.message : "Error al eliminar la orden";
+      toast.error(msg);
+    },
+    onSuccess: () => {
       setDeleteModalOpen(false);
       toast.success("Orden eliminada correctamente");
-    } catch (error) {
-      console.error("Error deleting order:", error);
-      const msg = error instanceof Error ? error.message : "Error al eliminar la orden";
+    },
+  });
+
+  const refundMutation = useMutation({
+    mutationFn: async ({ orderId, reason }: { orderId: string; reason: string }) => {
+      if (!token || !orgId) throw new Error("Missing auth");
+      const { ordersApi } = await import("../api/orders.api");
+      await ordersApi.refundOrder(orgId, token, orderId, { reason });
+      return orderId;
+    },
+    onMutate: async ({ orderId }) => {
+      await queryClient.cancelQueries({ queryKey: QUERY_KEYS.billing.all });
+      const previous = queryClient.getQueryData<Order[]>(QUERY_KEYS.billing.all);
+      queryClient.setQueryData<Order[]>(QUERY_KEYS.billing.all, old =>
+        (old || []).map(o => o.id === orderId ? { ...o, status: "Processing" as const } : o)
+      );
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) queryClient.setQueryData(QUERY_KEYS.billing.all, context.previous);
+      const msg = _err instanceof Error ? _err.message : "Refund failed";
       toast.error(msg);
-    }
-  }, [selectedOrder, token, orgId, removeOrderFromStore]);
+    },
+    onSuccess: () => {
+      setRefundModalOpen(false);
+      setDetailsModalOpen(false);
+      toast.success("Order refunded successfully");
+    },
+  });
 
+  const handleSaveOrder = useCallback((updatedOrder: Order) => {
+    saveMutation.mutate(updatedOrder);
+  }, [saveMutation]);
 
+  const handleDeleteOrder = useCallback(() => {
+    if (!selectedOrder) return;
+    deleteMutation.mutate(selectedOrder.id);
+  }, [selectedOrder, deleteMutation]);
+
+  const handleOpenRefund = useCallback((order: Order) => {
+    setSelectedOrder(order);
+    setRefundModalOpen(true);
+  }, []);
+
+  const handleRefundOrder = useCallback((reason: string) => {
+    if (!selectedOrder) return;
+    refundMutation.mutate({ orderId: selectedOrder.id, reason });
+  }, [selectedOrder, refundMutation]);
 
   return {
     orders,
@@ -193,12 +214,16 @@ export const useOrders = () => {
     setDetailsModalOpen,
     deleteModalOpen,
     setDeleteModalOpen,
+    refundModalOpen,
+    setRefundModalOpen,
     selectedOrder,
     detailsMode,
     handleSaveOrder,
     handleDeleteOrder,
+    handleOpenRefund,
+    handleRefundOrder,
+    isRefunding: refundMutation.isPending,
     loading: isLoading,
-    refresh: () => fetchOrders(true)
+    refresh: () => refetch()
   };
 };
-

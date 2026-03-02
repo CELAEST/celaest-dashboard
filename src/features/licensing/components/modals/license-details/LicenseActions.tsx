@@ -1,19 +1,41 @@
 import React, { useState } from "react";
-import { ShieldCheck, Clock, Ban, AlertTriangle, X, Check } from "lucide-react";
+import {
+  ShieldCheck,
+  Clock,
+  Ban,
+  AlertTriangle,
+  X,
+  Check,
+  RefreshCw,
+  Zap,
+  Play,
+} from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useAuthStore } from "@/features/auth/stores/useAuthStore";
+import { UpgradePlanModal } from "@/features/billing/components/modals/UpgradePlanModal";
 
 interface LicenseActionsProps {
   status: string;
   onStatusChange: (status: string) => void;
+  onRenew?: () => void;
+  onConvertTrial?: () => void;
+  onReactivate?: () => void;
 }
 
 export const LicenseActions: React.FC<LicenseActionsProps> = ({
   status,
   onStatusChange,
+  onRenew,
+  onConvertTrial,
+  onReactivate,
 }) => {
   const { isDark } = useTheme();
+  const session = useAuthStore((s) => s.session);
+  const isAdmin =
+    session?.user?.role === "super_admin" || session?.user?.role === "admin";
   const [isConfirmingRevoke, setIsConfirmingRevoke] = useState(false);
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
 
   const handleRevoke = () => {
     if (!isConfirmingRevoke) {
@@ -28,6 +50,120 @@ export const LicenseActions: React.FC<LicenseActionsProps> = ({
     { id: "active", icon: ShieldCheck, label: "Activate", color: "emerald" },
     { id: "expired", icon: Clock, label: "Expire", color: "orange" },
   ];
+
+  if (!isAdmin) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between mb-2">
+          <h4
+            className={`text-[10px] font-black uppercase tracking-[0.2em] ${isDark ? "text-gray-500" : "text-gray-400"}`}
+          >
+            License Management
+          </h4>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {status === "trial" && (
+            <button
+              onClick={() => setIsUpgradeModalOpen(true)}
+              className={`group relative overflow-hidden flex items-center gap-4 p-5 rounded-2xl border transition-all duration-500 ${
+                isDark
+                  ? "bg-linear-to-br from-purple-900/40 to-black/40 border-purple-500/30 text-purple-100 hover:border-purple-400/60 hover:shadow-[0_0_30px_rgba(168,85,247,0.3)] hover:-translate-y-1"
+                  : "bg-linear-to-br from-purple-50 to-white border-purple-200 text-purple-900 hover:border-purple-400 hover:shadow-xl hover:-translate-y-1"
+              }`}
+            >
+              <div className="absolute inset-0 bg-linear-to-r from-purple-500/0 via-purple-500/10 to-purple-500/0 -translate-x-full group-hover:animate-[shimmer_2s_infinite]" />
+              <div
+                className={`p-3 rounded-xl transition-transform duration-500 group-hover:scale-110 ${
+                  isDark
+                    ? "bg-purple-500/20 text-purple-400"
+                    : "bg-purple-100 text-purple-600"
+                }`}
+              >
+                <Zap
+                  size={24}
+                  className={
+                    isDark ? "drop-shadow-[0_0_8px_rgba(168,85,247,0.8)]" : ""
+                  }
+                />
+              </div>
+              <div className="flex flex-col items-start flex-1 text-left relative z-10">
+                <span className="text-sm font-black uppercase tracking-wider">
+                  Upgrade to Premium
+                </span>
+                <span className="text-xs opacity-70 font-medium mt-1">
+                  Unlock all features permanently
+                </span>
+              </div>
+            </button>
+          )}
+
+          {["expired", "suspended", "cancelled"].includes(status) && (
+            <button
+              onClick={() => setIsUpgradeModalOpen(true)}
+              className={`group flex items-center gap-4 p-5 rounded-2xl border transition-all duration-300 ${
+                isDark
+                  ? "bg-blue-500/10 border-blue-500/30 text-blue-100 hover:bg-blue-500/20 hover:border-blue-500/50 hover:shadow-[0_0_30px_rgba(59,130,246,0.2)] hover:-translate-y-1"
+                  : "bg-blue-50 border-blue-200 text-blue-900 hover:bg-blue-100 hover:border-blue-300 hover:shadow-xl hover:-translate-y-1"
+              }`}
+            >
+              <div
+                className={`p-3 rounded-xl group-hover:rotate-180 transition-transform duration-700 ${
+                  isDark
+                    ? "bg-blue-500/20 text-blue-400"
+                    : "bg-blue-100 text-blue-600"
+                }`}
+              >
+                <RefreshCw size={24} />
+              </div>
+              <div className="flex flex-col items-start flex-1 text-left">
+                <span className="text-sm font-black uppercase tracking-wider">
+                  Renew Subscription
+                </span>
+                <span className="text-xs opacity-70 font-medium mt-1">
+                  Ensure uninterrupted access
+                </span>
+              </div>
+            </button>
+          )}
+
+          {/* Fallback View */}
+          {!["trial", "expired", "suspended", "cancelled"].includes(status) && (
+            <div
+              className={`col-span-1 md:col-span-2 p-5 rounded-2xl border flex flex-col items-center justify-center gap-3 py-8 ${
+                isDark
+                  ? "bg-white/5 border-white/10 text-gray-400"
+                  : "bg-gray-50 border-gray-200 text-gray-500"
+              }`}
+            >
+              <ShieldCheck
+                size={32}
+                className={
+                  status === "active"
+                    ? isDark
+                      ? "text-emerald-400"
+                      : "text-emerald-600"
+                    : "opacity-30"
+                }
+              />
+              <span className="text-sm font-medium tracking-wide">
+                {status === "active"
+                  ? "Your license is active and fully operational"
+                  : `Your license is currently ${status}`}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {isUpgradeModalOpen && (
+          <UpgradePlanModal
+            isOpen={isUpgradeModalOpen}
+            onClose={() => setIsUpgradeModalOpen(false)}
+          />
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -76,6 +212,75 @@ export const LicenseActions: React.FC<LicenseActionsProps> = ({
             </div>
           </button>
         ))}
+
+        {status === "trial" && onConvertTrial && (
+          <button
+            onClick={onConvertTrial}
+            className={`group flex items-center gap-3 p-4 rounded-2xl border transition-all duration-300 ${
+              isDark
+                ? "bg-purple-500/5 border-purple-500/20 text-purple-400 hover:bg-purple-500/10 hover:border-purple-500/40 hover:shadow-[0_0_15px_rgba(168,85,247,0.15)]"
+                : "bg-purple-50 border-purple-100 text-purple-600 hover:bg-purple-100 hover:border-purple-200"
+            }`}
+          >
+            <div className="p-2 rounded-xl bg-purple-500/10 text-purple-500">
+              <Zap size={18} />
+            </div>
+            <div className="flex flex-col items-start">
+              <span className="text-xs font-bold uppercase tracking-wider">
+                Upgrade Trial
+              </span>
+              <span className="text-[10px] opacity-50 font-medium">
+                Convert to paid license
+              </span>
+            </div>
+          </button>
+        )}
+
+        {status !== "revoked" && onRenew && (
+          <button
+            onClick={onRenew}
+            className={`group flex items-center gap-3 p-4 rounded-2xl border transition-all duration-300 ${
+              isDark
+                ? "bg-blue-500/5 border-blue-500/20 text-blue-400 hover:bg-blue-500/10 hover:border-blue-500/40"
+                : "bg-blue-50 border-blue-100 text-blue-600 hover:bg-blue-100 hover:border-blue-200"
+            }`}
+          >
+            <div className="p-2 rounded-xl bg-blue-500/10 text-blue-500">
+              <RefreshCw size={18} />
+            </div>
+            <div className="flex flex-col items-start">
+              <span className="text-xs font-bold uppercase tracking-wider">
+                Force Renew
+              </span>
+              <span className="text-[10px] opacity-50 font-medium">
+                Extend billing cycle
+              </span>
+            </div>
+          </button>
+        )}
+
+        {status === "suspended" && onReactivate && (
+          <button
+            onClick={onReactivate}
+            className={`group flex items-center gap-3 p-4 rounded-2xl border transition-all duration-300 ${
+              isDark
+                ? "bg-emerald-500/5 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/10 hover:border-emerald-500/40"
+                : "bg-emerald-50 border-emerald-100 text-emerald-600 hover:bg-emerald-100 hover:border-emerald-200"
+            }`}
+          >
+            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-500">
+              <Play size={18} />
+            </div>
+            <div className="flex flex-col items-start">
+              <span className="text-xs font-bold uppercase tracking-wider">
+                Reactivate
+              </span>
+              <span className="text-[10px] opacity-50 font-medium">
+                Lift suspension immediately
+              </span>
+            </div>
+          </button>
+        )}
 
         {/* Destructive Revoke Action */}
         <div className="relative col-span-1">

@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { useOrgStore } from "@/features/shared/stores/useOrgStore";
@@ -67,9 +68,10 @@ export const useManageSubscription = (subscription: Subscription | null, plan: P
       }
       
       setAutoRenew(newAutoRenewState);
-    } catch (error: any) {
-      console.error("Auto-renew update failed:", error);
-      toast.error(error.message || "Failed to update subscription settings");
+    } catch (error: unknown) {
+      logger.error("Auto-renew update failed:", error);
+      const msg = error instanceof Error ? error.message : "Failed to update subscription settings";
+      toast.error(msg);
     }
   };
 
@@ -85,9 +87,10 @@ export const useManageSubscription = (subscription: Subscription | null, plan: P
       toast.success("Subscription has been cancelled. It will remain active until the end of the billing period.");
       setShowCancelConfirm(false);
       onClose();
-    } catch (error: any) {
-      console.error("Cancellation failed:", error);
-      toast.error(error.message || "Failed to cancel subscription");
+    } catch (error: unknown) {
+      logger.error("Cancellation failed:", error);
+      const msg = error instanceof Error ? error.message : "Failed to cancel subscription";
+      toast.error(msg);
     }
   };
 

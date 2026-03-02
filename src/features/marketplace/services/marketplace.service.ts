@@ -37,8 +37,8 @@ export const marketplaceService = {
   /**
    * Crear sesión de pago
    */
-  async buyProduct(productId: string, token: string, orgId: string) {
-    return marketplaceApi.createCheckoutSession(productId, token, orgId);
+  async buyProduct(productId: string, token: string, orgId: string, couponCode?: string) {
+    return marketplaceApi.createCheckoutSession(productId, token, orgId, couponCode);
   },
 
   /**

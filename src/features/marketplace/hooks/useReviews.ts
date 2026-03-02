@@ -1,61 +1,42 @@
-/**
- * useReviews - Hook para sistema de reviews
- * Responsabilidad única: submit de reviews (requiere autenticación)
- */
-import { useState, useCallback } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { CreateReviewInput } from "../types";
-import { marketplaceService } from "../services/marketplace.service";
-
-interface ReviewSubmitState {
-  submitting: boolean;
-  success: boolean;
-  error: string | null;
-}
+import { marketplaceApi } from "../api/marketplace.api";
+import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
+import { toast } from "sonner";
 
 export function useReviews() {
   const { session } = useAuth();
-  const [state, setState] = useState<ReviewSubmitState>({
-    submitting: false,
-    success: false,
-    error: null,
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: async ({ productId, rating, comment }: { productId: string, rating: number, comment: string }) => {
+      if (!session?.accessToken) throw new Error("Debes iniciar sesión para enviar una reseña");
+      
+      const input: CreateReviewInput = {
+        product_id: productId,
+        rating,
+        comment,
+      };
+      return marketplaceApi.submitReview(productId, input, session.accessToken);
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.marketplace.all });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.marketplace.detail(variables.productId) });
+      toast.success("Reseña enviada exitosamente");
+    },
+    onError: (err: Error) => {
+      toast.error(err.message || "Error al enviar reseña");
+    }
   });
 
-  const submitReview = useCallback(
-    async (productId: string, rating: number, comment: string) => {
-      if (!session?.accessToken) {
-        setState({ submitting: false, success: false, error: "Debes iniciar sesión para enviar una reseña" });
-        return false;
-      }
-
-      setState({ submitting: true, success: false, error: null });
-
-      try {
-        const input: CreateReviewInput = {
-          product_id: productId,
-          rating,
-          comment,
-        };
-        await marketplaceService.submitReview(productId, input, session.accessToken);
-        setState({ submitting: false, success: true, error: null });
-        return true;
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : "Error al enviar reseña";
-        setState({ submitting: false, success: false, error: message });
-        return false;
-      }
-    },
-    [session]
-  );
-
-  const resetState = useCallback(() => {
-    setState({ submitting: false, success: false, error: null });
-  }, []);
-
   return {
-    ...state,
+    submitting: mutation.isPending,
+    success: mutation.isSuccess,
+    error: mutation.error instanceof Error ? mutation.error.message : mutation.error ? String(mutation.error) : null,
     isAuthenticated: !!session?.accessToken,
-    submitReview,
-    resetState,
+    submitReview: (productId: string, rating: number, comment: string) => 
+      mutation.mutateAsync({ productId, rating, comment }),
+    resetState: () => mutation.reset(),
   };
 }

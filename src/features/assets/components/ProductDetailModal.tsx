@@ -1,9 +1,9 @@
 import React from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useEscapeKey } from "@/features/shared/hooks/useEscapeKey";
 
-import { Asset } from "../hooks/useAssets";
+import { Asset } from "../services/assets.service";
 import { ProductModalHeader } from "./product-modal/ProductModalHeader";
 import { ProductInfoSection } from "./product-modal/ProductInfoSection";
 import { ProductDetailsSection } from "./product-modal/ProductDetailsSection";

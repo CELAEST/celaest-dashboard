@@ -1,35 +1,20 @@
-import { useCallback } from "react";
-import { useShallow } from "zustand/react/shallow";
-import { useSystemStore } from "../stores/useSystemStore";
+import { useQuery } from "@tanstack/react-query";
 import { systemApi } from "../api/system.api";
+import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
 
 export function useSystemHealth() {
-  const { health, isLoading, lastChecked, setHealth, setLoading, setError } = 
-    useSystemStore(useShallow((state) => ({
-      health: state.health,
-      isLoading: state.isLoading,
-      lastChecked: state.lastChecked,
-      setHealth: state.setHealth,
-      setLoading: state.setLoading,
-      setError: state.setError,
-    })));
+  const { data: health, isLoading, refetch } = useQuery({
+    queryKey: QUERY_KEYS.system.health,
+    queryFn: () => systemApi.getHealth(),
+    staleTime: 30_000, // 30-second cache (same as old manual TTL)
+    refetchInterval: 60_000, // Auto-refresh every 60s
+  });
 
-  const checkHealth = useCallback(async (force = false) => {
-    // Cache de 30 segundos para salud global
-    const CACHE_TTL = 30000;
-    if (!force && lastChecked && (Date.now() - lastChecked < CACHE_TTL)) return;
-    if (isLoading) return;
-
-    setLoading(true);
-    try {
-      const res = await systemApi.getHealth();
-      if (res) setHealth(res);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Sistema Offline");
-    } finally {
-      setLoading(false);
-    }
-  }, [lastChecked, isLoading, setHealth, setLoading, setError]);
-
-  return { health, isLoading, checkHealth };
+  return {
+    health: health ?? null,
+    isLoading,
+    checkHealth: (force = false) => {
+      if (force) refetch();
+    },
+  };
 }

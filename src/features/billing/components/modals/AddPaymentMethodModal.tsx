@@ -4,7 +4,7 @@ import React from "react";
 import { CreditCard, Check, Lock } from "lucide-react";
 import { motion } from "motion/react";
 import { FormProvider } from "react-hook-form";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { BillingModal } from "./shared/BillingModal";
 import { useAddPaymentMethodFormRHF } from "../../hooks/useAddPaymentMethodFormRHF";
 

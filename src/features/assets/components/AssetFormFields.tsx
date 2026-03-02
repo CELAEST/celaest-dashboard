@@ -1,19 +1,11 @@
 import React from "react";
 import { useFormContext } from "react-hook-form";
 import { FileSpreadsheet, Code, Globe, Github } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { SettingsSelect } from "../../settings/components/SettingsSelect";
 import { AssetFormValues } from "../hooks/useAssetForm";
 import { AssetImageUploader } from "./AssetImageUploader";
-
-const CATEGORY_OPTIONS = [
-  { value: "Finance", label: "Finance" },
-  { value: "Automation", label: "Automation" },
-  { value: "Operations", label: "Operations" },
-  { value: "Sales", label: "Sales" },
-  { value: "Marketing", label: "Marketing" },
-  { value: "Analytics", label: "Analytics" },
-];
+import { useCategories } from "../hooks/useCategories";
 
 const STATUS_OPTIONS = [
   { value: "draft", label: "Draft (Hidden from marketplace)" },
@@ -39,9 +31,18 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
     formState: { errors },
   } = useFormContext<AssetFormValues>();
 
+  const { categories, isLoading: isLoadingCategories } = useCategories();
   const selectedType = watch("type");
   const watchExternalUrl = watch("external_url");
   const watchThumbnailUrl = watch("thumbnail_url");
+  const watchCategoryId = watch("category_id");
+
+  const categoryOptions = React.useMemo(() => {
+    return categories.map((c) => ({
+      value: c.id,
+      label: c.name,
+    }));
+  }, [categories]);
 
   // Use watchExternalUrl in a subtle way to avoid unused warning if needed,
   // or just ensure uploader logic stays intact.
@@ -136,14 +137,15 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
         <div>
           <SettingsSelect
             label="Category *"
-            value={watch("category")}
-            onChange={(val) => setValue("category", val)}
-            options={CATEGORY_OPTIONS}
-            placeholder="Select category"
+            value={watchCategoryId}
+            onChange={(val) => setValue("category_id", val)}
+            options={categoryOptions}
+            placeholder={isLoadingCategories ? "Loading..." : "Select category"}
+            disabled={isLoadingCategories}
           />
-          {errors.category && (
+          {errors.category_id && (
             <p className="text-red-500 text-xs mt-1">
-              {errors.category.message}
+              {errors.category_id.message}
             </p>
           )}
         </div>
@@ -475,6 +477,89 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
               : "bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
           }`}
         />
+      </div>
+
+      {/* Tags & Tech Stack */}
+      <div className="grid grid-cols-2 gap-6">
+        <div>
+          <label
+            htmlFor="tags"
+            className={`block text-xs uppercase tracking-wider font-bold mb-2 ${
+              isDark ? "text-gray-500" : "text-gray-400"
+            }`}
+          >
+            Search Tags (One per line)
+          </label>
+          <textarea
+            id="tags"
+            {...register("tags")}
+            rows={3}
+            placeholder="Finanzas&#10;Excel&#10;Automatización..."
+            className={`w-full px-4 py-3 rounded-lg border transition-all outline-none resize-none ${
+              isDark
+                ? "bg-white/5 border-white/10 text-white placeholder-gray-500 focus:border-cyan-500/30 focus:bg-white/10"
+                : "bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
+            }`}
+          />
+        </div>
+        <div>
+          <label
+            htmlFor="technical_stack"
+            className={`block text-xs uppercase tracking-wider font-bold mb-2 ${
+              isDark ? "text-gray-500" : "text-gray-400"
+            }`}
+          >
+            Technical Stack (One per line)
+          </label>
+          <textarea
+            id="technical_stack"
+            {...register("technical_stack")}
+            rows={3}
+            placeholder="VBA&#10;TypeScript&#10;PostgreSQL..."
+            className={`w-full px-4 py-3 rounded-lg border transition-all outline-none resize-none ${
+              isDark
+                ? "bg-white/5 border-white/10 text-white placeholder-gray-500 focus:border-cyan-500/30 focus:bg-white/10"
+                : "bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
+            }`}
+          />
+        </div>
+      </div>
+
+      {/* Minimum Plan Tier */}
+      <div>
+        <label
+          htmlFor="min_plan_tier"
+          className={`block text-xs uppercase tracking-wider font-bold mb-2 ${
+            isDark ? "text-gray-500" : "text-gray-400"
+          }`}
+        >
+          Minimum Required Plan Tier
+        </label>
+        <div className="flex items-center gap-4">
+          <input
+            id="min_plan_tier"
+            type="range"
+            min="0"
+            max="4"
+            step="1"
+            {...register("min_plan_tier", { valueAsNumber: true })}
+            className="flex-1 accent-cyan-500"
+          />
+          <div
+            className={`px-4 py-2 rounded-lg font-bold border ${
+              isDark
+                ? "bg-white/5 border-white/10 text-cyan-400"
+                : "bg-gray-100 border-gray-200 text-blue-600"
+            }`}
+          >
+            Level {watch("min_plan_tier")}
+          </div>
+        </div>
+        <p
+          className={`text-[10px] mt-2 ml-1 ${isDark ? "text-gray-600" : "text-gray-400"}`}
+        >
+          0: Free/All, 1: Basic, 2: Pro, 3: Enterprise, 4: Private
+        </p>
       </div>
     </div>
   );

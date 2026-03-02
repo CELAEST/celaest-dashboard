@@ -2,7 +2,7 @@
 
 import React from "react";
 import { LucideIcon } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface SettingsTabButtonProps {
   icon: LucideIcon;

@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "motion/react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 
 export const ProductSkeleton: React.FC = () => {
   const { theme } = useTheme();

@@ -169,6 +169,7 @@ export interface LicenseFilter {
   plan_id?: string;
   page?: number;
   limit?: number;
+  search?: string;
   view?: string;
 }
 

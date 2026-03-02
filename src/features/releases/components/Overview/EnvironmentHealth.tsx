@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Activity, Zap, Server, Wifi } from "lucide-react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 
 const HealthGauge: React.FC<{
   value: number;
@@ -80,7 +80,6 @@ export interface EnvironmentHealthProps {
 
 export const EnvironmentHealth: React.FC<EnvironmentHealthProps> = ({
   systemHealth,
-  isLoading,
 }) => {
   const { isDark } = useTheme();
 

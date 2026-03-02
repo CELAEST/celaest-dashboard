@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { useForm, FormProvider } from "react-hook-form";
+import { useForm } from "react-hook-form";
+import { Form } from "@/components/ui/form";
 import { useProfileSettings } from "../../hooks/useProfileSettings";
 import { ProfileAvatar } from "./AccountProfile/ProfileAvatar";
 import { ProfilePersonalInfo } from "./AccountProfile/ProfilePersonalInfo";
@@ -81,7 +82,7 @@ export function AccountProfile() {
 
   return (
     <div className="space-y-6">
-      <FormProvider {...form}>
+      <Form {...form}>
         <ProfileAvatar
           avatarUrl={avatarUrl}
           onUpload={handleAvatarUpload}
@@ -92,7 +93,10 @@ export function AccountProfile() {
 
         <ProfileSecurity
           email={profile?.email || ""}
-          identities={profile?.identities || []}
+          identities={(profile?.identities || []).map((id) => ({
+            ...id,
+            last_login_at: id.last_login_at || undefined,
+          }))}
           connectedAccounts={connectedAccounts}
           isAuthLoading={isAuthLoading}
           onToggleAccount={toggleAccount}
@@ -115,7 +119,7 @@ export function AccountProfile() {
           onClose={() => setShowEmailModal(false)}
           onConfirm={onEmailConfirm}
         />
-      </FormProvider>
+      </Form>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { Asset } from "../hooks/useAssets";
+import { Asset } from "../services/assets.service";
 
 export const getAssetTypeLabel = (type: Asset["type"]): string => {
   switch (type) {

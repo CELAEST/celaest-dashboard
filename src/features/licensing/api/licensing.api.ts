@@ -39,6 +39,7 @@ export const licensingApi = {
     if (filter.plan_id) params.plan_id = filter.plan_id;
     if (filter.page) params.page = filter.page.toString();
     if (filter.limit) params.limit = filter.limit.toString();
+    if (filter.search) params.search = filter.search;
     if (filter.view) params.view = filter.view;
 
     return api.get<LicenseListResponse>("/api/v1/org/licenses", {

@@ -125,8 +125,10 @@ export const ReleaseManagementModal: React.FC<ReleaseManagementModalProps> = ({
 
       // Refresh list
       fetchReleases();
-    } catch (error) {
-      toast.error(`Failed to create release: ${(error as Error).message}`);
+    } catch (error: unknown) {
+      toast.error(
+        `Failed to create release: ${error instanceof Error ? error.message : String(error)}`,
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -285,7 +287,7 @@ export const ReleaseManagementModal: React.FC<ReleaseManagementModalProps> = ({
               <div className="space-y-2">
                 <div className="flex items-center justify-between mb-1">
                   <label className="text-[10px] uppercase font-black tracking-widest text-white/40">
-                    Changelog (What's New)
+                    Changelog (What&apos;s New)
                   </label>
                   <button
                     onClick={addChangelogItem}

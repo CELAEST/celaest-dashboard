@@ -1,5 +1,14 @@
 import { api } from "@/lib/api-client";
-import { UserData } from "@/features/users/components/types";
+import { UserData, userDataSchema } from "@/features/users/components/types";
+
+export interface Webhook {
+  id: string;
+  url: string;
+  events: string[];
+  is_active: boolean;
+  secret: string;
+  created_at: string;
+}
 
 export interface PreferencesResponse {
   preferences: {
@@ -13,7 +22,7 @@ export interface PreferencesResponse {
 
 export const settingsApi = {
   getMe: async (token: string): Promise<UserData> => {
-    return await api.get<UserData>("/api/v1/user/me", { token });
+    return await api.get<UserData>("/api/v1/user/me", { token, schema: userDataSchema });
   },
 
   updateMe: async (data: Partial<UserData>, token: string): Promise<UserData> => {
@@ -46,5 +55,18 @@ export const settingsApi = {
 
   updateNotificationPreferences: async (notifications: Record<string, boolean>, token: string): Promise<{ message: string }> => {
     return await api.put<{ message: string }>("/api/v1/user/notifications", notifications, { token });
+  },
+
+  getWebhooks: async (token: string, orgId: string): Promise<Webhook[]> => {
+    const response = await api.get<{ webhooks: Webhook[]; total: number }>("/api/v1/org/webhooks", { token, orgId });
+    return response.webhooks || [];
+  },
+
+  createWebhook: async (token: string, orgId: string, data: Partial<Webhook>): Promise<Webhook> => {
+    return await api.post<Webhook>("/api/v1/org/webhooks", data, { token, orgId });
+  },
+
+  deleteWebhook: async (token: string, orgId: string, id: string): Promise<void> => {
+    return await api.delete(`/api/v1/org/webhooks/${id}`, { token, orgId });
   },
 };

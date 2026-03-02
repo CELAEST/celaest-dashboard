@@ -9,6 +9,18 @@ import {
   CheckoutResponse
 } from "../types";
 
+import { z } from "zod";
+
+const productSearchSchema = z.object({
+  products: z.array(z.object({
+    id: z.string(),
+    slug: z.string(),
+    name: z.string(),
+    base_price: z.number()
+  }).passthrough()),
+  total: z.number()
+}).passthrough() as unknown as z.ZodType<ProductSearchResponse>;
+
 export const marketplaceApi = {
   /**
    * Buscar productos en el marketplace global
@@ -23,7 +35,7 @@ export const marketplaceApi = {
     if (filter.page) params.page = filter.page.toString();
     if (filter.limit) params.limit = filter.limit.toString();
 
-    return api.get<ProductSearchResponse>("/api/v1/public/marketplace/search", { params });
+    return api.get<ProductSearchResponse>("/api/v1/public/marketplace/search", { params, schema: productSearchSchema });
   },
 
   /**
@@ -66,10 +78,23 @@ export const marketplaceApi = {
   /**
    * Crear sesión de checkout para comprar un producto (Requiere Auth)
    */
-  createCheckoutSession: async (productId: string, token: string, orgId: string) => {
+  createCheckoutSession: async (productId: string, token: string, orgId: string, couponCode?: string) => {
+    let returnUrl = "";
+    if (typeof window !== "undefined") {
+      returnUrl = window.location.href.split("?")[0];
+    }
+    
+    const payload: { product_id: string; coupon_code?: string; return_url?: string } = { 
+      product_id: productId,
+      ...(returnUrl && { return_url: returnUrl })
+    };
+    if (couponCode) {
+      payload.coupon_code = couponCode;
+    }
+    
     return api.post<CheckoutResponse>(
       "/api/v1/org/marketplace/checkout",
-      { product_id: productId },
+      payload,
       { token, orgId }
     );
   },

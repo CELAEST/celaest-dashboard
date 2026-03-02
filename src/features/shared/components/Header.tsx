@@ -13,6 +13,7 @@ import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { NotificationCenter } from "./NotificationCenter";
 import { useUIStore } from "@/stores/useUIStore";
+import { useErrorStore } from "@/features/errors/stores/useErrorStore";
 import { UserInfo } from "./Header/UserInfo";
 import { HeaderFilterPill } from "./Header/HeaderFilterPill";
 
@@ -23,13 +24,8 @@ interface HeaderProps {
 export const Header = React.memo(function Header({ onShowLogin }: HeaderProps) {
   const { toggleTheme, isDark, isMounted } = useTheme();
   const { user } = useAuth();
-  const {
-    searchQuery,
-    setSearchQuery,
-    showErrorControls,
-    errorFilters,
-    setErrorFilters,
-  } = useUIStore();
+  const { searchQuery, setSearchQuery } = useUIStore();
+  const { showErrorControls, errorFilters, setErrorFilters } = useErrorStore();
 
   // Memoizar clases dinámicas
   const headerClassName = useMemo(

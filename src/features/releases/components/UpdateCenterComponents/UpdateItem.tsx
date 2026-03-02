@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import { motion } from "motion/react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { CustomerAsset } from "../../types";
 import { UpdateItemHeader } from "./partials/UpdateItemHeader";
 import { UpdateItemChangelog } from "./partials/UpdateItemChangelog";

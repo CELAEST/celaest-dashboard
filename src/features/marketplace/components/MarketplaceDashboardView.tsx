@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import React, { useState } from "react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import dynamic from "next/dynamic";
 import { MarketplaceFilterSidebar } from "./MarketplaceFilterSidebar";
@@ -12,10 +11,13 @@ import { MarketplaceProduct } from "../types";
 import { Store } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
+import { useOrgStore } from "@/features/shared/stores/useOrgStore";
+import { useCheckoutReturn } from "../hooks/useCheckoutReturn";
 import { useAssets } from "@/features/assets/hooks/useAssets";
 import { useBilling } from "@/features/billing/hooks/useBilling";
 import { LicenseModal } from "./modals/LicenseModal";
 import { toast } from "sonner";
+import { CouponFAB } from "./CouponFAB";
 
 const PurchaseFlow = dynamic(
   () =>
@@ -51,6 +53,7 @@ export function MarketplaceDashboardView() {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const { isAuthenticated } = useAuthStore();
+  const { currentOrg, isLoading: isOrgsLoading } = useOrgStore();
 
   // Data from Store
   const {
@@ -74,91 +77,96 @@ export function MarketplaceDashboardView() {
   // Helper: determine product access level
   const checkAccess = (prod: MarketplaceProduct): "owned" | "plan" | "none" => {
     if (!prod) return "none";
+
+    // 1. Personal Assets - The endpoint /user/my/assets is already user-scoped by JWT,
+    // so all items in `assets` already belong to the current user. Do NOT filter by
+    // organizationId here: a personal purchase is owned by the user regardless of which
+    // workspace they are currently viewing from.
     const inAssets = assets.some(
       (a) => a.productId === prod.id || a.slug === prod.slug,
     );
-    const inInventory = inventory?.some(
-      (a) => a.productId === prod.id || a.slug === prod.slug,
-    );
-    if (inAssets || inInventory) return "owned";
-    // Check if product is included in user's active plan
+    if (inAssets) return "owned";
+
+    // 2. Plan Check (Is it included in the current active tier?)
+    // We ALWAYS allow this to show "En Plan", even in CELAEST, so they see their plan works.
     if (plan && prod.min_plan_tier > 0 && plan.tier >= prod.min_plan_tier) {
       return "plan";
     }
+
+    // 3. Organization Inventory (B2B sharing)
+    // EXCEPTION: In CELAEST context, we ignore organization inventory for the UI button.
+    // This allows Super Admins (owners of CELAEST) to still test the purchase flow
+    // for products that are NOT included in their current plan.
+    const isCelaest = currentOrg?.slug === "celaest-official";
+    if (!isCelaest) {
+      const inInventory = inventory?.some(
+        (a) => a.productId === prod.id || a.slug === prod.slug,
+      );
+      if (inInventory) return "owned";
+    }
+
     return "none";
   };
 
   // Modal states
-  const searchParams = useSearchParams();
-  const [selectedProduct, setSelectedProduct] =
-    useState<MarketplaceProduct | null>(null);
+  const {
+    selectedProduct,
+    setSelectedProduct,
+    purchaseFlowStep,
+    setPurchaseFlowStep,
+  } = useCheckoutReturn(products, isLoading);
+
   const [detailProduct, setDetailProduct] = useState<MarketplaceProduct | null>(
     null,
   );
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [purchaseFlowStep, setPurchaseFlowStep] = useState(1);
   const [showLicenseModal, setShowLicenseModal] = useState(false);
   const [selectedLicenseId, setSelectedLicenseId] = useState<string | null>(
     null,
   );
 
-  // Detect Stripe Success Return - Guided Activation Flow
-  useEffect(() => {
-    const isSuccess = searchParams.get("success") === "true";
-    const productIdFromUrl = searchParams.get("product_id");
+  // RBAC validation:
+  // 1. In CELAEST, everyone can purchase (personal context)
+  // 2. In Standard Orgs, only Owner/SuperAdmin/Admin can purchase
+  const isCelaest =
+    !currentOrg ||
+    currentOrg?.slug === "celaest-official" ||
+    currentOrg?.slug === "celaest";
+  const canPurchase =
+    isCelaest ||
+    currentOrg?.role === "owner" ||
+    currentOrg?.role === "super_admin" ||
+    currentOrg?.role === "admin";
 
-    if (isSuccess && !selectedProduct) {
-      console.log(
-        "[Marketplace] Stripe return detected. Success: true, ID:",
-        productIdFromUrl,
-      );
+  const getDisabledReason = (
+    prod: MarketplaceProduct,
+    accessLevel: string,
+  ): string | undefined => {
+    // 1. Si ya tienen acceso o está en plan (Herencia B2B), no deshabilitamos el botón,
+    // sino que cambiará a "Adquirido" o "En Plan" en la UI de la tarjeta.
+    if (accessLevel !== "none") return undefined;
 
-      // 1. Try to find the real product
-      const foundProduct = products.find((p) => p.id === productIdFromUrl);
-
-      if (foundProduct) {
-        // Use setTimeout to avoid synchronous state update within effect
-        setTimeout(() => {
-          setPurchaseFlowStep(3);
-          setSelectedProduct(foundProduct);
-          // Clear URL
-          const url = new URL(window.location.href);
-          url.searchParams.delete("success");
-          url.searchParams.delete("product_id");
-          window.history.replaceState({}, "", url.toString());
-        }, 0);
-      } else if (!isLoading && products.length > 0) {
-        // Fallback: If we have products but didn't find the ID, or ID is missing,
-        // we still want to open the modal to show something to the user.
-        setTimeout(() => {
-          setPurchaseFlowStep(3);
-          setSelectedProduct({
-            id: productIdFromUrl || "pending",
-            organization_id: "",
-            slug: "pending-activation",
-            name: "Tu Solución Profesional",
-            short_description: "Activación en proceso",
-            description: "Preparando tu entorno...",
-            base_price: 0,
-            currency: "USD",
-            category_id: "",
-            category_name: "Activation",
-            rating_avg: 5,
-            rating_count: 0,
-            thumbnail_url:
-              "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&fm=webp",
-            images: [],
-            tags: [],
-            features: [],
-            technical_stack: [],
-            seller_name: "CELAEST",
-            version: "1.0.0",
-            created_at: new Date().toISOString(),
-          });
-        }, 0);
-      }
+    // 2. Prevención de recomprar exactamente su mismo plan actual
+    if (plan && prod.min_plan_tier > 0 && plan.tier === prod.min_plan_tier) {
+      return "Plan Actual";
     }
-  }, [searchParams, products, isLoading, selectedProduct]);
+
+    // 3. RBAC & B2B Flow: Si no lo tiene y no es dueño/admin, orientarlo a solicitarlo.
+    // EXCEPCIÓN: En CELAEST (HQ), cualquier rol puede comprar porque es contexto PERSONAL.
+    if (!canPurchase && !isCelaest) {
+      return "Solo Propietarios";
+    }
+
+    return undefined;
+  };
+
+  const isPaidPlan = plan && plan.tier > 0;
+  const isCelaestContext =
+    currentOrg?.slug === "celaest-official" || currentOrg?.slug === "celaest";
+
+  // Ocultar banners de CELAEST si ya tiene un plan en la org actual o si no es el contexto adecuado
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const shouldHideCta = isPaidPlan && !isCelaestContext;
 
   // Handlers para filtros - Conectados al store
   const handleCategoryChange = (category: string) => {
@@ -206,6 +214,21 @@ export function MarketplaceDashboardView() {
       handlePurchaseAction();
       return;
     }
+
+    // If org state is loading (e.g. post-workspace-removal transition), wait
+    if (isOrgsLoading && !currentOrg) {
+      toast.info("Cargando tu sesión de organización, intenta en un momento...");
+      return;
+    }
+
+    // Safety check in case the button wasn't disabled correctly
+    const access = checkAccess(product);
+    const reason = getDisabledReason(product, access);
+    if (reason && reason !== "Plan Actual") {
+      toast.error(reason);
+      return;
+    }
+
     setPurchaseFlowStep(1); // Reset to start
     setSelectedProduct(product);
   };
@@ -228,12 +251,13 @@ export function MarketplaceDashboardView() {
           product={{
             id: selectedProduct.id,
             title: selectedProduct.name,
-            price: selectedProduct.base_price.toString(),
+            base_price: selectedProduct.base_price,
+            currency: selectedProduct.currency,
             image: selectedProduct.thumbnail_url,
           }}
           initialStep={purchaseFlowStep}
           onSuccess={() => {
-            refreshAssets(true);
+            refreshAssets();
             toast.success("Producto adquirido correctamente");
           }}
         />
@@ -285,61 +309,37 @@ export function MarketplaceDashboardView() {
           onViewLicense={() => {
             if (!detailProduct) return;
 
-            console.log(
-              "[Marketplace] Opening license for:",
-              detailProduct.slug,
-            );
-
             // Normalize current ID/Slug for comparison
             const prodId = detailProduct.id;
             const prodSlug = detailProduct.slug;
 
-            // 1. Priority: Check inventory (Developer/Owner view)
-            // If the user is the owner/developer, they always get the preview key
-            const invItem = inventory?.find(
-              (a) => a.productId === prodId || a.slug === prodSlug,
-            );
-
-            if (invItem) {
-              console.log(
-                "[Marketplace] User is Owner/Developer. Using OWNER_PREVIEW for:",
-                prodId,
-              );
-              setSelectedLicenseId("OWNER_PREVIEW");
-              setShowLicenseModal(true);
-              return;
-            }
-
-            // 2. Check purchased assets (Customer view)
+            // 1. Priority: Check purchased assets (Customer view — real license)
             const asset = assets.find(
               (a) => a.productId === prodId || a.slug === prodSlug,
             );
 
             if (asset) {
               if (asset.license_id) {
-                console.log(
-                  "[Marketplace] Found license_id in asset:",
-                  asset.license_id,
-                );
                 setSelectedLicenseId(asset.license_id);
                 setShowLicenseModal(true);
               } else {
-                console.warn(
-                  "[Marketplace] Asset found but NO license_id:",
-                  asset,
-                );
                 toast.info("Este producto no requiere clave de licencia.");
               }
               return;
             }
 
-            // 3. Fallback: Neither found
-            console.error(
-              "[Marketplace] Product NOT found in assets OR inventory. Prods in assets:",
-              assets.length,
-              "Prods in inventory:",
-              inventory?.length,
+            // 2. Fallback: Check inventory (Developer/Owner preview)
+            const invItem = inventory?.find(
+              (a) => a.productId === prodId || a.slug === prodSlug,
             );
+
+            if (invItem) {
+              setSelectedLicenseId("OWNER_PREVIEW");
+              setShowLicenseModal(true);
+              return;
+            }
+
+            // 3. Fallback: Neither found
             toast.error(
               "No se encontró información de propiedad para este producto.",
             );
@@ -369,9 +369,9 @@ export function MarketplaceDashboardView() {
           <MarketplaceFilterSidebar
             selectedCategories={filters.category ? [filters.category] : ["all"]}
             onCategoryChange={handleCategoryChange}
-            selectedRating={0} // TODO: Map store filter to UI state if needed
+            selectedRating={0}
             onRatingChange={handleRatingChange}
-            priceRange="all" // TODO: Map store filter to UI state if needed
+            priceRange="all"
             onPriceRangeChange={handlePriceRangeChange}
             totalProducts={total}
           />
@@ -417,20 +417,27 @@ export function MarketplaceDashboardView() {
                 animate={{ opacity: 1 }}
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 gap-6"
               >
-                {products.map((product) => (
-                  <ProductCardCompact
-                    key={product.id}
-                    product={product}
-                    onSelect={() => handleProductSelect(product)}
-                    onViewDetails={() => setDetailProduct(product)}
-                    accessLevel={checkAccess(product)}
-                  />
-                ))}
+                {products.map((product) => {
+                  const access = checkAccess(product);
+                  return (
+                    <ProductCardCompact
+                      key={product.id}
+                      product={product}
+                      onSelect={() => handleProductSelect(product)}
+                      onViewDetails={() => setDetailProduct(product)}
+                      accessLevel={access}
+                      disabledReason={getDisabledReason(product, access)}
+                    />
+                  );
+                })}
               </motion.div>
             )}
           </AnimatePresence>
         </div>
       </div>
+
+      {/* Coupon Floating Action Button */}
+      <CouponFAB />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import React from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { useEscapeKey } from "@/features/shared/hooks/useEscapeKey";
 import { X, Lock, ArrowRight, Github } from "lucide-react";
