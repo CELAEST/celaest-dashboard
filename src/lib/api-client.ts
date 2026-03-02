@@ -7,7 +7,7 @@
 import { z } from "zod";
 import { logger } from "./logger";
 
-const BASE_URL = process.env.NEXT_PUBLIC_CELAEST_API_URL || "http://127.0.0.1:3101";
+const BASE_URL = process.env.NEXT_PUBLIC_CELAEST_API_URL || "http://localhost:3001";
 
 // Persistence-aware blacklist for revoked organizations.
 // Using sessionStorage ensures that if a 403 occurs and triggers a reload, 
