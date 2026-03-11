@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "motion/react";
-import { Globe, MapPin, Activity, X } from "lucide-react";
+import { Globe, MapPin, Pulse, X } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import type { IPBinding } from "@/features/licensing/types";
 
@@ -45,7 +45,7 @@ export const LicenseBindings: React.FC<LicenseBindingsProps> = ({
                       {binding.ip_address}
                     </div>
                     <div className="text-xs text-gray-500 flex items-center gap-2 mt-0.5">
-                      <Activity size={12} /> {binding.request_count} requests
+                      <Pulse size={12} /> {binding.request_count} requests
                     </div>
                   </div>
                 </div>

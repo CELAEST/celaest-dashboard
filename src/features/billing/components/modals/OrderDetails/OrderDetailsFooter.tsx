@@ -1,5 +1,5 @@
 import React from "react";
-import { Save, Edit2, RotateCcw } from "lucide-react";
+import { ArrowCounterClockwise, PencilSimple } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface OrderDetailsFooterProps {
@@ -10,6 +10,7 @@ interface OrderDetailsFooterProps {
   onRefund?: () => void;
   canRefund?: boolean;
   lastEditDate: string;
+  isSuperAdmin?: boolean;
 }
 
 export const OrderDetailsFooter: React.FC<OrderDetailsFooterProps> = ({
@@ -20,6 +21,7 @@ export const OrderDetailsFooter: React.FC<OrderDetailsFooterProps> = ({
   onRefund,
   canRefund = false,
   lastEditDate,
+  isSuperAdmin = false,
 }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
@@ -46,6 +48,19 @@ export const OrderDetailsFooter: React.FC<OrderDetailsFooterProps> = ({
             >
               Close
             </button>
+            {isSuperAdmin && (
+              <button
+                onClick={() => setMode("edit")}
+                className={`px-5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all hover:scale-105 active:scale-95 ${
+                  isDark
+                    ? "bg-white/[0.06] border border-white/10 text-gray-300 hover:bg-white/10 hover:text-white"
+                    : "bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gray-200 hover:text-gray-800"
+                }`}
+              >
+                <PencilSimple size={16} />
+                Edit
+              </button>
+            )}
             {canRefund && onRefund && (
               <button
                 onClick={onRefund}
@@ -55,21 +70,10 @@ export const OrderDetailsFooter: React.FC<OrderDetailsFooterProps> = ({
                     : "bg-amber-50 border border-amber-200 text-amber-700 hover:bg-amber-100"
                 }`}
               >
-                <RotateCcw size={16} />
+                <ArrowCounterClockwise size={16} />
                 Refund
               </button>
             )}
-            <button
-              onClick={() => setMode("edit")}
-              className={`px-6 py-2.5 rounded-xl text-sm font-bold text-white flex items-center gap-2 transition-all shadow-lg hover:scale-105 active:scale-95 ${
-                isDark
-                  ? "bg-purple-600 hover:bg-purple-500 shadow-purple-500/20"
-                  : "bg-purple-600 hover:bg-purple-500 shadow-purple-500/20"
-              }`}
-            >
-              <Edit2 size={16} />
-              Edit Details
-            </button>
           </>
         ) : (
           <>
@@ -82,17 +86,6 @@ export const OrderDetailsFooter: React.FC<OrderDetailsFooterProps> = ({
               }`}
             >
               Cancel
-            </button>
-            <button
-              onClick={onSave}
-              className={`px-6 py-2.5 rounded-xl text-sm font-bold text-white flex items-center gap-2 transition-all shadow-lg hover:scale-105 active:scale-95 ${
-                isDark
-                  ? "bg-linear-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 shadow-green-500/20"
-                  : "bg-linear-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 shadow-green-500/20"
-              }`}
-            >
-              <Save size={16} />
-              Save Changes
             </button>
           </>
         )}

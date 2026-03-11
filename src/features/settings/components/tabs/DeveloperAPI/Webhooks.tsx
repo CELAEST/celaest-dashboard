@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { Zap, Globe, Trash2, Plus, Loader2 } from "lucide-react";
+import { Lightning, Globe, Trash, Plus, CircleNotch } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useWebhooks } from "@/features/settings/hooks/useWebhooks";
 import { Webhook } from "@/features/settings/api/settings.api";
@@ -36,7 +36,7 @@ export const Webhooks: React.FC = memo(() => {
             isDark ? "text-white" : "text-gray-900"
           }`}
         >
-          <Zap className="w-5 h-5 text-amber-500" />
+          <Lightning className="w-5 h-5 text-amber-500" />
           Webhooks
         </h3>
         <button
@@ -49,7 +49,7 @@ export const Webhooks: React.FC = memo(() => {
           }`}
         >
           {isCreating ? (
-            <Loader2 size={12} className="animate-spin" />
+            <CircleNotch size={12} className="animate-spin" />
           ) : (
             <Plus size={12} />
           )}
@@ -60,7 +60,7 @@ export const Webhooks: React.FC = memo(() => {
       <div className="space-y-3">
         {isLoading && (
           <div className="py-8 flex justify-center">
-            <Loader2 className="w-6 h-6 animate-spin text-cyan-500" />
+            <CircleNotch className="w-6 h-6 animate-spin text-cyan-500" />
           </div>
         )}
 
@@ -114,7 +114,7 @@ export const Webhooks: React.FC = memo(() => {
                 onClick={() => deleteWebhook(webhook.id)}
                 className="p-2 rounded-lg text-red-500/50 hover:bg-red-500/10 hover:text-red-500 transition-colors"
               >
-                <Trash2 size={16} />
+                <Trash size={16} />
               </button>
             </div>
           ))}

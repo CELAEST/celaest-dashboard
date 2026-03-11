@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "motion/react";
-import { DollarSign } from "lucide-react";
+import { CurrencyDollar } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface RevenueCardProps {
@@ -56,7 +56,7 @@ export const RevenueCard = React.memo(
                     : "bg-blue-600 text-white shadow-md shadow-blue-500/20"
                 }`}
               >
-                <DollarSign className="w-4 h-4" strokeWidth={2.5} />
+                <CurrencyDollar className="w-4 h-4" strokeWidth={2.5} />
               </div>
               <div
                 className={`px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-widest border ${

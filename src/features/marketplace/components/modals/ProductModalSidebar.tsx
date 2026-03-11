@@ -5,10 +5,10 @@ import {
   ShoppingCart,
   Shield,
   CheckCircle,
-  Download,
+  DownloadSimple,
   Key,
-  Sparkles,
-} from "lucide-react";
+  Sparkle,
+} from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { MarketplaceProduct } from "../../types";
 import { formatCurrency } from "@/lib/utils";
@@ -81,7 +81,7 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
           <>
             <div className="flex items-center gap-2 mb-4">
               {isPlan ? (
-                <Sparkles
+                <Sparkle
                   className={`size-6 ${theme === "dark" ? "text-violet-400" : "text-violet-600"}`}
                 />
               ) : (
@@ -121,12 +121,12 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
                 }
               `}
             >
-              <Download className="size-5" />
+              <DownloadSimple className="size-5" />
               Descargar
             </button>
-            {!isPlan && onViewLicense && (
+            {!isPlan && effectiveAccess === "owned" && (
               <button
-                onClick={onViewLicense}
+                onClick={() => onViewLicense?.()}
                 className={`
                   w-full h-10 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-all
                   ${
@@ -211,6 +211,14 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
               value: product.seller_name || "Unknown Seller",
             },
             { label: "Category", value: product.category_name || "General" },
+            {
+              label: "Version",
+              value: product.version
+                ? product.version.startsWith("v")
+                  ? product.version
+                  : `v${product.version}`
+                : "1.0.0",
+            },
             {
               label: "Published",
               value: new Date(product.created_at).toLocaleDateString(),
@@ -299,9 +307,9 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
             Categorías y Tags
           </h4>
           <div className="flex flex-wrap gap-2">
-            {product.tags.map((tag) => (
+            {product.tags.map((tag, i) => (
               <span
-                key={tag}
+                key={`${tag}-${i}`}
                 className={`
                   px-2.5 py-1 rounded-lg text-xs font-bold border transform transition-all hover:scale-105 cursor-default
                   ${

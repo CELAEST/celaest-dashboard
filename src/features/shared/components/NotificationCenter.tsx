@@ -8,7 +8,7 @@ import React, {
   useCallback,
 } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Bell, Check, Trash2 } from "lucide-react";
+import { Bell, Check, Trash } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useNotifications } from "../contexts/NotificationContext";
 import { NotificationItem } from "./NotificationCenter/NotificationItem";
@@ -159,7 +159,7 @@ export const NotificationCenter = React.memo(function NotificationCenter() {
                           : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                       }`}
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash className="w-4 h-4" />
                     Limpiar todas
                   </button>
                 </div>

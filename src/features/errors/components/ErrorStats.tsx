@@ -1,6 +1,6 @@
 import React from "react";
 import { StatCard } from "@/features/shared/components/StatCard";
-import { AlertTriangle, AlertCircle, CheckCircle2, Clock } from "lucide-react";
+import { Warning, UsersThree, Clock } from "@phosphor-icons/react";
 
 interface ErrorStatsProps {
   stats: {
@@ -12,79 +12,64 @@ interface ErrorStatsProps {
   };
 }
 
+function buildSparkline(value: number, pattern: number[]) {
+  if (!Number.isFinite(value) || value <= 0) {
+    return pattern.map(() => ({ value: 0 }));
+  }
+
+  return pattern.map((multiplier) => ({
+    value: Math.max(1, Math.round(value * multiplier)),
+  }));
+}
+
 export const ErrorStats = React.memo(({ stats }: ErrorStatsProps) => {
+  const criticalHealthy = stats.criticalCount === 0;
+  const warningHealthy = stats.warningCount === 0;
+  const impactHealthy = stats.totalAffectedUsers === 0;
+  const mttrMinutes = stats.mttr === "N/A" ? 0 : Number.parseInt(stats.mttr, 10);
+  const mttrHealthy = mttrMinutes === 0 || mttrMinutes <= 30;
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <StatCard
         title="CRÍTICO"
         value={stats.criticalCount.toString()}
-        trend="Requiere Atención"
-        trendUp={false}
-        icon={<AlertTriangle />}
-        gradient="from-red-600 to-rose-600"
+        trend={criticalHealthy ? "Estable" : "Requiere atención"}
+        trendUp={criticalHealthy}
+        icon={<Warning />}
+        gradient={criticalHealthy ? "from-emerald-500 to-teal-600" : "from-red-600 to-rose-600"}
         delay={0.1}
-        chartData={[
-          { value: 2 },
-          { value: 5 },
-          { value: 3 },
-          { value: 8 },
-          { value: 12 },
-          { value: 5 },
-          { value: stats.criticalCount },
-        ]}
+        chartData={buildSparkline(stats.criticalCount, [0.35, 0.48, 0.4, 0.66, 0.84, 0.72, 1])}
       />
       <StatCard
         title="ADVERTENCIA"
         value={stats.warningCount.toString()}
-        trend="Pendiente"
-        trendUp={false}
-        icon={<AlertCircle />}
-        gradient="from-amber-500 to-orange-600"
+        trend={warningHealthy ? "Sin cola" : "Pendiente"}
+        trendUp={warningHealthy}
+        icon={<Warning />}
+        gradient={warningHealthy ? "from-emerald-500 to-teal-600" : "from-amber-500 to-orange-600"}
         delay={0.2}
-        chartData={[
-          { value: 10 },
-          { value: 15 },
-          { value: 12 },
-          { value: 20 },
-          { value: 18 },
-          { value: 25 },
-          { value: stats.warningCount },
-        ]}
+        chartData={buildSparkline(stats.warningCount, [0.42, 0.5, 0.46, 0.7, 0.66, 0.82, 1])}
       />
       <StatCard
         title="USUARIOS AFECTADOS"
         value={stats.totalAffectedUsers.toString()}
-        trend="Total Global"
-        trendUp={true}
-        icon={<CheckCircle2 />}
-        gradient="from-emerald-500 to-teal-600"
+        trend={impactHealthy ? "Impacto nulo" : "Usuarios impactados"}
+        trendUp={impactHealthy}
+        icon={<UsersThree />}
+        gradient={impactHealthy ? "from-emerald-500 to-teal-600" : "from-cyan-500 to-blue-600"}
         delay={0.3}
-        chartData={[
-          { value: 100 },
-          { value: 120 },
-          { value: 150 },
-          { value: 180 },
-          { value: 210 },
-          { value: 250 },
-          { value: stats.totalAffectedUsers },
-        ]}
+        chartData={buildSparkline(stats.totalAffectedUsers, [0.38, 0.46, 0.58, 0.72, 0.8, 0.9, 1])}
       />
       <StatCard
         title="MTTR"
         value={stats.mttr}
-        trend="Eficiencia +12%"
-        trendUp={true}
+        trend={mttrMinutes === 0 ? "Sin datos" : "Tiempo medio"}
+        trendUp={mttrHealthy}
         icon={<Clock />}
-        gradient="from-blue-600 to-cyan-600"
+        gradient={mttrHealthy ? "from-blue-600 to-cyan-600" : "from-amber-500 to-orange-600"}
         delay={0.4}
-        chartData={[
-          { value: 60 },
-          { value: 55 },
-          { value: 50 },
-          { value: 48 },
-          { value: 45 },
-          { value: stats.mttr === "0m" ? 0 : parseInt(stats.mttr) },
-        ]}
+        chartData={buildSparkline(mttrMinutes, [1.3, 1.22, 1.16, 1.1, 1.05, 1.02, 1])}
       />
     </div>
   );

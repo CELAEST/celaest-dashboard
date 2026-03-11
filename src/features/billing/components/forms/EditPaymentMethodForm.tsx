@@ -1,5 +1,5 @@
 import React from "react";
-import { User, Calendar, Check } from "lucide-react";
+import { User, Calendar, Check } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface EditPaymentMethodFormProps {
@@ -148,7 +148,7 @@ export const EditPaymentMethodForm: React.FC<EditPaymentMethodFormProps> = ({
               : "bg-linear-to-r from-blue-600 to-indigo-700 text-white shadow-blue-500/20 hover:scale-[1.02]"
           }`}
         >
-          <Check className="w-5 h-5" /> Save Changes
+          <Check className="w-5 h-5" /> FloppyDisk Changes
         </button>
         <button
           onClick={onClose}

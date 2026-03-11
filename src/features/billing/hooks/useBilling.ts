@@ -31,7 +31,13 @@ export const useBilling = () => {
       socket.on("subscription.cancelled", handler),
       socket.on("license.activated", handler),
       socket.on("license.created", handler),
+      socket.on("license.revoked", handler),
+      socket.on("license.deactivated", handler),
       socket.on("order.paid", handler),
+      socket.on("order.deleted", handler),
+      socket.on("invoice.voided", handler),
+      socket.on("invoice.generated", handler),
+      socket.on("invoice.paid", handler),
     ];
 
     return () => {
@@ -51,14 +57,37 @@ export const useBilling = () => {
       ]);
 
       const allSubs = subsResponse.subscriptions;
-      const activeSubs = allSubs.filter(
+      
+      const getPlanForSub = (sub: Subscription): Plan | undefined => {
+          if (sub.plan) return sub.plan;
+          const catalogPlan = plansResponse.plans.find(p => p.id === sub.plan_id);
+          if (catalogPlan) return catalogPlan;
+          // Marketplace product licenses: build synthetic plan from metadata
+          if (sub.metadata?.product_name) {
+            return {
+              id: sub.plan_id || sub.metadata.product_id as string || '',
+              name: sub.metadata.product_name as string,
+              code: 'marketplace_product',
+              price_monthly: sub.metadata.product_price ? Number(sub.metadata.product_price) : undefined,
+              currency: (sub.metadata.product_currency as string) || 'USD',
+              tier: 0,
+              sort_order: 0,
+              is_active: true,
+              is_public: false,
+            } as Plan;
+          }
+          return undefined;
+      };
+
+      // Enrich every subscription with its plan data
+      const enrichedSubs = allSubs.map(sub => ({
+        ...sub,
+        plan: getPlanForSub(sub) || sub.plan,
+      }));
+
+      const activeSubs = enrichedSubs.filter(
         (s) => s.status === "active" || s.status === "trial"
       );
-      
-      const getPlanForSub = (sub: Subscription) => {
-          if (sub.plan) return sub.plan;
-          return plansResponse.plans.find(p => p.id === sub.plan_id);
-      };
 
       const sortedSubs = [...activeSubs].sort((a, b) => {
           const planA = getPlanForSub(a);
@@ -101,7 +130,10 @@ export const useBilling = () => {
       }
 
       const totalLicenses = activeSub?.quantity || 0; 
-      const usedLicenses = activeSub?.metadata?.active_users ? Number(activeSub.metadata.active_users) : 0; 
+      const metadataUsers = activeSub?.metadata?.active_users ? Number(activeSub.metadata.active_users) : 0;
+      // Fallback: if active_users metadata isn't tracked, count active/trial subscriptions as used
+      const activeSubCount = allSubs.filter(s => s.status === "active" || s.status === "trial").length;
+      const usedLicenses = metadataUsers > 0 ? metadataUsers : Math.min(activeSubCount, totalLicenses || activeSubCount);
       const apiLimit = currentPlan?.limits?.api_calls_monthly ? Number(currentPlan.limits.api_calls_monthly) : 0;
       
       return {
@@ -109,7 +141,7 @@ export const useBilling = () => {
         plan: currentPlan,
         activePlanIds: activePlanIdsList,
         activePlans: activePlansList,
-        allSubscriptions: allSubs,
+        allSubscriptions: enrichedSubs,
         usage: {
           licenses: {
             used: usedLicenses,

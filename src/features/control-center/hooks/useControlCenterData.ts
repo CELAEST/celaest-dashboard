@@ -16,61 +16,69 @@ interface ControlCenterData {
 
 export function useControlCenterData(): ControlCenterData {
   const { token, orgId, isReady } = useApiAuth();
-  const { health, checkHealth } = useSystemHealth();
+  const { health } = useSystemHealth();
 
-  const { data, isLoading, error, refetch } = useQuery({
+  // ── Query 1: Dashboard statistics (KPI cards) ─────────────────────────────
+  // Key: ["analytics","dashboard",...] — invalidated when order/license counts change.
+  // Fetches ONLY the dashboard stats endpoint — NOT the sales series.
+  // The old single-queryFn bundled both calls with Promise.allSettled, meaning any
+  // ["analytics","dashboard"] invalidation would also fire a /by-period refetch.
+  const dashboardQuery = useQuery({
     queryKey: QUERY_KEYS.analytics.dashboard(orgId || "none", "day"),
-    queryFn: async () => {
+    queryFn: async (): Promise<DashboardStats | null> => {
       if (!token || !orgId) return null;
-      
-      checkHealth(true);
       const { metricsService } = await import("../services/metrics.service");
-      
-      const [dashboardRes, salesRes] = await Promise.allSettled([
-        metricsService.getDashboardOverview(orgId, token),
-        metricsService.getSalesByPeriod(orgId, token, "day"),
-      ]);
-
-      let dashboard: DashboardStats | null = null;
-      let salesSeries: SalesByPeriod[] = [];
-
-      if (dashboardRes.status === "fulfilled" && dashboardRes.value) {
-        const metrics = dashboardRes.value;
-        dashboard = {
-          total_revenue: metrics.total_revenue,
-          revenue_growth: metrics.revenue_growth,
-          active_users: metrics.active_users,
-          total_users: metrics.total_users,
-          users_growth: metrics.users_growth,
-          total_orders: metrics.total_orders,
-          orders_growth: metrics.orders_growth,
-          active_licenses: metrics.active_licenses,
-          total_licenses: metrics.total_licenses,
-          licenses_growth: metrics.licenses_growth,
-          total_products: metrics.total_products,
-          conversion_rate: metrics.conversion_rate,
-          period: metrics.period || "Ultimos 30 días",
-          period_start: metrics.period_start || "",
-          period_end: metrics.period_end || "",
-        };
-      }
-
-      if (salesRes.status === "fulfilled" && salesRes.value) {
-        salesSeries = salesRes.value;
-      }
-
-      return { dashboard, salesSeries };
+      const metrics = await metricsService.getDashboardOverview(orgId, token);
+      if (!metrics) return null;
+      return {
+        total_revenue: metrics.total_revenue,
+        revenue_growth: metrics.revenue_growth,
+        active_users: metrics.active_users,
+        total_users: metrics.total_users,
+        users_growth: metrics.users_growth,
+        total_orders: metrics.total_orders,
+        orders_growth: metrics.orders_growth,
+        active_licenses: metrics.active_licenses,
+        total_licenses: metrics.total_licenses,
+        licenses_growth: metrics.licenses_growth,
+        total_products: metrics.total_products,
+        conversion_rate: metrics.conversion_rate,
+        period: metrics.period || "Ultimos 30 días",
+        period_start: metrics.period_start || "",
+        period_end: metrics.period_end || "",
+      };
     },
     enabled: isReady && !!token && !!orgId,
-    staleTime: 60000,
+    staleTime: 60_000,
   });
 
-  return { 
-    health, 
-    dashboard: data?.dashboard || null, 
-    salesSeries: data?.salesSeries || [], 
-    loading: isLoading, 
-    error: error ? (error instanceof Error ? error.message : String(error)) : null, 
-    refresh: async () => { await refetch(); } 
+  // ── Query 2: Sales series (Revenue chart) ──────────────────────────────────
+  // Separate key: ["analytics","sales",...] — NOT hit by ["analytics","dashboard"] invalidations.
+  // Revenue chart data changes less frequently → longer staleTime (5 min).
+  const salesQuery = useQuery({
+    queryKey: QUERY_KEYS.analytics.sales(orgId || "none", "day"),
+    queryFn: async (): Promise<SalesByPeriod[]> => {
+      if (!token || !orgId) return [];
+      const { metricsService } = await import("../services/metrics.service");
+      const result = await metricsService.getSalesByPeriod(orgId, token, "day");
+      return result ?? [];
+    },
+    enabled: isReady && !!token && !!orgId,
+    staleTime: 5 * 60_000,
+  });
+
+  return {
+    health,
+    dashboard: dashboardQuery.data ?? null,
+    salesSeries: salesQuery.data ?? [],
+    loading: dashboardQuery.isLoading || salesQuery.isLoading,
+    error: dashboardQuery.error
+      ? dashboardQuery.error instanceof Error
+        ? dashboardQuery.error.message
+        : String(dashboardQuery.error)
+      : null,
+    refresh: async () => {
+      await Promise.all([dashboardQuery.refetch(), salesQuery.refetch()]);
+    },
   };
 }

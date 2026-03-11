@@ -1,5 +1,5 @@
 import React from "react";
-import { AlertTriangle, ShieldX, X } from "lucide-react";
+import { Warning, ShieldSlash, X } from "@phosphor-icons/react";
 import { motion, AnimatePresence } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useEscapeKey } from "@/features/shared/hooks/useEscapeKey";
@@ -51,18 +51,18 @@ export const RevokeConfirmationModal: React.FC<
             {/* Decorative Header */}
             <div className="absolute top-0 left-0 w-full h-1.5 bg-linear-to-r from-rose-500 via-rose-400 to-rose-500" />
 
-            <div className="flex flex-col items-center text-center gap-6">
+            <div className="flex flex-col items-stretch text-center gap-6">
               <div
-                className={`w-20 h-20 rounded-3xl flex items-center justify-center rotate-3 transition-transform duration-500 hover:rotate-0 ${
+                className={`w-20 h-20 rounded-3xl flex items-center justify-center rotate-3 transition-transform duration-500 hover:rotate-0 mx-auto ${
                   isDark
                     ? "bg-rose-500/10 text-rose-500 border border-rose-500/20"
                     : "bg-rose-50 text-rose-600 border border-rose-100"
                 }`}
               >
-                <ShieldX size={40} />
+                <ShieldSlash size={40} />
               </div>
 
-              <div>
+              <div className="w-full">
                 <h2
                   className={`text-2xl font-black uppercase tracking-tighter italic ${isDark ? "text-white" : "text-gray-900"}`}
                 >
@@ -87,7 +87,7 @@ export const RevokeConfirmationModal: React.FC<
                     : "bg-gray-50 border border-gray-100"
                 }`}
               >
-                <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                <Warning className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
                 <div>
                   <p
                     className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-amber-500/80" : "text-amber-600"}`}

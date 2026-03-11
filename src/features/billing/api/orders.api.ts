@@ -8,11 +8,12 @@ export interface BackendOrder {
   total: number;
   billing_name: string;
   created_at: string;
-  items?: { name: string }[];
+  items?: { name: string; item_type?: string }[];
   user_name?: string;
   user_email?: string;
   payment_method_type?: string;
   payment_provider?: string;
+  license_key?: string;
 }
 
 export interface OrderListResponse {

@@ -1,4 +1,4 @@
-import { LucideIcon } from "lucide-react";
+import { Icon } from "@phosphor-icons/react";
 
 export type SettingsTabId =
   | "account"
@@ -11,7 +11,7 @@ export type SettingsTabId =
 
 export interface SettingsTab {
   id: SettingsTabId;
-  icon: LucideIcon;
+  icon: Icon;
   label: string;
 }
 

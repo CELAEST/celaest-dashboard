@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "motion/react";
-import { Check, ShoppingCart, Star, Eye, Zap, ArrowRight } from "lucide-react";
+import { Check, ShoppingCart, Star, Eye, Lightning, ArrowRight } from "@phosphor-icons/react";
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { MarketplaceProduct } from "../types";
@@ -123,7 +123,7 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
         <div className="absolute top-3 left-3 z-20 flex flex-col gap-1.5">
           {badge && (
             <div className="px-2 py-0.5 rounded-full bg-cyan-500 text-white text-[8px] font-black uppercase tracking-widest shadow-lg shadow-cyan-500/30 flex items-center gap-1">
-              <Zap size={8} fill="currentColor" />
+              <Lightning size={8} fill="currentColor" />
               {badge}
             </div>
           )}
@@ -139,6 +139,24 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
             </div>
           )}
         </div>
+
+        {/* Plan tier badge — top right */}
+        {(() => {
+          const tierMap: Record<number, { label: string; cls: string }> = {
+            0: { label: "All Plans", cls: "bg-black/20 border-white/20 text-gray-200" },
+            1: { label: "Basic+", cls: "bg-emerald-700/40 border-emerald-800/30 text-emerald-200" },
+            2: { label: "Pro", cls: "bg-violet-500/60 border-violet-500/60 text-violet-200" },
+            3: { label: "Enterprise", cls: "bg-amber400/60 border-amber-400/30 text-amber-200" },
+          };
+          const tier = tierMap[product.min_plan_tier] ?? { label: "Private", cls: "bg-red-900/60 border-red-400/30 text-red-200" };
+          return (
+            <div className="absolute top-3 right-3 z-20">
+              <div className={`px-2 py-0.5 rounded-full backdrop-blur-md border text-[8px] font-black uppercase tracking-widest ${tier.cls}`}>
+                {tier.label}
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Price Tag - Compact */}
         <div className="absolute bottom-3 left-3 z-20">

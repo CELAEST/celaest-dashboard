@@ -2,13 +2,13 @@
 
 import React, { useMemo } from "react";
 import {
-  Search,
+  MagnifyingGlass,
   Command,
   Sun,
   Moon,
-  ShieldAlert,
-  Activity,
-} from "lucide-react";
+  ShieldWarning,
+  Pulse,
+} from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { NotificationCenter } from "./NotificationCenter";
@@ -72,8 +72,8 @@ export const Header = React.memo(function Header({ onShowLogin }: HeaderProps) {
   return (
     <header className={headerClassName}>
       <div className="flex items-center w-full max-w-xl relative group mr-4">
-        {/* Search Input stays same, it will drive the global searchQuery state */}
-        <Search
+        {/* MagnifyingGlass Input stays same, it will drive the global searchQuery state */}
+        <MagnifyingGlass
           className={`absolute left-4 w-5 h-5 transition-colors ${
             isDark
               ? "text-gray-500 group-focus-within:text-cyan-400"
@@ -83,7 +83,7 @@ export const Header = React.memo(function Header({ onShowLogin }: HeaderProps) {
         <input
           type="text"
           placeholder={
-            showErrorControls ? "Filter errors..." : "Search command or data..."
+            showErrorControls ? "Funnel errors..." : "MagnifyingGlass command or data..."
           }
           className={inputClassName}
           value={searchQuery || ""}
@@ -108,7 +108,7 @@ export const Header = React.memo(function Header({ onShowLogin }: HeaderProps) {
         {showErrorControls && (
           <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-4 duration-500">
             <HeaderFilterPill
-              icon={ShieldAlert}
+              icon={ShieldWarning}
               options={[
                 { value: "all", label: "Toda Severidad" },
                 { value: "critical", label: "Crítico" },
@@ -120,7 +120,7 @@ export const Header = React.memo(function Header({ onShowLogin }: HeaderProps) {
               }
             />
             <HeaderFilterPill
-              icon={Activity}
+              icon={Pulse}
               options={[
                 { value: "all", label: "Todo Estado" },
                 { value: "failed", label: "Fallido" },

@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Mail, User, Shield, Check } from "lucide-react";
+import { CircleNotch, Envelope, User, ShieldChevron, Check } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "@/lib/utils";
@@ -92,6 +92,7 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
           "max-w-md p-0 overflow-hidden border-0 bg-transparent shadow-none",
         )}
       >
+        <DialogTitle className="sr-only">Invite User</DialogTitle>
         <AnimatePresence mode="wait">
           {success ? (
             <motion.div
@@ -106,7 +107,7 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
               )}
             >
               <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-6">
-                <Check className="w-10 h-10 text-green-400" />
+                      <Check className="w-10 h-10 text-green-400" weight="bold" />
               </div>
               <h2
                 className={cn(
@@ -158,7 +159,7 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
                   </p>
                 </div>
                 <div className="absolute top-0 right-0 p-4 opacity-10">
-                  <User size={100} />
+                  <User size={100} weight="duotone" />
                 </div>
               </div>
 
@@ -175,6 +176,7 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
                       <User
                         className="absolute left-3 top-2.5 text-gray-500"
                         size={16}
+                        weight="duotone"
                       />
                       <Input
                         required
@@ -205,6 +207,7 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
                       <User
                         className="absolute left-3 top-2.5 text-gray-500"
                         size={16}
+                        weight="duotone"
                       />
                       <Input
                         required
@@ -233,9 +236,10 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
                     Email Address
                   </Label>
                   <div className="relative">
-                    <Mail
+                    <Envelope
                       className="absolute left-3 top-2.5 text-gray-500"
                       size={16}
+                      weight="duotone"
                     />
                     <Input
                       required
@@ -281,8 +285,9 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
                         )}
                       >
                         <div className="flex items-center gap-2 mb-1">
-                          <Shield
+                          <ShieldChevron
                             size={14}
+                            weight={formData.role === role.id ? "fill" : "regular"}
                             className={
                               formData.role === role.id
                                 ? "opacity-100"
@@ -324,12 +329,12 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
                   >
                     {loading ? (
                       <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <CircleNotch className="mr-2 h-4 w-4 animate-spin" />
                         Sending...
                       </>
                     ) : (
                       <>
-                        <Mail className="mr-2 h-4 w-4" />
+                        <Envelope className="mr-2 h-4 w-4" weight="duotone" />
                         Send Invitation
                       </>
                     )}

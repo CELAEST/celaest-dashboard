@@ -54,18 +54,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // Keep React Query user profile fresh based on WS events
   useUserSync(storeValues.session?.accessToken);
 
-  // Sync Socket Connection
-  const accessToken = storeValues.session?.accessToken;
-  React.useEffect(() => {
-    import("@/lib/socket-client").then(({ socket }) => {
-      if (accessToken) {
-        socket.connect(accessToken);
-      } else {
-        socket.disconnect();
-      }
-    });
-  }, [accessToken]);
-
   // Global unauthorized listener (from api-client)
   React.useEffect(() => {
     const handleUnauthorized = () => {

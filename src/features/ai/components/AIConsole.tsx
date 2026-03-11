@@ -7,11 +7,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Terminal,
   Key,
-  Activity,
-  BrainCircuit,
-  Settings2,
+  Pulse,
+  Brain,
+  GearSix,
   Globe,
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import { AIChatTab } from "./tabs/AIChatTab";
 import { AIPromptsTab } from "./tabs/AIPromptsTab";
 import { AIKeyPoolTab } from "./tabs/AIKeyPoolTab";
@@ -34,7 +34,7 @@ export const AIConsole: React.FC = () => {
   if (isAuthLoading || isOrgLoading) {
     return (
       <div className="flex flex-col items-center justify-center h-full min-h-[500px] bg-black/40 backdrop-blur-md rounded-2xl border border-white/5 gap-4">
-        <Activity className="text-cyan-400 animate-spin" size={40} />
+        <Pulse className="text-cyan-400 animate-spin" size={40} />
         <div className="text-center">
           <h3 className="text-cyan-400 font-mono text-sm tracking-[0.2em]">
             INITIALIZING AI CORE
@@ -52,7 +52,7 @@ export const AIConsole: React.FC = () => {
     return (
       <div className="flex flex-col items-center justify-center h-full min-h-[500px] bg-black/40 backdrop-blur-md rounded-2xl border border-white/5 gap-6">
         <div className="p-6 rounded-full bg-red-500/10 border border-red-500/20 text-red-500 shadow-[0_0_30px_rgba(239,68,68,0.1)]">
-          <Settings2 size={48} />
+          <GearSix size={48} />
         </div>
         <div className="text-center px-8">
           <h2 className="text-2xl font-bold text-white tracking-tight">
@@ -89,7 +89,7 @@ export const AIConsole: React.FC = () => {
         </div>
         <div className="flex items-center gap-4">
           <div className="px-5 py-2 rounded-full bg-cyan-500/5 border border-cyan-500/10 flex items-center gap-3 backdrop-blur-md">
-            <Activity className="text-cyan-400 animate-pulse" size={14} />
+            <Pulse className="text-cyan-400 animate-pulse" size={14} />
             <span className="text-[10px] font-black font-mono text-cyan-400/80 tracking-[0.2em] uppercase">
               Core Status: Operational
             </span>
@@ -105,12 +105,12 @@ export const AIConsole: React.FC = () => {
         <div className="px-8 bg-white/1 border-b border-white/5">
           <TabsList className="bg-transparent border-none gap-10 h-16 p-0">
             {[
-              { id: "chat", label: "Neural Console", icon: BrainCircuit },
+              { id: "chat", label: "Neural Console", icon: Brain },
               { id: "prompts", label: "Prompt CMS", icon: Terminal },
               { id: "providers", label: "Providers", icon: Globe },
               { id: "keys", label: "Key Pool", icon: Key },
-              { id: "tasks", label: "Batches & Logs", icon: Activity },
-              { id: "stats", label: "Analytics", icon: Settings2 },
+              { id: "tasks", label: "Batches & Logs", icon: Pulse },
+              { id: "stats", label: "Analytics", icon: GearSix },
             ].map((tab) => (
               <TabsTrigger
                 key={tab.id}

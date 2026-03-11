@@ -1,6 +1,6 @@
 "use client";
 
-import { CreditCard } from "lucide-react";
+import { CreditCard } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { BillingModal } from "./shared/BillingModal";
 import { PaymentMethod } from "../../types";
@@ -56,7 +56,7 @@ const EditPaymentMethodContent = ({
                 isDark ? "text-white" : "text-gray-900"
               }`}
             >
-              Edit Payment Method
+              PencilSimple Payment Method
             </h2>
             <p
               className={`text-xs ${isDark ? "text-gray-400" : "text-gray-600"}`}
@@ -78,7 +78,7 @@ const EditPaymentMethodContent = ({
           last4={method.last4}
         />
 
-        {/* Right Column: Edit Form */}
+        {/* Right Column: PencilSimple Form */}
         <EditPaymentMethodForm
           formState={formState}
           setters={setters}

@@ -4,7 +4,7 @@ import React from "react";
 import { Control, Controller, FieldValues, Path } from "react-hook-form";
 import { motion } from "motion/react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
-import { Check } from "lucide-react";
+import { Check } from "@phosphor-icons/react";
 
 export interface FormCheckboxProps<T extends FieldValues> {
   /** RHF control object */

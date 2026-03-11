@@ -3,7 +3,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, User, Shield, Check } from "lucide-react";
+import { CircleNotch, User, Shield, Check } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { UserData } from "../types";
 import { motion, AnimatePresence } from "motion/react";
@@ -157,7 +157,7 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
                       isDark ? "text-white" : "text-gray-900",
                     )}
                   >
-                    Edit User Profile
+                    PencilSimple User Profile
                   </h2>
                   <p
                     className={cn(
@@ -304,9 +304,9 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
                     )}
                   >
                     {loading && (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <CircleNotch className="mr-2 h-4 w-4 animate-spin" />
                     )}
-                    Save Changes
+                    FloppyDisk Changes
                   </Button>
                 </div>
               </form>

@@ -1,5 +1,5 @@
 import React from "react";
-import { Code } from "lucide-react";
+import { Code } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface TabOverviewProps {
@@ -40,9 +40,9 @@ export const TabOverview: React.FC<TabOverviewProps> = React.memo(
             Technology Stack
           </h3>
           <div className="flex flex-wrap gap-2">
-            {(stack || []).map((tech) => (
+            {(stack || []).map((tech, i) => (
               <span
-                key={tech}
+                key={`${tech}-${i}`}
                 className={`
                 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border
                 ${
@@ -68,9 +68,9 @@ export const TabOverview: React.FC<TabOverviewProps> = React.memo(
             Tags
           </h3>
           <div className="flex flex-wrap gap-2">
-            {(tags || []).map((tag) => (
+            {(tags || []).map((tag, i) => (
               <span
-                key={tag}
+                key={`${tag}-${i}`}
                 className={`
                 px-3 py-1.5 rounded-lg text-xs font-medium border
                 ${

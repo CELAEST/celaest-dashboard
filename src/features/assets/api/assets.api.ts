@@ -23,7 +23,7 @@ export interface BackendProduct {
   tags?: string[];
   features?: string[];
   technical_stack?: string[];
-  requirements?: string;
+  requirements?: string[];
   download_count: number;
   purchase_count: number;
   rating_avg: number;
@@ -71,6 +71,7 @@ export interface CreateProductPayload {
   tags?: string[];
   features?: string[];
   technical_stack?: string[];
+  requirements?: string[];
   min_plan_tier?: number;
 }
 
@@ -102,6 +103,7 @@ export interface UpdateProductPayload {
   tags?: string[];
   features?: string[];
   technical_stack?: string[];
+  requirements?: string[];
   min_plan_tier?: number;
 }
 
@@ -136,6 +138,8 @@ export interface BackendRelease {
   created_at: string;
   updated_at: string;
   product_name?: string;
+  github_repository?: string;
+  external_url?: string;
 }
 
 export interface ApiResponse<T> {
@@ -265,10 +269,11 @@ export const assetsApi = {
    * Obtener productos de la organización (JWT Auth) - Pestaña 'Admin' (Inventory)
    */
   getOrgProducts: async (token: string, orgId: string, page = 1, limit = 20) => {
-    return api.get<BackendProduct[]>(`/api/v1/org/products`, {
+    return api.get<{ success: boolean; data: BackendProduct[]; meta: { total: number; page: number; per_page: number; total_pages: number } }>(`/api/v1/org/products`, {
       params: { page: page.toString(), per_page: limit.toString() },
       token,
-      orgId
+      orgId,
+      skipUnwrap: true,
     });
   },
 
@@ -307,7 +312,7 @@ export const assetsApi = {
    * Obtener URL de descarga para un activo
    */
   downloadAsset: async (token: string, assetId: string) => {
-    return api.get<{ download_url: string; version: string; file_size: number }>(
+    return api.get<{ download_url: string; version: string; file_size: number; suggested_filename: string; license_key: string; asset_id: string; product_id: string }>(
       `/api/v1/user/my/assets/${assetId}/download`,
       { token }
     );

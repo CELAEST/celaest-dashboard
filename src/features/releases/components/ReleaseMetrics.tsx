@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { GitBranch, TrendingUp, Users, AlertTriangle } from "lucide-react";
+import { GitBranch, TrendUp, Users, Warning } from "@phosphor-icons/react";
 import { StatCard } from "@/features/shared/components/StatCard";
 
 // Mock Data for Sparklines (Formatted as { value: number })
@@ -83,7 +83,7 @@ export const ReleaseMetrics: React.FC<ReleaseMetricsProps> = ({
         value={`${Math.round(metrics?.adoption_rate || 0)}%`}
         trend="+4.2% engagement"
         trendUp={true}
-        icon={<TrendingUp size={24} />}
+        icon={<TrendUp size={24} />}
         delay={0.1}
         chartData={adoptionData}
         gradient="from-purple-400 to-fuchsia-500"
@@ -103,7 +103,7 @@ export const ReleaseMetrics: React.FC<ReleaseMetricsProps> = ({
         value={metrics?.deprecated_count.toString() || "0"}
         trend="+1 archived"
         trendUp={true} // Neutral defaults to positive styling for now
-        icon={<AlertTriangle size={24} />}
+        icon={<Warning size={24} />}
         delay={0.3}
         chartData={deprecatedData}
         gradient="from-orange-400 to-red-500"

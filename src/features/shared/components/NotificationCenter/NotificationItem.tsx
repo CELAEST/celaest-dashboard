@@ -1,6 +1,6 @@
 import React, { useCallback, memo } from "react";
 import { motion } from "motion/react";
-import { X } from "lucide-react";
+import { X } from "@phosphor-icons/react";
 import { type Notification } from "@/features/shared/contexts/NotificationContext";
 import { NOTIFICATION_ICONS, getColorScheme } from "./constants";
 import { formatTimestamp } from "./utils";

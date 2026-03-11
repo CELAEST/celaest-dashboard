@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Activity, Zap, Server, Wifi } from "lucide-react";
+import { Pulse, Lightning, HardDrives, WifiHigh } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
 const HealthGauge: React.FC<{
@@ -107,7 +107,7 @@ export const EnvironmentHealth: React.FC<EnvironmentHealthProps> = ({
         <h3
           className={`font-bold text-base flex items-center gap-2 ${isDark ? "text-white" : "text-gray-900"}`}
         >
-          <Activity size={16} className="text-emerald-500" />
+          <Pulse size={16} className="text-emerald-500" />
           System Health
         </h3>
         <div
@@ -128,21 +128,21 @@ export const EnvironmentHealth: React.FC<EnvironmentHealthProps> = ({
           value={health.cpu}
           label="CPU Load"
           color="emerald"
-          icon={Server}
+          icon={HardDrives}
           unit="%"
         />
         <HealthGauge
           value={health.ram}
           label="RAM"
           color="blue"
-          icon={Zap}
+          icon={Lightning}
           unit="MB"
         />
         <HealthGauge
           value={health.network}
           label="Net"
           color="purple"
-          icon={Wifi}
+          icon={WifiHigh}
           unit="%"
         />
       </div>

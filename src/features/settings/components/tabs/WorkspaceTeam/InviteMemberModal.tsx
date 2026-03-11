@@ -1,5 +1,5 @@
 import React from "react";
-import { Mail, Shield } from "lucide-react";
+import { Envelope, Shield } from "@phosphor-icons/react";
 import { useForm, useWatch } from "react-hook-form";
 import { SettingsModal } from "../../SettingsModal";
 import { useTheme } from "@/features/shared/hooks/useTheme";
@@ -63,7 +63,7 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({
                 <FormLabel>Email Address</FormLabel>
                 <FormControl>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Envelope className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
                       type="email"
                       placeholder="colleague@company.com"
@@ -150,7 +150,7 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({
               disabled={isSubmitting}
               className="flex-1 px-4 py-3 rounded-xl bg-linear-to-r from-cyan-600 to-blue-600 text-white font-black shadow-lg shadow-cyan-500/20 active:scale-95 transition-all disabled:opacity-50"
             >
-              {isSubmitting ? "Sending..." : "Send Invitation"}
+              {isSubmitting ? "Sending..." : "PaperPlaneTilt Invitation"}
             </button>
           </div>
         </form>

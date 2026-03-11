@@ -10,7 +10,6 @@ export const assetSchema = z.object({
   type: z.enum(["excel", "script", "google-sheet", "software", "plugin", "theme", "template", "asset", "service"]),
   category_id: z.string().min(1, "Category is required"),
   price: z.number().min(0, "Price must be positive"),
-  operationalCost: z.number().min(0, "Operational cost must be positive"),
   status: z.enum(["draft", "published", "archived"]),
   is_public: z.boolean(),
   description: z.string().optional(),

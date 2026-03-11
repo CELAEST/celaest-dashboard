@@ -1,5 +1,5 @@
 import React from "react";
-import { X, Package } from "lucide-react";
+import { X, Package } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface OrderDetailsHeaderProps {

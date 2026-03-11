@@ -4,13 +4,13 @@ import React from "react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { StatCard } from "@/features/shared/components/StatCard";
 import {
-  PackageCheck,
+  Package,
   FileText,
-  Layers,
+  Stack,
   HardDrive,
-  PieChart as PieIcon,
-  TrendingUp,
-} from "lucide-react";
+  ChartPie as PieIcon,
+  TrendUp,
+} from "@phosphor-icons/react";
 import {
   Area,
   AreaChart,
@@ -81,10 +81,13 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
   return null;
 };
 
-export const AssetMetrics: React.FC = () => {
+interface AssetMetricsProps {
+  period?: string;
+}
+
+export const AssetMetrics: React.FC<AssetMetricsProps> = ({ period = "month" }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
-  const [period, setPeriod] = React.useState("month");
   const {
     stats,
     usage,
@@ -139,38 +142,15 @@ export const AssetMetrics: React.FC = () => {
   );
 
   return (
-    <div className="flex flex-col h-full gap-5 pb-2">
-      {/* Period Selector Header */}
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2 p-1 rounded-xl bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5">
-          {[
-            { label: "7D", value: "week" },
-            { label: "30D", value: "month" },
-            { label: "90D", value: "90d" },
-          ].map((item) => (
-            <button
-              key={item.value}
-              onClick={() => setPeriod(item.value)}
-              className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
-                period === item.value
-                  ? "bg-cyan-500 text-white shadow-lg shadow-cyan-500/20"
-                  : "text-gray-500 hover:text-gray-900 dark:hover:text-white"
-              }`}
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
+    <div className="flex flex-col h-full gap-4 pb-2">
       {/* Row 1: KPI Cards */}
-      <div className="shrink-0 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="shrink-0 grid grid-cols-2 lg:grid-cols-4 gap-3">
         <StatCard
           title="Active Templates"
           value={stats?.active_products?.toString() || "0"}
           trend={`Total: ${stats?.total_products}`}
           trendUp={true}
-          icon={<PackageCheck size={24} />}
+          icon={<Package size={24} />}
           delay={0.1}
           gradient="from-emerald-400 to-teal-500"
         />
@@ -188,7 +168,7 @@ export const AssetMetrics: React.FC = () => {
           value={stats?.total_licenses?.toString() || "0"}
           trend={`${stats?.active_licenses} Active`}
           trendUp={true}
-          icon={<Layers size={24} />}
+          icon={<Stack size={24} />}
           delay={0.3}
           gradient="from-blue-400 to-indigo-500"
         />
@@ -204,32 +184,32 @@ export const AssetMetrics: React.FC = () => {
       </div>
 
       {/* Row 2: Analytics Row */}
-      <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-3 gap-3">
         {/* Chart 1: Engagement Trends */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className={`col-span-1 lg:col-span-2 rounded-4xl border p-6 flex flex-col ${isDark ? "bg-[#0a0a0a]/60 border-white/5 backdrop-blur-3xl shadow-xl" : "bg-white border-gray-200 shadow-sm"}`}
+          className={`col-span-1 lg:col-span-2 rounded-2xl border p-5 flex flex-col ${isDark ? "bg-[#0a0a0a]/60 border-white/5 backdrop-blur-3xl shadow-xl" : "bg-white border-gray-200 shadow-sm"}`}
         >
-          <div className="flex justify-between items-center mb-6">
-            <div className="flex items-center gap-4">
+          <div className="flex justify-between items-center mb-4">
+            <div className="flex items-center gap-3">
               <div
-                className={`p-3 rounded-2xl ${isDark ? "bg-white/5 border border-white/10" : "bg-blue-50 text-blue-600"}`}
+                className={`p-2.5 rounded-xl ${isDark ? "bg-white/5 border border-white/10" : "bg-blue-50 text-blue-600"}`}
               >
-                <TrendingUp
-                  size={20}
+                <TrendUp
+                  size={18}
                   className={isDark ? "text-blue-400" : "text-blue-600"}
                 />
               </div>
               <div>
                 <h3
-                  className={`text-[10px] font-black uppercase tracking-[0.3em] ${isDark ? "text-white/40" : "text-gray-400"}`}
+                  className={`text-[9px] font-black uppercase tracking-[0.3em] ${isDark ? "text-white/40" : "text-gray-400"}`}
                 >
                   Inteligencia de Activos
                 </h3>
                 <h2
-                  className={`text-xl font-black italic tracking-tighter ${isDark ? "text-white" : "text-gray-900"}`}
+                  className={`text-lg font-black italic tracking-tighter ${isDark ? "text-white" : "text-gray-900"}`}
                 >
                   ORDER TRENDS
                 </h2>
@@ -314,25 +294,25 @@ export const AssetMetrics: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
-          className={`col-span-1 lg:col-span-1 rounded-4xl border p-6 flex flex-col ${isDark ? "bg-[#0a0a0a]/60 border-white/5 backdrop-blur-3xl shadow-xl" : "bg-white border-gray-200 shadow-sm"}`}
+          className={`col-span-1 lg:col-span-1 rounded-2xl border p-5 flex flex-col ${isDark ? "bg-[#0a0a0a]/60 border-white/5 backdrop-blur-3xl shadow-xl" : "bg-white border-gray-200 shadow-sm"}`}
         >
-          <div className="flex items-center gap-4 mb-6">
+          <div className="flex items-center gap-3 mb-4">
             <div
-              className={`p-3 rounded-2xl ${isDark ? "bg-white/5 border border-white/10" : "bg-purple-50 text-purple-600"}`}
+              className={`p-2.5 rounded-xl ${isDark ? "bg-white/5 border border-white/10" : "bg-purple-50 text-purple-600"}`}
             >
               <PieIcon
-                size={20}
+                size={18}
                 className={isDark ? "text-purple-400" : "text-purple-600"}
               />
             </div>
             <div>
               <h3
-                className={`text-[10px] font-black uppercase tracking-[0.3em] ${isDark ? "text-white/40" : "text-gray-400"}`}
+                className={`text-[9px] font-black uppercase tracking-[0.3em] ${isDark ? "text-white/40" : "text-gray-400"}`}
               >
                 Estructura de Catálogo
               </h3>
               <h2
-                className={`text-xl font-black italic tracking-tighter ${isDark ? "text-white" : "text-gray-900"}`}
+                className={`text-lg font-black italic tracking-tighter ${isDark ? "text-white" : "text-gray-900"}`}
               >
                 ASSET MIX
               </h2>
@@ -389,7 +369,7 @@ export const AssetMetrics: React.FC = () => {
             )}
           </div>
 
-          <div className="mt-6 flex flex-wrap gap-x-4 gap-y-2 justify-center">
+          <div className="mt-4 flex flex-wrap gap-x-3 gap-y-1.5 justify-center">
             {mixData.slice(0, 5).map((item, i) => (
               <div key={i} className="flex items-center gap-2">
                 <div

@@ -4,11 +4,11 @@ import * as React from "react";
 import {
   Calendar as CalendarIcon,
   Clock,
-  ChevronUp,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
+  CaretUp,
+  CaretDown,
+  CaretLeft,
+  CaretRight,
+} from "@phosphor-icons/react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -240,7 +240,7 @@ export function DateTimePicker({
                       className="p-1.5 rounded-lg hover:bg-white/5 text-neutral-600 hover:text-blue-400 transition-colors"
                       aria-label="Incrementar hora"
                     >
-                      <ChevronUp className="w-4 h-4" />
+                      <CaretUp className="w-4 h-4" />
                     </button>
                     <div className="w-14 h-12 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center">
                       <span className="text-2xl font-black text-neutral-100 font-mono tabular-nums">
@@ -253,7 +253,7 @@ export function DateTimePicker({
                       className="p-1.5 rounded-lg hover:bg-white/5 text-neutral-600 hover:text-blue-400 transition-colors"
                       aria-label="Decrementar hora"
                     >
-                      <ChevronDown className="w-4 h-4" />
+                      <CaretDown className="w-4 h-4" />
                     </button>
                   </div>
 
@@ -269,7 +269,7 @@ export function DateTimePicker({
                       className="p-1.5 rounded-lg hover:bg-white/5 text-neutral-600 hover:text-blue-400 transition-colors"
                       aria-label="Incrementar minutos"
                     >
-                      <ChevronUp className="w-4 h-4" />
+                      <CaretUp className="w-4 h-4" />
                     </button>
                     <div className="w-14 h-12 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center">
                       <span className="text-2xl font-black text-neutral-100 font-mono tabular-nums">
@@ -282,7 +282,7 @@ export function DateTimePicker({
                       className="p-1.5 rounded-lg hover:bg-white/5 text-neutral-600 hover:text-blue-400 transition-colors"
                       aria-label="Decrementar minutos"
                     >
-                      <ChevronDown className="w-4 h-4" />
+                      <CaretDown className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
@@ -327,7 +327,7 @@ export function DateTimePicker({
                       className="p-1 rounded-lg hover:bg-white/5 text-neutral-600 hover:text-blue-400 transition-colors"
                       aria-label="Años anteriores"
                     >
-                      <ChevronLeft className="w-3.5 h-3.5" />
+                      <CaretLeft className="w-3.5 h-3.5" />
                     </button>
                     <span className="text-[9px] font-black text-neutral-500 uppercase tracking-widest">
                       {yearPage}–{yearPage + 11}
@@ -338,7 +338,7 @@ export function DateTimePicker({
                       className="p-1 rounded-lg hover:bg-white/5 text-neutral-600 hover:text-blue-400 transition-colors"
                       aria-label="Años siguientes"
                     >
-                      <ChevronRight className="w-3.5 h-3.5" />
+                      <CaretRight className="w-3.5 h-3.5" />
                     </button>
                   </div>
                   <div className="grid grid-cols-3 gap-1">

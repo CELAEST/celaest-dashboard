@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "motion/react";
-import { Lock, Sparkles } from "lucide-react";
+import { Lock, Sparkle } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface CreditCardPreviewProps {
@@ -10,7 +10,7 @@ interface CreditCardPreviewProps {
   expiryYear?: string;
   cardType?: string;
   focusedField?: string | null;
-  last4?: string; // For Edit mode
+  last4?: string; // For PencilSimple mode
 }
 
 export const CreditCardPreview: React.FC<CreditCardPreviewProps> = ({
@@ -65,7 +65,7 @@ export const CreditCardPreview: React.FC<CreditCardPreviewProps> = ({
         </div>
 
         <div className="relative h-full flex flex-col justify-between">
-          {/* Card Type & Chip */}
+          {/* Card TextT & Chip */}
           <div className="flex items-start justify-between">
             <motion.div
               animate={
@@ -175,7 +175,7 @@ export const CreditCardPreview: React.FC<CreditCardPreviewProps> = ({
               isDark ? "text-emerald-400" : "text-emerald-600"
             }`}
           >
-            <Sparkles className="w-3 h-3" />
+            <Sparkle className="w-3 h-3" />
             256-Bit SSL Encryption
           </div>
           <div

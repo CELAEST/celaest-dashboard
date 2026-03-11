@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { CreateCouponForm } from "../forms/CreateCouponForm";
-import { Tag } from "lucide-react";
+import { Tag } from "@phosphor-icons/react";
 import { useApiAuth } from "@/lib/use-api-auth";
 import { CreateCouponFormValues } from "../../lib/validation";
 

@@ -6,17 +6,14 @@ import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 
 export function useApiAuth() {
   const { session } = useAuth();
-  const { currentOrg: org } = useOrgStore();
+  // Selector acotado: solo suscribirse a currentOrg.id para evitar re-renders
+  // cuando cambien campos irrelevantes del OrgStore (isLoading, lastFetched, etc.)
+  const orgId = useOrgStore((s) => s.currentOrg?.id ?? null);
 
   return {
     token: session?.accessToken ?? null,
-    orgId: org?.id ?? null,
-    // isReady requires a valid Supabase JWT and a selected org.
-    // isBackendSynced is intentionally excluded: the backend middleware validates
-    // the JWT on every request anyway, so gating purchases on the proactive
-    // verifySession call only creates spurious "Preparando sesión" blocks when
-    // the backend is briefly slow or the proactive check races with the user.
-    isReady: !!session?.accessToken && !!org?.id,
+    orgId,
+    isReady: !!session?.accessToken && !!orgId,
     isAuthReady: !!session?.accessToken,
   };
 }

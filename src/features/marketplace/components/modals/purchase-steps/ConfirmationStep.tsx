@@ -1,7 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import { motion } from "motion/react";
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface ConfirmationStepProps {

@@ -1,21 +1,42 @@
 import React from "react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { SettingsSelect } from "../../../../settings/components/SettingsSelect";
-import { Order } from "../../../types";
+import { Order, OrderActivityEvent } from "../../../types";
+
+const EVENT_LABELS: Record<string, string> = {
+  created: "Order Created",
+  paid: "Payment Confirmed",
+  completed: "Order Completed",
+  cancelled: "Order Cancelled",
+  refunded: "Order Refunded",
+};
+
+function formatEventDate(iso: string): string {
+  try {
+    return new Date(iso).toLocaleString();
+  } catch {
+    return iso;
+  }
+}
 
 interface OrderDetailsContentProps {
   formData: Order;
   mode: "view" | "edit";
   updateField: (field: keyof Order, value: string) => void;
+  events?: OrderActivityEvent[];
 }
 
 export const OrderDetailsContent: React.FC<OrderDetailsContentProps> = ({
   formData,
   mode,
   updateField,
+  events = [],
 }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+
+  // Events come sorted ASC from backend; show newest first for the timeline
+  const sortedEvents = [...events].reverse();
 
   return (
     <div className="space-y-8">
@@ -47,7 +68,9 @@ export const OrderDetailsContent: React.FC<OrderDetailsContentProps> = ({
                   isDark ? "text-gray-400" : "text-gray-500"
                 }`}
               >
-                License Type: Enterprise
+                {formData.itemType
+                  ? `Type: ${formData.itemType.charAt(0).toUpperCase() + formData.itemType.slice(1)}`
+                  : "Digital Product"}
               </div>
             </div>
           ) : (
@@ -92,9 +115,8 @@ export const OrderDetailsContent: React.FC<OrderDetailsContentProps> = ({
               }`}
             />
 
-            {/* Items */}
             <div className="space-y-8">
-              {/* Current Status */}
+              {/* Current Status (always first) */}
               <div className="relative pl-8">
                 <div
                   className={`absolute left-0 top-1 w-4 h-4 rounded-full border-2 z-10 ${
@@ -119,55 +141,61 @@ export const OrderDetailsContent: React.FC<OrderDetailsContentProps> = ({
                 </div>
               </div>
 
-              {/* Email Sent (Mock) */}
-              <div className="relative pl-8 opacity-70">
-                <div
-                  className={`absolute left-0 top-1 w-4 h-4 rounded-full border-2 z-10 ${
-                    isDark
-                      ? "bg-gray-800 border-[#0a0a0a]"
-                      : "bg-gray-200 border-white"
-                  }`}
-                />
-                <div
-                  className={`font-semibold text-base leading-tight ${
-                    isDark ? "text-white" : "text-gray-900"
-                  }`}
-                >
-                  License Key Generated
-                </div>
-                <div
-                  className={`text-xs mt-1 ${
-                    isDark ? "text-gray-500" : "text-gray-400"
-                  }`}
-                >
-                  Automated System
-                </div>
-              </div>
+              {/* Real events from DB */}
+              {sortedEvents.map((event, idx) => {
+                const opacity = idx === 0 ? "opacity-70" : "opacity-40";
+                return (
+                  <div key={event.id} className={`relative pl-8 ${opacity}`}>
+                    <div
+                      className={`absolute left-0 top-1 w-4 h-4 rounded-full border-2 z-10 ${
+                        isDark
+                          ? "bg-gray-800 border-[#0a0a0a]"
+                          : "bg-gray-200 border-white"
+                      }`}
+                    />
+                    <div
+                      className={`font-semibold text-base leading-tight ${
+                        isDark ? "text-white" : "text-gray-900"
+                      }`}
+                    >
+                      {EVENT_LABELS[event.type] || event.type}
+                    </div>
+                    <div
+                      className={`text-xs mt-1 ${
+                        isDark ? "text-gray-500" : "text-gray-400"
+                      }`}
+                    >
+                      {formatEventDate(event.createdAt)}
+                    </div>
+                  </div>
+                );
+              })}
 
-              {/* Order Placed (Mock) */}
-              <div className="relative pl-8 opacity-40">
-                <div
-                  className={`absolute left-0 top-1 w-4 h-4 rounded-full border-2 z-10 ${
-                    isDark
-                      ? "bg-gray-800 border-[#0a0a0a]"
-                      : "bg-gray-200 border-white"
-                  }`}
-                />
-                <div
-                  className={`font-semibold text-base leading-tight ${
-                    isDark ? "text-white" : "text-gray-900"
-                  }`}
-                >
-                  Payment Confirmed
+              {sortedEvents.length === 0 && (
+                <div className="relative pl-8 opacity-40">
+                  <div
+                    className={`absolute left-0 top-1 w-4 h-4 rounded-full border-2 z-10 ${
+                      isDark
+                        ? "bg-gray-800 border-[#0a0a0a]"
+                        : "bg-gray-200 border-white"
+                    }`}
+                  />
+                  <div
+                    className={`font-semibold text-base leading-tight ${
+                      isDark ? "text-white" : "text-gray-900"
+                    }`}
+                  >
+                    No events recorded
+                  </div>
+                  <div
+                    className={`text-xs mt-1 ${
+                      isDark ? "text-gray-500" : "text-gray-400"
+                    }`}
+                  >
+                    {formData.date}
+                  </div>
                 </div>
-                <div
-                  className={`text-xs mt-1 ${
-                    isDark ? "text-gray-500" : "text-gray-400"
-                  }`}
-                >
-                  {formData.date}
-                </div>
-              </div>
+              )}
             </div>
           </div>
         ) : (

@@ -1,7 +1,11 @@
 import React from "react";
 import { motion } from "motion/react";
-import { Download, FileText, CreditCard, CheckCircle } from "lucide-react";
+import { DownloadSimple, FileText, CreditCard, CheckCircle } from "@phosphor-icons/react";
 import { Invoice } from "../../types";
+import {
+  getInvoiceActionId,
+  getInvoiceReferenceSuffix,
+} from "../../lib/invoice-utils";
 
 interface InvoiceHistoryItemProps {
   invoice: Invoice;
@@ -19,6 +23,7 @@ export const InvoiceHistoryItem: React.FC<InvoiceHistoryItemProps> = ({
   index,
 }) => {
   const [isSuccess, setIsSuccess] = React.useState(false);
+  const actionId = getInvoiceActionId(invoice);
 
   // Wrapper to handle local success state
   const handleDownloadWrapper = async (id: string) => {
@@ -37,14 +42,13 @@ export const InvoiceHistoryItem: React.FC<InvoiceHistoryItemProps> = ({
   // Enhanced watcher: If this ID WAS downloading and now ISN'T, set success
   const prevDownloadingId = React.useRef(downloadingId);
   React.useEffect(() => {
-    if (prevDownloadingId.current === invoice.id && downloadingId === null) {
+    if (prevDownloadingId.current === actionId && downloadingId === null) {
       setIsSuccess(true);
     }
     prevDownloadingId.current = downloadingId;
-  }, [downloadingId, invoice.id]);
+  }, [downloadingId, actionId]);
 
-  // Simulate consistent data (mock)
-  const last4 = invoice.id.slice(-4);
+  const last4 = getInvoiceReferenceSuffix(invoice);
   const billingPeriod = React.useMemo(() => {
     const date = new Date(invoice.created_at);
     const prevMonth = new Date(date);
@@ -59,7 +63,7 @@ export const InvoiceHistoryItem: React.FC<InvoiceHistoryItemProps> = ({
       transition={{ delay: index * 0.05 }}
       className={`
         transition-colors duration-200 group relative
-        ${isDark ? "hover:bg-white/[0.02]" : "hover:bg-gray-50/50"}
+        ${isDark ? "hover:bg-white/2" : "hover:bg-gray-50/50"}
       `}
     >
       {/* Invoice Number */}
@@ -120,7 +124,7 @@ export const InvoiceHistoryItem: React.FC<InvoiceHistoryItemProps> = ({
           <span
             className={`text-sm font-medium ${isDark ? "text-gray-200" : "text-gray-900"}`}
           >
-            {invoice.billing_name || "Premium Subscription"}
+            {invoice.customer_name || invoice.billing_name || "Premium Subscription"}
           </span>
           <span
             className={`text-[10px] ${isDark ? "text-gray-500" : "text-gray-500"}`}
@@ -183,8 +187,8 @@ export const InvoiceHistoryItem: React.FC<InvoiceHistoryItemProps> = ({
       <td className="px-6 py-4 align-middle whitespace-nowrap">
         <div className="flex justify-center">
           <motion.button
-            onClick={() => handleDownloadWrapper(invoice.id)}
-            disabled={downloadingId === invoice.id || isSuccess}
+            onClick={() => actionId && handleDownloadWrapper(actionId)}
+            disabled={!actionId || downloadingId === actionId || isSuccess}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.95 }}
             className={`
@@ -201,7 +205,7 @@ export const InvoiceHistoryItem: React.FC<InvoiceHistoryItemProps> = ({
               transition-colors duration-300
             `}
           >
-            {downloadingId === invoice.id ? (
+            {downloadingId === actionId ? (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -220,7 +224,7 @@ export const InvoiceHistoryItem: React.FC<InvoiceHistoryItemProps> = ({
               </motion.div>
             ) : (
               <div className="flex items-center gap-1.5">
-                <Download size={14} strokeWidth={2} />
+                <DownloadSimple size={14} strokeWidth={2} />
                 <span>PDF</span>
               </div>
             )}

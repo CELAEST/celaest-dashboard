@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { Users, UserPlus, Trash2 } from "lucide-react";
+import { Users, UserPlus, Trash } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
 export interface Member {
@@ -147,7 +147,7 @@ export const TeamMembers: React.FC<TeamMembersProps> = memo(
                         : "text-gray-400 hover:text-red-600 hover:bg-red-50"
                     }`}
                   >
-                    <Trash2 size={16} />
+                    <Trash size={16} />
                   </button>
                 )}
               </div>

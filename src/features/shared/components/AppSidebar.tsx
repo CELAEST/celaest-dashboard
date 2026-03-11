@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useCallback } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { motion } from "motion/react";
-import { LogOut, Bomb } from "lucide-react";
+import { SignOut, Bomb } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
@@ -233,7 +233,7 @@ export const AppSidebar = React.memo(function AppSidebar({
                   : "text-gray-500 hover:text-red-600 hover:bg-red-50"
               }`}
             >
-              <LogOut size={20} />
+              <SignOut size={20} />
               <motion.span
                 className="ml-3 whitespace-nowrap font-medium"
                 initial={{ opacity: 0 }}

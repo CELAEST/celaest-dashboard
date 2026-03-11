@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { AlertTriangle, RefreshCcw } from "lucide-react";
+import { Warning, ArrowCounterClockwise } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { SecurityLog } from "../../../hooks/useSecuritySettings";
 
@@ -20,7 +20,7 @@ export const SecurityLogs: React.FC<SecurityLogsProps> = memo(
               isDark ? "text-white" : "text-gray-900"
             }`}
           >
-            <AlertTriangle className="w-5 h-5 text-amber-500" />
+            <Warning className="w-5 h-5 text-amber-500" />
             Security Logs
           </h3>
           <button
@@ -30,7 +30,7 @@ export const SecurityLogs: React.FC<SecurityLogsProps> = memo(
                 : "hover:bg-gray-100 text-gray-400"
             }`}
           >
-            <RefreshCcw
+            <ArrowCounterClockwise
               className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`}
             />
           </button>

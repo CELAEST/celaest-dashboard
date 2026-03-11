@@ -1,6 +1,6 @@
 import React, { memo, useState } from "react";
 import { motion } from "motion/react";
-import { Download, Loader2 } from "lucide-react";
+import { DownloadSimple, CircleNotch } from "@phosphor-icons/react";
 import { AuditLog } from "../types";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { auditApi } from "../../api/audit.api";
@@ -66,9 +66,9 @@ export const AuditLogsList = memo(({ logs }: AuditLogsListProps) => {
             }`}
           >
             {isExporting ? (
-              <Loader2 size={12} className="animate-spin" />
+              <CircleNotch size={12} className="animate-spin" />
             ) : (
-              <Download size={12} />
+              <DownloadSimple size={12} />
             )}
             Export CSV
           </button>

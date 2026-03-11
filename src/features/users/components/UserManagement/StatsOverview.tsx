@@ -1,5 +1,5 @@
 import React, { memo, useMemo } from "react";
-import { Users, Shield, Clock, Activity, Fingerprint } from "lucide-react";
+import { Users, Shield, Clock, Pulse, Fingerprint } from "@phosphor-icons/react";
 import { StatCard } from "@/features/shared/components/StatCard";
 import { UserData, AuditLog } from "../types";
 import {
@@ -119,7 +119,7 @@ export const StatsOverview = memo(
                 <div
                   className={`p-3 rounded-2xl ${isDark ? "bg-cyan-500/10 border border-cyan-500/20" : "bg-cyan-50 text-cyan-600"}`}
                 >
-                  <Activity
+                  <Pulse
                     size={20}
                     className={isDark ? "text-cyan-400" : "text-cyan-600"}
                   />
@@ -142,7 +142,7 @@ export const StatsOverview = memo(
               >
                 <div className={`w-1.5 h-1.5 rounded-full ${hasActivity ? "bg-cyan-500 animate-pulse" : "bg-gray-500"}`} />
                 <span className="text-[10px] font-black uppercase tracking-widest opacity-60">
-                  {hasActivity ? "Real Data" : "No Activity"}
+                  {hasActivity ? "Real Data" : "No Pulse"}
                 </span>
               </div>
             </div>

@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Control, Controller, FieldValues, Path } from "react-hook-form";
-import { ChevronDown } from "lucide-react";
+import { CaretDown } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 
 export interface SelectOption {
@@ -113,7 +113,7 @@ export function FormSelect<T extends FieldValues>({
               </select>
 
               {/* Dropdown Arrow */}
-              <ChevronDown
+              <CaretDown
                 className={`absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none ${
                   isDark ? "text-gray-500" : "text-gray-400"
                 }`}

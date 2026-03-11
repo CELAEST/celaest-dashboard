@@ -1,17 +1,13 @@
-import { logger } from "@/lib/logger";
+﻿import { logger } from "@/lib/logger";
 import React, { useEffect, useState } from "react";
-import { Sparkles } from "lucide-react";
-import { useTheme } from "@/features/shared/hooks/useTheme";
 import { LicenseFormData } from "@/features/licensing/hooks/useCreateLicense";
 import { UseFormReturn } from "react-hook-form";
 import {
   FormField,
   FormItem,
-  FormLabel,
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -24,27 +20,14 @@ import { SubscriptionPlan } from "@/features/licensing/types";
 
 interface LicenseFormProps {
   form: UseFormReturn<LicenseFormData>;
-  onSubmit: () => void;
   loading: boolean;
 }
 
-export const LicenseForm: React.FC<LicenseFormProps> = ({
-  form,
-  onSubmit,
-  loading,
-}) => {
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
-  const {
-    watch,
-    setValue,
-    formState: { errors },
-  } = form;
-
+export const LicenseForm: React.FC<LicenseFormProps> = ({ form, loading: _loading }) => {
+  const { watch, setValue, formState: { errors } } = form;
   const currentCycle = watch("billing_cycle");
   const currentPlanId = watch("plan_id");
 
-  // Fetch plans
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [fetchingPlans, setFetchingPlans] = useState(true);
 
@@ -54,7 +37,6 @@ export const LicenseForm: React.FC<LicenseFormProps> = ({
         if (licensingService.isServiceReady()) {
           const { plans } = await licensingService.getPlans();
           setPlans(plans);
-          // Auto-select first plan if none selected
           if (plans.length > 0 && !currentPlanId) {
             setValue("plan_id", plans[0].id);
           }
@@ -73,29 +55,25 @@ export const LicenseForm: React.FC<LicenseFormProps> = ({
     label: `${p.name} (${p.price_monthly ? `$${p.price_monthly}/mo` : "Free"})`,
   }));
 
+  const CYCLES = ["monthly", "quarterly", "yearly"] as const;
+
   return (
-    <div className="space-y-4">
-      {/* Billing Cycle selection */}
-      <div>
-        <label
-          className={`block text-sm font-medium mb-1.5 ${isDark ? "text-gray-300" : "text-gray-700"}`}
-        >
+    <div className="space-y-5">
+      {/* Billing Cycle */}
+      <div className="space-y-2">
+        <label className="text-[10px] uppercase font-black tracking-widest text-white/40">
           Billing Cycle
         </label>
-        <div
-          className={`flex bg-gray-100 rounded-lg p-1 ${isDark ? "bg-white/5" : "bg-gray-100"}`}
-        >
-          {(["monthly", "quarterly", "yearly"] as const).map((cycle) => (
+        <div className="flex bg-white/5 border border-white/10 rounded-2xl p-1">
+          {CYCLES.map((cycle) => (
             <button
               key={cycle}
               type="button"
               onClick={() => setValue("billing_cycle", cycle)}
-              className={`flex-1 py-1.5 text-sm font-medium rounded-md capitalize transition-all ${
+              className={`flex-1 py-2 text-xs font-black rounded-xl capitalize tracking-wider transition-all ${
                 currentCycle === cycle
-                  ? isDark
-                    ? "bg-white/10 text-white shadow-xs"
-                    : "bg-white text-gray-900 shadow-xs"
-                  : "text-gray-500 hover:text-gray-700"
+                  ? "bg-amber-500/20 text-amber-400 shadow-sm border border-amber-500/30"
+                  : "text-white/30 hover:text-white/60"
               }`}
             >
               {cycle}
@@ -103,24 +81,18 @@ export const LicenseForm: React.FC<LicenseFormProps> = ({
           ))}
         </div>
         {errors.billing_cycle && (
-          <p className="text-red-500 text-xs mt-1">
-            {errors.billing_cycle.message}
-          </p>
+          <p className="text-red-400 text-xs mt-1">{errors.billing_cycle.message}</p>
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4">
         {/* Plan Selector */}
         {fetchingPlans ? (
-          <div>
-            <label
-              className={`block text-sm font-medium mb-1.5 ${isDark ? "text-gray-300" : "text-gray-700"}`}
-            >
+          <div className="space-y-2">
+            <label className="text-[10px] uppercase font-black tracking-widest text-white/40">
               Subscription Plan
             </label>
-            <div
-              className={`w-full h-[42px] rounded-xl animate-pulse ${isDark ? "bg-white/5" : "bg-gray-100"}`}
-            />
+            <div className="w-full h-12 rounded-2xl animate-pulse bg-white/5 border border-white/10" />
           </div>
         ) : (
           <FormField
@@ -128,20 +100,18 @@ export const LicenseForm: React.FC<LicenseFormProps> = ({
             name="plan_id"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Subscription Plan</FormLabel>
+                <label className="text-[10px] uppercase font-black tracking-widest text-white/40">
+                  Subscription Plan
+                </label>
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                   disabled={plans.length === 0}
                 >
                   <FormControl>
-                    <SelectTrigger className="h-11 rounded-xl">
+                    <SelectTrigger className="h-12 rounded-2xl bg-white/5 border-white/10 text-white text-sm px-5 mt-2">
                       <SelectValue
-                        placeholder={
-                          plans.length === 0
-                            ? "No plans available"
-                            : "Select a plan..."
-                        }
+                        placeholder={plans.length === 0 ? "No plans available" : "Select a plan..."}
                       />
                     </SelectTrigger>
                   </FormControl>
@@ -159,17 +129,20 @@ export const LicenseForm: React.FC<LicenseFormProps> = ({
           />
         )}
 
+        {/* Notes */}
         <FormField
           control={form.control}
           name="notes"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Notes (optional)</FormLabel>
+              <label className="text-[10px] uppercase font-black tracking-widest text-white/40">
+                Notes (optional)
+              </label>
               <FormControl>
-                <Input
-                  placeholder="Internal notes..."
-                  className="h-11 rounded-xl"
+                <input
                   {...field}
+                  placeholder="Internal notes..."
+                  className="w-full mt-2 bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-sm text-white focus:outline-none focus:border-amber-500/50 transition-colors placeholder:text-white/20"
                 />
               </FormControl>
               <FormMessage />
@@ -179,29 +152,10 @@ export const LicenseForm: React.FC<LicenseFormProps> = ({
       </div>
 
       {plans.length === 0 && !fetchingPlans && (
-        <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-500 text-sm">
-          ⚠️ No active plans found. Please run the seed script to populate
-          plans.
+        <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-mono">
+          No active plans found. Please seed the plans first.
         </div>
       )}
-
-      <button
-        onClick={onSubmit}
-        disabled={loading || plans.length === 0}
-        className={`w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 mt-4 transition-transform active:scale-[0.98] ${
-          isDark
-            ? "bg-cyan-500 hover:bg-cyan-400 text-black shadow-[0_0_20px_rgba(6,182,212,0.3)] disabled:opacity-50 disabled:cursor-not-allowed"
-            : "bg-blue-600 hover:bg-blue-700 text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-        }`}
-      >
-        {loading ? (
-          <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-        ) : (
-          <>
-            Generate Key <Sparkles size={18} />
-          </>
-        )}
-      </button>
     </div>
   );
 };

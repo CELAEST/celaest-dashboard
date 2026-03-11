@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { ChevronDown, Check, LucideIcon } from "lucide-react";
+import { CaretDown, Check, Icon } from "@phosphor-icons/react";
 import { motion, AnimatePresence } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
@@ -11,7 +11,7 @@ interface Option {
 }
 
 interface HeaderFilterPillProps {
-  icon: LucideIcon;
+  icon: Icon;
   options: Option[];
   value: string;
   onChange: (value: string) => void;
@@ -128,7 +128,7 @@ export function HeaderFilterPill({
           {selectedOption ? selectedOption.label : "Select..."}
         </span>
 
-        <ChevronDown
+        <CaretDown
           size={12}
           className={`transition-transform duration-300 text-gray-400 ${
             isOpen ? "rotate-180" : ""

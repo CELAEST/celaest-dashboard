@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { X, Star, Calendar } from "lucide-react";
+import { X, Star, Calendar } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useEscapeKey } from "@/features/shared/hooks/useEscapeKey";
 import { ProductModalTabs } from "./ProductModalTabs";
@@ -101,9 +101,9 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                 </span>
 
                 {/* Secondary Tags in Header */}
-                {(product.tags || []).slice(0, 2).map((tag) => (
+                {(product.tags || []).slice(0, 2).map((tag, i) => (
                   <span
-                    key={tag}
+                    key={`${tag}-${i}`}
                     className={`
                       px-2 py-0.5 rounded-md text-[10px] font-medium border uppercase tracking-wider
                       ${

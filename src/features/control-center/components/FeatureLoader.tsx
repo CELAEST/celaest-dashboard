@@ -4,7 +4,7 @@ import React, { useMemo } from "react";
 import dynamic from "next/dynamic";
 import { FEATURE_REGISTRY, ValidTabId } from "../config/feature-registry";
 import { useAccessControl } from "../hooks/useAccessControl";
-import { Server } from "lucide-react";
+import { HardDrives } from "@phosphor-icons/react";
 import { useDashboardRouter } from "../hooks/useDashboardRouter";
 import { PageSkeleton } from "@/components/ui/skeletons";
 
@@ -68,7 +68,7 @@ export const FeatureLoader: React.FC<FeatureLoaderProps> = ({
     if (reason === "guest") {
       return (
         <div className="flex flex-col items-center justify-center h-[50vh] text-gray-500">
-          <Server size={48} className="mb-4 opacity-50" />
+          <HardDrives size={48} className="mb-4 opacity-50" />
           <h2 className="text-xl font-bold mb-2">Access Restricted</h2>
           <p className="font-mono text-sm">
             Please sign in to access this module.
@@ -86,7 +86,7 @@ export const FeatureLoader: React.FC<FeatureLoaderProps> = ({
     if (reason === "forbidden") {
       return (
         <div className="flex flex-col items-center justify-center h-[50vh] text-red-500">
-          <Server size={48} className="mb-4 opacity-50" />
+          <HardDrives size={48} className="mb-4 opacity-50" />
           <h2 className="text-xl font-bold mb-2">Access Denied</h2>
           <p className="font-mono text-sm">
             You do not have permission to view this module.

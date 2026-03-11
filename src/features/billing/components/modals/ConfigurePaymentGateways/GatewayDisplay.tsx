@@ -1,5 +1,5 @@
 import React from "react";
-import { Key, Eye, EyeOff, Activity } from "lucide-react";
+import { Key, Eye, EyeSlash, Pulse } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { PaymentGateway } from "../../../types";
 
@@ -58,7 +58,7 @@ export const GatewayDisplay: React.FC<GatewayDisplayProps> = ({
             }`}
           >
             {showApiKey[gateway.id] ? (
-              <EyeOff className="w-4 h-4" />
+              <EyeSlash className="w-4 h-4" />
             ) : (
               <Eye className="w-4 h-4" />
             )}
@@ -73,7 +73,7 @@ export const GatewayDisplay: React.FC<GatewayDisplayProps> = ({
         }`}
       >
         <div className="flex items-center gap-2 mb-2">
-          <Activity
+          <Pulse
             className={`w-3.5 h-3.5 ${
               isDark ? "text-gray-500" : "text-gray-400"
             }`}
@@ -87,7 +87,7 @@ export const GatewayDisplay: React.FC<GatewayDisplayProps> = ({
           </div>
         </div>
         <code
-          className={`text-[10px] font-mono font-medium break-all block ${
+          className={`text-[10px] font-mono font-medium wrap-anywhere block ${
             isDark ? "text-gray-400" : "text-gray-600"
           }`}
         >

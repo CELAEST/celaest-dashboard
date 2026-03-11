@@ -3,13 +3,13 @@ import { format } from "date-fns";
 import {
   Play,
   Clock,
-  Activity,
-  Loader2,
-  AlertTriangle,
-  CheckCircle2,
+  Pulse,
+  CircleNotch,
+  Warning,
+  CheckCircle,
   XCircle,
   PauseCircle,
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import { useJobs } from "../../hooks/useJobs";
 import { BackgroundJob } from "../../api/jobs.api";
 
@@ -32,7 +32,7 @@ export const JobMonitorTab: React.FC<JobMonitorTabProps> = ({
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full">
-        <Loader2 className="animate-spin text-purple-500" size={32} />
+        <CircleNotch className="animate-spin text-purple-500" size={32} />
       </div>
     );
   }
@@ -40,7 +40,7 @@ export const JobMonitorTab: React.FC<JobMonitorTabProps> = ({
   if (error || !jobs) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-red-400">
-        <AlertTriangle size={36} className="mb-4" />
+        <Warning size={36} className="mb-4" />
         <p>Failed to load job monitor</p>
       </div>
     );
@@ -49,7 +49,7 @@ export const JobMonitorTab: React.FC<JobMonitorTabProps> = ({
   const getStatusIcon = (status: BackgroundJob["status"]) => {
     switch (status) {
       case "running":
-        return <Loader2 size={16} className="animate-spin text-blue-400" />;
+        return <CircleNotch size={16} className="animate-spin text-blue-400" />;
       case "idle":
         return <Clock size={16} className="text-gray-400" />;
       case "failed":
@@ -78,7 +78,7 @@ export const JobMonitorTab: React.FC<JobMonitorTabProps> = ({
         <div className="flex items-center justify-between mb-8">
           <div>
             <h3 className="text-lg font-bold text-white flex items-center gap-2">
-              <Activity size={18} className="text-purple-500" /> Background
+              <Pulse size={18} className="text-purple-500" /> Background
               Workloads
             </h3>
             <p className="text-gray-500 text-sm mt-1">
@@ -132,7 +132,7 @@ export const JobMonitorTab: React.FC<JobMonitorTabProps> = ({
                   >
                     {triggerMutation.isPending &&
                     triggerMutation.variables === job.id ? (
-                      <Loader2
+                      <CircleNotch
                         size={16}
                         className="animate-spin text-purple-400"
                       />
@@ -178,13 +178,13 @@ export const JobMonitorTab: React.FC<JobMonitorTabProps> = ({
                   </span>
                   <div className="flex items-center gap-3">
                     <span className="text-sm font-mono text-emerald-400 flex items-center gap-1">
-                      <CheckCircle2 size={14} />{" "}
+                      <CheckCircle size={14} />{" "}
                       {job.success_count.toLocaleString()}
                     </span>
                     <span
                       className={`text-sm font-mono ${job.error_count > 0 ? "text-red-400" : "text-gray-500"} flex items-center gap-1`}
                     >
-                      <AlertTriangle size={14} />{" "}
+                      <Warning size={14} />{" "}
                       {job.error_count.toLocaleString()}
                     </span>
                   </div>

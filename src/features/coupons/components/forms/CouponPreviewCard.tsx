@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { TicketPercent, Zap, Check } from "lucide-react";
+import { Tag, Lightning, Check } from "@phosphor-icons/react";
 
 interface CouponPreviewCardProps {
   previewData: {
@@ -16,12 +16,12 @@ export const CouponPreviewCard = ({ previewData }: CouponPreviewCardProps) => {
     <div className="w-full lg:w-72 shrink-0">
       <div className="sticky top-0 bg-neutral-900/50 border border-white/5 rounded-2xl p-6 overflow-hidden">
         <div className="absolute top-0 right-0 p-2 opacity-10">
-          <TicketPercent className="w-24 h-24 text-blue-500 -rotate-12" />
+          <Tag className="w-24 h-24 text-blue-500 -rotate-12" />
         </div>
 
         <div className="relative z-10 flex flex-col h-full">
           <div className="flex items-center gap-2 mb-8">
-            <Zap className="w-4 h-4 text-amber-500 fill-amber-500" />
+            <Lightning className="w-4 h-4 text-amber-500 fill-amber-500" />
             <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">
               Live Preview
             </span>

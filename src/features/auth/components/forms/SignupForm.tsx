@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Lock, Mail, User, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { Lock, Envelope, User, Eye, EyeSlash, ArrowRight } from "@phosphor-icons/react";
 import { motion } from "motion/react";
 import { signupSchema, SignupFormValues } from "@/lib/validation/schemas/auth";
 import { Button } from "@/components/ui/button";
@@ -86,7 +86,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({
               </FormLabel>
               <FormControl>
                 <div className="relative mt-1.5">
-                  <Mail
+                  <Envelope
                     className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${
                       isDark ? "text-gray-500" : "text-gray-400"
                     }`}
@@ -144,7 +144,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({
                     }`}
                   >
                     {showPassword ? (
-                      <EyeOff className="w-5 h-5" />
+                      <EyeSlash className="w-5 h-5" />
                     ) : (
                       <Eye className="w-5 h-5" />
                     )}

@@ -1,6 +1,6 @@
 import React from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { X, AlertTriangle, ShieldAlert } from "lucide-react";
+import { X, Warning, ShieldWarning } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useEscapeKey } from "@/features/shared/hooks/useEscapeKey";
 import { Button } from "@/components/ui/button";
@@ -96,11 +96,11 @@ export const UserActionModal: React.FC<UserActionModalProps> = ({
                 <div className="flex items-start gap-4">
                   <div className={`p-3 rounded-full ${colors.iconBg} shrink-0`}>
                     {actionType === "danger" ? (
-                      <AlertTriangle
+                      <Warning
                         className={`w-6 h-6 ${colors.iconColor}`}
                       />
                     ) : (
-                      <ShieldAlert className={`w-6 h-6 ${colors.iconColor}`} />
+                      <ShieldWarning className={`w-6 h-6 ${colors.iconColor}`} />
                     )}
                   </div>
                   <div className="flex-1">

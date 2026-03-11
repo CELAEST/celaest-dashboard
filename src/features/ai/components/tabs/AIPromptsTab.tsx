@@ -6,12 +6,12 @@ import { Button } from "@/components/ui/button";
 import {
   Terminal,
   Plus,
-  Trash2,
-  Edit3,
+  Trash,
+  PencilSimple,
   Tag as TagIcon,
-  Sparkles,
-  Search,
-} from "lucide-react";
+  Sparkle,
+  MagnifyingGlass,
+} from "@phosphor-icons/react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { AIPromptModal } from "../modals/AIPromptModal";
@@ -71,7 +71,7 @@ export const AIPromptsTab: React.FC<AIPromptsTabProps> = ({ token, orgId }) => {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      {/* Header with Search/Actions */}
+      {/* Header with MagnifyingGlass/Actions */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-white/[0.02] p-8 rounded-3xl border border-white/5 backdrop-blur-xl">
         <div className="max-w-md">
           <h3 className="text-2xl font-black text-white flex items-center gap-3">
@@ -86,13 +86,13 @@ export const AIPromptsTab: React.FC<AIPromptsTabProps> = ({ token, orgId }) => {
 
         <div className="flex items-center gap-3 w-full md:w-auto">
           <div className="relative flex-1 md:w-64">
-            <Search
+            <MagnifyingGlass
               className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
               size={16}
             />
             <input
               type="text"
-              placeholder="Search blueprints..."
+              placeholder="MagnifyingGlass blueprints..."
               className="w-full bg-white/5 border border-white/10 rounded-xl py-2 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-cyan-500/50 transition-all"
             />
           </div>
@@ -115,7 +115,7 @@ export const AIPromptsTab: React.FC<AIPromptsTabProps> = ({ token, orgId }) => {
             <div className="flex justify-between items-start mb-6">
               <div className="flex items-center gap-3">
                 <div className="p-2.5 bg-cyan-500/10 rounded-xl border border-cyan-500/20 group-hover:scale-110 transition-transform">
-                  <Sparkles size={18} className="text-cyan-400" />
+                  <Sparkle size={18} className="text-cyan-400" />
                 </div>
                 <div>
                   <h4 className="font-bold text-white tracking-tight truncate max-w-[140px]">
@@ -137,7 +137,7 @@ export const AIPromptsTab: React.FC<AIPromptsTabProps> = ({ token, orgId }) => {
                   className="h-9 w-9 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white border border-white/5"
                   onClick={() => handleOpenEdit(prompt)}
                 >
-                  <Edit3 size={15} />
+                  <PencilSimple size={15} />
                 </Button>
                 <Button
                   variant="ghost"
@@ -150,7 +150,7 @@ export const AIPromptsTab: React.FC<AIPromptsTabProps> = ({ token, orgId }) => {
                   }}
                   disabled={deleteMutation.isPending}
                 >
-                  <Trash2 size={15} />
+                  <Trash size={15} />
                 </Button>
               </div>
             </div>

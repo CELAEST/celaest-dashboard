@@ -6,7 +6,7 @@
 
 import React from "react";
 import { Review } from "../../types";
-import { Star, CheckCircle2 } from "lucide-react";
+import { Star, CheckCircle } from "@phosphor-icons/react";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -40,7 +40,7 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({ review }) => {
               <span className="font-medium text-white">{review.user_name}</span>
               {review.is_verified_purchase && (
                 <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-400">
-                  <CheckCircle2 className="h-3 w-3" />
+                  <CheckCircle className="h-3 w-3" />
                   Compra verificada
                 </span>
               )}

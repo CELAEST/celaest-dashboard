@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { CheckCircle2, AlertCircle } from "lucide-react";
+import { CheckCircle, Warning } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
 import { BackendReleaseActivity } from "@/features/assets/api/assets.api";
@@ -43,7 +43,7 @@ export const RecentReleaseFeed: React.FC<RecentReleaseFeedProps> = ({
         <h3
           className={`font-bold text-base ${isDark ? "text-white" : "text-gray-900"}`}
         >
-          Activity Log
+          Pulse Log
         </h3>
         <button
           className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded transition-colors ${isDark ? "bg-white/5 hover:bg-white/10 text-gray-400" : "bg-gray-100 hover:bg-gray-200 text-gray-500"}`}
@@ -97,9 +97,9 @@ export const RecentReleaseFeed: React.FC<RecentReleaseFeedProps> = ({
                   }`}
                 >
                   {item.status === "success" ? (
-                    <CheckCircle2 size={10} />
+                    <CheckCircle size={10} />
                   ) : item.status === "warning" ? (
-                    <AlertCircle size={10} />
+                    <Warning size={10} />
                   ) : (
                     <div className="w-1.5 h-1.5 rounded-full bg-current" />
                   )}

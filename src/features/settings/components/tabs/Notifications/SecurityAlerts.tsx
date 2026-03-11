@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { ShieldAlert } from "lucide-react";
+import { ShieldWarning } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
 export const SecurityAlerts: React.FC = memo(() => {
@@ -13,7 +13,7 @@ export const SecurityAlerts: React.FC = memo(() => {
     >
       <div className="flex items-start gap-4">
         <div className="w-10 h-10 rounded-lg bg-red-500 flex items-center justify-center shrink-0 shadow-lg shadow-red-500/20">
-          <ShieldAlert className="w-6 h-6 text-white" />
+          <ShieldWarning className="w-6 h-6 text-white" />
         </div>
         <div>
           <p

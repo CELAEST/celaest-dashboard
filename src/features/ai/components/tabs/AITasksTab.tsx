@@ -4,15 +4,15 @@ import React, { useState } from "react";
 import { format } from "date-fns";
 import {
   Terminal,
-  Layers,
+  Stack,
   Clock,
-  CheckCircle2,
+  CheckCircle,
   XCircle,
-  Loader2,
+  CircleNotch,
   Database,
   Coins,
   Plus,
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import { AITask, AIBatch, AIBatchTask } from "../../types";
 import { useAITasks, useAIBatches } from "../../hooks/useAI";
 import { Button } from "@/components/ui/button";
@@ -56,11 +56,11 @@ export const AITasksTab: React.FC<AITasksTabProps> = ({ token, orgId }) => {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "completed":
-        return <CheckCircle2 size={16} className="text-emerald-500" />;
+        return <CheckCircle size={16} className="text-emerald-500" />;
       case "failed":
         return <XCircle size={16} className="text-red-500" />;
       case "processing":
-        return <Loader2 size={16} className="text-blue-500 animate-spin" />;
+        return <CircleNotch size={16} className="text-blue-500 animate-spin" />;
       default:
         return <Clock size={16} className="text-gray-400" />;
     }
@@ -103,7 +103,7 @@ export const AITasksTab: React.FC<AITasksTabProps> = ({ token, orgId }) => {
                 : "text-gray-400 hover:text-white hover:bg-white/5"
             }`}
           >
-            <Layers size={16} />
+            <Stack size={16} />
             Batch Jobs
           </button>
         </div>
@@ -124,7 +124,7 @@ export const AITasksTab: React.FC<AITasksTabProps> = ({ token, orgId }) => {
           <div className="flex-1 overflow-auto p-4 space-y-3">
             {isTasksLoading ? (
               <div className="flex items-center justify-center h-full py-12">
-                <Loader2 className="text-cyan-400 animate-spin" size={24} />
+                <CircleNotch className="text-cyan-400 animate-spin" size={24} />
               </div>
             ) : tasks.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full py-12 text-gray-500 italic">
@@ -188,11 +188,11 @@ export const AITasksTab: React.FC<AITasksTabProps> = ({ token, orgId }) => {
           <div className="flex-1 overflow-auto p-4 space-y-4">
             {isBatchesLoading ? (
               <div className="flex items-center justify-center h-full py-12">
-                <Loader2 className="text-purple-400 animate-spin" size={24} />
+                <CircleNotch className="text-purple-400 animate-spin" size={24} />
               </div>
             ) : batches.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full py-20 bg-white/[0.01] rounded-3xl border border-dashed border-white/10">
-                <Layers size={48} className="text-gray-800 mb-4 opacity-50" />
+                <Stack size={48} className="text-gray-800 mb-4 opacity-50" />
                 <p className="text-gray-500 font-medium">
                   No batch jobs running
                 </p>
@@ -209,7 +209,7 @@ export const AITasksTab: React.FC<AITasksTabProps> = ({ token, orgId }) => {
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-4">
                       <div className="p-2 bg-purple-500/10 rounded-xl border border-purple-500/20 text-purple-400">
-                        <Layers size={20} />
+                        <Stack size={20} />
                       </div>
                       <div>
                         <h4 className="text-lg font-bold text-white tracking-tight">

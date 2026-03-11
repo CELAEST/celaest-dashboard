@@ -1,5 +1,5 @@
 import React from "react";
-import { PauseCircle, XCircle, ArrowDownCircle } from "lucide-react";
+import { PauseCircle, XCircle, ArrowCircleDown } from "@phosphor-icons/react";
 import { motion } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
@@ -61,7 +61,7 @@ export const SubscriptionActions: React.FC<SubscriptionActionsProps> = ({
               </div>
             </div>
           </div>
-          <ArrowDownCircle
+          <ArrowCircleDown
             className={`w-4 h-4 text-orange-400 transition-transform duration-300 ${
               showPauseConfirm
                 ? "rotate-180"
@@ -109,7 +109,7 @@ export const SubscriptionActions: React.FC<SubscriptionActionsProps> = ({
               </div>
             </div>
           </div>
-          <ArrowDownCircle
+          <ArrowCircleDown
             className={`w-4 h-4 text-red-400 transition-transform duration-300 ${
               showCancelConfirm
                 ? "rotate-180"

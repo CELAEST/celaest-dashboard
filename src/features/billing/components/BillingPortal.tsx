@@ -1,15 +1,16 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Shield,
   Crown,
   User,
-  LayoutGrid,
+  SquaresFour,
   Receipt,
   Package,
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
+import { PageBanner } from "@/components/layout/PageLayout";
 import { BillingOverview } from "./views/BillingOverview";
 import { InvoicesView } from "./views/InvoicesView";
 import { AdminOverviewView } from "./views/AdminOverviewView";
@@ -38,6 +39,11 @@ export const BillingPortal: React.FC = () => {
   const [activeTab, setActiveTab] = useState<BillingTab>("overview");
   const [activeAdminTab, setActiveAdminTab] = useState<AdminTab>("overview");
 
+  // Guard: run the Stripe redirect handler exactly once per navigation.
+  // session?.accessToken stays in deps so we can wait for it to be available
+  // when verifying a sessionId, but hasHandledRedirectRef prevents re-fires.
+  const hasHandledRedirectRef = useRef(false);
+
   // Handle Stripe Redirection Success/Cancel & Cleanup Legacy URLs
   useEffect(() => {
     // 1. Defend against legacy/ghost URLs that cause 404
@@ -55,18 +61,22 @@ export const BillingPortal: React.FC = () => {
     const cancel = searchParams.get("cancel");
     const sessionId = searchParams.get("session_id");
 
-    const handleSuccess = async () => {
-      if (success === "true") {
-        // If we have a session ID, verify it actively to ensure immediate access
+    if (success === "true") {
+      // Defer until the token is available so verifyPurchase can be called.
+      // On the first render session is null; on the next it's populated.
+      if (sessionId && !session?.accessToken) return;
+      // Already handled on a previous render cycle — skip.
+      if (hasHandledRedirectRef.current) return;
+      hasHandledRedirectRef.current = true;
+
+      const handleSuccess = async () => {
         if (sessionId && session?.accessToken) {
           const toastId = toast.loading("Verifying purchase...");
           try {
-            // Active verification against backend
             const result = await billingApi.verifyPurchase(
               session.accessToken,
               sessionId,
             );
-
             if (result.status === "completed" || result.has_access) {
               toast.success("Subscription successfully activated!", {
                 description: "Your new plan is now active.",
@@ -81,7 +91,6 @@ export const BillingPortal: React.FC = () => {
             }
           } catch (e: unknown) {
             logger.error("Verification failed", e);
-            // Fallback: still show success but maybe warn or just rely on webhook
             toast.success("Purchase recorded", {
               description: "Updating your subscription details...",
               id: toastId,
@@ -89,20 +98,19 @@ export const BillingPortal: React.FC = () => {
           }
         } else {
           toast.success("Subscription successfully activated!", {
+            id: "stripe-success",
             description: "Your new plan is now active.",
             duration: 5000,
           });
         }
-
-        // Always refresh and clean URL
         await refresh();
         router.replace(`/?tab=billing`, { scroll: false });
-      }
-    };
+      };
 
-    if (success === "true") {
       handleSuccess();
     } else if (cancel === "true") {
+      if (hasHandledRedirectRef.current) return;
+      hasHandledRedirectRef.current = true;
       toast.error("Payment cancelled", {
         description: "Your subscription remains unchanged.",
       });
@@ -110,205 +118,176 @@ export const BillingPortal: React.FC = () => {
     }
   }, [searchParams, router, refresh, session?.accessToken]);
 
-  return (
-    <div className="flex-1 flex flex-col min-h-0 h-full">
-      {/* Sticky Header Area (Licensing Style) */}
+  const billingTabs =
+    viewMode === "customer" ? (
       <div
-        className={`sticky top-0 z-30 backdrop-blur-xl border-b transition-all duration-300 shrink-0 ${
-          isDark ? "bg-black/50 border-white/5" : "bg-white/70 border-gray-100"
+        className={`flex items-center p-0.5 rounded-lg ${
+          isDark
+            ? "bg-white/5 border border-white/5"
+            : "bg-gray-100 border border-gray-200"
         }`}
       >
-        <div className="w-full py-4 px-6">
-          <div className="flex items-center justify-between">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <h1
-                className={`text-2xl sm:text-3xl font-black tracking-tighter uppercase italic ${
-                  isDark
-                    ? "bg-linear-to-r from-white via-white to-white/40 bg-clip-text text-transparent"
-                    : "text-gray-900"
-                }`}
-              >
-                {viewMode === "admin"
-                  ? "Financial Command Center"
-                  : "Billing Portal"}
-              </h1>
-              <p
-                className={`text-[10px] sm:text-xs font-mono tracking-widest uppercase mt-1 ${
-                  isDark ? "text-cyan-400/60" : "text-blue-600/60"
-                }`}
-              >
-                {viewMode === "admin"
-                  ? "Master Financial Repository & Controls"
-                  : "Subscription & Payment Management"}
-              </p>
-            </motion.div>
-
-            {/* Trust Badges (Compact) */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="hidden lg:flex items-center gap-3"
-            >
-              <div
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border ${
-                  isDark
-                    ? "bg-emerald-500/10 border-emerald-500/20"
-                    : "bg-emerald-50 border-emerald-200"
-                }`}
-              >
-                <Shield
-                  size={14}
-                  className={isDark ? "text-emerald-400" : "text-emerald-600"}
-                />
-                <span
-                  className={`text-[10px] font-black uppercase tracking-widest ${
-                    isDark ? "text-emerald-400" : "text-emerald-700"
-                  }`}
-                >
-                  PCI-DSS
-                </span>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-
-        {/* Subtle bottom glow separator */}
-        <div
-          className={`h-px w-full bg-linear-to-r from-transparent via-cyan-500/20 to-transparent ${
-            isDark ? "opacity-100" : "opacity-0"
+        <button
+          onClick={() => setActiveTab("overview")}
+          className={`px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 transition-all ${
+            activeTab === "overview"
+              ? isDark
+                ? "bg-cyan-500/15 text-cyan-400"
+                : "bg-white text-blue-600 shadow-sm"
+              : isDark
+                ? "text-gray-500 hover:text-gray-300"
+                : "text-gray-500 hover:text-gray-700"
           }`}
-        />
+        >
+          <SquaresFour size={12} />
+          Overview
+        </button>
+        <button
+          onClick={() => setActiveTab("invoices")}
+          className={`px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 transition-all ${
+            activeTab === "invoices"
+              ? isDark
+                ? "bg-amber-500/15 text-amber-400"
+                : "bg-white text-amber-600 shadow-sm"
+              : isDark
+                ? "text-gray-500 hover:text-gray-300"
+                : "text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          <Receipt size={12} />
+          Invoices
+        </button>
       </div>
-
-      {/* Navigation Tabs (Fixed below header) */}
+    ) : (
       <div
-        className={`shrink-0 px-6 pt-4 pb-2 ${isDark ? "bg-black/20" : "bg-gray-50/50"}`}
+        className={`flex items-center p-0.5 rounded-lg ${
+          isDark
+            ? "bg-white/5 border border-white/5"
+            : "bg-gray-100 border border-gray-200"
+        }`}
       >
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          {/* Domain Tabs (Customer Mode Only) - Now on Left */}
-          {viewMode === "customer" ? (
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => setActiveTab("overview")}
-                className={`pt-2.5 pb-2 flex items-center gap-2 text-[11px] font-black uppercase tracking-widest border-b-[3px] transition-all duration-300 ${
-                  activeTab === "overview"
-                    ? isDark
-                      ? "text-cyan-400 border-cyan-400"
-                      : "text-blue-600 border-blue-600"
-                    : "text-gray-400 border-transparent hover:text-gray-300 mb-[3px]"
-                }`}
-              >
-                <LayoutGrid size={14} className="mb-0.5" />
-                Overview
-              </button>
-              <button
-                onClick={() => setActiveTab("invoices")}
-                className={`pt-2.5 pb-2 flex items-center gap-2 text-[11px] font-black uppercase tracking-widest border-b-[3px] transition-all duration-300 ${
-                  activeTab === "invoices"
-                    ? isDark
-                      ? "text-cyan-400 border-cyan-400"
-                      : "text-blue-600 border-blue-600"
-                    : "text-gray-400 border-transparent hover:text-gray-300 mb-[3px]"
-                }`}
-              >
-                <Receipt size={14} className="mb-0.5" />
-                Invoices
-              </button>
-            </div>
-          ) : (
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => setActiveAdminTab("overview")}
-                className={`pt-2.5 pb-2 flex items-center gap-2 text-[11px] font-black uppercase tracking-widest border-b-[3px] transition-all duration-300 ${
-                  activeAdminTab === "overview"
-                    ? isDark
-                      ? "text-purple-400 border-purple-400"
-                      : "text-purple-600 border-purple-600"
-                    : "text-gray-400 border-transparent hover:text-gray-300 mb-[3px]"
-                }`}
-              >
-                <LayoutGrid size={14} className="mb-0.5" />
-                Financial
-              </button>
-              <button
-                onClick={() => setActiveAdminTab("catalog")}
-                className={`pt-2.5 pb-2 flex items-center gap-2 text-[11px] font-black uppercase tracking-widest border-b-[3px] transition-all duration-300 ${
-                  activeAdminTab === "catalog"
-                    ? isDark
-                      ? "text-purple-400 border-purple-400"
-                      : "text-purple-600 border-purple-600"
-                    : "text-gray-400 border-transparent hover:text-gray-300 mb-[3px]"
-                }`}
-              >
-                <Package size={14} className="mb-0.5" />
-                Catalog
-              </button>
-              <button
-                onClick={() => setActiveAdminTab("controls")}
-                className={`pt-2.5 pb-2 flex items-center gap-2 text-[11px] font-black uppercase tracking-widest border-b-[3px] transition-all duration-300 ${
-                  activeAdminTab === "controls"
-                    ? isDark
-                      ? "text-purple-400 border-purple-400"
-                      : "text-purple-600 border-purple-600"
-                    : "text-gray-400 border-transparent hover:text-gray-300 mb-[3px]"
-                }`}
-              >
-                <Shield size={14} className="mb-0.5" />
-                Controls
-              </button>
-            </div>
-          )}
+        <button
+          onClick={() => setActiveAdminTab("overview")}
+          className={`px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 transition-all ${
+            activeAdminTab === "overview"
+              ? isDark
+                ? "bg-purple-500/15 text-purple-400"
+                : "bg-white text-purple-600 shadow-sm"
+              : isDark
+                ? "text-gray-500 hover:text-gray-300"
+                : "text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          <SquaresFour size={12} />
+          Financial
+        </button>
+        <button
+          onClick={() => setActiveAdminTab("catalog")}
+          className={`px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 transition-all ${
+            activeAdminTab === "catalog"
+              ? isDark
+                ? "bg-cyan-500/15 text-cyan-400"
+                : "bg-white text-cyan-600 shadow-sm"
+              : isDark
+                ? "text-gray-500 hover:text-gray-300"
+                : "text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          <Package size={12} />
+          Catalog
+        </button>
+        <button
+          onClick={() => setActiveAdminTab("controls")}
+          className={`px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 transition-all ${
+            activeAdminTab === "controls"
+              ? isDark
+                ? "bg-amber-500/15 text-amber-400"
+                : "bg-white text-amber-600 shadow-sm"
+              : isDark
+                ? "text-gray-500 hover:text-gray-300"
+                : "text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          <Shield size={12} />
+          Controls
+        </button>
+      </div>
+    );
 
-          {/* View Mode Toggle - Now on Right */}
-          <div className="mb-4 sm:mb-0">
-            <div
-              className={`inline-flex p-1.5 rounded-2xl border shadow-sm -translate-y-[2px] ${
-                isDark
-                  ? "bg-black/40 border-white/10 backdrop-blur-md"
-                  : "bg-white border-gray-200"
-              }`}
-            >
-              <button
-                onClick={() => setViewMode("customer")}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all duration-300 ${
-                  viewMode === "customer"
-                    ? isDark
-                      ? "bg-cyan-500 text-white shadow-xl shadow-cyan-500/30"
-                      : "bg-blue-600 text-white shadow-xl shadow-blue-500/30"
-                    : isDark
-                      ? "text-gray-400 hover:text-white hover:bg-white/5"
-                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                }`}
-              >
-                <User size={14} />
-                Customer
-              </button>
-              <button
-                onClick={() => setViewMode("admin")}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all duration-300 ${
-                  viewMode === "admin"
-                    ? isDark
-                      ? "bg-purple-500 text-white shadow-xl shadow-purple-500/30"
-                      : "bg-purple-600 text-white shadow-xl shadow-purple-500/30"
-                    : isDark
-                      ? "text-gray-400 hover:text-white hover:bg-white/5"
-                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                }`}
-              >
-                <Crown size={14} />
-                Admin
-              </button>
-            </div>
-          </div>
-        </div>
+  const headerActions = (
+    <div className="flex items-center gap-2">
+      {/* Tabs */}
+      {billingTabs}
+
+      <div
+        className={`hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded-lg border ${
+          isDark
+            ? "bg-emerald-500/10 border-emerald-500/20"
+            : "bg-emerald-50 border-emerald-200"
+        }`}
+      >
+        <Shield
+          size={14}
+          className={isDark ? "text-emerald-400" : "text-emerald-600"}
+        />
+        <span
+          className={`text-[9px] font-black uppercase tracking-[0.22em] ${
+            isDark ? "text-emerald-400" : "text-emerald-700"
+          }`}
+        >
+          PCI-DSS
+        </span>
       </div>
 
-      {/* Main Content Area - Strict Zero Scroll (Fits Viewport) */}
+      <div
+        className={`inline-flex p-0.5 rounded-lg border shadow-sm ${
+          isDark
+            ? "bg-black/40 border-white/10 backdrop-blur-md"
+            : "bg-white border-gray-200"
+        }`}
+      >
+        <button
+          onClick={() => setViewMode("customer")}
+          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[9px] font-black uppercase tracking-[0.18em] transition-all duration-300 ${
+            viewMode === "customer"
+              ? isDark
+                ? "bg-cyan-500 text-white shadow-lg shadow-cyan-500/25"
+                : "bg-blue-600 text-white shadow-lg shadow-blue-500/25"
+              : isDark
+                ? "text-gray-400 hover:text-white hover:bg-white/5"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+          }`}
+        >
+          <User size={13} />
+          Customer
+        </button>
+        <button
+          onClick={() => setViewMode("admin")}
+          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[9px] font-black uppercase tracking-[0.18em] transition-all duration-300 ${
+            viewMode === "admin"
+              ? isDark
+                ? "bg-purple-500 text-white shadow-lg shadow-purple-500/25"
+                : "bg-purple-600 text-white shadow-lg shadow-purple-500/25"
+              : isDark
+                ? "text-gray-400 hover:text-white hover:bg-white/5"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+          }`}
+        >
+          <Crown size={13} />
+          Admin
+        </button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="flex-1 flex flex-col min-h-0 h-full">
+      <PageBanner
+        title={viewMode === "admin" ? "Financial Command Center" : "Billing Portal"}
+        subtitle={viewMode === "admin" ? "Master Financial Repository & Controls" : "Subscription & Payment Management"}
+        actions={headerActions}
+      />
+
       <div className="flex-1 overflow-hidden flex flex-col min-h-0 relative">
         <AnimatePresence mode="wait">
           {viewMode === "admin" ? (

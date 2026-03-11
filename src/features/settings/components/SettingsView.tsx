@@ -9,7 +9,7 @@ import {
   Globe,
   User,
   CreditCard,
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import { AccountProfile } from "./tabs/AccountProfile";
 import { SecurityAccess } from "./tabs/SecurityAccess";
 import { WorkspaceTeam } from "./tabs/WorkspaceTeam";
@@ -22,7 +22,7 @@ import type { SettingsTabId } from "./types";
 import { motion, AnimatePresence } from "motion/react";
 
 /**
- * Settings View - Edge-to-Edge Professional Layout
+ * Gear View - Edge-to-Edge Professional Layout
  * Sidebar Navigation + Full-Width Content
  */
 export function SettingsView() {

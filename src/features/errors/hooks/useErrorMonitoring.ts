@@ -191,6 +191,11 @@ export const useErrorMonitoring = () => {
     });
   }, [errors, errorFilters, searchQuery]);
 
+  const hasActiveFilters =
+    errorFilters.severity !== "all" ||
+    errorFilters.status !== "all" ||
+    searchQuery.trim().length > 0;
+
   const stats = useMemo(() => {
     if (!errorStats) {
       return {
@@ -220,6 +225,11 @@ export const useErrorMonitoring = () => {
     await updateStatusMutation.mutateAsync({ taskId, status });
   };
 
+  const clearFilters = () => {
+    setSearchQuery("");
+    setErrorFilters({ severity: "all", status: "all" });
+  };
+
   return {
     isDark,
     isAdmin,
@@ -238,6 +248,8 @@ export const useErrorMonitoring = () => {
     toggleErrorExpansion,
     updateTaskStatus,
     filteredErrors,
+    hasActiveFilters,
+    clearFilters,
     stats,
     platformDistribution: errorStats?.platform_distribution || [],
   };

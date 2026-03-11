@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { motion } from "motion/react";
-import { Shield } from "lucide-react";
+import { Shield } from "@phosphor-icons/react";
 import { MenuItem } from "./config";
 
 interface SidebarMenuItemProps {

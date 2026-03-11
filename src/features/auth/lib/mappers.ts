@@ -4,7 +4,9 @@ import { parseRole, calculateEffectivePermissions } from "./permissions";
 
 export function mapSupabaseUser(supabaseUser: SupabaseUser): AuthUser {
   const metadata = supabaseUser.user_metadata || {};
-  const role = parseRole(metadata.role);
+  // app_metadata is admin-controlled (trusted). user_metadata is user-editable (fallback only).
+  const appMetadata = (supabaseUser.app_metadata || {}) as { role?: string };
+  const role = parseRole(appMetadata.role ?? metadata.role);
 
   // Calculate effective permissions (Role + Custom Scopes)
   const permissions = calculateEffectivePermissions(

@@ -2,14 +2,14 @@ import React, { useState } from "react";
 import {
   ShieldCheck,
   Clock,
-  Ban,
-  AlertTriangle,
+  Prohibit,
+  Warning,
   X,
   Check,
-  RefreshCw,
-  Zap,
+  ArrowClockwise,
+  Lightning,
   Play,
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import { motion, AnimatePresence } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
@@ -18,6 +18,7 @@ import { UpgradePlanModal } from "@/features/billing/components/modals/UpgradePl
 interface LicenseActionsProps {
   status: string;
   onStatusChange: (status: string) => void;
+  onRevoke?: () => void;
   onRenew?: () => void;
   onConvertTrial?: () => void;
   onReactivate?: () => void;
@@ -26,6 +27,7 @@ interface LicenseActionsProps {
 export const LicenseActions: React.FC<LicenseActionsProps> = ({
   status,
   onStatusChange,
+  onRevoke,
   onRenew,
   onConvertTrial,
   onReactivate,
@@ -42,7 +44,14 @@ export const LicenseActions: React.FC<LicenseActionsProps> = ({
       setIsConfirmingRevoke(true);
       return;
     }
-    onStatusChange("revoked");
+    // Use dedicated revoke endpoint (POST /revoke) which handles
+    // customer_assets cleanup and emits the correct event.
+    // Falls back to generic status change if onRevoke is not provided.
+    if (onRevoke) {
+      onRevoke();
+    } else {
+      onStatusChange("revoked");
+    }
     setIsConfirmingRevoke(false);
   };
 
@@ -80,7 +89,7 @@ export const LicenseActions: React.FC<LicenseActionsProps> = ({
                     : "bg-purple-100 text-purple-600"
                 }`}
               >
-                <Zap
+                <Lightning
                   size={24}
                   className={
                     isDark ? "drop-shadow-[0_0_8px_rgba(168,85,247,0.8)]" : ""
@@ -114,7 +123,7 @@ export const LicenseActions: React.FC<LicenseActionsProps> = ({
                     : "bg-blue-100 text-blue-600"
                 }`}
               >
-                <RefreshCw size={24} />
+                <ArrowClockwise size={24} />
               </div>
               <div className="flex flex-col items-start flex-1 text-left">
                 <span className="text-sm font-black uppercase tracking-wider">
@@ -223,7 +232,7 @@ export const LicenseActions: React.FC<LicenseActionsProps> = ({
             }`}
           >
             <div className="p-2 rounded-xl bg-purple-500/10 text-purple-500">
-              <Zap size={18} />
+              <Lightning size={18} />
             </div>
             <div className="flex flex-col items-start">
               <span className="text-xs font-bold uppercase tracking-wider">
@@ -246,7 +255,7 @@ export const LicenseActions: React.FC<LicenseActionsProps> = ({
             }`}
           >
             <div className="p-2 rounded-xl bg-blue-500/10 text-blue-500">
-              <RefreshCw size={18} />
+              <ArrowClockwise size={18} />
             </div>
             <div className="flex flex-col items-start">
               <span className="text-xs font-bold uppercase tracking-wider">
@@ -304,7 +313,7 @@ export const LicenseActions: React.FC<LicenseActionsProps> = ({
                 }`}
               >
                 <div className="p-2 rounded-xl bg-rose-500/10">
-                  <Ban size={18} />
+                  <Prohibit size={18} />
                 </div>
                 <div className="flex flex-col items-start">
                   <span className="text-xs font-black uppercase tracking-wider">
@@ -328,7 +337,7 @@ export const LicenseActions: React.FC<LicenseActionsProps> = ({
                 }`}
               >
                 <div className="flex items-center gap-3 pl-1">
-                  <AlertTriangle
+                  <Warning
                     size={18}
                     className="text-rose-500 animate-pulse"
                   />

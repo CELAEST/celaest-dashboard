@@ -1,19 +1,18 @@
-import React from "react";
+﻿import React from "react";
 import {
   Shield,
-  CheckCircle2,
+  CheckCircle,
   Clock,
-  Activity,
-  Ban,
+  Pulse,
+  Prohibit,
   Pause,
   XCircle,
-  TrendingUp,
-  Zap,
+  TrendUp,
+  Lightning,
   Lock,
-  BarChart3,
-  PieChart,
-} from "lucide-react";
-import { useTheme } from "@/features/shared/hooks/useTheme";
+  ChartBar,
+  ChartPie,
+} from "@phosphor-icons/react";
 import { motion } from "motion/react";
 import { LicenseStats } from "@/features/licensing/types";
 
@@ -21,531 +20,274 @@ interface LicensingStatsProps {
   analytics: LicenseStats | null;
 }
 
-// Status config
 const STATUS_CONFIG = [
-  {
-    key: "active",
-    label: "Active",
-    icon: CheckCircle2,
-    color: "#10b981",
-    bg: "from-emerald-500/20 to-teal-500/10",
-  },
-  {
-    key: "trial",
-    label: "Trial",
-    icon: Activity,
-    color: "#a855f7",
-    bg: "from-purple-500/20 to-violet-500/10",
-  },
-  {
-    key: "expired",
-    label: "Expired",
-    icon: Clock,
-    color: "#f97316",
-    bg: "from-orange-500/20 to-amber-500/10",
-  },
-  {
-    key: "suspended",
-    label: "Suspended",
-    icon: Pause,
-    color: "#eab308",
-    bg: "from-yellow-500/20 to-amber-500/10",
-  },
-  {
-    key: "revoked",
-    label: "Revoked",
-    icon: Ban,
-    color: "#ef4444",
-    bg: "from-red-500/20 to-rose-500/10",
-  },
-  {
-    key: "cancelled",
-    label: "Cancelled",
-    icon: XCircle,
-    color: "#6b7280",
-    bg: "from-gray-500/20 to-slate-500/10",
-  },
+  { key: "active",    label: "Active",    icon: CheckCircle, color: "#22c55e" },
+  { key: "trial",     label: "Trial",     icon: Pulse,       color: "#a855f7" },
+  { key: "expired",   label: "Expired",   icon: Clock,       color: "#f97316" },
+  { key: "suspended", label: "Suspended", icon: Pause,       color: "#eab308" },
+  { key: "revoked",   label: "Revoked",   icon: Prohibit,    color: "#ef4444" },
+  { key: "cancelled", label: "Cancelled", icon: XCircle,     color: "#4b5563" },
 ] as const;
 
-// Progress bar for status breakdown
-const StatusBar: React.FC<{
-  label: string;
-  value: number;
-  total: number;
-  color: string;
-  icon: React.ElementType;
-  index: number;
-  isDark: boolean;
-}> = ({ label, value, total, color, icon: Icon, index, isDark }) => {
+const StatusRow: React.FC<{
+  label: string; value: number; total: number;
+  color: string; icon: React.ElementType; index: number;
+}> = ({ label, value, total, color, icon: Icon, index }) => {
   const pct = total > 0 ? (value / total) * 100 : 0;
-
   return (
     <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: 0.3 + index * 0.08, duration: 0.4 }}
-      className="flex items-center gap-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 0.1 + index * 0.04 }}
+      className="flex-1 flex items-center gap-3 group"
     >
-      <div className="flex items-center gap-2.5 w-28 shrink-0">
-        <Icon size={14} style={{ color }} />
-        <span
-          className={`text-xs font-semibold ${isDark ? "text-gray-400" : "text-gray-500"}`}
-        >
-          {label}
-        </span>
+      {/* Label */}
+      <div className="flex items-center gap-2 w-22 shrink-0">
+        <Icon size={11} style={{ color }} className="shrink-0" />
+        <span className="text-[11px] font-medium text-white/40 group-hover:text-white/65 transition-colors truncate">{label}</span>
       </div>
-      <div
-        className={`flex-1 h-2.5 rounded-full overflow-hidden ${isDark ? "bg-white/5" : "bg-gray-100"}`}
-      >
+      {/* Bar track */}
+      <div className="flex-1 h-1 rounded-full bg-white/5 relative overflow-hidden">
         <motion.div
-          initial={{ width: 0 }}
-          animate={{ width: `${pct}%` }}
-          transition={{
-            delay: 0.5 + index * 0.08,
-            duration: 0.8,
-            ease: "easeOut",
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ delay: 0.2 + index * 0.04, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="absolute inset-y-0 left-0 rounded-full origin-left"
+          style={{
+            width: `${pct}%`,
+            backgroundColor: color,
+            boxShadow: pct > 0 ? `0 0 6px ${color}60` : "none",
           }}
-          className="h-full rounded-full"
-          style={{ backgroundColor: color, boxShadow: `0 0 10px ${color}40` }}
         />
       </div>
-      <div className="flex items-center gap-1.5 w-16 justify-end shrink-0">
-        <span
-          className={`text-sm font-black tabular-nums ${isDark ? "text-white" : "text-gray-900"}`}
-        >
-          {value}
-        </span>
-        <span
-          className={`text-[10px] font-medium ${isDark ? "text-gray-600" : "text-gray-400"}`}
-        >
-          ({pct.toFixed(0)}%)
-        </span>
+      {/* Count + pct */}
+      <div className="flex items-center gap-1.5 w-13 shrink-0 justify-end">
+        <span className="text-[13px] font-black tabular-nums text-white/80">{value}</span>
+        <span className="text-[9px] tabular-nums text-white/20 w-7 text-right">{pct.toFixed(0)}%</span>
       </div>
     </motion.div>
   );
 };
 
-// Donut chart component
 const DonutChart: React.FC<{
   data: { value: number; color: string; label: string }[];
   total: number;
-  isDark: boolean;
-}> = ({ data, total, isDark }) => {
-  const radius = 58;
-  const strokeWidth = 14;
-  const circumference = 2 * Math.PI * radius;
-
-  // Pre-compute offsets for each segment
-  const segments = data.reduce<
-    {
-      value: number;
-      color: string;
-      label: string;
-      dashLength: number;
-      offset: number;
-    }[]
-  >((acc, seg) => {
-    const pct = total > 0 ? seg.value / total : 0;
-    const dashLength = pct * circumference;
-    const prevEnd =
-      acc.length > 0
-        ? acc[acc.length - 1].offset + acc[acc.length - 1].dashLength
-        : 0;
-    acc.push({ ...seg, dashLength, offset: prevEnd });
-    return acc;
+}> = ({ data, total }) => {
+  const radius = 48;
+  const sw = 9;
+  const circ = 2 * Math.PI * radius;
+  const segs = data.reduce<
+    { value: number; color: string; label: string; dash: number; offset: number }[]
+  >((acc, s) => {
+    const dash = total > 0 ? (s.value / total) * circ : 0;
+    const prev = acc.length ? acc[acc.length - 1].offset + acc[acc.length - 1].dash : 0;
+    return [...acc, { ...s, dash, offset: prev }];
   }, []);
 
   return (
-    <div className="relative w-40 h-40 mx-auto">
-      <svg viewBox="0 0 160 160" className="w-full h-full -rotate-90">
-        {/* Background circle */}
-        <circle
-          cx="80"
-          cy="80"
-          r={radius}
-          fill="none"
-          stroke={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"}
-          strokeWidth={strokeWidth}
-        />
-        {/* Data segments */}
-        {segments.map((segment, i) => {
-          if (segment.value === 0) return null;
-
-          return (
-            <motion.circle
-              key={segment.label}
-              cx="80"
-              cy="80"
-              r={radius}
-              fill="none"
-              stroke={segment.color}
-              strokeWidth={strokeWidth}
-              strokeDasharray={`${segment.dashLength} ${circumference - segment.dashLength}`}
-              strokeDashoffset={-segment.offset}
-              strokeLinecap="round"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 + i * 0.1, duration: 0.6 }}
-              style={{ filter: `drop-shadow(0 0 4px ${segment.color}50)` }}
-            />
-          );
-        })}
+    <div className="relative w-32 h-32 shrink-0">
+      <svg viewBox="0 0 120 120" className="w-full h-full -rotate-90">
+        <circle cx="60" cy="60" r={radius} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth={sw} />
+        {segs.map((s, i) => s.value === 0 ? null : (
+          <motion.circle
+            key={s.label} cx="60" cy="60" r={radius} fill="none"
+            stroke={s.color} strokeWidth={sw}
+            strokeDasharray={`${s.dash} ${circ - s.dash}`}
+            strokeDashoffset={-s.offset} strokeLinecap="butt"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 + i * 0.06, duration: 0.4 }}
+          />
+        ))}
       </svg>
-      {/* Center text */}
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <motion.span
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 0.6, type: "spring", stiffness: 200 }}
-          className={`text-3xl font-black ${isDark ? "text-white" : "text-gray-900"}`}
-        >
-          {total}
-        </motion.span>
-        <span
-          className={`text-[10px] font-bold uppercase tracking-widest ${isDark ? "text-gray-500" : "text-gray-400"}`}
-        >
-          Total
-        </span>
+        <span className="text-xl font-black text-white tabular-nums leading-none">{total}</span>
+        <span className="text-[8px] font-black uppercase tracking-[0.18em] text-white/20 mt-0.5">total</span>
       </div>
     </div>
   );
 };
 
-export const LicensingStats: React.FC<LicensingStatsProps> = ({
-  analytics,
-}) => {
-  const { isDark } = useTheme();
-
+export const LicensingStats: React.FC<LicensingStatsProps> = ({ analytics }) => {
   if (!analytics) {
     return (
-      <div
-        className={`flex items-center justify-center h-64 rounded-3xl border ${isDark ? "bg-black/40 border-white/5" : "bg-white border-gray-100"}`}
-      >
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin" />
-          <p
-            className={`text-sm font-medium ${isDark ? "text-gray-500" : "text-gray-400"}`}
-          >
-            Loading analytics...
-          </p>
-        </div>
+      <div className="flex-1 flex items-center justify-center">
+        <div className="w-5 h-5 border-2 border-white/15 border-t-white/50 rounded-full animate-spin" />
       </div>
     );
   }
 
-  // Metric cards for the top row
+  const total = analytics.total;
+
   const metricCards = [
+    { label: "Total Licenses",  value: analytics.total,   icon: Shield,      sub: "Registered" },
+    { label: "Active",          value: analytics.active,  icon: CheckCircle, sub: "In use" },
     {
-      label: "Total Licenses",
-      value: analytics.total,
-      icon: Shield,
-      color: "#06b6d4",
-      gradient: "from-cyan-500/15 via-cyan-500/5 to-transparent",
-      accent: "shadow-cyan-500/10",
-    },
-    {
-      label: "Active",
-      value: analytics.active,
-      icon: CheckCircle2,
-      color: "#10b981",
-      gradient: "from-emerald-500/15 via-emerald-500/5 to-transparent",
-      accent: "shadow-emerald-500/10",
-    },
-    {
-      label: "Utilization Rate",
-      value:
-        analytics.total > 0
-          ? Math.round((analytics.active / analytics.total) * 100)
-          : 0,
-      suffix: "%",
-      icon: TrendingUp,
-      color: "#8b5cf6",
-      gradient: "from-violet-500/15 via-violet-500/5 to-transparent",
-      accent: "shadow-violet-500/10",
+      label: "Utilization",
+      value: total > 0 ? Math.round((analytics.active / total) * 100) : 0,
+      suffix: "%", icon: TrendUp, sub: "Active ratio",
     },
     {
       label: "At Risk",
       value: analytics.expired + analytics.suspended,
-      icon: Zap,
-      color: "#f59e0b",
-      gradient: "from-amber-500/15 via-amber-500/5 to-transparent",
-      accent: "shadow-amber-500/10",
+      icon: Lightning, sub: "Need action",
       alert: analytics.expired + analytics.suspended > 0,
+    },
+  ];
+
+  const insightCards = [
+    {
+      icon: Lock, label: "Health Score",
+      value: total > 0 ? Math.round(((analytics.active + analytics.trial) / total) * 100) : 0,
+      suffix: "%", sub: "Active + Trial",
+    },
+    {
+      icon: TrendUp, label: "Trials",
+      value: analytics.trial, suffix: "pending", sub: "Awaiting conversion",
+    },
+    {
+      icon: Lightning, label: "Action Needed",
+      value: analytics.expired + analytics.suspended, suffix: "keys", sub: "Expired + Suspended",
     },
   ];
 
   const donutData = STATUS_CONFIG.map((s) => ({
     value: analytics[s.key as keyof LicenseStats] as number,
-    color: s.color,
-    label: s.label,
+    color: s.color, label: s.label,
   }));
 
   return (
-    <div className="space-y-6 px-1 pb-4">
-      {/* Top Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {metricCards.map((card, index) => (
+    <div className="flex-1 min-h-0 flex flex-col gap-3 px-4 pt-4 pb-4">
+
+      {/* ── Row 1: Metric Cards ── */}
+      <div className="grid grid-cols-4 gap-3 shrink-0">
+        {metricCards.map((card, i) => (
           <motion.div
             key={card.label}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: index * 0.08 }}
-            className={`group relative p-5 rounded-2xl border overflow-hidden transition-all duration-300 hover:scale-[1.02] ${card.accent} ${
-              isDark
-                ? "bg-black/50 border-white/5 hover:border-white/10 hover:shadow-lg"
-                : "bg-white border-gray-100 shadow-sm hover:shadow-lg"
-            }`}
+            transition={{ delay: i * 0.05 }}
+            className="group relative rounded-xl border border-white/6 bg-[#0d0d0d] p-4 overflow-hidden hover:border-white/10 transition-colors duration-200"
           >
-            {/* Gradient overlay */}
-            <div
-              className={`absolute inset-0 bg-linear-to-br ${card.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
-            />
-
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-3">
-                <div
-                  className={`p-2 rounded-xl ${isDark ? "bg-white/5" : "bg-gray-50"}`}
-                >
-                  <card.icon size={18} style={{ color: card.color }} />
-                </div>
-                {card.alert && (
-                  <motion.div
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ repeat: Infinity, duration: 2 }}
-                    className="w-2 h-2 rounded-full bg-amber-500"
-                  />
-                )}
-              </div>
-              <p
-                className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isDark ? "text-gray-500" : "text-gray-400"}`}
-              >
-                {card.label}
-              </p>
-              <div className="flex items-baseline gap-1">
-                <span
-                  className={`text-2xl font-black tabular-nums ${isDark ? "text-white" : "text-gray-900"}`}
-                >
-                  {card.value}
-                </span>
-                {"suffix" in card && (
-                  <span
-                    className={`text-sm font-bold ${isDark ? "text-gray-500" : "text-gray-400"}`}
-                  >
-                    {card.suffix}
-                  </span>
-                )}
-              </div>
+            {"alert" in card && card.alert && (
+              <motion.div
+                animate={{ opacity: [1, 0.3, 1] }}
+                transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
+                className="absolute top-3.5 right-3.5 w-1.5 h-1.5 rounded-full bg-amber-500"
+              />
+            )}
+            <div className="flex items-center gap-2 mb-3">
+              <card.icon size={13} className="text-white/25 shrink-0 group-hover:text-white/45 transition-colors" />
+              <span className="text-[9px] font-black uppercase tracking-[0.18em] text-white/22 group-hover:text-white/40 transition-colors">{card.label}</span>
             </div>
+            <div className="flex items-baseline gap-0.5">
+              <span className="text-[26px] font-black tabular-nums text-white leading-none">{card.value}</span>
+              {"suffix" in card && card.suffix && (
+                <span className="text-sm font-bold text-white/30 ml-0.5">{card.suffix}</span>
+              )}
+            </div>
+            <p className="text-[9px] text-white/18 mt-1.5">{card.sub}</p>
           </motion.div>
         ))}
       </div>
 
-      {/* Main Dashboard Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Status Breakdown with Progress Bars */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className={`lg:col-span-2 p-6 rounded-2xl border ${
-            isDark
-              ? "bg-black/50 border-white/5"
-              : "bg-white border-gray-100 shadow-sm"
-          }`}
-        >
-          <div className="flex items-center gap-2 mb-6">
-            <BarChart3
-              size={16}
-              className={isDark ? "text-cyan-400" : "text-blue-600"}
-            />
-            <h3
-              className={`text-sm font-bold uppercase tracking-wider ${isDark ? "text-gray-300" : "text-gray-700"}`}
-            >
-              Status Breakdown
-            </h3>
-          </div>
+      {/* ── Row 2: Breakdown + Distribution ── */}
+      <div className="flex-1 min-h-0 grid grid-cols-3 gap-3">
 
-          <div className="space-y-4">
-            {STATUS_CONFIG.map((status, index) => (
-              <StatusBar
-                key={status.key}
-                label={status.label}
-                value={analytics[status.key as keyof LicenseStats] as number}
-                total={analytics.total}
-                color={status.color}
-                icon={status.icon}
-                index={index}
-                isDark={isDark}
+        {/* Status Breakdown */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.12 }}
+          className="col-span-2 rounded-xl border border-white/6 bg-[#0d0d0d] flex flex-col overflow-hidden"
+        >
+          {/* Panel header */}
+          <div className="relative flex items-center gap-2.5 px-5 py-3.5 shrink-0">
+            <div className="absolute inset-x-0 bottom-0 h-px bg-white/4" />
+            <div className="absolute bottom-0 left-5 h-px w-10 bg-white/18" />
+            <ChartBar size={12} className="text-white/25 shrink-0" />
+            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white/28">Status Breakdown</span>
+          </div>
+          {/* Bars — distributed full height */}
+          <div className="flex-1 min-h-0 flex flex-col px-5 py-3">
+            {STATUS_CONFIG.map((s, i) => (
+              <StatusRow
+                key={s.key}
+                label={s.label}
+                value={analytics[s.key as keyof LicenseStats] as number}
+                total={total}
+                color={s.color}
+                icon={s.icon}
+                index={i}
               />
             ))}
           </div>
         </motion.div>
 
-        {/* Donut Chart */}
+        {/* Distribution */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className={`p-6 rounded-2xl border ${
-            isDark
-              ? "bg-black/50 border-white/5"
-              : "bg-white border-gray-100 shadow-sm"
-          }`}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.16 }}
+          className="rounded-xl border border-white/6 bg-[#0d0d0d] flex flex-col overflow-hidden"
         >
-          <div className="flex items-center gap-2 mb-6">
-            <PieChart
-              size={16}
-              className={isDark ? "text-purple-400" : "text-purple-600"}
-            />
-            <h3
-              className={`text-sm font-bold uppercase tracking-wider ${isDark ? "text-gray-300" : "text-gray-700"}`}
-            >
-              Distribution
-            </h3>
+          {/* Panel header */}
+          <div className="relative flex items-center gap-2.5 px-5 py-3.5 shrink-0">
+            <div className="absolute inset-x-0 bottom-0 h-px bg-white/4" />
+            <div className="absolute bottom-0 left-5 h-px w-10 bg-white/18" />
+            <ChartPie size={12} className="text-white/25 shrink-0" />
+            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white/28">Distribution</span>
           </div>
+          {/* Content — donut izquierda + leyenda derecha */}
+          <div className="flex-1 min-h-0 flex flex-row items-center gap-4 px-5 py-4">
+            <div className="shrink-0 flex items-center justify-center">
+              <DonutChart data={donutData} total={total} />
+            </div>
+            <div className="flex-1 min-w-0 flex flex-col justify-between">
+              {STATUS_CONFIG.map((s) => {
+                const val = analytics[s.key as keyof LicenseStats] as number;
+                const pct = total > 0 ? Math.round((val / total) * 100) : 0;
+                return (
+                  <div key={s.key} className="flex items-center gap-2.5 group py-0.5">
+                    <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: s.color }} />
+                    <span className="flex-1 text-[10px] text-white/35 truncate group-hover:text-white/60 transition-colors">{s.label}</span>
+                    <span className="text-[13px] font-black tabular-nums text-white/75 shrink-0">{val}</span>
+                    <span className="text-[9px] tabular-nums text-white/22 w-7 text-right shrink-0">{pct}%</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </motion.div>
+      </div>
 
-          <DonutChart
-            data={donutData}
-            total={analytics.total}
-            isDark={isDark}
-          />
-
-          {/* Legend */}
-          <div className="grid grid-cols-2 gap-2 mt-6">
-            {STATUS_CONFIG.filter(
-              (s) => (analytics[s.key as keyof LicenseStats] as number) > 0,
-            ).map((status) => (
-              <div key={status.key} className="flex items-center gap-2">
-                <div
-                  className="w-2.5 h-2.5 rounded-full"
-                  style={{ backgroundColor: status.color }}
-                />
-                <span
-                  className={`text-xs font-medium ${isDark ? "text-gray-400" : "text-gray-500"}`}
-                >
-                  {status.label}
-                </span>
+      {/* ── Row 3: Insight Cards ── */}
+      <div className="grid grid-cols-3 gap-3 shrink-0">
+        {insightCards.map((card, i) => (
+          <motion.div
+            key={card.label}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.28 + i * 0.04 }}
+            className="group rounded-xl border border-white/6 bg-[#0d0d0d] px-5 py-4 flex items-center gap-5 hover:border-white/10 transition-colors duration-200"
+          >
+            <div className="shrink-0">
+              <card.icon size={16} className="text-white/20 group-hover:text-white/40 transition-colors" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[9px] font-black uppercase tracking-[0.18em] text-white/22 mb-1.5">{card.label}</p>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-xl font-black tabular-nums text-white leading-none">{card.value}</span>
+                {"suffix" in card && card.suffix && (
+                  <span className="text-[10px] text-white/25">{card.suffix}</span>
+                )}
               </div>
-            ))}
-          </div>
-        </motion.div>
+              <p className="text-[9px] text-white/18 mt-1 truncate">{card.sub}</p>
+            </div>
+          </motion.div>
+        ))}
       </div>
 
-      {/* Bottom Insight Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className={`p-5 rounded-2xl border ${isDark ? "bg-black/50 border-white/5" : "bg-white border-gray-100 shadow-sm"}`}
-        >
-          <div className="flex items-center gap-2 mb-3">
-            <Lock size={14} className="text-emerald-400" />
-            <span
-              className={`text-[10px] font-bold uppercase tracking-widest ${isDark ? "text-gray-500" : "text-gray-400"}`}
-            >
-              Health Score
-            </span>
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span
-              className={`text-3xl font-black ${isDark ? "text-emerald-400" : "text-emerald-600"}`}
-            >
-              {analytics.total > 0
-                ? Math.round(
-                    ((analytics.active + analytics.trial) / analytics.total) *
-                      100,
-                  )
-                : 0}
-              %
-            </span>
-            <span
-              className={`text-xs font-medium ${isDark ? "text-gray-500" : "text-gray-400"}`}
-            >
-              healthy
-            </span>
-          </div>
-          <p
-            className={`text-xs mt-2 ${isDark ? "text-gray-600" : "text-gray-400"}`}
-          >
-            Active + Trial licenses
-          </p>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.55 }}
-          className={`p-5 rounded-2xl border ${isDark ? "bg-black/50 border-white/5" : "bg-white border-gray-100 shadow-sm"}`}
-        >
-          <div className="flex items-center gap-2 mb-3">
-            <TrendingUp size={14} className="text-violet-400" />
-            <span
-              className={`text-[10px] font-bold uppercase tracking-widest ${isDark ? "text-gray-500" : "text-gray-400"}`}
-            >
-              Trial Conversion
-            </span>
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span
-              className={`text-3xl font-black ${isDark ? "text-violet-400" : "text-violet-600"}`}
-            >
-              {analytics.trial}
-            </span>
-            <span
-              className={`text-xs font-medium ${isDark ? "text-gray-500" : "text-gray-400"}`}
-            >
-              pending
-            </span>
-          </div>
-          <p
-            className={`text-xs mt-2 ${isDark ? "text-gray-600" : "text-gray-400"}`}
-          >
-            Trials awaiting conversion
-          </p>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className={`p-5 rounded-2xl border ${isDark ? "bg-black/50 border-white/5" : "bg-white border-gray-100 shadow-sm"}`}
-        >
-          <div className="flex items-center gap-2 mb-3">
-            <Zap size={14} className="text-amber-400" />
-            <span
-              className={`text-[10px] font-bold uppercase tracking-widest ${isDark ? "text-gray-500" : "text-gray-400"}`}
-            >
-              Action Needed
-            </span>
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span
-              className={`text-3xl font-black ${
-                analytics.expired + analytics.suspended > 0
-                  ? isDark
-                    ? "text-amber-400"
-                    : "text-amber-600"
-                  : isDark
-                    ? "text-gray-500"
-                    : "text-gray-400"
-              }`}
-            >
-              {analytics.expired + analytics.suspended}
-            </span>
-            <span
-              className={`text-xs font-medium ${isDark ? "text-gray-500" : "text-gray-400"}`}
-            >
-              licenses
-            </span>
-          </div>
-          <p
-            className={`text-xs mt-2 ${isDark ? "text-gray-600" : "text-gray-400"}`}
-          >
-            Expired + Suspended keys
-          </p>
-        </motion.div>
-      </div>
     </div>
   );
 };

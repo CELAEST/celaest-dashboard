@@ -2,7 +2,7 @@
 
 import React, { useMemo } from "react";
 import { motion } from "motion/react";
-import { Cpu, Eye, ShoppingCart } from "lucide-react";
+import { Cpu, Eye, ShoppingCart } from "@phosphor-icons/react";
 import { LineChart, Line, ResponsiveContainer } from "recharts";
 
 interface AssetCardProps {
@@ -83,7 +83,7 @@ export const AssetCard = React.memo(function AssetCard({
       whileHover={{ y: -5, boxShadow: "0 0 30px rgba(0, 255, 255, 0.15)" }}
       className="group relative bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl overflow-hidden hover:border-cyan-500/50 transition-all duration-300 flex flex-col h-full"
     >
-      {/* Top Banner / Type Indicator */}
+      {/* Top Banner / TextT Indicator */}
       <div className="h-1 w-full bg-linear-to-r from-cyan-500/50 to-blue-600/50" />
 
       <div className="p-6 flex flex-col flex-1">

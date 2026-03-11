@@ -1,23 +1,21 @@
-import React, { useState, useMemo } from "react";
+import React, { useMemo } from "react";
 import {
   X,
-  Search,
-  Building2,
-  CheckCircle2,
+  MagnifyingGlass,
+  Buildings,
+  CheckCircle,
   XCircle,
   Clock,
   ArrowRight,
-  ChevronLeft,
-  ChevronRight,
-  Filter,
-  Download,
-  History,
-  DollarSign,
-} from "lucide-react";
+  Funnel,
+  DownloadSimple,
+  ClockCounterClockwise,
+  CurrencyDollar,
+} from "@phosphor-icons/react";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { Payment } from "../../types";
-import { useTransactionQuery } from "../../hooks/useBillingQuery";
+import { useTransactionsInfiniteQuery } from "../../hooks/useBillingQuery";
 import { format } from "date-fns";
 import { type ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table";
@@ -32,17 +30,16 @@ export const TransactionLogsModal: React.FC<TransactionLogsModalProps> = ({
   onClose,
 }) => {
   const { session } = useAuth();
-  const [page, setPage] = useState(1);
-  const limit = 10;
 
-  const { data, isLoading } = useTransactionQuery(
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useTransactionsInfiniteQuery(
     session?.accessToken ?? null,
-    page,
-    limit,
   );
 
-  const transactions = data?.payments ?? [];
-  const total = data?.total ?? 0;
+  const transactions = useMemo(
+    () => data?.pages.flatMap((p) => p.payments ?? []) ?? [],
+    [data],
+  );
+  const total = data?.pages[0]?.total ?? 0;
 
   const columns: ColumnDef<Payment>[] = useMemo(
     () => [
@@ -70,7 +67,7 @@ export const TransactionLogsModal: React.FC<TransactionLogsModalProps> = ({
           const tx = row.original;
           return (
             <div className="flex items-center gap-2 text-sm font-bold text-white">
-              <DollarSign className="w-4 h-4 text-emerald-400" />
+              <CurrencyDollar className="w-4 h-4 text-emerald-400" />
               {(tx.amount / 1).toLocaleString(undefined, {
                 minimumFractionDigits: 2,
               })}
@@ -100,7 +97,7 @@ export const TransactionLogsModal: React.FC<TransactionLogsModalProps> = ({
               }`}
             >
               {status === "completed" || status === "succeeded" ? (
-                <CheckCircle2 className="w-3 h-3" />
+                <CheckCircle className="w-3 h-3" />
               ) : status === "failed" ? (
                 <XCircle className="w-3 h-3" />
               ) : (
@@ -118,7 +115,7 @@ export const TransactionLogsModal: React.FC<TransactionLogsModalProps> = ({
           const tx = row.original;
           return (
             <div className="flex items-center gap-2 text-xs text-gray-400 bg-white/5 py-1 px-2 rounded-lg w-fit">
-              <Building2 className="w-3 h-3" />
+              <Buildings className="w-3 h-3" />
               {tx.organization_id.slice(0, 8)}...
             </div>
           );
@@ -153,8 +150,6 @@ export const TransactionLogsModal: React.FC<TransactionLogsModalProps> = ({
     [],
   );
 
-  const totalPages = Math.ceil(total / limit);
-
   if (!isOpen) return null;
 
   return (
@@ -178,7 +173,7 @@ export const TransactionLogsModal: React.FC<TransactionLogsModalProps> = ({
           <div className="p-6 border-b border-white/10 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center">
-                <History className="w-6 h-6 text-indigo-400" />
+                <ClockCounterClockwise className="w-6 h-6 text-indigo-400" />
               </div>
               <div>
                 <h2 className="text-xl font-bold text-white">
@@ -201,19 +196,19 @@ export const TransactionLogsModal: React.FC<TransactionLogsModalProps> = ({
           {/* Controls */}
           <div className="p-4 bg-white/2 border-b border-white/10 flex items-center gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+              <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
               <input
                 type="text"
-                placeholder="Search transactions..."
+                placeholder="MagnifyingGlass transactions..."
                 className="w-full bg-black/20 border border-white/10 rounded-xl py-2 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-indigo-500/50 transition-colors"
                 disabled
               />
             </div>
             <button className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm font-medium text-gray-400 cursor-not-allowed">
-              <Filter className="w-4 h-4" /> Filter
+              <Funnel className="w-4 h-4" /> Funnel
             </button>
             <button className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm font-medium text-gray-400 cursor-not-allowed">
-              <Download className="w-4 h-4" /> Export
+              <DownloadSimple className="w-4 h-4" /> Export
             </button>
           </div>
 
@@ -225,48 +220,11 @@ export const TransactionLogsModal: React.FC<TransactionLogsModalProps> = ({
               isLoading={isLoading}
               emptyMessage="No transactions found"
               emptySubmessage="Transaction history will appear here."
-              hidePagination={true}
+              totalItems={total}
+              hasNextPage={hasNextPage}
+              isFetchingNextPage={isFetchingNextPage}
+              onLoadMore={fetchNextPage}
             />
-          </div>
-
-          {/* Footer / Pagination */}
-          <div className="p-4 bg-white/2 border-t border-white/10 flex items-center justify-between">
-            <div className="text-sm text-gray-500 font-medium">
-              Showing{" "}
-              <span className="text-white">{(page - 1) * limit + 1}</span> -{" "}
-              <span className="text-white">
-                {Math.min(page * limit, total)}
-              </span>{" "}
-              of <span className="text-white">{total}</span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-                disabled={page === 1 || isLoading}
-                className="p-2 bg-white/5 border border-white/10 rounded-xl text-gray-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-
-              <div className="flex items-center gap-1.5 px-3">
-                <span className="text-sm font-bold text-white">{page}</span>
-                <span className="text-xs text-gray-500">/</span>
-                <span className="text-xs text-gray-400 font-medium">
-                  {totalPages || 1}
-                </span>
-              </div>
-
-              <button
-                onClick={() =>
-                  setPage((prev) => Math.min(totalPages, prev + 1))
-                }
-                disabled={page === totalPages || isLoading || totalPages === 0}
-                className="p-2 bg-white/5 border border-white/10 rounded-xl text-gray-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
-            </div>
           </div>
         </motion.div>
       </div>

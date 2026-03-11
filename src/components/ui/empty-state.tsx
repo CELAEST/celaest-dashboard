@@ -1,11 +1,11 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { type LucideIcon } from "lucide-react";
+import { type Icon } from "@phosphor-icons/react";
 import { type ReactNode } from "react";
 
 interface EmptyStateProps {
-  icon: LucideIcon;
+  icon: Icon;
   title: string;
   description: string;
   action?: ReactNode;

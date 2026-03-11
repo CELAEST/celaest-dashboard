@@ -1,6 +1,6 @@
 import { logger } from "@/lib/logger";
 import { useState } from "react";
-import { X } from "lucide-react";
+import { X } from "@phosphor-icons/react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
 import { useTheme } from "@/features/shared/hooks/useTheme";
@@ -98,7 +98,7 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
     currentOrg?.role !== "owner" &&
     currentOrg?.role !== "super_admin";
 
-  // Filter and sort plans — map color by plan code
+  // Funnel and sort plans — map color by plan code
   const planColorMap: Record<string, "blue" | "purple" | "emerald"> = {
     starter: "blue",
     pro: "purple",

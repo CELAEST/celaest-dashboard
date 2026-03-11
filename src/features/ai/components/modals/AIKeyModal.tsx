@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Key, ShieldCheck, Loader2 } from "lucide-react";
+import { Key, ShieldCheck, CircleNotch } from "@phosphor-icons/react";
 import { AIPoolKey } from "../../types";
 
 const keySchema = z.object({
@@ -216,7 +216,7 @@ export const AIKeyModal: React.FC<AIKeyModalProps> = ({
               className="bg-linear-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white min-w-[140px] font-bold shadow-[0_0_20px_rgba(16,185,129,0.2)]"
             >
               {isLoading ? (
-                <Loader2 className="animate-spin" size={18} />
+                <CircleNotch className="animate-spin" size={18} />
               ) : initialData ? (
                 "Update Configuration"
               ) : (

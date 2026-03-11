@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "motion/react";
-import { ChevronDown } from "lucide-react";
+import { CaretDown } from "@phosphor-icons/react";
 import { TrustBadges } from "@/features/marketplace/components/TrustBadges";
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
 import { useTheme } from "@/features/shared/hooks/useTheme";
@@ -83,7 +83,7 @@ export const MarketplacePublicHero: React.FC = () => {
           animate={{ y: [0, 5, 0] }}
           transition={{ duration: 1.5, repeat: Infinity }}
         >
-          <ChevronDown size={20} />
+          <CaretDown size={20} />
         </motion.div>
       </motion.button>
     </div>

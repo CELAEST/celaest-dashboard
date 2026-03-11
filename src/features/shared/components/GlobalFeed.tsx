@@ -2,7 +2,7 @@
 
 import React, { useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Activity, User } from "lucide-react";
+import { Pulse, User } from "@phosphor-icons/react";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 import { useLiveFeed } from "@/features/analytics/hooks/useAnalyticsQuery";
@@ -36,7 +36,7 @@ export const GlobalFeed: React.FC = () => {
     <div className="bg-[#0a0a0a]/80 backdrop-blur-xl border border-white/10 rounded-xl p-6 h-fit sticky top-24">
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-          <Activity size={14} className="text-cyan-400 animate-pulse" />
+          <Pulse size={14} className="text-cyan-400 animate-pulse" />
           Live Global Feed
         </h3>
         <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_5px_#22c55e]" />

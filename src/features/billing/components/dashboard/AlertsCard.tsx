@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "motion/react";
-import { AlertCircle } from "lucide-react";
+import { Warning } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface AlertsCardProps {
@@ -45,7 +45,7 @@ export const AlertsCard = React.memo(
                     : "bg-orange-100 text-orange-600"
                 }`}
               >
-                <AlertCircle className="w-5 h-5" />
+                <Warning className="w-5 h-5" />
               </div>
               <h3
                 className={`font-bold text-lg tracking-tight ${

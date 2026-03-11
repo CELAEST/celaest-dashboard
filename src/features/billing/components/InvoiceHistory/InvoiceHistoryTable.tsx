@@ -1,23 +1,27 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect, useRef } from "react";
 import { Invoice } from "../../types";
 import { type ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table";
 import { motion } from "motion/react";
 import {
-  Download,
+  DownloadSimple,
   FileText,
   CreditCard,
   CheckCircle,
-  MoreVertical,
-  ShieldAlert,
+  DotsThreeVertical,
+  ShieldWarning,
   CheckSquare,
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  getInvoiceActionId,
+  getInvoiceReferenceSuffix,
+} from "../../lib/invoice-utils";
 
 interface InvoiceHistoryTableProps {
   invoices: Invoice[];
@@ -27,6 +31,11 @@ interface InvoiceHistoryTableProps {
   onVoid?: (id: string) => void;
   onPay?: (id: string) => void;
   isLoadingAction?: boolean;
+  isLoading?: boolean;
+  totalItems?: number;
+  hasNextPage?: boolean;
+  isFetchingNextPage?: boolean;
+  onLoadMore?: () => void;
 }
 
 // Custom Cell component for the Actions column to maintain local state
@@ -48,14 +57,20 @@ const DownloadActionCell: React.FC<{
   isLoadingAction,
 }) => {
   const [isSuccess, setIsSuccess] = useState(false);
-  const [prevId, setPrevId] = useState<string | null>(downloadingId);
+  const actionId = getInvoiceActionId(invoice);
+  const previousDownloadingIdRef = useRef<string | null>(downloadingId);
 
-  if (prevId === invoice.id && downloadingId === null) {
-    setIsSuccess(true);
-    setPrevId(null);
-  } else if (prevId !== downloadingId) {
-    setPrevId(downloadingId);
-  }
+  useEffect(() => {
+    if (
+      actionId &&
+      previousDownloadingIdRef.current === actionId &&
+      downloadingId === null
+    ) {
+      setIsSuccess(true);
+    }
+
+    previousDownloadingIdRef.current = downloadingId;
+  }, [actionId, downloadingId]);
 
   useEffect(() => {
     let timeout: NodeJS.Timeout;
@@ -68,8 +83,8 @@ const DownloadActionCell: React.FC<{
   return (
     <div className="flex justify-center items-center gap-2">
       <motion.button
-        onClick={() => onDownload(invoice.id)}
-        disabled={downloadingId === invoice.id || isSuccess}
+        onClick={() => actionId && onDownload(actionId)}
+        disabled={!actionId || downloadingId === actionId || isSuccess}
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.95 }}
         className={`
@@ -86,7 +101,7 @@ const DownloadActionCell: React.FC<{
           transition-colors duration-300
         `}
       >
-        {downloadingId === invoice.id ? (
+        {downloadingId === actionId ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -105,7 +120,7 @@ const DownloadActionCell: React.FC<{
           </motion.div>
         ) : (
           <div className="flex items-center gap-1.5">
-            <Download size={14} strokeWidth={2} />
+            <DownloadSimple size={14} strokeWidth={2} />
             <span>PDF</span>
           </div>
         )}
@@ -122,41 +137,45 @@ const DownloadActionCell: React.FC<{
                   : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
               }`}
             >
-              <MoreVertical size={16} />
+              <DotsThreeVertical size={16} />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="end"
             className={isDark ? "bg-[#111] border-white/10" : ""}
           >
-            {onPay &&
+            {actionId &&
+              onPay &&
               invoice.status !== "paid" &&
               invoice.status !== "void" && (
                 <DropdownMenuItem
-                  onClick={() => onPay(invoice.id)}
+                  onClick={() => onPay(actionId)}
                   disabled={isLoadingAction}
                   className={`gap-2 font-medium cursor-pointer ${isDark ? "text-emerald-400 focus:bg-emerald-500/10" : "text-emerald-600 focus:bg-emerald-50"}`}
                 >
                   <CheckSquare size={14} /> Force Mark Paid
                 </DropdownMenuItem>
               )}
-            {onVoid &&
+            {actionId &&
+              onVoid &&
               invoice.status !== "void" &&
               invoice.status !== "paid" && (
                 <DropdownMenuItem
-                  onClick={() => onVoid(invoice.id)}
+                  onClick={() => onVoid(actionId)}
                   disabled={isLoadingAction}
                   className={`gap-2 font-medium cursor-pointer ${isDark ? "text-red-400 focus:bg-red-500/10 focus:text-red-300" : "text-red-600 focus:bg-red-50 focus:text-red-700"}`}
                 >
-                  <ShieldAlert size={14} /> Void Invoice
+                  <ShieldWarning size={14} /> Void Invoice
                 </DropdownMenuItem>
               )}
-            {(invoice.status === "paid" || invoice.status === "void") && (
+            {(!actionId || invoice.status === "paid" || invoice.status === "void") && (
               <DropdownMenuItem
                 disabled
                 className="text-gray-500 text-xs italic"
               >
-                No administrative actions available
+                {actionId
+                  ? "No administrative actions available"
+                  : "Invoice ID unavailable"}
               </DropdownMenuItem>
             )}
           </DropdownMenuContent>
@@ -174,6 +193,11 @@ export const InvoiceHistoryTable: React.FC<InvoiceHistoryTableProps> = ({
   onVoid,
   onPay,
   isLoadingAction,
+  isLoading,
+  totalItems,
+  hasNextPage,
+  isFetchingNextPage,
+  onLoadMore,
 }) => {
   const columns: ColumnDef<Invoice>[] = useMemo(
     () => [
@@ -244,29 +268,22 @@ export const InvoiceHistoryTable: React.FC<InvoiceHistoryTableProps> = ({
         header: "Description",
         cell: ({ row }) => {
           const invoice = row.original;
-          const date = new Date(invoice.created_at);
-          const prevMonth = new Date(date);
-          prevMonth.setMonth(date.getMonth() - 1);
-          const billingPeriod = `${prevMonth.toLocaleDateString(undefined, {
-            month: "short",
-            day: "numeric",
-          })} - ${date.toLocaleDateString(undefined, {
-            month: "short",
-            day: "numeric",
-          })}`;
+          const customerName = invoice.billing_name || invoice.customer_name || "";
 
           return (
             <div className="flex flex-col gap-0.5">
               <span
                 className={`text-sm font-medium ${isDark ? "text-gray-200" : "text-gray-900"}`}
               >
-                {invoice.billing_name || "Premium Subscription"}
+                {invoice.item_name || "Invoice"}
               </span>
-              <span
-                className={`text-[10px] ${isDark ? "text-gray-500" : "text-gray-500"}`}
-              >
-                {billingPeriod}
-              </span>
+              {customerName && (
+                <span
+                  className={`text-[10px] ${isDark ? "text-gray-500" : "text-gray-500"}`}
+                >
+                  {customerName}
+                </span>
+              )}
             </div>
           );
         },
@@ -276,7 +293,7 @@ export const InvoiceHistoryTable: React.FC<InvoiceHistoryTableProps> = ({
         header: "Payment Method",
         cell: ({ row }) => {
           const invoice = row.original;
-          const last4 = invoice.id.slice(-4);
+          const last4 = getInvoiceReferenceSuffix(invoice);
           return (
             <div className="flex items-center gap-2">
               <CreditCard
@@ -324,13 +341,21 @@ export const InvoiceHistoryTable: React.FC<InvoiceHistoryTableProps> = ({
                       ? isDark
                         ? "bg-emerald-500/10 text-emerald-400"
                         : "bg-emerald-50 text-emerald-700"
-                      : isDark
-                        ? "bg-amber-500/10 text-amber-400"
-                        : "bg-amber-50 text-amber-700"
+                      : invoice.status === "void"
+                        ? isDark
+                          ? "bg-red-500/10 text-red-400 line-through"
+                          : "bg-red-50 text-red-600 line-through"
+                        : invoice.status === "cancelled"
+                          ? isDark
+                            ? "bg-gray-500/10 text-gray-400"
+                            : "bg-gray-100 text-gray-500"
+                          : isDark
+                            ? "bg-amber-500/10 text-amber-400"
+                            : "bg-amber-50 text-amber-700"
                   }
                 `}
               >
-                {invoice.status}
+                {invoice.status === "void" ? "anulada" : invoice.status}
               </span>
             </div>
           );
@@ -363,9 +388,13 @@ export const InvoiceHistoryTable: React.FC<InvoiceHistoryTableProps> = ({
       <DataTable
         columns={columns}
         data={invoices}
-        isLoading={false}
+        isLoading={isLoading ?? false}
         emptyMessage="No invoices found."
         emptySubmessage="You don't have any billing history yet."
+        totalItems={totalItems}
+        hasNextPage={hasNextPage}
+        isFetchingNextPage={isFetchingNextPage}
+        onLoadMore={onLoadMore}
       />
     </div>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { Component, ErrorInfo, ReactNode } from "react";
-import { AlertTriangle, RefreshCw, Home } from "lucide-react";
+import { Warning, ArrowClockwise, House } from "@phosphor-icons/react";
 import { logger } from "@/lib/logger";
 
 interface Props {
@@ -60,7 +60,7 @@ export class ErrorBoundary extends Component<Props, State> {
             {/* Icon */}
             <div className="flex justify-center mb-6">
               <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center">
-                <AlertTriangle className="w-8 h-8 text-red-400" />
+                <Warning className="w-8 h-8 text-red-400" />
               </div>
             </div>
 
@@ -78,7 +78,7 @@ export class ErrorBoundary extends Component<Props, State> {
             {/* Error message (dev only) */}
             {process.env.NODE_ENV === "development" && this.state.error && (
               <div className="mb-6 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
-                <p className="text-red-400 text-xs font-mono break-all">
+                <p className="text-red-400 text-xs font-mono wrap-anywhere">
                   {this.state.error.toString()}
                 </p>
               </div>
@@ -90,7 +90,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 onClick={this.handleReload}
                 className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-cyan-500 hover:bg-cyan-400 text-white font-medium rounded-lg transition-colors"
               >
-                <RefreshCw className="w-4 h-4" />
+                <ArrowClockwise className="w-4 h-4" />
                 Recargar página
               </button>
 
@@ -98,7 +98,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 onClick={this.handleGoHome}
                 className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-slate-700 hover:bg-slate-600 text-white font-medium rounded-lg transition-colors"
               >
-                <Home className="w-4 h-4" />
+                <House className="w-4 h-4" />
                 Ir al inicio
               </button>
             </div>

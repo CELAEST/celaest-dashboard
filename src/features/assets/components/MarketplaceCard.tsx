@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "motion/react";
-import { Star, Download, ChevronRight, Lock } from "lucide-react";
+import { Star, DownloadSimple, CaretRight, Lock } from "@phosphor-icons/react";
 import { AssetTypeIcon } from "./shared/AssetTypeIcon";
 import { getAssetTypeLabel } from "../utils/assetUtils";
 import { Asset } from "../services/assets.service";
@@ -53,7 +53,7 @@ export const MarketplaceCard: React.FC<MarketplaceCardProps> = ({
           }`}
         />
 
-        {/* Type Badge */}
+        {/* TextT Badge */}
         <div className="absolute top-4 left-4">
           <div
             className={`flex items-center gap-2 px-3 py-1.5 rounded-lg backdrop-blur-md ${
@@ -157,7 +157,7 @@ export const MarketplaceCard: React.FC<MarketplaceCardProps> = ({
             </span>
           </div>
           <div className="flex items-center gap-1">
-            <Download
+            <DownloadSimple
               size={14}
               className={isDark ? "text-gray-500" : "text-gray-400"}
             />
@@ -191,7 +191,7 @@ export const MarketplaceCard: React.FC<MarketplaceCardProps> = ({
           {product.isPurchased ? (
             <>
               View Details
-              <ChevronRight size={16} />
+              <CaretRight size={16} />
             </>
           ) : (
             <>

@@ -1,11 +1,11 @@
 /**
- * Settings Module - Domain Types
+ * Gear Module - Domain Types
  * 
  * TypeScript interfaces following Interface Segregation Principle (ISP).
  * Each settings domain has its own interface for flexibility and type safety.
  */
 
-import { LucideIcon } from "lucide-react";
+import { Icon } from "@phosphor-icons/react";
 
 // ============================================
 // Tab Navigation Types
@@ -22,7 +22,7 @@ export type SettingsTabId =
 
 export interface SettingsTab {
   id: SettingsTabId;
-  icon: LucideIcon;
+  icon: Icon;
   label: string;
 }
 

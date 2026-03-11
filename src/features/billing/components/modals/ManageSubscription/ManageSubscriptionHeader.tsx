@@ -1,5 +1,5 @@
 import React from "react";
-import { CreditCard } from "lucide-react";
+import { CreditCard } from "@phosphor-icons/react";
 import { motion } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 

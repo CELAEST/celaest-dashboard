@@ -1,11 +1,18 @@
 import React from "react";
 import { motion } from "motion/react";
-import { useAnalytics } from "@/features/analytics/hooks/useAnalytics";
-import { Activity } from "lucide-react";
+import { Pulse } from "@phosphor-icons/react";
+import type { useAnalytics } from "@/features/analytics/hooks/useAnalytics";
+
+type AnalyticsData = ReturnType<typeof useAnalytics>;
+
+interface SystemUptimeProps {
+  className?: string;
+  isDark: boolean;
+  stats: AnalyticsData["stats"];
+}
 
 export const SystemUptime = React.memo(
-  ({ className }: { className?: string }) => {
-    const { isDark, stats } = useAnalytics();
+  ({ className, isDark, stats }: SystemUptimeProps) => {
 
     return (
       <motion.div
@@ -48,7 +55,7 @@ export const SystemUptime = React.memo(
                   : "bg-emerald-50 text-emerald-600"
               }`}
             >
-              <Activity className="w-4 h-4" />
+              <Pulse className="w-4 h-4" />
             </div>
             <h3
               className={`text-[10px] font-black uppercase tracking-widest ${

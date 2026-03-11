@@ -3,7 +3,7 @@
 import React from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
-import { Eye, Download, Archive, Trash2, Edit } from "lucide-react";
+import { Eye, DownloadSimple, PencilSimple, Archive, Trash } from "@phosphor-icons/react";
 
 interface ActionMenuProps {
   isOpen: boolean;
@@ -12,6 +12,7 @@ interface ActionMenuProps {
   onClose: () => void;
   onAction: (action: string) => void;
   isDark: boolean;
+  isSuperAdmin?: boolean;
 }
 
 export const ActionMenu = ({
@@ -21,6 +22,7 @@ export const ActionMenu = ({
   onClose,
   onAction,
   isDark,
+  isSuperAdmin = false,
 }: ActionMenuProps) => {
   if (typeof window === "undefined") return null;
 
@@ -64,29 +66,33 @@ export const ActionMenu = ({
                   color: isDark ? "text-gray-300" : "text-gray-700",
                 },
                 {
-                  icon: Download,
+                  icon: DownloadSimple,
                   label: "Download Invoice",
                   action: "download",
                   color: isDark ? "text-gray-300" : "text-gray-700",
                 },
-                {
-                  icon: Edit,
-                  label: "Edit Order",
-                  action: "edit",
-                  color: isDark ? "text-gray-300" : "text-gray-700",
-                },
-                {
-                  icon: Archive,
-                  label: "Archive",
-                  action: "archive",
-                  color: isDark ? "text-gray-300" : "text-gray-700",
-                },
-                {
-                  icon: Trash2,
-                  label: "Delete",
-                  action: "delete",
-                  color: "text-red-500",
-                },
+                ...(isSuperAdmin
+                  ? [
+                      {
+                        icon: PencilSimple,
+                        label: "Edit Order",
+                        action: "edit",
+                        color: isDark ? "text-gray-300" : "text-gray-700",
+                      },
+                      {
+                        icon: Archive,
+                        label: "Archive",
+                        action: "archive",
+                        color: isDark ? "text-amber-400" : "text-amber-600",
+                      },
+                      {
+                        icon: Trash,
+                        label: "Delete",
+                        action: "delete",
+                        color: isDark ? "text-red-400" : "text-red-600",
+                      },
+                    ]
+                  : []),
               ].map((item, i) => (
                 <button
                   key={i}

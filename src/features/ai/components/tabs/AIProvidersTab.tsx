@@ -7,12 +7,12 @@ import {
   Globe,
   Plus,
   ShieldCheck,
-  ShieldAlert,
-  Trash2,
+  ShieldWarning,
+  Trash,
   Lock,
-  Zap,
-  ExternalLink,
-} from "lucide-react";
+  Lightning,
+  ArrowSquareOut,
+} from "@phosphor-icons/react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { AIProviderModal } from "../modals/AIProviderModal";
@@ -94,7 +94,7 @@ export const AIProvidersTab: React.FC<AIProvidersTabProps> = ({
                 {p.is_active ? (
                   <ShieldCheck size={24} className="text-blue-400" />
                 ) : (
-                  <ShieldAlert size={24} className="text-red-400" />
+                  <ShieldWarning size={24} className="text-red-400" />
                 )}
               </div>
 
@@ -107,12 +107,12 @@ export const AIProvidersTab: React.FC<AIProvidersTabProps> = ({
                 </h4>
                 <div className="flex items-center gap-3 mt-1.5">
                   <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-white/5 border border-white/10 uppercase tracking-widest font-mono text-[9px] font-bold text-blue-400/80">
-                    <Zap size={10} />
+                    <Lightning size={10} />
                     {p.type}
                   </div>
                   {p.base_url && (
                     <div className="flex items-center gap-1 text-[11px] text-gray-500 font-mono truncate max-w-[200px]">
-                      <ExternalLink size={10} />
+                      <ArrowSquareOut size={10} />
                       {p.base_url}
                     </div>
                   )}
@@ -149,7 +149,7 @@ export const AIProvidersTab: React.FC<AIProvidersTabProps> = ({
                   }}
                   disabled={deleteMutation.isPending}
                 >
-                  <Trash2 size={16} />
+                  <Trash size={16} />
                 </Button>
               </div>
             </div>

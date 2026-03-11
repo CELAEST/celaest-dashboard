@@ -1,5 +1,5 @@
 import React from "react";
-import { AlertTriangle } from "lucide-react";
+import { Warning } from "@phosphor-icons/react";
 import { motion, AnimatePresence } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
@@ -50,7 +50,7 @@ export const ConfirmationAlert: React.FC<ConfirmationAlertProps> = ({
                 type === "danger" ? "bg-red-500/20" : "bg-orange-500/20"
               }`}
             >
-              <AlertTriangle
+              <Warning
                 className={`w-6 h-6 ${
                   type === "danger" ? "text-red-500" : "text-orange-500"
                 }`}

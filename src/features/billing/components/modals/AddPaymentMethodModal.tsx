@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { CreditCard, Check, Lock } from "lucide-react";
+import { CreditCard, Check, Lock } from "@phosphor-icons/react";
 import { motion } from "motion/react";
 import { FormProvider } from "react-hook-form";
 import { useTheme } from "@/features/shared/hooks/useTheme";
@@ -127,7 +127,7 @@ export function AddPaymentMethodModal({
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 ) : (
                   <>
-                    <Check className="w-4 h-4" /> Save Method
+                    <Check className="w-4 h-4" /> FloppyDisk Method
                   </>
                 )}
               </motion.button>

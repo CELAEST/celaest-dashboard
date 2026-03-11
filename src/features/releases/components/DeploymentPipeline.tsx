@@ -2,13 +2,13 @@
 
 import React from "react";
 import {
-  Server,
+  HardDrives,
   GitCommit,
   CheckCircle,
   Clock,
-  Loader2,
+  CircleNotch,
   PlayCircle,
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { motion } from "motion/react";
 
@@ -29,15 +29,15 @@ export const DeploymentPipeline: React.FC<DeploymentPipelineProps> = ({
   const getIcon = (name: string) => {
     switch (name) {
       case "Build":
-        return Server;
+        return HardDrives;
       case "Test":
         return CheckCircle;
       case "Staging":
-        return Loader2;
+        return CircleNotch;
       case "Production":
         return PlayCircle;
       default:
-        return Server;
+        return HardDrives;
     }
   };
 

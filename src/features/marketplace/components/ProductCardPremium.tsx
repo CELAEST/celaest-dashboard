@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "motion/react";
-import { Check, ShoppingCart, Star, Eye } from "lucide-react";
+import { Check, ShoppingCart, Star, Eye } from "@phosphor-icons/react";
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { MarketplaceProduct } from "../types";
@@ -114,6 +114,24 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
           </div>
         )}
       </div>
+
+      {/* Plan tier badge — top right */}
+      {(() => {
+        const tierMap: Record<number, { label: string; dark: string; light: string }> = {
+          0: { label: "All Plans", dark: "bg-white/[0.06] border-white/[0.08] text-gray-400", light: "bg-gray-50/90 border-gray-200/60 text-gray-500" },
+          1: { label: "Basic+", dark: "bg-emerald-500/10 border-emerald-500/20 text-emerald-400", light: "bg-emerald-50/90 border-emerald-200/60 text-emerald-600" },
+          2: { label: "Pro", dark: "bg-violet-500/10 border-violet-500/20 text-violet-400", light: "bg-violet-50/90 border-violet-200/60 text-violet-600" },
+          3: { label: "Enterprise", dark: "bg-amber-500/10 border-amber-500/20 text-amber-400", light: "bg-amber-50/90 border-amber-200/60 text-amber-700" },
+        };
+        const tier = tierMap[product.min_plan_tier] ?? { label: "Private", dark: "bg-red-500/10 border-red-500/20 text-red-400", light: "bg-red-50/90 border-red-200/60 text-red-600" };
+        return (
+          <div className="absolute top-4 right-4 z-20">
+            <div className={`px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest backdrop-blur-md border ${theme === "dark" ? tier.dark : tier.light}`}>
+              {tier.label}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Image Container */}
       <div className="relative h-[220px] w-full overflow-hidden shrink-0">

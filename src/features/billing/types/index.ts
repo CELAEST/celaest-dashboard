@@ -88,6 +88,16 @@ export interface Order {
   paymentMethod?: string;
   paymentProvider?: string;
   rawDate: string; // ISO date for precise formatting
+  licenseKey?: string;
+  events?: OrderActivityEvent[];
+  itemType?: string;
+}
+
+export interface OrderActivityEvent {
+  id: string;
+  type: string;
+  data?: Record<string, unknown>;
+  createdAt: string;
 }
 
 
@@ -194,21 +204,30 @@ export interface Invoice {
   order_id?: string;
   license_id?: string;
   invoice_number: string;
-  status: "draft" | "sent" | "paid" | "overdue" | "void" | "uncollectible";
+  /** All statuses emitted by the backend (invoice_status DB enum) */
+  status: "draft" | "issued" | "sent" | "paid" | "overdue" | "void" | "cancelled" | "uncollectible";
   currency: string;
   subtotal: number;
   discount_amount: number;
   tax_amount: number;
   total: number;
-  amount_paid: number;
-  amount_due: number;
+  amount_paid?: number;
+  amount_due?: number;
+  /** Go backend returns customer_name (model field) */
+  customer_name?: string;
+  /** Go backend returns customer_email (model field) */
+  customer_email?: string;
+  /** Legacy DB columns — kept for compatibility with older records */
   billing_name?: string;
   billing_email?: string;
   billing_address?: BillingAddress;
   due_date?: string;
+  issued_at?: string;
   pdf_url?: string;
   paid_at?: string;
   sent_at?: string;
+  notes?: string;
+  item_name?: string;
   created_at: string;
   updated_at: string;
 }

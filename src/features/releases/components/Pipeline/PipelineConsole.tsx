@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Terminal, Check } from "lucide-react";
+import { Terminal, Check } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { motion } from "motion/react";
 
@@ -124,7 +124,7 @@ export const PipelineConsole: React.FC<PipelineConsoleProps> = ({
                   {log.time}
                 </span>
                 <span
-                  className={`break-all ${
+                  className={`wrap-anywhere ${
                     log.type === "cmd"
                       ? "text-yellow-400 font-bold"
                       : log.type === "success"

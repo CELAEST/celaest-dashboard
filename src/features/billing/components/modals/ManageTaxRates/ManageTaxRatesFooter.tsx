@@ -1,5 +1,5 @@
 import React from "react";
-import { Check } from "lucide-react";
+import { Check } from "@phosphor-icons/react";
 import { motion } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
@@ -38,7 +38,7 @@ export const ManageTaxRatesFooter: React.FC<ManageTaxRatesFooterProps> = ({
           }`}
         >
           <Check className="w-4 h-4" />
-          Save Changes
+          FloppyDisk Changes
         </motion.button>
       </div>
     </div>

@@ -1,14 +1,18 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { VersionEditor } from "./VersionEditor";
 import { VersionDetailsModal } from "./modals/VersionDetailsModal";
 import { useVersionControl } from "../hooks/useVersionControl";
-import { VersionHeader } from "./VersionControl/VersionHeader";
 import { VersionTable } from "./VersionControl/VersionTable";
+import { TableChrome } from "@/components/layout/TableChrome";
 
-export const VersionControl: React.FC = () => {
+interface VersionControlProps {
+  createRef?: React.MutableRefObject<(() => void) | undefined>;
+}
+
+export const VersionControl: React.FC<VersionControlProps> = ({ createRef }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
@@ -19,6 +23,10 @@ export const VersionControl: React.FC = () => {
     editingVersion,
     detailsModalOpen,
     viewingVersion,
+    totalVersions,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
     handleCreate,
     handleEdit,
     handleDeprecate,
@@ -27,45 +35,44 @@ export const VersionControl: React.FC = () => {
     toggleMenu,
     setIsEditorOpen,
     setDetailsModalOpen,
+    availableAssets,
   } = useVersionControl();
+
+  useEffect(() => {
+    if (createRef) {
+      createRef.current = handleCreate;
+    }
+  }, [createRef, handleCreate]);
 
   return (
     <>
-      <div
-        className={`h-full flex flex-col rounded-2xl border overflow-hidden ${
-          isDark
-            ? "bg-linear-to-br from-[#0a0a0a]/80 to-gray-900/50 border-white/10"
-            : "bg-white border-gray-200 shadow-sm"
-        }`}
+      <TableChrome
+        toolbar={
+          <div className="flex items-center justify-between w-full">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
+              <span className={`text-xs font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>
+                All Versions
+              </span>
+            </div>
+            <span className={`text-[11px] tabular-nums ${isDark ? "text-gray-500" : "text-gray-400"}`}>
+              {totalVersions != null ? `Showing ${versions.length} of ${totalVersions} versions` : ""}
+            </span>
+          </div>
+        }
       >
-        <div className="shrink-0">
-          <VersionHeader onCreate={handleCreate} />
-        </div>
-
-        <div className="flex-1 min-h-0 overflow-auto">
-          <VersionTable
-            versions={versions}
-            activeMenu={activeMenu}
-            onToggleMenu={toggleMenu}
-            onEdit={handleEdit}
-            onViewDetails={handleViewDetails}
-            onDeprecate={handleDeprecate}
-          />
-        </div>
-
-        {/* Footer */}
-        <div
-          className={`shrink-0 p-4 border-t flex items-center justify-between ${
-            isDark ? "bg-white/2 border-white/5" : "bg-gray-50 border-gray-200"
-          }`}
-        >
-          <p
-            className={`text-xs ${isDark ? "text-gray-500" : "text-gray-600"}`}
-          >
-            Showing {versions.length} versions
-          </p>
-        </div>
-      </div>
+        <VersionTable
+          versions={versions}
+          totalItems={totalVersions}
+          hasNextPage={hasNextPage}
+          isFetchingNextPage={isFetchingNextPage}
+          onLoadMore={fetchNextPage}
+          onEdit={handleEdit}
+          onViewDetails={handleViewDetails}
+          onDeprecate={handleDeprecate}
+          hideFooter
+        />
+      </TableChrome>
 
       {/* Version Editor Modal */}
       <VersionEditor
@@ -74,6 +81,7 @@ export const VersionControl: React.FC = () => {
         onClose={() => setIsEditorOpen(false)}
         onSave={handleSaveVersion}
         version={editingVersion}
+        assets={availableAssets}
       />
 
       <VersionDetailsModal

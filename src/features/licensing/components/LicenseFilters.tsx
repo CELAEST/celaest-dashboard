@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Search, Filter, RefreshCw } from "lucide-react";
+import { MagnifyingGlass, Funnel, ArrowClockwise } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,13 +36,13 @@ export const LicenseFilters: React.FC<LicenseFiltersProps> = ({
   return (
     <div className="flex flex-col md:flex-row gap-4 mb-6 justify-between">
       <div className="relative max-w-md w-full">
-        <Search
+        <MagnifyingGlass
           className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${
             isDark ? "text-gray-500" : "text-gray-400"
           }`}
         />
         <Input
-          placeholder="Search by Product ID, User ID..."
+          placeholder="MagnifyingGlass by Product ID, User ID..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className={`pl-10 h-10 ${
@@ -60,7 +60,7 @@ export const LicenseFilters: React.FC<LicenseFiltersProps> = ({
             }`}
           >
             <div className="flex items-center gap-2">
-              <Filter size={14} />
+              <Funnel size={14} />
               <SelectValue />
             </div>
           </SelectTrigger>
@@ -77,7 +77,7 @@ export const LicenseFilters: React.FC<LicenseFiltersProps> = ({
           onClick={onRefresh}
           className={`h-10 w-10 ${isDark ? "border-white/10 hover:bg-white/5" : ""}`}
         >
-          <RefreshCw className={loading ? "animate-spin" : ""} size={16} />
+          <ArrowClockwise className={loading ? "animate-spin" : ""} size={16} />
         </Button>
       </div>
     </div>

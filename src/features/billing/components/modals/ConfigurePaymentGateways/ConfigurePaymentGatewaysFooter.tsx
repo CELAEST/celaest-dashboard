@@ -1,5 +1,5 @@
 import React from "react";
-import { AlertCircle, CheckCircle } from "lucide-react";
+import { Warning, CheckCircle } from "@phosphor-icons/react";
 import { motion } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
@@ -21,7 +21,7 @@ export const ConfigurePaymentGatewaysFooter: React.FC<
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <AlertCircle
+          <Warning
             className={`w-4 h-4 ${isDark ? "text-gray-400" : "text-gray-600"}`}
           />
           <div

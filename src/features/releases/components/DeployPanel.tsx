@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "motion/react";
-import { X, Server, Zap, Terminal } from "lucide-react";
+import { X, HardDrives, Lightning, Terminal } from "@phosphor-icons/react";
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
 
 interface DeployPanelProps {
@@ -85,14 +85,14 @@ export const DeployPanel: React.FC<DeployPanelProps> = ({
             <div className="grid grid-cols-2 gap-3">
               <div className="p-3 bg-white/5 border border-white/5 rounded hover:border-cyan-400/30 transition-colors cursor-pointer group/item">
                 <div className="flex items-center gap-2 mb-1 text-gray-400 group-hover/item:text-cyan-400">
-                  <Server size={14} />
+                  <HardDrives size={14} />
                   <span className="text-xs font-bold">Region</span>
                 </div>
                 <div className="text-sm text-white">US-East (N. Virginia)</div>
               </div>
               <div className="p-3 bg-white/5 border border-white/5 rounded hover:border-cyan-400/30 transition-colors cursor-pointer group/item">
                 <div className="flex items-center gap-2 mb-1 text-gray-400 group-hover/item:text-cyan-400">
-                  <Zap size={14} />
+                  <Lightning size={14} />
                   <span className="text-xs font-bold">Power</span>
                 </div>
                 <div className="text-sm text-white">High (128 vCPU)</div>
@@ -144,7 +144,7 @@ export const DeployPanel: React.FC<DeployPanelProps> = ({
             className="w-full py-4 bg-cyan-400 hover:bg-white text-black font-bold uppercase tracking-widest text-sm rounded transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(34,211,238,0.4)] hover:shadow-[0_0_30px_rgba(255,255,255,0.4)]"
             onClick={onClose}
           >
-            <Zap size={18} fill="currentColor" />
+            <Lightning size={18} fill="currentColor" />
             Initialize Deployment
           </button>
           <p className="text-center text-[10px] text-gray-500 mt-3">

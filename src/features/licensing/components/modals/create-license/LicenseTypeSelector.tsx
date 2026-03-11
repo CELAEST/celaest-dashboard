@@ -1,12 +1,12 @@
-import React from "react";
-import { Zap, Code, Server, Layers } from "lucide-react";
+﻿import React from "react";
+import { Lightning, Code, HardDrives, Stack } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
 export const PRODUCT_TYPES = [
   {
     value: "excel-automation",
     label: "Excel Automation",
-    icon: Zap,
+    icon: Lightning,
     color: "text-green-500",
     desc: "Automate complex spreadsheets",
   },
@@ -20,14 +20,14 @@ export const PRODUCT_TYPES = [
   {
     value: "nodejs-api",
     label: "Node.js API",
-    icon: Server,
+    icon: HardDrives,
     color: "text-yellow-500",
     desc: "Backend integration",
   },
   {
     value: "macro-suite",
     label: "Macro Suite",
-    icon: Layers,
+    icon: Stack,
     color: "text-purple-500",
     desc: "Advanced macro controls",
   },
@@ -50,7 +50,7 @@ export const LicenseTypeSelector: React.FC<LicenseTypeSelectorProps> = ({
       <label
         className={`block text-sm font-medium mb-1.5 ${isDark ? "text-gray-300" : "text-gray-700"}`}
       >
-        Product Type
+        Product TextT
       </label>
       <div className="grid grid-cols-2 gap-3">
         {PRODUCT_TYPES.map((type) => (
@@ -60,7 +60,7 @@ export const LicenseTypeSelector: React.FC<LicenseTypeSelectorProps> = ({
             className={`p-3 rounded-xl border cursor-pointer transition-all flex flex-col gap-2 ${
               selectedType === type.value
                 ? isDark
-                  ? "bg-cyan-500/10 border-cyan-500/50"
+                  ? "bg-amber-500/10 border-amber-500/50"
                   : "bg-blue-50 border-blue-500"
                 : isDark
                   ? "bg-white/5 border-white/5 hover:bg-white/10"

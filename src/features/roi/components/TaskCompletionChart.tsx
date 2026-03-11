@@ -12,7 +12,7 @@ import {
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface DataPoint {
-  month: string;
+  label: string;
   tasks: number;
 }
 
@@ -89,14 +89,14 @@ export const TaskCompletionChart = React.memo(
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
-        className={`rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-2xl ${
+        className={`rounded-2xl overflow-hidden transition-all duration-200 h-full flex flex-col ${
           isDark
             ? "bg-black/40 backdrop-blur-xl border border-white/10"
             : "bg-white border border-gray-200 shadow-sm"
         }`}
       >
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-6">
+        <div className="p-5 flex flex-col flex-1 min-h-0">
+          <div className="flex items-center justify-between mb-4 shrink-0">
             <div className="flex items-center gap-3">
               <div
                 className={`w-2 h-2 rounded-full animate-pulse ${
@@ -113,29 +113,55 @@ export const TaskCompletionChart = React.memo(
             </div>
           </div>
 
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={data}>
-              <CartesianGrid
-                strokeDasharray="3 3"
-                stroke={isDark ? "rgba(255,255,255,0.05)" : "#e5e7eb"}
-              />
-              <XAxis
-                dataKey="month"
-                stroke={isDark ? "#64748b" : "#9ca3af"}
-                style={{ fontSize: "12px" }}
-              />
-              <YAxis
-                stroke={isDark ? "#64748b" : "#9ca3af"}
-                style={{ fontSize: "12px" }}
-              />
-              <Tooltip content={<CustomTooltip isDark={isDark} />} />
-              <Bar
-                dataKey="tasks"
-                fill={isDark ? "#22d3ee" : "#3b82f6"}
-                radius={[8, 8, 0, 0]}
-              />
-            </BarChart>
-          </ResponsiveContainer>
+          <div className="flex-1 min-h-70">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={data}
+                margin={{ top: 12, right: 8, left: -18, bottom: 0 }}
+                maxBarSize={44}
+                barCategoryGap="18%"
+              >
+                <defs>
+                  <linearGradient id="barGradientDark" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#22d3ee" stopOpacity={1} />
+                    <stop offset="100%" stopColor="#3b82f6" stopOpacity={0.7} />
+                  </linearGradient>
+                  <linearGradient id="barGradientLight" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#3b82f6" stopOpacity={1} />
+                    <stop offset="100%" stopColor="#6366f1" stopOpacity={0.7} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke={isDark ? "rgba(255,255,255,0.05)" : "#e5e7eb"}
+                  vertical={false}
+                />
+                <XAxis
+                  dataKey="label"
+                  stroke={isDark ? "#64748b" : "#9ca3af"}
+                  tickLine={false}
+                  axisLine={false}
+                  style={{ fontSize: "12px" }}
+                />
+                <YAxis
+                  stroke={isDark ? "#64748b" : "#9ca3af"}
+                  tickLine={false}
+                  axisLine={false}
+                  width={28}
+                  style={{ fontSize: "12px" }}
+                />
+                <Tooltip
+                  content={<CustomTooltip isDark={isDark} />}
+                  cursor={{ fill: isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)", radius: 8 }}
+                />
+                <Bar
+                  dataKey="tasks"
+                  fill={isDark ? "url(#barGradientDark)" : "url(#barGradientLight)"}
+                  radius={[8, 8, 2, 2]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </motion.div>
     );

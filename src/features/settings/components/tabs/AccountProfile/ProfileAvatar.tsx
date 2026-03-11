@@ -1,6 +1,6 @@
 import React, { memo, useRef } from "react";
 import Image from "next/image";
-import { User, Upload, Trash2 } from "lucide-react";
+import { User, UploadSimple, Trash } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface ProfileAvatarProps {
@@ -43,14 +43,14 @@ export const ProfileAvatar: React.FC<ProfileAvatarProps> = memo(
             )}
           </div>
 
-          {/* Upload Controls */}
+          {/* UploadSimple Controls */}
           <div>
             <p
               className={`text-sm mb-3 ${
                 isDark ? "text-gray-400" : "text-gray-500"
               }`}
             >
-              Upload a profile picture or use your initials as a fallback.
+              UploadSimple a profile picture or use your initials as a fallback.
             </p>
             <div className="flex items-center gap-3">
               <input
@@ -64,8 +64,8 @@ export const ProfileAvatar: React.FC<ProfileAvatarProps> = memo(
                 onClick={() => fileInputRef.current?.click()}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-medium transition-all shadow-sm hover:shadow-cyan-500/20"
               >
-                <Upload className="w-4 h-4" />
-                Upload Photo
+                <UploadSimple className="w-4 h-4" />
+                UploadSimple Photo
               </button>
               {avatarUrl && (
                 <button
@@ -76,7 +76,7 @@ export const ProfileAvatar: React.FC<ProfileAvatarProps> = memo(
                       : "border-gray-200 text-gray-600 hover:bg-gray-50"
                   }`}
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash className="w-4 h-4" />
                   Remove
                 </button>
               )}

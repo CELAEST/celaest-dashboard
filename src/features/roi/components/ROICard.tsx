@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "motion/react";
-import { DollarSign, Clock, Zap } from "lucide-react";
+import { CurrencyDollar, Clock, Lightning } from "@phosphor-icons/react";
 import {
   AreaChart,
   Area,
@@ -29,7 +29,7 @@ const CustomTooltip = ({ active, payload, isDark }: CustomTooltipProps) => {
         }`}
       >
         <div className="flex items-center gap-2">
-          <Zap className="w-3 h-3 text-cyan-400" fill="currentColor" />
+          <Lightning className="w-3 h-3 text-cyan-400" fill="currentColor" />
           <span>Revenue: ${payload[0].value.toLocaleString()}</span>
         </div>
       </div>
@@ -144,7 +144,7 @@ export const ROICard = React.memo(() => {
                 : "bg-emerald-600 text-white shadow-md shadow-emerald-500/20"
             }`}
           >
-            <DollarSign className="w-4 h-4" strokeWidth={2.5} />
+            <CurrencyDollar className="w-4 h-4" strokeWidth={2.5} />
           </div>
           <div
             className={`px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-widest border ${
@@ -209,7 +209,7 @@ export const ROICard = React.memo(() => {
                 : "bg-white/60 text-gray-900 shadow-sm"
             }`}
           >
-            <Zap className="w-5 h-5 fill-current" />
+            <Lightning className="w-5 h-5 fill-current" />
           </div>
         </div>
 

@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import { useForm } from "react-hook-form";
-import { Key } from "lucide-react";
+import { Key } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { toast } from "sonner";
 import {

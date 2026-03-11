@@ -1,23 +1,23 @@
 import {
-  LayoutDashboard,
+  SquaresFour,
   ShoppingCart,
   FolderOpen,
   GitBranch,
   Shield,
-  TrendingUp,
-  AlertTriangle,
+  TrendUp,
+  Warning,
   CreditCard,
-  Activity,
-  UserCog,
-  Settings,
-  LucideIcon,
+  Pulse,
+  UserGear,
+  Gear,
+  Icon,
   Tag,
-  Bot,
-} from "lucide-react";
+  Robot,
+} from "@phosphor-icons/react";
 
 export interface MenuItem {
   id: string;
-  icon: LucideIcon;
+  icon: Icon;
   label: string;
   scope: string | null;
 }
@@ -25,13 +25,13 @@ export interface MenuItem {
 export const menuItems: MenuItem[] = [
   {
     id: "dashboard",
-    icon: LayoutDashboard,
+    icon: SquaresFour,
     label: "Orders",
     scope: null,
   },
   {
     id: "ai",
-    icon: Bot,
+    icon: Robot,
     label: "AI Console",
     scope: null,
   },
@@ -56,13 +56,13 @@ export const menuItems: MenuItem[] = [
   { id: "licensing", icon: Shield, label: "Licensing", scope: null },
   {
     id: "roi",
-    icon: TrendingUp,
+    icon: TrendUp,
     label: "ROI Dashboard",
     scope: "analytics:read",
   },
   {
     id: "errors",
-    icon: AlertTriangle,
+    icon: Warning,
     label: "Error Monitor",
     scope: "analytics:read",
   },
@@ -70,19 +70,19 @@ export const menuItems: MenuItem[] = [
   { id: "coupons", icon: Tag, label: "Coupons", scope: "billing:write" },
   {
     id: "analytics",
-    icon: Activity,
+    icon: Pulse,
     label: "Analytics",
     scope: "analytics:read",
   },
   {
     id: "operations",
-    icon: Activity,
+    icon: Pulse,
     label: "Operations & DevOps",
     scope: null, // Depending on permissions, "operations:read" could be added later
   },
   {
     id: "users",
-    icon: UserCog,
+    icon: UserGear,
     label: "User Management",
     scope: null,
   },
@@ -92,5 +92,5 @@ export const menuItems: MenuItem[] = [
     label: "Super Admin",
     scope: "users:manage",
   },
-  { id: "settings", icon: Settings, label: "Settings", scope: null },
+  { id: "settings", icon: Gear, label: "Gear", scope: null },
 ];

@@ -1,5 +1,5 @@
 import React, { memo, useMemo } from "react";
-import { User, Shield } from "lucide-react";
+import { User, Shield } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface UserInfoProps {

@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { Code, Key, Copy, LayoutGrid, Trash2 } from "lucide-react";
+import { Code, Key, Copy, SquaresFour, Trash } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
 export interface ApiKey {
@@ -90,7 +90,7 @@ export const ApiKeys: React.FC<ApiKeysProps> = memo(
                     }`}
                     title="Revoke Key"
                   >
-                    <Trash2 size={15} />
+                    <Trash size={15} />
                   </button>
                 </div>
               </div>
@@ -130,7 +130,7 @@ export const ApiKeys: React.FC<ApiKeysProps> = memo(
               : "border-cyan-200 text-cyan-600 bg-cyan-50/30 hover:bg-cyan-50 hover:border-cyan-300"
           }`}
         >
-          <LayoutGrid size={14} />
+          <SquaresFour size={14} />
           GENERATE NEW LIVE KEY
         </button>
       </div>

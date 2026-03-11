@@ -1,7 +1,7 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 
-import { AlertCircle, Mail, Key } from "lucide-react";
+import { Warning, Envelope, Key } from "@phosphor-icons/react";
 import { SettingsModal } from "../../SettingsModal";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import {
@@ -67,7 +67,7 @@ export const EmailChangeModal: React.FC<EmailChangeModalProps> = ({
                 <FormLabel>New Email Address</FormLabel>
                 <FormControl>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Envelope className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
                       type="email"
                       placeholder="your.new@email.com"
@@ -111,7 +111,7 @@ export const EmailChangeModal: React.FC<EmailChangeModalProps> = ({
                 : "bg-cyan-50 border-cyan-100"
             }`}
           >
-            <AlertCircle className="w-4 h-4 text-cyan-500 shrink-0 mt-0.5" />
+            <Warning className="w-4 h-4 text-cyan-500 shrink-0 mt-0.5" />
             <p
               className={`text-xs ${isDark ? "text-gray-400" : "text-gray-600"}`}
             >
@@ -140,7 +140,7 @@ export const EmailChangeModal: React.FC<EmailChangeModalProps> = ({
               disabled={isSubmitting}
               className="flex-1 px-4 py-3 rounded-xl bg-linear-to-r from-cyan-600 to-blue-600 text-white font-bold hover:shadow-lg hover:shadow-cyan-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? "Sending..." : "Send Verification"}
+              {isSubmitting ? "Sending..." : "PaperPlaneTilt Verification"}
             </button>
           </div>
         </form>

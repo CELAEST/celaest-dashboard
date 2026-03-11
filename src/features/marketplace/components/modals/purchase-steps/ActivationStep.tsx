@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "motion/react";
-import { Loader, CheckCircle } from "lucide-react";
+import { CircleNotch, CheckCircle } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { Progress } from "@/components/ui/progress";
 
@@ -74,7 +74,7 @@ export const ActivationStep: React.FC<ActivationStepProps> = ({
         </>
       ) : (
         <>
-          <Loader
+          <CircleNotch
             className={`mx-auto animate-spin ${theme === "dark" ? "text-cyan-400" : "text-cyan-600"}`}
             size={48}
           />

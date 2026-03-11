@@ -5,7 +5,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Star, Send, LogIn } from "lucide-react";
+import { Star, PaperPlaneTilt, SignIn } from "@phosphor-icons/react";
 import { useReviews } from "../../hooks/useReviews";
 
 interface ReviewFormProps {
@@ -57,7 +57,7 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({
           </p>
         </div>
         <button className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-blue-500">
-          <LogIn className="h-4 w-4" />
+          <SignIn className="h-4 w-4" />
           Iniciar sesión
         </button>
       </div>
@@ -138,7 +138,7 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({
           </>
         ) : (
           <>
-            <Send className="h-4 w-4" />
+            <PaperPlaneTilt className="h-4 w-4" />
             Enviar reseña
           </>
         )}

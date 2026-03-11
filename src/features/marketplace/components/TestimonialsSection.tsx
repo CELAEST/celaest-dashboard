@@ -1,7 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import { motion } from "motion/react";
-import { Star, Quote } from "lucide-react";
+import { Star, Quotes } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
 const testimonials = [
@@ -77,8 +77,8 @@ export const TestimonialsSection: React.FC = () => {
               }
             `}
           >
-            {/* Quote Icon */}
-            <Quote
+            {/* Quotes Icon */}
+            <Quotes
               className={`absolute top-4 right-4 opacity-10 ${theme === "dark" ? "text-cyan-400" : "text-cyan-600"}`}
               size={48}
             />

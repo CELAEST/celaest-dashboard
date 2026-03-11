@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { Calendar, HardDrive, Download, Activity } from "lucide-react";
+import { Calendar, HardDrive, DownloadSimple, Pulse } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { Version } from "@/features/releases/types";
 
@@ -29,13 +29,13 @@ export const VersionDetailsMetrics: React.FC<VersionDetailsMetricsProps> = memo(
       {
         label: "Downloads",
         value: version.downloads.toLocaleString(),
-        icon: Download,
+        icon: DownloadSimple,
         color: "text-emerald-500",
       },
       {
         label: "Adoption",
         value: `${version.adoptionRate}%`,
-        icon: Activity,
+        icon: Pulse,
         color: "text-cyan-500",
       },
     ];

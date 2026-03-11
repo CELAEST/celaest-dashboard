@@ -7,7 +7,7 @@ import { ProductSkeleton } from "./ProductSkeleton";
 import { CouponFAB } from "./CouponFAB";
 import { useMarketplaceProducts } from "../hooks/useMarketplaceProducts";
 import { MarketplaceProduct } from "../types";
-import { Store } from "lucide-react";
+import { Storefront } from "@phosphor-icons/react";
 import { AnimatePresence } from "motion/react";
 import dynamic from "next/dynamic";
 import { useTheme } from "@/features/shared/hooks/useTheme";
@@ -37,7 +37,7 @@ export function MarketplacePublicView() {
     null,
   );
 
-  // Data from Store
+  // Data from Storefront
   const { products, loading: isLoading, reset } = useMarketplaceProducts();
 
   const handleViewDetails = (product: MarketplaceProduct) => {
@@ -54,7 +54,7 @@ export function MarketplacePublicView() {
       {/* Hero Section */}
       <MarketplacePublicHero />
 
-      {/* Search Section - Restored Original Position */}
+      {/* MagnifyingGlass Section - Restored Original Position */}
       <MarketplaceSearch />
 
       {/* Products Section */}
@@ -96,7 +96,7 @@ export function MarketplacePublicView() {
             </div>
           ) : products.length === 0 ? (
             <div className="text-center py-20 bg-white/5 rounded-3xl border border-dashed border-white/10 mx-8">
-              <Store className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+              <Storefront className="mx-auto h-12 w-12 text-gray-400 mb-4" />
               <h3 className="text-lg font-medium text-gray-500">
                 No se encontraron productos
               </h3>

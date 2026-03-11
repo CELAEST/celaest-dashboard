@@ -2,13 +2,12 @@ import { useCallback, useMemo } from "react";
 import { useForm, useWatch, Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  Loader2,
-  TicketPercent,
+  CircleNotch,
   Tag,
   Calendar,
   Users,
-  Zap,
-} from "lucide-react";
+  Lightning,
+} from "@phosphor-icons/react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { CouponPreviewCard } from "./CouponPreviewCard";
@@ -134,7 +133,7 @@ export const CreateCouponForm = ({
                         onClick={generateCode}
                         className="shrink-0 h-11 border-white/5 bg-white/5 hover:bg-blue-600/10 hover:border-blue-500/20 text-neutral-400 hover:text-blue-400 font-bold transition-all"
                       >
-                        <Zap className="w-3.5 h-3.5 mr-2" />
+                        <Lightning className="w-3.5 h-3.5 mr-2" />
                         Generar
                       </Button>
                     </div>
@@ -189,7 +188,7 @@ export const CreateCouponForm = ({
                             $
                           </span>
                         ) : (
-                          <TicketPercent className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-500" />
+                          <Tag className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-500" />
                         )}
                         <FormControl>
                           <Input
@@ -273,7 +272,7 @@ export const CreateCouponForm = ({
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <CircleNotch className="mr-2 h-4 w-4 animate-spin" />
                     Creando...
                   </>
                 ) : (

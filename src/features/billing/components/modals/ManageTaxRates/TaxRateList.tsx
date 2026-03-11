@@ -1,5 +1,5 @@
 import React from "react";
-import { Globe, Edit2, Trash2 } from "lucide-react";
+import { Globe, PencilSimple, Trash } from "@phosphor-icons/react";
 import { motion } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { TaxRate } from "../../../types";
@@ -34,7 +34,7 @@ export const TaxRateList: React.FC<TaxRateListProps> = ({
           Tax Rate
         </div>
         <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider text-center">
-          Type
+          TextT
         </div>
         <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider text-center">
           Status
@@ -119,7 +119,7 @@ export const TaxRateList: React.FC<TaxRateListProps> = ({
               </div>
             </div>
 
-            {/* Type */}
+            {/* TextT */}
             <div className="flex flex-col md:items-center">
               <div
                 className={`text-[10px] font-bold mb-1 md:hidden ${
@@ -178,7 +178,7 @@ export const TaxRateList: React.FC<TaxRateListProps> = ({
                     : "bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 border border-blue-500/20"
                 }`}
               >
-                <Edit2 className="w-4 h-4" />
+                <PencilSimple className="w-4 h-4" />
               </motion.button>
               <motion.button
                 whileHover={{ scale: 1.1 }}
@@ -190,7 +190,7 @@ export const TaxRateList: React.FC<TaxRateListProps> = ({
                     : "bg-red-500/10 text-red-600 hover:bg-red-500/20 border border-red-500/20"
                 }`}
               >
-                <Trash2 className="w-4 h-4" />
+                <Trash className="w-4 h-4" />
               </motion.button>
             </div>
           </div>

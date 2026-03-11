@@ -1,5 +1,5 @@
 import React from "react";
-import { Check, Star, Download } from "lucide-react";
+import { Check, Star, DownloadSimple } from "@phosphor-icons/react";
 import { Asset } from "../../services/assets.service";
 
 interface ProductInfoSectionProps {
@@ -84,7 +84,7 @@ export const ProductInfoSection: React.FC<ProductInfoSectionProps> = ({
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <Download
+          <DownloadSimple
             size={16}
             className={isDark ? "text-gray-500" : "text-gray-400"}
           />

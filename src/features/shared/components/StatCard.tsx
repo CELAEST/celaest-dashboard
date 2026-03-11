@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "motion/react";
-import { TrendingUp, TrendingDown } from "lucide-react";
+import { TrendUp, TrendDown } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { cn } from "@/lib/utils";
 import { Area, AreaChart, ResponsiveContainer } from "recharts";
@@ -48,14 +48,37 @@ export const StatCard = React.memo(function StatCard({
 }: StatCardProps) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const hasTrend = Boolean(trend && trend.trim().length > 0);
+  const hasChartActivity = chartData.some((point) => point.value > 0);
+  const shouldPrefixPositiveTrend = Boolean(
+    hasTrend &&
+      trendUp &&
+      !trend!.startsWith("+") &&
+      /^\d/.test(trend!.trim()),
+  );
+  const trendLabel = shouldPrefixPositiveTrend ? `+${trend}` : trend;
+  const chartStroke = hasChartActivity
+    ? trendUp
+      ? "#10b981"
+      : "#ef4444"
+    : isDark
+      ? "rgba(148,163,184,0.55)"
+      : "#94a3b8";
+  const chartFillColor = hasChartActivity
+    ? trendUp
+      ? "#10b981"
+      : "#ef4444"
+    : isDark
+      ? "rgba(148,163,184,0.45)"
+      : "#cbd5e1";
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay, duration: 0.5 }}
+      transition={{ delay, duration: 0.2 }}
       className={cn(
-        "group relative overflow-hidden rounded-2xl p-5 transition-all duration-500 hover:scale-[1.02] cursor-pointer flex flex-col justify-between h-full",
+        "group relative overflow-hidden rounded-2xl p-4 transition-all duration-200 hover:scale-[1.02] cursor-pointer flex flex-col justify-between h-full",
         isDark
           ? "bg-black/40 backdrop-blur-xl border border-white/10 hover:border-white/20 hover:shadow-[0_0_20px_rgba(255,255,255,0.05)]"
           : "bg-white border border-gray-200 shadow-sm hover:shadow-xl",
@@ -64,13 +87,10 @@ export const StatCard = React.memo(function StatCard({
     >
       {/* Background Gradient Spot */}
       <div
-        className={`absolute -right-10 -top-10 w-40 h-40 bg-linear-to-br ${gradient} opacity-10 group-hover:opacity-20 blur-3xl transition-opacity duration-500 rounded-full`}
+        className={`absolute -right-10 -top-10 w-40 h-40 bg-linear-to-br ${gradient} opacity-10 group-hover:opacity-20 blur-3xl transition-opacity duration-200 rounded-full`}
       />
 
-      {/* Scanline Effect (Subtle) */}
-      {isDark && (
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 pointer-events-none mix-blend-overlay" />
-      )}
+
 
       {/* Header */}
       <div className="flex justify-between items-start relative z-10">
@@ -91,44 +111,45 @@ export const StatCard = React.memo(function StatCard({
               )}
             </div>
             <span
-              className={`text-[10px] uppercase font-black tracking-widest ${isDark ? "text-gray-400" : "text-gray-500"}`}
+              className={`text-xs uppercase font-semibold tracking-wide ${isDark ? "text-gray-400" : "text-gray-500"}`}
             >
               {title}
             </span>
           </div>
 
           <div
-            className={`text-3xl font-black tracking-tighter italic ${isDark ? "text-white" : "text-gray-900"}`}
+            className={`text-2xl font-bold tracking-tight ${isDark ? "text-white" : "text-gray-900"}`}
           >
             {value}
           </div>
         </div>
 
-        <div
-          className={`shrink-0 flex items-center gap-1 px-2 py-1 rounded-lg border h-fit ${
-            trendUp
-              ? isDark
-                ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
-                : "bg-emerald-50 border-emerald-100 text-emerald-600"
-              : isDark
-                ? "bg-red-500/10 border-red-500/20 text-red-400"
-                : "bg-red-50 border-red-100 text-red-600"
-          }`}
-        >
-          <span className="text-xs font-bold whitespace-nowrap">
-            {trendUp ? "+" : ""}
-            {trend}
-          </span>
-          {trendUp ? (
-            <TrendingUp size={12} className="shrink-0" />
-          ) : (
-            <TrendingDown size={12} className="shrink-0" />
-          )}
-        </div>
+        {hasTrend && (
+          <div
+            className={`shrink-0 flex items-center gap-1 px-2 py-1 rounded-lg border h-fit ${
+              trendUp
+                ? isDark
+                  ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+                  : "bg-emerald-50 border-emerald-100 text-emerald-600"
+                : isDark
+                  ? "bg-red-500/10 border-red-500/20 text-red-400"
+                  : "bg-red-50 border-red-100 text-red-600"
+            }`}
+          >
+            <span className="text-xs font-bold whitespace-nowrap">
+              {trendLabel}
+            </span>
+            {trendUp ? (
+              <TrendUp size={12} className="shrink-0" />
+            ) : (
+              <TrendDown size={12} className="shrink-0" />
+            )}
+          </div>
+        )}
       </div>
 
       {/* Mini Chart Area */}
-      <div className="h-16 w-full relative mt-4 opacity-50 group-hover:opacity-100 transition-opacity duration-500 -mb-2">
+      <div className="h-16 w-full relative mt-4 opacity-50 group-hover:opacity-100 transition-opacity duration-200 -mb-2">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={chartData}>
             <defs>
@@ -141,12 +162,12 @@ export const StatCard = React.memo(function StatCard({
               >
                 <stop
                   offset="5%"
-                  stopColor={trendUp ? "#10b981" : "#ef4444"}
+                  stopColor={chartFillColor}
                   stopOpacity={0.3}
                 />
                 <stop
                   offset="95%"
-                  stopColor={trendUp ? "#10b981" : "#ef4444"}
+                  stopColor={chartFillColor}
                   stopOpacity={0}
                 />
               </linearGradient>
@@ -154,7 +175,7 @@ export const StatCard = React.memo(function StatCard({
             <Area
               type="monotone"
               dataKey="value"
-              stroke={trendUp ? "#10b981" : "#ef4444"}
+              stroke={chartStroke}
               fill={`url(#gradient-${title})`}
               strokeWidth={2}
               isAnimationActive={true}
@@ -165,7 +186,7 @@ export const StatCard = React.memo(function StatCard({
 
       {/* Bottom Glow Line */}
       <div
-        className={`absolute bottom-0 left-0 right-0 h-0.5 bg-linear-to-r ${gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
+        className={`absolute bottom-0 left-0 right-0 h-0.5 bg-linear-to-r ${gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-200`}
       />
     </motion.div>
   );

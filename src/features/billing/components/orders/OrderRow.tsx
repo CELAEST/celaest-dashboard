@@ -2,13 +2,13 @@
 
 import React, { useCallback } from "react";
 import {
-  MoreHorizontal,
-  AlertCircle,
+  DotsThree,
+  Warning,
   CheckCircle,
   Clock,
   CreditCard,
-  Banknote,
-} from "lucide-react";
+  Money,
+} from "@phosphor-icons/react";
 import { Order } from "../../types";
 
 interface OrderRowProps {
@@ -69,7 +69,7 @@ export const OrderRow = React.memo(
           );
         case "cancelled":
         case "failed":
-          return <AlertCircle size={12} className="mr-1.5" />;
+          return <Warning size={12} className="mr-1.5" />;
         default:
           return <Clock size={12} className="mr-1.5" />;
       }
@@ -130,7 +130,7 @@ export const OrderRow = React.memo(
                 {order.paymentMethod === "card" ? (
                   <CreditCard size={14} />
                 ) : (
-                  <Banknote size={14} />
+                  <Money size={14} />
                 )}
                 <span className="capitalize">
                   {order.paymentMethod || "Stripe"}
@@ -165,7 +165,7 @@ export const OrderRow = React.memo(
                 : "text-gray-400 hover:text-gray-900 hover:bg-gray-100"
             }`}
           >
-            <MoreHorizontal size={16} />
+            <DotsThree size={16} />
           </button>
         </td>
       </tr>

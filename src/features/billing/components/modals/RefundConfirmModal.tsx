@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { createPortal } from "react-dom";
-import { RotateCcw, AlertTriangle, X } from "lucide-react";
+import { ArrowCounterClockwise, Warning, X } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useEscapeKey } from "@/features/shared/hooks/useEscapeKey";
 
@@ -110,7 +110,7 @@ export const RefundConfirmModal: React.FC<RefundConfirmModalProps> = ({
                       : "bg-amber-50 border border-amber-200"
                   }`}
                 >
-                  <AlertTriangle size={20} className="text-amber-500" />
+                  <Warning size={20} className="text-amber-500" />
                 </div>
                 <div>
                   <h3
@@ -214,7 +214,7 @@ export const RefundConfirmModal: React.FC<RefundConfirmModalProps> = ({
                     : "bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 shadow-amber-500/20"
                 }`}
               >
-                <RotateCcw
+                <ArrowCounterClockwise
                   size={16}
                   className={isLoading ? "animate-spin" : ""}
                 />

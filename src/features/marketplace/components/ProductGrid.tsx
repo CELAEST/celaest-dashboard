@@ -4,7 +4,7 @@ import React from "react";
 import { ProductCard } from "./ProductCard";
 import { MarketplaceProduct } from "../types";
 import { AnimatePresence } from "framer-motion";
-import { ShoppingBag } from "lucide-react";
+import { ShoppingBag } from "@phosphor-icons/react";
 
 interface ProductGridProps {
   products: MarketplaceProduct[];

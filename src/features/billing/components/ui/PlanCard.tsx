@@ -1,12 +1,12 @@
 import React from "react";
 import {
   Check,
-  Sparkles,
-  Zap,
+  Sparkle,
+  Lightning,
   Users,
   HardDrive,
   ArrowRight,
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import { motion } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { Plan } from "../../types";
@@ -138,7 +138,7 @@ export const PlanCard: React.FC<PlanCardProps> = ({
       {isPopular && (
         <div className="absolute -top-3 inset-x-0 flex justify-center">
           <span className="inline-flex items-center gap-1.5 bg-linear-to-r from-purple-600 to-violet-600 text-white text-xs font-semibold tracking-wide uppercase px-4 py-1 rounded-full shadow-md shadow-purple-500/30">
-            <Sparkles className="w-3 h-3" />
+            <Sparkle className="w-3 h-3" />
             Most Popular
           </span>
         </div>
@@ -201,7 +201,7 @@ export const PlanCard: React.FC<PlanCardProps> = ({
         >
           {aiVal !== undefined && (
             <div className="flex flex-col items-center gap-0.5">
-              <Zap className={`w-3.5 h-3.5 ${p.accent[mode]}`} />
+              <Lightning className={`w-3.5 h-3.5 ${p.accent[mode]}`} />
               <span
                 className={`text-[13px] font-bold ${isDark ? "text-white" : "text-gray-900"}`}
               >

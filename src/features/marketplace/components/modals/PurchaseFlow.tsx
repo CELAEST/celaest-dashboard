@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { X, CheckCircle, CreditCard, Download } from "lucide-react";
+import { X, CheckCircle, CreditCard, DownloadSimple, Check } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { SuccessConfetti } from "@/features/shared/components/SuccessConfetti";
 import { useMarketplaceCouponStore } from "@/features/marketplace/store";
@@ -73,9 +73,9 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
   }, [isOpen, resetFlow]);
 
   const steps = [
-    { number: 1, title: "Confirmación", icon: <CheckCircle size={18} /> },
-    { number: 2, title: "Pago Seguro", icon: <CreditCard size={18} /> },
-    { number: 3, title: "Activación", icon: <Download size={18} /> },
+    { number: 1, title: "Confirmación", icon: <CheckCircle size={20} weight="bold" /> },
+    { number: 2, title: "Pago Seguro", icon: <CreditCard size={20} weight="bold" /> },
+    { number: 3, title: "Activación", icon: <DownloadSimple size={20} weight="bold" /> },
   ];
 
   return (
@@ -123,45 +123,95 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
             </button>
 
             {/* Progress Steps */}
-            <div
-              className={`p-6 border-b ${theme === "dark" ? "border-white/10" : "border-gray-200"}`}
-            >
-              {/* Steps UI remains here as it's part of the layout */}
-              <div className="flex items-center justify-between max-w-md mx-auto">
-                {steps.map((s, index) => (
-                  <React.Fragment key={s.number}>
-                    <div className="flex flex-col items-center gap-2">
-                      <div
-                        className={`
-                          w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300
-                          ${
-                            step >= s.number
-                              ? theme === "dark"
-                                ? "bg-cyan-500 text-black shadow-[0_0_20px_rgba(0,255,255,0.4)]"
-                                : "bg-cyan-500 text-white shadow-lg"
-                              : theme === "dark"
-                                ? "bg-white/5 text-gray-500"
-                                : "bg-gray-100 text-gray-400"
-                          }
-                        `}
-                      >
-                        {s.icon}
+            <div className={`px-16 sm:px-20 pt-10 pb-8 ${theme === "dark" ? "bg-gradient-to-b from-white/[0.03] to-transparent" : "bg-gradient-to-b from-gray-50/80 to-transparent"}`}>
+              {/* Row: circle — line — circle — line — circle */}
+              <div className="flex items-center justify-center">
+                {steps.map((s, index) => {
+                  const isCompleted = step > s.number;
+                  const isActive = step === s.number;
+                  return (
+                    <React.Fragment key={s.number}>
+                      {/* Circle */}
+                      <div className="relative flex-shrink-0">
+                        {isActive && (
+                          <div className={`absolute inset-0 -m-2 rounded-full ${
+                            theme === "dark"
+                              ? "bg-cyan-500/15 blur-xl"
+                              : "bg-cyan-400/10 blur-xl"
+                          }`} />
+                        )}
+                        <div
+                          className={`
+                            relative w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300
+                            ${
+                              isCompleted
+                                ? theme === "dark"
+                                  ? "bg-cyan-500 text-black"
+                                  : "bg-cyan-500 text-white shadow-md shadow-cyan-500/20"
+                                : isActive
+                                  ? theme === "dark"
+                                    ? "bg-cyan-500 text-black shadow-[0_0_30px_rgba(0,255,255,0.35)]"
+                                    : "bg-cyan-500 text-white shadow-xl shadow-cyan-500/30"
+                                  : theme === "dark"
+                                    ? "bg-white/[0.08] text-gray-500 ring-1 ring-white/20"
+                                    : "bg-gray-100 text-gray-400 ring-1 ring-gray-300"
+                            }
+                          `}
+                        >
+                          {isCompleted ? <Check size={20} weight="bold" /> : s.icon}
+                        </div>
                       </div>
-                      <span
-                        className={`text-xs font-medium ${step >= s.number ? (theme === "dark" ? "text-white" : "text-gray-900") : "text-gray-500"}`}
-                      >
-                        {s.title}
-                      </span>
-                    </div>
-                    {index < steps.length - 1 && (
-                      <div
-                        className={`flex-1 h-0.5 mx-2 ${step > s.number ? (theme === "dark" ? "bg-cyan-500" : "bg-cyan-500") : theme === "dark" ? "bg-white/10" : "bg-gray-200"}`}
-                      />
-                    )}
-                  </React.Fragment>
-                ))}
+                      {/* Connector line */}
+                      {index < steps.length - 1 && (
+                        <div
+                          className={`flex-1 h-[2px] mx-3 sm:mx-5 transition-all duration-500 ${
+                            step > s.number
+                              ? "bg-cyan-400"
+                              : theme === "dark"
+                                ? "bg-white/15"
+                                : "bg-gray-300"
+                          }`}
+                        />
+                      )}
+                    </React.Fragment>
+                  );
+                })}
+              </div>
+
+              {/* Labels row — separate from circles for clean alignment */}
+              <div className="flex items-start justify-between mt-4" style={{ paddingLeft: 0, paddingRight: 0 }}>
+                {steps.map((s, index) => {
+                  const isCompleted = step > s.number;
+                  const isActive = step === s.number;
+                  return (
+                    <span
+                      key={`label-${s.number}`}
+                      className={`text-xs font-semibold transition-colors duration-300 ${
+                        index === 0 ? "text-left" : index === steps.length - 1 ? "text-right" : "text-center"
+                      } ${
+                        isCompleted
+                          ? theme === "dark"
+                            ? "text-cyan-400"
+                            : "text-cyan-600"
+                          : isActive
+                            ? theme === "dark"
+                              ? "text-white"
+                              : "text-gray-900"
+                            : theme === "dark"
+                              ? "text-gray-500"
+                              : "text-gray-400"
+                      }`}
+                      style={{ flex: 1 }}
+                    >
+                      {s.title}
+                    </span>
+                  );
+                })}
               </div>
             </div>
+
+            {/* Divider */}
+            <div className={`h-px ${theme === "dark" ? "bg-white/[0.08]" : "bg-gray-200"}`} />
 
             {/* Content */}
             <div className="p-8">

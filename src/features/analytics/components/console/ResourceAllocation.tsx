@@ -1,11 +1,18 @@
 import React from "react";
 import { motion } from "motion/react";
-import { Database, Cpu, Server } from "lucide-react";
-import { useAnalytics } from "@/features/analytics/hooks/useAnalytics";
+import { Database, Cpu, HardDrives } from "@phosphor-icons/react";
+import type { useAnalytics } from "@/features/analytics/hooks/useAnalytics";
+
+type AnalyticsData = ReturnType<typeof useAnalytics>;
+
+interface ResourceAllocationProps {
+  className?: string;
+  isDark: boolean;
+  usage: AnalyticsData["usage"];
+}
 
 export const ResourceAllocation = React.memo(
-  ({ className }: { className?: string }) => {
-    const { isDark, usage } = useAnalytics();
+  ({ className, isDark, usage }: ResourceAllocationProps) => {
 
     const resourceData = React.useMemo(
       () => [
@@ -45,7 +52,7 @@ export const ResourceAllocation = React.memo(
             <div
               className={`p-2 rounded-lg ${isDark ? "bg-blue-500/10 text-blue-400" : "bg-blue-50 text-blue-600"}`}
             >
-              <Server className="w-4 h-4" />
+              <HardDrives className="w-4 h-4" />
             </div>
             <h3
               className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-gray-400" : "text-gray-500"}`}

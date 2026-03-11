@@ -12,7 +12,7 @@ import {
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface DataPoint {
-  day: string;
+  label: string;
   hours: number;
 }
 
@@ -77,8 +77,8 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
 
 interface TimeSavedChartProps {
   data: DataPoint[];
-  timeRange: string;
-  setTimeRange: (range: string) => void;
+  timeRange: "week" | "month" | "year";
+  setTimeRange: (range: "week" | "month" | "year") => void;
 }
 
 export const TimeSavedChart = React.memo(
@@ -91,14 +91,14 @@ export const TimeSavedChart = React.memo(
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
-        className={`rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-2xl ${
+        className={`rounded-2xl overflow-hidden transition-all duration-200 h-full flex flex-col ${
           isDark
             ? "bg-black/40 backdrop-blur-xl border border-white/10"
             : "bg-white border border-gray-200 shadow-sm"
         }`}
       >
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-6">
+        <div className="p-5 flex flex-col flex-1 min-h-0">
+          <div className="flex items-center justify-between gap-3 mb-4 shrink-0">
             <div className="flex items-center gap-3">
               <div
                 className={`w-2 h-2 rounded-full animate-pulse ${
@@ -110,12 +110,17 @@ export const TimeSavedChart = React.memo(
                   isDark ? "text-white" : "text-gray-900"
                 }`}
               >
-                Tiempo Ahorrado - Última Semana
+                Tiempo Ahorrado -{" "}
+                {timeRange === "week"
+                  ? "Última Semana"
+                  : timeRange === "month"
+                    ? "Último Mes"
+                    : "Último Año"}
               </h3>
             </div>
             <div
-              className={`flex bg-transparent p-1 gap-1 rounded-lg ${
-                isDark ? "bg-white/5 border border-white/5" : "bg-gray-100/50"
+              className={`flex bg-transparent p-1 gap-1 rounded-xl border shadow-inner ${
+                isDark ? "bg-white/5 border-white/5" : "bg-gray-100/80 border-gray-200"
               }`}
             >
               {["Semana", "Mes", "Año"].map((period) => {
@@ -136,13 +141,13 @@ export const TimeSavedChart = React.memo(
                             : "year",
                       )
                     }
-                    className="relative px-3 py-1.5 text-xs font-bold outline-none transition-colors"
+                    className="relative px-2.5 py-1 text-[11px] font-bold outline-none transition-colors"
                   >
                     {isSelected && (
                       <motion.div
                         layoutId="active-period"
-                        className={`absolute inset-0 rounded-md shadow-sm ${
-                          isDark ? "bg-cyan-500/20" : "bg-white"
+                        className={`absolute inset-0 rounded-lg shadow-sm ${
+                          isDark ? "bg-white/10 ring-1 ring-white/10" : "bg-white ring-1 ring-black/5"
                         }`}
                         transition={{
                           type: "spring",
@@ -155,10 +160,10 @@ export const TimeSavedChart = React.memo(
                       className={`relative z-10 transition-colors duration-200 ${
                         isSelected
                           ? isDark
-                            ? "text-cyan-400"
+                            ? "text-white"
                             : "text-blue-600"
                           : isDark
-                            ? "text-gray-400 hover:text-gray-300"
+                            ? "text-gray-400 hover:text-white"
                             : "text-gray-500 hover:text-gray-700"
                       }`}
                     >
@@ -170,46 +175,59 @@ export const TimeSavedChart = React.memo(
             </div>
           </div>
 
-          <ResponsiveContainer width="100%" height={250}>
-            <AreaChart data={data}>
-              <defs>
-                <linearGradient id="colorHours" x1="0" y1="0" x2="0" y2="1">
-                  <stop
-                    offset="5%"
-                    stopColor={isDark ? "#22d3ee" : "#3b82f6"}
-                    stopOpacity={0.4}
-                  />
-                  <stop
-                    offset="95%"
-                    stopColor={isDark ? "#22d3ee" : "#3b82f6"}
-                    stopOpacity={0}
-                  />
-                </linearGradient>
-              </defs>
-              <CartesianGrid
-                strokeDasharray="3 3"
-                stroke={isDark ? "rgba(255,255,255,0.05)" : "#e5e7eb"}
-              />
-              <XAxis
-                dataKey="day"
-                stroke={isDark ? "#64748b" : "#9ca3af"}
-                style={{ fontSize: "12px" }}
-              />
-              <YAxis
-                stroke={isDark ? "#64748b" : "#9ca3af"}
-                style={{ fontSize: "12px" }}
-              />
-              <Tooltip content={<CustomTooltip isDark={isDark} />} />
-              <Area
-                type="monotone"
-                dataKey="hours"
-                stroke={isDark ? "#22d3ee" : "#3b82f6"}
-                strokeWidth={3}
-                fillOpacity={1}
-                fill="url(#colorHours)"
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+          <div className="flex-1 min-h-70">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart
+                data={data}
+                margin={{ top: 12, right: 8, left: -18, bottom: 0 }}
+              >
+                <defs>
+                  <linearGradient id="colorHours" x1="0" y1="0" x2="0" y2="1">
+                    <stop
+                      offset="5%"
+                      stopColor={isDark ? "#22d3ee" : "#3b82f6"}
+                      stopOpacity={0.4}
+                    />
+                    <stop
+                      offset="95%"
+                      stopColor={isDark ? "#22d3ee" : "#3b82f6"}
+                      stopOpacity={0}
+                    />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke={isDark ? "rgba(255,255,255,0.05)" : "#e5e7eb"}
+                  vertical={false}
+                />
+                <XAxis
+                  dataKey="label"
+                  stroke={isDark ? "#64748b" : "#9ca3af"}
+                  tickLine={false}
+                  axisLine={false}
+                  style={{ fontSize: "12px" }}
+                />
+                <YAxis
+                  stroke={isDark ? "#64748b" : "#9ca3af"}
+                  tickLine={false}
+                  axisLine={false}
+                  width={28}
+                  style={{ fontSize: "12px" }}
+                />
+                <Tooltip content={<CustomTooltip isDark={isDark} />} />
+                <Area
+                  type="monotone"
+                  dataKey="hours"
+                  stroke={isDark ? "#22d3ee" : "#3b82f6"}
+                  strokeWidth={2.25}
+                  fillOpacity={1}
+                  fill="url(#colorHours)"
+                  dot={false}
+                  activeDot={{ r: 5, fill: isDark ? "#22d3ee" : "#3b82f6", strokeWidth: 0 }}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </motion.div>
     );

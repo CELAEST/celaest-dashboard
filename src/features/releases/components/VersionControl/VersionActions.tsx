@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { MoreVertical, Edit2, Archive, FileText } from "lucide-react";
+import { DotsThreeVertical, PencilSimple, Archive, FileText } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { Version } from "../../types";
 
@@ -28,7 +28,7 @@ export const VersionActions: React.FC<VersionActionsProps> = memo(
               : "hover:bg-gray-100 text-gray-600 hover:text-gray-900"
           }`}
         >
-          <MoreVertical size={18} />
+          <DotsThreeVertical size={18} />
         </button>
 
         <AnimatePresence>
@@ -51,8 +51,8 @@ export const VersionActions: React.FC<VersionActionsProps> = memo(
                     : "text-gray-700 hover:bg-gray-50"
                 }`}
               >
-                <Edit2 size={16} />
-                Edit Changelog
+                <PencilSimple size={16} />
+                PencilSimple Changelog
               </button>
               <button
                 onClick={() => onViewDetails(version)}

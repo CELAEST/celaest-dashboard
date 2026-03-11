@@ -5,22 +5,20 @@ import { LicensesList } from "../LicensesList";
 
 export const BillingOverview = () => {
   return (
-    <div className="h-full min-h-0 w-full flex flex-col pt-2">
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 h-full min-h-0">
-        {/* Left Column: Subscription Plan */}
-        <div className="flex flex-col min-h-0 h-full">
+    <div className="h-full min-h-0 w-full flex flex-col p-4 gap-3 overflow-y-auto lg:overflow-hidden lg:grid lg:grid-cols-2 lg:gap-4">
+      {/* Left column: Subscription + Payment Methods stacked */}
+      <div className="flex flex-col gap-3 min-h-0">
+        <div className="shrink-0">
           <SubscriptionManager />
         </div>
-
-        {/* Right Column: Licenses + Payment Methods */}
-        <div className="flex flex-col min-h-0 h-full gap-6">
-          <div className="flex-1 min-h-0">
-            <LicensesList />
-          </div>
-          <div className="shrink-0">
-            <PaymentMethodsCard />
-          </div>
+        <div className="flex-1 min-h-0">
+          <PaymentMethodsCard />
         </div>
+      </div>
+
+      {/* Right column: Licenses full height */}
+      <div className="min-h-0 h-full">
+        <LicensesList />
       </div>
     </div>
   );

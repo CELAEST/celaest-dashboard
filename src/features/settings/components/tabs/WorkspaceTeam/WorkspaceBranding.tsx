@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { Palette, Upload, Save, RotateCcw, Loader2 } from "lucide-react";
+import { Palette, UploadSimple, FloppyDisk, ArrowCounterClockwise, CircleNotch } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
@@ -170,7 +170,7 @@ export function WorkspaceBranding({
                     : "text-gray-400 hover:text-gray-700 hover:bg-gray-100"
                 }`}
               >
-                <RotateCcw size={12} /> Reset
+                <ArrowCounterClockwise size={12} /> Reset
               </button>
               <button
                 onClick={handleSave}
@@ -182,11 +182,11 @@ export function WorkspaceBranding({
                 }`}
               >
                 {isSaving ? (
-                  <Loader2 size={12} className="animate-spin" />
+                  <CircleNotch size={12} className="animate-spin" />
                 ) : (
-                  <Save size={12} />
+                  <FloppyDisk size={12} />
                 )}
-                Save Branding
+                FloppyDisk Branding
               </button>
             </>
           )}
@@ -200,7 +200,7 @@ export function WorkspaceBranding({
 
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-6 h-6 animate-spin text-purple-500" />
+          <CircleNotch className="w-6 h-6 animate-spin text-purple-500" />
         </div>
       ) : (
         <div className="space-y-6">
@@ -322,7 +322,7 @@ export function WorkspaceBranding({
                   isDark ? "text-gray-500" : "text-gray-400"
                 }`}
               >
-                <Upload size={10} className="inline mr-1" />
+                <UploadSimple size={10} className="inline mr-1" />
                 Logo URL
               </label>
               <input
@@ -362,7 +362,7 @@ export function WorkspaceBranding({
                   isDark ? "text-gray-500" : "text-gray-400"
                 }`}
               >
-                <Upload size={10} className="inline mr-1" />
+                <UploadSimple size={10} className="inline mr-1" />
                 Favicon URL
               </label>
               <input

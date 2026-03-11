@@ -11,5 +11,11 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
+    // Exclude Playwright e2e tests — they require a running server and browser
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      'e2e/**',
+    ],
   },
 })

@@ -1,19 +1,19 @@
 import React from "react";
 import {
-  FileSpreadsheet,
+  FileCsv,
   Code,
   Globe,
-  Box,
+  Cube,
   Plug,
   Palette,
   Layout,
   File,
   Briefcase,
-  LucideProps,
-} from "lucide-react";
+  IconProps,
+} from "@phosphor-icons/react";
 import { Asset } from "../../services/assets.service";
 
-interface AssetTypeIconProps extends Omit<LucideProps, "ref"> {
+interface AssetTypeIconProps extends Omit<IconProps, "ref"> {
   type: Asset["type"];
 }
 
@@ -28,7 +28,7 @@ export const AssetTypeIcon: React.FC<AssetTypeIconProps> = ({
   switch (type) {
     case "excel":
       return (
-        <FileSpreadsheet
+        <FileCsv
           size={size}
           className={`text-emerald-500 ${baseClassName}`}
           {...props}
@@ -52,7 +52,7 @@ export const AssetTypeIcon: React.FC<AssetTypeIconProps> = ({
       );
     case "software":
       return (
-        <Box
+        <Cube
           size={size}
           className={`text-purple-500 ${baseClassName}`}
           {...props}

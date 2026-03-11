@@ -1,5 +1,5 @@
 import React from "react";
-import { Layers, Server, Clock } from "lucide-react";
+import { Stack, HardDrives, Clock } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface LicenseStatsProps {
@@ -32,18 +32,18 @@ export const LicenseStats: React.FC<LicenseStatsProps> = ({
         <div
           className={`font-bold capitalize flex items-center gap-2 ${isDark ? "text-purple-400" : "text-purple-600"}`}
         >
-          <Layers size={16} /> {tier || "Estándar"}
+          <Stack size={16} /> {tier || "Estándar"}
         </div>
       </div>
 
       <div
         className={`p-4 rounded-xl border ${isDark ? "bg-white/5 border-white/10" : "bg-gray-50 border-gray-100"}`}
       >
-        <div className="text-gray-500 text-xs mb-1">Slots de IP Máx.</div>
+        <div className="text-gray-500 text-xs mb-1">IPs Activas</div>
         <div
-          className={`font-bold flex items-center gap-2 ${isDark ? "text-cyan-400" : "text-cyan-600"}`}
+          className={`font-bold flex items-center gap-2 ${isDark ? "text-amber-400" : "text-amber-600"}`}
         >
-          <Server size={16} /> {maxIpSlots}
+          <HardDrives size={16} /> {maxIpSlots}
         </div>
       </div>
 

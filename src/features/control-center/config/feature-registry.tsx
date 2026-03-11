@@ -1,24 +1,24 @@
 import { ComponentType } from "react";
 import {
-  LayoutDashboard,
+  SquaresFour,
   CreditCard,
   Users,
   Files,
-  BarChart2,
+  ChartBar,
   Key,
-  Settings,
-  Activity,
-  AlertTriangle,
-  LucideIcon,
+  Gear,
+  Pulse,
+  Warning,
+  Icon,
   Tag,
-} from "lucide-react";
+} from "@phosphor-icons/react";
 
 export type FeatureAccessLevel = "public" | "user" | "admin";
 
 export interface FeatureConfig {
   id: string;
   label: string;
-  icon?: LucideIcon;
+  icon?: Icon;
   load: () => Promise<{ default: ComponentType }>;
   access: FeatureAccessLevel;
   ssr?: boolean;
@@ -28,7 +28,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureConfig> = {
   dashboard: {
     id: "dashboard",
     label: "My Orders",
-    icon: LayoutDashboard,
+    icon: SquaresFour,
     load: () =>
       import("@/features/control-center/components/DashboardContent").then(
         (m) => ({
@@ -65,7 +65,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureConfig> = {
   analytics: {
     id: "analytics",
     label: "Analytics Console",
-    icon: BarChart2,
+    icon: ChartBar,
     load: () =>
       import("@/features/analytics/components/AnalyticsConsole").then((m) => ({
         default: m.AnalyticsConsole,
@@ -111,7 +111,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureConfig> = {
   releases: {
     id: "releases",
     label: "Release Manager",
-    icon: Activity,
+    icon: Pulse,
     load: () =>
       import("@/features/releases/components/ReleaseManager").then((m) => ({
         default: m.ReleaseManager,
@@ -133,7 +133,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureConfig> = {
   roi: {
     id: "roi",
     label: "ROI Metrics",
-    icon: Activity,
+    icon: Pulse,
     load: () =>
       import("@/features/roi/components/ROIMetrics").then((m) => ({
         default: m.ROIMetrics,
@@ -144,15 +144,15 @@ export const FEATURE_REGISTRY: Record<string, FeatureConfig> = {
   errors: {
     id: "errors",
     label: "Error Monitoring",
-    icon: AlertTriangle,
+    icon: Warning,
     load: () => import("@/features/errors/components/ErrorMonitoring"),
     access: "user",
     ssr: false,
   },
   settings: {
     id: "settings",
-    label: "Settings",
-    icon: Settings,
+    label: "Gear",
+    icon: Gear,
     load: () =>
       import("@/features/settings").then((m) => ({ default: m.SettingsView })),
     access: "user",
@@ -161,7 +161,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureConfig> = {
   ai: {
     id: "ai",
     label: "AI Console",
-    icon: Activity,
+    icon: Pulse,
     load: () =>
       import("@/features/ai/components/AIConsole").then((m) => ({
         default: m.AIConsole,
@@ -172,7 +172,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureConfig> = {
   admin_portal: {
     id: "admin_portal",
     label: "Super Admin",
-    icon: Activity,
+    icon: Pulse,
     load: () =>
       import("@/features/control-center/components/SuperAdminView").then(
         (m) => ({
@@ -185,7 +185,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureConfig> = {
   operations: {
     id: "operations",
     label: "Operations & DevOps",
-    icon: Activity,
+    icon: Pulse,
     load: () =>
       import("@/features/operations/components/OperationsDashboardView").then(
         (m) => ({

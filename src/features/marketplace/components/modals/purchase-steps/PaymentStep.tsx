@@ -1,21 +1,14 @@
 import React from "react";
 import { motion } from "motion/react";
-import { Loader } from "lucide-react";
+import {
+  CircleNotch,
+  ShieldCheck,
+  LockSimple,
+  ArrowSquareOut,
+  CreditCard,
+} from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { Progress } from "@/components/ui/progress";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-
-const paymentSchema = z.object({
-  cardNumber: z.string().min(16, "Invalid card number").max(19),
-  expiry: z
-    .string()
-    .regex(/^(0[1-9]|1[0-2])\/([0-9]{2})$/, "Invalid format (MM/YY)"),
-  cvv: z.string().min(3, "Invalid CVV").max(4),
-});
-
-type PaymentFormData = z.infer<typeof paymentSchema>;
 
 interface PaymentStepProps {
   finalPrice: string;
@@ -31,19 +24,7 @@ export const PaymentStep: React.FC<PaymentStepProps> = ({
   onPurchase,
 }) => {
   const { theme } = useTheme();
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<PaymentFormData>({
-    resolver: zodResolver(paymentSchema),
-  });
-
-  const onSubmit = () => {
-    // In a real app, data would be sent to a payment processor
-    onPurchase();
-  };
+  const isDark = theme === "dark";
 
   return (
     <motion.div
@@ -51,128 +32,137 @@ export const PaymentStep: React.FC<PaymentStepProps> = ({
       animate={{ opacity: 1, x: 0 }}
       className="space-y-6"
     >
-      <div className="text-center">
-        <h2
-          className={`text-2xl font-bold mb-2 ${theme === "dark" ? "text-white" : "text-gray-900"}`}
-        >
-          Pago Seguro
-        </h2>
-        <p
-          className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}
-        >
-          Tu información está completamente protegida
-        </p>
-      </div>
-
       {isProcessing ? (
-        <div className="py-12 text-center space-y-4">
-          <Loader
-            className={`mx-auto animate-spin ${theme === "dark" ? "text-cyan-400" : "text-cyan-600"}`}
-            size={48}
-          />
-          <p
-            className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}
-          >
-            Procesando pago seguro...
-          </p>
-          <div className="w-64 mx-auto">
+        /* ── Processing state ── */
+        <div className="py-10 text-center space-y-5">
+          <div className="relative mx-auto w-16 h-16">
+            <CircleNotch
+              className={`w-16 h-16 animate-spin ${isDark ? "text-cyan-400" : "text-cyan-600"}`}
+              weight="bold"
+            />
+            <LockSimple
+              className={`absolute inset-0 m-auto ${isDark ? "text-cyan-300" : "text-cyan-700"}`}
+              size={24}
+              weight="bold"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <p className={`text-base font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>
+              Procesando pago seguro...
+            </p>
+            <p className={`text-sm ${isDark ? "text-gray-500" : "text-gray-500"}`}>
+              Conectando con Stripe
+            </p>
+          </div>
+          <div className="w-56 mx-auto">
             <Progress
               value={progress}
-              className={`${theme === "dark" ? "bg-white/10" : "bg-gray-200"} h-2`}
+              className={`${isDark ? "bg-white/10" : "bg-gray-200"} h-1.5 rounded-full`}
             />
           </div>
         </div>
       ) : (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-2">
-            <label
-              className={`text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
-            >
-              Número de Tarjeta
-            </label>
-            <input
-              {...register("cardNumber")}
-              type="text"
-              placeholder="0000 0000 0000 0000"
-              className={`
-                w-full px-4 py-3 rounded-lg border transition-all font-mono
-                ${
-                  theme === "dark"
-                    ? "bg-white/5 border-white/10 text-white focus:border-cyan-500/50"
-                    : "bg-white border-gray-300 text-gray-900 focus:border-cyan-500"
-                }
-              `}
-            />
-            {errors.cardNumber && (
-              <p className="text-red-500 text-xs">
-                {errors.cardNumber.message}
-              </p>
-            )}
+        /* ── Redirect to Stripe state ── */
+        <>
+          <div className="text-center space-y-2">
+            <h2 className={`text-2xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
+              Pago Seguro
+            </h2>
+            <p className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>
+              Serás redirigido a Stripe para completar tu pago
+            </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label
-                className={`text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
-              >
-                Vencimiento
-              </label>
-              <input
-                {...register("expiry")}
-                type="text"
-                placeholder="MM/AA"
-                className={`
-                  w-full px-4 py-3 rounded-lg border transition-all font-mono
-                  ${
-                    theme === "dark"
-                      ? "bg-white/5 border-white/10 text-white focus:border-cyan-500/50"
-                      : "bg-white border-gray-300 text-gray-900 focus:border-cyan-500"
-                  }
-                `}
-              />
-              {errors.expiry && (
-                <p className="text-red-500 text-xs">{errors.expiry.message}</p>
-              )}
-            </div>
-            <div className="space-y-2">
-              <label
-                className={`text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
-              >
-                CVV
-              </label>
-              <input
-                {...register("cvv")}
-                type="text"
-                placeholder="123"
-                className={`
-                  w-full px-4 py-3 rounded-lg border transition-all font-mono
-                  ${
-                    theme === "dark"
-                      ? "bg-white/5 border-white/10 text-white focus:border-cyan-500/50"
-                      : "bg-white border-gray-300 text-gray-900 focus:border-cyan-500"
-                  }
-                `}
-              />
-              {errors.cvv && (
-                <p className="text-red-500 text-xs">{errors.cvv.message}</p>
-              )}
+          {/* Stripe visual card */}
+          <div className={`relative overflow-hidden rounded-2xl p-6 ${
+            isDark
+              ? "bg-gradient-to-br from-[#1a1a2e] to-[#16213e] border border-white/[0.08]"
+              : "bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-200"
+          }`}>
+            {/* Decorative glow */}
+            <div className={`absolute -top-10 -right-10 w-32 h-32 rounded-full blur-3xl ${
+              isDark ? "bg-cyan-500/10" : "bg-cyan-400/10"
+            }`} />
+            <div className={`absolute -bottom-10 -left-10 w-24 h-24 rounded-full blur-2xl ${
+              isDark ? "bg-violet-500/10" : "bg-violet-400/10"
+            }`} />
+
+            <div className="relative space-y-5">
+              {/* Header row */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${
+                    isDark ? "bg-white/[0.08]" : "bg-white shadow-sm"
+                  }`}>
+                    <CreditCard size={18} weight="duotone" className={isDark ? "text-cyan-400" : "text-cyan-600"} />
+                  </div>
+                  <span className={`text-sm font-medium ${isDark ? "text-gray-300" : "text-gray-700"}`}>
+                    Stripe Checkout
+                  </span>
+                </div>
+                <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                  isDark
+                    ? "bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20"
+                    : "bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200"
+                }`}>
+                  <ShieldCheck size={12} weight="fill" />
+                  Cifrado SSL
+                </div>
+              </div>
+
+              {/* Amount */}
+              <div className="text-center py-3">
+                <p className={`text-xs font-medium uppercase tracking-wider mb-1.5 ${isDark ? "text-gray-500" : "text-gray-400"}`}>
+                  Total a pagar
+                </p>
+                <p className={`text-4xl font-bold tracking-tight ${isDark ? "text-white" : "text-gray-900"}`}>
+                  {finalPrice}
+                </p>
+              </div>
+
+              {/* Trust badges */}
+              <div className={`flex items-center justify-center gap-4 pt-2 border-t ${
+                isDark ? "border-white/[0.06]" : "border-gray-200"
+              }`}>
+                {["Visa", "Mastercard", "Amex"].map((brand) => (
+                  <span
+                    key={brand}
+                    className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-md ${
+                      isDark
+                        ? "bg-white/[0.05] text-gray-500"
+                        : "bg-gray-100 text-gray-400"
+                    }`}
+                  >
+                    {brand}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
 
+          {/* Security note */}
+          <div className="flex items-center justify-center gap-2">
+            <LockSimple size={14} weight="bold" className={isDark ? "text-emerald-500" : "text-emerald-600"} />
+            <p className={`text-xs ${isDark ? "text-gray-500" : "text-gray-500"}`}>
+              Transacción cifrada de extremo a extremo por Stripe
+            </p>
+          </div>
+
+          {/* CTA button */}
           <button
-            type="submit"
+            onClick={onPurchase}
             className={`
-              w-full py-3 rounded-xl font-medium transition-all mt-6
-              ${
-                theme === "dark"
-                  ? "bg-cyan-500 text-black hover:bg-cyan-400 shadow-[0_0_20px_rgba(0,255,255,0.3)]"
-                  : "bg-gray-900 text-white hover:bg-gray-800 shadow-lg"
+              w-full py-3.5 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 text-[15px]
+              ${isDark
+                ? "bg-cyan-500 text-black hover:bg-cyan-400 shadow-[0_0_24px_rgba(0,255,255,0.25)]"
+                : "bg-gray-900 text-white hover:bg-gray-800 shadow-lg"
               }
             `}
           >
-            Confirmar Pago {finalPrice}
+            Pagar con Stripe {finalPrice}
+            <ArrowSquareOut size={18} weight="bold" />
           </button>
-        </form>
+        </>
       )}
     </motion.div>
   );

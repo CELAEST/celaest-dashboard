@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Building2, ChevronDown, Check, Plus } from "lucide-react";
+import { Buildings, CaretDown, Check, Plus } from "@phosphor-icons/react";
 import {
   useOrgStore,
   Organization,
@@ -107,7 +107,7 @@ export function OrgSwitcher({ isExpanded }: OrgSwitcherProps) {
           {currentOrg ? (
             getOrgInitials(currentOrg.name)
           ) : (
-            <Building2 size={16} />
+            <Buildings size={16} />
           )}
         </div>
 
@@ -140,7 +140,7 @@ export function OrgSwitcher({ isExpanded }: OrgSwitcherProps) {
           }}
           transition={{ duration: 0.2 }}
         >
-          <ChevronDown
+          <CaretDown
             size={14}
             className={`transition-transform ${isOpen ? "rotate-180" : ""} ${
               isDark ? "text-gray-500" : "text-gray-400"

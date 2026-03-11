@@ -7,6 +7,7 @@ import { NotificationProvider } from "@/features/shared/contexts/NotificationCon
 import { Toaster } from "sonner";
 import { ThemeSync } from "@/features/shared/components/ThemeSync";
 import { OrgSync } from "@/features/shared/components/OrgSync";
+import { RealtimeDashboardSync } from "@/features/shared/components/RealtimeDashboardSync";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
 
 const geistSans = Geist({
@@ -94,6 +95,7 @@ export default function RootLayout({
           <ErrorBoundary>
             <AuthProvider>
               <OrgSync />
+              <RealtimeDashboardSync />
               <NotificationProvider>
                 <main id="main-content">{children}</main>
                 <Toaster />

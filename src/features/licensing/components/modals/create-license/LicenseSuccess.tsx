@@ -1,5 +1,5 @@
-import React from "react";
-import { CheckCircle2, Copy } from "lucide-react";
+﻿import React from "react";
+import { CheckCircle, Copy } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface LicenseSuccessProps {
@@ -19,7 +19,7 @@ export const LicenseSuccess: React.FC<LicenseSuccessProps> = ({
   return (
     <div className="text-center py-6">
       <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-500/10 mb-4">
-        <CheckCircle2 size={32} className="text-green-500" />
+        <CheckCircle size={32} className="text-green-500" />
       </div>
       <h3
         className={`text-xl font-bold mb-2 ${isDark ? "text-white" : "text-gray-900"}`}
@@ -38,7 +38,7 @@ export const LicenseSuccess: React.FC<LicenseSuccessProps> = ({
         }`}
       >
         <code
-          className={`font-mono text-lg break-all ${isDark ? "text-cyan-400" : "text-blue-600"}`}
+          className={`block pr-10 font-mono text-lg wrap-anywhere ${isDark ? "text-amber-400" : "text-blue-600"}`}
         >
           {createdKey}
         </code>

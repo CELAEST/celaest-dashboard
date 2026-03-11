@@ -1,14 +1,14 @@
 import {
   CheckCircle,
-  AlertTriangle,
+  Warning,
   XCircle,
   Info,
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import { type Notification } from "@/features/shared/contexts/NotificationContext";
 
 export const NOTIFICATION_ICONS = {
   success: CheckCircle,
-  warning: AlertTriangle,
+  warning: Warning,
   error: XCircle,
   info: Info,
 } as const;

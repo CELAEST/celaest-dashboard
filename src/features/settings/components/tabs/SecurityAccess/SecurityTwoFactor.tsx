@@ -1,5 +1,5 @@
 import React, { memo, useState } from "react";
-import { Smartphone, ShieldCheck, QrCode } from "lucide-react";
+import { DeviceMobile, ShieldCheck, QrCode } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { SettingsModal } from "../../SettingsModal";
 
@@ -37,7 +37,7 @@ export const SecurityTwoFactor: React.FC<SecurityTwoFactorProps> = memo(
                   isDark ? "bg-cyan-500/10" : "bg-cyan-50"
                 }`}
               >
-                <Smartphone
+                <DeviceMobile
                   className={`w-6 h-6 ${
                     isDark ? "text-cyan-400" : "text-cyan-600"
                   }`}

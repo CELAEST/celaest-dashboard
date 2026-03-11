@@ -83,20 +83,21 @@ export const AuthPage: React.FC = () => {
   const toggleMode = () => setMode(mode === "signin" ? "signup" : "signin");
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center overflow-hidden font-sans relative">
+    <div className="min-h-screen w-full overflow-hidden font-sans relative">
       <AuthBackground mode={mode} isDark={isDark} />
       <FloatingThemeToggle isDark={isDark} toggleTheme={toggleTheme} />
 
-      <div className="w-full h-screen flex items-center justify-center px-4 lg:px-8 relative z-10">
+      <div className="w-full h-screen flex items-center relative z-10">
         <motion.div
-          className={`w-full max-w-md lg:max-w-lg ${mode === "signin" ? "lg:mr-auto lg:ml-24" : "lg:ml-auto lg:mr-24"}`}
+          className={mode === "signin" ? "ml-6 lg:ml-20 xl:ml-32" : "mr-6 lg:mr-20 xl:mr-32 ml-auto"}
+          style={{ width: "min(460px, calc(100vw - 3rem))" }}
           initial={false}
           animate={{ x: 0 }}
           transition={{ duration: 0.6, ease: [0.43, 0.13, 0.23, 0.96] }}
         >
           <motion.div
-            className={`backdrop-blur-2xl rounded-3xl p-8 lg:p-12 shadow-2xl border ${isDark ? "bg-black/40 border-white/10" : "bg-white/90 border-white/20"}`}
-            layout
+            className={`backdrop-blur-2xl rounded-3xl p-8 lg:p-10 shadow-2xl border ${isDark ? "bg-black/40 border-white/10" : "bg-white/90 border-white/20"}`}
+            layout="size"
           >
             <div className="w-full">
               <AuthHeader isDark={isDark} />

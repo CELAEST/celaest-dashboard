@@ -1,15 +1,15 @@
 import React from "react";
 import {
   X,
-  AlertCircle,
-  ChevronRight,
-  CheckCircle2,
+  Warning,
+  CaretRight,
+  CheckCircle,
   XCircle,
   Clock,
-  Building2,
+  Buildings,
   Calendar,
-  DollarSign,
-} from "lucide-react";
+  CurrencyDollar,
+} from "@phosphor-icons/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import {
@@ -119,7 +119,7 @@ export const CriticalAlertsModal: React.FC<CriticalAlertsModalProps> = ({
             ) : alerts.length === 0 ? (
               <div className="text-center py-12">
                 <div className="inline-flex p-4 rounded-full bg-emerald-500/10 mb-4">
-                  <CheckCircle2 className="w-8 h-8 text-emerald-500" />
+                  <CheckCircle className="w-8 h-8 text-emerald-500" />
                 </div>
                 <h3 className="text-white font-semibold text-lg mb-1">
                   Queue Clear
@@ -153,7 +153,7 @@ export const CriticalAlertsModal: React.FC<CriticalAlertsModalProps> = ({
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-1">
                             <div className="flex items-center gap-2 text-[10px] text-gray-500 uppercase tracking-widest font-bold">
-                              <Building2 className="w-3 h-3" />
+                              <Buildings className="w-3 h-3" />
                               Organization
                             </div>
                             <div className="text-sm text-white font-medium truncate">
@@ -162,7 +162,7 @@ export const CriticalAlertsModal: React.FC<CriticalAlertsModalProps> = ({
                           </div>
                           <div className="space-y-1 text-right">
                             <div className="flex items-center justify-end gap-2 text-[10px] text-gray-500 uppercase tracking-widest font-bold">
-                              <DollarSign className="w-3 h-3" />
+                              <CurrencyDollar className="w-3 h-3" />
                               Amount
                             </div>
                             <div className="text-lg font-black text-white tabular-nums">
@@ -191,7 +191,7 @@ export const CriticalAlertsModal: React.FC<CriticalAlertsModalProps> = ({
                             {processingId === alert.id ? (
                               <div className="w-3 h-3 border-2 border-white/20 border-t-white rounded-full animate-spin" />
                             ) : (
-                              <CheckCircle2 className="w-3.5 h-3.5" />
+                              <CheckCircle className="w-3.5 h-3.5" />
                             )}
                             APPROVE
                           </button>
@@ -212,7 +212,7 @@ export const CriticalAlertsModal: React.FC<CriticalAlertsModalProps> = ({
                             className="p-2 rounded-lg bg-white/5 text-gray-400 hover:text-white transition-colors group/btn"
                             title="View Transaction Details"
                           >
-                            <ChevronRight className="w-5 h-5 group-hover/btn:translate-x-0.5 transition-transform" />
+                            <CaretRight className="w-5 h-5 group-hover/btn:translate-x-0.5 transition-transform" />
                           </button>
                         </div>
                       )}
@@ -226,7 +226,7 @@ export const CriticalAlertsModal: React.FC<CriticalAlertsModalProps> = ({
           {/* Footer */}
           <div className="p-6 bg-white/2 border-t border-white/10 flex items-center justify-between">
             <div className="flex items-center gap-2 text-[10px] text-gray-500 font-mono">
-              <AlertCircle className="w-3 h-3" />
+              <Warning className="w-3 h-3" />
               ADMINISTRATIVE ACTION REQUIRED
             </div>
             <button

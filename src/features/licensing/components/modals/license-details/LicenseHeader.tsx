@@ -1,6 +1,5 @@
-import React from "react";
-import { X, User, Mail, Calendar } from "lucide-react";
-import { useTheme } from "@/features/shared/hooks/useTheme";
+﻿import React from "react";
+import { X, Key, User, Envelope } from "@phosphor-icons/react";
 import { useRole } from "@/features/auth/hooks/useAuthorization";
 import type { LicenseResponse } from "@/features/licensing/types";
 
@@ -9,95 +8,83 @@ interface LicenseHeaderProps {
   onClose: () => void;
 }
 
+const STATUS_STYLES: Record<string, string> = {
+  active: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+  expired: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
+  trial: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+  revoked: "bg-red-500/10 text-red-400 border-red-500/20",
+};
+
 export const LicenseHeader: React.FC<LicenseHeaderProps> = ({
   license,
   onClose,
 }) => {
-  const { theme } = useTheme();
   const { isSuperAdmin } = useRole();
-  const isDark = theme === "dark";
-
-  const formatDate = (dateStr?: string) => {
-    if (!dateStr) return "-";
-    return new Date(dateStr).toLocaleString();
-  };
+  const statusStyle = STATUS_STYLES[license.status] ?? "bg-gray-500/10 text-gray-400 border-gray-500/20";
 
   return (
-    <div className="p-6 border-b shrink-0 space-y-4">
-      <div className="flex items-start justify-between">
+    <div className="relative px-8 py-6 border-b border-white/8 flex items-start justify-between overflow-hidden shrink-0">
+      {/* Gradient wash */}
+      <div className="absolute inset-0 bg-linear-to-r from-amber-500/10 via-amber-600/8 to-transparent" />
+      {/* Grid dots */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px)",
+          backgroundSize: "20px 20px",
+          pointerEvents: "none",
+        }}
+      />
+      {/* Bottom accent line */}
+      <div className="absolute bottom-0 left-0 h-px w-2/5 bg-linear-to-r from-amber-500/50 to-transparent" />
+
+      <div className="relative z-10 flex items-start gap-4">
+        <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 bg-[#111] text-amber-400 border border-white/10 shadow-lg shadow-amber-500/10 mt-0.5">
+          <Key size={22} />
+        </div>
         <div>
-          <div className="flex items-center gap-3 mb-2">
-            <h2
-              className={`text-xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}
-            >
-              {license.plan?.name || license.license_key.substring(0, 16)}
+          <div className="flex items-center gap-3 mb-1">
+            <h2 className="text-xl font-black italic tracking-tighter text-white uppercase">
+              {license.plan?.name ||
+                (license.metadata?.product_name as string) ||
+                license.license_key.substring(0, 16)}
             </h2>
-            <span
-              className={`px-2 py-0.5 rounded text-xs font-medium border uppercase ${
-                license.status === "active"
-                  ? "bg-green-500/10 text-green-500 border-green-500/20"
-                  : license.status === "expired"
-                    ? "bg-yellow-500/10 text-yellow-500 border-yellow-500/20"
-                    : "bg-red-500/10 text-red-500 border-red-500/20"
-              }`}
-            >
+            <span className={`px-2 py-0.5 rounded text-[10px] font-black border uppercase tracking-wider ${statusStyle}`}>
               {license.status}
             </span>
           </div>
+          <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40">
+            {license.id}
+          </p>
 
-          <div className="flex flex-wrap gap-4 text-xs">
-            <div className="flex items-center gap-1.5 text-gray-500 font-mono">
-              ID: {license.id}
+          {isSuperAdmin && (license.user_name || license.user_email) && (
+            <div className="flex flex-wrap gap-4 mt-3">
+              {license.user_name && (
+                <div className="flex items-center gap-1.5 text-white/50 text-xs">
+                  <User size={12} className="text-purple-400" />
+                  {license.user_name}
+                </div>
+              )}
+              {license.user_email && (
+                <div className="flex items-center gap-1.5 text-white/50 text-xs">
+                  <Envelope size={12} className="text-purple-400" />
+                  {license.user_email}
+                </div>
+              )}
             </div>
-
-            {(license.starts_at || license.expires_at) && (
-              <div className="flex items-center gap-1.5 text-gray-500">
-                <Calendar size={14} className="text-blue-500" />
-                <span>
-                  {formatDate(license.starts_at)} -{" "}
-                  {formatDate(license.expires_at)}
-                </span>
-              </div>
-            )}
-          </div>
+          )}
         </div>
-
-        <button
-          onClick={onClose}
-          className={`p-2 rounded-full transition-colors ${
-            isDark
-              ? "hover:bg-white/10 text-gray-400 hover:text-white"
-              : "hover:bg-gray-100 text-gray-500 hover:text-gray-900"
-          }`}
-        >
-          <X size={20} />
-        </button>
       </div>
 
-      {isSuperAdmin && (license.user_name || license.user_email) && (
-        <div
-          className={`flex flex-wrap gap-6 p-3 rounded-lg border ${
-            isDark ? "bg-white/5 border-white/5" : "bg-gray-50 border-gray-100"
-          }`}
+      <div className="relative z-10">
+        <button
+          onClick={onClose}
+          className="p-2 rounded-full transition-colors text-gray-400 hover:text-white hover:bg-white/10"
         >
-          <div className="flex items-center gap-2">
-            <User size={14} className="text-purple-500" />
-            <span
-              className={`text-xs font-medium ${isDark ? "text-white/80" : "text-gray-700"}`}
-            >
-              Propietario: {license.user_name || "Desconocido"}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Mail size={14} className="text-purple-500" />
-            <span
-              className={`text-xs ${isDark ? "text-white/60" : "text-gray-500"}`}
-            >
-              {license.user_email || "Sin correo"}
-            </span>
-          </div>
-        </div>
-      )}
+          <X size={22} />
+        </button>
+      </div>
     </div>
   );
 };

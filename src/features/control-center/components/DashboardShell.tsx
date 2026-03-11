@@ -171,13 +171,19 @@ export function DashboardShell() {
         onShowLogin={() => setShowLoginModal(true)}
       />
 
-      <div className="pl-[80px] relative z-10 transition-all duration-300 h-screen flex flex-col">
+      <div className="pl-[80px] relative z-10 transition-all duration-300 h-screen min-w-0 flex flex-col">
         <Header onShowLogin={() => setShowLoginModal(true)} />
 
-        <main className="flex-1 overflow-y-auto p-3 w-full scroll-smooth">
-          <AnimatedSlot activeKey={activeTab}>
-            <FeatureLoader onShowLogin={() => setShowLoginModal(true)} />
-          </AnimatedSlot>
+        <main className="flex-1 overflow-y-auto p-3 w-full min-w-0 scroll-smooth">
+          <AnimatedSlot
+            activeKey={activeTab}
+            render={(key) => (
+              <FeatureLoader
+                tab={key as ValidTabId}
+                onShowLogin={() => setShowLoginModal(true)}
+              />
+            )}
+          />
         </main>
       </div>
 

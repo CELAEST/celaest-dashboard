@@ -1,82 +1,113 @@
 import React from "react";
-import { Plus } from "lucide-react";
+import { Plus } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
-import { motion } from "motion/react";
+import { PageBanner } from "@/components/layout/PageLayout";
 
 interface LicensingHeaderProps {
   onCreateClick: () => void;
+  activeTab: "licenses" | "collisions" | "analytics";
+  onTabChange: (tab: "licenses" | "collisions" | "analytics") => void;
+  collisionsCount: number;
+  statusFilter: string;
+  onStatusFilterChange: (status: string) => void;
 }
+
+const STATUS_OPTIONS = [
+  { value: "all", label: "Todos los estados" },
+  { value: "active", label: "Activo" },
+  { value: "expired", label: "Expirado" },
+  { value: "revoked", label: "Revocado" },
+  { value: "suspended", label: "Suspendido" },
+];
 
 export const LicensingHeader: React.FC<LicensingHeaderProps> = ({
   onCreateClick,
+  activeTab,
+  onTabChange,
+  collisionsCount,
+  statusFilter,
+  onStatusFilterChange,
 }) => {
   const { isDark } = useTheme();
 
+  const tabs: { id: "licenses" | "collisions" | "analytics"; label: string }[] = [
+    { id: "licenses", label: "All Licenses" },
+    { id: "collisions", label: "Collisions" },
+    { id: "analytics", label: "Analytics" },
+  ];
+
+  const currentStatusLabel =
+    STATUS_OPTIONS.find((o) => o.value === statusFilter)?.label ?? "Estado";
+
   return (
-    <div
-      className={`sticky top-0 z-30 backdrop-blur-xl border-b transition-all duration-300 ${
-        isDark ? "bg-black/50 border-white/5" : "bg-white/70 border-gray-100"
-      }`}
-    >
-      <div className="w-full py-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
+    <PageBanner
+      title="Licensing Hub"
+      subtitle="Master Repository & Security Control"
+      actions={
+        <div className="flex items-center gap-3">
+          {/* Tabs */}
+          <div
+            className={`flex items-center p-0.5 rounded-lg ${
+              isDark ? "bg-white/5 border border-white/5" : "bg-gray-100 border border-gray-200"
+            }`}
           >
-            <h1
-              className={`text-3xl font-black tracking-tighter uppercase italic ${
-                isDark
-                  ? "bg-linear-to-r from-white via-white to-white/40 bg-clip-text text-transparent"
-                  : "text-gray-900"
-              }`}
-            >
-              Licensing Hub
-            </h1>
-            <p
-              className={`text-xs font-mono tracking-widest uppercase mt-1 ${
-                isDark ? "text-cyan-400/60" : "text-blue-600/60"
-              }`}
-            >
-              Master Repository & Security Control
-            </p>
-          </motion.div>
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => onTabChange(tab.id)}
+                className={`px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 transition-all ${
+                  activeTab === tab.id
+                    ? isDark
+                      ? "bg-amber-500/15 text-amber-400"
+                      : "bg-white text-amber-600 shadow-sm"
+                    : isDark
+                      ? "text-gray-500 hover:text-gray-300"
+                      : "text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                {tab.label}
+                {tab.id === "collisions" && collisionsCount > 0 && (
+                  <span className="px-1.5 py-0.5 rounded-full bg-red-500/15 text-red-400 text-[9px] font-black">
+                    {collisionsCount}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="flex items-center gap-4"
-          >
-            <button
-              onClick={onCreateClick}
-              className={`group relative flex items-center gap-3 px-6 py-3 rounded-xl font-bold transition-all active:scale-95 overflow-hidden ${
+          {/* Filter */}
+          {activeTab === "licenses" && (
+            <select
+              value={statusFilter}
+              onChange={(e) => onStatusFilterChange(e.target.value)}
+              className={`px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest border transition-colors outline-none appearance-none cursor-pointer ${
                 isDark
-                  ? "bg-white text-black hover:bg-cyan-400 shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-cyan-400/20"
-                  : "bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-600/20"
+                  ? "bg-white/5 border-white/5 text-gray-400 hover:text-white"
+                  : "bg-gray-100 border-gray-200 text-gray-500 hover:text-gray-700"
               }`}
             >
-              {/* Shine effect for dark mode */}
-              {isDark && (
-                <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-linear-to-r from-transparent via-white/40 to-transparent skew-x-12" />
-              )}
-              <Plus
-                size={20}
-                className="group-hover:rotate-90 transition-transform duration-300"
-              />
-              <span className="relative z-10">Generate Key</span>
-            </button>
-          </motion.div>
+              {STATUS_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          )}
+
+          {/* Button */}
+          <button
+            onClick={onCreateClick}
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${
+              isDark
+                ? "bg-cyan-500/15 text-cyan-400 border border-cyan-500/20 hover:bg-cyan-500/25"
+                : "bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
+            }`}
+          >
+            <Plus size={11} weight="bold" />
+            Generate Key
+          </button>
         </div>
-      </div>
-
-      {/* Subtle bottom glow for section separation */}
-      <div
-        className={`h-px w-full bg-linear-to-r from-transparent via-cyan-500/20 to-transparent ${
-          isDark ? "opacity-100" : "opacity-0"
-        }`}
-      />
-    </div>
+      }
+    />
   );
 };

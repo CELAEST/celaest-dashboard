@@ -1,5 +1,5 @@
 import React from "react";
-import { Globe, Plus } from "lucide-react";
+import { Globe, Plus } from "@phosphor-icons/react";
 import { motion } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 

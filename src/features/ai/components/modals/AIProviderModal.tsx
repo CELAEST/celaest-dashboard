@@ -21,11 +21,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Globe, ShieldCheck, Loader2 } from "lucide-react";
+import { Globe, ShieldCheck, CircleNotch } from "@phosphor-icons/react";
 
 const providerSchema = z.object({
   name: z.string().min(3, "Name must be at least 3 characters"),
-  type: z.string().min(1, "Type is required"),
+  type: z.string().min(1, "TextT is required"),
   api_key: z.string().optional(),
   base_url: z.string().url("Must be a valid URL").optional().or(z.literal("")),
 });
@@ -103,7 +103,7 @@ export const AIProviderModal: React.FC<AIProviderModalProps> = ({
 
             <div className="space-y-2 col-span-2 sm:col-span-1">
               <label className="text-xs font-bold text-blue-400/80 uppercase tracking-widest ml-1">
-                Engine Type
+                Engine TextT
               </label>
               <Select
                 onValueChange={(val: string) => setValue("type", val)}
@@ -185,7 +185,7 @@ export const AIProviderModal: React.FC<AIProviderModalProps> = ({
               className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white min-w-[140px] font-bold shadow-[0_0_20px_rgba(59,130,246,0.2)]"
             >
               {isLoading ? (
-                <Loader2 className="animate-spin" size={18} />
+                <CircleNotch className="animate-spin" size={18} />
               ) : (
                 "Authorize Provider"
               )}

@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { Mail, Github, AlertCircle } from "lucide-react";
+import { Envelope, GithubLogo, Warning } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface ProfileSecurityProps {
@@ -39,7 +39,7 @@ export const ProfileSecurity: React.FC<ProfileSecurityProps> = memo(
             isDark ? "text-white" : "text-gray-900"
           }`}
         >
-          <Mail className="w-5 h-5 text-cyan-500" />
+          <Envelope className="w-5 h-5 text-cyan-500" />
           Email & Authentication
         </h3>
 
@@ -163,7 +163,7 @@ export const ProfileSecurity: React.FC<ProfileSecurityProps> = memo(
                       isDark ? "bg-white/10" : "bg-gray-900"
                     }`}
                   >
-                    <Github className="w-5 h-5 text-white" />
+                    <GithubLogo className="w-5 h-5 text-white" />
                   </div>
                   <div>
                     <p
@@ -205,7 +205,7 @@ export const ProfileSecurity: React.FC<ProfileSecurityProps> = memo(
 
           {/* OAuth Info */}
           <div className="flex items-start gap-3 p-4 rounded-xl bg-linear-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/20">
-            <AlertCircle className="w-5 h-5 text-cyan-500 shrink-0 mt-0.5" />
+            <Warning className="w-5 h-5 text-cyan-500 shrink-0 mt-0.5" />
             <div>
               <p className="text-sm text-cyan-600 dark:text-cyan-400 font-bold mb-1">
                 Sign in with OAuth

@@ -1,11 +1,11 @@
 "use client";
 
 import React from "react";
-import { LucideIcon } from "lucide-react";
+import { Icon } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface SettingsTabButtonProps {
-  icon: LucideIcon;
+  icon: Icon;
   label: string;
   isActive: boolean;
   onClick: () => void;

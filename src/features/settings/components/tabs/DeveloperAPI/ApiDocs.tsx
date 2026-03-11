@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { ExternalLink } from "lucide-react";
+import { ArrowSquareOut } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
 export const ApiDocs: React.FC = memo(() => {
@@ -12,7 +12,7 @@ export const ApiDocs: React.FC = memo(() => {
           isDark ? "text-white" : "text-gray-900"
         }`}
       >
-        <ExternalLink className="w-4 h-4 text-blue-500" />
+        <ArrowSquareOut className="w-4 h-4 text-blue-500" />
         Documentation & Support
       </h3>
       <p
@@ -42,7 +42,7 @@ export const ApiDocs: React.FC = memo(() => {
               Detailed endpoint documentation
             </p>
           </div>
-          <ExternalLink
+          <ArrowSquareOut
             size={16}
             className={`transition-transform group-hover:translate-x-1 ${
               isDark ? "text-gray-600" : "text-gray-400"
@@ -69,7 +69,7 @@ export const ApiDocs: React.FC = memo(() => {
               Libraries for Python, JS, and Rust
             </p>
           </div>
-          <ExternalLink
+          <ArrowSquareOut
             size={16}
             className={`transition-transform group-hover:translate-x-1 ${
               isDark ? "text-gray-600" : "text-gray-400"

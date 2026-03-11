@@ -23,13 +23,25 @@ export const useAuthStore = create<AuthStore>()(
       error: null,
 
       // Actions
-      setAuth: ({ user, session }) => set({ 
-        user, 
-        session, 
-        isAuthenticated: !!session,
-        isLoading: false 
+      setAuth: ({ user, session }) => set((state) => {
+        // Stabilize session object reference: if the accessToken is identical,
+        // keep the existing session object so components using `===` comparison
+        // (e.g. useShallow) don't re-render unnecessarily.
+        // This prevents spurious re-renders when Supabase fires onAuthStateChange
+        // multiple times with the same token (INITIAL_SESSION + SIGNED_IN).
+        const stableSession =
+          session?.accessToken &&
+          state.session?.accessToken === session.accessToken
+            ? state.session
+            : session;
+        return {
+          user,
+          session: stableSession,
+          isAuthenticated: !!session,
+          isLoading: false,
+        };
       }),
-      
+
       setLoading: (isLoading) => set({ isLoading }),
       
       setBackendSynced: (isBackendSynced) => set({ isBackendSynced }),

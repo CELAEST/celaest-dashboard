@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { Shield, History, LogOut } from "lucide-react";
+import { Shield, ClockCounterClockwise, SignOut } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
 export interface Session {
@@ -47,7 +47,7 @@ export const SecuritySessions: React.FC<SecuritySessionsProps> = memo(
                     isDark ? "bg-gray-800" : "bg-white border border-gray-100"
                   }`}
                 >
-                  <History
+                  <ClockCounterClockwise
                     className={`w-5 h-5 ${
                       isDark ? "text-gray-400" : "text-gray-500"
                     }`}
@@ -92,7 +92,7 @@ export const SecuritySessions: React.FC<SecuritySessionsProps> = memo(
                       : "text-red-600 hover:bg-red-50 border border-red-200 shadow-xs"
                   }`}
                 >
-                  <LogOut size={14} />
+                  <SignOut size={14} />
                   Terminate
                 </button>
               )}

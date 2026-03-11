@@ -11,6 +11,17 @@ export interface InvoiceListResponse {
   total: number;
 }
 
+export interface InvoicePageResponse {
+  success: boolean;
+  data: Invoice[];
+  meta: {
+    page: number;
+    per_page: number;
+    total: number;
+    total_pages: number;
+  };
+}
+
 export interface PlanListResponse {
   plans: Plan[];
 }
@@ -81,6 +92,25 @@ export const billingApi = {
   // Invoices
   getInvoices: (orgId: string, token: string) =>
     api.get<InvoiceListResponse>(`/api/v1/org/invoices`, { orgId, token }),
+
+  getInvoicesPaginated: async (orgId: string, token: string, page: number = 1, limit: number = 15): Promise<InvoicePageResponse> => {
+    // Backend (subscriptions module) returns { invoices: Invoice[], total: number }
+    // wrapped by shared.Success → api-client unwraps .data automatically.
+    // Transform into the InvoicePageResponse shape that useInfiniteQuery expects.
+    const resp = await api.get<InvoiceListResponse>(`/api/v1/org/invoices`, {
+      orgId,
+      token,
+      params: { page: String(page), per_page: String(limit) },
+    });
+    const invoices = resp.invoices ?? [];
+    const total = resp.total ?? invoices.length;
+    const totalPages = Math.ceil(total / limit) || 1;
+    return {
+      success: true,
+      data: invoices,
+      meta: { page, per_page: limit, total, total_pages: totalPages },
+    };
+  },
     
   getInvoice: (orgId: string, token: string, id: string) =>
       api.get<Invoice>(`/api/v1/org/invoices/${id}`, { orgId, token }),
