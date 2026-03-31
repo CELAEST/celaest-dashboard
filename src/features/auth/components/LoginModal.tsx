@@ -69,7 +69,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               exit={{ opacity: 0, scale: 0.96, y: 16 }}
               transition={{ type: "spring", damping: 24, stiffness: 320 }}
               onClick={(event) => event.stopPropagation()}
-              className={`relative pointer-events-auto w-full max-w-[30rem] overflow-hidden rounded-[2rem] border shadow-2xl ${
+              className={`relative pointer-events-auto shrink-0 w-[30rem] min-w-[320px] sm:min-w-[30rem] max-w-[90vw] overflow-hidden rounded-[2rem] border shadow-2xl ${
                 isDark
                   ? "bg-[#07090d] border-white/10 shadow-cyan-950/30"
                   : "bg-white border-gray-200 shadow-black/10"

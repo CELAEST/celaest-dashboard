@@ -45,7 +45,7 @@ interface PageContentProps {
 export function PageContent({ children, noPadding }: PageContentProps) {
   return (
     <div
-      className={`flex-1 min-h-0 min-w-0 overflow-auto ${noPadding ? "" : "px-3 py-3"}`}
+      className={`flex-1 min-h-0 min-w-0 flex flex-col overflow-auto ${noPadding ? "" : "px-3 py-3"}`}
     >
       {children}
     </div>

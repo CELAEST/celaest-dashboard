@@ -196,6 +196,7 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
             style={{
               position: "relative",
               zIndex: 10,
+              flexShrink: 0,
               width: "100%",
               maxWidth: "30rem",
               margin: "0 1rem",

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { TrendUp, TrendDown } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { cn } from "@/lib/utils";
@@ -250,5 +250,238 @@ export function MetricCard({
         </div>
       )}
     </GlassPanel>
+  );
+}
+
+// ─── PulseCard ──────────────────────────────────────────────────
+// A completely unique KPI card design — NOT the same glassmorphism.
+// Horizontal layout · Animated ring indicator · Radial pulse dot
+// ────────────────────────────────────────────────────────────────
+
+type PulseAccent = "blue" | "emerald" | "violet" | "amber" | "rose";
+
+const PULSE_COLORS: Record<
+  PulseAccent,
+  {
+    dot: string;
+    dotGlow: string;
+    ring: string;
+    ringTrack: string;
+    iconDark: string;
+    iconLight: string;
+    labelDark: string;
+    labelLight: string;
+  }
+> = {
+  blue: {
+    dot: "bg-blue-400",
+    dotGlow: "shadow-[0_0_8px_rgba(96,165,250,0.6)]",
+    ring: "stroke-blue-400",
+    ringTrack: "stroke-blue-400/10",
+    iconDark: "text-blue-400",
+    iconLight: "text-blue-600",
+    labelDark: "text-blue-400/60",
+    labelLight: "text-blue-600/60",
+  },
+  emerald: {
+    dot: "bg-emerald-400",
+    dotGlow: "shadow-[0_0_8px_rgba(52,211,153,0.6)]",
+    ring: "stroke-emerald-400",
+    ringTrack: "stroke-emerald-400/10",
+    iconDark: "text-emerald-400",
+    iconLight: "text-emerald-600",
+    labelDark: "text-emerald-400/60",
+    labelLight: "text-emerald-600/60",
+  },
+  violet: {
+    dot: "bg-violet-400",
+    dotGlow: "shadow-[0_0_8px_rgba(167,139,250,0.6)]",
+    ring: "stroke-violet-400",
+    ringTrack: "stroke-violet-400/10",
+    iconDark: "text-violet-400",
+    iconLight: "text-violet-600",
+    labelDark: "text-violet-400/60",
+    labelLight: "text-violet-600/60",
+  },
+  amber: {
+    dot: "bg-amber-400",
+    dotGlow: "shadow-[0_0_8px_rgba(251,191,36,0.6)]",
+    ring: "stroke-amber-400",
+    ringTrack: "stroke-amber-400/10",
+    iconDark: "text-amber-400",
+    iconLight: "text-amber-600",
+    labelDark: "text-amber-400/60",
+    labelLight: "text-amber-600/60",
+  },
+  rose: {
+    dot: "bg-rose-400",
+    dotGlow: "shadow-[0_0_8px_rgba(251,113,133,0.6)]",
+    ring: "stroke-rose-400",
+    ringTrack: "stroke-rose-400/10",
+    iconDark: "text-rose-400",
+    iconLight: "text-rose-600",
+    labelDark: "text-rose-400/60",
+    labelLight: "text-rose-600/60",
+  },
+};
+
+interface PulseCardProps {
+  label: string;
+  value: string;
+  delta?: string;
+  deltaUp?: boolean;
+  icon?: React.ReactElement;
+  accent?: PulseAccent;
+  /** 0-100 ring fill percentage (e.g. active/total ratio) */
+  ringPercent?: number;
+  className?: string;
+}
+
+export function PulseCard({
+  label,
+  value,
+  delta,
+  deltaUp = true,
+  icon,
+  accent = "blue",
+  ringPercent = 0,
+  className,
+}: PulseCardProps) {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+  const pc = PULSE_COLORS[accent];
+  const [isHovered, setIsHovered] = useState(false);
+
+  // SVG ring math
+  const radius = 18;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (Math.min(ringPercent, 100) / 100) * circumference;
+
+  return (
+    <div
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className={cn(
+        "group relative flex items-center gap-4 px-4 py-3.5 rounded-xl border transition-all duration-300 overflow-hidden",
+        isDark
+          ? "bg-zinc-900/60 border-zinc-800/80 hover:border-zinc-700/80 hover:bg-zinc-900/80"
+          : "bg-white border-gray-200 hover:border-gray-300 hover:shadow-sm",
+        className,
+      )}
+    >
+      {/* Noise texture overlay */}
+      <div
+        className={cn(
+          "pointer-events-none absolute inset-0 opacity-[0.03] mix-blend-overlay",
+          "bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIj48ZmlsdGVyIGlkPSJuIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iLjc1IiBudW1PY3RhdmVzPSI0IiBzdGl0Y2hUaWxlcz0ic3RpdGNoIi8+PC9maWx0ZXI+PHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbHRlcj0idXJsKCNuKSIgb3BhY2l0eT0iMSIvPjwvc3ZnPg==')]",
+        )}
+      />
+
+      {/* Ring indicator with icon */}
+      <div className="relative shrink-0 w-11 h-11 flex items-center justify-center">
+        {/* SVG ring */}
+        <svg
+          className="absolute inset-0 -rotate-90"
+          width="44"
+          height="44"
+          viewBox="0 0 44 44"
+        >
+          <circle
+            cx="22"
+            cy="22"
+            r={radius}
+            fill="none"
+            className={pc.ringTrack}
+            strokeWidth="2"
+          />
+          <circle
+            cx="22"
+            cy="22"
+            r={radius}
+            fill="none"
+            className={cn(pc.ring, "transition-all duration-700 ease-out")}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
+          />
+        </svg>
+
+        {/* Icon */}
+        {icon && (
+          <div className="relative z-10">
+            {React.cloneElement(
+              icon as React.ReactElement<{
+                size?: number;
+                className?: string;
+                weight?: string;
+                isHovered?: boolean;
+              }>,
+              {
+                size: 16,
+                className: isDark ? pc.iconDark : pc.iconLight,
+                weight: "bold",
+                isHovered,
+              },
+            )}
+          </div>
+        )}
+
+        {/* Pulse dot */}
+        <div
+          className={cn(
+            "absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full",
+            pc.dot,
+            pc.dotGlow,
+            "animate-pulse",
+          )}
+        />
+      </div>
+
+      {/* Center: value + label */}
+      <div className="flex-1 min-w-0">
+        <span
+          className={cn(
+            "block text-[10px] font-semibold uppercase tracking-[0.14em]",
+            isDark ? "text-zinc-500" : "text-gray-400",
+          )}
+        >
+          {label}
+        </span>
+        <span
+          className={cn(
+            "block text-xl font-black tracking-tight tabular-nums leading-tight mt-0.5",
+            isDark ? "text-white" : "text-gray-900",
+          )}
+        >
+          {value}
+        </span>
+      </div>
+
+      {/* Right: delta */}
+      {delta && (
+        <div className="shrink-0 flex flex-col items-end">
+          <div
+            className={cn(
+              "flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold tabular-nums ring-1 ring-inset",
+              deltaUp
+                ? isDark
+                  ? "text-emerald-400 bg-emerald-500/8 ring-emerald-500/15"
+                  : "text-emerald-600 bg-emerald-50 ring-emerald-200"
+                : isDark
+                  ? "text-red-400 bg-red-500/8 ring-red-500/15"
+                  : "text-red-600 bg-red-50 ring-red-200",
+            )}
+          >
+            {deltaUp ? (
+              <TrendUp size={9} weight="bold" />
+            ) : (
+              <TrendDown size={9} weight="bold" />
+            )}
+            {delta}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

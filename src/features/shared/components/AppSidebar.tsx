@@ -12,7 +12,7 @@ import { usePermissions } from "@/features/auth/hooks/useAuthorization";
 import { type Permission } from "@/features/auth/lib/permissions";
 import { SignOutModal } from "./SignOutModal";
 import Logo from "@/components/icons/Logo";
-import { menuItems } from "./Sidebar/config";
+import { menuSections } from "./Sidebar/config";
 import { SidebarMenuItem } from "./Sidebar/SidebarMenuItem";
 import { OrgSwitcher } from "./Sidebar/OrgSwitcher";
 import { useOrgStore } from "../stores/useOrgStore";
@@ -48,16 +48,19 @@ export const AppSidebar = React.memo(function AppSidebar({
   const { hasPermission } = usePermissions();
   const isDark = theme === "dark";
 
-  // Memoizar items visibles
-  const visibleMenuItems = useMemo(
+  // Memoizar secciones y filtrar sus ítems
+  const visibleMenuSections = useMemo(
     () =>
-      menuItems.filter((item) => {
-        // If guest, show all (locked status handled in render)
-        if (isGuest) return true;
-
-        if (!item.scope) return true;
-        return user ? hasPermission(item.scope as Permission) : true;
-      }),
+      menuSections
+        .map((section) => ({
+          ...section,
+          items: section.items.filter((item) => {
+            if (isGuest) return true;
+            if (!item.scope) return true;
+            return user ? hasPermission(item.scope as Permission) : true;
+          }),
+        }))
+        .filter((section) => section.items.length > 0),
     [user, hasPermission, isGuest],
   );
 
@@ -101,9 +104,9 @@ export const AppSidebar = React.memo(function AppSidebar({
   // Clases memoizadas
   const containerClassName = useMemo(
     () =>
-      `h-screen fixed left-0 top-0 z-50 flex flex-col backdrop-blur-xl border-r transition-colors duration-300 ${
+      `h-screen fixed left-0 top-0 z-50 flex flex-col backdrop-blur-2xl border-r transition-colors duration-300 ${
         isDark
-          ? "bg-black/80 border-cyan-500/20 shadow-[0_0_20px_rgba(0,255,255,0.05)]"
+          ? "bg-[#020202]/80 border-white/[0.05] shadow-[4px_0_24px_rgba(0,0,0,0.5)]"
           : "bg-white/80 border-gray-200 shadow-xl"
       }`,
     [isDark],
@@ -119,12 +122,12 @@ export const AppSidebar = React.memo(function AppSidebar({
         onMouseLeave={handleMouseLeave}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
       >
-        <div className="h-20 flex items-center justify-center relative overflow-hidden px-4">
+        <div className="h-20 flex items-center justify-center relative overflow-hidden px-4 border-b border-transparent dark:border-white/2">
           <div
-            className={`absolute inset-0 bg-linear-to-r opacity-50 ${
+            className={`absolute inset-0 bg-linear-to-r ${
               isDark
-                ? "from-cyan-500/10 to-transparent"
-                : "from-blue-500/10 to-transparent"
+                ? "from-white/2 to-transparent"
+                : "from-blue-500/5 to-transparent"
             }`}
           />
 
@@ -157,11 +160,11 @@ export const AppSidebar = React.memo(function AppSidebar({
               }}
               transition={{ duration: 0.3 }}
             >
-              <div className="flex flex-col leading-none whitespace-nowrap">
+              <div className="flex flex-col shrink-0 leading-none whitespace-nowrap">
                 <span
                   className={`text-xl font-bold tracking-tight ${
                     isDark
-                      ? "bg-linear-to-r from-cyan-400 via-cyan-300 to-blue-400 bg-clip-text text-transparent"
+                      ? "text-white"
                       : "bg-linear-to-r from-blue-600 via-blue-500 to-indigo-600 bg-clip-text text-transparent"
                   }`}
                 >
@@ -169,7 +172,7 @@ export const AppSidebar = React.memo(function AppSidebar({
                 </span>
                 <span
                   className={`text-[10px] font-medium tracking-[0.21em] mt-0.5 ${
-                    isDark ? "text-cyan-400/60" : "text-blue-500/60"
+                    isDark ? "text-gray-500" : "text-blue-500/60"
                   }`}
                 >
                   DASHBOARD
@@ -182,17 +185,43 @@ export const AppSidebar = React.memo(function AppSidebar({
         {/* Org Switcher (multi-org dropdown) */}
         {!isGuest && <OrgSwitcher isExpanded={isHovered} />}
 
-        <nav className="flex-1 py-8 flex flex-col gap-2 px-4 overflow-hidden">
-          {visibleMenuItems.map((item) => (
-            <SidebarMenuItem
-              key={item.id}
-              item={item}
-              isActive={activeTab === item.id}
-              isHovered={isHovered}
-              isLocked={isGuest && item.id !== "marketplace"}
-              isDark={isDark}
-              onClick={() => handleItemClick(item.id)}
-            />
+        <nav
+          className={`flex-1 py-6 flex flex-col px-3 overflow-y-auto no-scrollbar transition-all duration-300 ${
+            isHovered ? "gap-6" : "gap-2"
+          }`}
+        >
+          {visibleMenuSections.map((section, sidx) => (
+            <div key={sidx} className="flex flex-col gap-1">
+              <motion.div
+                initial={false}
+                animate={{
+                  height: isHovered ? 24 : 0,
+                  opacity: isHovered ? 1 : 0,
+                }}
+                className="overflow-hidden flex flex-col justify-end"
+              >
+                <div className="px-3 pb-1">
+                  <span
+                    className={`text-[10px] whitespace-nowrap font-bold tracking-widest uppercase ${
+                      isDark ? "text-gray-500/80" : "text-gray-400"
+                    }`}
+                  >
+                    {section.title}
+                  </span>
+                </div>
+              </motion.div>
+              {section.items.map((item) => (
+                <SidebarMenuItem
+                  key={item.id}
+                  item={item}
+                  isActive={activeTab === item.id}
+                  isHovered={isHovered}
+                  isLocked={isGuest && item.id !== "marketplace"}
+                  isDark={isDark}
+                  onClick={() => handleItemClick(item.id)}
+                />
+              ))}
+            </div>
           ))}
         </nav>
 

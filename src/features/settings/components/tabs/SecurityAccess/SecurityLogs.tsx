@@ -53,7 +53,7 @@ export const SecurityLogs: React.FC<SecurityLogsProps> = memo(
                   isDark ? "border-white/5" : "border-gray-100"
                 }`}
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
                   <div
                     className={`w-1.5 h-1.5 rounded-full ${
                       log.type === "auth"
@@ -63,15 +63,15 @@ export const SecurityLogs: React.FC<SecurityLogsProps> = memo(
                           : "bg-amber-500"
                     }`}
                   />
-                  <div>
+                  <div className="flex-1 min-w-0">
                     <p
-                      className={`text-sm font-medium ${
+                      className={`text-sm font-medium truncate ${
                         isDark ? "text-gray-300" : "text-gray-700"
                       }`}
                     >
                       {log.event}
                     </p>
-                    <p className="text-[11px] text-gray-500 mt-0.5 tracking-tight font-mono">
+                    <p className="text-[11px] text-gray-500 mt-0.5 tracking-tight font-mono truncate">
                       {log.time}
                     </p>
                   </div>

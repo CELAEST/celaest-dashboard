@@ -1,48 +1,39 @@
 import React from "react";
-import { Warning, CheckCircle } from "@phosphor-icons/react";
-import { motion } from "motion/react";
-import { useTheme } from "@/features/shared/hooks/useTheme";
+import { CheckCircle, Warning } from "@phosphor-icons/react";
 
 interface ConfigurePaymentGatewaysFooterProps {
   onClose: () => void;
 }
 
-export const ConfigurePaymentGatewaysFooter: React.FC<
-  ConfigurePaymentGatewaysFooterProps
-> = ({ onClose }) => {
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
-
+export const ConfigurePaymentGatewaysFooter: React.FC<ConfigurePaymentGatewaysFooterProps> = ({ onClose }) => {
   return (
-    <div
-      className={`p-4 border-t shrink-0 ${
-        isDark ? "border-white/10 bg-black/20" : "border-gray-200 bg-gray-50/50"
-      }`}
-    >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Warning
-            className={`w-4 h-4 ${isDark ? "text-gray-400" : "text-gray-600"}`}
-          />
-          <div
-            className={`text-xs ${isDark ? "text-gray-400" : "text-gray-600"}`}
-          >
-            Changes are saved automatically
-          </div>
+    <div className="relative shrink-0 overflow-hidden">
+      {/* Top accent */}
+      <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-teal-500/50 to-transparent" />
+      {/* Bottom glow */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          width: "18rem",
+          height: "8rem",
+          background: "radial-gradient(circle at bottom left, rgba(20,184,166,0.07), transparent 70%)",
+          pointerEvents: "none",
+        }}
+      />
+      <div className="relative px-8 py-5 flex items-center justify-between">
+        <div className="flex items-center gap-2 text-white/30">
+          <Warning size={14} />
+          <span className="text-[10px] font-mono uppercase tracking-[0.15em]">Changes are saved automatically</span>
         </div>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+        <button
           onClick={onClose}
-          className={`px-6 py-2.5 rounded-xl font-semibold text-sm transition-all duration-300 flex items-center gap-2 ${
-            isDark
-              ? "bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 hover:bg-cyan-500/20 shadow-lg shadow-cyan-500/10"
-              : "bg-blue-500/10 border border-blue-500/20 text-blue-600 hover:bg-blue-500/20 shadow-lg"
-          }`}
+          className="px-6 py-3 rounded-2xl bg-linear-to-r from-teal-500 to-teal-600 text-white text-sm font-black uppercase tracking-wide shadow-[0_0_20px_rgba(20,184,166,0.3)] hover:shadow-[0_0_30px_rgba(20,184,166,0.5)] transition-all flex items-center gap-2"
         >
-          <CheckCircle className="w-4 h-4" />
+          <CheckCircle size={16} />
           Done
-        </motion.button>
+        </button>
       </div>
     </div>
   );

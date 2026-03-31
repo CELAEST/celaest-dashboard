@@ -269,7 +269,7 @@ export function SettingsView() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -10 }}
               transition={{ duration: 0.2 }}
-              className="h-full"
+              className="h-full w-full"
             >
               <div className="px-8 py-6">{renderTabContent()}</div>
             </motion.div>

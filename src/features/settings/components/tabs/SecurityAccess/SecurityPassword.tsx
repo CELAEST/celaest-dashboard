@@ -70,7 +70,7 @@ export const SecurityPassword: React.FC<SecurityPasswordProps> = memo(
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4 max-w-xl"
+            className="space-y-4 w-full lg:w-3/4 xl:w-2/3"
           >
             <FormField
               control={form.control}

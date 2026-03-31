@@ -89,7 +89,7 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
         className={cn(
-          "max-w-md p-0 overflow-hidden border-0 bg-transparent shadow-none",
+          "max-w-112 p-0 overflow-hidden border-0 bg-transparent shadow-none [&>button:last-child]:hidden",
         )}
       >
         <DialogTitle className="sr-only">Invite User</DialogTitle>
@@ -100,7 +100,7 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
               className={cn(
-                "flex flex-col items-center justify-center p-12 rounded-3xl backdrop-blur-3xl border shadow-2xl",
+                "flex flex-col items-center justify-center p-12 rounded-3xl backdrop-blur-3xl border shadow-2xl w-full",
                 isDark
                   ? "bg-black/80 border-white/10"
                   : "bg-white/90 border-gray-200",
@@ -132,7 +132,7 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
               className={cn(
-                "rounded-3xl backdrop-blur-3xl border shadow-2xl overflow-hidden",
+                "rounded-3xl backdrop-blur-3xl border shadow-2xl overflow-hidden w-full",
                 isDark
                   ? "bg-[#0a0a0a]/90 border-white/10"
                   : "bg-white/95 border-gray-200",

@@ -84,7 +84,7 @@ export const SignOutModal: React.FC<SignOutModalProps> = ({
               exit={{ opacity: 0, scale: 0.96, y: 16 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
               onClick={(event) => event.stopPropagation()}
-              className="pointer-events-auto relative w-full max-w-[34rem]"
+              className="pointer-events-auto relative shrink-0 w-[34rem] min-w-[320px] sm:min-w-[34rem] max-w-[90vw]"
             >
               <SignOutCard
                 onClose={onClose}

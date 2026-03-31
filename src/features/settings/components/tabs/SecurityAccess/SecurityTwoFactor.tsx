@@ -43,16 +43,16 @@ export const SecurityTwoFactor: React.FC<SecurityTwoFactorProps> = memo(
                   }`}
                 />
               </div>
-              <div>
+              <div className="flex-1 min-w-0">
                 <h3
-                  className={`text-lg font-bold mb-1 ${
+                  className={`text-lg font-bold mb-1 truncate ${
                     isDark ? "text-white" : "text-gray-900"
                   }`}
                 >
                   Two-Factor Authentication (2FA)
                 </h3>
                 <p
-                  className={`text-sm mb-4 max-w-lg ${
+                  className={`text-sm mb-4 w-full ${
                     isDark ? "text-gray-400" : "text-gray-500"
                   }`}
                 >

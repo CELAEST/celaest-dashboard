@@ -112,7 +112,7 @@ export function CreateWorkspaceView({ planTier }: { planTier: number }) {
           Create Your Workspace
         </h3>
         <p
-          className={`text-sm max-w-md mx-auto ${isDark ? "text-gray-400" : "text-gray-500"}`}
+          className={`text-sm max-w-112 mx-auto ${isDark ? "text-gray-400" : "text-gray-500"}`}
         >
           Set up your own workspace to collaborate with your team, customize
           branding, and manage everything from one place.
@@ -246,7 +246,7 @@ export function CreateWorkspaceView({ planTier }: { planTier: number }) {
           </p>
           <button
             onClick={() => setShowUpgradeModal(true)}
-            className="hidden lg:flex flex-col justify-between p-12 relative overflow-hidden bg-linear-to-br from-cyan-600 to-blue-700 text-white hover:from-amber-400 hover:to-orange-400 transition-all shadow-lg shadow-amber-500/25 cursor-pointer"
+            className="mt-6 mx-auto flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-200 bg-linear-to-r from-cyan-600 to-blue-700 text-white hover:scale-[1.02] shadow-lg shadow-cyan-500/25 cursor-pointer"
           >
             <Crown className="w-4 h-4" />
             Upgrade Plan

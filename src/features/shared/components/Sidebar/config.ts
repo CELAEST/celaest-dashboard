@@ -1,96 +1,71 @@
-import {
-  SquaresFour,
-  ShoppingCart,
-  FolderOpen,
-  GitBranch,
-  Shield,
-  TrendUp,
-  Warning,
-  CreditCard,
-  Pulse,
-  UserGear,
-  Gear,
-  Icon,
-  Tag,
-  Robot,
-} from "@phosphor-icons/react";
+import React from "react";
+
+// Platform Icons
+import { OrdersIcon } from "../../../../components/icons/custom/OrdersIcon";
+import { AIConsoleIcon } from "../../../../components/icons/custom/AIConsoleIcon";
+import { MarketplaceIcon } from "../../../../components/icons/custom/MarketplaceIcon";
+import { AssetManagerIcon } from "../../../../components/icons/custom/AssetManagerIcon";
+import { ReleasesIcon } from "../../../../components/icons/custom/ReleasesIcon";
+
+// Insights & Ops Icons
+import { AnalyticsIcon } from "../../../../components/icons/custom/AnalyticsIcon";
+import { ROIIcon } from "../../../../components/icons/custom/ROIIcon";
+import { ErrorMonitorIcon } from "../../../../components/icons/custom/ErrorMonitorIcon";
+import { DevOpsIcon } from "../../../../components/icons/custom/DevOpsIcon";
+
+// Settings & Admin Icons
+import { UsersIcon } from "../../../../components/icons/custom/UsersIcon";
+import { BillingIcon } from "../../../../components/icons/custom/BillingIcon";
+import { CouponsIcon } from "../../../../components/icons/custom/CouponsIcon";
+import { LicensingIcon } from "../../../../components/icons/custom/LicensingIcon";
+import { SuperAdminIcon } from "../../../../components/icons/custom/SuperAdminIcon";
+import { SettingsIcon } from "../../../../components/icons/custom/SettingsIcon";
 
 export interface MenuItem {
   id: string;
-  icon: Icon;
+  icon: React.ElementType<any>;
   label: string;
   scope: string | null;
 }
 
-export const menuItems: MenuItem[] = [
+export interface MenuSection {
+  title: string;
+  items: MenuItem[];
+}
+
+export const menuSections: MenuSection[] = [
   {
-    id: "dashboard",
-    icon: SquaresFour,
-    label: "Orders",
-    scope: null,
+    title: "Platform",
+    items: [
+      { id: "dashboard", icon: OrdersIcon, label: "Orders", scope: null },
+      { id: "ai", icon: AIConsoleIcon, label: "AI Console", scope: null },
+      { id: "marketplace", icon: MarketplaceIcon, label: "Marketplace", scope: "marketplace:purchase" },
+      { id: "catalog", icon: AssetManagerIcon, label: "Asset Manager", scope: "templates:write" },
+      { id: "releases", icon: ReleasesIcon, label: "Releases", scope: "releases:read" },
+    ],
   },
   {
-    id: "ai",
-    icon: Robot,
-    label: "AI Console",
-    scope: null,
+    title: "Insights & Ops",
+    items: [
+      { id: "analytics", icon: AnalyticsIcon, label: "Analytics", scope: "analytics:read" },
+      { id: "roi", icon: ROIIcon, label: "ROI Dashboard", scope: "analytics:read" },
+      { id: "errors", icon: ErrorMonitorIcon, label: "Error Monitor", scope: "analytics:read" },
+      { id: "operations", icon: DevOpsIcon, label: "DevOps", scope: null },
+    ],
   },
   {
-    id: "marketplace",
-    icon: ShoppingCart,
-    label: "Marketplace",
-    scope: "marketplace:purchase",
+    title: "Settings & Admin",
+    items: [
+      { id: "users", icon: UsersIcon, label: "Users & Roles", scope: null },
+      { id: "billing", icon: BillingIcon, label: "Billing", scope: "billing:read" },
+      { id: "coupons", icon: CouponsIcon, label: "Coupons", scope: "billing:write" },
+      { id: "licensing", icon: LicensingIcon, label: "Licensing", scope: null },
+      { id: "admin_portal", icon: SuperAdminIcon, label: "Super Admin", scope: "users:manage" },
+      { id: "settings", icon: SettingsIcon, label: "Workspace Settings", scope: null },
+    ],
   },
-  {
-    id: "catalog",
-    icon: FolderOpen,
-    label: "Asset Manager",
-    scope: "templates:write",
-  },
-  {
-    id: "releases",
-    icon: GitBranch,
-    label: "Releases",
-    scope: "releases:read",
-  },
-  { id: "licensing", icon: Shield, label: "Licensing", scope: null },
-  {
-    id: "roi",
-    icon: TrendUp,
-    label: "ROI Dashboard",
-    scope: "analytics:read",
-  },
-  {
-    id: "errors",
-    icon: Warning,
-    label: "Error Monitor",
-    scope: "analytics:read",
-  },
-  { id: "billing", icon: CreditCard, label: "Billing", scope: "billing:read" },
-  { id: "coupons", icon: Tag, label: "Coupons", scope: "billing:write" },
-  {
-    id: "analytics",
-    icon: Pulse,
-    label: "Analytics",
-    scope: "analytics:read",
-  },
-  {
-    id: "operations",
-    icon: Pulse,
-    label: "Operations & DevOps",
-    scope: null, // Depending on permissions, "operations:read" could be added later
-  },
-  {
-    id: "users",
-    icon: UserGear,
-    label: "User Management",
-    scope: null,
-  },
-  {
-    id: "admin_portal",
-    icon: Shield,
-    label: "Super Admin",
-    scope: "users:manage",
-  },
-  { id: "settings", icon: Gear, label: "Gear", scope: null },
 ];
+
+export const menuItems: MenuItem[] = menuSections.flatMap(
+  (section) => section.items,
+);

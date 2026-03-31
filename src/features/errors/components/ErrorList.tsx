@@ -1,10 +1,8 @@
 import React from "react";
 import { AnimatePresence, motion } from "motion/react";
 import {
-  MagnifyingGlass,
-  ArrowCounterClockwise,
   Pulse,
-  ShieldCheck,
+  ArrowCounterClockwise,
 } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import {
@@ -24,6 +22,181 @@ interface ErrorListProps {
   isAdmin: boolean;
 }
 
+// Custom Bespoke Holographic SVG for Clean State (Main)
+// Custom Bespoke Holographic SVG for Clean State (Main)
+const SecureSystemVisual = () => (
+  <svg viewBox="0 10 100 80" className="w-[85px] h-[85px] overflow-visible drop-shadow-[0_0_15px_rgba(34,211,238,0.4)]">
+    <defs>
+      <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#22d3ee" stopOpacity="1" />
+        <stop offset="100%" stopColor="#0891b2" stopOpacity="0.8" />
+      </linearGradient>
+      <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="3.5" result="blur" />
+        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+      </filter>
+    </defs>
+    
+    <motion.g animate={{ y: [-2, 2, -2] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}>
+      
+      {/* Outer Partial Arc Ring */}
+      <motion.circle 
+        cx="50" cy="50" r="47" fill="none" stroke="#0891b2" strokeWidth="2" strokeDasharray="70 200"
+        animate={{ rotate: 360 }} transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+        style={{ transformOrigin: "center" }}
+        strokeLinecap="round"
+      />
+      
+      {/* Inner Dotted Ring */}
+      <motion.circle 
+        cx="50" cy="50" r="41" fill="none" stroke="#0e7490" strokeWidth="2.5" strokeDasharray="3 10"
+        animate={{ rotate: -360 }} transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+        style={{ transformOrigin: "center" }}
+      />
+      
+      {/* Subtle Background Inner Ring */}
+      <circle cx="50" cy="50" r="33" fill="none" stroke="rgba(34, 211, 238, 0.08)" strokeWidth="1.5" />
+
+      {/* Futuristic Shield */}
+      <motion.g
+        animate={{ scale: [1, 1.02, 1] }}
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+        style={{ transformOrigin: "center" }}
+      >
+        {/* Outer Glowing Shield Boundary */}
+        <path 
+          d="M50 18 L20 26 V48 C20 70 33 86 50 92 C67 86 80 70 80 48 V26 Z" 
+          fill="rgba(34, 211, 238, 0.04)" 
+          stroke="url(#shieldGrad)" 
+          strokeWidth="3.5" 
+          filter="url(#glow)"
+          strokeLinejoin="round"
+        />
+        
+        {/* Inner Solid Shield Edge */}
+        <path 
+          d="M50 25 L27 31 V48 C27 65 37 78 50 83 C63 78 73 65 73 48 V31 Z" 
+          fill="rgba(34, 211, 238, 0.08)" 
+          stroke="#22d3ee" 
+          strokeWidth="1.5"
+          strokeLinejoin="round" 
+        />
+        
+        {/* Central Sharp Checkmark */}
+        <motion.path 
+          d="M38 52 L46 60 L66 40" 
+          fill="none" 
+          stroke="#cffafe" 
+          strokeWidth="4" 
+          strokeLinecap="round" 
+          strokeLinejoin="round" 
+          initial={{ pathLength: 0, opacity: 0 }}
+          animate={{ pathLength: 1, opacity: 1 }}
+          transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 4 }}
+          filter="url(#glow)"
+        />
+      </motion.g>
+    </motion.g>
+  </svg>
+);
+
+// Custom Bespoke Holographic SVG for Filter State (Main)
+const FilteredMonitorVisual = () => (
+  <svg viewBox="0 10 100 80" className="w-[85px] h-[85px] overflow-visible drop-shadow-[0_0_15px_rgba(245,158,11,0.3)]">
+    <defs>
+      <linearGradient id="searchGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#fbbf24" stopOpacity="0.8" />
+        <stop offset="100%" stopColor="#b45309" stopOpacity="0.2" />
+      </linearGradient>
+    </defs>
+    <motion.g animate={{ y: [-2, 2, -2] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}>
+      <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(245, 158, 11, 0.1)" strokeWidth="1" strokeDasharray="2 4" />
+      <motion.circle 
+        cx="50" cy="50" r="32" fill="none" stroke="rgba(245, 158, 11, 0.3)" strokeWidth="2" strokeDasharray="20 10"
+        animate={{ rotate: -360 }} transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+        style={{ transformOrigin: "center" }} 
+      />
+      <motion.g animate={{ scale: [1, 1.05, 1] }} transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }} style={{ transformOrigin: "center" }}>
+        <circle cx="44" cy="44" r="16" fill="rgba(245, 158, 11, 0.05)" stroke="url(#searchGrad)" strokeWidth="2.5" />
+        <line x1="56" y1="56" x2="72" y2="72" stroke="#fcd34d" strokeWidth="4" strokeLinecap="round" />
+        <motion.line x1="28" y1="44" x2="60" y2="44" stroke="#fde68a" strokeWidth="1" strokeDasharray="2 2" animate={{ rotate: 360 }} transition={{ duration: 4, repeat: Infinity, ease: "linear" }} style={{ transformOrigin: "44px 44px" }} />
+      </motion.g>
+    </motion.g>
+  </svg>
+);
+
+// Sidebar Icons for Empty State Cards
+const TechStreamIcon = () => (
+  <svg viewBox="0 0 24 24" className="w-5 h-5 text-cyan-400">
+    <motion.path 
+      d="M3 12h4l3 -6l4 12l3 -6h4" 
+      fill="none" 
+      stroke="currentColor" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+      initial={{ pathLength: 0, opacity: 0 }}
+      animate={{ pathLength: 1, opacity: 1 }}
+      transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+    />
+  </svg>
+);
+
+const SecurityShieldIcon = () => (
+  <svg viewBox="0 0 24 24" className="w-5 h-5 text-emerald-400">
+    <motion.path 
+      d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" 
+      fill="rgba(16, 185, 129, 0.1)" 
+      stroke="currentColor" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round" 
+    />
+    <motion.path 
+      d="M9 12l2 2 4-4" 
+      fill="none" 
+      stroke="currentColor" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+      initial={{ scale: 0 }}
+      animate={{ scale: 1 }}
+      transition={{ duration: 1, repeat: Infinity, repeatDelay: 2 }}
+      style={{ transformOrigin: "12px 12px" }}
+    />
+  </svg>
+);
+
+const FilterLensIcon = () => (
+  <svg viewBox="0 0 24 24" className="w-5 h-5 text-amber-400">
+    <circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" strokeWidth="2" />
+    <line x1="16" y1="16" x2="21" y2="21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    <motion.circle 
+      cx="11" cy="11" r="2" 
+      fill="currentColor" 
+      animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }} 
+      transition={{ duration: 2, repeat: Infinity }} 
+    />
+  </svg>
+);
+
+const ResetSyncIcon = () => (
+  <svg viewBox="0 0 24 24" className="w-5 h-5 text-amber-400">
+    <motion.path 
+      d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" 
+      fill="none" 
+      stroke="currentColor" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round" 
+      animate={{ rotate: 360 }} 
+      transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+      style={{ transformOrigin: "center" }}
+    />
+    <path d="M3 3v5h5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
 /**
  * ErrorList - Componente para mostrar una lista de registros de errores.
  * Decomprimido para seguir el principio SRP y facilitar el mantenimiento.
@@ -31,7 +204,7 @@ interface ErrorListProps {
  * Cumple con:
  * - SRP: Lógica delegada a sub-componentes.
  * - Accesibilidad: Usa <ul> y <li> para navegación semántica.
- * - UX Invisible: Maneja estados vacíos amigables.
+ * - UX Invisible: Maneja estados vacíos amigables estilo HUD CELAEST.
  * - Perf: React.memo y AnimatePresence mode="popLayout".
  */
 export const ErrorList = React.memo(
@@ -51,62 +224,54 @@ export const ErrorList = React.memo(
     const emptyStateCards = hasActiveFilters
       ? [
           {
-            icon: <MagnifyingGlass size={16} weight="bold" />,
+            icon: <FilterLensIcon />,
             label: "Vista filtrada",
-            title: "Los filtros estan limitando el stream",
+            title: "Filtros activos limitando el stream",
             description:
-              "Hay criterios activos que estan ocultando parte de los incidentes disponibles en el monitor.",
+              "Condiciones de busqueda estan ocultando incidentes fuera del espectro seleccionado. La telemetria continua oculta.",
           },
           {
-            icon: <ArrowCounterClockwise size={16} weight="bold" />,
-            label: "Recuperacion inmediata",
-            title: "Vuelve al estado completo",
+            icon: <ResetSyncIcon />,
+            label: "Recuperacion de espectro",
+            title: "Restaurar transmision total",
             description:
-              "Limpia filtros y busqueda para recuperar la lista completa de errores con un solo clic.",
+              "Limpiar parametros de busqueda para restablecer el canal completo de monitoreo en tiempo real.",
           },
         ]
       : [
           {
-            icon: <Pulse size={16} weight="bold" />,
+            icon: <TechStreamIcon />,
             label: "Stream en vivo",
-            title: "El monitoreo sigue activo",
+            title: "Señal de eventos activa",
             description:
-              "La lista se reanudara en cuanto llegue un nuevo incidente desde cualquiera de las plataformas observadas.",
+              "El canal de telemetria se encuentra operativo. Recibiendo datos desde todas las fuentes integradas en el hub.",
           },
           {
-            icon: <ShieldCheck size={16} weight="bold" />,
+            icon: <SecurityShieldIcon />,
             label: "Estado del panel",
-            title: "Todo esta bajo control",
+            title: "Superficie de ataque contenida",
             description:
-              "Sin actividad pendiente, el equipo puede enfocarse en prioridad real apenas aparezca un evento nuevo.",
+              "No hay desviaciones en los parametros vitales del sistema. La integridad de las conexiones se mantiene estable.",
           },
         ];
 
     const emptyStateBadgeClass = hasActiveFilters
       ? isDark
-        ? "bg-amber-500/10 border-amber-500/20 text-amber-300"
+        ? "bg-amber-500/10 border-amber-500/20 text-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.2)]"
         : "bg-amber-50 border-amber-200 text-amber-700"
       : isDark
-        ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-300"
-        : "bg-emerald-50 border-emerald-200 text-emerald-700";
-
-    const emptyStateIconClass = hasActiveFilters
-      ? isDark
-        ? "border-amber-500/20 bg-amber-500/10 text-amber-300"
-        : "border-amber-200 bg-amber-50 text-amber-700"
-      : isDark
-        ? "border-cyan-500/20 bg-cyan-500/10 text-cyan-300"
-        : "border-cyan-200 bg-cyan-50 text-cyan-700";
+        ? "bg-cyan-500/10 border-cyan-500/20 text-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.2)]"
+        : "bg-cyan-50 border-cyan-200 text-cyan-700";
 
     const emptyStateSurfaceClass = isDark
-      ? "bg-[#05070b]/70 border-white/10 shadow-[0_24px_80px_rgba(0,0,0,0.45)]"
+      ? "bg-white/3 border-white/8 backdrop-blur-3xl shadow-[0_24px_80px_rgba(0,0,0,0.35)]"
       : "bg-white border-gray-200 shadow-xl shadow-gray-200/40";
 
     if (isLoading) {
       return (
         <div className="h-full w-full p-4 md:p-5">
           <div
-            className={`h-full w-full rounded-[1.75rem] border p-5 md:p-6 ${
+            className={`h-full w-full rounded-3xl border p-5 md:p-6 ${
               isDark ? "bg-white/3 border-white/8" : "bg-gray-50 border-gray-200"
             }`}
           >
@@ -120,11 +285,11 @@ export const ErrorList = React.memo(
                 }
               />
               <span
-                className={`text-xs font-bold uppercase tracking-[0.24em] ${
+                className={`text-[9px] font-black uppercase tracking-[0.24em] ${
                   isDark ? "text-gray-500" : "text-gray-500"
                 }`}
               >
-                Cargando incidentes
+                Interceptando señal
               </span>
             </div>
 
@@ -133,7 +298,7 @@ export const ErrorList = React.memo(
                 <div
                   key={index}
                   className={`rounded-2xl border p-5 ${
-                    isDark ? "bg-black/30 border-white/5" : "bg-white border-gray-200"
+                    isDark ? "bg-white/3 border-white/5" : "bg-white border-gray-200"
                   }`}
                 >
                   <div className="flex items-start gap-4">
@@ -183,39 +348,39 @@ export const ErrorList = React.memo(
           className="h-full w-full min-w-0 p-4 md:p-5"
         >
           <div
-            className={`relative h-full w-full overflow-hidden rounded-4xl border p-4 md:p-6 ${
-              isDark ? "bg-[#030509] border-white/8" : "bg-gray-50/80 border-gray-200"
+            className={`relative h-full w-full overflow-hidden rounded-3xl border p-4 md:p-6 transition-all duration-300 ${
+              isDark ? "bg-[#0a0a0a]/60 border-white/10" : "bg-gray-50/80 border-gray-200"
             }`}
           >
             <div
-              className={`pointer-events-none absolute left-1/2 top-0 h-64 w-64 -translate-x-1/2 rounded-full blur-3xl ${
+              className={`pointer-events-none absolute left-1/2 top-10 h-80 w-80 -translate-x-1/2 rounded-full blur-[100px] ${
                 hasActiveFilters
                   ? isDark
-                    ? "bg-amber-500/10"
+                    ? "bg-amber-500/15"
                     : "bg-amber-200/60"
                   : isDark
-                    ? "bg-cyan-500/10"
+                    ? "bg-cyan-500/15"
                     : "bg-cyan-200/70"
               }`}
             />
 
             <div className="relative mx-auto flex h-full w-full max-w-5xl items-center justify-center">
               <div
-                className={`w-full min-w-0 overflow-hidden rounded-4xl border p-6 sm:p-8 md:p-10 ${emptyStateSurfaceClass}`}
+                className={`w-full min-w-0 overflow-hidden rounded-3xl border p-6 sm:p-8 md:p-10 ${emptyStateSurfaceClass}`}
               >
-                <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(19rem,22rem)] xl:items-center">
-                  <div className="min-w-0 text-center xl:text-left">
-                    <div className="flex flex-wrap items-center justify-center gap-2 xl:justify-start">
+                <div className="grid gap-6 lg:grid-cols-[1fr_minmax(18rem,22rem)] xl:grid-cols-[1fr_max(22rem,320px)] items-center">
+                  <div className="min-w-0 text-center lg:text-left">
+                    <div className="flex flex-wrap items-center justify-center gap-2 lg:justify-start">
                       <span
-                        className={`inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-bold uppercase tracking-[0.24em] ${emptyStateBadgeClass}`}
+                        className={`inline-flex items-center rounded-lg border px-3 py-1 text-[9px] font-black uppercase tracking-[0.24em] ${emptyStateBadgeClass}`}
                       >
                         {hasActiveFilters
-                          ? "Filtros activos"
-                          : "Sin incidentes activos"}
+                          ? "FILTROS ACTIVOS"
+                          : "SISTEMA SEGURO"}
                       </span>
 
                       <span
-                        className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-medium ${
+                        className={`inline-flex items-center gap-2 rounded-lg border px-3 py-1 text-[9px] font-black tracking-[0.2em] font-mono uppercase ${
                           isDark
                             ? "border-white/10 bg-white/5 text-gray-400"
                             : "border-gray-200 bg-white text-gray-500"
@@ -223,100 +388,102 @@ export const ErrorList = React.memo(
                       >
                         <Pulse size={12} className="shrink-0" />
                         {hasActiveFilters
-                          ? "Refina la consulta"
-                          : "Monitoreo en vivo activo"}
+                          ? "ANALISIS SUPERFICIAL"
+                          : "TELEMETRIA EN VIVO"}
                       </span>
                     </div>
 
-                    <div className="mt-6 flex justify-center xl:justify-start">
-                      <div
-                        className={`flex h-24 w-24 items-center justify-center rounded-4xl border shadow-inner ${emptyStateIconClass}`}
-                      >
-                        {hasActiveFilters ? (
-                          <MagnifyingGlass size={34} weight="duotone" />
-                        ) : (
-                          <ShieldCheck size={34} weight="duotone" />
-                        )}
+                    <div className="mt-8 flex justify-center lg:justify-start">
+                      <div className="relative flex items-center justify-center p-2 isolate">
+                        {/* Immersive Background Glow */}
+                        <div className={`absolute inset-0 blur-2xl opacity-40 rounded-full ${
+                          hasActiveFilters ? "bg-amber-500/20" : "bg-cyan-500/20"
+                        }`} />
+                        {hasActiveFilters ? <FilteredMonitorVisual /> : <SecureSystemVisual />}
                       </div>
                     </div>
 
-                    <div className="mt-6 min-w-0 space-y-3">
+                    <div className="mt-6 flex w-full max-w-[460px] flex-col gap-3">
                       <h3
-                        className={`w-full text-3xl font-black tracking-tight sm:text-4xl ${
+                        className={`text-3xl font-black italic tracking-tighter sm:text-4xl ${
                           isDark ? "text-white" : "text-gray-900"
                         }`}
                       >
                         {hasActiveFilters
-                          ? "No encontramos coincidencias con la vista actual"
-                          : "Todo limpio por ahora"}
+                          ? "PARAMETROS SIN COINCIDENCIA"
+                          : "TODO LIMPIO POR AHORA"}
                       </h3>
 
                       <p
-                        className={`mx-auto w-full max-w-2xl text-sm leading-7 sm:text-base xl:mx-0 ${
-                          isDark ? "text-gray-400" : "text-gray-600"
+                        className={`text-xs sm:text-sm leading-relaxed uppercase tracking-widest ${
+                          isDark ? "text-gray-400" : "text-gray-500"
                         }`}
                       >
                         {hasActiveFilters
-                          ? "Ajusta filtros o limpia la busqueda para volver a ver el flujo completo de incidentes activos e historicos del sistema."
-                          : "No hay incidentes activos en este momento. El monitor seguira observando en tiempo real y mostrara cualquier error nuevo apenas aparezca."}
+                          ? "Ajuste los parametros de busqueda para restaurar la transmision del canal principal de incidentes."
+                          : "Cero desviaciones detectadas. El monitor continua analizando vectores en tiempo real desde la ultima inicializacion."}
                       </p>
                     </div>
 
-                    <div className="mt-6 flex flex-wrap items-center justify-center gap-3 xl:justify-start">
+                    <div className="mt-8 flex flex-wrap items-center justify-center gap-4 lg:justify-start">
                       {hasActiveFilters ? (
                         <button
                           onClick={onClearFilters}
-                          className={`inline-flex items-center gap-2 rounded-2xl border px-4 py-2.5 text-sm font-semibold transition-all duration-200 ${
+                          className={`inline-flex items-center gap-2 rounded-xl border px-5 py-2.5 text-[10px] font-black tracking-widest uppercase transition-all duration-200 ${
                             isDark
-                              ? "border-white/10 bg-white/6 text-white hover:bg-white/10 hover:border-white/20"
-                              : "border-gray-200 bg-white text-gray-900 hover:border-gray-300"
+                              ? "border-amber-500/40 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 hover:border-amber-500/60"
+                              : "border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100"
                           }`}
                         >
                           <ArrowCounterClockwise size={16} />
-                          Limpiar filtros y mostrar todo
+                          Limpiar y escanear
                         </button>
                       ) : (
                         <span
-                          className={`inline-flex items-center gap-2 rounded-2xl border px-4 py-2.5 text-sm font-medium ${
+                          className={`inline-flex items-center gap-2 rounded-xl border px-5 py-2.5 text-[10px] font-black tracking-widest uppercase ${
                             isDark
                               ? "border-white/10 bg-white/5 text-gray-300"
                               : "border-gray-200 bg-white text-gray-600"
                           }`}
                         >
                           <Pulse size={14} className="shrink-0" />
-                          Esperando nuevos eventos del sistema
+                          Esperando anomalias
                         </span>
                       )}
                     </div>
                   </div>
 
-                  <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
                     {emptyStateCards.map((card) => (
                       <div
                         key={card.title}
-                        className={`rounded-[1.75rem] border p-5 text-left ${
+                        className={`group rounded-2xl border p-5 text-left transition-all duration-300 ${
                           isDark
-                            ? "border-white/10 bg-black/35"
-                            : "border-gray-200 bg-white/90"
+                            ? "border-white/8 bg-white/3 hover:border-white/15 hover:bg-white/5"
+                            : "border-gray-200 bg-gray-50 hover:bg-gray-100"
                         }`}
                       >
-                        <div className="flex items-start gap-3">
+                        <div className="flex items-start gap-4">
                           <div
-                            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border ${emptyStateIconClass}`}
+                            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-input border shadow-sm ${
+                              isDark
+                                ? "bg-white/10 border-white/10 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_2px_4px_rgba(0,0,0,0.2)]"
+                                : "bg-white border-gray-200 text-gray-900 shadow-[inset_0_1px_0_rgba(255,255,255,1),0_1px_2px_rgba(0,0,0,0.04)]"
+                            }`}
                           >
                             {card.icon}
                           </div>
 
-                          <div className="min-w-0">
+                          <div className="min-w-0 mt-0.5">
                             <p
-                              className={`text-[11px] font-bold uppercase tracking-[0.22em] ${
+                              className={`text-[9px] font-black uppercase tracking-[0.24em] ${
                                 isDark ? "text-gray-500" : "text-gray-400"
                               }`}
                             >
                               {card.label}
                             </p>
                             <h4
-                              className={`mt-2 text-base font-bold tracking-tight ${
+                              className={`mt-1 font-mono text-sm font-bold tracking-tight ${
                                 isDark ? "text-white" : "text-gray-900"
                               }`}
                             >
@@ -326,7 +493,7 @@ export const ErrorList = React.memo(
                         </div>
 
                         <p
-                          className={`mt-4 text-sm leading-6 ${
+                          className={`mt-4 text-[11px] font-medium leading-5 ${
                             isDark ? "text-gray-400" : "text-gray-500"
                           }`}
                         >

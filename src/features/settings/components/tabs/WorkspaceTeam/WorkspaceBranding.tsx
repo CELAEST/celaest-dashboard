@@ -186,7 +186,7 @@ export function WorkspaceBranding({
                 ) : (
                   <FloppyDisk size={12} />
                 )}
-                FloppyDisk Branding
+                SAVE BRANDING
               </button>
             </>
           )}

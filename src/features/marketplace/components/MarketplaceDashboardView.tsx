@@ -80,13 +80,17 @@ export function MarketplaceDashboardView() {
 
     // 1. Personal Assets — filter by current org so that products purchased in
     // one organization don't bleed into another workspace's marketplace view.
-    const inAssets = assets.some(
+    const matchedAsset = assets.find(
       (a) =>
         a.status === "active" &&
         (a.productId === prod.id || a.slug === prod.slug) &&
         (!currentOrg || a.organizationId === currentOrg.id),
     );
-    if (inAssets) return "owned";
+    if (matchedAsset) {
+      // If the asset was granted via subscription/plan, show "En Plan" not "Adquirido"
+      if (matchedAsset.accessType === "subscription") return "plan";
+      return "owned";
+    }
 
     // 2. Plan Check (Is it included in the current active tier?)
     // We ALWAYS allow this to show "En Plan", even in CELAEST, so they see their plan works.
@@ -397,7 +401,7 @@ export function MarketplaceDashboardView() {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="flex flex-col items-center justify-center h-full"
+                className="flex flex-col items-center justify-center h-full w-full"
               >
                 <Storefront
                   size={48}
@@ -419,7 +423,7 @@ export function MarketplaceDashboardView() {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 gap-6"
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 gap-6 w-full"
               >
                 {products.map((product) => {
                   const access = checkAccess(product);

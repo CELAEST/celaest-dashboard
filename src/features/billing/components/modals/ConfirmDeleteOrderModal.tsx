@@ -1,11 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
-import { motion, AnimatePresence } from "motion/react";
-import { Warning, Trash } from "@phosphor-icons/react";
-import { useTheme } from "@/features/shared/hooks/useTheme";
-import { useEscapeKey } from "@/features/shared/hooks/useEscapeKey";
+import React from "react";
+import { Warning, Trash, X } from "@phosphor-icons/react";
+import { BillingModal } from "./shared/BillingModal";
 
 interface ConfirmDeleteOrderModalProps {
   isOpen: boolean;
@@ -20,161 +17,98 @@ export function ConfirmDeleteOrderModal({
   onConfirm,
   orderId,
 }: ConfirmDeleteOrderModalProps) {
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
-  const [mounted, setMounted] = useState(false);
+  return (
+    <BillingModal isOpen={isOpen} onClose={onClose} className="max-w-[448px] w-[448px] min-w-[448px] shrink-0" showCloseButton={false}>
+      {/* Top accent line — RED for destructive */}
+      <div className="absolute inset-x-0 top-0 h-px z-20 bg-linear-to-r from-transparent via-red-500/70 to-transparent" />
+      {/* Corner glow — RED */}
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          right: 0,
+          width: "22rem",
+          height: "22rem",
+          background: "radial-gradient(circle at top right, rgba(239,68,68,0.06), transparent 70%)",
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
+      />
 
-  useEffect(() => {
-    const timer = setTimeout(() => setMounted(true), 0);
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEscapeKey(onClose, isOpen);
-
-  if (!mounted) return null;
-
-  return createPortal(
-    <AnimatePresence>
-      {isOpen && (
+      {/* Header */}
+      <div className="relative px-8 py-6 border-b border-white/8 flex items-center justify-between overflow-hidden shrink-0">
+        <div className="absolute inset-0 bg-linear-to-r from-red-500/10 via-red-600/8 to-transparent" />
         <div
           style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 99999,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
+            position: "absolute",
+            inset: 0,
+            backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px)",
+            backgroundSize: "20px 20px",
+            pointerEvents: "none",
           }}
-          role="dialog"
-          aria-modal="true"
-        >
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: "rgba(0,0,0,0.7)",
-              backdropFilter: "blur(4px)",
-            }}
-            onClick={onClose}
-          />
+        />
+        <div className="absolute bottom-0 left-0 h-px w-2/5 bg-linear-to-r from-red-500/50 to-transparent" />
 
-          {/* Modal */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            transition={{ type: "spring", duration: 0.4, bounce: 0.2 }}
-            style={{
-              position: "relative",
-              zIndex: 10,
-              width: "100%",
-              maxWidth: "28rem",
-              margin: "0 1rem",
-              borderRadius: "1rem",
-              overflow: "hidden",
-              boxShadow: "0 25px 50px -12px rgba(0,0,0,0.5)",
-              background: isDark ? "#0c0c0c" : "#ffffff",
-              border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid #e5e7eb",
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Red top glow accent */}
-            <div
-              className={`absolute inset-x-0 top-0 h-px ${
-                isDark
-                  ? "bg-gradient-to-r from-transparent via-red-500/60 to-transparent"
-                  : "bg-gradient-to-r from-transparent via-red-400/40 to-transparent"
-              }`}
-            />
-
-            {/* Content */}
-            <div className="p-8 flex flex-col items-stretch text-center space-y-6">
-              {/* Icon */}
-              <div className="relative mx-auto">
-                <div
-                  className={`absolute inset-0 rounded-full animate-ping opacity-20 ${
-                    isDark ? "bg-red-500" : "bg-red-600"
-                  }`}
-                />
-                <div
-                  className={`relative p-4 rounded-2xl shadow-xl ${
-                    isDark
-                      ? "bg-gradient-to-br from-red-500/20 to-red-900/20 border border-red-500/30 text-red-500"
-                      : "bg-red-50 border border-red-100 text-red-600"
-                  }`}
-                >
-                  <Warning size={40} weight="fill" />
-                </div>
-              </div>
-
-              <div className="w-full space-y-2">
-                <h2
-                  className={`text-2xl font-bold ${
-                    isDark ? "text-white" : "text-gray-900"
-                  }`}
-                >
-                  Delete Order?
-                </h2>
-                <p
-                  className={`text-sm leading-relaxed ${
-                    isDark ? "text-gray-400" : "text-gray-600"
-                  }`}
-                >
-                  You are about to permanently delete order{" "}
-                  <span
-                    className={`font-mono font-bold px-1.5 py-0.5 rounded ${
-                      isDark
-                        ? "bg-white/10 text-white"
-                        : "bg-gray-100 text-gray-900"
-                    }`}
-                  >
-                    {orderId}
-                  </span>
-                  .
-                  <br />
-                  This action is irreversible.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 w-full pt-2">
-                <button
-                  onClick={onClose}
-                  autoFocus
-                  className={`px-4 py-3 rounded-xl text-sm font-semibold transition-all active:scale-95 ${
-                    isDark
-                      ? "bg-white/5 hover:bg-white/10 text-gray-300 border border-white/5"
-                      : "bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200"
-                  }`}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={onConfirm}
-                  className={`px-4 py-3 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 transition-all shadow-lg hover:shadow-red-500/25 hover:scale-105 active:scale-95 ${
-                    isDark
-                      ? "bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400"
-                      : "bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400"
-                  }`}
-                >
-                  <Trash size={18} />
-                  Delete Forever
-                </button>
-              </div>
-            </div>
-          </motion.div>
+        <div className="relative z-10 flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 bg-[#111] text-red-400 border border-white/10 shadow-lg shadow-red-500/10">
+            <Warning size={22} weight="fill" />
+          </div>
+          <div>
+            <h2 className="text-xl font-black italic tracking-tighter text-white uppercase">Delete Order</h2>
+            <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40">Irreversible action</p>
+          </div>
         </div>
-      )}
-    </AnimatePresence>,
-    document.body,
+
+        <div className="relative z-10">
+          <button onClick={onClose} className="p-2 rounded-full transition-colors text-gray-400 hover:text-white hover:bg-white/10">
+            <X size={22} />
+          </button>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="px-8 py-6">
+        <p className="text-sm text-white/60 leading-relaxed">
+          You are about to permanently delete order{" "}
+          <span className="font-mono font-bold px-1.5 py-0.5 rounded bg-white/10 text-white">
+            {orderId}
+          </span>.
+          <br />
+          This action is irreversible.
+        </p>
+      </div>
+
+      {/* Footer — RED for destructive */}
+      <div className="relative shrink-0 overflow-hidden">
+        <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-red-500/50 to-transparent" />
+        <div
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            width: "18rem",
+            height: "8rem",
+            background: "radial-gradient(circle at bottom left, rgba(239,68,68,0.07), transparent 70%)",
+            pointerEvents: "none",
+          }}
+        />
+        <div className="relative px-8 py-5 flex gap-3">
+          <button
+            onClick={onClose}
+            autoFocus
+            className="flex-1 py-3 rounded-2xl bg-white/5 border border-white/10 text-white/60 text-sm font-semibold hover:bg-white/10 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="flex-1 py-3 rounded-2xl bg-linear-to-r from-red-600 to-red-500 text-white text-sm font-black uppercase tracking-wide shadow-[0_0_20px_rgba(239,68,68,0.3)] hover:shadow-[0_0_30px_rgba(239,68,68,0.5)] transition-all flex items-center justify-center gap-2"
+          >
+            <Trash size={16} />
+            Delete Forever
+          </button>
+        </div>
+      </div>
+    </BillingModal>
   );
 }

@@ -1,7 +1,5 @@
 import React from "react";
-import { Check } from "@phosphor-icons/react";
-import { motion } from "motion/react";
-import { useTheme } from "@/features/shared/hooks/useTheme";
+import { CheckCircle } from "@phosphor-icons/react";
 
 interface ManageTaxRatesFooterProps {
   taxRatesCount: number;
@@ -12,34 +10,33 @@ export const ManageTaxRatesFooter: React.FC<ManageTaxRatesFooterProps> = ({
   taxRatesCount,
   onClose,
 }) => {
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
-
   return (
-    <div
-      className={`p-4 border-t shrink-0 ${
-        isDark ? "border-white/10 bg-black/20" : "border-gray-200 bg-gray-50/50"
-      }`}
-    >
-      <div className="flex items-center justify-between">
-        <div
-          className={`text-xs ${isDark ? "text-gray-400" : "text-gray-600"}`}
-        >
+    <div className="relative shrink-0 overflow-hidden">
+      {/* Top accent */}
+      <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-teal-500/50 to-transparent" />
+      {/* Bottom glow */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          width: "18rem",
+          height: "8rem",
+          background: "radial-gradient(circle at bottom left, rgba(20,184,166,0.07), transparent 70%)",
+          pointerEvents: "none",
+        }}
+      />
+      <div className="relative px-8 py-5 flex items-center justify-between">
+        <span className="text-[10px] font-mono uppercase tracking-[0.15em] text-teal-400/70 bg-teal-500/10 border border-teal-500/20 px-2.5 py-1 rounded-lg">
           {taxRatesCount} tax rate{taxRatesCount !== 1 ? "s" : ""} configured
-        </div>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+        </span>
+        <button
           onClick={onClose}
-          className={`px-6 py-2.5 rounded-xl font-semibold text-sm transition-all duration-300 flex items-center gap-2 ${
-            isDark
-              ? "bg-purple-500/10 border border-purple-500/20 text-purple-400 hover:bg-purple-500/20 shadow-lg shadow-purple-500/10"
-              : "bg-purple-500/10 border border-purple-500/20 text-purple-600 hover:bg-purple-500/20 shadow-lg"
-          }`}
+          className="px-6 py-3 rounded-2xl bg-linear-to-r from-teal-500 to-teal-600 text-white text-sm font-black uppercase tracking-wide shadow-[0_0_20px_rgba(20,184,166,0.3)] hover:shadow-[0_0_30px_rgba(20,184,166,0.5)] transition-all flex items-center gap-2"
         >
-          <Check className="w-4 h-4" />
-          FloppyDisk Changes
-        </motion.button>
+          <CheckCircle size={16} />
+          Save Changes
+        </button>
       </div>
     </div>
   );

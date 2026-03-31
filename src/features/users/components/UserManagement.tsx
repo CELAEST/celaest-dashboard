@@ -243,7 +243,7 @@ const SuperAdminUserManagement: React.FC<{ isDark: boolean }> = ({ isDark }) => 
             </motion.div>
           )}
           {activeTab === "directory" && (
-            <motion.div key="directory" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} className="flex-1 min-h-0 pb-4 overflow-hidden">
+            <motion.div key="directory" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} className="flex-1 min-h-0 pb-4 overflow-hidden w-full">
               <TableChrome
                 toolbar={
                   <div className="flex items-center justify-between w-full">
@@ -274,7 +274,7 @@ const SuperAdminUserManagement: React.FC<{ isDark: boolean }> = ({ isDark }) => 
             </motion.div>
           )}
           {activeTab === "logs" && (
-            <motion.div key="logs" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex-1 min-h-0 px-4 pb-4 overflow-hidden">
+            <motion.div key="logs" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex-1 min-h-0 px-4 pb-4 overflow-hidden w-full">
               <TableChrome
                 toolbar={
                   <div className="flex items-center justify-between w-full">

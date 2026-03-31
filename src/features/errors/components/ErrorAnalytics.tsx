@@ -19,11 +19,11 @@ export interface PlatformStat {
 }
 
 const PLATFORM_COLORS = [
-  "#06b6d4",
-  "#3b82f6",
-  "#8b5cf6",
-  "#6366f1",
-  "#ec4899",
+  "#22d3ee", // cyan-400
+  "#3b82f6", // blue-500
+  "#8b5cf6", // violet-500
+  "#c084fc", // purple-400
+  "#ec4899", // pink-500
 ];
 
 interface ErrorAnalyticsProps {
@@ -44,43 +44,60 @@ function SummaryCard({
   isDark: boolean;
 }) {
   const tones = {
-    cyan: isDark
-      ? "bg-cyan-500/10 border-cyan-500/20 text-cyan-400"
-      : "bg-cyan-50 border-cyan-200 text-cyan-700",
-    emerald: isDark
-      ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
-      : "bg-emerald-50 border-emerald-200 text-emerald-700",
-    amber: isDark
-      ? "bg-amber-500/10 border-amber-500/20 text-amber-400"
-      : "bg-amber-50 border-amber-200 text-amber-700",
+    cyan: isDark ? "text-cyan-400" : "text-cyan-600",
+    emerald: isDark ? "text-emerald-400" : "text-emerald-600",
+    amber: isDark ? "text-amber-400" : "text-amber-600",
+  };
+
+  const borderTones = {
+    cyan: isDark ? "from-cyan-500/20 to-blue-500/10 border-cyan-500/15" : "from-cyan-50 to-blue-50 border-cyan-200",
+    emerald: isDark ? "from-emerald-500/20 to-teal-500/10 border-emerald-500/15" : "from-emerald-50 to-teal-50 border-emerald-200",
+    amber: isDark ? "from-amber-500/20 to-orange-500/10 border-amber-500/15" : "from-amber-50 to-orange-50 border-amber-200",
   };
 
   return (
     <div
-      className={`rounded-2xl border p-4 ${
+      className={`rounded-2xl border p-4 transition-all duration-300 ${
         isDark
-          ? "bg-white/3 border-white/8"
-          : "bg-gray-50 border-gray-200"
+          ? "bg-white/3 border-white/8 hover:border-white/15"
+          : "bg-gray-50 border-gray-200 hover:border-gray-300"
       }`}
     >
       <div className="flex items-start justify-between gap-3">
         <div>
           <p
-            className={`text-[11px] font-semibold uppercase tracking-[0.22em] ${
+            className={`text-[10px] font-black uppercase tracking-widest ${
               isDark ? "text-gray-500" : "text-gray-500"
             }`}
           >
             {label}
           </p>
           <p
-            className={`mt-2 text-2xl font-black tracking-tight ${
+            className={`mt-1 font-mono text-2xl font-black tracking-tight ${
               isDark ? "text-white" : "text-gray-900"
             }`}
           >
             {value}
           </p>
         </div>
-        <div className={`rounded-xl border p-2 ${tones[tone]}`}>{icon}</div>
+        {/* Jewel-box icon */}
+        <div
+          className={`shrink-0 w-8 h-8 rounded-input flex items-center justify-center bg-linear-to-b border ${borderTones[tone]} ${
+            isDark
+              ? "shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_2px_4px_rgba(0,0,0,0.2)]"
+              : "shadow-[inset_0_1px_0_rgba(255,255,255,1),0_1px_2px_rgba(0,0,0,0.04)]"
+          }`}
+        >
+          {React.cloneElement(
+            icon as React.ReactElement<{ className?: string }>,
+            { className: tones[tone] }
+          )}
+        </div>
+      </div>
+      <div className="mt-4 flex justify-between items-end">
+        <span className={`text-[8px] font-mono tracking-widest uppercase opacity-40 ${isDark ? "text-white" : "text-gray-900"}`}>
+          SYS.METRIC
+        </span>
       </div>
     </div>
   );
@@ -96,7 +113,7 @@ export const ErrorAnalytics: React.FC<ErrorAnalyticsProps> = ({ data }) => {
         {
           name: "Enterprise Hub (W11)",
           value: 100,
-          color: "#06b6d4",
+          color: "#22d3ee",
           details: "Excel 365 v2401",
           status: "optimal" as const,
         },
@@ -133,17 +150,17 @@ export const ErrorAnalytics: React.FC<ErrorAnalyticsProps> = ({ data }) => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
-      className={`relative h-full rounded-4xl border overflow-hidden transition-all duration-300 ${
+      transition={{ duration: 0.6, delay: 0.2, ease: [0.23, 1, 0.32, 1] }}
+      className={`relative h-full rounded-3xl border overflow-hidden transition-all duration-300 ${
         isDark
           ? "bg-[#0a0a0a]/60 border-white/10 backdrop-blur-3xl shadow-[0_20px_50px_rgba(0,0,0,0.35)]"
-          : "bg-white border-gray-100 shadow-xl shadow-gray-200/40"
+          : "bg-white border-gray-200 shadow-xl shadow-gray-200/40"
       }`}
     >
       {/* Absolute background accent */}
       <div
-        className={`absolute top-0 right-0 w-80 h-80 blur-[100px] rounded-full pointer-events-none opacity-20 ${
-          isDark ? "bg-cyan-500/10" : "bg-cyan-500/5"
+        className={`absolute top-0 right-0 w-[400px] h-[400px] blur-[100px] rounded-full pointer-events-none opacity-20 ${
+          isDark ? "bg-cyan-500/15" : "bg-cyan-500/10"
         }`}
       />
 
@@ -152,26 +169,26 @@ export const ErrorAnalytics: React.FC<ErrorAnalyticsProps> = ({ data }) => {
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between mb-6 shrink-0">
           <div className="flex items-center gap-4">
             <div
-              className={`p-3 rounded-2xl border shadow-inner ${
+              className={`w-9 h-9 rounded-input flex items-center justify-center bg-linear-to-b border ${
                 isDark
-                  ? "bg-white/5 border-white/10"
-                  : "bg-gray-50 border-gray-200"
+                  ? "from-white/10 to-transparent border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_2px_4px_rgba(0,0,0,0.2)]"
+                  : "from-white to-gray-50 border-gray-200 shadow-[inset_0_1px_0_rgba(255,255,255,1),0_1px_2px_rgba(0,0,0,0.04)]"
               }`}
             >
               <ShieldCheck
-                size={20}
+                size={18}
                 className={isDark ? "text-cyan-400" : "text-cyan-600"}
-                weight="duotone"
+                weight="bold"
               />
             </div>
             <div>
               <h3
-                className={`text-[11px] font-black uppercase tracking-[0.32em] ${isDark ? "text-white/40" : "text-gray-400"}`}
+                className={`text-[9px] font-black uppercase tracking-[0.32em] ${isDark ? "text-gray-500" : "text-gray-400"}`}
               >
                 Ecosystem Integrity
               </h3>
               <h2
-                className={`text-3xl font-black italic tracking-tighter mt-1 ${isDark ? "text-white" : "text-gray-900"}`}
+                className={`text-2xl font-black italic tracking-tighter mt-0.5 ${isDark ? "text-white" : "text-gray-900"}`}
               >
                 PLATFORM RELIABILITY
               </h2>
@@ -179,99 +196,119 @@ export const ErrorAnalytics: React.FC<ErrorAnalyticsProps> = ({ data }) => {
           </div>
 
           <div
-            className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full border text-[10px] font-black tracking-[0.22em] uppercase ${
+            className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border text-[10px] font-bold tracking-widest uppercase shadow-sm ${
               isDark
-                ? "bg-emerald-500/5 border-emerald-500/20 text-emerald-400"
+                ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
                 : "bg-emerald-50 border-emerald-100 text-emerald-700"
             }`}
           >
-            <div className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
-            System Health: {averageHealth}%
+            <div className={`w-1.5 h-1.5 rounded-full bg-current animate-pulse ${isDark ? "shadow-[0_0_6px_2px_rgba(52,211,153,0.4)]" : ""}`} />
+            System Health {averageHealth}%
           </div>
         </div>
 
         {/* Main Content */}
-        <div className="grid flex-1 min-h-0 grid-cols-1 xl:grid-cols-[220px_minmax(0,1fr)_260px] gap-6 items-stretch">
+        <div className="grid flex-1 min-h-0 grid-cols-1 xl:grid-cols-[260px_minmax(0,1fr)_260px] gap-6 items-stretch">
           {/* Left: Integrity Gauge */}
-          <div className="w-full max-w-55 aspect-square relative shrink-0 mx-auto xl:mx-0 self-center">
+          <div className="w-full max-w-60 aspect-square relative shrink-0 mx-auto xl:mx-0 self-center">
+            {/* Holographic glowing rings behind the chart */}
+            <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none">
+              <svg viewBox="0 0 100 100" className="w-full h-full opacity-40">
+                <circle cx="50" cy="50" r="46" fill="none" stroke={isDark ? "rgba(34,211,238,0.2)" : "rgba(59,130,246,0.1)"} strokeWidth="1" strokeDasharray="2 4" />
+                <circle cx="50" cy="50" r="41" fill="none" stroke={isDark ? "rgba(34,211,238,0.1)" : "rgba(59,130,246,0.05)"} strokeWidth="2" />
+                <motion.circle 
+                  cx="50" cy="50" r="32" fill="none" stroke={isDark ? "rgba(34,211,238,0.3)" : "rgba(59,130,246,0.2)"} strokeWidth="0.5" strokeDasharray="1 6"
+                  animate={{ rotate: 360 }} transition={{ duration: 40, repeat: Infinity, ease: "linear" }} style={{ transformOrigin: "center" }}
+                />
+              </svg>
+            </div>
+            
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10">
               <motion.div
                 animate={{ scale: [1, 1.05, 1], opacity: [0.18, 0.32, 0.18] }}
                 transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                className={`absolute w-36 h-36 rounded-full blur-3xl ${isDark ? "bg-cyan-500/20" : "bg-cyan-500/10"}`}
+                className={`absolute w-36 h-36 rounded-full blur-3xl ${isDark ? "bg-cyan-500/30" : "bg-cyan-500/10"}`}
               />
               <span
-                className={`text-[10px] font-black uppercase tracking-[0.24em] opacity-40 ${isDark ? "text-white" : "text-gray-900"}`}
+                className={`text-[9px] font-black uppercase tracking-[0.24em] opacity-50 ${isDark ? "text-cyan-400" : "text-blue-600"}`}
               >
                 Integrity
               </span>
               <span
-                className={`text-5xl font-black italic tracking-tighter ${isDark ? "text-white" : "text-gray-900"}`}
+                className={`text-5xl font-black font-mono italic tracking-tighter ${isDark ? "text-white drop-shadow-[0_0_12px_rgba(255,255,255,0.4)]" : "text-gray-900"}`}
               >
                 {averageHealth}%
               </span>
             </div>
 
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={ecosystemData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={76}
-                  outerRadius={100}
-                  paddingAngle={ecosystemData.length > 1 ? 10 : 0}
-                  dataKey="value"
-                  stroke="none"
-                  cornerRadius={10}
-                  animationBegin={200}
-                  animationDuration={1600}
-                >
-                  {ecosystemData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: isDark ? "rgba(12,12,12,0.95)" : "#fff",
-                    borderColor: "transparent",
-                    borderRadius: "18px",
-                    fontSize: "12px",
-                    fontWeight: "900",
-                    backdropFilter: "blur(12px)",
-                    boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
+            <div className="relative z-20 w-full h-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={ecosystemData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius="68%"
+                    outerRadius="86%"
+                    paddingAngle={ecosystemData.length > 1 ? 4 : 0}
+                    dataKey="value"
+                    stroke="none"
+                    cornerRadius={6}
+                    animationBegin={200}
+                    animationDuration={1600}
+                  >
+                    {ecosystemData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: isDark ? "rgba(0,0,0,0.8)" : "rgba(255,255,255,0.95)",
+                      borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+                      borderRadius: "12px",
+                      fontSize: "10px",
+                      fontWeight: "900",
+                      backdropFilter: "blur(12px)",
+                      boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.05em",
+                    }}
+                    itemStyle={{
+                      color: isDark ? "#fff" : "#000",
+                      fontFamily: "var(--font-mono, monospace)"
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
           </div>
 
           {/* Center: Platform Status Stack */}
-          <div className="flex flex-col gap-3 justify-center min-h-0">
+          <div className="flex flex-col gap-2.5 justify-center min-h-0">
             {ecosystemData.map((item, idx) => (
               <motion.div
                 key={item.name}
                 initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.25 + idx * 0.08, duration: 0.35 }}
-                className={`group rounded-2xl border p-4 transition-all duration-200 ${
+                transition={{ delay: 0.35 + idx * 0.08, duration: 0.35 }}
+                className={`group rounded-xl p-3.5 transition-all duration-200 border ${
                   isDark
-                    ? "bg-white/3 border-white/8 hover:border-white/15"
+                    ? "bg-white/3 border-white/5 hover:border-white/15"
                     : "bg-gray-50 border-gray-200 hover:border-gray-300"
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <div
-                    className={`h-11 w-11 rounded-xl border flex items-center justify-center ${
+                    className={`shrink-0 w-8 h-8 rounded-input flex items-center justify-center bg-linear-to-b border ${
                       isDark
-                        ? "bg-white/5 border-white/10"
-                        : "bg-white border-gray-200"
+                        ? "from-white/10 to-transparent border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_2px_4px_rgba(0,0,0,0.2)]"
+                        : "from-white to-gray-50 border-gray-200 shadow-[inset_0_1px_0_rgba(255,255,255,1),0_1px_2px_rgba(0,0,0,0.04)]"
                     }`}
                   >
                     <Monitor
-                      size={18}
-                      className={isDark ? "text-white/40" : "text-gray-500"}
-                      weight="duotone"
+                      size={14}
+                      className={isDark ? "text-gray-300" : "text-gray-600"}
+                      weight="bold"
                     />
                   </div>
 
@@ -279,14 +316,14 @@ export const ErrorAnalytics: React.FC<ErrorAnalyticsProps> = ({ data }) => {
                     <div className="flex items-center justify-between gap-3">
                       <div className="min-w-0">
                         <p
-                          className={`truncate text-sm font-black uppercase tracking-wide ${
-                            isDark ? "text-white" : "text-gray-900"
+                          className={`truncate text-[11px] font-mono font-bold tracking-widest uppercase ${
+                            isDark ? "text-gray-200" : "text-gray-900"
                           }`}
                         >
                           {item.name}
                         </p>
                         <p
-                          className={`text-[11px] mt-0.5 truncate ${
+                          className={`text-[9px] mt-0.5 font-medium truncate ${
                             isDark ? "text-gray-500" : "text-gray-500"
                           }`}
                         >
@@ -294,18 +331,14 @@ export const ErrorAnalytics: React.FC<ErrorAnalyticsProps> = ({ data }) => {
                         </p>
                       </div>
 
-                      <div className="shrink-0 flex items-center gap-2">
+                      <div className="shrink-0 flex items-center gap-1.5">
                         {item.status === "optimal" ? (
-                          <CheckCircle size={12} className="text-emerald-500" weight="fill" />
+                          <div className={`w-1.5 h-1.5 rounded-full bg-emerald-500 ${isDark ? "shadow-[0_0_6px_2px_rgba(16,185,129,0.4)]" : ""}`} />
                         ) : (
-                          <Warning
-                            size={12}
-                            className={item.status === "warning" ? "text-amber-500" : "text-red-500"}
-                            weight="fill"
-                          />
+                          <div className={`w-1.5 h-1.5 rounded-full ${item.status === "warning" ? "bg-amber-500 shadow-[0_0_6px_2px_rgba(245,158,11,0.4)]" : "bg-red-500 shadow-[0_0_6px_2px_rgba(239,68,68,0.4)]"}`} />
                         )}
                         <span
-                          className={`text-xl font-black italic tracking-tight ${
+                          className={`text-sm font-black font-mono tracking-tight tabular-nums ${
                             isDark ? "text-white" : "text-gray-900"
                           }`}
                         >
@@ -315,8 +348,8 @@ export const ErrorAnalytics: React.FC<ErrorAnalyticsProps> = ({ data }) => {
                     </div>
 
                     <div
-                      className={`mt-3 h-1.5 rounded-full overflow-hidden ${
-                        isDark ? "bg-white/10" : "bg-gray-200"
+                      className={`mt-2 h-1 rounded-full overflow-hidden ${
+                        isDark ? "bg-white/5" : "bg-gray-200"
                       }`}
                     >
                       <motion.div
@@ -325,7 +358,7 @@ export const ErrorAnalytics: React.FC<ErrorAnalyticsProps> = ({ data }) => {
                         transition={{
                           duration: 1.6,
                           ease: [0.22, 1, 0.36, 1],
-                          delay: 0.4 + idx * 0.06,
+                          delay: 0.5 + idx * 0.06,
                         }}
                         className="h-full rounded-full"
                         style={{ backgroundColor: item.color }}
@@ -342,21 +375,21 @@ export const ErrorAnalytics: React.FC<ErrorAnalyticsProps> = ({ data }) => {
             <SummaryCard
               label="Fuentes monitoreadas"
               value={ecosystemData.length.toString()}
-              icon={<Monitor size={16} weight="duotone" />}
+              icon={<Monitor size={14} weight="bold" />}
               tone="cyan"
               isDark={isDark}
             />
             <SummaryCard
               label="Óptimas"
               value={healthyPlatforms.toString()}
-              icon={<CheckCircle size={16} weight="duotone" />}
+              icon={<CheckCircle size={14} weight="bold" />}
               tone="emerald"
               isDark={isDark}
             />
             <SummaryCard
               label="En riesgo"
               value={atRiskPlatforms.toString()}
-              icon={<Pulse size={16} weight="duotone" />}
+              icon={<Pulse size={14} weight="bold" />}
               tone="amber"
               isDark={isDark}
             />

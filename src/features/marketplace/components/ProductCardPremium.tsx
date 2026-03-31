@@ -15,6 +15,7 @@ interface ProductCardPremiumProps {
   onViewDetails?: () => void;
   disabledReason?: string;
   isOwned?: boolean;
+  accessLevel?: "owned" | "plan" | "none";
 }
 
 export const ProductCardPremium = React.memo(function ProductCardPremium({
@@ -23,7 +24,11 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
   onViewDetails,
   disabledReason,
   isOwned = false,
+  accessLevel,
 }: ProductCardPremiumProps) {
+  // Resolve effective access: prefer accessLevel prop, fallback to isOwned
+  const effectiveAccess = accessLevel ?? (isOwned ? "owned" : "none");
+  const hasAccess = effectiveAccess === "owned" || effectiveAccess === "plan";
   const { theme } = useTheme();
   const [isHovered, setIsHovered] = React.useState(false);
   const { activeCoupon } = useMarketplaceCouponStore();
@@ -283,31 +288,40 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
               Ver Detalles
             </motion.button>
             <motion.button
-              whileHover={!isOwned && !disabledReason ? { scale: 1.02 } : {}}
-              whileTap={!isOwned && !disabledReason ? { scale: 0.98 } : {}}
-              onClick={!isOwned && !disabledReason ? onSelect : undefined}
+              whileHover={!hasAccess && !disabledReason ? { scale: 1.02 } : {}}
+              whileTap={!hasAccess && !disabledReason ? { scale: 0.98 } : {}}
+              onClick={!hasAccess && !disabledReason ? onSelect : undefined}
               title={disabledReason}
               className={`
                 py-3 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-all
                 ${
                   disabledReason
                     ? "bg-gray-200 text-gray-400 border border-gray-300 cursor-not-allowed dark:bg-zinc-800 dark:text-gray-500 dark:border-zinc-700"
-                    : isOwned
-                      ? theme === "dark"
-                        ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 cursor-default"
-                        : "bg-emerald-50 text-emerald-600 border border-emerald-200 cursor-default"
+                    : hasAccess
+                      ? effectiveAccess === "plan"
+                        ? theme === "dark"
+                          ? "bg-violet-500/10 text-violet-400 border border-violet-500/20 cursor-default"
+                          : "bg-violet-50 text-violet-600 border border-violet-200 cursor-default"
+                        : theme === "dark"
+                          ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 cursor-default"
+                          : "bg-emerald-50 text-emerald-600 border border-emerald-200 cursor-default"
                       : theme === "dark"
                         ? "bg-cyan-500 text-black hover:bg-cyan-400 shadow-[0_0_20px_rgba(0,255,255,0.3)]"
                         : "bg-gray-900 text-white hover:bg-gray-800 shadow-xl"
                 }
               `}
             >
-              <ShoppingCart size={16} />
-              {disabledReason
-                ? disabledReason
-                : isOwned
-                  ? "Adquirido"
-                  : "Adquirir"}
+              {disabledReason ? (
+                <><Check size={16} />{disabledReason}</>
+              ) : hasAccess ? (
+                effectiveAccess === "plan" ? (
+                  <><Check size={16} />En Plan</>
+                ) : (
+                  <><Check size={16} />Adquirido</>
+                )
+              ) : (
+                <><ShoppingCart size={16} />Adquirir</>
+              )}
             </motion.button>
           </div>
         </div>

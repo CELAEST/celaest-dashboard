@@ -65,6 +65,22 @@ export function OrderDetailsModal({
       className="max-w-3xl max-h-[90vh]"
       showCloseButton={false}
     >
+      {/* Top accent line */}
+      <div className="absolute inset-x-0 top-0 h-px z-20 bg-linear-to-r from-transparent via-teal-500/70 to-transparent" />
+      {/* Corner glow */}
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          right: 0,
+          width: "22rem",
+          height: "22rem",
+          background: "radial-gradient(circle at top right, rgba(20,184,166,0.06), transparent 70%)",
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
+      />
+
       <OrderDetailsHeader
         orderId={formData.displayId}
         orderDate={formData.date}

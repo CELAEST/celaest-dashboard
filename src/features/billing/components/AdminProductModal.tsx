@@ -1,15 +1,5 @@
 import React, { useEffect } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
+import { Package, X, FloppyDisk } from "@phosphor-icons/react";
 import { Switch } from "@/components/ui/switch";
 import { useForm, Controller } from "react-hook-form";
 import {
@@ -22,6 +12,7 @@ import {
   CreateProductPayload,
   UpdateProductPayload,
 } from "@/features/assets/api/assets.api";
+import { BillingModal } from "./modals/shared/BillingModal";
 
 interface AdminProductModalProps {
   isOpen: boolean;
@@ -125,7 +116,6 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
       }
     },
     onSuccess: () => {
-      // SuperAdminProducts invalidate
       queryClient.invalidateQueries({ queryKey: ["admin", "products"] });
       toast.success(
         `Product ${isEditing ? "updated" : "created"} successfully!`,
@@ -142,51 +132,77 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto bg-white dark:bg-[#0a0a0a]/80 dark:backdrop-blur-2xl border-gray-200 dark:border-white/10 shadow-2xl rounded-2xl">
-        <DialogHeader className="pb-4 border-b border-gray-100 dark:border-white/5">
-          <DialogTitle className="text-xl font-black uppercase tracking-wider text-gray-900 dark:text-white">
-            {isEditing ? "Edit Global Product" : "Create Global Product"}
-          </DialogTitle>
-          <DialogDescription className="text-sm text-gray-500 dark:text-gray-400">
-            {isEditing
-              ? "Modify existing product details."
-              : "Add a new product to the global catalog."}
-          </DialogDescription>
-        </DialogHeader>
+    <BillingModal isOpen={isOpen} onClose={onClose} className="max-w-xl w-full max-h-[90vh]" showCloseButton={false}>
+      <div className="relative w-full flex flex-col" style={{ minWidth: '36rem' }}>
+      {/* Top accent line */}
+      <div className="absolute inset-x-0 top-0 h-px z-20 bg-linear-to-r from-transparent via-teal-500/70 to-transparent" />
+      {/* Corner glow */}
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          right: 0,
+          width: "22rem",
+          height: "22rem",
+          background: "radial-gradient(circle at top right, rgba(20,184,166,0.06), transparent 70%)",
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
+      />
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 py-4">
+      {/* Header */}
+      <div className="relative w-full px-8 py-6 border-b border-white/8 flex items-center justify-between overflow-hidden shrink-0">
+        <div className="absolute inset-0 bg-linear-to-r from-teal-500/10 via-teal-600/8 to-transparent" />
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px)",
+            backgroundSize: "20px 20px",
+            pointerEvents: "none",
+          }}
+        />
+        <div className="absolute bottom-0 left-0 h-px w-2/5 bg-linear-to-r from-teal-500/50 to-transparent" />
+
+        <div className="relative z-10 flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 bg-[#111] text-teal-400 border border-white/10 shadow-lg shadow-teal-500/10">
+            <Package size={22} />
+          </div>
+          <div>
+            <h2 className="text-xl font-black italic tracking-tighter text-white uppercase">
+              {isEditing ? "Edit Product" : "Create Product"}
+            </h2>
+            <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40">
+              {isEditing ? "Modify product details" : "Add to global catalog"}
+            </p>
+          </div>
+        </div>
+
+        <div className="relative z-10">
+          <button onClick={onClose} className="p-2 rounded-full transition-colors text-gray-400 hover:text-white hover:bg-white/10">
+            <X size={22} />
+          </button>
+        </div>
+      </div>
+
+      {/* Content */}
+      <form onSubmit={handleSubmit(onSubmit)} className="w-full flex flex-col flex-1 min-h-0">
+        <div className="px-8 py-6 space-y-5 overflow-y-auto flex-1 min-h-0">
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label
-                className="text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400"
-                htmlFor="name"
-              >
-                Product Name
-              </Label>
-              <Input
-                id="name"
-                className="bg-gray-50 dark:bg-black/20 border-gray-200 dark:border-white/10 focus-visible:ring-cyan-500/50 rounded-xl"
+            <div className="space-y-2">
+              <label className="text-[10px] uppercase font-black tracking-widest text-white/40">Product Name</label>
+              <input
+                className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-white text-sm focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/20 transition-colors placeholder:text-white/20"
                 placeholder="e.g. Celaest Platform"
                 {...register("name", { required: "Name is required" })}
               />
-              {errors.name && (
-                <span className="text-red-500 text-xs">
-                  {errors.name.message}
-                </span>
-              )}
+              {errors.name && <span className="text-red-500 text-xs">{errors.name.message}</span>}
             </div>
 
-            <div className="space-y-1.5">
-              <Label
-                className="text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400"
-                htmlFor="slug"
-              >
-                URL Slug
-              </Label>
-              <Input
-                id="slug"
-                className="bg-gray-50 dark:bg-black/20 border-gray-200 dark:border-white/10 focus-visible:ring-cyan-500/50 rounded-xl font-mono text-xs"
+            <div className="space-y-2">
+              <label className="text-[10px] uppercase font-black tracking-widest text-white/40">URL Slug</label>
+              <input
+                className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-white text-sm font-mono focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/20 transition-colors placeholder:text-white/20"
                 placeholder="e.g. celaest-platform"
                 {...register("slug", { required: "Slug is required" })}
                 disabled={isEditing}
@@ -195,38 +211,24 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label
-                className="text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400"
-                htmlFor="basePrice"
-              >
-                Base Price
-              </Label>
+            <div className="space-y-2">
+              <label className="text-[10px] uppercase font-black tracking-widest text-white/40">Base Price</label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
-                  $
-                </span>
-                <Input
-                  id="basePrice"
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 text-sm">$</span>
+                <input
                   type="number"
                   step="0.01"
                   min="0"
-                  className="pl-7 bg-gray-50 dark:bg-black/20 border-gray-200 dark:border-white/10 focus-visible:ring-cyan-500/50 rounded-xl font-mono"
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl pl-8 pr-5 py-3 text-white text-sm font-mono focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/20 transition-colors placeholder:text-white/20"
                   {...register("basePrice", { required: "Required" })}
                 />
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <Label
-                className="text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400"
-                htmlFor="productType"
-              >
-                Type
-              </Label>
-              <Input
-                id="productType"
-                className="bg-gray-50 dark:bg-black/20 border-gray-200 dark:border-white/10 focus-visible:ring-cyan-500/50 rounded-xl font-mono text-xs"
+            <div className="space-y-2">
+              <label className="text-[10px] uppercase font-black tracking-widest text-white/40">Type</label>
+              <input
+                className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-white text-sm font-mono focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/20 transition-colors placeholder:text-white/20"
                 placeholder="software, asset, plugin"
                 {...register("productType")}
                 disabled={isEditing}
@@ -234,85 +236,82 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <Label
-              className="text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400"
-              htmlFor="shortDescription"
-            >
-              Short Description
-            </Label>
-            <Input
-              id="shortDescription"
-              className="bg-gray-50 dark:bg-black/20 border-gray-200 dark:border-white/10 focus-visible:ring-cyan-500/50 rounded-xl"
+          <div className="space-y-2">
+            <label className="text-[10px] uppercase font-black tracking-widest text-white/40">Short Description</label>
+            <input
+              className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-white text-sm focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/20 transition-colors placeholder:text-white/20"
               placeholder="Brief description of the product..."
               {...register("shortDescription")}
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-100 dark:border-white/5">
-            <div className="flex flex-col gap-3 p-4 border rounded-2xl bg-gray-50/50 dark:bg-white/2 border-gray-100 dark:border-white/5">
-              <div className="flex items-center justify-between">
-                <Label className="text-sm font-bold text-gray-900 dark:text-white">
-                  Public Visibility
-                </Label>
-                <Controller
-                  control={control}
-                  name="isPublic"
-                  render={({ field }) => (
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  )}
-                />
+          {/* Toggles */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex items-center justify-between p-4 rounded-2xl bg-white/2 border border-white/5">
+              <div>
+                <p className="text-sm font-bold text-white">Public</p>
+                <p className="text-[10px] font-mono uppercase tracking-[0.15em] text-white/30">Visible on catalog</p>
               </div>
-              <p className="text-[10px] font-medium text-gray-500 uppercase tracking-widest leading-relaxed">
-                Will this product be visible on the main catalog?
-              </p>
+              <Controller
+                control={control}
+                name="isPublic"
+                render={({ field }) => (
+                  <Switch checked={field.value} onCheckedChange={field.onChange} />
+                )}
+              />
             </div>
 
-            <div className="flex flex-col gap-3 p-4 border rounded-2xl bg-gray-50/50 dark:bg-white/2 border-gray-100 dark:border-white/5">
-              <div className="flex items-center justify-between">
-                <Label className="text-sm font-bold text-gray-900 dark:text-white">
-                  Is Featured?
-                </Label>
-                <Controller
-                  control={control}
-                  name="isFeatured"
-                  render={({ field }) => (
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  )}
-                />
+            <div className="flex items-center justify-between p-4 rounded-2xl bg-white/2 border border-white/5">
+              <div>
+                <p className="text-sm font-bold text-white">Featured</p>
+                <p className="text-[10px] font-mono uppercase tracking-[0.15em] text-white/30">Highlight in hero</p>
               </div>
-              <p className="text-[10px] font-medium text-gray-500 uppercase tracking-widest leading-relaxed">
-                Highlight this product in hero sections.
-              </p>
+              <Controller
+                control={control}
+                name="isFeatured"
+                render={({ field }) => (
+                  <Switch checked={field.value} onCheckedChange={field.onChange} />
+                )}
+              />
             </div>
           </div>
+        </div>
 
-          <DialogFooter className="mt-8 pt-6 border-t border-gray-100 dark:border-white/5">
-            <Button
-              variant="outline"
+        {/* Footer */}
+        <div className="relative w-full shrink-0 overflow-hidden">
+          <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-teal-500/50 to-transparent" />
+          <div
+            style={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              width: "18rem",
+              height: "8rem",
+              background: "radial-gradient(circle at bottom left, rgba(20,184,166,0.07), transparent 70%)",
+              pointerEvents: "none",
+            }}
+          />
+          <div className="relative px-8 py-5 flex gap-3">
+            <button
               type="button"
-              className="rounded-xl border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400 dark:hover:bg-white/5 font-bold"
               onClick={onClose}
               disabled={saveMutation.isPending}
+              className="flex-1 py-3 rounded-2xl bg-white/5 border border-white/10 text-white/60 text-sm font-semibold hover:bg-white/10 transition-colors"
             >
               Cancel
-            </Button>
-            <Button
+            </button>
+            <button
               type="submit"
-              className="rounded-xl px-6 bg-linear-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-lg shadow-cyan-500/25 font-bold"
               disabled={saveMutation.isPending}
+              className="flex-1 py-3 rounded-2xl bg-linear-to-r from-teal-500 to-teal-600 text-white text-sm font-black uppercase tracking-wide shadow-[0_0_20px_rgba(20,184,166,0.3)] hover:shadow-[0_0_30px_rgba(20,184,166,0.5)] transition-all flex items-center justify-center gap-2"
             >
+              <FloppyDisk size={16} />
               {saveMutation.isPending ? "Saving..." : "Save Product"}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+            </button>
+          </div>
+        </div>
+      </form>
+      </div>
+    </BillingModal>
   );
 };

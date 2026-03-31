@@ -103,11 +103,11 @@ export function DashboardShell() {
   const isRecoveringOrg = wasRevoked && !currentOrg;
   if (!mounted || isLoading || isRevokedLanding || isRecoveringOrg) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#050505]">
+      <div className="min-h-screen flex items-center justify-center bg-[#020202]">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="w-12 h-12 border-4 rounded-full border-cyan-500 border-t-transparent"
+          className="w-8 h-8 border-[3px] rounded-full border-gray-600 border-t-white"
         />
       </div>
     );
@@ -119,16 +119,16 @@ export function DashboardShell() {
 
   return (
     <div
-      className={`min-h-screen font-sans selection:bg-cyan-500/30 selection:text-cyan-100 overflow-x-hidden transition-colors duration-500 ${
-        isDark ? "bg-[#050505] text-white" : "bg-[#F5F7FA] text-gray-900"
+      className={`min-h-screen w-full font-sans selection:bg-white/20 selection:text-white overflow-x-hidden transition-colors duration-500 ${
+        isDark ? "bg-[#020202] text-white" : "bg-[#F5F7FA] text-gray-900"
       }`}
     >
       {/* Background with Overlay */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         {isDark && (
           <>
-            <div className="absolute inset-0 bg-black/80 z-10" />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-cyan-900/20 via-[#050505] to-[#050505] z-10" />
+            <div className="absolute inset-0 bg-[#020202] z-10" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-white/3 via-transparent to-transparent z-10" />
           </>
         )}
         {!isDark && (
@@ -171,10 +171,10 @@ export function DashboardShell() {
         onShowLogin={() => setShowLoginModal(true)}
       />
 
-      <div className="pl-[80px] relative z-10 transition-all duration-300 h-screen min-w-0 flex flex-col">
+      <div className="pl-[80px] w-full min-w-full relative z-10 transition-all duration-300 h-screen flex flex-col">
         <Header onShowLogin={() => setShowLoginModal(true)} />
 
-        <main className="flex-1 overflow-y-auto p-3 w-full min-w-0 scroll-smooth">
+        <main className="flex-1 w-full min-w-0 overflow-y-auto p-3 scroll-smooth">
           <AnimatedSlot
             activeKey={activeTab}
             render={(key) => (

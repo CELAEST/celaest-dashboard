@@ -129,8 +129,24 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
         }`}
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Top accent line */}
+        <div className="absolute inset-x-0 top-0 h-px z-20 bg-linear-to-r from-transparent via-teal-500/70 to-transparent" />
+        {/* Corner glow */}
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            right: 0,
+            width: "22rem",
+            height: "22rem",
+            background: "radial-gradient(circle at top right, rgba(20,184,166,0.06), transparent 70%)",
+            pointerEvents: "none",
+            zIndex: 0,
+          }}
+        />
+
         {/* Header */}
-        <div className="relative px-5 pt-3 pb-1.5 text-center shrink-0">
+        <div className="relative px-5 pt-5 pb-2 text-center shrink-0">
           <button
             onClick={onClose}
             className={`absolute right-3 top-3 w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
@@ -146,9 +162,7 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className={`text-xl sm:text-2xl font-bold tracking-tight ${
-              isDark ? "text-white" : "text-gray-900"
-            }`}
+            className="text-2xl font-black italic tracking-tighter text-white uppercase"
           >
             Choose Your Plan
           </motion.h2>
@@ -157,11 +171,9 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.15 }}
-            className={`text-xs mt-1 ${
-              isDark ? "text-gray-500" : "text-gray-400"
-            }`}
+            className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40 mt-1"
           >
-            Scale your business with the right plan for your needs.
+            Scale your business with the right plan
           </motion.p>
         </div>
 

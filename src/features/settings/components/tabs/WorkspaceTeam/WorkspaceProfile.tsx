@@ -340,7 +340,7 @@ export const WorkspaceProfile: React.FC<WorkspaceProfileProps> = memo(
                       <CircleNotch size={16} className="animate-spin" /> Saving...
                     </>
                   ) : (
-                    "FloppyDisk Configuration"
+                    "Save Configuration"
                   )}
                 </button>
               </div>
