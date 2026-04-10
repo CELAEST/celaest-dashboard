@@ -3,7 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Star, ShieldCheck, ArrowRight } from "lucide-react";
+import { Star, ShieldCheck, ArrowRight } from "@phosphor-icons/react";
 import { MarketplaceProduct } from "../types";
 import { formatCurrency } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";

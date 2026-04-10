@@ -1,5 +1,5 @@
 import React from "react";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface TabFeaturesProps {
@@ -26,7 +26,7 @@ export const TabFeatures: React.FC<TabFeaturesProps> = React.memo(
       <div className="space-y-3">
         {displayFeatures.map((feature, i) => (
           <div key={i} className="flex items-start gap-3">
-            <CheckCircle2
+            <CheckCircle
               className={`size-5 mt-0.5 shrink-0 ${
                 theme === "dark" ? "text-emerald-400" : "text-emerald-500"
               }`}

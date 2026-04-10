@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Mail, User, Shield, Check } from "lucide-react";
+import { CircleNotch, Envelope, User, ShieldChevron, Check } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "@/lib/utils";
@@ -89,9 +89,10 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
         className={cn(
-          "max-w-md p-0 overflow-hidden border-0 bg-transparent shadow-none",
+          "max-w-112 p-0 overflow-hidden border-0 bg-transparent shadow-none [&>button:last-child]:hidden",
         )}
       >
+        <DialogTitle className="sr-only">Invite User</DialogTitle>
         <AnimatePresence mode="wait">
           {success ? (
             <motion.div
@@ -99,14 +100,14 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
               className={cn(
-                "flex flex-col items-center justify-center p-12 rounded-3xl backdrop-blur-3xl border shadow-2xl",
+                "flex flex-col items-center justify-center p-12 rounded-3xl backdrop-blur-3xl border shadow-2xl w-full",
                 isDark
                   ? "bg-black/80 border-white/10"
                   : "bg-white/90 border-gray-200",
               )}
             >
               <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-6">
-                <Check className="w-10 h-10 text-green-400" />
+                      <Check className="w-10 h-10 text-green-400" weight="bold" />
               </div>
               <h2
                 className={cn(
@@ -131,7 +132,7 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
               className={cn(
-                "rounded-3xl backdrop-blur-3xl border shadow-2xl overflow-hidden",
+                "rounded-3xl backdrop-blur-3xl border shadow-2xl overflow-hidden w-full",
                 isDark
                   ? "bg-[#0a0a0a]/90 border-white/10"
                   : "bg-white/95 border-gray-200",
@@ -158,7 +159,7 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
                   </p>
                 </div>
                 <div className="absolute top-0 right-0 p-4 opacity-10">
-                  <User size={100} />
+                  <User size={100} weight="duotone" />
                 </div>
               </div>
 
@@ -175,6 +176,7 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
                       <User
                         className="absolute left-3 top-2.5 text-gray-500"
                         size={16}
+                        weight="duotone"
                       />
                       <Input
                         required
@@ -205,6 +207,7 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
                       <User
                         className="absolute left-3 top-2.5 text-gray-500"
                         size={16}
+                        weight="duotone"
                       />
                       <Input
                         required
@@ -233,9 +236,10 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
                     Email Address
                   </Label>
                   <div className="relative">
-                    <Mail
+                    <Envelope
                       className="absolute left-3 top-2.5 text-gray-500"
                       size={16}
+                      weight="duotone"
                     />
                     <Input
                       required
@@ -281,8 +285,9 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
                         )}
                       >
                         <div className="flex items-center gap-2 mb-1">
-                          <Shield
+                          <ShieldChevron
                             size={14}
+                            weight={formData.role === role.id ? "fill" : "regular"}
                             className={
                               formData.role === role.id
                                 ? "opacity-100"
@@ -324,12 +329,12 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
                   >
                     {loading ? (
                       <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <CircleNotch className="mr-2 h-4 w-4 animate-spin" />
                         Sending...
                       </>
                     ) : (
                       <>
-                        <Mail className="mr-2 h-4 w-4" />
+                        <Envelope className="mr-2 h-4 w-4" weight="duotone" />
                         Send Invitation
                       </>
                     )}

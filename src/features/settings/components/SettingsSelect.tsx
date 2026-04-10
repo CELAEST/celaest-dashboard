@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { ChevronDown, Check } from "lucide-react";
+import { CaretDown, Check } from "@phosphor-icons/react";
 import { motion, AnimatePresence } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import type { SettingsSelectProps } from "../types";
@@ -90,7 +90,7 @@ export function SettingsSelect({
       {label && (
         <label
           className={`text-xs uppercase tracking-wider mb-2 block font-bold ${
-            isDark ? "text-gray-500" : "text-gray-400"
+            isDark ? "text-gray-300" : "text-gray-500"
           }`}
         >
           {label}
@@ -106,10 +106,10 @@ export function SettingsSelect({
         className={`w-full rounded-xl px-4 py-3 border transition-all duration-300 flex items-center justify-between outline-none group text-left ${
           disabled
             ? isDark
-              ? "bg-white/5 border-white/5 text-gray-600 cursor-not-allowed opacity-50"
+              ? "bg-white/8 border-white/5 text-gray-600 cursor-not-allowed opacity-50"
               : "bg-gray-50 border-gray-100 text-gray-400 cursor-not-allowed opacity-50"
             : isDark
-              ? "bg-white/5 border-white/10 text-white hover:border-cyan-500/30 focus:border-cyan-500/30 focus:bg-white/10"
+              ? "bg-white/8 border-white/13 text-white hover:border-cyan-500/30 focus:border-cyan-500/30 focus:bg-white/12"
               : "bg-white border-gray-200 text-gray-900 hover:border-gray-300 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50"
         }`}
         aria-expanded={isOpen}
@@ -126,7 +126,7 @@ export function SettingsSelect({
         >
           {selectedOption?.label || placeholder || "Select..."}
         </span>
-        <ChevronDown
+        <CaretDown
           className={`w-4 h-4 transition-transform duration-300 ${
             isOpen ? "rotate-180 text-cyan-500" : "text-gray-500"
           }`}
@@ -142,7 +142,7 @@ export function SettingsSelect({
             transition={{ duration: 0.15, ease: "easeOut" }}
             className={`absolute z-50 w-full mt-2 rounded-xl border overflow-hidden shadow-2xl max-h-60 overflow-y-auto backdrop-blur-xl ${
               isDark
-                ? "bg-[#0a0a0a]/95 border-white/10 shadow-black/80"
+                ? "bg-[#0d1014]/95 border-white/13 shadow-black/80"
                 : "bg-white/95 border-blue-100 shadow-blue-900/10"
             }`}
             role="listbox"
@@ -161,7 +161,7 @@ export function SettingsSelect({
                         : "bg-blue-50 text-blue-600 font-semibold"
                       : focusedIndex === index
                         ? isDark
-                          ? "bg-white/5 text-white"
+                          ? "bg-white/8 text-white"
                           : "bg-gray-50 text-gray-900"
                         : isDark
                           ? "text-gray-400"

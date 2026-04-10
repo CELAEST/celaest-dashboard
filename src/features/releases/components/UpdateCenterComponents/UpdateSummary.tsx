@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { Sparkles } from "lucide-react";
+import { Sparkle } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface UpdateSummaryProps {
@@ -38,7 +38,7 @@ export const UpdateSummary: React.FC<UpdateSummaryProps> = memo(
               performance improvements
             </p>
           </div>
-          <Sparkles
+          <Sparkle
             size={32}
             className={isDark ? "text-cyan-400" : "text-cyan-600"}
           />

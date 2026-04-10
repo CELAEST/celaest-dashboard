@@ -1,51 +1,59 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { motion, AnimatePresence } from "motion/react";
 import {
-  Edit2,
-  Trash2,
-  Copy,
-  MoreVertical,
-  Eye,
-  History,
+  DotsThreeVertical,
   Image as ImageIcon,
   Globe,
   Lock,
-  Download,
   ShieldCheck,
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import { type ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table";
 import NextImage from "next/image";
 import { Asset } from "../services/assets.service";
 import { AssetTypeIcon } from "./shared/AssetTypeIcon";
 import { AssetStatusBadge } from "./shared/AssetStatusBadge";
+import { AssetActionMenu, AssetMenuState } from "./AssetActionMenu";
 
 interface AssetTableProps {
   assets: Asset[];
   isDark: boolean;
-  activeMenu: string | null;
-  setActiveMenu: (id: string | null) => void;
+  isLoading?: boolean;
+  activeMenu: AssetMenuState | null;
+  onOpenMenu: (e: React.MouseEvent, asset: Asset) => void;
+  onCloseMenu: () => void;
   onEdit: (asset: Asset) => void;
   onDuplicate: (asset: Asset) => void;
   onDelete: (id: string) => void;
   onPreview?: (asset: Asset) => void;
   onManageReleases?: (asset: Asset) => void;
   onDownload?: (asset: Asset) => void;
+  totalItems?: number;
+  hasNextPage?: boolean;
+  isFetchingNextPage?: boolean;
+  onLoadMore?: () => void;
+  hideFooter?: boolean;
 }
 
 export const AssetTable: React.FC<AssetTableProps> = ({
   assets,
   isDark,
+  isLoading = false,
   activeMenu,
-  setActiveMenu,
+  onOpenMenu,
+  onCloseMenu,
   onEdit,
   onDuplicate,
   onDelete,
   onPreview,
   onManageReleases,
   onDownload,
+  totalItems,
+  hasNextPage,
+  isFetchingNextPage,
+  onLoadMore,
+  hideFooter = false,
 }) => {
   const columns: ColumnDef<Asset>[] = useMemo(
     () => [
@@ -74,7 +82,7 @@ export const AssetTable: React.FC<AssetTableProps> = ({
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-gray-500/50">
-                    <ImageIcon size={16} />
+                    <ImageIcon size={16} weight="duotone" />
                   </div>
                 )}
               </div>
@@ -96,7 +104,7 @@ export const AssetTable: React.FC<AssetTableProps> = ({
       },
       {
         id: "type",
-        header: "Type",
+        header: "TextT",
         accessorKey: "type",
         cell: ({ row }) => {
           const asset = row.original;
@@ -123,33 +131,6 @@ export const AssetTable: React.FC<AssetTableProps> = ({
             >
               ${row.original.price.toFixed(2)}
             </span>
-          );
-        },
-      },
-      {
-        id: "netMargin",
-        header: "Net Margin",
-        cell: ({ row }) => {
-          const asset = row.original;
-          const netMargin = asset.price - asset.operationalCost;
-          const marginPercentage =
-            asset.price > 0
-              ? ((netMargin / asset.price) * 100).toFixed(1)
-              : "0.0";
-
-          return (
-            <div>
-              <div
-                className={`text-sm font-bold tabular-nums ${isDark ? "text-emerald-400" : "text-emerald-600"}`}
-              >
-                ${netMargin.toFixed(2)}
-              </div>
-              <div
-                className={`text-xs ${isDark ? "text-gray-500" : "text-gray-600"}`}
-              >
-                {marginPercentage}% margin
-              </div>
-            </div>
           );
         },
       },
@@ -198,7 +179,7 @@ export const AssetTable: React.FC<AssetTableProps> = ({
             <div
               className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border ${tierColors[tier] || tierColors[4]}`}
             >
-              <ShieldCheck size={10} />
+              <ShieldCheck size={10} weight="duotone" />
               <span>{tierLabels[tier] || "Private"}</span>
             </div>
           );
@@ -220,7 +201,7 @@ export const AssetTable: React.FC<AssetTableProps> = ({
                       : "bg-blue-50 text-blue-600 border border-blue-100"
                   }`}
                 >
-                  <Globe size={12} />
+                  <Globe size={12} weight="duotone" />
                   <span>Public</span>
                 </div>
               ) : (
@@ -231,7 +212,7 @@ export const AssetTable: React.FC<AssetTableProps> = ({
                       : "bg-gray-100 text-gray-500 border border-gray-200"
                   }`}
                 >
-                  <Lock size={12} />
+                  <Lock size={12} weight="fill" />
                   <span>Private</span>
                 </div>
               )}
@@ -273,107 +254,51 @@ export const AssetTable: React.FC<AssetTableProps> = ({
         cell: ({ row }) => {
           const asset = row.original;
           return (
-            <div className="text-right relative inline-block">
+            <div className="text-right">
               <button
-                onClick={() =>
-                  setActiveMenu(activeMenu === asset.id ? null : asset.id)
-                }
+                onClick={(e) => onOpenMenu(e, asset)}
                 className={`p-2 rounded-lg transition-colors ${isDark ? "hover:bg-white/10 text-gray-400 hover:text-white" : "hover:bg-gray-100 text-gray-600 hover:text-gray-900"}`}
               >
-                <MoreVertical size={18} />
+                <DotsThreeVertical size={18} weight="bold" />
               </button>
-
-              <AnimatePresence>
-                {activeMenu === asset.id && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className={`absolute right-0 top-12 w-52 rounded-xl border shadow-xl z-20 overflow-hidden text-left ${isDark ? "bg-gray-900 border-white/10" : "bg-white border-gray-200"}`}
-                  >
-                    <button
-                      onClick={() => {
-                        onDownload?.(asset);
-                        setActiveMenu(null);
-                      }}
-                      className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors ${isDark ? "text-gray-300 hover:bg-white/5" : "text-gray-700 hover:bg-gray-50"}`}
-                    >
-                      <Download size={16} /> Download Secure
-                    </button>
-                    <button
-                      onClick={() => {
-                        onEdit(asset);
-                        setActiveMenu(null);
-                      }}
-                      className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors ${isDark ? "text-gray-300 hover:bg-white/5" : "text-gray-700 hover:bg-gray-50"}`}
-                    >
-                      <Edit2 size={16} /> Edit Asset
-                    </button>
-                    <button
-                      onClick={() => {
-                        onManageReleases?.(asset);
-                        setActiveMenu(null);
-                      }}
-                      className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors ${isDark ? "text-gray-300 hover:bg-white/5" : "text-gray-700 hover:bg-gray-50"}`}
-                    >
-                      <History size={16} /> Manage Releases
-                    </button>
-                    <button
-                      onClick={() => {
-                        onDuplicate(asset);
-                        setActiveMenu(null);
-                      }}
-                      className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors ${isDark ? "text-gray-300 hover:bg-white/5" : "text-gray-700 hover:bg-gray-50"}`}
-                    >
-                      <Copy size={16} /> Duplicate
-                    </button>
-                    <button
-                      onClick={() => {
-                        onPreview?.(asset);
-                        setActiveMenu(null);
-                      }}
-                      className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors ${isDark ? "text-gray-300 hover:bg-white/5" : "text-gray-700 hover:bg-gray-50"}`}
-                    >
-                      <Eye size={16} /> Preview
-                    </button>
-                    <button
-                      onClick={() => {
-                        onDelete(asset.id);
-                        setActiveMenu(null);
-                      }}
-                      className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors border-t ${isDark ? "text-red-400 hover:bg-red-500/10 border-white/5" : "text-red-600 hover:bg-red-50 border-gray-200"}`}
-                    >
-                      <Trash2 size={16} /> Archive
-                    </button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
             </div>
           );
         },
       },
     ],
-    [
-      isDark,
-      activeMenu,
-      setActiveMenu,
-      onDownload,
-      onEdit,
-      onManageReleases,
-      onDuplicate,
-      onPreview,
-      onDelete,
-    ],
+    [isDark, onOpenMenu],
   );
+
+  // Resolve active asset from menuState id
+  const activeAsset = activeMenu
+    ? (assets.find((a) => a.id === activeMenu.id) ?? null)
+    : null;
 
   return (
     <div className="h-full w-full">
+      <AssetActionMenu
+        menuState={activeMenu}
+        asset={activeAsset}
+        isDark={isDark}
+        onClose={onCloseMenu}
+        onDownload={onDownload}
+        onEdit={onEdit}
+        onManageReleases={onManageReleases}
+        onDuplicate={onDuplicate}
+        onPreview={onPreview}
+        onDelete={onDelete}
+      />
       <DataTable
         columns={columns}
         data={assets}
-        isLoading={false}
+        isLoading={isLoading}
         emptyMessage="No assets found"
         emptySubmessage="You haven't uploaded any assets yet."
+        totalItems={totalItems}
+        hasNextPage={hasNextPage}
+        isFetchingNextPage={isFetchingNextPage}
+        onLoadMore={onLoadMore}
+        hideFooter={hideFooter}
       />
     </div>
   );

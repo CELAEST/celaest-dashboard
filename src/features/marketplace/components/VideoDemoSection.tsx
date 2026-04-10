@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "motion/react";
-import { Play } from "lucide-react";
+import { Play } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
 import { TrustBadges } from "@/features/marketplace/components/TrustBadges";

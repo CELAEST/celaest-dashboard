@@ -21,7 +21,6 @@ export interface Asset {
   categoryId?: string;
   categoryName?: string;
   price: number;
-  operationalCost: number;
   status: "active" | "draft" | "archived" | "stable";
   version: string;
   fileSize: string;
@@ -49,6 +48,13 @@ export interface Asset {
   updatedAt: string;
 }
 
+export interface InventoryPage {
+  assets: Asset[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
 export const assetsService = {
   // Maps a customer-owned asset from /user/my/assets
   mapBackendAssetToAsset: (ba: BackendCustomerAsset): Asset => ({
@@ -61,7 +67,6 @@ export const assetsService = {
     categoryId: ba.product_category_id,
     categoryName: ba.product_category,
     price: ba.product_price || 0,
-    operationalCost: 0,
     status: ba.is_active ? "active" : "archived",
     version: ba.product_version || "1.0.0",
     fileSize: formatFileSize(ba.product_file_size || 0),
@@ -99,7 +104,6 @@ export const assetsService = {
     categoryId: bp.category_id,
     categoryName: bp.category_name,
     price: bp.base_price,
-    operationalCost: 0,
     status: (bp.status === "published" ? "active" : bp.status) as Asset["status"],
     version: bp.version || "1.0.0",
     fileSize: "0 KB",
@@ -111,7 +115,7 @@ export const assetsService = {
     features: bp.features || [],
     tags: bp.tags || [],
     technicalStack: bp.technical_stack || [],
-    requirements: bp.requirements ? bp.requirements.split("\n").filter(Boolean) : [],
+    requirements: bp.requirements || [],
     minPlanTier: bp.min_plan_tier || 0,
     thumbnail: bp.thumbnail_url || "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&fm=webp",
     external_url: bp.external_url || "",
@@ -134,29 +138,19 @@ export const assetsService = {
     return (dataArray as BackendCustomerAsset[]).map((item) => this.mapBackendAssetToAsset(item));
   },
 
-  // CELAEST — Auditoría de Funcionalidades "Durmientes" (Back-vs-Front)
-  // Este informe revela módulos completos del motor de negocio que existen en el Backend (Go) pero no han sido expuestos en el Dashboard (Next.js).
-  // ## 1. 🤖 Módulo AI: Más que solo "Errores"
-  // **Estado: BRECHA MASIVA (80% Faltante)**
-  // - **AI Chat & Completions:** El backend tiene handlers de `/ai/chat` y `/ai/completions` listos para una interfaz tipo ChatGPT.
-  // - **Prompt CMS:** Sistema de gestión de prompts persistentes (`/ai/prompts`) para estandarizar respuestas.
-  // - **AI Key Pool:** Gestión centralizada de llaves de proveedores (OpenAI, Anthropic) para rotación y límites (`/ai/pool`).
-  // - **Batch Processing:** Procesamiento masivo de tareas IA.
-  // *Situación Actual:* El frontend solo lo usa para ver "Failed Tasks".
-  // ## 2. 🛡️ Módulo de Auditoría y Telemetría
-  // **Estado: BRECHA DE VISIBILIDAD (70% Faltante)**
-  // - **Audit Explorer:** El backend permite búsquedas complejas por acción, entidad y usuario (`/audit-logs/search`).
-  // - **Reportes de Telemetría:** Dashboards de salud del sistema y errores de red en tiempo real (`/telemetry`).
-  // - **Exportación Segura:** Generador de CSV con protección Anti-Inyección.
-  // *Situación Actual:* No hay un "Centro de Seguridad" en el Dashboard.
   // Organization inventory (products owned by org)
-  async fetchInventory(token: string, orgId: string): Promise<Asset[]> {
-    // Increase limit to 100 to ensure we get all products (temporary fix until pagination UI)
-    const response: unknown = await assetsApi.getOrgProducts(token, orgId, 1, 100);
-    const dataArray = response && typeof response === 'object' && 'data' in response && Array.isArray((response as Record<string, unknown>).data) 
-                      ? (response as Record<string, unknown>).data 
-                      : Array.isArray(response) ? response : [];
-    return (dataArray as BackendProduct[]).map((item) => this.mapBackendProductToAsset(item));
+  // Backend uses shared.SuccessWithMeta → { success, data: [...], meta: { total, page, per_page, total_pages } }
+  async fetchInventory(token: string, orgId: string, page: number = 1, limit: number = 20): Promise<InventoryPage> {
+    const response = await assetsApi.getOrgProducts(token, orgId, page, limit);
+    const envelope = response as { data?: unknown; meta?: { total?: number } };
+    const dataArray = Array.isArray(envelope.data) ? (envelope.data as BackendProduct[]) : [];
+    const total = envelope.meta?.total ?? dataArray.length;
+    return {
+      assets: dataArray.map((item) => this.mapBackendProductToAsset(item)),
+      total,
+      page,
+      limit,
+    };
   },
 
   async fetchAllProducts(token: string): Promise<Asset[]> {

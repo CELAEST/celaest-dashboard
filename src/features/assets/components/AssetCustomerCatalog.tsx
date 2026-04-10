@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import { AnimatePresence } from "motion/react";
-import { Search, Box } from "lucide-react";
+import { MagnifyingGlass, Cube } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
@@ -34,10 +34,23 @@ export const AssetCustomerCatalog: React.FC<
     return assets;
   }, [assets]);
 
-  // Refresh on mount to ensure fresh data
+  // Refresh on mount ONLY (sin dependencias para evitar loop infinito)
+   
   React.useEffect(() => {
     refresh();
-  }, [refresh]);
+  }, []);
+
+  // Check if we need to auto-open an asset modal from a recent purchase
+  React.useEffect(() => {
+    const openAssetId = sessionStorage.getItem("open_asset_modal_id");
+    if (openAssetId && assets && assets.length > 0) {
+      const assetToOpen = assets.find((a) => a.id === openAssetId || a.productId === openAssetId);
+      if (assetToOpen) {
+        setSelectedProduct(assetToOpen);
+        sessionStorage.removeItem("open_asset_modal_id");
+      }
+    }
+  }, [assets]);
 
   const filteredAssets = useMemo(() => {
     return displayAssets.filter((item) => {
@@ -64,10 +77,10 @@ export const AssetCustomerCatalog: React.FC<
       setDownloading(product.id);
       try {
         await downloadAsset(product.id, product.slug);
-        toast.success("Download started");
+        toast.success("DownloadSimple started");
       } catch (error: unknown) {
-        logger.error("Download failed", error);
-        toast.error("Download failed");
+        logger.error("DownloadSimple failed", error);
+        toast.error("DownloadSimple failed");
       } finally {
         setDownloading(null);
       }
@@ -79,18 +92,18 @@ export const AssetCustomerCatalog: React.FC<
 
   return (
     <div className="h-full flex flex-col min-h-0 relative">
-      {/* Search & Filter Header */}
+      {/* MagnifyingGlass & Funnel Header */}
       <div className="shrink-0 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        {/* Search Bar */}
+        {/* MagnifyingGlass Bar */}
         <div className={`relative group w-full md:w-96`}>
           <div
             className={`absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none ${isDark ? "text-gray-500 group-focus-within:text-cyan-400" : "text-gray-400 group-focus-within:text-blue-500"} transition-colors`}
           >
-            <Search size={18} />
+            <MagnifyingGlass size={18} />
           </div>
           <input
             type="text"
-            placeholder="Search assets..."
+            placeholder="MagnifyingGlass assets..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className={`w-full pl-10 pr-4 py-2.5 rounded-xl border outline-none transition-all ${
@@ -101,7 +114,7 @@ export const AssetCustomerCatalog: React.FC<
           />
         </div>
 
-        {/* Filter Chips */}
+        {/* Funnel Chips */}
         <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-none">
           <button
             key="all"
@@ -167,7 +180,7 @@ export const AssetCustomerCatalog: React.FC<
 
           {!isLoading && filteredAssets.length === 0 && (
             <div className="h-64 flex flex-col items-center justify-center text-center opacity-50">
-              <Box size={48} className="mb-4 text-gray-500" />
+              <Cube size={48} className="mb-4 text-gray-500" />
               <p
                 className={`text-lg font-bold ${isDark ? "text-white" : "text-gray-900"}`}
               >

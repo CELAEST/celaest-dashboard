@@ -1,14 +1,14 @@
 import React, { memo } from "react";
-import { motion } from "motion/react";
-import { Plus } from "lucide-react";
+import { ClockCounterClockwise as HistoryIcon } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface VersionHeaderProps {
-  onCreate: () => void;
+  showingCount: number;
+  totalCount: number;
 }
 
 export const VersionHeader: React.FC<VersionHeaderProps> = memo(
-  ({ onCreate }) => {
+  ({ showingCount, totalCount }) => {
     const { theme } = useTheme();
     const isDark = theme === "dark";
 
@@ -21,10 +21,11 @@ export const VersionHeader: React.FC<VersionHeaderProps> = memo(
         <div className="flex items-center justify-between">
           <div>
             <h3
-              className={`text-lg font-bold ${
+              className={`text-lg font-bold flex items-center gap-2 ${
                 isDark ? "text-white" : "text-gray-900"
               }`}
             >
+              <HistoryIcon size={18} className="text-purple-400" />
               Version History
             </h3>
             <p
@@ -35,23 +36,15 @@ export const VersionHeader: React.FC<VersionHeaderProps> = memo(
               Complete release timeline with checksums and adoption tracking
             </p>
           </div>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={onCreate}
-            className={`flex items-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm transition-all ${
-              isDark
-                ? "bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 border border-cyan-500/20"
-                : "bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
-            }`}
-          >
-            <Plus size={18} />
-            New Release
-          </motion.button>
+          <p className={`text-xs ${isDark ? "text-gray-500" : "text-gray-600"}`}>
+            Showing {showingCount} of {totalCount} versions
+          </p>
         </div>
       </div>
     );
   },
 );
+
+VersionHeader.displayName = "VersionHeader";
 
 VersionHeader.displayName = "VersionHeader";

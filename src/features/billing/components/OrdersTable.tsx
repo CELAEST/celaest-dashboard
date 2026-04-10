@@ -12,19 +12,29 @@ import { type ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table";
 import { Order } from "../types";
 import {
-  MoreHorizontal,
-  AlertCircle,
+  DotsThree,
+  Warning,
   CheckCircle,
   Clock,
   CreditCard,
-  Banknote,
-} from "lucide-react";
+  Money,
+  Package,
+} from "@phosphor-icons/react";
 
-export const OrdersTable = React.memo(function OrdersTable() {
+interface OrdersTableProps {
+  hideFooter?: boolean;
+}
+
+export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: OrdersTableProps) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const {
     orders,
+    totalOrders,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+    loading,
     activeMenu,
     handleOpenMenu,
     handleCloseMenu,
@@ -52,27 +62,27 @@ export const OrdersTable = React.memo(function OrdersTable() {
         switch (s) {
           case "completed":
           case "active":
-            return "text-green-400 bg-green-400/10 border-green-400/20";
+            return "text-emerald-400 bg-emerald-500/10 ring-emerald-500/20";
           case "processing":
-            return "text-blue-400 bg-blue-400/10 border-blue-400/20";
+            return "text-cyan-400 bg-cyan-500/10 ring-cyan-500/20";
           case "cancelled":
           case "failed":
-            return "text-red-400 bg-red-400/10 border-red-400/20";
+            return "text-red-400 bg-red-500/10 ring-red-500/20";
           default: // pending
-            return "text-yellow-400 bg-yellow-400/10 border-yellow-400/20";
+            return "text-amber-400 bg-amber-500/10 ring-amber-500/20";
         }
       } else {
         switch (s) {
           case "completed":
           case "active":
-            return "text-green-700 bg-green-50 border-green-200";
+            return "text-emerald-600 bg-emerald-50 ring-emerald-200";
           case "processing":
-            return "text-blue-700 bg-blue-50 border-blue-200";
+            return "text-blue-600 bg-blue-50 ring-blue-200";
           case "cancelled":
           case "failed":
-            return "text-red-700 bg-red-50 border-red-200";
+            return "text-red-600 bg-red-50 ring-red-200";
           default: // pending
-            return "text-yellow-700 bg-yellow-50 border-yellow-200";
+            return "text-amber-600 bg-amber-50 ring-amber-200";
         }
       }
     },
@@ -84,19 +94,20 @@ export const OrdersTable = React.memo(function OrdersTable() {
     switch (s) {
       case "completed":
       case "active":
-        return <CheckCircle size={12} className="mr-1.5" />;
+        return <CheckCircle size={11} weight="fill" className="mr-1" />;
       case "processing":
         return (
           <Clock
-            size={12}
-            className="mr-1.5 animate-[spin_3s_linear_infinite] will-change-transform"
+            size={11}
+            weight="bold"
+            className="mr-1 animate-[spin_3s_linear_infinite] will-change-transform"
           />
         );
       case "cancelled":
       case "failed":
-        return <AlertCircle size={12} className="mr-1.5" />;
+        return <Warning size={11} weight="fill" className="mr-1" />;
       default:
-        return <Clock size={12} className="mr-1.5" />;
+        return <Clock size={11} weight="bold" className="mr-1" />;
     }
   }, []);
 
@@ -104,17 +115,27 @@ export const OrdersTable = React.memo(function OrdersTable() {
     () => [
       {
         id: "displayId",
-        header: "Order ID",
+        header: "Order",
         cell: ({ row }) => {
           const order = row.original;
+          const parts = order.displayId.split('-');
+          const mainRef = parts.length >= 3 ? parts.slice(0, 3).join('-') : order.displayId;
+          const hash = parts.length >= 4 ? parts.slice(3).join('-') : '';
           return (
-            <span
-              className={`font-mono transition-colors ${
-                isDark ? "text-cyan-400/80" : "text-blue-600/80"
-              }`}
-            >
-              {order.displayId}
-            </span>
+            <div>
+              <span
+                className={`text-xs font-mono font-semibold tracking-tight block ${
+                  isDark ? "text-cyan-400" : "text-blue-600"
+                }`}
+              >
+                {mainRef}
+              </span>
+              {hash && (
+                <span className={`text-[10px] font-mono ${isDark ? "text-gray-600" : "text-gray-400"}`}>
+                  {hash}
+                </span>
+              )}
+            </div>
           );
         },
       },
@@ -124,13 +145,27 @@ export const OrdersTable = React.memo(function OrdersTable() {
         cell: ({ row }) => {
           const order = row.original;
           return (
-            <span
-              className={`font-medium ${
-                isDark ? "text-white" : "text-gray-900"
-              }`}
-            >
-              {order.product}
-            </span>
+            <div className="flex items-center gap-2.5">
+              <div className={`flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center ${
+                isDark ? "bg-white/[0.06] border border-white/[0.06]" : "bg-gray-100 border border-gray-200/60"
+              }`}>
+                <Package size={14} weight="duotone" className={isDark ? "text-cyan-400" : "text-blue-500"} />
+              </div>
+              <div className="min-w-0 max-w-[180px]">
+                <span
+                  className={`text-xs font-semibold truncate block ${
+                    isDark ? "text-white" : "text-gray-900"
+                  }`}
+                >
+                  {order.product}
+                </span>
+                {order.itemType && (
+                  <span className={`text-[10px] capitalize ${isDark ? "text-gray-500" : "text-gray-400"}`}>
+                    {order.itemType}
+                  </span>
+                )}
+              </div>
+            </div>
           );
         },
       },
@@ -139,10 +174,25 @@ export const OrdersTable = React.memo(function OrdersTable() {
         header: "User",
         cell: ({ row }) => {
           const order = row.original;
+          const name = order.userName || "N/A";
+          const initials = name.split(/[\s._-]/).filter(Boolean).slice(0, 2).map(s => s[0]?.toUpperCase() ?? '').join('');
           return (
-            <div className={isDark ? "text-gray-400" : "text-gray-600"}>
-              {order.userName || "N/A"}
-              <div className="text-[10px] opacity-60">{order.date}</div>
+            <div className="flex items-center gap-2.5">
+              <div className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                isDark
+                  ? "bg-gradient-to-br from-cyan-500/20 to-blue-500/20 text-cyan-300 ring-1 ring-inset ring-cyan-500/10"
+                  : "bg-gradient-to-br from-blue-50 to-indigo-50 text-blue-600 ring-1 ring-inset ring-blue-200/60"
+              }`}>
+                {initials}
+              </div>
+              <div>
+                <span className={`text-xs font-medium block ${isDark ? "text-gray-200" : "text-gray-700"}`}>
+                  {name}
+                </span>
+                <span className={`text-[10px] ${isDark ? "text-gray-600" : "text-gray-400"}`}>
+                  {order.date}
+                </span>
+              </div>
             </div>
           );
         },
@@ -154,8 +204,8 @@ export const OrdersTable = React.memo(function OrdersTable() {
           const order = row.original;
           return (
             <span
-              className={`font-mono text-xs ${
-                isDark ? "text-cyan-400/70" : "text-blue-500/70"
+              className={`font-mono text-[11px] ${
+                isDark ? "text-cyan-400/60" : "text-blue-500/60"
               }`}
             >
               {order.userEmail}
@@ -168,10 +218,25 @@ export const OrdersTable = React.memo(function OrdersTable() {
         header: "Customer",
         cell: ({ row }) => {
           const order = row.original;
+          const name = order.customer;
+          const initials = name.split(/[\s._-]/).filter(Boolean).slice(0, 2).map(s => s[0]?.toUpperCase() ?? '').join('');
           return (
-            <div className={isDark ? "text-gray-400" : "text-gray-600"}>
-              {order.customer}
-              <div className="text-[10px] opacity-60">{order.date}</div>
+            <div className="flex items-center gap-2.5">
+              <div className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                isDark
+                  ? "bg-gradient-to-br from-violet-500/20 to-purple-500/20 text-violet-300 ring-1 ring-inset ring-violet-500/10"
+                  : "bg-gradient-to-br from-violet-50 to-purple-50 text-violet-600 ring-1 ring-inset ring-violet-200/60"
+              }`}>
+                {initials}
+              </div>
+              <div>
+                <span className={`text-xs font-medium block ${isDark ? "text-gray-200" : "text-gray-700"}`}>
+                  {name}
+                </span>
+                <span className={`text-[10px] ${isDark ? "text-gray-600" : "text-gray-400"}`}>
+                  {order.date}
+                </span>
+              </div>
             </div>
           );
         },
@@ -183,17 +248,19 @@ export const OrdersTable = React.memo(function OrdersTable() {
           const order = row.original;
           return (
             <div
-              className={`flex items-center gap-2 text-xs ${
-                isDark ? "text-gray-400" : "text-gray-500"
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium ${
+                isDark
+                  ? "bg-white/[0.04] text-gray-300 ring-1 ring-inset ring-white/[0.06]"
+                  : "bg-gray-50 text-gray-600 ring-1 ring-inset ring-gray-200/60"
               }`}
             >
-              {order.paymentMethod === "card" ? (
-                <CreditCard size={14} />
+              {order.paymentMethod === "credit_card" || order.paymentMethod === "card" ? (
+                <CreditCard size={13} weight="fill" className={isDark ? "text-gray-500" : "text-gray-400"} />
               ) : (
-                <Banknote size={14} />
+                <Money size={13} weight="fill" className={isDark ? "text-gray-500" : "text-gray-400"} />
               )}
               <span className="capitalize">
-                {order.paymentMethod || "Stripe"}
+                {order.paymentProvider || order.paymentMethod || "Stripe"}
               </span>
             </div>
           );
@@ -206,7 +273,7 @@ export const OrdersTable = React.memo(function OrdersTable() {
           const order = row.original;
           return (
             <span
-              className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${getStatusColor(
+              className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wide ring-1 ring-inset ${getStatusColor(
                 order.status,
               )}`}
             >
@@ -221,13 +288,12 @@ export const OrdersTable = React.memo(function OrdersTable() {
         header: () => <div className="text-right">Amount</div>,
         cell: ({ row }) => {
           const order = row.original;
+          const currency = order.amount.replace(/[\d.,]/g, '').trim();
+          const number = order.amount.replace(/[^\d.,]/g, '');
           return (
-            <div
-              className={`text-right font-mono ${
-                isDark ? "text-white" : "text-gray-900"
-              }`}
-            >
-              {order.amount}
+            <div className="text-right text-xs font-mono tabular-nums">
+              <span className={isDark ? "text-gray-500" : "text-gray-400"}>{currency}</span>
+              <span className={`font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{number}</span>
             </div>
           );
         },
@@ -244,13 +310,13 @@ export const OrdersTable = React.memo(function OrdersTable() {
                   e.stopPropagation();
                   handleOpenMenu(e, order.id);
                 }}
-                className={`p-1.5 transition-all duration-300 rounded-lg ${
+                className={`p-1.5 transition-all duration-200 rounded-lg ${
                   isDark
-                    ? "text-gray-500 hover:text-white hover:bg-white/10 hover:shadow-[0_0_10px_rgba(255,255,255,0.1)]"
+                    ? "text-gray-600 hover:text-white hover:bg-white/[0.06]"
                     : "text-gray-400 hover:text-gray-900 hover:bg-gray-100"
                 }`}
               >
-                <MoreHorizontal size={16} />
+                <DotsThree size={16} weight="bold" />
               </button>
             </div>
           );
@@ -275,9 +341,14 @@ export const OrdersTable = React.memo(function OrdersTable() {
       <DataTable
         columns={columns}
         data={orders}
-        isLoading={false}
+        isLoading={loading}
         emptyMessage="No orders found."
         emptySubmessage="You haven't received any orders yet."
+        totalItems={totalOrders}
+        hasNextPage={hasNextPage}
+        isFetchingNextPage={isFetchingNextPage}
+        onLoadMore={fetchNextPage}
+        hideFooter={hideFooter}
       />
 
       {activeMenu && (
@@ -288,6 +359,7 @@ export const OrdersTable = React.memo(function OrdersTable() {
           onClose={handleCloseMenu}
           onAction={handleMenuAction}
           isDark={isDark}
+          isSuperAdmin={isSuperAdmin}
         />
       )}
 
@@ -303,6 +375,7 @@ export const OrdersTable = React.memo(function OrdersTable() {
           selectedOrder?.status === "Completed" ||
           selectedOrder?.status === "Active"
         }
+        isSuperAdmin={isSuperAdmin}
       />
 
       <ConfirmDeleteOrderModal

@@ -1,5 +1,5 @@
 import React from "react";
-import { RefreshCw } from "lucide-react";
+import { ArrowClockwise } from "@phosphor-icons/react";
 import { motion } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
@@ -41,7 +41,7 @@ export const AutoRenewToggle: React.FC<AutoRenewToggleProps> = ({
             animate={{ rotate: autoRenew ? 360 : 0 }}
             transition={{ duration: 0.5 }}
           >
-            <RefreshCw
+            <ArrowClockwise
               className={`w-5 h-5 ${isDark ? "text-cyan-400" : "text-blue-600"}`}
             />
           </motion.div>

@@ -68,8 +68,8 @@ export const useAssetStore = create<AssetStore>((set, get) => ({
 
     if (!options.silent) set({ isInventoryLoading: true, error: null });
     try {
-      const inventory = await assetsService.fetchInventory(token, orgId);
-      set({ inventory, lastInventoryFetched: Date.now(), isInventoryLoading: false });
+      const result = await assetsService.fetchInventory(token, orgId);
+      set({ inventory: result.assets, lastInventoryFetched: Date.now(), isInventoryLoading: false });
     } catch (err: unknown) {
       logger.error("[AssetStore] Error fetching inventory:", err);
       if (!options.silent) set({ error: "No se pudo cargar el inventario.", isInventoryLoading: false });

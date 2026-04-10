@@ -109,7 +109,6 @@ async function request<T>(
       const response = await fetch(url, {
         ...init,
         headers,
-        cache: init.method === "GET" ? "no-store" : undefined,
       });
 
       const text = await response.text();
@@ -125,10 +124,23 @@ async function request<T>(
       }
 
       if (!response.ok) {
+        // Normalize flat error responses from middleware (e.g. rate limiter returns
+        // { "error": "rate limit exceeded", "retry_after": 60 } instead of
+        // { "error": { "message": "...", "code": "..." } }).
+        if (typeof data.error === "string") {
+          const raw = data as unknown as Record<string, unknown>;
+          const retryAfter = typeof raw.retry_after === "number" ? raw.retry_after : null;
+          const msg = retryAfter
+            ? `Demasiados intentos. Espera ${retryAfter} segundos e intenta de nuevo.`
+            : (data.error as string);
+          data = { success: false, error: { message: msg } };
+        }
+
         const errorData = (data.error || {}) as NonNullable<ApiResponse<T>["error"]>;
         
         if (response.status === 401) {
-          if (typeof window !== "undefined") {
+          const isAuthEndpoint = url.includes('/auth/login') || url.includes('/auth/register') || url.includes('/auth/signup');
+          if (typeof window !== "undefined" && !isAuthEndpoint) {
             logger.error("🚨 TRIGGERING 401 UNAUTHORIZED LOGOUT. FAILED URL:", url);
             window.dispatchEvent(new CustomEvent('celaest:unauthorized'));
           }

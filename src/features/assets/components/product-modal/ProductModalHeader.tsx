@@ -1,5 +1,5 @@
 import React from "react";
-import { X } from "lucide-react";
+import { X } from "@phosphor-icons/react";
 import { Asset } from "../../services/assets.service";
 import { AssetTypeIcon } from "../shared/AssetTypeIcon";
 import { getAssetTypeLabel } from "../../utils/assetUtils";
@@ -38,7 +38,7 @@ export const ProductModalHeader: React.FC<ProductModalHeaderProps> = ({
         <X size={24} />
       </button>
 
-      {/* Type Badge */}
+      {/* TextT Badge */}
       <div className="absolute top-6 left-6">
         <div
           className={`flex items-center gap-2 px-4 py-2 rounded-xl backdrop-blur-md ${

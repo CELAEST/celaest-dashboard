@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Mail, MapPin, Building } from "lucide-react";
+import { Envelope, MapPin, Building } from "@phosphor-icons/react";
 import { useFormContext } from "react-hook-form";
 import {
   FormField,
@@ -42,7 +42,7 @@ export const BillingInformationSectionRHF: React.FC<
               <FormLabel>Email</FormLabel>
               <FormControl>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Envelope className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     type="email"
                     placeholder="john@example.com"

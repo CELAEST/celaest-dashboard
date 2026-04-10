@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { FileText } from "lucide-react";
+import { FileText } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { Version } from "@/features/releases/types";
 

@@ -3,7 +3,13 @@
 import React, { useMemo } from "react";
 import { motion } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
-import { Monitor, ShieldCheck, CheckCircle2, AlertCircle } from "lucide-react";
+import {
+  Monitor,
+  ShieldCheck,
+  CheckCircle,
+  Warning,
+  Pulse,
+} from "@phosphor-icons/react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
 export interface PlatformStat {
@@ -13,15 +19,88 @@ export interface PlatformStat {
 }
 
 const PLATFORM_COLORS = [
-  "#06b6d4",
-  "#3b82f6",
-  "#8b5cf6",
-  "#6366f1",
-  "#ec4899",
+  "#22d3ee", // cyan-400
+  "#3b82f6", // blue-500
+  "#8b5cf6", // violet-500
+  "#c084fc", // purple-400
+  "#ec4899", // pink-500
 ];
 
 interface ErrorAnalyticsProps {
   data?: PlatformStat[];
+}
+
+function SummaryCard({
+  label,
+  value,
+  icon,
+  tone,
+  isDark,
+}: {
+  label: string;
+  value: string;
+  icon: React.ReactNode;
+  tone: "cyan" | "emerald" | "amber";
+  isDark: boolean;
+}) {
+  const tones = {
+    cyan: isDark ? "text-cyan-400" : "text-cyan-600",
+    emerald: isDark ? "text-emerald-400" : "text-emerald-600",
+    amber: isDark ? "text-amber-400" : "text-amber-600",
+  };
+
+  const borderTones = {
+    cyan: isDark ? "from-cyan-500/20 to-blue-500/10 border-cyan-500/15" : "from-cyan-50 to-blue-50 border-cyan-200",
+    emerald: isDark ? "from-emerald-500/20 to-teal-500/10 border-emerald-500/15" : "from-emerald-50 to-teal-50 border-emerald-200",
+    amber: isDark ? "from-amber-500/20 to-orange-500/10 border-amber-500/15" : "from-amber-50 to-orange-50 border-amber-200",
+  };
+
+  return (
+    <div
+      className={`rounded-2xl border p-4 transition-all duration-300 ${
+        isDark
+          ? "bg-white/3 border-white/8 hover:border-white/15"
+          : "bg-gray-50 border-gray-200 hover:border-gray-300"
+      }`}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p
+            className={`text-[10px] font-black uppercase tracking-widest ${
+              isDark ? "text-gray-500" : "text-gray-500"
+            }`}
+          >
+            {label}
+          </p>
+          <p
+            className={`mt-1 font-mono text-2xl font-black tracking-tight ${
+              isDark ? "text-white" : "text-gray-900"
+            }`}
+          >
+            {value}
+          </p>
+        </div>
+        {/* Jewel-box icon */}
+        <div
+          className={`shrink-0 w-8 h-8 rounded-input flex items-center justify-center bg-linear-to-b border ${borderTones[tone]} ${
+            isDark
+              ? "shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_2px_4px_rgba(0,0,0,0.2)]"
+              : "shadow-[inset_0_1px_0_rgba(255,255,255,1),0_1px_2px_rgba(0,0,0,0.04)]"
+          }`}
+        >
+          {React.cloneElement(
+            icon as React.ReactElement<{ className?: string }>,
+            { className: tones[tone] }
+          )}
+        </div>
+      </div>
+      <div className="mt-4 flex justify-between items-end">
+        <span className={`text-[8px] font-mono tracking-widest uppercase opacity-40 ${isDark ? "text-white" : "text-gray-900"}`}>
+          SYS.METRIC
+        </span>
+      </div>
+    </div>
+  );
 }
 
 export const ErrorAnalytics: React.FC<ErrorAnalyticsProps> = ({ data }) => {
@@ -34,7 +113,7 @@ export const ErrorAnalytics: React.FC<ErrorAnalyticsProps> = ({ data }) => {
         {
           name: "Enterprise Hub (W11)",
           value: 100,
-          color: "#06b6d4",
+          color: "#22d3ee",
           details: "Excel 365 v2401",
           status: "optimal" as const,
         },
@@ -60,208 +139,261 @@ export const ErrorAnalytics: React.FC<ErrorAnalyticsProps> = ({ data }) => {
     return Math.round(sum / ecosystemData.length);
   }, [ecosystemData]);
 
+  const healthyPlatforms = ecosystemData.filter(
+    (item) => item.status === "optimal",
+  ).length;
+  const atRiskPlatforms = ecosystemData.filter(
+    (item) => item.status !== "optimal",
+  ).length;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
-      className={`relative flex flex-col p-8 rounded-[2.5rem] border transition-all duration-700 overflow-hidden ${
+      transition={{ duration: 0.6, delay: 0.2, ease: [0.23, 1, 0.32, 1] }}
+      className={`relative h-full rounded-3xl border overflow-hidden transition-all duration-300 ${
         isDark
-          ? "bg-[#0a0a0a]/60 border-white/10 backdrop-blur-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
-          : "bg-white border-gray-100 shadow-2xl shadow-gray-200/40"
+          ? "bg-[#0a0a0a]/60 border-white/10 backdrop-blur-3xl shadow-[0_20px_50px_rgba(0,0,0,0.35)]"
+          : "bg-white border-gray-200 shadow-xl shadow-gray-200/40"
       }`}
     >
       {/* Absolute background accent */}
       <div
-        className={`absolute top-0 right-0 w-[400px] h-[400px] blur-[120px] rounded-full pointer-events-none opacity-20 ${
-          isDark ? "bg-purple-500/10" : "bg-purple-500/5"
+        className={`absolute top-0 right-0 w-[400px] h-[400px] blur-[100px] rounded-full pointer-events-none opacity-20 ${
+          isDark ? "bg-cyan-500/15" : "bg-cyan-500/10"
         }`}
       />
 
-      {/* Header Section */}
-      <div className="flex justify-between items-start mb-10 relative z-10">
-        <div className="flex items-center gap-5">
-          <div
-            className={`p-4 rounded-[1.25rem] border shadow-inner ${
-              isDark
-                ? "bg-white/5 border-white/10"
-                : "bg-gray-50 border-gray-200"
-            }`}
-          >
-            <ShieldCheck
-              size={24}
-              className={isDark ? "text-purple-400" : "text-purple-600"}
-            />
-          </div>
-          <div>
-            <h3
-              className={`text-[11px] font-black uppercase tracking-[0.4em] ${isDark ? "text-white/40" : "text-gray-400"}`}
+      <div className="relative z-10 h-full p-6 flex flex-col">
+        {/* Header Section */}
+        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between mb-6 shrink-0">
+          <div className="flex items-center gap-4">
+            <div
+              className={`w-9 h-9 rounded-input flex items-center justify-center bg-linear-to-b border ${
+                isDark
+                  ? "from-white/10 to-transparent border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_2px_4px_rgba(0,0,0,0.2)]"
+                  : "from-white to-gray-50 border-gray-200 shadow-[inset_0_1px_0_rgba(255,255,255,1),0_1px_2px_rgba(0,0,0,0.04)]"
+              }`}
             >
-              Ecosystem Integrity
-            </h3>
-            <h2
-              className={`text-3xl font-black italic tracking-tighter mt-1 ${isDark ? "text-white" : "text-gray-900"}`}
-            >
-              PLATFORM RELIABILITY
-            </h2>
+              <ShieldCheck
+                size={18}
+                className={isDark ? "text-cyan-400" : "text-cyan-600"}
+                weight="bold"
+              />
+            </div>
+            <div>
+              <h3
+                className={`text-[9px] font-black uppercase tracking-[0.32em] ${isDark ? "text-gray-500" : "text-gray-400"}`}
+              >
+                Ecosystem Integrity
+              </h3>
+              <h2
+                className={`text-2xl font-black italic tracking-tighter mt-0.5 ${isDark ? "text-white" : "text-gray-900"}`}
+              >
+                PLATFORM RELIABILITY
+              </h2>
+            </div>
           </div>
-        </div>
 
-        <div className="flex gap-2">
           <div
-            className={`px-4 py-1.5 rounded-full border text-[10px] font-black tracking-widest flex items-center gap-2 ${
+            className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border text-[10px] font-bold tracking-widest uppercase shadow-sm ${
               isDark
-                ? "bg-emerald-500/5 border-emerald-500/20 text-emerald-400"
+                ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
                 : "bg-emerald-50 border-emerald-100 text-emerald-700"
             }`}
           >
-            <div className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
-            SYSTEM HEALTH: {averageHealth}%
+            <div className={`w-1.5 h-1.5 rounded-full bg-current animate-pulse ${isDark ? "shadow-[0_0_6px_2px_rgba(52,211,153,0.4)]" : ""}`} />
+            System Health {averageHealth}%
           </div>
         </div>
-      </div>
 
-      {/* Main Content: Gauge + Grid */}
-      <div className="flex flex-col lg:flex-row items-center gap-12 relative z-10 h-full">
-        {/* Left: Interactive Integrity Gauge */}
-        <div className="w-[240px] h-[240px] relative shrink-0">
-          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10">
-            <motion.div
-              animate={{ scale: [1, 1.05, 1], opacity: [0.2, 0.4, 0.2] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className={`absolute w-40 h-40 rounded-full blur-3xl ${isDark ? "bg-cyan-500/20" : "bg-cyan-500/10"}`}
-            />
-            <span
-              className={`text-[10px] font-black uppercase tracking-[0.2em] opacity-40 ${isDark ? "text-white" : "text-gray-900"}`}
-            >
-              Integrity
-            </span>
-            <span
-              className={`text-5xl font-black italic tracking-tighter ${isDark ? "text-white" : "text-gray-900"}`}
-            >
-              {averageHealth}%
-            </span>
-          </div>
-
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={ecosystemData}
-                cx="50%"
-                cy="50%"
-                innerRadius={80}
-                outerRadius={105}
-                paddingAngle={12}
-                dataKey="value"
-                stroke="none"
-                cornerRadius={10}
-                animationBegin={200}
-                animationDuration={1800}
-              >
-                {ecosystemData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: isDark ? "rgba(12,12,12,0.95)" : "#fff",
-                  borderColor: "transparent",
-                  borderRadius: "20px",
-                  fontSize: "12px",
-                  fontWeight: "900",
-                  backdropFilter: "blur(12px)",
-                  boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
-                }}
+        {/* Main Content */}
+        <div className="grid flex-1 min-h-0 grid-cols-1 xl:grid-cols-[260px_minmax(0,1fr)_260px] gap-6 items-stretch">
+          {/* Left: Integrity Gauge */}
+          <div className="w-full max-w-60 aspect-square relative shrink-0 mx-auto xl:mx-0 self-center">
+            {/* Holographic glowing rings behind the chart */}
+            <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none">
+              <svg viewBox="0 0 100 100" className="w-full h-full opacity-40">
+                <circle cx="50" cy="50" r="46" fill="none" stroke={isDark ? "rgba(34,211,238,0.2)" : "rgba(59,130,246,0.1)"} strokeWidth="1" strokeDasharray="2 4" />
+                <circle cx="50" cy="50" r="41" fill="none" stroke={isDark ? "rgba(34,211,238,0.1)" : "rgba(59,130,246,0.05)"} strokeWidth="2" />
+                <motion.circle 
+                  cx="50" cy="50" r="32" fill="none" stroke={isDark ? "rgba(34,211,238,0.3)" : "rgba(59,130,246,0.2)"} strokeWidth="0.5" strokeDasharray="1 6"
+                  animate={{ rotate: 360 }} transition={{ duration: 40, repeat: Infinity, ease: "linear" }} style={{ transformOrigin: "center" }}
+                />
+              </svg>
+            </div>
+            
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10">
+              <motion.div
+                animate={{ scale: [1, 1.05, 1], opacity: [0.18, 0.32, 0.18] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                className={`absolute w-36 h-36 rounded-full blur-3xl ${isDark ? "bg-cyan-500/30" : "bg-cyan-500/10"}`}
               />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
+              <span
+                className={`text-[9px] font-black uppercase tracking-[0.24em] opacity-50 ${isDark ? "text-cyan-400" : "text-blue-600"}`}
+              >
+                Integrity
+              </span>
+              <span
+                className={`text-5xl font-black font-mono italic tracking-tighter ${isDark ? "text-white drop-shadow-[0_0_12px_rgba(255,255,255,0.4)]" : "text-gray-900"}`}
+              >
+                {averageHealth}%
+              </span>
+            </div>
 
-        {/* Right: Platform Status Grid (2x2 for Perfect Symmetry) */}
-        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-          {ecosystemData.map((item, idx) => (
-            <motion.div
-              key={item.name}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.4 + idx * 0.1, duration: 0.5 }}
-              className={`group flex items-center justify-between p-5 rounded-[1.75rem] border transition-all duration-500 cursor-pointer ${
-                isDark
-                  ? "bg-white/3 border-white/5 hover:bg-white/8 hover:border-cyan-500/30 shadow-lg shadow-black/20"
-                  : "bg-gray-50 border-gray-100 hover:bg-white hover:shadow-xl hover:shadow-gray-200/50"
-              }`}
-            >
-              <div className="flex items-center gap-4">
-                <div
-                  className={`p-3 rounded-xl border transition-colors duration-300 ${
-                    isDark
-                      ? "bg-white/5 border-white/10 group-hover:border-cyan-500/50"
-                      : "bg-white border-gray-100 group-hover:border-cyan-200 shadow-sm"
-                  }`}
-                >
-                  <Monitor
-                    size={18}
-                    className={isDark ? "text-white/30" : "text-gray-400"}
+            <div className="relative z-20 w-full h-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={ecosystemData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius="68%"
+                    outerRadius="86%"
+                    paddingAngle={ecosystemData.length > 1 ? 4 : 0}
+                    dataKey="value"
+                    stroke="none"
+                    cornerRadius={6}
+                    animationBegin={200}
+                    animationDuration={1600}
+                  >
+                    {ecosystemData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: isDark ? "rgba(0,0,0,0.8)" : "rgba(255,255,255,0.95)",
+                      borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+                      borderRadius: "12px",
+                      fontSize: "10px",
+                      fontWeight: "900",
+                      backdropFilter: "blur(12px)",
+                      boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.05em",
+                    }}
+                    itemStyle={{
+                      color: isDark ? "#fff" : "#000",
+                      fontFamily: "var(--font-mono, monospace)"
+                    }}
                   />
-                </div>
-                <div className="flex flex-col">
-                  <span
-                    className={`text-xs font-black uppercase tracking-wider transition-colors duration-300 ${
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Center: Platform Status Stack */}
+          <div className="flex flex-col gap-2.5 justify-center min-h-0">
+            {ecosystemData.map((item, idx) => (
+              <motion.div
+                key={item.name}
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.35 + idx * 0.08, duration: 0.35 }}
+                className={`group rounded-xl p-3.5 transition-all duration-200 border ${
+                  isDark
+                    ? "bg-white/3 border-white/5 hover:border-white/15"
+                    : "bg-gray-50 border-gray-200 hover:border-gray-300"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`shrink-0 w-8 h-8 rounded-input flex items-center justify-center bg-linear-to-b border ${
                       isDark
-                        ? "text-white group-hover:text-cyan-400"
-                        : "text-gray-900 group-hover:text-cyan-600"
+                        ? "from-white/10 to-transparent border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_2px_4px_rgba(0,0,0,0.2)]"
+                        : "from-white to-gray-50 border-gray-200 shadow-[inset_0_1px_0_rgba(255,255,255,1),0_1px_2px_rgba(0,0,0,0.04)]"
                     }`}
                   >
-                    {item.name}
-                  </span>
-                  <span
-                    className={`text-[10px] font-bold opacity-40 mt-0.5 ${isDark ? "text-white" : "text-gray-500"}`}
-                  >
-                    {item.details}
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex flex-col items-end gap-2 pr-2">
-                <div className="flex items-center gap-2">
-                  {item.status === "optimal" ? (
-                    <CheckCircle2 size={12} className="text-emerald-500" />
-                  ) : (
-                    <AlertCircle
-                      size={12}
-                      className={
-                        item.status === "warning"
-                          ? "text-amber-500"
-                          : "text-red-500"
-                      }
+                    <Monitor
+                      size={14}
+                      className={isDark ? "text-gray-300" : "text-gray-600"}
+                      weight="bold"
                     />
-                  )}
-                  <span
-                    className={`text-lg font-black italic tracking-tighter ${isDark ? "text-white" : "text-gray-900"}`}
-                  >
-                    {item.value}%
-                  </span>
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <p
+                          className={`truncate text-[11px] font-mono font-bold tracking-widest uppercase ${
+                            isDark ? "text-gray-200" : "text-gray-900"
+                          }`}
+                        >
+                          {item.name}
+                        </p>
+                        <p
+                          className={`text-[9px] mt-0.5 font-medium truncate ${
+                            isDark ? "text-gray-500" : "text-gray-500"
+                          }`}
+                        >
+                          {item.details}
+                        </p>
+                      </div>
+
+                      <div className="shrink-0 flex items-center gap-1.5">
+                        {item.status === "optimal" ? (
+                          <div className={`w-1.5 h-1.5 rounded-full bg-emerald-500 ${isDark ? "shadow-[0_0_6px_2px_rgba(16,185,129,0.4)]" : ""}`} />
+                        ) : (
+                          <div className={`w-1.5 h-1.5 rounded-full ${item.status === "warning" ? "bg-amber-500 shadow-[0_0_6px_2px_rgba(245,158,11,0.4)]" : "bg-red-500 shadow-[0_0_6px_2px_rgba(239,68,68,0.4)]"}`} />
+                        )}
+                        <span
+                          className={`text-sm font-black font-mono tracking-tight tabular-nums ${
+                            isDark ? "text-white" : "text-gray-900"
+                          }`}
+                        >
+                          {item.value}%
+                        </span>
+                      </div>
+                    </div>
+
+                    <div
+                      className={`mt-2 h-1 rounded-full overflow-hidden ${
+                        isDark ? "bg-white/5" : "bg-gray-200"
+                      }`}
+                    >
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${item.value}%` }}
+                        transition={{
+                          duration: 1.6,
+                          ease: [0.22, 1, 0.36, 1],
+                          delay: 0.5 + idx * 0.06,
+                        }}
+                        className="h-full rounded-full"
+                        style={{ backgroundColor: item.color }}
+                      />
+                    </div>
+                  </div>
                 </div>
-                <div
-                  className={`w-16 h-1 rounded-full overflow-hidden ${isDark ? "bg-white/10" : "bg-gray-200"}`}
-                >
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${item.value}%` }}
-                    transition={{
-                      duration: 2,
-                      ease: [0.22, 1, 0.36, 1],
-                      delay: 0.8,
-                    }}
-                    className="h-full relative shadow-[0_0_10px] shadow-current"
-                    style={{ backgroundColor: item.color, color: item.color }}
-                  >
-                    <div className="absolute inset-0 bg-linear-to-r from-white/0 via-white/30 to-white/0 animate-[shimmer_2s_infinite]" />
-                  </motion.div>
-                </div>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Right: Summary */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-1 gap-3 content-start">
+            <SummaryCard
+              label="Fuentes monitoreadas"
+              value={ecosystemData.length.toString()}
+              icon={<Monitor size={14} weight="bold" />}
+              tone="cyan"
+              isDark={isDark}
+            />
+            <SummaryCard
+              label="Óptimas"
+              value={healthyPlatforms.toString()}
+              icon={<CheckCircle size={14} weight="bold" />}
+              tone="emerald"
+              isDark={isDark}
+            />
+            <SummaryCard
+              label="En riesgo"
+              value={atRiskPlatforms.toString()}
+              icon={<Pulse size={14} weight="bold" />}
+              tone="amber"
+              isDark={isDark}
+            />
+          </div>
         </div>
       </div>
     </motion.div>

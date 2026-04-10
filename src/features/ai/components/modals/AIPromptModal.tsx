@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { AIPrompt } from "../../types";
-import { Terminal, Sparkles, Loader2 } from "lucide-react";
+import { Terminal, Sparkle, CircleNotch } from "@phosphor-icons/react";
 
 const promptSchema = z.object({
   name: z.string().min(3, "Name must be at least 3 characters"),
@@ -76,7 +76,7 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
               <Terminal className="text-cyan-400" size={20} />
             </div>
             <DialogTitle className="text-2xl font-bold tracking-tight">
-              {initialData ? "Edit Template" : "Neural Blueprint"}
+              {initialData ? "PencilSimple Template" : "Neural Blueprint"}
             </DialogTitle>
           </div>
           <DialogDescription className="text-gray-400">
@@ -148,10 +148,10 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
               className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white min-w-[140px] font-bold shadow-[0_0_20px_rgba(34,211,238,0.2)]"
             >
               {isLoading ? (
-                <Loader2 className="animate-spin" size={18} />
+                <CircleNotch className="animate-spin" size={18} />
               ) : (
                 <div className="flex items-center gap-2">
-                  <Sparkles size={16} />
+                  <Sparkle size={16} />
                   {initialData ? "Commit Changes" : "Deploy Blueprint"}
                 </div>
               )}

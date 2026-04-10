@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "motion/react";
-import { Key, CheckCircle, AlertTriangle, TrendingUp } from "lucide-react";
+import { Key, CheckCircle, Warning, TrendUp } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { LicenseStats } from "@/features/licensing/types";
 import type { IPBinding } from "@/features/licensing/types";
@@ -39,14 +39,14 @@ export const LicensingStats: React.FC<LicensingStatsProps> = ({
     {
       label: "IP Collisions",
       value: collisions.length,
-      icon: AlertTriangle,
+      icon: Warning,
       color: "text-red-500",
       bg: "bg-red-500/10",
     },
     {
       label: "Trial Licenses",
       value: analytics.trial,
-      icon: TrendingUp,
+      icon: TrendUp,
       color: "text-cyan-500",
       bg: "bg-cyan-500/10",
     },

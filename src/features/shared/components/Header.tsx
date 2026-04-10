@@ -1,14 +1,14 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React from "react";
 import {
-  Search,
+  MagnifyingGlass,
   Command,
   Sun,
   Moon,
-  ShieldAlert,
-  Activity,
-} from "lucide-react";
+  ShieldWarning,
+  Pulse,
+} from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { NotificationCenter } from "./NotificationCenter";
@@ -22,48 +22,29 @@ interface HeaderProps {
 }
 
 export const Header = React.memo(function Header({ onShowLogin }: HeaderProps) {
-  const { toggleTheme, isDark, isMounted } = useTheme();
+  const { toggleTheme, isMounted } = useTheme();
   const { user } = useAuth();
   const { searchQuery, setSearchQuery } = useUIStore();
   const { showErrorControls, errorFilters, setErrorFilters } = useErrorStore();
 
-  // Memoizar clases dinámicas
-  const headerClassName = useMemo(
-    () =>
-      `h-20 px-4 flex items-center justify-between sticky top-0 z-40 backdrop-blur-md border-b transition-colors duration-300 ${
-        isDark ? "bg-black/40 border-white/5" : "bg-white/60 border-gray-200"
-      }`,
-    [isDark],
-  );
+  // Static classes resolving synchronously via Tailwind dark: variants
+  const headerClassName =
+    "h-20 px-4 flex items-center justify-between sticky top-0 z-40 backdrop-blur-md border-b transition-colors duration-300 bg-white/60 border-gray-200 dark:bg-black/40 dark:border-white/5";
 
-  const inputClassName = useMemo(
-    () =>
-      `w-full border rounded-full h-10 pl-12 pr-12 text-sm focus:outline-none focus:ring-1 transition-all ${
-        isDark
-          ? "bg-black/50 border-white/10 text-white focus:border-cyan-500/50 focus:ring-cyan-500/50 placeholder:text-gray-600"
-          : "bg-gray-100 border-gray-200 text-gray-900 focus:border-blue-500/50 focus:ring-blue-500/50 placeholder:text-gray-500"
-      }`,
-    [isDark],
-  );
+  const inputClassName =
+    "w-full border rounded-full h-10 pl-12 pr-12 text-sm focus:outline-none focus:ring-1 transition-all bg-gray-100 border-gray-200 text-gray-900 focus:border-blue-500/50 focus:ring-blue-500/50 placeholder:text-gray-500 dark:bg-black/50 dark:border-white/10 dark:text-white dark:focus:border-cyan-500/50 dark:focus:ring-cyan-500/50 dark:placeholder:text-gray-600";
 
-  const themeButtonClassName = useMemo(
-    () =>
-      `p-2 rounded-full transition-all duration-300 ${
-        isDark
-          ? "text-gray-400 hover:text-yellow-400 hover:bg-white/5"
-          : "text-gray-500 hover:text-blue-600 hover:bg-gray-100"
-      }`,
-    [isDark],
-  );
+  const themeButtonClassName =
+    "p-2 rounded-full transition-all duration-300 text-gray-500 hover:text-blue-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-yellow-400 dark:hover:bg-white/5";
 
   // Prevent hydration mismatch for icons/theme-dependent UI
   if (!isMounted) {
     return (
-      <header className="h-20 px-8 flex items-center justify-between sticky top-0 z-40 border-b bg-white/60 border-gray-200">
-        <div className="w-64 h-10 bg-gray-100 rounded-full animate-pulse" />
+      <header className="h-20 px-8 flex items-center justify-between sticky top-0 z-40 border-b bg-white/60 dark:bg-black/40 border-gray-200 dark:border-white/5 backdrop-blur-md">
+        <div className="w-64 h-10 bg-gray-100 dark:bg-white/5 rounded-full animate-pulse" />
         <div className="flex gap-4">
-          <div className="w-20 h-10 bg-gray-100 rounded-full animate-pulse" />
-          <div className="w-10 h-10 bg-gray-100 rounded-full animate-pulse" />
+          <div className="w-20 h-10 bg-gray-100 dark:bg-white/5 rounded-full animate-pulse" />
+          <div className="w-10 h-10 bg-gray-100 dark:bg-white/5 rounded-full animate-pulse" />
         </div>
       </header>
     );
@@ -72,31 +53,24 @@ export const Header = React.memo(function Header({ onShowLogin }: HeaderProps) {
   return (
     <header className={headerClassName}>
       <div className="flex items-center w-full max-w-xl relative group mr-4">
-        {/* Search Input stays same, it will drive the global searchQuery state */}
-        <Search
-          className={`absolute left-4 w-5 h-5 transition-colors ${
-            isDark
-              ? "text-gray-500 group-focus-within:text-cyan-400"
-              : "text-gray-400 group-focus-within:text-blue-500"
-          }`}
+        {/* MagnifyingGlass Input stays same, it will drive the global searchQuery state */}
+        <MagnifyingGlass
+          className="absolute left-4 w-5 h-5 transition-colors text-gray-400 group-focus-within:text-blue-500 dark:text-gray-500 dark:group-focus-within:text-cyan-400"
         />
         <input
           type="text"
           placeholder={
-            showErrorControls ? "Filter errors..." : "Search command or data..."
+            showErrorControls ? "Funnel errors..." : "MagnifyingGlass command or data..."
           }
           className={inputClassName}
           value={searchQuery || ""}
           onChange={(e) => setSearchQuery(e.target.value)}
+          aria-label="Buscar en el dashboard"
         />
         {!searchQuery && !showErrorControls && (
           <div className="absolute right-4 flex items-center gap-1">
-            <Command
-              className={`w-3 h-3 ${isDark ? "text-gray-600" : "text-gray-400"}`}
-            />
-            <span
-              className={`text-[10px] font-mono ${isDark ? "text-gray-600" : "text-gray-400"}`}
-            >
+            <Command className="w-3 h-3 text-gray-400 dark:text-gray-600" />
+            <span className="text-[10px] font-mono text-gray-400 dark:text-gray-600">
               K
             </span>
           </div>
@@ -108,7 +82,7 @@ export const Header = React.memo(function Header({ onShowLogin }: HeaderProps) {
         {showErrorControls && (
           <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-4 duration-500">
             <HeaderFilterPill
-              icon={ShieldAlert}
+              icon={ShieldWarning}
               options={[
                 { value: "all", label: "Toda Severidad" },
                 { value: "critical", label: "Crítico" },
@@ -120,7 +94,7 @@ export const Header = React.memo(function Header({ onShowLogin }: HeaderProps) {
               }
             />
             <HeaderFilterPill
-              icon={Activity}
+              icon={Pulse}
               options={[
                 { value: "all", label: "Todo Estado" },
                 { value: "failed", label: "Fallido" },
@@ -142,11 +116,7 @@ export const Header = React.memo(function Header({ onShowLogin }: HeaderProps) {
         ) : (
           <button
             onClick={onShowLogin}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-              isDark
-                ? "bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 hover:shadow-[0_0_15px_rgba(34,211,238,0.3)]"
-                : "bg-blue-600 text-white hover:bg-blue-700 shadow-md"
-            }`}
+            className="px-4 py-2 rounded-full text-sm font-medium transition-all bg-blue-600 text-white hover:bg-blue-700 shadow-md dark:bg-cyan-500/10 dark:text-cyan-400 dark:hover:bg-cyan-500/20 dark:hover:shadow-[0_0_15px_rgba(34,211,238,0.3)] dark:shadow-none"
           >
             Iniciar Sesión
           </button>

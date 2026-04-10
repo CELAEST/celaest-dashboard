@@ -3,12 +3,12 @@ import {
   Shield,
   Crown,
   User as UserIcon,
-  Mail,
-  LogOut,
-  Edit2,
-  Trash2,
-  MoreVertical,
-} from "lucide-react";
+  Envelope,
+  SignOut,
+  PencilSimple,
+  Trash,
+  DotsThreeVertical,
+} from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -31,10 +31,14 @@ interface UsersTableProps {
   onForceSignOut: (user: UserData) => void;
   onEdit: (user: UserData) => void;
   onDelete: (user: UserData) => void;
+  totalItems?: number;
+  hasNextPage?: boolean;
+  isFetchingNextPage?: boolean;
+  onLoadMore?: () => void;
 }
 
 export const UsersTable = memo(
-  ({ users, loading, onForceSignOut, onEdit, onDelete }: UsersTableProps) => {
+  ({ users, loading, onForceSignOut, onEdit, onDelete, totalItems, hasNextPage, isFetchingNextPage, onLoadMore }: UsersTableProps) => {
     const { isDark } = useTheme();
 
     const columns: ColumnDef<UserData>[] = useMemo(
@@ -81,7 +85,7 @@ export const UsersTable = memo(
                       isDark ? "text-gray-500" : "text-gray-400"
                     }`}
                   >
-                    <Mail className="w-2.5 h-2.5" />
+                    <Envelope className="w-2.5 h-2.5" />
                     {u.email}
                   </p>
                 </div>
@@ -173,7 +177,7 @@ export const UsersTable = memo(
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="h-8 w-8 p-0">
                       <span className="sr-only">Open menu</span>
-                      <MoreVertical className="h-4 w-4" />
+                      <DotsThreeVertical className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
@@ -182,14 +186,14 @@ export const UsersTable = memo(
                   >
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                     <DropdownMenuItem onClick={() => onEdit(u)}>
-                      <Edit2 className="mr-2 h-4 w-4" />
-                      Edit User
+                      <PencilSimple className="mr-2 h-4 w-4" />
+                      PencilSimple User
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => onForceSignOut(u)}
                       className="text-red-500 focus:text-red-500"
                     >
-                      <LogOut className="mr-2 h-4 w-4" />
+                      <SignOut className="mr-2 h-4 w-4" />
                       Sign Out
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
@@ -197,7 +201,7 @@ export const UsersTable = memo(
                       onClick={() => onDelete(u)}
                       className="text-red-500 focus:text-red-500"
                     >
-                      <Trash2 className="mr-2 h-4 w-4" />
+                      <Trash className="mr-2 h-4 w-4" />
                       Delete User
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -218,6 +222,10 @@ export const UsersTable = memo(
           isLoading={loading}
           emptyMessage="No hay usuarios registrados"
           emptySubmessage="Añade miembros a tu organización para verlos aquí."
+          totalItems={totalItems}
+          hasNextPage={hasNextPage}
+          isFetchingNextPage={isFetchingNextPage}
+          onLoadMore={onLoadMore}
         />
       </div>
     );

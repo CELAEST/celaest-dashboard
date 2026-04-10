@@ -8,13 +8,13 @@ import {
   Key,
   Plus,
   ShieldCheck,
-  ShieldAlert,
-  Trash2,
+  ShieldWarning,
+  Trash,
   Copy,
-  Zap,
+  Lightning,
   Lock,
-  Settings,
-} from "lucide-react";
+  Gear,
+} from "@phosphor-icons/react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { AIKeyModal } from "../modals/AIKeyModal";
@@ -86,7 +86,7 @@ export const AIKeyPoolTab: React.FC<AIKeyPoolTabProps> = ({ token, orgId }) => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/2 p-6 rounded-2xl border border-white/5 backdrop-blur-md">
         <div>
           <h3 className="text-xl font-bold text-white flex items-center gap-2">
-            <Zap size={20} className="text-cyan-400" />
+            <Lightning size={20} className="text-cyan-400" weight="fill" />
             Key Balancing Pool
           </h3>
           <p className="text-sm text-gray-400 mt-1 max-w-md">
@@ -101,7 +101,7 @@ export const AIKeyPoolTab: React.FC<AIKeyPoolTabProps> = ({ token, orgId }) => {
           }}
           className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold gap-2 px-6 shadow-[0_0_20px_rgba(34,211,238,0.2)]"
         >
-          <Plus size={18} /> Add Neural Key
+          <Plus size={18} weight="bold" /> Add Neural Key
         </Button>
       </div>
 
@@ -125,9 +125,9 @@ export const AIKeyPoolTab: React.FC<AIKeyPoolTabProps> = ({ token, orgId }) => {
                 }`}
               >
                 {k.is_active ? (
-                  <ShieldCheck size={24} className="text-emerald-400" />
+                  <ShieldCheck size={24} className="text-emerald-400" weight="duotone" />
                 ) : (
-                  <ShieldAlert size={24} className="text-red-400" />
+                  <ShieldWarning size={24} className="text-red-400" weight="duotone" />
                 )}
               </div>
 
@@ -140,7 +140,7 @@ export const AIKeyPoolTab: React.FC<AIKeyPoolTabProps> = ({ token, orgId }) => {
                 </h4>
                 <div className="flex items-center gap-3 mt-1.5">
                   <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-white/5 border border-white/5">
-                    <Lock size={10} className="text-gray-500" />
+                    <Lock size={10} className="text-gray-500" weight="fill" />
                     <span className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest">
                       {k.provider}
                     </span>
@@ -172,7 +172,7 @@ export const AIKeyPoolTab: React.FC<AIKeyPoolTabProps> = ({ token, orgId }) => {
                   onClick={() => copyToClipboard(k.name)}
                   title="Copy Engine ID"
                 >
-                  <Copy size={16} />
+                  <Copy size={16} weight="duotone" />
                 </Button>
                 <Button
                   variant="ghost"
@@ -181,7 +181,7 @@ export const AIKeyPoolTab: React.FC<AIKeyPoolTabProps> = ({ token, orgId }) => {
                   onClick={() => openEditModal(k)}
                   title="Edit Key"
                 >
-                  <Settings size={16} />
+                  <Gear size={16} weight="duotone" />
                 </Button>
                 <Button
                   variant="ghost"
@@ -209,9 +209,9 @@ export const AIKeyPoolTab: React.FC<AIKeyPoolTabProps> = ({ token, orgId }) => {
                   }
                 >
                   {confirmDeleteId === k.id ? (
-                    <ShieldAlert size={18} className="animate-pulse" />
+                    <ShieldWarning size={18} className="animate-pulse" weight="fill" />
                   ) : (
-                    <Trash2 size={16} />
+                    <Trash size={16} weight="duotone" />
                   )}
                 </Button>
               </div>
@@ -231,7 +231,7 @@ export const AIKeyPoolTab: React.FC<AIKeyPoolTabProps> = ({ token, orgId }) => {
           : (keysQuery.data?.keys ?? [])
         ).length === 0 && (
           <div className="flex flex-col items-center justify-center py-20 bg-white/[0.01] border border-dashed border-white/10 rounded-3xl">
-            <Key size={48} className="text-gray-700 mb-4" />
+            <Key size={48} className="text-gray-700 mb-4" weight="duotone" />
             <p className="text-gray-400 font-medium">
               No neural keys initialized
             </p>

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
 import { SignOutCard } from "./SignOutCard";
 
@@ -18,6 +19,7 @@ export const SignOutModal: React.FC<SignOutModalProps> = ({
   isDemo = false,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   const handleSignOut = async () => {
     setIsLoading(true);
@@ -38,39 +40,64 @@ export const SignOutModal: React.FC<SignOutModalProps> = ({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose, isLoading]);
 
-  return (
+  React.useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
+
+  React.useEffect(() => {
+    if (!mounted) {
+      return;
+    }
+
+    document.body.style.overflow = isOpen ? "hidden" : "";
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen, mounted]);
+
+  if (!mounted) {
+    return null;
+  }
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <>
-          {/* Overlay with blur */}
+        <div
+          className="fixed inset-0 z-[120] flex items-center justify-center p-4 sm:p-6"
+          role="dialog"
+          aria-modal="true"
+        >
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={!isLoading ? onClose : undefined}
-            className="fixed inset-0 bg-black/60 backdrop-blur-md z-100"
+            className="absolute inset-0 bg-black/65 backdrop-blur-md"
           />
 
-          {/* Modal Content */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            onClick={!isLoading ? onClose : undefined}
-            className="fixed inset-0 flex items-center justify-center z-101 p-4"
-          >
-            <div className="relative w-full max-w-md">
+          <div className="relative z-10 flex w-full items-center justify-center pointer-events-none">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96, y: 16 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: 16 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              onClick={(event) => event.stopPropagation()}
+              className="pointer-events-auto relative shrink-0 w-[34rem] min-w-[320px] sm:min-w-[34rem] max-w-[90vw]"
+            >
               <SignOutCard
                 onClose={onClose}
                 onConfirm={handleSignOut}
                 isLoading={isLoading}
                 isDemo={isDemo}
               />
-            </div>
-          </motion.div>
-        </>
+            </motion.div>
+          </div>
+        </div>
       )}
     </AnimatePresence>
+    ,
+    document.body,
   );
 };

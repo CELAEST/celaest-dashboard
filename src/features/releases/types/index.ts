@@ -13,6 +13,8 @@ export interface Version {
   adoptionRate: number;
   changelog: string[];
   compatibility: string;
+  downloadUrl?: string;
+  projectUrl?: string;
 }
 
 export interface CustomerAsset {

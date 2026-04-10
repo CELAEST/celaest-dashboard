@@ -3,7 +3,7 @@ import { useSearchParams } from "next/navigation";
 import { useMarketplaceCouponStore } from "../store";
 import { couponsService } from "@/features/coupons/services/coupons.service";
 import { useApiAuth } from "@/lib/use-api-auth";
-import { TicketPercent, X, CheckCircle, Loader2, Zap } from "lucide-react";
+import { Tag, X, CheckCircle, CircleNotch, Lightning } from "@phosphor-icons/react";
 import { settingsApi } from "@/features/settings/api/settings.api";
 import { UpgradePlanModal } from "@/features/billing/components/modals/UpgradePlanModal";
 
@@ -144,7 +144,7 @@ export function CouponFAB() {
           <div className="mb-2 w-72 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-200 origin-bottom-right">
             <div className="p-4 border-b border-white/10 flex justify-between items-center bg-white/5">
               <h3 className="text-sm font-medium text-white flex items-center gap-2">
-                <TicketPercent className="w-4 h-4 text-cyan-400" />
+                <Tag className="w-4 h-4 text-cyan-400" />
                 Apply Coupon
               </h3>
               <button
@@ -211,7 +211,7 @@ export function CouponFAB() {
                     className="w-full py-2 bg-linear-to-r from-cyan-500 to-blue-500 text-white text-sm font-medium rounded-lg hover:from-cyan-400 hover:to-blue-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex justify-center items-center h-9"
                   >
                     {loading ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <CircleNotch className="w-4 h-4 animate-spin" />
                     ) : (
                       "Apply Code"
                     )}
@@ -238,7 +238,7 @@ export function CouponFAB() {
             {/* Shimmer Overlay */}
             <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 ease-in-out" />
 
-            <TicketPercent
+            <Tag
               className={`relative z-10 w-5 h-5 shrink-0 transition-transform duration-300 group-hover/btn:scale-110 ${
                 activeCoupon
                   ? "text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]"
@@ -258,7 +258,7 @@ export function CouponFAB() {
             {/* Shimmer Overlay */}
             <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 ease-in-out" />
 
-            <Zap className="relative z-10 w-5 h-5 shrink-0 text-purple-400 drop-shadow-[0_0_8px_rgba(192,132,252,0.5)] transition-transform duration-300 group-hover/btn:scale-110" />
+            <Lightning className="relative z-10 w-5 h-5 shrink-0 text-purple-400 drop-shadow-[0_0_8px_rgba(192,132,252,0.5)] transition-transform duration-300 group-hover/btn:scale-110" />
             <span className="relative z-10 font-bold text-sm whitespace-nowrap overflow-hidden max-w-0 opacity-0 group-hover:max-w-[200px] group-hover:opacity-100 group-hover:ml-3 transition-all duration-500 pointer-events-none">
               Ver Planes
             </span>

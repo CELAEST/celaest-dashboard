@@ -82,15 +82,10 @@ vi.mock("@/features/auth/services/auth.service", () => ({
   authService: { getUserOrganizations: mockGetUserOrganizations },
 }));
 
-// ---- Mock tanstack query (NotificationContext uses useQuery for prefs) ----
+// ---- Mock tanstack query (needed for any React Query hooks in the test tree) ----
 vi.mock("@tanstack/react-query", () => ({
   useQuery: vi.fn(() => ({ data: null })),
   useQueryClient: vi.fn(() => ({ invalidateQueries: vi.fn() })),
-}));
-
-// ---- Mock settings API ----
-vi.mock("@/features/settings/api/settings.api", () => ({
-  settingsApi: { getNotificationPreferences: vi.fn().mockResolvedValue({}) },
 }));
 
 // ---- Fixtures ----

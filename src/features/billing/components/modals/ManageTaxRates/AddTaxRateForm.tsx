@@ -1,5 +1,5 @@
 import React from "react";
-import { Plus, Save, RotateCcw } from "lucide-react";
+import { Plus, FloppyDisk, ArrowCounterClockwise } from "@phosphor-icons/react";
 import { motion, AnimatePresence } from "motion/react";
 import { SettingsSelect } from "../../../../settings/components/SettingsSelect";
 import { useTheme } from "@/features/shared/hooks/useTheme";
@@ -58,7 +58,7 @@ export const AddTaxRateForm: React.FC<AddTaxRateFormProps> = ({
               }`}
             >
               {isEditing ? (
-                <Save
+                <FloppyDisk
                   className={`w-4 h-4 ${
                     isDark ? "text-purple-400" : "text-purple-600"
                   }`}
@@ -76,7 +76,7 @@ export const AddTaxRateForm: React.FC<AddTaxRateFormProps> = ({
                 isDark ? "text-white" : "text-gray-900"
               }`}
             >
-              {isEditing ? "Edit Tax Rate" : "Add New Tax Rate"}
+              {isEditing ? "PencilSimple Tax Rate" : "Add New Tax Rate"}
             </h3>
           </div>
 
@@ -166,10 +166,10 @@ export const AddTaxRateForm: React.FC<AddTaxRateFormProps> = ({
               />
             </div>
 
-            {/* Type */}
+            {/* TextT */}
             <div className="flex flex-col gap-1.5">
               <SettingsSelect
-                label="Tax Type"
+                label="Tax TextT"
                 value={newTaxRate.type || "VAT"}
                 onChange={(val) =>
                   setNewTaxRate({ ...newTaxRate, type: val as string })
@@ -208,7 +208,7 @@ export const AddTaxRateForm: React.FC<AddTaxRateFormProps> = ({
             >
               {isEditing ? (
                 <>
-                  <RotateCcw className="w-4 h-4" />
+                  <ArrowCounterClockwise className="w-4 h-4" />
                   Update Rate
                 </>
               ) : (

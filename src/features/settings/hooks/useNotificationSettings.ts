@@ -1,6 +1,6 @@
 import { useMemo, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Mail, Smartphone, LucideIcon } from "lucide-react";
+import { Envelope, DeviceMobile, Icon } from "@phosphor-icons/react";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 import { settingsApi } from "../api/settings.api";
 import { toast } from "sonner";
@@ -16,7 +16,7 @@ export interface NotificationItem {
 
 export interface NotificationSection {
   title: string;
-  icon: LucideIcon;
+  icon: Icon;
   items: NotificationItem[];
 }
 
@@ -100,11 +100,11 @@ export const useNotificationSettings = () => {
     () => [
       {
         title: "Email Notifications",
-        icon: Mail,
+        icon: Envelope,
         items: [
           {
             id: "email_activity",
-            label: "Account Activity",
+            label: "Account Pulse",
             desc: "Large orders, new logins, and security alerts.",
           },
           {
@@ -116,7 +116,7 @@ export const useNotificationSettings = () => {
       },
       {
         title: "Push Notifications",
-        icon: Smartphone,
+        icon: DeviceMobile,
         items: [
           {
             id: "push_security",

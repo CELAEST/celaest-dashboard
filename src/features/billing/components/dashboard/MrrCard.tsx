@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "motion/react";
-import { TrendingUp } from "lucide-react";
+import { TrendUp } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface MrrCardProps {
@@ -38,7 +38,7 @@ export const MrrCard = React.memo(
                     : "bg-emerald-50 border-emerald-100 text-emerald-600"
                 }`}
               >
-                <TrendingUp className="w-4 h-4" strokeWidth={2.5} />
+                <TrendUp className="w-4 h-4" strokeWidth={2.5} />
               </div>
               <div
                 className={`text-[10px] font-bold uppercase tracking-widest ${
@@ -135,7 +135,7 @@ export const MrrCard = React.memo(
               <div
                 className={`flex items-center gap-1.5 mb-1 ${isDark ? "text-emerald-400" : "text-emerald-600"}`}
               >
-                <TrendingUp className="w-3 h-3" />
+                <TrendUp className="w-3 h-3" />
                 <span className="text-sm font-bold">+{growth}%</span>
               </div>
               <div

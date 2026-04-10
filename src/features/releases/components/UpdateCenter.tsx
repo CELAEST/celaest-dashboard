@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { AlertCircle } from "lucide-react";
+import { Warning } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useUpdateCenter } from "../hooks/useUpdateCenter";
 import { UpdateSummary } from "./UpdateCenterComponents/UpdateSummary";
@@ -36,7 +36,7 @@ export const UpdateCenter: React.FC<{ enabled?: boolean }> = ({
           }`}
         >
           <div className="flex gap-3 items-center">
-            <AlertCircle size={16} className="shrink-0" />
+            <Warning size={16} className="shrink-0" />
             <p className="text-xs font-medium">{error}</p>
           </div>
         </div>
@@ -83,7 +83,7 @@ export const UpdateCenter: React.FC<{ enabled?: boolean }> = ({
         }`}
       >
         <div className="flex gap-3">
-          <AlertCircle
+          <Warning
             size={20}
             className={`shrink-0 mt-0.5 ${
               isDark ? "text-blue-400" : "text-blue-600"

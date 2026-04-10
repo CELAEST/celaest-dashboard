@@ -2,7 +2,7 @@
 
 import React, { useMemo } from "react";
 import { motion } from "motion/react";
-import { CheckCircle, AlertTriangle, XCircle, Info, X } from "lucide-react";
+import { CheckCircle, Warning, XCircle, Info, X } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import type { Notification } from "../contexts/NotificationContext";
 
@@ -18,7 +18,7 @@ interface NotificationToastProps {
 // Icon mapping - extensible without modifying component
 const NOTIFICATION_ICONS = {
   success: CheckCircle,
-  warning: AlertTriangle,
+  warning: Warning,
   error: XCircle,
   info: Info,
 } as const;

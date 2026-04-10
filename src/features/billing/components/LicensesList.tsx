@@ -3,10 +3,10 @@ import { motion } from "motion/react";
 import {
   Shield,
   ShieldCheck,
-  ShieldOff,
+  ShieldSlash,
   Crown,
-  AlertCircle,
-} from "lucide-react";
+  Warning,
+} from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useBilling } from "../hooks/useBilling";
 import type { Subscription } from "../types";
@@ -41,7 +41,7 @@ export const LicensesList: React.FC = () => {
   if (error) {
     return (
       <div className="w-full h-full flex items-center justify-center text-red-500">
-        <AlertCircle className="w-6 h-6 mr-2" />
+        <Warning className="w-6 h-6 mr-2" />
         Error al cargar licencias
       </div>
     );
@@ -72,15 +72,29 @@ export const LicensesList: React.FC = () => {
 
   return (
     <div
-      className={`relative w-full rounded-3xl transition-all duration-500 flex flex-col h-full overflow-hidden xl:max-h-[560px] ${
+      className={`relative w-full rounded-2xl transition-all duration-500 hover:shadow-2xl flex flex-col h-full overflow-hidden ${
         isDark
-          ? "bg-linear-to-br from-slate-900/60 via-gray-900/40 to-slate-900/60 backdrop-blur-2xl border border-slate-700/30"
-          : "bg-white border border-slate-200 shadow-xl"
+          ? "bg-linear-to-br from-cyan-900/40 via-blue-900/20 to-indigo-900/40 backdrop-blur-2xl border border-cyan-500/20"
+          : "bg-linear-to-br from-blue-50 to-indigo-50 border border-blue-200 shadow-xl"
       }`}
     >
+      {/* Animated Background Pattern */}
+      <div className="absolute inset-0 opacity-20 pointer-events-none">
+        <div
+          className={`absolute inset-0 ${isDark ? "bg-cyan-500/10" : "bg-blue-400/5"}`}
+          style={{
+            backgroundImage: `radial-gradient(circle at 2px 2px, ${isDark ? "rgba(6,182,212,0.15)" : "rgba(59,130,246,0.15)"} 1px, transparent 0)`,
+            backgroundSize: "24px 24px",
+          }}
+        />
+      </div>
+
+      {/* Shine Effect Overlay */}
+      <div className="absolute inset-0 bg-linear-to-tr from-white/5 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+
       <div className="relative p-4 flex flex-col h-full min-h-0">
         {/* Header */}
-        <div className="flex items-center justify-between mb-4 shrink-0">
+        <div className="flex items-center justify-between mb-3 shrink-0">
           <h3
             className={`text-lg font-bold tracking-tight ${
               isDark ? "text-white" : "text-slate-900"
@@ -91,8 +105,8 @@ export const LicensesList: React.FC = () => {
           <span
             className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
               isDark
-                ? "bg-slate-700/50 text-slate-300"
-                : "bg-slate-100 text-slate-600"
+                ? "bg-cyan-500/10 border border-cyan-500/20 text-cyan-300"
+                : "bg-blue-50 border border-blue-200 text-blue-600"
             }`}
           >
             {allSubscriptions.length}{" "}
@@ -101,7 +115,7 @@ export const LicensesList: React.FC = () => {
         </div>
 
         {/* List */}
-        <div className="flex-1 min-h-0 overflow-y-auto space-y-3 pr-1">
+        <div className="flex-1 min-h-0 overflow-y-auto space-y-2 pr-1">
           {allSubscriptions.map((sub, index) => (
             <LicenseItem
               key={sub.id}
@@ -131,7 +145,10 @@ const LicenseItem: React.FC<LicenseItemProps> = ({
   index,
 }) => {
   const tier = sub.plan?.tier || 0;
-  const planName = sub.plan?.name || "Plan desconocido";
+  const planName = sub.plan?.name 
+    || (sub.metadata?.product_name as string) 
+    || "Plan desconocido";
+  const isMarketplace = sub.metadata?.source === "marketplace_purchase";
   const isSuperseded = sub.status === "superseded";
   const isActive = sub.status === "active" || sub.status === "trial";
 
@@ -139,14 +156,14 @@ const LicenseItem: React.FC<LicenseItemProps> = ({
     ? Crown
     : isActive
       ? ShieldCheck
-      : ShieldOff;
+      : ShieldSlash;
 
   return (
     <motion.div
       initial={{ opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.08 }}
-      className={`relative rounded-2xl p-4 border transition-all duration-300 bg-linear-to-r ${
+      className={`relative rounded-xl p-3 border transition-all duration-300 bg-linear-to-r ${
         isEffective
           ? isDark
             ? "from-cyan-500/15 to-blue-500/10 border-cyan-500/30 shadow-lg shadow-cyan-500/10"
@@ -170,7 +187,7 @@ const LicenseItem: React.FC<LicenseItemProps> = ({
       <div className="flex items-center gap-3">
         {/* Icon */}
         <div
-          className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+          className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
             isEffective
               ? isDark
                 ? "bg-cyan-500/20 text-cyan-400"
@@ -184,7 +201,7 @@ const LicenseItem: React.FC<LicenseItemProps> = ({
                   : "bg-slate-100 text-slate-600"
           }`}
         >
-          <StatusIcon className="w-5 h-5" />
+          <StatusIcon className="w-4 h-4" />
         </div>
 
         {/* Info */}
@@ -218,9 +235,9 @@ const LicenseItem: React.FC<LicenseItemProps> = ({
           <div
             className={`text-xs mt-0.5 ${isDark ? "text-slate-400" : "text-slate-500"}`}
           >
-            {sub.plan?.price_monthly
-              ? `$${sub.plan.price_monthly}/mo`
-              : "Gratis"}
+            {Number(sub.plan?.price_monthly) > 0
+              ? `${sub.plan?.currency === "EUR" ? "€" : "$"}${sub.plan?.price_monthly}${isMarketplace ? "" : "/mo"}`
+              : isMarketplace ? "Producto" : "Gratis"}
             {sub.plan?.currency && sub.plan.currency !== "USD"
               ? ` (${sub.plan.currency})`
               : ""}

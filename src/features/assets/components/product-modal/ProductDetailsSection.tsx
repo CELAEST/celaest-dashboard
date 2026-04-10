@@ -1,5 +1,5 @@
 import React from "react";
-import { Check, AlertCircle, Calendar, ShieldCheck } from "lucide-react";
+import { Check, Warning, Calendar, ShieldCheck } from "@phosphor-icons/react";
 import { Asset } from "../../services/assets.service";
 
 interface ProductDetailsSectionProps {
@@ -77,7 +77,7 @@ export const ProductDetailsSection: React.FC<ProductDetailsSectionProps> = ({
           <ul className="space-y-3">
             {product.requirements.map((requirement: string, index: number) => (
               <li key={index} className="flex items-start gap-3">
-                <AlertCircle
+                <Warning
                   size={16}
                   className={`mt-0.5 shrink-0 ${
                     isDark ? "text-gray-500" : "text-gray-400"

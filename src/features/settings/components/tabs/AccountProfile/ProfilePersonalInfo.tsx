@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import { useFormContext } from "react-hook-form";
-import { User, Briefcase } from "lucide-react";
+import { User, Briefcase } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import {
   FormField,

@@ -4,14 +4,14 @@ import React, { useState, useEffect, useCallback } from "react";
 import {
   X,
   Plus,
-  Trash2,
-  ExternalLink,
-  CheckCircle2,
+  Trash,
+  ArrowSquareOut,
+  CheckCircle,
   Clock,
-  History,
+  ClockCounterClockwise,
   FileCode,
-  AlertCircle,
-} from "lucide-react";
+  Warning,
+} from "@phosphor-icons/react";
 import { motion } from "motion/react";
 import { Asset, assetsService } from "../services/assets.service";
 import { BackendRelease } from "../api/assets.api";
@@ -37,7 +37,7 @@ export const ReleaseManagementModal: React.FC<ReleaseManagementModalProps> = ({
   // New Release Form State
   const [newVersion, setNewVersion] = useState("");
   const [status, setStatus] = useState<"alpha" | "beta" | "rc" | "stable">(
-    "beta",
+    "stable",
   );
   const [compatibility, setCompatibility] = useState("");
   const [changelogItems, setChangelogItems] = useState<string[]>([""]);
@@ -170,11 +170,43 @@ export const ReleaseManagementModal: React.FC<ReleaseManagementModalProps> = ({
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
         className="relative w-full max-w-2xl bg-[#0a0a0a] border border-white/10 rounded-4xl overflow-hidden shadow-2xl"
       >
+        {/* Top accent line */}
+        <div className="absolute inset-x-0 top-0 h-px z-20 bg-linear-to-r from-transparent via-cyan-500/70 to-transparent" />
+
+        {/* Corner glow */}
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            right: 0,
+            width: "22rem",
+            height: "22rem",
+            background: "radial-gradient(circle at top right, rgba(6,182,212,0.06), transparent 70%)",
+            pointerEvents: "none",
+            zIndex: 0,
+          }}
+        />
+
         {/* Header */}
-        <div className="px-8 py-6 border-b border-white/5 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-2xl bg-cyan-500/10 border border-cyan-500/20">
-              <History size={24} className="text-cyan-400" />
+        <div className="relative px-8 py-6 border-b border-white/8 flex items-center justify-between overflow-hidden shrink-0">
+          {/* Gradient wash */}
+          <div className="absolute inset-0 bg-linear-to-r from-cyan-500/10 via-teal-600/8 to-transparent" />
+          {/* Grid dots */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px)",
+              backgroundSize: "20px 20px",
+              pointerEvents: "none",
+            }}
+          />
+          {/* Bottom accent line */}
+          <div className="absolute bottom-0 left-0 h-px w-2/5 bg-linear-to-r from-cyan-500/50 to-transparent" />
+
+          <div className="relative z-10 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg shrink-0 bg-[#111] text-cyan-400 border border-white/10 shadow-cyan-500/10">
+              <ClockCounterClockwise size={24} />
             </div>
             <div>
               <h2 className="text-xl font-black italic tracking-tighter text-white uppercase">
@@ -187,24 +219,26 @@ export const ReleaseManagementModal: React.FC<ReleaseManagementModalProps> = ({
               </p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-white/5 rounded-xl transition-colors text-white/40 hover:text-white"
-          >
-            <X size={24} />
-          </button>
+          <div className="relative z-10">
+            <button
+              onClick={onClose}
+              className="p-2 rounded-full transition-colors text-gray-400 hover:text-white hover:bg-white/10"
+            >
+              <X size={22} />
+            </button>
+          </div>
         </div>
 
         {/* Content */}
         <div className="p-8 max-h-[70vh] overflow-y-auto scrollbar-thin scrollbar-thumb-white/10">
           {isCreating ? (
             <div className="space-y-6">
-              {/* Download URL */}
+              {/* DownloadSimple URL */}
               <div className="space-y-2">
                 <label className="text-[10px] uppercase font-black tracking-widest text-white/40">
                   <span className="flex items-center gap-2">
-                    <ExternalLink size={12} />
-                    Download URL (GitHub Release) *
+                    <ArrowSquareOut size={12} />
+                    DownloadSimple URL (GitHub Release) *
                   </span>
                 </label>
                 <input
@@ -319,7 +353,7 @@ export const ReleaseManagementModal: React.FC<ReleaseManagementModalProps> = ({
                           onClick={() => removeChangelogItem(index)}
                           className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 hover:text-red-400 transition-colors"
                         >
-                          <Trash2 size={14} />
+                          <Trash size={14} />
                         </button>
                       )}
                     </div>
@@ -393,7 +427,7 @@ export const ReleaseManagementModal: React.FC<ReleaseManagementModalProps> = ({
             <div className="space-y-4">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-black uppercase tracking-widest text-white/60">
-                  Version History
+                  Version ClockCounterClockwise
                 </h3>
                 <button
                   onClick={() => setIsCreating(true)}
@@ -421,7 +455,7 @@ export const ReleaseManagementModal: React.FC<ReleaseManagementModalProps> = ({
                     className="w-10 h-10 border-2 border-cyan-500 border-t-transparent rounded-full"
                   />
                   <span className="text-xs font-mono text-white/20 uppercase tracking-widest">
-                    Loading History...
+                    Loading ClockCounterClockwise...
                   </span>
                 </div>
               ) : releases.length === 0 ? (
@@ -451,7 +485,7 @@ export const ReleaseManagementModal: React.FC<ReleaseManagementModalProps> = ({
                           <div
                             className={`p-3 rounded-2xl ${rel.status === "stable" ? "bg-emerald-500/10 text-emerald-500" : "bg-cyan-500/10 text-cyan-500"}`}
                           >
-                            <CheckCircle2 size={20} />
+                            <CheckCircle size={20} />
                           </div>
                           <div>
                             <div className="flex items-center gap-3 mb-1">
@@ -490,9 +524,9 @@ export const ReleaseManagementModal: React.FC<ReleaseManagementModalProps> = ({
                               target="_blank"
                               rel="noreferrer"
                               className="p-2 hover:bg-white/10 rounded-xl transition-colors text-white/40 hover:text-white"
-                              title="Direct Download Link"
+                              title="Direct DownloadSimple Link"
                             >
-                              <ExternalLink size={18} />
+                              <ArrowSquareOut size={18} />
                             </a>
                           )}
                           <button
@@ -500,7 +534,7 @@ export const ReleaseManagementModal: React.FC<ReleaseManagementModalProps> = ({
                             className="p-2 hover:bg-red-500/20 rounded-xl transition-colors text-white/40 hover:text-red-400"
                             title="Delete Release"
                           >
-                            <Trash2 size={18} />
+                            <Trash size={18} />
                           </button>
                         </div>
                       </div>
@@ -539,7 +573,7 @@ export const ReleaseManagementModal: React.FC<ReleaseManagementModalProps> = ({
 
         {/* Footer */}
         <div className="px-8 py-6 bg-white/5 border-t border-white/5 flex items-center gap-3">
-          <AlertCircle size={16} className="text-cyan-500/60" />
+          <Warning size={16} className="text-cyan-500/60" />
           <p className="text-[9px] font-black uppercase tracking-[0.2em] text-white/20 italic">
             The latest &quot;stable&quot; version is always served to customers
             by default.

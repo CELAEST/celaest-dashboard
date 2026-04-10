@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Building2, ChevronDown, Check, Plus } from "lucide-react";
+import { Buildings, CaretDown, Check, Plus } from "@phosphor-icons/react";
 import {
   useOrgStore,
   Organization,
@@ -12,6 +12,8 @@ import { toast } from "sonner";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 import { usersApi } from "@/features/users/api/users.api";
 import { logger } from "@/lib/logger";
+import { useBilling } from "@/features/billing/hooks/useBilling";
+import { useRouter } from "next/navigation";
 
 interface OrgSwitcherProps {
   isExpanded: boolean;
@@ -26,6 +28,8 @@ export function OrgSwitcher({ isExpanded }: OrgSwitcherProps) {
   const { isDark } = useTheme();
   const { currentOrg, organizations, setCurrentOrg } = useOrgStore();
   const { session } = useAuthStore();
+  const { plan } = useBilling();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -86,7 +90,7 @@ export function OrgSwitcher({ isExpanded }: OrgSwitcherProps) {
       .toUpperCase();
 
   return (
-    <div ref={dropdownRef} className="relative px-3 mb-2">
+    <div ref={dropdownRef} className="relative px-3 mt-4 mb-0">
       {/* Trigger button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
@@ -107,7 +111,7 @@ export function OrgSwitcher({ isExpanded }: OrgSwitcherProps) {
           {currentOrg ? (
             getOrgInitials(currentOrg.name)
           ) : (
-            <Building2 size={16} />
+            <Buildings size={16} />
           )}
         </div>
 
@@ -140,7 +144,7 @@ export function OrgSwitcher({ isExpanded }: OrgSwitcherProps) {
           }}
           transition={{ duration: 0.2 }}
         >
-          <ChevronDown
+          <CaretDown
             size={14}
             className={`transition-transform ${isOpen ? "rotate-180" : ""} ${
               isDark ? "text-gray-500" : "text-gray-400"
@@ -213,8 +217,22 @@ export function OrgSwitcher({ isExpanded }: OrgSwitcherProps) {
             <div
               className={`border-t p-1.5 ${isDark ? "border-white/10" : "border-gray-100"}`}
             >
-              <a
-                href="/settings?tab=workspace"
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (!plan) {
+                    toast.info("Mejora requerida", {
+                      description: "Necesitas un plan activo en tu organización actual para crear nuevos workspaces.",
+                      duration: 4000,
+                    });
+                    // Lleva al usuario a ver los planes
+                    router.push("/?tab=billing");
+                  } else {
+                    // Tiene plan, lo llevamos a la pestaña de settings -> workspace
+                    router.push("/?tab=settings&section=workspace");
+                  }
+                  setIsOpen(false);
+                }}
                 className={`w-full flex items-center gap-2 rounded-lg p-2.5 text-sm transition-colors ${
                   isDark
                     ? "text-gray-400 hover:text-cyan-400 hover:bg-white/5"
@@ -223,7 +241,7 @@ export function OrgSwitcher({ isExpanded }: OrgSwitcherProps) {
               >
                 <Plus size={14} />
                 <span>Create workspace</span>
-              </a>
+              </button>
             </div>
           </motion.div>
         )}

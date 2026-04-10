@@ -1,9 +1,11 @@
 import React from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { X, AlertTriangle, ShieldAlert } from "lucide-react";
+import { X, Warning, ShieldWarning } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useEscapeKey } from "@/features/shared/hooks/useEscapeKey";
 import { Button } from "@/components/ui/button";
+import { createPortal } from "react-dom";
+import { useState, useEffect } from "react";
 
 interface UserActionModalProps {
   isOpen: boolean;
@@ -62,11 +64,19 @@ export const UserActionModal: React.FC<UserActionModalProps> = ({
   };
 
   const colors = getColors();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
 
   // Keyboard accessibility: Esc to close
   useEscapeKey(onClose, isOpen);
 
-  return (
+  if (!mounted || !isOpen) return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <React.Fragment>
@@ -86,7 +96,7 @@ export const UserActionModal: React.FC<UserActionModalProps> = ({
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ type: "spring", duration: 0.5 }}
-              className={`pointer-events-auto w-full max-w-md overflow-hidden rounded-2xl border shadow-2xl relative ${
+              className={`pointer-events-auto w-112 min-w-[320px] sm:min-w-112 max-w-[90vw] shrink-0 overflow-hidden rounded-2xl border shadow-2xl relative ${
                 isDark
                   ? "bg-[#0a0a0a]/90 border-white/10"
                   : "bg-white/90 border-white/20"
@@ -96,11 +106,11 @@ export const UserActionModal: React.FC<UserActionModalProps> = ({
                 <div className="flex items-start gap-4">
                   <div className={`p-3 rounded-full ${colors.iconBg} shrink-0`}>
                     {actionType === "danger" ? (
-                      <AlertTriangle
+                      <Warning
                         className={`w-6 h-6 ${colors.iconColor}`}
                       />
                     ) : (
-                      <ShieldAlert className={`w-6 h-6 ${colors.iconColor}`} />
+                      <ShieldWarning className={`w-6 h-6 ${colors.iconColor}`} />
                     )}
                   </div>
                   <div className="flex-1">
@@ -160,6 +170,7 @@ export const UserActionModal: React.FC<UserActionModalProps> = ({
           </div>
         </React.Fragment>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 };

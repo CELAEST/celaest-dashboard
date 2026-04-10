@@ -1,6 +1,6 @@
 import { logger } from "@/lib/logger";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { billingApi } from "../api/billing.api";
+import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { billingApi, PaymentListResponse } from "../api/billing.api";
 import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
 import { toast } from "sonner";
 
@@ -28,6 +28,26 @@ export const useTransactionQuery = (token: string | null, page: number, limit: n
     queryFn: () => billingApi.getAdminTransactions(token!, page, limit),
     enabled: !!token,
     staleTime: 1000 * 60 * 2, // 2 minutes
+  });
+};
+
+const TRANSACTION_PAGE_SIZE = 15;
+
+export const useTransactionsInfiniteQuery = (token: string | null) => {
+  return useInfiniteQuery<PaymentListResponse>({
+    queryKey: [...QUERY_KEYS.billing.all, "transactions-infinite"],
+    queryFn: async ({ pageParam }) => {
+      return billingApi.getAdminTransactions(token!, pageParam as number, TRANSACTION_PAGE_SIZE);
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      if (!lastPage.total) return undefined;
+      return lastPage.page * lastPage.limit < lastPage.total
+        ? lastPage.page + 1
+        : undefined;
+    },
+    enabled: !!token,
+    staleTime: 1000 * 60 * 2,
   });
 };
 

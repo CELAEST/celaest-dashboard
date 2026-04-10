@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "motion/react";
-import { CreditCard } from "lucide-react";
+import { CreditCard } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
 import { PaymentGateway } from "../../types";

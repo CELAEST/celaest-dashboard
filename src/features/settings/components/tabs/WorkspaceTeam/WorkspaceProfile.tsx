@@ -1,6 +1,6 @@
 import React, { memo, useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { Globe, Image as ImageIcon, Palette, Loader2 } from "lucide-react";
+import { Globe, Image as ImageIcon, Palette, CircleNotch } from "@phosphor-icons/react";
 import NextImage from "next/image";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { toast } from "sonner";
@@ -151,7 +151,7 @@ export const WorkspaceProfile: React.FC<WorkspaceProfileProps> = memo(
             </p>
           </div>
           {isFetchingSettings && (
-            <Loader2 className="w-5 h-5 animate-spin text-cyan-500" />
+            <CircleNotch className="w-5 h-5 animate-spin text-cyan-500" />
           )}
         </div>
 
@@ -337,7 +337,7 @@ export const WorkspaceProfile: React.FC<WorkspaceProfileProps> = memo(
                 >
                   {isSubmitting ? (
                     <>
-                      <Loader2 size={16} className="animate-spin" /> Saving...
+                      <CircleNotch size={16} className="animate-spin" /> Saving...
                     </>
                   ) : (
                     "Save Configuration"

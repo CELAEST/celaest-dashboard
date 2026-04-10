@@ -1,15 +1,16 @@
 import React from "react";
 import {
-  Activity,
-  AlertTriangle,
+  Pulse,
+  Warning,
   Clock,
-  Zap,
+  Lightning,
   Target,
-  Loader2,
+  CircleNotch,
   Gauge,
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import { useTelemetry } from "../../hooks/useOperations";
 import { EndpointStats, ErrorType } from "../../api/schemas";
+import { StatCardSkeleton, TableSkeleton } from "@/components/ui/skeletons";
 
 interface LiveTelemetryTabProps {
   token: string;
@@ -24,8 +25,17 @@ export const LiveTelemetryTab: React.FC<LiveTelemetryTabProps> = ({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <Loader2 className="animate-spin text-cyan-500" size={32} />
+      <div className="h-full space-y-6">
+        <div className="grid grid-cols-4 gap-4">
+          <StatCardSkeleton />
+          <StatCardSkeleton />
+          <StatCardSkeleton />
+          <StatCardSkeleton />
+        </div>
+        <div className="grid grid-cols-2 gap-6">
+          <TableSkeleton rows={4} columns={3} />
+          <TableSkeleton rows={4} columns={3} />
+        </div>
       </div>
     );
   }
@@ -33,7 +43,7 @@ export const LiveTelemetryTab: React.FC<LiveTelemetryTabProps> = ({
   if (error || !telemetry) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-red-400">
-        <AlertTriangle size={36} className="mb-4" />
+        <Warning size={36} className="mb-4" />
         <p>Failed to load telemetry data</p>
       </div>
     );
@@ -62,7 +72,7 @@ export const LiveTelemetryTab: React.FC<LiveTelemetryTabProps> = ({
         <div className="bg-white/2 border border-white/5 p-5 rounded-2xl flex flex-col justify-between">
           <div className="flex items-center gap-3 text-gray-400 mb-4">
             <div className="p-2 bg-blue-500/10 rounded-lg">
-              <Activity size={18} className="text-blue-400" />
+              <Pulse size={18} className="text-blue-400" />
             </div>
             <span className="text-sm font-medium uppercase tracking-widest">
               Total Requests
@@ -79,7 +89,7 @@ export const LiveTelemetryTab: React.FC<LiveTelemetryTabProps> = ({
             <div
               className={`p-2 rounded-lg ${parseFloat(errorRate) > 5 ? "bg-red-500/10" : "bg-emerald-500/10"}`}
             >
-              <AlertTriangle
+              <Warning
                 size={18}
                 className={
                   parseFloat(errorRate) > 5
@@ -104,7 +114,7 @@ export const LiveTelemetryTab: React.FC<LiveTelemetryTabProps> = ({
         <div className="bg-white/2 border border-white/5 p-5 rounded-2xl flex flex-col justify-between">
           <div className="flex items-center gap-3 text-gray-400 mb-4">
             <div className="p-2 bg-amber-500/10 rounded-lg">
-              <Zap size={18} className="text-amber-400" />
+              <Lightning size={18} className="text-amber-400" />
             </div>
             <span className="text-sm font-medium uppercase tracking-widest">
               Avg Latency
@@ -208,7 +218,7 @@ export const LiveTelemetryTab: React.FC<LiveTelemetryTabProps> = ({
         {/* Errors Breakdown */}
         <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 flex flex-col">
           <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-            <AlertTriangle size={18} className="text-red-500" /> Error Breakdown
+            <Warning size={18} className="text-red-500" /> Error Breakdown
           </h3>
           <div className="flex-1 space-y-3">
             {errors_by_type.length === 0 ? (

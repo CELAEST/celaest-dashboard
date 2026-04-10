@@ -1,7 +1,7 @@
 "use client";
 
 import React, { forwardRef } from "react";
-import { Search, Filter } from "lucide-react";
+import { MagnifyingGlass, Funnel } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useMarketplaceProducts } from "../hooks/useMarketplaceProducts";
 
@@ -40,7 +40,7 @@ export const MarketplaceSearch = React.memo(
               }
             `}
           >
-            <Search
+            <MagnifyingGlass
               className={`ml-4 ${isDark ? "text-gray-500" : "text-gray-400"}`}
               size={20}
             />
@@ -69,7 +69,7 @@ export const MarketplaceSearch = React.memo(
                 }
               `}
             >
-              <Filter size={16} />
+              <Funnel size={16} />
               Filtros
             </button>
             <button

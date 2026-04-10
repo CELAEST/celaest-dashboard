@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { AlertCircle } from "lucide-react";
+import { Warning } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
 export const ApiSecurityAlert: React.FC = memo(() => {
@@ -15,7 +15,7 @@ export const ApiSecurityAlert: React.FC = memo(() => {
     >
       <div className="flex items-start gap-4">
         <div className="w-11 h-11 rounded-xl bg-amber-500 flex items-center justify-center shrink-0 shadow-lg shadow-amber-500/20">
-          <AlertCircle className="w-6 h-6 text-white" />
+          <Warning className="w-6 h-6 text-white" />
         </div>
         <div>
           <p

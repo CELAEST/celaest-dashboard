@@ -1,5 +1,5 @@
 import React from "react";
-import { Shield, Lock, CheckCircle, Award } from "lucide-react";
+import { Shield, Lock, CheckCircle, Medal } from "@phosphor-icons/react";
 import { motion } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
@@ -14,7 +14,7 @@ export const TrustBadges: React.FC<TrustBadgesProps> = ({ className = "" }) => {
     { icon: <Shield size={14} />, text: "Cifrado de Grado Militar" },
     { icon: <Lock size={14} />, text: "Pago Seguro SSL" },
     { icon: <CheckCircle size={14} />, text: "Garantía 30 Días" },
-    { icon: <Award size={14} />, text: "Soporte Premium 24/7" },
+    { icon: <Medal size={14} />, text: "Soporte Premium 24/7" },
   ];
 
   return (

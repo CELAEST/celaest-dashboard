@@ -17,7 +17,7 @@ const productSearchSchema = z.object({
     slug: z.string(),
     name: z.string(),
     base_price: z.number()
-  }).passthrough()),
+  }).passthrough()).nullable().transform(v => v || []).catch([]),
   total: z.number()
 }).passthrough() as unknown as z.ZodType<ProductSearchResponse>;
 

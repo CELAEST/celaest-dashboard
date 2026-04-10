@@ -1,10 +1,12 @@
 import { useState, useMemo } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQueryClient, InfiniteData } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { UserData } from "../components/types";
-import { usersApi, CreateUserInput, UpdateUserInput } from "../api/users.api";
+import { usersApi, CreateUserInput, UpdateUserInput, UsersResponse } from "../api/users.api";
 import { useApiAuth } from "@/lib/use-api-auth";
 import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
+
+const USERS_PAGE_SIZE = 15;
 
 export const useUserManagement = () => {
   const { token, orgId, isReady } = useApiAuth();
@@ -12,15 +14,33 @@ export const useUserManagement = () => {
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const queryClient = useQueryClient();
 
-  const { data: users = [], isLoading } = useQuery({
+  const {
+    data,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
     queryKey: QUERY_KEYS.users.all,
-    queryFn: async () => {
-      if (!token || !orgId) return [];
-      const response = await usersApi.getUsers(1, 20, token, orgId);
-      return response.success ? response.data : [];
+    queryFn: async ({ pageParam }) => {
+      if (!token || !orgId) return { success: true, data: [], meta: { page: pageParam, per_page: USERS_PAGE_SIZE, total: 0, total_pages: 0 } } as UsersResponse;
+      return usersApi.getUsers(pageParam, USERS_PAGE_SIZE, token, orgId);
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      if (!lastPage.meta) return undefined;
+      return lastPage.meta.page < lastPage.meta.total_pages
+        ? lastPage.meta.page + 1
+        : undefined;
     },
     enabled: isReady && !!token && !!orgId,
   });
+
+  const users = useMemo(
+    () => data?.pages.flatMap((p) => (p.success ? p.data : [])) ?? [],
+    [data],
+  );
+  const totalUsers = data?.pages[0]?.meta?.total ?? 0;
 
   // ── Mutations ───────────────────────────────────────────────────────
   const createMutation = useMutation({
@@ -41,12 +61,19 @@ export const useUserManagement = () => {
       await usersApi.updateUser(userId, data, token, orgId);
       return { userId, data };
     },
-    onMutate: async ({ userId, data }) => {
+    onMutate: async ({ userId, data: ud }) => {
       await queryClient.cancelQueries({ queryKey: QUERY_KEYS.users.all });
-      const previous = queryClient.getQueryData<UserData[]>(QUERY_KEYS.users.all);
-      queryClient.setQueryData<UserData[]>(QUERY_KEYS.users.all, old =>
-        (old || []).map(u => u.id === userId ? { ...u, ...data } as UserData : u)
-      );
+      const previous = queryClient.getQueryData<InfiniteData<UsersResponse>>(QUERY_KEYS.users.all);
+      queryClient.setQueryData<InfiniteData<UsersResponse>>(QUERY_KEYS.users.all, old => {
+        if (!old) return old;
+        return {
+          ...old,
+          pages: old.pages.map(p => ({
+            ...p,
+            data: p.data.map(u => u.id === userId ? { ...u, ...ud } as UserData : u),
+          })),
+        };
+      });
       return { previous };
     },
     onError: (_err, _vars, context) => {
@@ -64,10 +91,17 @@ export const useUserManagement = () => {
     },
     onMutate: async (userId: string) => {
       await queryClient.cancelQueries({ queryKey: QUERY_KEYS.users.all });
-      const previous = queryClient.getQueryData<UserData[]>(QUERY_KEYS.users.all);
-      queryClient.setQueryData<UserData[]>(QUERY_KEYS.users.all, old =>
-        (old || []).filter(u => u.id !== userId)
-      );
+      const previous = queryClient.getQueryData<InfiniteData<UsersResponse>>(QUERY_KEYS.users.all);
+      queryClient.setQueryData<InfiniteData<UsersResponse>>(QUERY_KEYS.users.all, old => {
+        if (!old) return old;
+        return {
+          ...old,
+          pages: old.pages.map(p => ({
+            ...p,
+            data: p.data.filter(u => u.id !== userId),
+          })),
+        };
+      });
       return { previous };
     },
     onError: (_err, _id, context) => {
@@ -85,12 +119,19 @@ export const useUserManagement = () => {
     },
     onMutate: async ({ userId, newRole }) => {
       await queryClient.cancelQueries({ queryKey: QUERY_KEYS.users.all });
-      const previous = queryClient.getQueryData<UserData[]>(QUERY_KEYS.users.all);
-      queryClient.setQueryData<UserData[]>(QUERY_KEYS.users.all, old =>
-        (old || []).map(u =>
-          u.id === userId ? { ...u, role: newRole as UserData["role"] } : u
-        )
-      );
+      const previous = queryClient.getQueryData<InfiniteData<UsersResponse>>(QUERY_KEYS.users.all);
+      queryClient.setQueryData<InfiniteData<UsersResponse>>(QUERY_KEYS.users.all, old => {
+        if (!old) return old;
+        return {
+          ...old,
+          pages: old.pages.map(p => ({
+            ...p,
+            data: p.data.map(u =>
+              u.id === userId ? { ...u, role: newRole as UserData["role"] } : u
+            ),
+          })),
+        };
+      });
       return { previous };
     },
     onError: (_err, _vars, context) => {
@@ -145,6 +186,10 @@ export const useUserManagement = () => {
 
   return {
     users,
+    totalUsers,
+    hasNextPage: !!hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
     filteredUsers,
     searchQuery,
     setSearchQuery,

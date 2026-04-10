@@ -2,8 +2,8 @@ import { useMemo } from "react";
 import {
   Users,
   Percent,
-  Zap,
-} from "lucide-react";
+  Lightning,
+} from "@phosphor-icons/react";
 import { FinancialMetric } from "../types";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { useAdminStatsQuery, useTaxRatesQuery } from "./useBillingQuery";
@@ -45,7 +45,7 @@ export const useFinancialDashboard = () => {
       color: "yellow",
     },
     {
-      icon: Zap,
+      icon: Lightning,
       label: "ARPU (AVG REVENUE PER USER)",
       value: `$${stats.paidInvoices > 0 ? (stats.totalRevenue / stats.paidInvoices).toFixed(2) : "0"}`,
       change: "Avg/mo",

@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Layers, BrainCircuit, Loader2, FileCode } from "lucide-react";
+import { Stack, Brain, CircleNotch, FileCode } from "@phosphor-icons/react";
 import { useAIModels } from "../../hooks/useAI";
 import { AIModel, AIBatchTask } from "../../types";
 
@@ -87,7 +87,7 @@ export const AIBatchModal: React.FC<AIBatchModalProps> = ({
         <DialogHeader>
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2 bg-purple-500/20 rounded-xl border border-purple-500/30">
-              <Layers className="text-purple-400" size={20} />
+              <Stack className="text-purple-400" size={20} weight="duotone" />
             </div>
             <DialogTitle className="text-2xl font-bold tracking-tight">
               Initialize Batch Job
@@ -147,7 +147,7 @@ export const AIBatchModal: React.FC<AIBatchModalProps> = ({
           <div className="space-y-2">
             <div className="flex justify-between items-center mb-1">
               <label className="text-xs font-bold text-purple-400/80 uppercase tracking-widest ml-1 flex items-center gap-2">
-                <FileCode size={12} /> Task Payload (JSON Array)
+                <FileCode size={12} weight="duotone" /> Task Payload (JSON Array)
               </label>
               <span className="text-[10px] text-gray-500 font-mono tracking-tighter">
                 [&#123; &quot;input&quot;: &quot;text&quot;,
@@ -185,10 +185,10 @@ export const AIBatchModal: React.FC<AIBatchModalProps> = ({
               className="bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-500 hover:to-fuchsia-500 text-white min-w-[160px] font-bold shadow-[0_0_20px_rgba(168,85,247,0.2)]"
             >
               {isLoading ? (
-                <Loader2 className="animate-spin" size={18} />
+                <CircleNotch className="animate-spin" size={18} />
               ) : (
                 <>
-                  <BrainCircuit size={18} className="mr-2" />
+                  <Brain size={18} className="mr-2" weight="duotone" />
                   Launch Batch
                 </>
               )}

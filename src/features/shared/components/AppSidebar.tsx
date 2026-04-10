@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useCallback } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { motion } from "motion/react";
-import { LogOut, Bomb } from "lucide-react";
+import { SignOut, Bomb } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
@@ -12,7 +12,7 @@ import { usePermissions } from "@/features/auth/hooks/useAuthorization";
 import { type Permission } from "@/features/auth/lib/permissions";
 import { SignOutModal } from "./SignOutModal";
 import Logo from "@/components/icons/Logo";
-import { menuItems } from "./Sidebar/config";
+import { menuSections } from "./Sidebar/config";
 import { SidebarMenuItem } from "./Sidebar/SidebarMenuItem";
 import { OrgSwitcher } from "./Sidebar/OrgSwitcher";
 import { useOrgStore } from "../stores/useOrgStore";
@@ -46,18 +46,20 @@ export const AppSidebar = React.memo(function AppSidebar({
   const currentOrgId = currentOrg?.id;
 
   const { hasPermission } = usePermissions();
-  const isDark = theme === "dark";
 
-  // Memoizar items visibles
-  const visibleMenuItems = useMemo(
+  // Memoizar secciones y filtrar sus ítems
+  const visibleMenuSections = useMemo(
     () =>
-      menuItems.filter((item) => {
-        // If guest, show all (locked status handled in render)
-        if (isGuest) return true;
-
-        if (!item.scope) return true;
-        return user ? hasPermission(item.scope as Permission) : true;
-      }),
+      menuSections
+        .map((section) => ({
+          ...section,
+          items: section.items.filter((item) => {
+            if (isGuest) return true;
+            if (!item.scope) return true;
+            return user ? hasPermission(item.scope as Permission) : true;
+          }),
+        }))
+        .filter((section) => section.items.length > 0),
     [user, hasPermission, isGuest],
   );
 
@@ -84,8 +86,29 @@ export const AppSidebar = React.memo(function AppSidebar({
     setShowSignOutModal(false);
   }, []);
 
+  const navRef = React.useRef<HTMLElement>(null);
+  const sidebarRef = React.useRef<HTMLDivElement>(null);
   const handleMouseEnter = useCallback(() => setIsHovered(true), []);
-  const handleMouseLeave = useCallback(() => setIsHovered(false), []);
+  const handleMouseLeave = useCallback(() => {
+    // Only collapse if focus is NOT inside the sidebar (keyboard user)
+    if (sidebarRef.current?.contains(document.activeElement)) return;
+    setIsHovered(false);
+    if (navRef.current) {
+      navRef.current.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, []);
+
+  // Expand on keyboard focus-within, collapse on blur-out
+  const handleFocusIn = useCallback(() => setIsHovered(true), []);
+  const handleFocusOut = useCallback((e: React.FocusEvent) => {
+    // Only collapse if focus moved OUTSIDE the sidebar
+    if (!sidebarRef.current?.contains(e.relatedTarget as Node)) {
+      setIsHovered(false);
+      if (navRef.current) {
+        navRef.current.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    }
+  }, []);
 
   const handleItemClick = useCallback(
     (id: string) => {
@@ -101,32 +124,25 @@ export const AppSidebar = React.memo(function AppSidebar({
   // Clases memoizadas
   const containerClassName = useMemo(
     () =>
-      `h-screen fixed left-0 top-0 z-50 flex flex-col backdrop-blur-xl border-r transition-colors duration-300 ${
-        isDark
-          ? "bg-black/80 border-cyan-500/20 shadow-[0_0_20px_rgba(0,255,255,0.05)]"
-          : "bg-white/80 border-gray-200 shadow-xl"
-      }`,
-    [isDark],
+      "h-screen fixed left-0 top-0 z-50 flex flex-col backdrop-blur-2xl border-r transition-colors duration-300 bg-white/80 border-gray-200 shadow-xl dark:bg-[#020202]/80 dark:border-white/[0.05] dark:shadow-[4px_0_24px_rgba(0,0,0,0.5)] overflow-x-hidden",
+    [],
   );
 
   return (
     <>
       <motion.div
+        ref={sidebarRef}
         className={containerClassName}
-        initial={{ width: "80px" }}
-        animate={{ width: isHovered ? "240px" : "80px" }}
+        initial={{ width: "88px" }}
+        animate={{ width: isHovered ? "280px" : "88px" }}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
+        onFocus={handleFocusIn}
+        onBlur={handleFocusOut}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
       >
-        <div className="h-20 flex items-center justify-center relative overflow-hidden px-4">
-          <div
-            className={`absolute inset-0 bg-linear-to-r opacity-50 ${
-              isDark
-                ? "from-cyan-500/10 to-transparent"
-                : "from-blue-500/10 to-transparent"
-            }`}
-          />
+        <div className="h-20 flex items-center justify-center relative overflow-hidden px-4 border-b border-transparent dark:border-white/5">
+          <div className="absolute inset-0 bg-linear-to-r from-blue-500/5 to-transparent dark:from-white/2 dark:to-transparent" />
 
           <motion.div
             className="relative z-10 flex items-center gap-1 w-full justify-center"
@@ -143,8 +159,8 @@ export const AppSidebar = React.memo(function AppSidebar({
               transition={{ duration: 0.3 }}
             >
               <Logo
-                className="w-full h-full"
-                color={isDark ? "#22d3ee" : "#2563eb"}
+                className="w-full h-full text-blue-600 dark:text-cyan-400"
+                color="currentColor"
               />
             </motion.div>
 
@@ -157,21 +173,11 @@ export const AppSidebar = React.memo(function AppSidebar({
               }}
               transition={{ duration: 0.3 }}
             >
-              <div className="flex flex-col leading-none whitespace-nowrap">
-                <span
-                  className={`text-xl font-bold tracking-tight ${
-                    isDark
-                      ? "bg-linear-to-r from-cyan-400 via-cyan-300 to-blue-400 bg-clip-text text-transparent"
-                      : "bg-linear-to-r from-blue-600 via-blue-500 to-indigo-600 bg-clip-text text-transparent"
-                  }`}
-                >
+              <div className="flex flex-col shrink-0 leading-none whitespace-nowrap">
+                <span className="text-xl font-bold tracking-tight bg-linear-to-r from-blue-600 via-blue-500 to-indigo-600 bg-clip-text text-transparent dark:text-white dark:bg-none">
                   CELAEST
                 </span>
-                <span
-                  className={`text-[10px] font-medium tracking-[0.21em] mt-0.5 ${
-                    isDark ? "text-cyan-400/60" : "text-blue-500/60"
-                  }`}
-                >
+                <span className="text-[10px] font-medium tracking-[0.21em] mt-0.5 text-blue-500/60 dark:text-gray-500">
                   DASHBOARD
                 </span>
               </div>
@@ -182,26 +188,45 @@ export const AppSidebar = React.memo(function AppSidebar({
         {/* Org Switcher (multi-org dropdown) */}
         {!isGuest && <OrgSwitcher isExpanded={isHovered} />}
 
-        <nav className="flex-1 py-8 flex flex-col gap-2 px-4 overflow-hidden">
-          {visibleMenuItems.map((item) => (
-            <SidebarMenuItem
-              key={item.id}
-              item={item}
-              isActive={activeTab === item.id}
-              isHovered={isHovered}
-              isLocked={isGuest && item.id !== "marketplace"}
-              isDark={isDark}
-              onClick={() => handleItemClick(item.id)}
-            />
+        <nav
+          ref={navRef}
+          aria-label="Navegación principal"
+          className={`flex-1 py-4 flex flex-col px-3 overflow-y-auto no-scrollbar transition-all duration-300 ${
+            isHovered ? "gap-6" : "gap-2"
+          }`}
+        >
+          {visibleMenuSections.map((section, sidx) => (
+            <div key={sidx} className="flex flex-col gap-1">
+              <motion.div
+                initial={false}
+                animate={{
+                  height: isHovered ? 24 : 0,
+                  opacity: isHovered ? 1 : 0,
+                }}
+                className="overflow-hidden flex flex-col justify-end"
+              >
+                <div className="px-3 pb-2">
+                  <span className="text-[11px] whitespace-nowrap font-bold tracking-widest uppercase text-gray-400 dark:text-gray-500/80">
+                    {section.title}
+                  </span>
+                </div>
+              </motion.div>
+              {section.items.map((item) => (
+                <SidebarMenuItem
+                  key={item.id}
+                  item={item}
+                  isActive={activeTab === item.id}
+                  isHovered={isHovered}
+                  isLocked={isGuest && item.id !== "marketplace"}
+                  onClick={() => handleItemClick(item.id)}
+                />
+              ))}
+            </div>
           ))}
         </nav>
 
         {!isGuest && (
-          <div
-            className={`p-4 border-t flex flex-col gap-3 ${
-              isDark ? "border-white/5" : "border-gray-200"
-            }`}
-          >
+          <div className="p-4 border-t flex flex-col gap-3 border-gray-200 dark:border-white/5">
             {/* Live Connection Status */}
             <motion.div
               className="flex items-center gap-2 px-1"
@@ -212,14 +237,10 @@ export const AppSidebar = React.memo(function AppSidebar({
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
               </div>
               <div className="flex flex-col">
-                <span
-                  className={`text-[9px] font-black uppercase tracking-widest ${isDark ? "text-cyan-400/80" : "text-blue-600/80"}`}
-                >
+                <span className="text-[9px] font-black uppercase tracking-widest text-blue-600/80 dark:text-cyan-400/80">
                   Live Connection
                 </span>
-                <span
-                  className={`text-[8px] font-mono truncate max-w-[140px] ${isDark ? "text-gray-600" : "text-gray-400"}`}
-                >
+                <span className="text-[8px] font-mono truncate max-w-[140px] text-gray-400 dark:text-gray-600">
                   ID: {currentOrgId || "N/A"}
                 </span>
               </div>
@@ -227,13 +248,10 @@ export const AppSidebar = React.memo(function AppSidebar({
 
             <button
               onClick={handleSignOutClick}
-              className={`flex items-center w-full h-10 transition-colors rounded-xl px-3 ${
-                isDark
-                  ? "text-gray-400 hover:text-red-400 hover:bg-red-500/10"
-                  : "text-gray-500 hover:text-red-600 hover:bg-red-50"
-              }`}
+              aria-label="Cerrar sesión"
+              className="flex items-center w-full h-10 transition-colors rounded-xl px-3 text-gray-500 hover:text-red-600 hover:bg-red-50 dark:text-gray-400 dark:hover:text-red-400 dark:hover:bg-red-500/10"
             >
-              <LogOut size={20} />
+              <SignOut size={20} />
               <motion.span
                 className="ml-3 whitespace-nowrap font-medium"
                 initial={{ opacity: 0 }}
@@ -257,11 +275,7 @@ export const AppSidebar = React.memo(function AppSidebar({
                     window.location.href = "/";
                   }
                 }}
-                className={`flex items-center w-full h-10 transition-colors rounded-xl px-3 ${
-                  isDark
-                    ? "text-orange-400 hover:text-white hover:bg-orange-500"
-                    : "text-orange-600 hover:text-white hover:bg-orange-500"
-                }`}
+                className="flex items-center w-full h-10 transition-colors rounded-xl px-3 text-orange-600 hover:text-white hover:bg-orange-500 dark:text-orange-400 dark:hover:text-white dark:hover:bg-orange-500"
                 title="Nuclear Reset (Dev Only)"
               >
                 <Bomb size={20} />

@@ -5,7 +5,6 @@ import {
   flexRender,
   getCoreRowModel,
   useReactTable,
-  getPaginationRowModel,
   SortingState,
   getSortedRowModel,
   HeaderGroup,
@@ -22,10 +21,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useState, useMemo } from "react";
-import { ChevronLeft, ChevronRight, InboxIcon } from "lucide-react";
+import { useState, useMemo, useCallback, useRef, useEffect } from "react";
+import { Tray, CircleNotch } from "@phosphor-icons/react";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -34,7 +33,22 @@ interface DataTableProps<TData, TValue> {
   emptyMessage?: string;
   emptySubmessage?: string;
   onRowClick?: (row: TData) => void;
-  hidePagination?: boolean;
+  /** Max height of the scrollable area */
+  maxHeight?: string;
+  /** Skeleton row count shown during initial load */
+  skeletonRows?: number;
+  /** Total items on server (for "Showing X of Y") */
+  totalItems?: number;
+  /** Whether there are more pages to fetch from the server */
+  hasNextPage?: boolean;
+  /** Whether a next page is currently being fetched */
+  isFetchingNextPage?: boolean;
+  /** Called when the user scrolls near the bottom — fetch next page */
+  onLoadMore?: () => void;
+  /** Hide the footer count row */
+  hideFooter?: boolean;
+  /** Override the default body cell className (default: px-4 py-3 text-sm) */
+  bodyCellClassName?: string;
 }
 
 export function DataTable<TData, TValue>({
@@ -44,49 +58,106 @@ export function DataTable<TData, TValue>({
   emptyMessage = "No hay datos disponibles",
   emptySubmessage = "Intenta ajustar tus filtros o crear un nuevo registro.",
   onRowClick,
-  hidePagination = false,
+  maxHeight = "calc(100vh - 280px)",
+  skeletonRows = 8,
+  totalItems,
+  hasNextPage = false,
+  isFetchingNextPage = false,
+  onLoadMore,
+  hideFooter = false,
+  bodyCellClassName,
 }: DataTableProps<TData, TValue>) {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const [sorting, setSorting] = useState<SortingState>([]);
+  const observerRef = useRef<IntersectionObserver | null>(null);
+
+  const sentinelRef = useCallback(
+    (node: HTMLElement | null) => {
+      if (observerRef.current) observerRef.current.disconnect();
+      if (!node || !hasNextPage || isFetchingNextPage || !onLoadMore) return;
+
+      observerRef.current = new IntersectionObserver(
+        (entries) => {
+          if (entries[0]?.isIntersecting) onLoadMore();
+        },
+        { rootMargin: "200px" },
+      );
+      observerRef.current.observe(node);
+    },
+    [hasNextPage, isFetchingNextPage, onLoadMore],
+  );
+
+  useEffect(() => {
+    return () => observerRef.current?.disconnect();
+  }, []);
 
   const tableConfig = useMemo(
     () => ({
       data,
       columns,
       getCoreRowModel: getCoreRowModel(),
-      getPaginationRowModel: getPaginationRowModel(),
       onSortingChange: setSorting,
       getSortedRowModel: getSortedRowModel(),
-      state: {
-        sorting,
-      },
+      state: { sorting },
     }),
     [data, columns, sorting],
   );
 
   const table = useReactTable(tableConfig);
 
+  const displayTotal = totalItems ?? data.length;
+
+  // Theme-aware class helpers
+  const containerCls = isDark
+    ? "rounded-xl border border-white/[0.07] bg-white/[0.03] backdrop-blur-xl overflow-hidden"
+    : "rounded-xl border border-gray-200/60 bg-white/80 backdrop-blur-xl shadow-sm overflow-hidden";
+
+  const headerRowCls = isDark
+    ? "border-white/[0.06] hover:bg-transparent"
+    : "border-gray-100 hover:bg-transparent";
+
+  const headerCellCls = isDark
+    ? "px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-gray-500"
+    : "px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-gray-400";
+
+  const bodyCellCls = bodyCellClassName ??
+    (isDark ? "px-4 py-3 text-sm text-gray-300" : "px-4 py-3 text-sm text-gray-600");
+
+  const rowBorderCls = isDark ? "border-white/[0.04]" : "border-gray-100/80";
+
+  const rowHoverCls = onRowClick
+    ? isDark ? "cursor-pointer hover:bg-white/[0.03]" : "cursor-pointer hover:bg-gray-50/60"
+    : isDark ? "hover:bg-white/[0.02]" : "hover:bg-gray-50/40";
+
+  const skeletonBgCls = isDark ? "bg-white/[0.06]" : "bg-gray-200/40";
+  const skeletonCellBgCls = isDark ? "bg-white/[0.04]" : "bg-gray-200/30";
+
   if (isLoading) {
     return (
-      <div className="rounded-md border border-neutral-800 bg-neutral-950/50">
+      <div className={containerCls}>
         <Table>
           <TableHeader>
-            <TableRow className="border-neutral-800 hover:bg-transparent">
+            <TableRow className={headerRowCls}>
               {columns.map((_, i) => (
-                <TableHead key={i}>
-                  <Skeleton className="h-4 w-24 bg-neutral-800" />
+                <TableHead key={i} className="px-4 py-3">
+                  <Skeleton className={`h-3.5 w-20 rounded-md ${skeletonBgCls}`} />
                 </TableHead>
               ))}
             </TableRow>
           </TableHeader>
           <TableBody>
-            {Array.from({ length: 5 }).map((_, i) => (
+            {Array.from({ length: skeletonRows }).map((_, i) => (
               <TableRow
                 key={i}
-                className="border-neutral-800 hover:bg-transparent"
+                className={`${rowBorderCls} hover:bg-transparent`}
               >
                 {columns.map((_, j) => (
-                  <TableCell key={j}>
-                    <Skeleton className="h-4 w-full bg-neutral-800/50" />
+                  <TableCell key={j} className="px-4 py-3.5">
+                    <Skeleton
+                      className={`h-4 rounded-md ${skeletonCellBgCls}`}
+                      style={{ width: `${55 + ((j * 17 + i * 7) % 35)}%` }}
+                    />
                   </TableCell>
                 ))}
               </TableRow>
@@ -98,64 +169,70 @@ export function DataTable<TData, TValue>({
   }
 
   return (
-    <div className="space-y-4">
-      <div className="rounded-md border border-neutral-800 bg-neutral-950/50 overflow-hidden">
+    <div className={containerCls}>
+      <div className="overflow-auto [&>div]:overflow-visible" style={{ maxHeight }}>
         <Table>
-          <TableHeader className="bg-neutral-900/50">
+          <TableHeader className={`sticky top-0 z-10 ${isDark ? "bg-[#0d0d0d]" : "bg-gray-50"}`}>
             {table.getHeaderGroups().map((headerGroup: HeaderGroup<TData>) => (
-              <TableRow
-                key={headerGroup.id}
-                className="border-neutral-800 hover:bg-transparent"
-              >
-                {headerGroup.headers.map((header: Header<TData, unknown>) => {
-                  return (
-                    <TableHead key={header.id} className="text-neutral-400">
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
-                    </TableHead>
-                  );
-                })}
+              <TableRow key={headerGroup.id} className={headerRowCls}>
+                {headerGroup.headers.map((header: Header<TData, unknown>) => (
+                  <TableHead key={header.id} className={headerCellCls}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(header.column.columnDef.header, header.getContext())}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row: Row<TData>) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                  className={`border-neutral-800 transition-colors ${onRowClick ? "cursor-pointer hover:bg-neutral-900/50" : "hover:bg-neutral-900/50"}`}
-                  onClick={() => onRowClick && onRowClick(row.original)}
-                >
-                  {row.getVisibleCells().map((cell: Cell<TData, unknown>) => (
-                    <TableCell key={cell.id} className="text-neutral-300">
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
+              <>
+                {table.getRowModel().rows.map((row: Row<TData>) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                    className={`${rowBorderCls} transition-colors duration-150 ${rowHoverCls}`}
+                    onClick={() => onRowClick?.(row.original)}
+                  >
+                    {row.getVisibleCells().map((cell: Cell<TData, unknown>) => (
+                      <TableCell key={cell.id} className={bodyCellCls}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+
+                {/* Infinite scroll sentinel */}
+                {(hasNextPage || isFetchingNextPage) && (
+                  <TableRow className="border-0 hover:bg-transparent">
+                    <TableCell colSpan={columns.length} className="py-4 text-center">
+                      <div ref={sentinelRef} className="flex items-center justify-center gap-2.5">
+                        {isFetchingNextPage ? (
+                          <>
+                            <CircleNotch className={`h-4 w-4 animate-spin ${isDark ? "text-cyan-400" : "text-blue-500"}`} />
+                            <span className={`text-xs font-medium ${isDark ? "text-gray-400" : "text-gray-500"}`}>Cargando más...</span>
+                          </>
+                        ) : (
+                          <span className={`text-[10px] ${isDark ? "text-gray-600" : "text-gray-400"}`}>Scroll para más</span>
+                        )}
+                      </div>
                     </TableCell>
-                  ))}
-                </TableRow>
-              ))
+                  </TableRow>
+                )}
+              </>
             ) : (
               <TableRow className="hover:bg-transparent">
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-64 text-center"
-                >
-                  <div className="flex flex-col items-center justify-center text-neutral-500 space-y-3">
-                    <div className="p-4 rounded-full bg-neutral-900/50 text-neutral-400 border border-neutral-800">
-                      <InboxIcon className="w-8 h-8" strokeWidth={1.5} />
+                <TableCell colSpan={columns.length} className="h-64 text-center">
+                  <div className="flex flex-col items-center justify-center text-gray-500 space-y-3">
+                    <div className={`p-4 rounded-2xl border ${isDark ? "bg-white/[0.03] text-gray-500 border-white/[0.06]" : "bg-gray-50 text-gray-400 border-gray-200"}`}>
+                      <Tray className="w-8 h-8" weight="light" />
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm font-medium text-neutral-300">
+                      <p className={`text-sm font-medium ${isDark ? "text-gray-300" : "text-gray-700"}`}>
                         {emptyMessage}
                       </p>
-                      <p className="text-xs text-neutral-500">
+                      <p className={`text-xs ${isDark ? "text-gray-500" : "text-gray-400"}`}>
                         {emptySubmessage}
                       </p>
                     </div>
@@ -167,44 +244,12 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
 
-      {/* Pagination Controls */}
-      {!hidePagination && (
-        <div className="flex items-center justify-between px-2">
-          <div className="flex-1 text-sm text-neutral-500">
-            Showing{" "}
-            {table.getState().pagination.pageIndex *
-              table.getState().pagination.pageSize +
-              1}{" "}
-            to{" "}
-            {Math.min(
-              (table.getState().pagination.pageIndex + 1) *
-                table.getState().pagination.pageSize,
-              table.getFilteredRowModel().rows.length,
-            )}{" "}
-            of {table.getFilteredRowModel().rows.length} entries
-          </div>
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-              className="border-neutral-800 bg-neutral-950 text-neutral-300 hover:bg-neutral-900 hover:text-neutral-100 h-8"
-            >
-              <ChevronLeft className="h-4 w-4 mr-1" />
-              Previous
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-              className="border-neutral-800 bg-neutral-950 text-neutral-300 hover:bg-neutral-900 hover:text-neutral-100 h-8"
-            >
-              Next
-              <ChevronRight className="h-4 w-4 ml-1" />
-            </Button>
-          </div>
+      {/* Footer count */}
+      {!hideFooter && data.length > 0 && (
+        <div className={`border-t px-4 py-2.5 ${isDark ? "border-white/[0.06] bg-white/[0.01]" : "border-gray-100 bg-gray-50/50"}`}>
+          <p className={`text-[11px] tabular-nums ${isDark ? "text-gray-500" : "text-gray-400"}`}>
+            Showing {data.length} of {displayTotal} entries
+          </p>
         </div>
       )}
     </div>

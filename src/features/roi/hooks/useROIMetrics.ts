@@ -1,14 +1,13 @@
 import { useState, useMemo } from "react";
-import { useAuth } from "@/features/auth/contexts/AuthContext";
-import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useRole } from "@/features/auth/hooks/useAuthorization";
+import { useApiAuth } from "@/lib/use-api-auth";
 import {
   Clock,
   Users,
-  DollarSign,
-  TrendingUp,
-} from "lucide-react";
+  CurrencyDollar,
+  TrendUp,
+} from "@phosphor-icons/react";
 import {
   useROIQuery,
   useROIByProductQuery,
@@ -18,19 +17,158 @@ import {
   useUsersQuery
 } from "./useROIQuery";
 
+type TimeRange = "week" | "month" | "year";
+
+type SalesEntry = {
+  date: string;
+  orders: number;
+};
+
+const DAY_LABELS = ["Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"];
+const MONTH_LABELS = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+
+function toStartOfDay(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function addDays(date: Date, days: number) {
+  const nextDate = new Date(date);
+  nextDate.setDate(nextDate.getDate() + days);
+  return nextDate;
+}
+
+function addMonths(date: Date, months: number) {
+  return new Date(date.getFullYear(), date.getMonth() + months, 1);
+}
+
+function getLatestSalesDate(sales: SalesEntry[]) {
+  if (sales.length === 0) {
+    return toStartOfDay(new Date());
+  }
+
+  const timestamps = sales
+    .map((entry) => new Date(entry.date).getTime())
+    .filter((value) => Number.isFinite(value));
+
+  return timestamps.length > 0
+    ? toStartOfDay(new Date(Math.max(...timestamps)))
+    : toStartOfDay(new Date());
+}
+
+function dateKey(date: Date) {
+  return date.toISOString().slice(0, 10);
+}
+
+function monthKey(date: Date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function toHours(orders: number) {
+  return Math.round(orders * 0.166);
+}
+
+function buildDailyOrdersMap(sales: SalesEntry[]) {
+  const map = new Map<string, number>();
+
+  for (const entry of sales) {
+    const key = dateKey(new Date(entry.date));
+    map.set(key, (map.get(key) || 0) + entry.orders);
+  }
+
+  return map;
+}
+
+function buildMonthlyOrdersMap(sales: SalesEntry[]) {
+  const map = new Map<string, number>();
+
+  for (const entry of sales) {
+    const currentDate = new Date(entry.date);
+    const key = monthKey(currentDate);
+    map.set(key, (map.get(key) || 0) + entry.orders);
+  }
+
+  return map;
+}
+
+function buildWeeklySeries(sales: SalesEntry[]) {
+  const ordersByDay = buildDailyOrdersMap(sales);
+  const endDate = getLatestSalesDate(sales);
+
+  return Array.from({ length: 7 }, (_, index) => {
+    const currentDate = addDays(endDate, index - 6);
+    const orders = ordersByDay.get(dateKey(currentDate)) || 0;
+    return {
+      label: DAY_LABELS[currentDate.getDay()],
+      hours: toHours(orders),
+    };
+  });
+}
+
+function buildMonthlyTimeSavedSeries(sales: SalesEntry[]) {
+  const ordersByDay = buildDailyOrdersMap(sales);
+  const endDate = getLatestSalesDate(sales);
+
+  return Array.from({ length: 4 }, (_, index) => {
+    const bucketStart = addDays(endDate, -27 + index * 7);
+    let orders = 0;
+
+    for (let offset = 0; offset < 7; offset += 1) {
+      const currentDate = addDays(bucketStart, offset);
+      orders += ordersByDay.get(dateKey(currentDate)) || 0;
+    }
+
+    return {
+      label: `S${index + 1}`,
+      hours: toHours(orders),
+    };
+  });
+}
+
+function buildYearlyTimeSavedSeries(sales: SalesEntry[]) {
+  const ordersByMonth = buildMonthlyOrdersMap(sales);
+  const endDate = new Date(getLatestSalesDate(sales).getFullYear(), getLatestSalesDate(sales).getMonth(), 1);
+
+  return Array.from({ length: 12 }, (_, index) => {
+    const currentMonth = addMonths(endDate, index - 11);
+    const orders = ordersByMonth.get(monthKey(currentMonth)) || 0;
+
+    return {
+      label: MONTH_LABELS[currentMonth.getMonth()],
+      hours: toHours(orders),
+    };
+  });
+}
+
+function buildSixMonthTaskSeries(sales: SalesEntry[]) {
+  const ordersByMonth = buildMonthlyOrdersMap(sales);
+  const endDate = new Date(getLatestSalesDate(sales).getFullYear(), getLatestSalesDate(sales).getMonth(), 1);
+
+  return Array.from({ length: 6 }, (_, index) => {
+    const currentMonth = addMonths(endDate, index - 5);
+    const orders = ordersByMonth.get(monthKey(currentMonth)) || 0;
+
+    return {
+      label: MONTH_LABELS[currentMonth.getMonth()],
+      tasks: orders,
+    };
+  });
+}
+
 export const useROIMetrics = () => {
   const { theme } = useTheme();
-  const { session } = useAuth();
-  const { currentOrg } = useOrgStore();
+  // useApiAuth uses a selector on OrgStore (only re-renders when currentOrg.id changes)
+  // instead of subscribing to the full store (which re-renders on isLoading, orgs[], etc.)
+  const { token: rawToken, orgId: rawOrgId } = useApiAuth();
   const { isSuperAdmin } = useRole();
-  const token = session?.accessToken || "";
-  const orgId = currentOrg?.id || "";
+  const token = rawToken || "";
+  const orgId = rawOrgId || "";
 
   const isDark = theme === "dark";
 
-  const [timeRange, setTimeRange] = useState("week");
+  const [timeRange, setTimeRange] = useState<TimeRange>("week");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [selectedFilter, setSelectedFilter] = useState("week");
+  const selectedFilter = timeRange;
+  const setSelectedFilter = (filter: string) => setTimeRange(filter as TimeRange);
 
   // Determine periods for comparison (Logic from legacy)
   const prevPeriod = timeRange === "week" ? "month" : timeRange === "month" ? "year" : "year";
@@ -41,7 +179,8 @@ export const useROIMetrics = () => {
   const activeUsersQuery = useActiveUsersQuery(token, orgId);
   const roiByProductQuery = useROIByProductQuery(token, orgId);
   const usersQuery = useUsersQuery(token, orgId, timeRange);
-  const salesByPeriodQuery = useSalesByPeriodQuery(token, orgId, timeRange);
+  const timeSavedSalesQuery = useSalesByPeriodQuery(token, orgId, timeRange);
+  const sixMonthSalesQuery = useSalesByPeriodQuery(token, orgId, "year");
   
   // Previous Period Queries for growth calculation
   const prevTasksQuery = useTasksQuery(token, orgId, prevPeriod);
@@ -52,7 +191,8 @@ export const useROIMetrics = () => {
     activeUsersQuery.isLoading || 
     roiByProductQuery.isLoading ||
     usersQuery.isLoading ||
-    salesByPeriodQuery.isLoading;
+    timeSavedSalesQuery.isLoading ||
+    sixMonthSalesQuery.isLoading;
 
   // Derived Metrics
   const taskMetrics = useMemo(() => {
@@ -95,7 +235,7 @@ export const useROIMetrics = () => {
       positive: taskMetrics.completed_tasks >= prevTaskMetrics.completed_tasks,
     },
     {
-      icon: DollarSign,
+      icon: CurrencyDollar,
       label: "Valor Generado",
       value: isLoading ? "..." : `$${taskMetrics.value_generated.toLocaleString()}`,
       subtext: "Basado en costo/hr promedio",
@@ -103,7 +243,7 @@ export const useROIMetrics = () => {
       positive: taskMetrics.value_generated >= prevTaskMetrics.value_generated,
     },
     {
-      icon: TrendingUp,
+      icon: TrendUp,
       label: "Usuarios Activos",
       value: isLoading ? "..." : (activeUsersQuery.data?.monthly_active_users || 0).toLocaleString(),
       subtext: "En el periodo seleccionado",
@@ -141,42 +281,24 @@ export const useROIMetrics = () => {
     return entries;
   }, [usersQuery.data]);
 
-  const weeklyData = useMemo(() => {
-    const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    const sales = salesByPeriodQuery.data || [];
-    if (sales.length === 0) {
-      return dayNames.slice(1).concat(dayNames[0]).map(day => ({ day, hours: 0 }));
+  const timeSavedData = useMemo(() => {
+    const sales = (timeSavedSalesQuery.data || []) as SalesEntry[];
+
+    if (timeRange === "week") {
+      return buildWeeklySeries(sales);
     }
-    return sales.slice(0, 7).map(entry => {
-      const date = new Date(entry.date);
-      return {
-        day: dayNames[date.getDay()] || entry.date.slice(5),
-        hours: Math.round(entry.orders * 0.166 * 10)
-      };
-    }).reverse();
-  }, [salesByPeriodQuery.data]);
+
+    if (timeRange === "month") {
+      return buildMonthlyTimeSavedSeries(sales);
+    }
+
+    return buildYearlyTimeSavedSeries(sales);
+  }, [timeSavedSalesQuery.data, timeRange]);
 
   const monthlyData = useMemo(() => {
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const sales = salesByPeriodQuery.data || [];
-    if (sales.length === 0) {
-      const now = new Date();
-      return Array.from({ length: 6 }, (_, i) => {
-        const monthIdx = (now.getMonth() - 5 + i + 12) % 12;
-        return { month: monthNames[monthIdx], tasks: 0 };
-      });
-    }
-    const monthMap = new Map<string, number>();
-    for (const entry of sales) {
-      const monthKey = entry.date.slice(0, 7);
-      monthMap.set(monthKey, (monthMap.get(monthKey) || 0) + entry.orders);
-    }
-    const sorted = Array.from(monthMap.entries()).sort((a, b) => a[0].localeCompare(b[0]));
-    return sorted.slice(-6).map(([key, orders]) => {
-      const monthIdx = parseInt(key.slice(5, 7)) - 1;
-      return { month: monthNames[monthIdx] || key, tasks: orders };
-    });
-  }, [salesByPeriodQuery.data]);
+    const sales = (sixMonthSalesQuery.data || []) as SalesEntry[];
+    return buildSixMonthTaskSeries(sales);
+  }, [sixMonthSalesQuery.data]);
 
   const refresh = () => {
     roiQuery.refetch();
@@ -184,7 +306,8 @@ export const useROIMetrics = () => {
     activeUsersQuery.refetch();
     roiByProductQuery.refetch();
     usersQuery.refetch();
-    salesByPeriodQuery.refetch();
+    timeSavedSalesQuery.refetch();
+    sixMonthSalesQuery.refetch();
   };
 
   const filterOptions = [
@@ -206,7 +329,7 @@ export const useROIMetrics = () => {
     metrics,
     topTemplates,
     zombieUsers,
-    weeklyData,
+    timeSavedData,
     monthlyData,
     isLoading,
     refresh,

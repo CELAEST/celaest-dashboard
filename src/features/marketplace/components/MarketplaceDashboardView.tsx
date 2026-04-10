@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import dynamic from "next/dynamic";
 import { MarketplaceFilterSidebar } from "./MarketplaceFilterSidebar";
@@ -8,7 +8,7 @@ import { ProductCardCompact } from "./ProductCardCompact";
 import { ProductSkeleton } from "./ProductSkeleton";
 import { useMarketplaceProducts } from "../hooks/useMarketplaceProducts";
 import { MarketplaceProduct } from "../types";
-import { Store } from "lucide-react";
+import { Storefront } from "@phosphor-icons/react";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 import { useOrgStore } from "@/features/shared/stores/useOrgStore";
@@ -45,7 +45,7 @@ const LoginModal = dynamic(
  * This is the OPERATIONAL version of the Marketplace for AUTHENTICATED users.
  * It features:
  * - Zero-Scroll architecture (only internal grid scrolls)
- * - Filter sidebar for efficient navigation
+ * - Funnel sidebar for efficient navigation
  * - Dense product grid (6 cols on 2xl)
  * - Compact cards optimized for productivity
  */
@@ -55,7 +55,7 @@ export function MarketplaceDashboardView() {
   const { isAuthenticated } = useAuthStore();
   const { currentOrg, isLoading: isOrgsLoading } = useOrgStore();
 
-  // Data from Store
+  // Data from Storefront
   const {
     products,
     loading: isLoading,
@@ -78,14 +78,19 @@ export function MarketplaceDashboardView() {
   const checkAccess = (prod: MarketplaceProduct): "owned" | "plan" | "none" => {
     if (!prod) return "none";
 
-    // 1. Personal Assets - The endpoint /user/my/assets is already user-scoped by JWT,
-    // so all items in `assets` already belong to the current user. Do NOT filter by
-    // organizationId here: a personal purchase is owned by the user regardless of which
-    // workspace they are currently viewing from.
-    const inAssets = assets.some(
-      (a) => a.productId === prod.id || a.slug === prod.slug,
+    // 1. Personal Assets — filter by current org so that products purchased in
+    // one organization don't bleed into another workspace's marketplace view.
+    const matchedAsset = assets.find(
+      (a) =>
+        a.status === "active" &&
+        (a.productId === prod.id || a.slug === prod.slug) &&
+        (!currentOrg || a.organizationId === currentOrg.id),
     );
-    if (inAssets) return "owned";
+    if (matchedAsset) {
+      // If the asset was granted via subscription/plan, show "En Plan" not "Adquirido"
+      if (matchedAsset.accessType === "subscription") return "plan";
+      return "owned";
+    }
 
     // 2. Plan Check (Is it included in the current active tier?)
     // We ALWAYS allow this to show "En Plan", even in CELAEST, so they see their plan works.
@@ -211,6 +216,7 @@ export function MarketplaceDashboardView() {
 
   const handleProductSelect = (product: MarketplaceProduct) => {
     if (!isAuthenticated) {
+      sessionStorage.setItem("pending_purchase_modal_id", product.id);
       handlePurchaseAction();
       return;
     }
@@ -236,6 +242,25 @@ export function MarketplaceDashboardView() {
   const clearFilters = () => {
     reset();
   };
+
+  useEffect(() => {
+    if (isAuthenticated && products.length > 0 && !isOrgsLoading && currentOrg) {
+      const pendingId = sessionStorage.getItem("pending_purchase_modal_id");
+      if (pendingId) {
+        sessionStorage.removeItem("pending_purchase_modal_id");
+        const product = products.find((p) => p.id === pendingId);
+        if (product) {
+          const access = checkAccess(product);
+          if (access !== "none") {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            setDetailProduct(product);
+          } else {
+            handleProductSelect(product);
+          }
+        }
+      }
+    }
+  }, [isAuthenticated, products, isOrgsLoading, currentOrg]);
 
   return (
     <div
@@ -278,8 +303,9 @@ export function MarketplaceDashboardView() {
           onDownload={() => {
             const asset = assets.find(
               (a) =>
-                a.productId === detailProduct.id ||
-                a.slug === detailProduct.slug,
+                (a.productId === detailProduct.id ||
+                  a.slug === detailProduct.slug) &&
+                (!currentOrg || a.organizationId === currentOrg.id),
             );
             if (asset) {
               downloadAsset(asset.id, detailProduct.slug);
@@ -315,7 +341,9 @@ export function MarketplaceDashboardView() {
 
             // 1. Priority: Check purchased assets (Customer view — real license)
             const asset = assets.find(
-              (a) => a.productId === prodId || a.slug === prodSlug,
+              (a) =>
+                (a.productId === prodId || a.slug === prodSlug) &&
+                (!currentOrg || a.organizationId === currentOrg.id),
             );
 
             if (asset) {
@@ -364,7 +392,7 @@ export function MarketplaceDashboardView() {
 
       {/* Main Content - Zero-Scroll Container */}
       <div className="flex-1 flex min-h-0 overflow-hidden">
-        {/* Filter Sidebar - Desktop */}
+        {/* Funnel Sidebar - Desktop */}
         <div className="hidden lg:block h-full min-h-0">
           <MarketplaceFilterSidebar
             selectedCategories={filters.category ? [filters.category] : ["all"]}
@@ -377,10 +405,9 @@ export function MarketplaceDashboardView() {
           />
         </div>
 
-        {/* Product Grid - Hybrid Scroll: Fast scrolling + Auto-align on stop */}
+        {/* Product Grid - Natural Scroll */}
         <div
-          className="flex-1 overflow-y-auto custom-scrollbar p-5 snap-y snap-mandatory scroll-smooth"
-          style={{ scrollPaddingTop: "2rem" }}
+          className="flex-1 overflow-y-auto custom-scrollbar p-5"
         >
           <AnimatePresence mode="wait">
             {isLoading ? (
@@ -393,9 +420,9 @@ export function MarketplaceDashboardView() {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="flex flex-col items-center justify-center h-full"
+                className="flex flex-col items-center justify-center h-full w-full"
               >
-                <Store
+                <Storefront
                   size={48}
                   className={isDark ? "text-gray-700" : "text-gray-300"}
                 />
@@ -415,7 +442,7 @@ export function MarketplaceDashboardView() {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 gap-6"
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 gap-6 w-full"
               >
                 {products.map((product) => {
                   const access = checkAccess(product);

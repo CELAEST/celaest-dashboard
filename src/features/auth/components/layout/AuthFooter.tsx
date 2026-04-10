@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Lock, Shield } from "lucide-react";
+import { Lock, Shield } from "@phosphor-icons/react";
 
 interface AuthFooterProps {
   mode: "signin" | "signup";

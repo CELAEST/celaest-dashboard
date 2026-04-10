@@ -1,12 +1,12 @@
 import React, { useState, useRef } from "react";
 import {
-  Upload,
+  UploadSimple,
   X,
-  CheckCircle2,
-  AlertCircle,
-  Loader2,
+  CheckCircle,
+  Warning,
+  CircleNotch,
   Image as ImageIcon,
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -116,7 +116,7 @@ export const AssetImageUploader: React.FC<AssetImageUploaderProps> = ({
               />
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
                 <div className="flex flex-col items-center gap-2 text-white transform translate-y-2 group-hover:translate-y-0 transition-transform">
-                  <Upload size={24} />
+                  <UploadSimple size={24} />
                   <span className="text-sm font-bold">Replace Image</span>
                 </div>
               </div>
@@ -147,7 +147,7 @@ export const AssetImageUploader: React.FC<AssetImageUploaderProps> = ({
                     />
                   </div>
                   <div className="flex items-center justify-center gap-2 text-sm font-medium animate-pulse">
-                    <Loader2 className="animate-spin text-cyan-500" size={16} />
+                    <CircleNotch className="animate-spin text-cyan-500" size={16} />
                     <span
                       className={isDark ? "text-gray-400" : "text-gray-600"}
                     >
@@ -164,7 +164,7 @@ export const AssetImageUploader: React.FC<AssetImageUploaderProps> = ({
                         : "bg-white text-gray-400 group-hover:bg-blue-50 group-hover:text-blue-500"
                     }`}
                   >
-                    <Upload size={24} />
+                    <UploadSimple size={24} />
                   </div>
                   <p
                     className={`text-sm font-bold mb-1 ${isDark ? "text-gray-300" : "text-gray-700"}`}
@@ -207,15 +207,15 @@ export const AssetImageUploader: React.FC<AssetImageUploaderProps> = ({
       {!previewUrl && !isUploading && (
         <div className="flex gap-4 justify-center">
           <div className="flex items-center gap-1.5 text-[10px] font-medium text-gray-400">
-            <CheckCircle2 size={12} className="text-emerald-500" />
+            <CheckCircle size={12} className="text-emerald-500" />
             Supabase Storage
           </div>
           <div className="flex items-center gap-1.5 text-[10px] font-medium text-gray-400">
-            <CheckCircle2 size={12} className="text-emerald-500" />
-            Delayed Upload
+            <CheckCircle size={12} className="text-emerald-500" />
+            Delayed UploadSimple
           </div>
           <div className="flex items-center gap-1.5 text-[10px] font-medium text-gray-400">
-            <AlertCircle size={12} className="text-amber-500" />
+            <Warning size={12} className="text-amber-500" />
             5MB Limit
           </div>
         </div>

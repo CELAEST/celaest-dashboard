@@ -5,14 +5,13 @@ import { Button } from "@/components/ui/button";
 import {
   Plus,
   Tag,
-  PowerOff,
+  Power,
   Clock,
-  Activity,
-  Search,
-  Zap,
-  TicketPercent,
+  Pulse,
+  MagnifyingGlass,
+  Lightning,
   Calendar,
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import { DataTable } from "@/components/ui/data-table";
 import { useCoupons } from "../stores/useCouponsStore";
 import { Coupon } from "../lib/types";
@@ -22,8 +21,9 @@ import { Input } from "@/components/ui/input";
 import { ColumnDef } from "@tanstack/react-table";
 import { formatDistanceToNow, format } from "date-fns";
 import { es } from "date-fns/locale";
-import { Copy, Check } from "lucide-react";
+import { Copy, Check } from "@phosphor-icons/react";
 import { toast } from "sonner";
+import { PageBanner } from "@/components/layout/PageLayout";
 
 const CodeCell = ({ code }: { code: string }) => {
   const [copied, setCopied] = useState(false);
@@ -58,7 +58,7 @@ const CodeCell = ({ code }: { code: string }) => {
 };
 
 export const CouponsDashboardView = () => {
-  const { coupons, isLoading, deleteCoupon, invalidate } = useCoupons();
+  const { coupons, totalCoupons, isLoading, deleteCoupon, invalidate, hasNextPage, isFetchingNextPage, fetchNextPage } = useCoupons();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -168,7 +168,7 @@ export const CouponsDashboardView = () => {
             return (
               <div className="flex items-center gap-2">
                 <div className="p-1 rounded-md bg-neutral-800/50">
-                  <Activity className="w-3 h-3 text-neutral-500" />
+                  <Pulse className="w-3 h-3 text-neutral-500" />
                 </div>
                 <div className="flex flex-col">
                   <span className="text-[11px] font-bold text-neutral-300">
@@ -322,7 +322,7 @@ export const CouponsDashboardView = () => {
                 disabled={!isActive}
                 title={isActive ? "Desactivar Cupón" : "Desactivado"}
               >
-                <PowerOff className="w-3.5 h-3.5" />
+                <Power className="w-3.5 h-3.5" />
               </Button>
             </div>
           );
@@ -333,49 +333,39 @@ export const CouponsDashboardView = () => {
   );
 
   return (
-    <div className="relative h-screen w-full bg-[#030303] overflow-hidden flex flex-col p-3">
+    <div className="relative h-full w-full overflow-hidden flex flex-col">
       {/* Absolute Minimal Premium Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-10">
         <div className="absolute -top-[10%] -left-[5%] w-[40%] h-[40%] bg-blue-500/10 blur-[150px] rounded-full" />
         <div className="absolute bottom-[0%] -right-[5%] w-[30%] h-[30%] bg-emerald-500/5 blur-[120px] rounded-full" />
       </div>
 
+      <PageBanner
+        title="Cupones"
+        subtitle="Control de promociones y redenciones"
+        actions={
+          <div className="relative flex-1 max-w-md group">
+            <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-600 group-focus-within:text-blue-500 transition-colors" />
+            <Input
+              value={searchQuery}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setSearchQuery(e.target.value)
+              }
+              placeholder="Buscar código..."
+              className="bg-black/20 border-white/5 focus:border-blue-500/30 w-full h-9 rounded-lg pl-9 text-xs placeholder:text-neutral-700 transition-all"
+            />
+          </div>
+        }
+      />
+
       <motion.div
-        className="relative z-10 flex h-full gap-3 overflow-hidden"
+        className="relative z-10 flex flex-1 min-h-0 gap-3 overflow-hidden px-3 pb-3"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.4 }}
       >
         {/* MAIN AREA (Left) - Dominant element */}
         <div className="flex-1 flex flex-col gap-3 min-w-0">
-          {/* LEAN HEADER */}
-          <div className="bg-neutral-900/40 border border-white/3 backdrop-blur-md rounded-xl p-4 flex items-center justify-between gap-6">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-blue-600/10 border border-blue-500/20 flex items-center justify-center">
-                <TicketPercent className="text-blue-500 w-5 h-5" />
-              </div>
-              <div>
-                <h1 className="text-base font-bold text-white tracking-tight leading-none">
-                  Cupones
-                </h1>
-                <p className="text-[10px] text-neutral-500 font-medium mt-1">
-                  Control de promociones y redenciones
-                </p>
-              </div>
-            </div>
-
-            <div className="relative flex-1 max-w-md group">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-600 group-focus-within:text-blue-500 transition-colors" />
-              <Input
-                value={searchQuery}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setSearchQuery(e.target.value)
-                }
-                placeholder="Buscar código..."
-                className="bg-black/20 border-white/5 focus:border-blue-500/30 w-full h-9 rounded-lg pl-9 text-xs placeholder:text-neutral-700 transition-all"
-              />
-            </div>
-          </div>
 
           {/* TABLE CONTAINER - Dominant Height/Width */}
           <div className="flex-1 bg-neutral-900/30 border border-white/2 backdrop-blur-sm rounded-xl overflow-hidden shadow-2xl flex flex-col">
@@ -386,7 +376,10 @@ export const CouponsDashboardView = () => {
                 isLoading={isLoading}
                 emptyMessage="No se encontraron cupones"
                 emptySubmessage="Ajusta el filtro o crea un nuevo código de descuento."
-                hidePagination={filteredCoupons.length < 20}
+                totalItems={totalCoupons}
+                hasNextPage={hasNextPage}
+                isFetchingNextPage={isFetchingNextPage}
+                onLoadMore={fetchNextPage}
               />
             </div>
           </div>
@@ -417,7 +410,7 @@ export const CouponsDashboardView = () => {
               {
                 label: "Activos",
                 value: stats.active,
-                icon: Activity,
+                icon: Pulse,
                 color: "text-emerald-400",
                 bg: "bg-emerald-500/5",
                 border: "border-emerald-500/10",
@@ -453,7 +446,7 @@ export const CouponsDashboardView = () => {
           {/* GUIDE / SYSTEM STATUS */}
           <div className="flex-1 rounded-xl bg-neutral-900/30 border border-white/2 p-5 flex flex-col">
             <div className="flex items-center gap-2 mb-4">
-              <Zap className="w-3.5 h-3.5 text-blue-500" />
+              <Lightning className="w-3.5 h-3.5 text-blue-500" />
               <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">
                 Guía Rápida
               </span>

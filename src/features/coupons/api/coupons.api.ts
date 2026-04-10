@@ -13,12 +13,34 @@ export interface CouponResponse {
   data: Coupon;
 }
 
+export interface CouponPageResponse {
+  success: boolean;
+  data: Coupon[];
+  meta: {
+    page: number;
+    per_page: number;
+    total: number;
+    total_pages: number;
+  };
+}
+
 export const couponsApi = {
   /**
    * Obtiene todos los cupones de la organización actual
    */
   getCoupons: (token: string, orgId: string) =>
     api.get<Coupon[]>("/api/v1/org/coupons", { token, orgId }),
+
+  /**
+   * Obtiene cupones paginados
+   */
+  getCouponsPaginated: (token: string, orgId: string, page: number = 1, limit: number = 15) =>
+    api.get<CouponPageResponse>("/api/v1/org/coupons", {
+      token,
+      orgId,
+      params: { page: String(page), per_page: String(limit) },
+      skipUnwrap: true,
+    }),
 
   /**
    * Obtiene un cupón específico por su código

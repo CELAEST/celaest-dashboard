@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
-import { Settings, Zap } from "lucide-react";
+import { Gear, Lightning } from "@phosphor-icons/react";
 
 export const SettingsHeader: React.FC = memo(() => {
   const { isDark } = useTheme();
@@ -15,7 +15,7 @@ export const SettingsHeader: React.FC = memo(() => {
               : "bg-linear-to-br from-cyan-100 to-purple-100 border border-gray-200"
           }`}
         >
-          <Settings
+          <Gear
             size={24}
             className={isDark ? "text-cyan-400" : "text-cyan-600"}
           />
@@ -57,7 +57,7 @@ export const SettingsHeader: React.FC = memo(() => {
             System Status
           </p>
           <p className="text-sm font-black text-emerald-500 tracking-tighter flex items-center gap-1">
-            <Zap size={12} />
+            <Lightning size={12} />
             OPERATIONAL
           </p>
         </div>

@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { billingApi } from "@/features/billing/api/billing.api";
 import { AdminPlanModal } from "./AdminPlanModal";
 import { AdminProductModal } from "./AdminProductModal";
-import { Plus, Package, CreditCard, Edit, Loader2 } from "lucide-react";
+import { Plus, Package, CreditCard, PencilSimple, CircleNotch } from "@phosphor-icons/react";
 import { assetsService } from "@/features/assets/services/assets.service";
 
 export const AdminProductCatalog: React.FC = () => {
@@ -93,7 +93,7 @@ export const AdminProductCatalog: React.FC = () => {
         {activeTab === "plans" ? (
           isLoadingPlans ? (
             <div className="flex justify-center p-12">
-              <Loader2 className="w-8 h-8 animate-spin text-cyan-500" />
+              <CircleNotch className="w-8 h-8 animate-spin text-cyan-500" />
             </div>
           ) : plans.length === 0 ? (
             <div className="text-center p-12 text-gray-400 text-sm">
@@ -148,7 +148,7 @@ export const AdminProductCatalog: React.FC = () => {
                               setIsPlanModalOpen(true);
                             }}
                           >
-                            <Edit size={14} />
+                            <PencilSimple size={14} />
                           </button>
                         </div>
                       </td>
@@ -162,7 +162,7 @@ export const AdminProductCatalog: React.FC = () => {
           <div className="overflow-x-auto">
             {isLoadingProducts ? (
               <div className="flex justify-center p-12">
-                <Loader2 className="w-8 h-8 animate-spin text-cyan-500" />
+                <CircleNotch className="w-8 h-8 animate-spin text-cyan-500" />
               </div>
             ) : products.length === 0 ? (
               <div className="text-center p-12 text-gray-400 text-sm">
@@ -211,7 +211,7 @@ export const AdminProductCatalog: React.FC = () => {
                               setIsProductModalOpen(true);
                             }}
                           >
-                            <Edit size={14} />
+                            <PencilSimple size={14} />
                           </button>
                         </div>
                       </td>

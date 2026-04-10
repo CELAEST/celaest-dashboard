@@ -74,6 +74,11 @@ export function useAuthSession() {
 
   useEffect(() => {
     if (!supabase) return;
+    
+    // E2E Bypass: Evitar que Supabase borre el estado de Zustand simulado
+    if (typeof window !== 'undefined' && window.sessionStorage.getItem('playwright-token')) {
+      return;
+    }
 
     const initializeAuth = async () => {
       try {
@@ -81,7 +86,20 @@ export function useAuthSession() {
         const {
           data: { session: currentSession },
         } = await supabase.auth.getSession();
-        syncSession(currentSession);
+
+        if (currentSession?.user) {
+          // getUser() fetches fresh data from Supabase server, including updated
+          // app_metadata (e.g. role patched after token issuance). This avoids
+          // stale JWT payloads showing wrong roles.
+          const { data: { user: freshUser } } = await supabase.auth.getUser();
+          if (freshUser) {
+            syncSession({ ...currentSession, user: freshUser });
+          } else {
+            syncSession(currentSession);
+          }
+        } else {
+          syncSession(currentSession);
+        }
       } catch (error: unknown) {
         logger.error("Failed to initialize auth:", error);
         reset();

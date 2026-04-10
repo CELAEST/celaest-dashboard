@@ -1,5 +1,5 @@
 import React, { memo, useMemo } from "react";
-import { Users, Shield, Clock, Activity, Fingerprint } from "lucide-react";
+import { Users, Shield, Clock, Pulse, Fingerprint } from "@phosphor-icons/react";
 import { StatCard } from "@/features/shared/components/StatCard";
 import { UserData, AuditLog } from "../types";
 import {
@@ -10,9 +10,6 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  PieChart,
-  Pie,
-  Cell,
 } from "recharts";
 import { motion } from "motion/react";
 
@@ -21,6 +18,120 @@ interface StatsOverviewProps {
   auditLogs: AuditLog[];
   isDark: boolean;
 }
+
+interface RoleData {
+  name: string;
+  value: number;
+  color: string;
+}
+
+// Custom Bespoke Holographic SVG for Role Ratio (Replaces Recharts Pie)
+const BespokeRoleRotisserie = ({ data, total, isDark }: { data: RoleData[], total: number, isDark: boolean }) => {
+  const r = 40;
+  const c = 2 * Math.PI * r;
+
+  return (
+    <svg viewBox="0 0 100 100" className="w-[180px] h-[180px] overflow-visible drop-shadow-[0_0_20px_rgba(255,255,255,0.05)]">
+      <defs>
+        <filter id="pieGlow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2.5" result="blur" />
+          <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
+      </defs>
+      
+      {/* Background HUD Matrix */}
+      <motion.circle 
+        cx="50" cy="50" r="48" fill="none" stroke={isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)"} 
+        strokeWidth="1" strokeDasharray="1 8" strokeLinecap="round"
+        animate={{ rotate: 360 }} transition={{ duration: 40, repeat: Infinity, ease: "linear" }} 
+        style={{ transformOrigin: "center" }} 
+      />
+      <motion.circle 
+        cx="50" cy="50" r="32" fill="none" stroke={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"} 
+        strokeWidth="1.5" strokeDasharray="30 60"
+        animate={{ rotate: -360 }} transition={{ duration: 25, repeat: Infinity, ease: "linear" }} 
+        style={{ transformOrigin: "center" }} 
+      />
+      
+      {/* Parametric Rotisserie Ring */}
+      <motion.g animate={{ scale: [1, 1.02, 1] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} style={{ transformOrigin: "center" }}>
+        {data.map((item, idx) => {
+          if (item.value === 0) return null;
+          const percentage = item.value / total;
+          const strokeLength = percentage * c;
+          const gap = Math.min(strokeLength * 0.5, 5); // Responsive gap that doesn't consume tiny segments completely
+          const dashArray = `${Math.max(0, strokeLength - gap)} ${c}`;
+          
+          // Calculate cumulative offset purely
+          const currentOffset = data.slice(0, idx).reduce((acc, prev) => acc + (prev.value / total) * c, 0);
+          
+          return (
+            <motion.circle
+              key={idx}
+              cx="50"
+              cy="50"
+              r={r}
+              fill="none"
+              stroke={item.color}
+              strokeWidth="9"
+              strokeDasharray={dashArray}
+              strokeDashoffset={-currentOffset}
+              strokeLinecap="round"
+              filter="url(#pieGlow)"
+              initial={{ strokeDashoffset: -c }}
+              animate={{ strokeDashoffset: -currentOffset }}
+              transition={{ duration: 1.5, delay: idx * 0.2, ease: "easeOut" }}
+              style={{ transformOrigin: "center", rotate: -90 }}
+            />
+          );
+        })}
+      </motion.g>
+    </svg>
+  );
+};
+
+// Custom Bespoke Holographic SVG for Authentication Flux Empty State
+const FluxEmptyStateVisual = () => (
+  <svg viewBox="0 0 100 100" className="w-[120px] h-[120px] overflow-visible drop-shadow-[0_0_15px_rgba(34,211,238,0.2)]">
+    <defs>
+      <linearGradient id="fluxGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stopColor="#22d3ee" stopOpacity="0.1" />
+        <stop offset="50%" stopColor="#06b6d4" stopOpacity="0.8" />
+        <stop offset="100%" stopColor="#22d3ee" stopOpacity="0.1" />
+      </linearGradient>
+      <filter id="fluxGlow" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="3" result="blur" />
+        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+      </filter>
+    </defs>
+    
+    <motion.g animate={{ y: [-2, 2, -2] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}>
+      {/* Radar grid */}
+      <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(34, 211, 238, 0.1)" strokeWidth="1" />
+      <circle cx="50" cy="50" r="25" fill="none" stroke="rgba(34, 211, 238, 0.05)" strokeWidth="1" />
+      <line x1="10" y1="50" x2="90" y2="50" stroke="rgba(34, 211, 238, 0.1)" strokeWidth="1" strokeDasharray="2 4" />
+      <line x1="50" y1="10" x2="50" y2="90" stroke="rgba(34, 211, 238, 0.1)" strokeWidth="1" strokeDasharray="2 4" />
+      
+      {/* Sine Wave scanning motion */}
+      <motion.path 
+        d="M 10 50 Q 25 20, 50 50 T 90 50" 
+        fill="none" 
+        stroke="url(#fluxGrad)" 
+        strokeWidth="3" 
+        strokeLinecap="round"
+        filter="url(#fluxGlow)"
+        initial={{ pathLength: 0, opacity: 0 }}
+        animate={{ pathLength: 1, opacity: [0, 1, 0] }}
+        transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+      />
+      <motion.circle 
+        cx="50" cy="50" r="40" fill="none" stroke="#22d3ee" strokeWidth="2" strokeDasharray="30 220" strokeLinecap="round"
+        animate={{ rotate: 360 }} transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+        style={{ transformOrigin: "center" }}
+      />
+    </motion.g>
+  </svg>
+);
 
 /** Derive hourly activity data from audit logs */
 function buildActivityData(logs: AuditLog[]): { time: string; events: number }[] {
@@ -46,6 +157,176 @@ function buildActivityData(logs: AuditLog[]): { time: string; events: number }[]
     .map(([time, events]) => ({ time, events }));
 }
 
+// ── Bespoke SVG: User Sovereignty Constellation ──────────────────────
+const SovereigntyVisual = () => (
+  <svg viewBox="0 0 80 80" className="w-[100px] h-[100px] overflow-visible">
+    <defs>
+      <filter id="sovGlow" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="2" result="blur" />
+        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+      </filter>
+      <linearGradient id="sovGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#22d3ee" stopOpacity="0.8" />
+        <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.4" />
+      </linearGradient>
+    </defs>
+    {/* Outer orbit ring */}
+    <motion.circle
+      cx="40" cy="40" r="36" fill="none" stroke="rgba(34,211,238,0.12)" strokeWidth="1"
+      strokeDasharray="4 8" animate={{ rotate: 360 }}
+      transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+      style={{ transformOrigin: "center" }}
+    />
+    {/* Inner constellation ring */}
+    <motion.circle
+      cx="40" cy="40" r="24" fill="none" stroke="rgba(34,211,238,0.08)" strokeWidth="1.5"
+      strokeDasharray="12 20" animate={{ rotate: -360 }}
+      transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+      style={{ transformOrigin: "center" }}
+    />
+    {/* Network nodes */}
+    {[
+      { cx: 40, cy: 14 }, { cx: 62, cy: 28 }, { cx: 62, cy: 52 },
+      { cx: 40, cy: 66 }, { cx: 18, cy: 52 }, { cx: 18, cy: 28 },
+    ].map((node, i) => (
+      <g key={i}>
+        <line x1="40" y1="40" x2={node.cx} y2={node.cy} stroke="rgba(34,211,238,0.15)" strokeWidth="1" />
+        <motion.circle
+          cx={node.cx} cy={node.cy} r="3" fill="#22d3ee" filter="url(#sovGlow)"
+          animate={{ opacity: [0.4, 1, 0.4], scale: [0.8, 1.2, 0.8] }}
+          transition={{ duration: 2.5, delay: i * 0.3, repeat: Infinity, ease: "easeInOut" }}
+          style={{ transformOrigin: `${node.cx}px ${node.cy}px` }}
+        />
+      </g>
+    ))}
+    {/* Central core */}
+    <motion.circle
+      cx="40" cy="40" r="6" fill="url(#sovGrad)" filter="url(#sovGlow)"
+      animate={{ scale: [1, 1.15, 1] }}
+      transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+      style={{ transformOrigin: "center" }}
+    />
+    <circle cx="40" cy="40" r="2" fill="white" opacity="0.9" />
+  </svg>
+);
+
+// ── Bespoke SVG: Control Hierarchy Shield Reactor ────────────────────
+const HierarchyVisual = () => (
+  <svg viewBox="0 0 80 80" className="w-[100px] h-[100px] overflow-visible">
+    <defs>
+      <filter id="hierGlow" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="2.5" result="blur" />
+        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+      </filter>
+      <linearGradient id="hierGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#a855f7" stopOpacity="0.9" />
+        <stop offset="100%" stopColor="#ec4899" stopOpacity="0.5" />
+      </linearGradient>
+    </defs>
+    {/* Rotating guard ring */}
+    <motion.circle
+      cx="40" cy="40" r="35" fill="none" stroke="rgba(168,85,247,0.15)" strokeWidth="2"
+      strokeDasharray="18 12 6 12" strokeLinecap="round"
+      animate={{ rotate: 360 }}
+      transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+      style={{ transformOrigin: "center" }}
+    />
+    <motion.circle
+      cx="40" cy="40" r="28" fill="none" stroke="rgba(168,85,247,0.08)" strokeWidth="1"
+      strokeDasharray="8 16" animate={{ rotate: -360 }}
+      transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+      style={{ transformOrigin: "center" }}
+    />
+    {/* Shield shape */}
+    <motion.path
+      d="M40 16 L56 26 L56 44 C56 54 48 62 40 66 C32 62 24 54 24 44 L24 26 Z"
+      fill="none" stroke="url(#hierGrad)" strokeWidth="2.5" strokeLinejoin="round"
+      filter="url(#hierGlow)"
+      animate={{ scale: [1, 1.04, 1] }}
+      transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+      style={{ transformOrigin: "center" }}
+    />
+    {/* Inner shield layer */}
+    <motion.path
+      d="M40 24 L50 30 L50 42 C50 49 46 55 40 58 C34 55 30 49 30 42 L30 30 Z"
+      fill="rgba(168,85,247,0.08)" stroke="rgba(168,85,247,0.25)" strokeWidth="1"
+      animate={{ opacity: [0.5, 1, 0.5] }}
+      transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+    />
+    {/* Crown / Chevron authority mark */}
+    <motion.path
+      d="M34 38 L40 32 L46 38" fill="none" stroke="#a855f7" strokeWidth="2.5"
+      strokeLinecap="round" strokeLinejoin="round" filter="url(#hierGlow)"
+      animate={{ y: [-1, 1, -1] }}
+      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+    />
+    <motion.path
+      d="M36 44 L40 39 L44 44" fill="none" stroke="rgba(168,85,247,0.5)" strokeWidth="1.5"
+      strokeLinecap="round" strokeLinejoin="round"
+      animate={{ y: [1, -1, 1] }}
+      transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+    />
+  </svg>
+);
+
+// ── Bespoke SVG: Operational Registry Scanner ────────────────────────
+const RegistryVisual = () => (
+  <svg viewBox="0 0 80 80" className="w-[100px] h-[100px] overflow-visible">
+    <defs>
+      <filter id="regGlow" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="2" result="blur" />
+        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+      </filter>
+      <linearGradient id="regGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#34d399" stopOpacity="0.8" />
+        <stop offset="100%" stopColor="#14b8a6" stopOpacity="0.4" />
+      </linearGradient>
+    </defs>
+    {/* Clock face ring */}
+    <circle cx="40" cy="40" r="32" fill="none" stroke="rgba(52,211,153,0.1)" strokeWidth="1" />
+    {/* Tick marks */}
+    {Array.from({ length: 12 }).map((_, i) => {
+      const angle = (i * 30 * Math.PI) / 180;
+      const x1 = 40 + 28 * Math.cos(angle);
+      const y1 = 40 + 28 * Math.sin(angle);
+      const x2 = 40 + 32 * Math.cos(angle);
+      const y2 = 40 + 32 * Math.sin(angle);
+      return (
+        <line key={i} x1={x1} y1={y1} x2={x2} y2={y2}
+          stroke={i % 3 === 0 ? "rgba(52,211,153,0.4)" : "rgba(52,211,153,0.15)"}
+          strokeWidth={i % 3 === 0 ? "2" : "1"} strokeLinecap="round"
+        />
+      );
+    })}
+    {/* Scanning sweep arm */}
+    <motion.line
+      x1="40" y1="40" x2="40" y2="12" stroke="url(#regGrad)" strokeWidth="2"
+      strokeLinecap="round" filter="url(#regGlow)"
+      animate={{ rotate: 360 }}
+      transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+      style={{ transformOrigin: "40px 40px" }}
+    />
+    {/* Pulse rings */}
+    <motion.circle
+      cx="40" cy="40" r="18" fill="none" stroke="rgba(52,211,153,0.2)" strokeWidth="1"
+      strokeDasharray="6 10" animate={{ rotate: -360 }}
+      transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+      style={{ transformOrigin: "center" }}
+    />
+    {/* Center dot */}
+    <motion.circle
+      cx="40" cy="40" r="4" fill="url(#regGrad)" filter="url(#regGlow)"
+      animate={{ scale: [1, 1.3, 1], opacity: [0.8, 1, 0.8] }}
+      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+      style={{ transformOrigin: "center" }}
+    />
+    <circle cx="40" cy="40" r="1.5" fill="white" opacity="0.9" />
+    {/* Telemetry label */}
+    <text x="40" y="72" textAnchor="middle" fill="rgba(52,211,153,0.3)"
+      fontSize="4" fontFamily="monospace" fontWeight="900">SYS.LOG.01</text>
+  </svg>
+);
+
 export const StatsOverview = memo(
   ({ users, auditLogs, isDark }: StatsOverviewProps) => {
     const activityData = useMemo(() => buildActivityData(auditLogs), [auditLogs]);
@@ -60,7 +341,7 @@ export const StatsOverview = memo(
       {} as Record<string, number>,
     );
 
-    const roleData = [
+    const roleData: RoleData[] = [
       {
         name: "Super Admins",
         value: roleCounts.super_admin || 0,
@@ -82,6 +363,7 @@ export const StatsOverview = memo(
             icon={<Users size={24} />}
             delay={0.1}
             gradient="from-cyan-400 to-blue-500"
+            visual={<SovereigntyVisual />}
           />
           <StatCard
             title="Jerarquía de Control"
@@ -93,6 +375,7 @@ export const StatsOverview = memo(
             icon={<Shield size={24} />}
             delay={0.2}
             gradient="from-purple-500 to-pink-500"
+            visual={<HierarchyVisual />}
           />
           <StatCard
             title="Registro Operativo"
@@ -102,6 +385,7 @@ export const StatsOverview = memo(
             icon={<Clock size={24} />}
             delay={0.3}
             gradient="from-emerald-400 to-teal-500"
+            visual={<RegistryVisual />}
           />
         </div>
 
@@ -119,7 +403,7 @@ export const StatsOverview = memo(
                 <div
                   className={`p-3 rounded-2xl ${isDark ? "bg-cyan-500/10 border border-cyan-500/20" : "bg-cyan-50 text-cyan-600"}`}
                 >
-                  <Activity
+                  <Pulse
                     size={20}
                     className={isDark ? "text-cyan-400" : "text-cyan-600"}
                   />
@@ -142,7 +426,7 @@ export const StatsOverview = memo(
               >
                 <div className={`w-1.5 h-1.5 rounded-full ${hasActivity ? "bg-cyan-500 animate-pulse" : "bg-gray-500"}`} />
                 <span className="text-[10px] font-black uppercase tracking-widest opacity-60">
-                  {hasActivity ? "Real Data" : "No Activity"}
+                  {hasActivity ? "Real Data" : "No Pulse"}
                 </span>
               </div>
             </div>
@@ -194,8 +478,9 @@ export const StatsOverview = memo(
                   </AreaChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="h-full flex items-center justify-center">
-                  <p className={`text-sm font-bold uppercase tracking-widest ${isDark ? "text-white/20" : "text-gray-300"}`}>
+                <div className="h-full flex flex-col items-center justify-center gap-6">
+                  <FluxEmptyStateVisual />
+                  <p className={`text-[10px] md:text-sm font-black uppercase tracking-[0.2em] ${isDark ? "text-white/30" : "text-gray-400"}`}>
                     Sin actividad registrada
                   </p>
                 </div>
@@ -234,25 +519,7 @@ export const StatsOverview = memo(
 
             <div className="flex-1 w-full min-h-0 flex items-center justify-center gap-6 overflow-hidden">
               <div className="w-1/2 h-full relative flex items-center justify-center">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={roleData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius="65%"
-                      outerRadius="90%"
-                      paddingAngle={4}
-                      dataKey="value"
-                      stroke="none"
-                      cornerRadius={8}
-                    >
-                      {roleData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
+                <BespokeRoleRotisserie data={roleData} total={users.length} isDark={isDark} />
 
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                   <span

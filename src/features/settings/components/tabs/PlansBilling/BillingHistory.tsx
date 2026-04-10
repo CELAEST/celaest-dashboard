@@ -1,6 +1,6 @@
 import { logger } from "@/lib/logger";
 import React, { memo, useState, useEffect } from "react";
-import { Receipt, ArrowUpRight, Download } from "lucide-react";
+import { Receipt, ArrowUpRight, DownloadSimple } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 import { useOrgStore } from "@/features/shared/stores/useOrgStore";
@@ -53,7 +53,7 @@ export const BillingHistory: React.FC = memo(() => {
           }`}
         >
           <Receipt className="w-4 h-4 text-emerald-500" />
-          Billing History
+          Billing ClockCounterClockwise
         </h3>
         <button
           className={`flex items-center gap-1.5 text-xs font-black tracking-widest transition-colors ${
@@ -103,7 +103,7 @@ export const BillingHistory: React.FC = memo(() => {
                   invoice.pdf_url && window.open(invoice.pdf_url, "_blank")
                 }
               >
-                <Download size={16} />
+                <DownloadSimple size={16} />
               </button>
             </div>
           ))

@@ -1,6 +1,6 @@
 import { logger } from "@/lib/logger";
 import React, { memo } from "react";
-import { Check } from "lucide-react";
+import { Check } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { toast } from "sonner";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";

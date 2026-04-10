@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "motion/react";
-import { Check, ShoppingCart, Star, Eye } from "lucide-react";
+import { Check, ShoppingCart, Star, Eye } from "@phosphor-icons/react";
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { MarketplaceProduct } from "../types";
@@ -15,6 +15,7 @@ interface ProductCardPremiumProps {
   onViewDetails?: () => void;
   disabledReason?: string;
   isOwned?: boolean;
+  accessLevel?: "owned" | "plan" | "none";
 }
 
 export const ProductCardPremium = React.memo(function ProductCardPremium({
@@ -23,7 +24,11 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
   onViewDetails,
   disabledReason,
   isOwned = false,
+  accessLevel,
 }: ProductCardPremiumProps) {
+  // Resolve effective access: prefer accessLevel prop, fallback to isOwned
+  const effectiveAccess = accessLevel ?? (isOwned ? "owned" : "none");
+  const hasAccess = effectiveAccess === "owned" || effectiveAccess === "plan";
   const { theme } = useTheme();
   const [isHovered, setIsHovered] = React.useState(false);
   const { activeCoupon } = useMarketplaceCouponStore();
@@ -114,6 +119,24 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
           </div>
         )}
       </div>
+
+      {/* Plan tier badge — top right */}
+      {(() => {
+        const tierMap: Record<number, { label: string; dark: string; light: string }> = {
+          0: { label: "All Plans", dark: "bg-white/[0.06] border-white/[0.08] text-gray-400", light: "bg-gray-50/90 border-gray-200/60 text-gray-500" },
+          1: { label: "Basic+", dark: "bg-emerald-500/10 border-emerald-500/20 text-emerald-400", light: "bg-emerald-50/90 border-emerald-200/60 text-emerald-600" },
+          2: { label: "Pro", dark: "bg-violet-500/10 border-violet-500/20 text-violet-400", light: "bg-violet-50/90 border-violet-200/60 text-violet-600" },
+          3: { label: "Enterprise", dark: "bg-amber-500/10 border-amber-500/20 text-amber-400", light: "bg-amber-50/90 border-amber-200/60 text-amber-700" },
+        };
+        const tier = tierMap[product.min_plan_tier] ?? { label: "Private", dark: "bg-red-500/10 border-red-500/20 text-red-400", light: "bg-red-50/90 border-red-200/60 text-red-600" };
+        return (
+          <div className="absolute top-4 right-4 z-20">
+            <div className={`px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest backdrop-blur-md border ${theme === "dark" ? tier.dark : tier.light}`}>
+              {tier.label}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Image Container */}
       <div className="relative h-[220px] w-full overflow-hidden shrink-0">
@@ -265,31 +288,40 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
               Ver Detalles
             </motion.button>
             <motion.button
-              whileHover={!isOwned && !disabledReason ? { scale: 1.02 } : {}}
-              whileTap={!isOwned && !disabledReason ? { scale: 0.98 } : {}}
-              onClick={!isOwned && !disabledReason ? onSelect : undefined}
+              whileHover={!hasAccess && !disabledReason ? { scale: 1.02 } : {}}
+              whileTap={!hasAccess && !disabledReason ? { scale: 0.98 } : {}}
+              onClick={!hasAccess && !disabledReason ? onSelect : undefined}
               title={disabledReason}
               className={`
                 py-3 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-all
                 ${
                   disabledReason
                     ? "bg-gray-200 text-gray-400 border border-gray-300 cursor-not-allowed dark:bg-zinc-800 dark:text-gray-500 dark:border-zinc-700"
-                    : isOwned
-                      ? theme === "dark"
-                        ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 cursor-default"
-                        : "bg-emerald-50 text-emerald-600 border border-emerald-200 cursor-default"
+                    : hasAccess
+                      ? effectiveAccess === "plan"
+                        ? theme === "dark"
+                          ? "bg-violet-500/10 text-violet-400 border border-violet-500/20 cursor-default"
+                          : "bg-violet-50 text-violet-600 border border-violet-200 cursor-default"
+                        : theme === "dark"
+                          ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 cursor-default"
+                          : "bg-emerald-50 text-emerald-600 border border-emerald-200 cursor-default"
                       : theme === "dark"
                         ? "bg-cyan-500 text-black hover:bg-cyan-400 shadow-[0_0_20px_rgba(0,255,255,0.3)]"
                         : "bg-gray-900 text-white hover:bg-gray-800 shadow-xl"
                 }
               `}
             >
-              <ShoppingCart size={16} />
-              {disabledReason
-                ? disabledReason
-                : isOwned
-                  ? "Adquirido"
-                  : "Adquirir"}
+              {disabledReason ? (
+                <><Check size={16} />{disabledReason}</>
+              ) : hasAccess ? (
+                effectiveAccess === "plan" ? (
+                  <><Check size={16} />En Plan</>
+                ) : (
+                  <><Check size={16} />Adquirido</>
+                )
+              ) : (
+                <><ShoppingCart size={16} />Adquirir</>
+              )}
             </motion.button>
           </div>
         </div>

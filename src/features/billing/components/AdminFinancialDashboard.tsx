@@ -7,7 +7,6 @@ import { MetricCard } from "./dashboard/MetricCard";
 import { GatewayControl } from "./dashboard/GatewayControl";
 import { TaxRatesCard } from "./dashboard/TaxRatesCard";
 import { useFinancialDashboard } from "../hooks/useFinancialDashboard";
-import { useRealtimeDashboard } from "@/features/analytics/hooks/useRealtimeDashboard";
 import { ConfigurePaymentGatewaysModal } from "./modals/ConfigurePaymentGatewaysModal";
 import { ManageTaxRatesModal } from "./modals/ManageTaxRatesModal";
 import { CriticalAlertsModal } from "./modals/CriticalAlertsModal";
@@ -15,7 +14,6 @@ import { TransactionLogsModal } from "./modals/TransactionLogsModal";
 import { PaymentGateway } from "../types";
 
 export const AdminFinancialDashboard: React.FC = () => {
-  useRealtimeDashboard();
   const {
     metrics,
     totalRevenue,

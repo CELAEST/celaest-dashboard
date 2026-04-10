@@ -10,8 +10,6 @@ import {
   useCategoryDistribution, 
   useLiveFeed 
 } from "./useAnalyticsQuery";
-import { useRealtimeDashboard } from "./useRealtimeDashboard";
-
 export const useAnalytics = (period: string = "month") => {
   const { theme } = useTheme();
   const { token, orgId } = useApiAuth();
@@ -24,9 +22,6 @@ export const useAnalytics = (period: string = "month") => {
   const usageQuery = useUsageReport(token, orgId, period);
   const distributionQuery = useCategoryDistribution(token, orgId);
   const liveFeedQuery = useLiveFeed(token, orgId);
-
-  // Initialize real-time synchronization
-  useRealtimeDashboard();
 
   const isLoading = 
     statsQuery.isLoading || 

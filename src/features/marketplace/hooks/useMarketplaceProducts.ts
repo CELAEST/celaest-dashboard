@@ -2,13 +2,11 @@ import { useQuery } from "@tanstack/react-query";
 import { useCallback, useRef } from "react";
 import { useMarketplaceStore } from "../store";
 import { SearchFilter } from "../types";
-import { useApiAuth } from "@/lib/use-api-auth";
+
 import { useShallow } from "zustand/react/shallow";
 import { marketplaceApi } from "../api/marketplace.api";
 import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
-import { socket } from "@/lib/socket-client";
-import { useEffect } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+
 
 const DEBOUNCE_MS = 300;
 
@@ -19,34 +17,10 @@ export function useMarketplaceProducts() {
     reset: state.reset
   })));
 
-  const { token } = useApiAuth();
-  const queryClient = useQueryClient();
+  // React hooks
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Real-time synchronization for Marketplace Hub
-  useEffect(() => {
-    if (!token) return;
 
-    const handler = () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.marketplace.all });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.assets.all });
-    };
-
-    const unsubscribers = [
-      socket.on("product.created", handler),
-      socket.on("product.updated", handler),
-      socket.on("product.asset_created", handler),
-      socket.on("order.paid", handler),
-      socket.on("subscription.created", handler),
-      socket.on("subscription.updated", handler),
-      socket.on("license.created", handler),
-      socket.on("license.activated", handler),
-    ];
-
-    return () => {
-      unsubscribers.forEach((unsub) => unsub());
-    };
-  }, [token, queryClient]);
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: QUERY_KEYS.marketplace.products({ ...filters }),

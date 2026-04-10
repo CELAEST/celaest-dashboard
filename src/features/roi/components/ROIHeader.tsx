@@ -1,7 +1,8 @@
 import React from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { ChevronDown, Check, Download, RefreshCw } from "lucide-react";
+import { CaretDown, Check, DownloadSimple, ArrowClockwise } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { PageBanner } from "@/components/layout/PageLayout";
 
 interface ROIHeaderProps {
   isFilterOpen: boolean;
@@ -35,163 +36,160 @@ export const ROIHeader = React.memo(
     const isDark = theme === "dark";
 
     return (
-      <div className="flex items-center justify-between mb-6 shrink-0">
-        <div>
-          <h1
-            className={`text-4xl font-bold tracking-tight mb-2 ${
-              isDark ? "text-white" : "text-gray-900"
-            }`}
-          >
-            {isSuperAdmin ? "ROI Analytics - Global View" : "ROI Analytics - My Analytics"}
-          </h1>
-          <div className="flex items-center gap-4">
-            <p
-              className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}
-            >
-              Métricas agregadas • Detectando tendencias
-            </p>
-            {/* TAB SWITCHER (Glass Capsule) */}
-            <div
-              className={`flex items-center p-1 rounded-full ${isDark ? "bg-white/5 border border-white/5" : "bg-gray-100 border border-gray-200"}`}
-            >
-              <button
-                onClick={() => setActiveTab("overview")}
-                className={`px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
-                  activeTab === "overview"
-                    ? isDark
-                      ? "bg-cyan-500 text-white shadow-lg shadow-cyan-500/20"
-                      : "bg-white text-gray-900 shadow-sm"
-                    : isDark
-                      ? "text-gray-500 hover:text-gray-300"
-                      : "text-gray-500 hover:text-gray-700"
+      <div className="shrink-0 flex flex-col">
+        <PageBanner
+          title={isSuperAdmin ? "ROI Analytics - Global View" : "ROI Analytics - My Analytics"}
+          subtitle="Métricas agregadas • Detectando tendencias"
+          actions={
+            <div className="flex items-center gap-2">
+              {/* TAB SWITCHER */}
+              <div
+                className={`flex items-center p-1 rounded-xl border shadow-inner ${
+                  isDark
+                    ? "bg-black/40 backdrop-blur-xl border-white/10"
+                    : "bg-gray-100 border-gray-200"
                 }`}
               >
-                Overview
-              </button>
-              {isSuperAdmin && (
                 <button
-                  onClick={() => setActiveTab("insights")}
-                  className={`px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
-                    activeTab === "insights"
+                  onClick={() => setActiveTab("overview")}
+                  className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all duration-200 ${
+                    activeTab === "overview"
                       ? isDark
-                        ? "bg-purple-500 text-white shadow-lg shadow-purple-500/20"
-                        : "bg-white text-gray-900 shadow-sm"
+                        ? "bg-white/10 text-white shadow-sm ring-1 ring-white/10"
+                        : "bg-white text-gray-900 shadow-sm ring-1 ring-black/5"
                       : isDark
-                        ? "text-gray-500 hover:text-gray-300"
-                        : "text-gray-500 hover:text-gray-700"
+                        ? "text-gray-400 hover:text-white hover:bg-white/5"
+                        : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
                   }`}
                 >
-                  Deep Insights
+                  Overview
                 </button>
-              )}
-            </div>
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <button
-              onClick={() => setIsFilterOpen(!isFilterOpen)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold transition-all duration-300 outline-none ${
-                isDark
-                  ? "bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 hover:bg-cyan-500/20"
-                  : "bg-blue-500/10 border border-blue-500/20 text-blue-600 hover:bg-blue-500/20"
-              }`}
-              aria-haspopup="true"
-              aria-expanded={isFilterOpen}
-              aria-label="Filtrar por periodo de tiempo"
-            >
-              <span>
-                {
-                  filterOptions.find((opt) => opt.value === selectedFilter)
-                    ?.label
-                }
-              </span>
-              <ChevronDown
-                className={`w-4 h-4 transition-transform duration-300 ${
-                  isFilterOpen ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-
-            <AnimatePresence>
-              {isFilterOpen && (
-                <>
-                  <div
-                    className="fixed inset-0 z-40"
-                    onClick={() => setIsFilterOpen(false)}
-                  />
-                  <motion.div
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    transition={{ duration: 0.2 }}
-                    className={`absolute right-0 top-full mt-2 w-56 rounded-xl border shadow-xl overflow-hidden z-50 ${
-                      isDark
-                        ? "bg-black/90 border-cyan-500/20 backdrop-blur-xl"
-                        : "bg-white border-blue-100"
+                {isSuperAdmin && (
+                  <button
+                    onClick={() => setActiveTab("insights")}
+                    className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all duration-200 ${
+                      activeTab === "insights"
+                        ? isDark
+                          ? "bg-white/10 text-white shadow-sm ring-1 ring-white/10"
+                          : "bg-white text-gray-900 shadow-sm ring-1 ring-black/5"
+                        : isDark
+                          ? "text-gray-400 hover:text-white hover:bg-white/5"
+                          : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
                     }`}
-                    role="menu"
                   >
-                    <div className="p-1.5 flex flex-col gap-0.5">
-                      {filterOptions.map((option) => (
-                        <button
-                          key={option.value}
-                          onClick={() => {
-                            setSelectedFilter(option.value);
-                            setIsFilterOpen(false);
-                          }}
-                          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                            selectedFilter === option.value
-                              ? isDark
-                                ? "bg-cyan-500/10 text-cyan-400"
-                                : "bg-blue-50 text-blue-600"
-                              : isDark
-                                ? "text-gray-400 hover:bg-white/5 hover:text-white"
-                                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                          }`}
-                          role="menuitem"
-                        >
-                          {option.label}
-                          {selectedFilter === option.value && (
-                            <Check className="w-4 h-4" />
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                  </motion.div>
-                </>
-              )}
-            </AnimatePresence>
-          </div>
+                    Deep Insights
+                  </button>
+                )}
+              </div>
 
-          <button
-            onClick={onRefresh}
-            className={`p-2.5 rounded-xl font-semibold transition-all duration-300 hover:scale-105 ${
-              isDark
-                ? "bg-white/5 hover:bg-white/10 text-white"
-                : "bg-gray-100 hover:bg-gray-200 text-gray-700"
-            }`}
-            aria-label="Refrescar datos"
-            disabled={isLoading}
-          >
-            <RefreshCw
-              className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`}
-            />
-          </button>
+              {/* TIME FILTER DROPDOWN */}
+              <div className="relative">
+                <button
+                  onClick={() => setIsFilterOpen(!isFilterOpen)}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 outline-none border ${
+                    isDark
+                      ? "bg-white/5 border-white/10 text-gray-300 hover:bg-white/10 hover:border-white/20"
+                      : "bg-white border-gray-200 text-gray-700 hover:border-gray-300 shadow-sm"
+                  }`}
+                  aria-haspopup="true"
+                  aria-expanded={isFilterOpen}
+                  aria-label="Filtrar por periodo de tiempo"
+                >
+                  <span>
+                    {filterOptions.find((opt) => opt.value === selectedFilter)?.label}
+                  </span>
+                  <CaretDown
+                    size={14}
+                    className={`transition-transform duration-200 ${
+                      isFilterOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
 
-          <button
-            onClick={onExport}
-            className={`px-6 py-2.5 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 flex items-center gap-2 ${
-              isDark
-                ? "bg-linear-to-r from-cyan-400 to-blue-500 text-white shadow-lg shadow-cyan-500/50"
-                : "bg-linear-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/30"
-            }`}
-            aria-label="Exportar reporte de analítica"
-          >
-            <Download className="w-4 h-4" />
-            Exportar Reporte
-          </button>
-        </div>
+                <AnimatePresence>
+                  {isFilterOpen && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-40"
+                        onClick={() => setIsFilterOpen(false)}
+                      />
+                      <motion.div
+                        initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                        transition={{ duration: 0.15 }}
+                        className={`absolute right-0 top-full mt-2 w-48 rounded-xl border shadow-xl overflow-hidden z-50 ${
+                          isDark
+                            ? "bg-black/90 border-white/10 backdrop-blur-xl"
+                            : "bg-white border-gray-200 shadow-lg"
+                        }`}
+                        role="menu"
+                      >
+                        <div className="p-1 flex flex-col">
+                          {filterOptions.map((option) => (
+                            <button
+                              key={option.value}
+                              onClick={() => {
+                                setSelectedFilter(option.value);
+                                setIsFilterOpen(false);
+                              }}
+                              className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                                selectedFilter === option.value
+                                  ? isDark
+                                    ? "bg-cyan-500/10 text-cyan-400"
+                                    : "bg-blue-50 text-blue-600"
+                                  : isDark
+                                    ? "text-gray-400 hover:bg-white/5 hover:text-white"
+                                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                              }`}
+                              role="menuitem"
+                            >
+                              {option.label}
+                              {selectedFilter === option.value && (
+                                <Check size={13} />
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      </motion.div>
+                    </>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* REFRESH */}
+              <button
+                onClick={onRefresh}
+                className={`p-1.5 rounded-xl transition-all duration-200 border ${
+                  isDark
+                    ? "bg-white/5 border-white/8 hover:bg-white/10 hover:border-white/20 text-gray-400 hover:text-white"
+                    : "bg-white border-gray-200 hover:border-gray-300 text-gray-500 hover:text-gray-900 shadow-sm"
+                }`}
+                aria-label="Refrescar datos"
+                disabled={isLoading}
+              >
+                <ArrowClockwise
+                  size={16}
+                  className={isLoading ? "animate-spin" : ""}
+                />
+              </button>
+
+              {/* EXPORT */}
+              <button
+                onClick={onExport}
+                className={`flex items-center gap-2 px-4 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 ${
+                  isDark
+                    ? "bg-linear-to-r from-cyan-500 to-blue-600 text-white shadow-md shadow-cyan-500/25 hover:shadow-cyan-500/40"
+                    : "bg-linear-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20 hover:shadow-blue-500/35"
+                }`}
+                aria-label="Exportar reporte de analítica"
+              >
+                <DownloadSimple size={15} weight="bold" />
+                Exportar Reporte
+              </button>
+            </div>
+          }
+        />
       </div>
     );
   },

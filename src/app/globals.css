@@ -4,6 +4,13 @@
 
 :root {
   --font-size: 16px;
+  /* ── Light Mode Glassmorphism Overrides ──────── */
+  --glass-bg: rgba(255, 255, 255, 1);
+  --glass-border: rgba(0, 0, 0, 0.1);
+  --glass-border-hover: rgba(0, 0, 0, 0.15);
+  --glass-surface: rgba(249, 250, 251, 1);
+  --glass-elevated: rgba(255, 255, 255, 1);
+  --glass-divider: rgba(229, 231, 235, 1);
   --background: #ffffff;
   --foreground: oklch(0.145 0 0);
   --card: #ffffff;
@@ -81,6 +88,36 @@
 }
 
 @theme inline {
+  /* ── Spatial Design Tokens ─────────────────────── */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  --content-max: 1440px;
+  --sidebar-collapsed: 80px;
+  --sidebar-expanded: 240px;
+
+  --radius-card: 16px;
+  --radius-button: 12px;
+  --radius-input: 8px;
+
+  --duration-fast: 150ms;
+  --duration-default: 200ms;
+  --duration-emphasis: 300ms;
+  --ease-default: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --ease-emphasis: cubic-bezier(0.43, 0.13, 0.23, 0.96);
+
+  /* ── Glassmorphism Tokens ──────────────────────── */
+  --glass-bg: rgba(0, 0, 0, 0.4);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-border-hover: rgba(255, 255, 255, 0.2);
+  --glass-surface: rgba(255, 255, 255, 0.02);
+  --glass-elevated: rgba(0, 0, 0, 0.6);
+  --glass-divider: rgba(255, 255, 255, 0.05);
+
+  /* ── Existing shadcn tokens ────────────────────── */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -187,6 +224,16 @@ html {
 }
 
 /* Custom Scrollbar - Subtle & Theme-Aware */
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+.no-scrollbar {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
 /* Firefox */
 * {
   scrollbar-width: thin;

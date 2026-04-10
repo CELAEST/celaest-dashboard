@@ -143,13 +143,16 @@ export function mapSupabaseUserToAuthUser(
   permissions: Permission[]
 ): AuthUser {
   const metadata = supabaseUser.user_metadata as UserMetadata | undefined
-  
+  // app_metadata is set by admins (trusted source for role).
+  // user_metadata is user-editable — used as fallback only.
+  const appMetadata = supabaseUser.app_metadata as { role?: Role } | undefined
+
   return {
     id: supabaseUser.id,
     email: supabaseUser.email ?? '',
     name: metadata?.name ?? supabaseUser.email?.split('@')[0] ?? 'Usuario',
     avatarUrl: metadata?.avatar_url,
-    role: metadata?.role ?? 'client',
+    role: appMetadata?.role ?? metadata?.role ?? 'client',
     permissions,
     emailVerified: supabaseUser.email_confirmed_at != null,
     createdAt: supabaseUser.created_at,

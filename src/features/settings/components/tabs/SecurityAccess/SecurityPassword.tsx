@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import { useForm } from "react-hook-form";
-import { Key } from "lucide-react";
+import { Key } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { toast } from "sonner";
 import {
@@ -70,7 +70,7 @@ export const SecurityPassword: React.FC<SecurityPasswordProps> = memo(
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4 max-w-xl"
+            className="space-y-4 w-full lg:w-3/4 xl:w-2/3"
           >
             <FormField
               control={form.control}

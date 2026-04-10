@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { Search, Filter } from "lucide-react";
+import { MagnifyingGlass, Funnel } from "@phosphor-icons/react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -40,13 +40,13 @@ export const UserFilters = memo(
           </div>
           <div className="flex gap-3">
             <div className="relative">
-              <Search
+              <MagnifyingGlass
                 className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${
                   isDark ? "text-gray-500" : "text-gray-400"
                 }`}
               />
               <Input
-                placeholder="Search users..."
+                placeholder="MagnifyingGlass users..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className={`pl-10 w-64 ${
@@ -60,7 +60,7 @@ export const UserFilters = memo(
                   isDark ? "bg-white/5 border-white/10" : "bg-gray-50"
                 }`}
               >
-                <Filter className="w-4 h-4 mr-2" />
+                <Funnel className="w-4 h-4 mr-2" />
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

@@ -1,44 +1,43 @@
-import { useState, useCallback } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, useCallback, useMemo } from "react";
+import { useInfiniteQuery, useMutation, useQueryClient, InfiniteData } from "@tanstack/react-query";
 import { Order } from "../types";
+import { OrdersPage } from "../services/orders.service";
 import { toast } from "sonner";
 import { useApiAuth } from "@/lib/use-api-auth";
 import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
-import { socket } from "@/lib/socket-client";
-import { useEffect } from "react";
+
+const PAGE_SIZE = 15;
 
 export const useOrders = () => {
   const { token, orgId, isReady } = useApiAuth();
   const queryClient = useQueryClient();
 
-  // Real-time synchronization for Orders Hub
-  useEffect(() => {
-    if (!token) return;
 
-    const handler = () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.billing.all });
-    };
 
-    const unsubscribers = [
-      socket.on("order.created", handler),
-      socket.on("order.updated", handler),
-      socket.on("order.paid", handler),
-    ];
-
-    return () => {
-      unsubscribers.forEach((unsub) => unsub());
-    };
-  }, [token, queryClient]);
-
-  const { data: orders = [], isLoading, refetch } = useQuery({
+  const {
+    data,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    refetch,
+  } = useInfiniteQuery({
     queryKey: QUERY_KEYS.billing.all,
-    queryFn: async () => {
-      if (!orgId || !token) return [];
+    queryFn: async ({ pageParam }) => {
+      if (!orgId || !token) return { orders: [], total: 0, page: 1, limit: PAGE_SIZE };
       const { ordersService } = await import("../services/orders.service");
-      return await ordersService.getOrders(orgId, token);
+      return await ordersService.getOrders(orgId, token, pageParam, PAGE_SIZE);
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      const loaded = lastPage.page * lastPage.limit;
+      return loaded < lastPage.total ? lastPage.page + 1 : undefined;
     },
     enabled: isReady && !!token && !!orgId,
   });
+
+  const orders = useMemo(() => data?.pages.flatMap((p) => p.orders) ?? [], [data]);
+  const totalOrders = data?.pages[0]?.total ?? 0;
 
   const [activeMenu, setActiveMenu] = useState<{
     id: string;
@@ -118,10 +117,17 @@ export const useOrders = () => {
     },
     onMutate: async (updatedOrder: Order) => {
       await queryClient.cancelQueries({ queryKey: QUERY_KEYS.billing.all });
-      const previous = queryClient.getQueryData<Order[]>(QUERY_KEYS.billing.all);
-      queryClient.setQueryData<Order[]>(QUERY_KEYS.billing.all, old =>
-        (old || []).map(o => o.id === updatedOrder.id ? updatedOrder : o)
-      );
+      const previous = queryClient.getQueryData<InfiniteData<OrdersPage>>(QUERY_KEYS.billing.all);
+      queryClient.setQueryData<InfiniteData<OrdersPage>>(QUERY_KEYS.billing.all, old => {
+        if (!old) return old;
+        return {
+          ...old,
+          pages: old.pages.map(p => ({
+            ...p,
+            orders: p.orders.map(o => o.id === updatedOrder.id ? updatedOrder : o),
+          })),
+        };
+      });
       return { previous };
     },
     onError: (_err, _vars, context) => {
@@ -129,7 +135,10 @@ export const useOrders = () => {
       const msg = _err instanceof Error ? _err.message : "Error al actualizar la orden";
       toast.error(msg);
     },
-    onSuccess: () => toast.success("Orden actualizada correctamente"),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.billing.all });
+      toast.success("Orden actualizada correctamente");
+    },
   });
 
   const deleteMutation = useMutation({
@@ -141,10 +150,18 @@ export const useOrders = () => {
     },
     onMutate: async (orderId: string) => {
       await queryClient.cancelQueries({ queryKey: QUERY_KEYS.billing.all });
-      const previous = queryClient.getQueryData<Order[]>(QUERY_KEYS.billing.all);
-      queryClient.setQueryData<Order[]>(QUERY_KEYS.billing.all, old =>
-        (old || []).filter(o => o.id !== orderId)
-      );
+      const previous = queryClient.getQueryData<InfiniteData<OrdersPage>>(QUERY_KEYS.billing.all);
+      queryClient.setQueryData<InfiniteData<OrdersPage>>(QUERY_KEYS.billing.all, old => {
+        if (!old) return old;
+        return {
+          ...old,
+          pages: old.pages.map(p => ({
+            ...p,
+            orders: p.orders.filter(o => o.id !== orderId),
+            total: p.total - 1,
+          })),
+        };
+      });
       return { previous };
     },
     onError: (_err, _id, context) => {
@@ -154,6 +171,7 @@ export const useOrders = () => {
     },
     onSuccess: () => {
       setDeleteModalOpen(false);
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.billing.all });
       toast.success("Orden eliminada correctamente");
     },
   });
@@ -167,10 +185,17 @@ export const useOrders = () => {
     },
     onMutate: async ({ orderId }) => {
       await queryClient.cancelQueries({ queryKey: QUERY_KEYS.billing.all });
-      const previous = queryClient.getQueryData<Order[]>(QUERY_KEYS.billing.all);
-      queryClient.setQueryData<Order[]>(QUERY_KEYS.billing.all, old =>
-        (old || []).map(o => o.id === orderId ? { ...o, status: "Processing" as const } : o)
-      );
+      const previous = queryClient.getQueryData<InfiniteData<OrdersPage>>(QUERY_KEYS.billing.all);
+      queryClient.setQueryData<InfiniteData<OrdersPage>>(QUERY_KEYS.billing.all, old => {
+        if (!old) return old;
+        return {
+          ...old,
+          pages: old.pages.map(p => ({
+            ...p,
+            orders: p.orders.map(o => o.id === orderId ? { ...o, status: "Processing" as const } : o),
+          })),
+        };
+      });
       return { previous };
     },
     onError: (_err, _vars, context) => {
@@ -181,6 +206,7 @@ export const useOrders = () => {
     onSuccess: () => {
       setRefundModalOpen(false);
       setDetailsModalOpen(false);
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.billing.all });
       toast.success("Order refunded successfully");
     },
   });
@@ -206,6 +232,10 @@ export const useOrders = () => {
 
   return {
     orders,
+    totalOrders,
+    hasNextPage: !!hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
     activeMenu,
     handleOpenMenu,
     handleCloseMenu,

@@ -1,5 +1,5 @@
 import React from "react";
-import { Clock, AlertTriangle } from "lucide-react";
+import { Clock, Warning } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { ValidationLog } from "@/features/licensing/constants/mock-data";
 
@@ -18,7 +18,7 @@ export const LicenseActivityLog: React.FC<LicenseActivityLogProps> = ({
       <h3
         className={`text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2 ${isDark ? "text-gray-400" : "text-gray-500"}`}
       >
-        <Clock size={16} /> Recent Activity
+        <Clock size={16} /> Recent Pulse
       </h3>
       <div
         className={`relative pl-4 space-y-6 border-l ${isDark ? "border-white/10" : "border-gray-200"}`}
@@ -47,7 +47,7 @@ export const LicenseActivityLog: React.FC<LicenseActivityLogProps> = ({
             </div>
             {!log.success && (
               <div className="mt-1.5 text-xs text-red-500 flex items-center gap-1">
-                <AlertTriangle size={12} /> {log.reason}
+                <Warning size={12} /> {log.reason}
               </div>
             )}
           </div>

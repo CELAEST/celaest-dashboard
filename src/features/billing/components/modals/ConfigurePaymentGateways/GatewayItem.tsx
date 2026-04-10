@@ -1,5 +1,5 @@
 import React from "react";
-import { Layers, ArrowRightCircle, Hash, CreditCard } from "lucide-react";
+import { Stack, ArrowCircleRight, Hash, CreditCard } from "@phosphor-icons/react";
 import { motion } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { PaymentGateway } from "../../../types";
@@ -52,9 +52,9 @@ export const GatewayItem: React.FC<GatewayItemProps> = ({
   const getGatewayIcon = (logo: string) => {
     switch (logo) {
       case "stripe":
-        return <Layers className="w-10 h-10 text-indigo-500" />;
+        return <Stack className="w-10 h-10 text-indigo-500" />;
       case "paypal":
-        return <ArrowRightCircle className="w-10 h-10 text-blue-500" />;
+        return <ArrowCircleRight className="w-10 h-10 text-blue-500" />;
       case "square":
         return <Hash className="w-10 h-10 text-gray-400" />;
       default:

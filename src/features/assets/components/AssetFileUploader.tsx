@@ -1,5 +1,5 @@
 import React from "react";
-import { Upload, AlertCircle } from "lucide-react";
+import { UploadSimple, Warning } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface AssetFileUploaderProps {
@@ -24,10 +24,10 @@ export const AssetFileUploader: React.FC<AssetFileUploaderProps> = ({
       <div>
         <label
           className={`block text-xs uppercase tracking-wider font-bold mb-3 ${
-            isDark ? "text-gray-500" : "text-gray-400"
+            isDark ? "text-gray-300" : "text-gray-500"
           }`}
         >
-          Upload File
+          Product File
         </label>
         <div
           onClick={handleContainerClick}
@@ -51,7 +51,7 @@ export const AssetFileUploader: React.FC<AssetFileUploaderProps> = ({
               isDark ? "bg-white/5" : "bg-white shadow-sm"
             }`}
           >
-            <Upload
+            <UploadSimple
               size={24}
               className={isDark ? "text-gray-400" : "text-gray-600"}
             />
@@ -95,7 +95,7 @@ export const AssetFileUploader: React.FC<AssetFileUploaderProps> = ({
             : "bg-orange-50 border-orange-200"
         }`}
       >
-        <AlertCircle
+        <Warning
           size={20}
           className={`shrink-0 mt-0.5 ${
             isDark ? "text-orange-400" : "text-orange-600"

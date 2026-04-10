@@ -3,8 +3,8 @@
 import React, { useState } from "react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { InvoiceHistoryTable } from "./InvoiceHistory/InvoiceHistoryTable";
-import { useBilling } from "../hooks/useBilling";
-import { Loader2 } from "lucide-react";
+import { useInvoicesQuery } from "../hooks/useInvoicesQuery";
+import { TableSkeleton } from "@/components/ui/skeletons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 import { useOrgStore } from "@/features/shared/stores/useOrgStore";
@@ -23,8 +23,8 @@ export const InvoiceHistory: React.FC = () => {
   const token = session?.accessToken;
   const orgId = currentOrg?.id;
 
-  // Use real billing data
-  const { invoices, isLoading } = useBilling();
+  // Use paginated invoices query
+  const { invoices, totalInvoices, isLoading, hasNextPage, isFetchingNextPage, fetchNextPage } = useInvoicesQuery();
 
   const voidMutation = useMutation({
     mutationFn: (invoiceId: string) => {
@@ -74,13 +74,13 @@ export const InvoiceHistory: React.FC = () => {
   if (isLoading) {
     return (
       <div
-        className={`flex-1 overflow-hidden flex flex-col rounded-2xl p-8 items-center justify-center ${
+        className={`flex-1 overflow-hidden flex flex-col rounded-2xl p-4 ${
           isDark
             ? "bg-black/40 backdrop-blur-xl border border-white/10"
             : "bg-white border border-gray-200 shadow-sm"
         }`}
       >
-        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+        <TableSkeleton rows={6} columns={4} />
       </div>
     );
   }
@@ -101,12 +101,12 @@ export const InvoiceHistory: React.FC = () => {
                 isDark ? "text-white" : "text-gray-900"
               }`}
             >
-              Invoice History
+              Invoice ClockCounterClockwise
             </h3>
             <p
               className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}
             >
-              Download past invoices and track your payment history
+              DownloadSimple past invoices and track your payment history
             </p>
           </div>
           <div
@@ -114,7 +114,7 @@ export const InvoiceHistory: React.FC = () => {
               isDark ? "bg-white/5 text-gray-400" : "bg-gray-100 text-gray-600"
             }`}
           >
-            {invoices.length} Invoices
+          {invoices.length} Invoices
           </div>
         </div>
       </div>
@@ -128,6 +128,11 @@ export const InvoiceHistory: React.FC = () => {
           onVoid={(id) => voidMutation.mutate(id)}
           onPay={(id) => payMutation.mutate(id)}
           isLoadingAction={voidMutation.isPending || payMutation.isPending}
+          isLoading={isLoading}
+          totalItems={totalInvoices}
+          hasNextPage={hasNextPage}
+          isFetchingNextPage={isFetchingNextPage}
+          onLoadMore={fetchNextPage}
         />
       </div>
 
@@ -137,7 +142,7 @@ export const InvoiceHistory: React.FC = () => {
           isDark ? "text-gray-500" : "text-gray-400"
         }`}
       >
-        <span>Showing all {invoices.length} invoices</span>
+        <span>Showing {invoices.length} of {totalInvoices} invoices</span>
         <button
           className={`font-semibold transition-colors duration-300 ${
             isDark

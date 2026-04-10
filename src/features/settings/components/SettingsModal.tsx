@@ -1,10 +1,12 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { X } from "lucide-react";
+import { X } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useEscapeKey } from "@/features/shared/hooks/useEscapeKey";
+import { createPortal } from "react-dom";
 import type { SettingsModalProps } from "../types";
+import { cn } from "@/lib/utils";
 
 /**
  * Modal for settings dialogs with dark theme.
@@ -14,8 +16,14 @@ export function SettingsModal({
   onClose,
   title,
   children,
+  className,
 }: SettingsModalProps) {
   const { isDark } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Keyboard accessibility: Esc to close
   useEscapeKey(onClose, isOpen);
@@ -32,9 +40,9 @@ export function SettingsModal({
     };
   }, [isOpen]);
 
-  if (!isOpen) return null;
+  if (!mounted || !isOpen) return null;
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
@@ -47,11 +55,13 @@ export function SettingsModal({
 
       {/* Modal Content */}
       <div
-        className={`relative rounded-2xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl transition-all duration-300 animate-in fade-in zoom-in ${
+        className={cn(
+          "relative shrink-0 rounded-2xl p-6 w-[28rem] min-w-[320px] sm:min-w-[28rem] max-w-[95vw] max-h-[90vh] overflow-y-auto shadow-2xl transition-all duration-300 animate-in fade-in zoom-in",
           isDark
             ? "bg-[#0a0a0a] border border-white/10 shadow-black/50"
-            : "bg-white border border-gray-200 shadow-gray-400/20"
-        }`}
+            : "bg-white border border-gray-200 shadow-gray-400/20",
+          className
+        )}
       >
         <div className="flex items-center justify-between mb-6">
           <h3
@@ -75,6 +85,7 @@ export function SettingsModal({
         </div>
         {children}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

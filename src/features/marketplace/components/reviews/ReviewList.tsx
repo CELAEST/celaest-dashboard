@@ -7,7 +7,7 @@
 import React from "react";
 import { Review } from "../../types";
 import { ReviewCard } from "./ReviewCard";
-import { MessageSquare } from "lucide-react";
+import { Chat } from "@phosphor-icons/react";
 
 interface ReviewListProps {
   reviews: Review[];
@@ -32,7 +32,7 @@ export const ReviewList: React.FC<ReviewListProps> = ({ reviews, loading }) => {
     return (
       <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/5 py-12 text-center">
         <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-blue-500/10 text-blue-400">
-          <MessageSquare className="h-6 w-6" />
+          <Chat className="h-6 w-6" />
         </div>
         <h4 className="font-medium text-white">Sin reseñas aún</h4>
         <p className="mt-1 text-sm text-white/50">

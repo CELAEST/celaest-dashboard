@@ -1,12 +1,52 @@
 import React from "react";
 import { motion } from "motion/react";
-import { Database, Cpu, Server } from "lucide-react";
-import { useAnalytics } from "@/features/analytics/hooks/useAnalytics";
+import { Database, Cpu, HardDrives } from "@phosphor-icons/react";
+import type { useAnalytics } from "@/features/analytics/hooks/useAnalytics";
+
+type AnalyticsData = ReturnType<typeof useAnalytics>;
+
+interface ResourceAllocationProps {
+  className?: string;
+  isDark: boolean;
+  usage: AnalyticsData["usage"];
+}
+
+const SvgMeter = ({ value, color, isDark }: { value: number, color: string, isDark: boolean }) => {
+  const totalSegments = 24;
+  const activeSegments = Math.round((value / 100) * totalSegments);
+  
+  return (
+    <div className="w-full h-3">
+      <svg width="100%" height="100%" preserveAspectRatio="none">
+        <defs>
+          <filter id={`glow-${color.replace('#','')}`}>
+            <feGaussianBlur stdDeviation="2" />
+          </filter>
+        </defs>
+        <g stroke={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"} strokeWidth="2">
+          {Array.from({ length: totalSegments }).map((_, i) => (
+             <line key={`bg-${i}`} x1={`${1 + i * 4.15}%`} y1="50%" x2={`${2.5 + i * 4.15}%`} y2="50%" />
+          ))}
+        </g>
+        <g stroke={color} strokeWidth="2" strokeLinecap="round">
+          {Array.from({ length: activeSegments }).map((_, i) => (
+             <motion.line 
+               key={`act-${i}`} 
+               x1={`${1 + i * 4.15}%`} y1="50%" x2={`${2.5 + i * 4.15}%`} y2="50%" 
+               initial={{ opacity: 0 }}
+               animate={{ opacity: 1 }}
+               transition={{ delay: i * 0.05 }}
+               filter={`url(#glow-${color.replace('#','')})`}
+             />
+          ))}
+        </g>
+      </svg>
+    </div>
+  );
+};
 
 export const ResourceAllocation = React.memo(
-  ({ className }: { className?: string }) => {
-    const { isDark, usage } = useAnalytics();
-
+  ({ className, isDark, usage }: ResourceAllocationProps) => {
     const resourceData = React.useMemo(
       () => [
         {
@@ -34,7 +74,7 @@ export const ResourceAllocation = React.memo(
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className={`rounded-3xl overflow-hidden p-5 group flex flex-col justify-between ${
+        className={`rounded-[16px] overflow-hidden p-5 group flex flex-col justify-between ${
           isDark
             ? "bg-[#09090b] border border-white/10 hover:border-blue-500/30"
             : "bg-white border border-gray-100 shadow-lg hover:border-blue-500/20"
@@ -43,9 +83,13 @@ export const ResourceAllocation = React.memo(
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <div
-              className={`p-2 rounded-lg ${isDark ? "bg-blue-500/10 text-blue-400" : "bg-blue-50 text-blue-600"}`}
+              className={`w-7 h-7 flex items-center justify-center rounded-[8px] ${
+                isDark 
+                  ? "bg-linear-to-b from-white/8 to-transparent border border-white/8 text-blue-400 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_2px_4px_rgba(0,0,0,0.2)]" 
+                  : "bg-linear-to-b from-white to-gray-50 border border-gray-200 text-blue-600 shadow-[inset_0_1px_0_rgba(255,255,255,1),0_1px_2px_rgba(0,0,0,0.05)]"
+              }`}
             >
-              <Server className="w-4 h-4" />
+              <HardDrives className="w-4 h-4" />
             </div>
             <h3
               className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-gray-400" : "text-gray-500"}`}
@@ -60,7 +104,7 @@ export const ResourceAllocation = React.memo(
           </div>
         </div>
 
-        <div className="space-y-4 my-2 flex-1 flex flex-col justify-center">
+        <div className="space-y-4 my-3 flex-1 flex flex-col justify-center">
           {resourceData.map((resource, index) => (
             <div key={resource.name} className="group/item">
               <div className="flex items-center justify-between mb-2">
@@ -77,32 +121,13 @@ export const ResourceAllocation = React.memo(
                   {resource.name}
                 </span>
                 <span
-                  className={`text-xs font-bold tabular-nums`}
+                  className={`text-[11px] font-mono font-bold tabular-nums`}
                   style={{ color: resource.color }}
                 >
                   {resource.value}%
                 </span>
               </div>
-              <div
-                className={`h-2 rounded-full overflow-hidden ${
-                  isDark ? "bg-white/5" : "bg-gray-100"
-                }`}
-              >
-                <motion.div
-                  className="h-full rounded-full shadow-[0_0_8px_currentColor]"
-                  style={{
-                    backgroundColor: resource.color,
-                    color: resource.color,
-                  }}
-                  initial={{ width: 0 }}
-                  animate={{ width: `${resource.value}%` }}
-                  transition={{
-                    duration: 1,
-                    delay: index * 0.1,
-                    ease: "easeOut",
-                  }}
-                />
-              </div>
+              <SvgMeter value={resource.value} color={resource.color} isDark={isDark} />
             </div>
           ))}
         </div>
@@ -116,9 +141,12 @@ export const ResourceAllocation = React.memo(
             Active Pods
           </span>
           <span
-            className={`text-xs font-mono font-bold ${isDark ? "text-blue-400" : "text-blue-600"}`}
+            className={`text-[11px] font-mono font-bold ${isDark ? "text-blue-400" : "text-blue-600"}`}
           >
-            {usage?.api_requests ? Math.min(Math.round(usage.api_requests / 625), 16) : 0}/16
+            {usage?.api_requests
+              ? Math.min(Math.round(usage.api_requests / 625), 16)
+              : 0}
+            <span className="opacity-50 text-[9px]">/16</span>
           </span>
         </div>
       </motion.div>

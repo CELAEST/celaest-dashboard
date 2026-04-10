@@ -3,9 +3,10 @@
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
-import { X } from "lucide-react";
+import { X } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useEscapeKey } from "@/features/shared/hooks/useEscapeKey";
+import { cn } from "@/lib/utils";
 
 interface BillingModalProps {
   isOpen: boolean;
@@ -78,16 +79,19 @@ export const BillingModal = React.memo(
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 10 }}
                 transition={{ type: "spring", duration: 0.5, bounce: 0.3 }}
-                className={`w-full relative pointer-events-auto rounded-3xl overflow-hidden shadow-2xl max-h-[94vh] flex flex-col ${
+                className={cn(
+                  "w-full min-w-[320px] sm:min-w-[28rem] max-w-[56rem] relative shrink-0 pointer-events-auto rounded-3xl overflow-hidden shadow-2xl max-h-[94vh] flex flex-col",
                   isDark
-                    ? "bg-[#0a0a0a] border border-white/10 shadow-cyan-900/20"
-                    : "bg-white border border-gray-200 shadow-xl"
-                } ${className}`}
+                    ? "bg-[#0a0a0a] border border-white/10 shadow-teal-900/20"
+                    : "bg-white border border-gray-200 shadow-xl",
+                  className
+                )}
                 onClick={(e) => e.stopPropagation()}
               >
                 {showCloseButton && (
                   <button
                     onClick={onClose}
+                    aria-label="Cerrar modal"
                     className={`absolute right-4 top-4 z-50 w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-300 hover:rotate-90 hover:scale-110 ${
                       isDark
                         ? "bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white"

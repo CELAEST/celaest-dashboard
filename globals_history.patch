@@ -1,0 +1,650 @@
+﻿commit 61880157e64e6c88c9eef45f3184511654de5c1c
+Author: estebanPerezH <estebani1421@gmail.com>
+Date:   Wed Mar 11 15:48:42 2026 -0500
+
+    fix: UX layout, TableChrome border, y refactor icons (phosphor-icons). Elimina corte visual en User Management, mejora consistencia Licensing Hub, y actualiza paginaci├│n/licencias.
+
+diff --git a/src/app/globals.css b/src/app/globals.css
+index d4df298..ee40b56 100644
+--- a/src/app/globals.css
++++ b/src/app/globals.css
+@@ -4,6 +4,13 @@
+ 
+ :root {
+   --font-size: 16px;
++  /* ÔöÇÔöÇ Light Mode Glassmorphism Overrides ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */
++  --glass-bg: rgba(255, 255, 255, 1);
++  --glass-border: rgba(0, 0, 0, 0.1);
++  --glass-border-hover: rgba(0, 0, 0, 0.15);
++  --glass-surface: rgba(249, 250, 251, 1);
++  --glass-elevated: rgba(255, 255, 255, 1);
++  --glass-divider: rgba(229, 231, 235, 1);
+   --background: #ffffff;
+   --foreground: oklch(0.145 0 0);
+   --card: #ffffff;
+@@ -81,6 +88,36 @@
+ }
+ 
+ @theme inline {
++  /* ÔöÇÔöÇ Spatial Design Tokens ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */
++  --spacing-xs: 4px;
++  --spacing-sm: 8px;
++  --spacing-md: 16px;
++  --spacing-lg: 24px;
++  --spacing-xl: 32px;
++
++  --content-max: 1440px;
++  --sidebar-collapsed: 80px;
++  --sidebar-expanded: 240px;
++
++  --radius-card: 16px;
++  --radius-button: 12px;
++  --radius-input: 8px;
++
++  --duration-fast: 150ms;
++  --duration-default: 200ms;
++  --duration-emphasis: 300ms;
++  --ease-default: cubic-bezier(0.25, 0.1, 0.25, 1);
++  --ease-emphasis: cubic-bezier(0.43, 0.13, 0.23, 0.96);
++
++  /* ÔöÇÔöÇ Glassmorphism Tokens ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */
++  --glass-bg: rgba(0, 0, 0, 0.4);
++  --glass-border: rgba(255, 255, 255, 0.1);
++  --glass-border-hover: rgba(255, 255, 255, 0.2);
++  --glass-surface: rgba(255, 255, 255, 0.02);
++  --glass-elevated: rgba(0, 0, 0, 0.6);
++  --glass-divider: rgba(255, 255, 255, 0.05);
++
++  /* ÔöÇÔöÇ Existing shadcn tokens ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */
+   --color-background: var(--background);
+   --color-foreground: var(--foreground);
+   --color-card: var(--card);
+
+commit 35b0d1081406027d92e7a2b60f9b8ad3ad6774e7
+Author: estebanPerezH <estebani1421@gmail.com>
+Date:   Mon Jan 26 00:04:14 2026 -0500
+
+    fix: remove unused CardIcon import
+
+diff --git a/src/app/globals.css b/src/app/globals.css
+index 694308b..d4df298 100644
+--- a/src/app/globals.css
++++ b/src/app/globals.css
+@@ -229,11 +229,19 @@ html {
+    Settings Module - Custom Styles
+    ============================================ */
+ 
+-/* Glassmorphism Card - Dark Theme */
++/* Glassmorphism Card */
+ .settings-glass-card {
++  background: white;
++  border: 1px solid rgba(0, 0, 0, 0.05);
++  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
++  position: relative;
++  transition: all 0.3s ease;
++}
++
++.dark .settings-glass-card {
+   background: #0a0a0a;
+   border: 1px solid rgba(255, 255, 255, 0.08);
+-  position: relative;
++  box-shadow: none;
+ }
+ 
+ /* Right border accent glow */
+@@ -245,18 +253,33 @@ html {
+   width: 3px;
+   height: 100%;
+   background: linear-gradient(180deg, #22d3ee 0%, #3b82f6 100%);
+-  border-radius: 0 8px 8px 0;
++  border-radius: 0 12px 12px 0;
+   opacity: 0.6;
+ }
+ 
+ /* Cards without the accent line */
+ .settings-glass-card-plain {
++  background: white;
++  border: 1px solid rgba(0, 0, 0, 0.05);
++  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
++  transition: all 0.3s ease;
++}
++
++.dark .settings-glass-card-plain {
+   background: #0a0a0a;
+   border: 1px solid rgba(255, 255, 255, 0.08);
++  box-shadow: none;
+ }
+ 
+-/* Input styling for dark theme */
++/* Input styling */
+ .settings-input {
++  background: #f8fafc;
++  border: 1px solid #e2e8f0;
++  color: #1e293b;
++  transition: all 0.2s ease;
++}
++
++.dark .settings-input {
+   background: rgba(255, 255, 255, 0.03);
+   border: 1px solid rgba(255, 255, 255, 0.1);
+   color: white;
+@@ -265,72 +288,21 @@ html {
+ .settings-input:focus {
+   border-color: #22d3ee;
+   outline: none;
++  box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.15);
+ }
+ 
+ .settings-input::placeholder {
+-  color: rgba(255, 255, 255, 0.4);
++  color: #94a3b8;
++}
++
++.dark .settings-input::placeholder {
++  color: rgba(255, 255, 255, 0.3);
+ }
+ 
+ /* Disabled input */
+ .settings-input:disabled {
+-  color: rgba(255, 255, 255, 0.5);
+   cursor: not-allowed;
+-}
+-
+-/* Gradient Text */
+-.settings-gradient-text {
+-  background: linear-gradient(135deg, #22d3ee 0%, #60a5fa 100%);
+-  -webkit-background-clip: text;
+-  -webkit-text-fill-color: transparent;
+-  background-clip: text;
+-}
+-
+-/* Rotating Ring Animation */
+-.settings-rotating-ring {
+-  animation: rotateRing 8s linear infinite;
+-}
+-
+-@keyframes rotateRing {
+-  from {
+-    transform: rotate(0deg);
+-  }
+-  to {
+-    transform: rotate(360deg);
+-  }
+-}
+-
+-/* Shimmer Animation */
+-.settings-shimmer {
+-  animation: shimmer 3s ease-in-out infinite;
+-}
+-
+-@keyframes shimmer {
+-  0% {
+-    transform: translateX(-100%);
+-  }
+-  50% {
+-    transform: translateX(100%);
+-  }
+-  100% {
+-    transform: translateX(-100%);
+-  }
+-}
+-
+-/* Pulse Dot Animation */
+-.settings-pulse-dot {
+-  animation: pulseDot 2s ease-in-out infinite;
+-}
+-
+-@keyframes pulseDot {
+-  0%,
+-  100% {
+-    opacity: 1;
+-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+-  }
+-  50% {
+-    opacity: 0.8;
+-    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+-  }
++  opacity: 0.6;
+ }
+ 
+ /* Toggle Switch */
+@@ -338,13 +310,20 @@ html {
+   position: relative;
+   width: 44px;
+   height: 24px;
+-  background: rgba(255, 255, 255, 0.1);
+   border-radius: 9999px;
+   cursor: pointer;
+   transition: all 0.3s ease;
+   flex-shrink: 0;
+ }
+ 
++.dark .settings-toggle-switch {
++  background: rgba(255, 255, 255, 0.1);
++}
++
++:not(.dark) .settings-toggle-switch {
++  background: #e2e8f0;
++}
++
+ .settings-toggle-switch.active {
+   background: linear-gradient(135deg, #22d3ee 0%, #3b82f6 100%);
+   box-shadow: 0 4px 15px rgba(34, 211, 238, 0.25);
+@@ -359,6 +338,7 @@ html {
+   background: white;
+   border-radius: 9999px;
+   transition: transform 0.3s ease;
++  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+ }
+ 
+ .settings-toggle-switch.active .settings-toggle-thumb {
+@@ -368,6 +348,4 @@ html {
+ /* Tab Button transition fix */
+ .settings-tab-button {
+   flex-shrink: 0;
+-}
+-
+-
++}
+\ No newline at end of file
+
+commit 4001b3d4a24ab3f2c90f22bcff6385066095d674
+Author: estebanPerezH <estebani1421@gmail.com>
+Date:   Fri Jan 23 16:22:50 2026 -0500
+
+    feat(settings): implement complete Settings module with dark theme
+
+diff --git a/src/app/globals.css b/src/app/globals.css
+index 9207bc5..694308b 100644
+--- a/src/app/globals.css
++++ b/src/app/globals.css
+@@ -224,3 +224,150 @@ html {
+ .dark *::-webkit-scrollbar-thumb:hover {
+   background: rgba(34, 211, 238, 0.35);
+ }
++
++/* ============================================
++   Settings Module - Custom Styles
++   ============================================ */
++
++/* Glassmorphism Card - Dark Theme */
++.settings-glass-card {
++  background: #0a0a0a;
++  border: 1px solid rgba(255, 255, 255, 0.08);
++  position: relative;
++}
++
++/* Right border accent glow */
++.settings-glass-card::after {
++  content: "";
++  position: absolute;
++  top: 0;
++  right: 0;
++  width: 3px;
++  height: 100%;
++  background: linear-gradient(180deg, #22d3ee 0%, #3b82f6 100%);
++  border-radius: 0 8px 8px 0;
++  opacity: 0.6;
++}
++
++/* Cards without the accent line */
++.settings-glass-card-plain {
++  background: #0a0a0a;
++  border: 1px solid rgba(255, 255, 255, 0.08);
++}
++
++/* Input styling for dark theme */
++.settings-input {
++  background: rgba(255, 255, 255, 0.03);
++  border: 1px solid rgba(255, 255, 255, 0.1);
++  color: white;
++}
++
++.settings-input:focus {
++  border-color: #22d3ee;
++  outline: none;
++}
++
++.settings-input::placeholder {
++  color: rgba(255, 255, 255, 0.4);
++}
++
++/* Disabled input */
++.settings-input:disabled {
++  color: rgba(255, 255, 255, 0.5);
++  cursor: not-allowed;
++}
++
++/* Gradient Text */
++.settings-gradient-text {
++  background: linear-gradient(135deg, #22d3ee 0%, #60a5fa 100%);
++  -webkit-background-clip: text;
++  -webkit-text-fill-color: transparent;
++  background-clip: text;
++}
++
++/* Rotating Ring Animation */
++.settings-rotating-ring {
++  animation: rotateRing 8s linear infinite;
++}
++
++@keyframes rotateRing {
++  from {
++    transform: rotate(0deg);
++  }
++  to {
++    transform: rotate(360deg);
++  }
++}
++
++/* Shimmer Animation */
++.settings-shimmer {
++  animation: shimmer 3s ease-in-out infinite;
++}
++
++@keyframes shimmer {
++  0% {
++    transform: translateX(-100%);
++  }
++  50% {
++    transform: translateX(100%);
++  }
++  100% {
++    transform: translateX(-100%);
++  }
++}
++
++/* Pulse Dot Animation */
++.settings-pulse-dot {
++  animation: pulseDot 2s ease-in-out infinite;
++}
++
++@keyframes pulseDot {
++  0%,
++  100% {
++    opacity: 1;
++    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
++  }
++  50% {
++    opacity: 0.8;
++    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
++  }
++}
++
++/* Toggle Switch */
++.settings-toggle-switch {
++  position: relative;
++  width: 44px;
++  height: 24px;
++  background: rgba(255, 255, 255, 0.1);
++  border-radius: 9999px;
++  cursor: pointer;
++  transition: all 0.3s ease;
++  flex-shrink: 0;
++}
++
++.settings-toggle-switch.active {
++  background: linear-gradient(135deg, #22d3ee 0%, #3b82f6 100%);
++  box-shadow: 0 4px 15px rgba(34, 211, 238, 0.25);
++}
++
++.settings-toggle-thumb {
++  position: absolute;
++  top: 2px;
++  left: 2px;
++  width: 20px;
++  height: 20px;
++  background: white;
++  border-radius: 9999px;
++  transition: transform 0.3s ease;
++}
++
++.settings-toggle-switch.active .settings-toggle-thumb {
++  transform: translateX(20px);
++}
++
++/* Tab Button transition fix */
++.settings-tab-button {
++  flex-shrink: 0;
++}
++
++
+
+commit e90eb54492dbab51c93212650625c88451f37219
+Author: estebanPerezH <estebani1421@gmail.com>
+Date:   Wed Jan 21 00:26:27 2026 -0500
+
+    Add .gitattributes for line ending normalization
+
+diff --git a/src/app/globals.css b/src/app/globals.css
+new file mode 100644
+index 0000000..9207bc5
+--- /dev/null
++++ b/src/app/globals.css
+@@ -0,0 +1,226 @@
++@import "tailwindcss";
++
++@custom-variant dark (&:is(.dark *));
++
++:root {
++  --font-size: 16px;
++  --background: #ffffff;
++  --foreground: oklch(0.145 0 0);
++  --card: #ffffff;
++  --card-foreground: oklch(0.145 0 0);
++  --popover: oklch(1 0 0);
++  --popover-foreground: oklch(0.145 0 0);
++  --primary: #030213;
++  --primary-foreground: oklch(1 0 0);
++  --secondary: oklch(0.95 0.0058 264.53);
++  --secondary-foreground: #030213;
++  --muted: #ececf0;
++  --muted-foreground: #717182;
++  --accent: #e9ebef;
++  --accent-foreground: #030213;
++  --destructive: #d4183d;
++  --destructive-foreground: #ffffff;
++  --border: rgba(0, 0, 0, 0.1);
++  --input: transparent;
++  --input-background: #f3f3f5;
++  --switch-background: #cbced4;
++  --font-weight-medium: 500;
++  --font-weight-normal: 400;
++  --ring: oklch(0.708 0 0);
++  --chart-1: oklch(0.646 0.222 41.116);
++  --chart-2: oklch(0.6 0.118 184.704);
++  --chart-3: oklch(0.398 0.07 227.392);
++  --chart-4: oklch(0.828 0.189 84.429);
++  --chart-5: oklch(0.769 0.188 70.08);
++  --radius: 0.625rem;
++  --sidebar: oklch(0.985 0 0);
++  --sidebar-foreground: oklch(0.145 0 0);
++  --sidebar-primary: #030213;
++  --sidebar-primary-foreground: oklch(0.985 0 0);
++  --sidebar-accent: oklch(0.97 0 0);
++  --sidebar-accent-foreground: oklch(0.205 0 0);
++  --sidebar-border: oklch(0.922 0 0);
++  --sidebar-ring: oklch(0.708 0 0);
++}
++
++.dark {
++  --background: oklch(0.145 0 0);
++  --foreground: oklch(0.985 0 0);
++  --card: oklch(0.145 0 0);
++  --card-foreground: oklch(0.985 0 0);
++  --popover: oklch(0.145 0 0);
++  --popover-foreground: oklch(0.985 0 0);
++  --primary: oklch(0.985 0 0);
++  --primary-foreground: oklch(0.205 0 0);
++  --secondary: oklch(0.269 0 0);
++  --secondary-foreground: oklch(0.985 0 0);
++  --muted: oklch(0.269 0 0);
++  --muted-foreground: oklch(0.708 0 0);
++  --accent: oklch(0.269 0 0);
++  --accent-foreground: oklch(0.985 0 0);
++  --destructive: oklch(0.396 0.141 25.723);
++  --destructive-foreground: oklch(0.637 0.237 25.331);
++  --border: oklch(0.269 0 0);
++  --input: oklch(0.269 0 0);
++  --ring: oklch(0.439 0 0);
++  --font-weight-medium: 500;
++  --font-weight-normal: 400;
++  --chart-1: oklch(0.488 0.243 264.376);
++  --chart-2: oklch(0.696 0.17 162.48);
++  --chart-3: oklch(0.769 0.188 70.08);
++  --chart-4: oklch(0.627 0.265 303.9);
++  --chart-5: oklch(0.645 0.246 16.439);
++  --sidebar: oklch(0.205 0 0);
++  --sidebar-foreground: oklch(0.985 0 0);
++  --sidebar-primary: oklch(0.488 0.243 264.376);
++  --sidebar-primary-foreground: oklch(0.985 0 0);
++  --sidebar-accent: oklch(0.269 0 0);
++  --sidebar-accent-foreground: oklch(0.985 0 0);
++  --sidebar-border: oklch(0.269 0 0);
++  --sidebar-ring: oklch(0.439 0 0);
++}
++
++@theme inline {
++  --color-background: var(--background);
++  --color-foreground: var(--foreground);
++  --color-card: var(--card);
++  --color-card-foreground: var(--card-foreground);
++  --color-popover: var(--popover);
++  --color-popover-foreground: var(--popover-foreground);
++  --color-primary: var(--primary);
++  --color-primary-foreground: var(--primary-foreground);
++  --color-secondary: var(--secondary);
++  --color-secondary-foreground: var(--secondary-foreground);
++  --color-muted: var(--muted);
++  --color-muted-foreground: var(--muted-foreground);
++  --color-accent: var(--accent);
++  --color-accent-foreground: var(--accent-foreground);
++  --color-destructive: var(--destructive);
++  --color-destructive-foreground: var(--destructive-foreground);
++  --color-border: var(--border);
++  --color-input: var(--input);
++  --color-input-background: var(--input-background);
++  --color-switch-background: var(--switch-background);
++  --color-ring: var(--ring);
++  --color-chart-1: var(--chart-1);
++  --color-chart-2: var(--chart-2);
++  --color-chart-3: var(--chart-3);
++  --color-chart-4: var(--chart-4);
++  --color-chart-5: var(--chart-5);
++  --radius-sm: calc(var(--radius) - 4px);
++  --radius-md: calc(var(--radius) - 2px);
++  --radius-lg: var(--radius);
++  --radius-xl: calc(var(--radius) + 4px);
++  --color-sidebar: var(--sidebar);
++  --color-sidebar-foreground: var(--sidebar-foreground);
++  --color-sidebar-primary: var(--sidebar-primary);
++  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
++  --color-sidebar-accent: var(--sidebar-accent);
++  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
++  --color-sidebar-border: var(--sidebar-border);
++  --color-sidebar-ring: var(--sidebar-ring);
++}
++
++@layer base {
++  * {
++    @apply border-border outline-ring/50;
++  }
++
++  body {
++    @apply bg-background text-foreground;
++    -webkit-font-smoothing: antialiased;
++    -moz-osx-font-smoothing: grayscale;
++  }
++}
++
++/**
++ * Base typography. This is not applied to elements which have an ancestor with a Tailwind text class.
++ */
++@layer base {
++  :where(:not(:has([class*=' text-']), :not(:has([class^='text-'])))) {
++    h1 {
++      font-size: var(--text-2xl);
++      font-weight: var(--font-weight-medium);
++      line-height: 1.5;
++    }
++
++    h2 {
++      font-size: var(--text-xl);
++      font-weight: var(--font-weight-medium);
++      line-height: 1.5;
++    }
++
++    h3 {
++      font-size: var(--text-lg);
++      font-weight: var(--font-weight-medium);
++      line-height: 1.5;
++    }
++
++    h4 {
++      font-size: var(--text-base);
++      font-weight: var(--font-weight-medium);
++      line-height: 1.5;
++    }
++
++    label {
++      font-size: var(--text-base);
++      font-weight: var(--font-weight-medium);
++      line-height: 1.5;
++    }
++
++    button {
++      font-size: var(--text-base);
++      font-weight: var(--font-weight-medium);
++      line-height: 1.5;
++    }
++
++    input {
++      font-size: var(--text-base);
++      font-weight: var(--font-weight-normal);
++      line-height: 1.5;
++    }
++  }
++}
++
++html {
++  font-size: var(--font-size);
++}
++
++/* Custom Scrollbar - Subtle & Theme-Aware */
++/* Firefox */
++* {
++  scrollbar-width: thin;
++  scrollbar-color: rgba(100, 116, 139, 0.3) transparent;
++}
++
++.dark * {
++  scrollbar-color: rgba(34, 211, 238, 0.2) transparent;
++}
++
++/* Webkit browsers (Chrome, Safari, Edge) */
++*::-webkit-scrollbar {
++  width: 8px;
++  height: 8px;
++}
++
++*::-webkit-scrollbar-track {
++  background: transparent;
++}
++
++*::-webkit-scrollbar-thumb {
++  background: rgba(100, 116, 139, 0.3);
++  border-radius: 4px;
++  transition: background 0.2s ease;
++}
++
++*::-webkit-scrollbar-thumb:hover {
++  background: rgba(100, 116, 139, 0.5);
++}
++
++.dark *::-webkit-scrollbar-thumb {
++  background: rgba(34, 211, 238, 0.2);
++}
++
++.dark *::-webkit-scrollbar-thumb:hover {
++  background: rgba(34, 211, 238, 0.35);
++}

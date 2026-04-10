@@ -1,13 +1,16 @@
-import { useState, useRef, useCallback, useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, useRef, useCallback, useEffect, useMemo } from "react";
+import { useInfiniteQuery, useQuery, useMutation, useQueryClient, type InfiniteData } from "@tanstack/react-query";
 import { Version } from "../types";
 import { assetsService } from "@/features/assets/services/assets.service";
+import { type PaginatedBackendData, type BackendRelease } from "@/features/assets/api/assets.api";
 import { useApiAuth } from "@/lib/use-api-auth";
 import { toast } from "sonner";
 import { handleApiError } from "@/lib/error-handler";
 import { useSocket } from "@/features/shared/hooks/useSocket";
 
 import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
+
+const VERSION_PAGE_SIZE = 15;
 
 const formatBytes = (bytes: number, decimals = 2) => {
   if (bytes === 0) return "0 Bytes";
@@ -30,14 +33,29 @@ export const useVersionControl = () => {
   const queryClient = useQueryClient();
 
   // ── Queries ──────────────────────────────────────────────────────────
-  const { data: versions = [], isLoading } = useQuery({
+  const {
+    data: versionsData,
+    isLoading,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useInfiniteQuery({
     queryKey: QUERY_KEYS.releases.versions(orgId || "none"),
-    queryFn: async (): Promise<Version[]> => {
-      if (!token || !orgId) return [];
-      const response = await assetsService.getGlobalReleases(token, orgId);
-      if (!response?.data || !Array.isArray(response.data)) return [];
+    queryFn: async ({ pageParam = 1 }): Promise<PaginatedBackendData<BackendRelease>> => {
+      if (!token || !orgId) return { data: [], total: 0, page: 1 };
+      return assetsService.getGlobalReleases(token, orgId, pageParam, VERSION_PAGE_SIZE);
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      return lastPage.page * VERSION_PAGE_SIZE < lastPage.total ? lastPage.page + 1 : undefined;
+    },
+    enabled: !!token && !!orgId,
+  });
 
-      return response.data.map((rel) => ({
+  const versions = useMemo(() => {
+    if (!versionsData?.pages) return [];
+    return versionsData.pages.flatMap((page) =>
+      (page.data || []).map((rel) => ({
         id: rel.id,
         productId: rel.product_id,
         assetName: rel.product_name || "Unknown Asset",
@@ -50,17 +68,20 @@ export const useVersionControl = () => {
         adoptionRate: 0,
         changelog: rel.changelog || [],
         compatibility: rel.min_app_version || "N/A",
-      }));
-    },
-    enabled: !!token && !!orgId,
-  });
+        downloadUrl: rel.download_url || "",
+        projectUrl: rel.github_repository || rel.external_url || "",
+      }))
+    );
+  }, [versionsData]);
+
+  const totalVersions = versionsData?.pages[0]?.total ?? 0;
 
   const { data: availableAssets = [] } = useQuery({
     queryKey: QUERY_KEYS.releases.assets(orgId || "none"),
     queryFn: async () => {
       if (!token || !orgId) return [];
-      const assets = await assetsService.fetchInventory(token, orgId);
-      return assets.map(a => ({ id: a.id, name: a.name }));
+      const result = await assetsService.fetchInventory(token, orgId);
+      return result.assets.map(a => ({ id: a.id, name: a.name }));
     },
     enabled: !!token && !!orgId,
   });
@@ -99,10 +120,17 @@ export const useVersionControl = () => {
     onMutate: async (id: string) => {
       const key = QUERY_KEYS.releases.versions(orgId || "none");
       await queryClient.cancelQueries({ queryKey: key });
-      const previous = queryClient.getQueryData<Version[]>(key);
-      queryClient.setQueryData<Version[]>(key, old =>
-        (old || []).map(v => v.id === id ? { ...v, status: "deprecated" as const } : v)
-      );
+      const previous = queryClient.getQueryData<InfiniteData<PaginatedBackendData<BackendRelease>>>(key);
+      queryClient.setQueryData<InfiniteData<PaginatedBackendData<BackendRelease>>>(key, old => {
+        if (!old) return old;
+        return {
+          ...old,
+          pages: old.pages.map(page => ({
+            ...page,
+            data: page.data.map(v => v.id === id ? { ...v, status: "deprecated" } : v),
+          })),
+        };
+      });
       return { previous, key };
     },
     onError: (_err, _id, context) => {
@@ -132,35 +160,14 @@ export const useVersionControl = () => {
     setActiveMenu(null);
   };
 
-  const handleSaveVersion = async (versionData: Partial<Version> & { productId?: string; file?: File; changelogItems?: string[] }) => {
+  const handleSaveVersion = async (versionData: Partial<Version> & { productId?: string; downloadUrl?: string; changelogItems?: string[] }) => {
     if (!token || !orgId) return;
 
     try {
       setIsSaving(true);
-      
-      let downloadUrl = "";
-      let fileSizeBytes = 0;
 
-      if (versionData.file) {
-        const { supabase } = await import("@/lib/supabase/client");
-        if (!supabase) throw new Error("Supabase client not available");
-
-        const fileExt = versionData.file.name.split(".").pop();
-        const fileName = `releases/${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
-
-        const { error } = await supabase.storage
-          .from("products")
-          .upload(fileName, versionData.file);
-
-        if (error) throw error;
-
-        const { data: urlData } = supabase.storage
-          .from("products")
-          .getPublicUrl(fileName);
-        
-        downloadUrl = urlData.publicUrl;
-        fileSizeBytes = versionData.file.size;
-      }
+      const downloadUrl = versionData.downloadUrl || "";
+      const fileSizeBytes = 0;
 
       const productId = versionData.productId || editingVersion?.productId;
       if (!productId) throw new Error("Product ID is required");
@@ -185,6 +192,7 @@ export const useVersionControl = () => {
       }
 
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.releases.all });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.marketplace.all });
       setIsEditorOpen(false);
     } catch (err: unknown) {
       toast.error(`Failed to save release: ${handleApiError(err)}`);
@@ -206,6 +214,10 @@ export const useVersionControl = () => {
   return {
     versions,
     isLoading,
+    totalVersions,
+    hasNextPage: hasNextPage ?? false,
+    isFetchingNextPage,
+    fetchNextPage,
     activeMenu,
     isEditorOpen,
     editingVersion,

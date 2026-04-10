@@ -2,9 +2,10 @@
 
 import React from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { X, Star, Calendar } from "lucide-react";
+import { X, Star, Calendar } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useEscapeKey } from "@/features/shared/hooks/useEscapeKey";
+import { createPortal } from "react-dom";
 import { ProductModalTabs } from "./ProductModalTabs";
 import { ProductModalSidebar } from "./ProductModalSidebar";
 import { MarketplaceProduct } from "../../types";
@@ -32,6 +33,11 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 }) => {
   const { theme } = useTheme();
   const [activeTab, setActiveTab] = React.useState("overview");
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Fetch full details (reviews, etc.)
   const {
@@ -46,9 +52,9 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   // Keyboard accessibility: Esc to close
   useEscapeKey(onClose, !!product);
 
-  if (!product) return null;
+  if (!mounted || !product) return null;
 
-  return (
+  return createPortal(
     <AnimatePresence>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
         {/* Backdrop */}
@@ -66,7 +72,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           className={`
-            relative w-full max-w-6xl max-h-[90vh] overflow-y-auto rounded-3xl border shadow-2xl
+            relative shrink-0 w-[72rem] min-w-[320px] sm:min-w-[72rem] max-w-[95vw] max-h-[90vh] overflow-y-auto rounded-3xl border shadow-2xl
             ${
               theme === "dark"
                 ? "bg-black/90 backdrop-blur-xl border-white/10"
@@ -101,9 +107,9 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                 </span>
 
                 {/* Secondary Tags in Header */}
-                {(product.tags || []).slice(0, 2).map((tag) => (
+                {(product.tags || []).slice(0, 2).map((tag, i) => (
                   <span
-                    key={tag}
+                    key={`${tag}-${i}`}
                     className={`
                       px-2 py-0.5 rounded-md text-[10px] font-medium border uppercase tracking-wider
                       ${
@@ -214,6 +220,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           </div>
         </motion.div>
       </div>
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 };

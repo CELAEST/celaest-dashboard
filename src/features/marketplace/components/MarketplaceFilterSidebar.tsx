@@ -4,13 +4,13 @@ import React from "react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import {
   Check,
-  ChevronDown,
+  CaretDown,
   Star,
-  DollarSign,
-  Sparkles,
-  TrendingUp,
+  CurrencyDollar,
+  Sparkle,
+  TrendUp,
   Shield,
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import { motion, AnimatePresence } from "motion/react";
 import { useCategories } from "@/features/assets/hooks/useCategories";
 
@@ -72,7 +72,7 @@ export function MarketplaceFilterSidebar({
           <div
             className={`p-2 rounded-lg ${isDark ? "bg-cyan-500/10" : "bg-cyan-50"}`}
           >
-            <Sparkles
+            <Sparkle
               size={14}
               className={isDark ? "text-cyan-400" : "text-cyan-600"}
             />
@@ -115,7 +115,7 @@ export function MarketplaceFilterSidebar({
               }}
               transition={{ duration: 0.3 }}
             >
-              <ChevronDown
+              <CaretDown
                 size={12}
                 className={isDark ? "text-gray-500" : "text-gray-400"}
               />
@@ -221,7 +221,7 @@ export function MarketplaceFilterSidebar({
           </AnimatePresence>
         </div>
 
-        {/* Rating Filter Section */}
+        {/* Rating Funnel Section */}
         <div className="space-y-1">
           <motion.button
             onClick={() => toggleSection("rating")}
@@ -242,7 +242,7 @@ export function MarketplaceFilterSidebar({
               animate={{ rotate: collapsedSections.has("rating") ? 0 : 180 }}
               transition={{ duration: 0.3 }}
             >
-              <ChevronDown
+              <CaretDown
                 size={12}
                 className={isDark ? "text-gray-500" : "text-gray-400"}
               />
@@ -320,7 +320,7 @@ export function MarketplaceFilterSidebar({
               animate={{ rotate: collapsedSections.has("price") ? 0 : 180 }}
               transition={{ duration: 0.3 }}
             >
-              <ChevronDown
+              <CaretDown
                 size={12}
                 className={isDark ? "text-gray-500" : "text-gray-400"}
               />
@@ -352,7 +352,7 @@ export function MarketplaceFilterSidebar({
                       }
                     `}
                   >
-                    <DollarSign size={10} className="shrink-0" />
+                    <CurrencyDollar size={10} className="shrink-0" />
                     <span>{price.label}</span>
                   </button>
                 ))}
@@ -379,7 +379,7 @@ export function MarketplaceFilterSidebar({
         <div
           className={`flex items-center gap-2 px-2 py-1.5 rounded-lg ${isDark ? "bg-amber-500/5" : "bg-amber-50/50"}`}
         >
-          <Sparkles size={10} className="text-amber-500" />
+          <Sparkle size={10} className="text-amber-500" />
           <span
             className={`text-[9px] font-bold ${isDark ? "text-amber-400" : "text-amber-600"}`}
           >
@@ -389,7 +389,7 @@ export function MarketplaceFilterSidebar({
         <div
           className={`flex items-center gap-2 px-2 py-1.5 rounded-lg ${isDark ? "bg-cyan-500/5" : "bg-cyan-50/50"}`}
         >
-          <TrendingUp size={10} className="text-cyan-500" />
+          <TrendUp size={10} className="text-cyan-500" />
           <span
             className={`text-[9px] font-bold ${isDark ? "text-cyan-400" : "text-cyan-600"}`}
           >

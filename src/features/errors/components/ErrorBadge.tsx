@@ -1,5 +1,5 @@
 import React from "react";
-import { AlertTriangle, AlertCircle, Info } from "lucide-react";
+import { Warning, Info } from "@phosphor-icons/react";
 import {
   ErrorSeverity,
   ErrorStatus,
@@ -16,8 +16,8 @@ export const ErrorBadge = React.memo(
     if (type === "severity") {
       const severity = value as ErrorSeverity;
       const icons = {
-        critical: <AlertTriangle size={16} />,
-        warning: <AlertCircle size={16} />,
+        critical: <Warning size={16} />,
+        warning: <Warning size={16} />,
         info: <Info size={16} />,
       };
 

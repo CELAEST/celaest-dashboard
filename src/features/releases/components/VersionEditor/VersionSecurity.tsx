@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { Shield, AlertCircle } from "lucide-react";
+import { Shield, Warning } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface VersionSecurityProps {
@@ -60,7 +60,7 @@ export const VersionSecurity: React.FC<VersionSecurityProps> = memo(
               : "bg-blue-50 border-blue-200"
           }`}
         >
-          <AlertCircle
+          <Warning
             size={20}
             className={`shrink-0 mt-0.5 ${
               isDark ? "text-blue-400" : "text-blue-600"

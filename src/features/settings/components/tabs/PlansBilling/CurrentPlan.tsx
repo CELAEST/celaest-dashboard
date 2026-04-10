@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { Zap } from "lucide-react";
+import { Lightning } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface CurrentPlanProps {
@@ -22,7 +22,7 @@ export const CurrentPlan: React.FC<CurrentPlanProps> = memo(
                 isDark ? "bg-cyan-500/10" : "bg-cyan-50"
               }`}
             >
-              <Zap
+              <Lightning
                 className={`w-6 h-6 ${
                   isDark ? "text-cyan-400" : "text-cyan-600"
                 }`}

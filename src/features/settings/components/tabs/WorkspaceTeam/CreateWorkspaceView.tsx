@@ -2,14 +2,14 @@
 
 import React, { useState } from "react";
 import {
-  Building2,
-  Sparkles,
+  Buildings,
+  Sparkle,
   ArrowRight,
-  Loader2,
+  CircleNotch,
   Crown,
   Users,
   Palette,
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 import { useOrgStore } from "@/features/shared/stores/useOrgStore";
@@ -104,7 +104,7 @@ export function CreateWorkspaceView({ planTier }: { planTier: number }) {
               : "bg-linear-to-br from-cyan-50 to-blue-50 border border-cyan-200"
           }`}
         >
-          <Building2 className="w-8 h-8 text-cyan-500" />
+          <Buildings className="w-8 h-8 text-cyan-500" />
         </div>
         <h3
           className={`text-2xl font-bold mb-2 ${isDark ? "text-white" : "text-gray-900"}`}
@@ -112,7 +112,7 @@ export function CreateWorkspaceView({ planTier }: { planTier: number }) {
           Create Your Workspace
         </h3>
         <p
-          className={`text-sm max-w-md mx-auto ${isDark ? "text-gray-400" : "text-gray-500"}`}
+          className={`text-sm max-w-112 mx-auto ${isDark ? "text-gray-400" : "text-gray-500"}`}
         >
           Set up your own workspace to collaborate with your team, customize
           branding, and manage everything from one place.
@@ -210,12 +210,12 @@ export function CreateWorkspaceView({ planTier }: { planTier: number }) {
           >
             {isCreating ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <CircleNotch className="w-4 h-4 animate-spin" />
                 Creating workspace...
               </>
             ) : (
               <>
-                <Building2 className="w-4 h-4" />
+                <Buildings className="w-4 h-4" />
                 Create Workspace
                 <ArrowRight className="w-4 h-4" />
               </>
@@ -231,7 +231,7 @@ export function CreateWorkspaceView({ planTier }: { planTier: number }) {
               : "bg-linear-to-br from-amber-50 to-orange-50 border border-amber-200"
           }`}
         >
-          <Sparkles
+          <Sparkle
             className={`w-6 h-6 mx-auto mb-3 ${isDark ? "text-amber-400" : "text-amber-600"}`}
           />
           <p
@@ -246,7 +246,7 @@ export function CreateWorkspaceView({ planTier }: { planTier: number }) {
           </p>
           <button
             onClick={() => setShowUpgradeModal(true)}
-            className="hidden lg:flex flex-col justify-between p-12 relative overflow-hidden bg-linear-to-br from-cyan-600 to-blue-700 text-white hover:from-amber-400 hover:to-orange-400 transition-all shadow-lg shadow-amber-500/25 cursor-pointer"
+            className="mt-6 mx-auto flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-200 bg-linear-to-r from-cyan-600 to-blue-700 text-white hover:scale-[1.02] shadow-lg shadow-cyan-500/25 cursor-pointer"
           >
             <Crown className="w-4 h-4" />
             Upgrade Plan

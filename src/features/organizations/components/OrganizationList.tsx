@@ -1,7 +1,7 @@
 import React from "react";
 import { useOrganizations } from "../hooks/useOrganizations";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
-import { Building2, Users, Settings, Plus } from "lucide-react";
+import { Buildings, Users, Gear, Plus } from "@phosphor-icons/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Organization } from "../types";
@@ -75,7 +75,7 @@ export const OrganizationList: React.FC = () => {
           >
             <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
               <CardTitle className="text-lg font-bold">{org.name}</CardTitle>
-              <Building2 className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+              <Buildings className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -89,7 +89,7 @@ export const OrganizationList: React.FC = () => {
                     size="sm"
                     className="w-full flex items-center gap-2"
                   >
-                    <Settings className="w-3.5 h-3.5" />
+                    <Gear className="w-3.5 h-3.5" />
                     Configuración
                   </Button>
                 </div>
@@ -100,7 +100,7 @@ export const OrganizationList: React.FC = () => {
 
         {organizations?.length === 0 && (
           <div className="col-span-full p-12 text-center border-2 border-dashed border-border/40 rounded-xl">
-            <Building2 className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-20" />
+            <Buildings className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-20" />
             <h3 className="text-lg font-medium">No hay organizaciones</h3>
             <p className="text-muted-foreground">
               Comience creando su primer tenant para habilitar la colaboración.

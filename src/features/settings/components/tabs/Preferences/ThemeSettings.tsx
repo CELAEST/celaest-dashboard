@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { Monitor, Sun, Moon } from "lucide-react";
+import { Monitor, Sun, Moon } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
 import { Theme } from "@/stores/useUIStore";

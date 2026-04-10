@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { Download, Clock, AlertCircle, CheckCircle2 } from "lucide-react";
+import { DownloadSimple, Clock, Warning, CheckCircle } from "@phosphor-icons/react";
 import { CustomerAsset } from "../../../types";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
@@ -35,7 +35,7 @@ export const UpdateItemHeader: React.FC<UpdateItemHeaderProps> = memo(
                       : "bg-cyan-100 text-cyan-700 border border-cyan-300"
                   }`}
                 >
-                  <Download size={12} />
+                  <DownloadSimple size={12} />
                   UPDATE AVAILABLE
                 </span>
               )}
@@ -102,12 +102,12 @@ export const UpdateItemHeader: React.FC<UpdateItemHeaderProps> = memo(
             }`}
           >
             {asset.hasUpdate ? (
-              <AlertCircle
+              <Warning
                 size={24}
                 className={isDark ? "text-cyan-400" : "text-cyan-600"}
               />
             ) : (
-              <CheckCircle2
+              <CheckCircle
                 size={24}
                 className={isDark ? "text-emerald-400" : "text-emerald-600"}
               />

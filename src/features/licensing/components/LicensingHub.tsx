@@ -12,6 +12,7 @@ import { LicensingHeader } from "./hub/LicensingHeader";
 import { LicensingStats } from "./hub/LicensingStats";
 import { LicensingList } from "./hub/LicensingList";
 import { LicensingCollisions } from "./hub/LicensingCollisions";
+import { TableChrome } from "@/components/layout/TableChrome";
 
 export const LicensingHub: React.FC = () => {
   const { theme } = useTheme();
@@ -27,8 +28,6 @@ export const LicensingHub: React.FC = () => {
     setSearchQuery,
     statusFilter,
     setStatusFilter,
-    page,
-    setPage,
     total,
     activeTab,
     setActiveTab,
@@ -42,6 +41,9 @@ export const LicensingHub: React.FC = () => {
     renewLicense,
     convertTrial,
     reactivateLicense,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
   } = useLicensing();
 
   // Handle License Creation — delegates to real API
@@ -60,58 +62,18 @@ export const LicensingHub: React.FC = () => {
     <div
       className={`h-full w-full flex flex-col min-h-0 ${isDark ? "bg-[#0a0a0a]" : "bg-gray-50"}`}
     >
-      <LicensingHeader onCreateClick={() => setIsCreateModalOpen(true)} />
+      <LicensingHeader
+        onCreateClick={() => setIsCreateModalOpen(true)}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        collisionsCount={collisions.length}
+        statusFilter={statusFilter}
+        onStatusFilterChange={setStatusFilter}
+      />
 
-      <div className="flex-1 overflow-hidden flex flex-col pt-4 min-h-0">
-        {/* Navigation Tabs (Fixed at top) */}
-        <div className="flex items-center gap-6 border-b border-gray-200 dark:border-white/10 shrink-0 px-2 pb-px">
-          <button
-            onClick={() => setActiveTab("licenses")}
-            className={`pb-3 text-sm font-medium border-b-2 transition-colors ${
-              activeTab === "licenses"
-                ? isDark
-                  ? "text-cyan-400 border-cyan-400"
-                  : "text-blue-600 border-blue-600"
-                : "text-gray-500 border-transparent hover:text-gray-400"
-            }`}
-          >
-            All Licenses
-          </button>
-          <button
-            onClick={() => setActiveTab("collisions")}
-            className={`pb-3 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 ${
-              activeTab === "collisions"
-                ? isDark
-                  ? "text-red-400 border-red-400"
-                  : "text-red-600 border-red-600"
-                : "text-gray-500 border-transparent hover:text-gray-400"
-            }`}
-          >
-            Collisions
-            {collisions.length > 0 && (
-              <span className="px-1.5 py-0.5 text-[10px] bg-red-500/10 text-red-500 rounded-full font-bold">
-                {collisions.length}
-              </span>
-            )}
-          </button>
-          <button
-            onClick={() => setActiveTab("analytics")}
-            className={`pb-3 text-sm font-medium border-b-2 transition-colors ${
-              activeTab === "analytics"
-                ? isDark
-                  ? "text-purple-400 border-purple-400"
-                  : "text-purple-600 border-purple-600"
-                : "text-gray-500 border-transparent hover:text-gray-400"
-            }`}
-          >
-            Analytics
-          </button>
-        </div>
-
-        {/* Tab Content Area (Internal scroll managed by children) */}
-        <div className="flex-1 overflow-hidden flex flex-col pt-6 min-h-0">
+      <div className="flex-1 overflow-hidden flex flex-col min-h-0">
           {activeTab === "analytics" && (
-            <div className="flex-1 overflow-y-auto custom-scrollbar pb-4 min-h-0">
+            <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
               <LicensingStats analytics={analytics} />
             </div>
           )}
@@ -124,20 +86,39 @@ export const LicensingHub: React.FC = () => {
           )}
 
           {activeTab === "licenses" && (
-            <LicensingList
-              licenses={licenses}
-              loading={loading}
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              statusFilter={statusFilter}
-              setStatusFilter={setStatusFilter}
-              page={page}
-              setPage={setPage}
-              total={total}
-              onSelectLicense={selectLicense}
-            />
+            <div className="flex-1 min-h-0 px-4 pb-4 overflow-hidden">
+              <TableChrome
+                toolbar={
+                  <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                      <span className={`text-xs font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>
+                        All Licenses
+                      </span>
+                    </div>
+                    <span className={`text-[11px] tabular-nums ${isDark ? "text-gray-500" : "text-gray-400"}`}>
+                      {licenses.length > 0 ? `Showing ${licenses.length} of ${total} entries` : ""}
+                    </span>
+                  </div>
+                }
+              >
+                <LicensingList
+                  licenses={licenses}
+                  loading={loading}
+                  searchQuery={searchQuery}
+                  setSearchQuery={setSearchQuery}
+                  statusFilter={statusFilter}
+                  setStatusFilter={setStatusFilter}
+                  total={total}
+                  onSelectLicense={selectLicense}
+                  hasNextPage={hasNextPage}
+                  isFetchingNextPage={isFetchingNextPage}
+                  onLoadMore={fetchNextPage}
+                />
+              </TableChrome>
+            </div>
           )}
-        </div>
+
       </div>
 
       <CreateLicenseModal
@@ -158,6 +139,7 @@ export const LicensingHub: React.FC = () => {
         onUnbindIp={(ip) =>
           selectedLicense && handleUnbindIp(selectedLicense.id, ip)
         }
+        onRevoke={() => selectedLicense && revokeLicense(selectedLicense.id)}
         onRenew={() => selectedLicense && renewLicense(selectedLicense.id)}
         onConvertTrial={() =>
           selectedLicense && convertTrial(selectedLicense.id)

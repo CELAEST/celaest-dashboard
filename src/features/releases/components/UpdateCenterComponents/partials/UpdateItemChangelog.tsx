@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { FileText, ChevronUp, ChevronDown, Shield } from "lucide-react";
+import { FileText, CaretUp, CaretDown, Shield } from "@phosphor-icons/react";
 import { CustomerAsset } from "../../../types";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
@@ -34,7 +34,7 @@ export const UpdateItemChangelog: React.FC<UpdateItemChangelogProps> = memo(
               What&apos;s New in {asset.latestVersion}
             </span>
           </div>
-          {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+          {isExpanded ? <CaretUp size={18} /> : <CaretDown size={18} />}
         </button>
 
         <AnimatePresence>

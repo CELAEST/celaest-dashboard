@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "motion/react";
-import { ChevronDown } from "lucide-react";
+import { CaretDown } from "@phosphor-icons/react";
 import { TrustBadges } from "@/features/marketplace/components/TrustBadges";
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
 import { useTheme } from "@/features/shared/hooks/useTheme";
@@ -20,7 +20,7 @@ export const MarketplacePublicHero: React.FC = () => {
 
   return (
     <div className="relative p-8 pb-0">
-      <div className="relative w-full aspect-32/9 overflow-hidden rounded-3xl shadow-2xl">
+      <div className="relative w-full aspect-[32/9] overflow-hidden rounded-3xl shadow-2xl">
         <div
           className={`absolute inset-0 z-10 ${
             isDark
@@ -35,15 +35,15 @@ export const MarketplacePublicHero: React.FC = () => {
           className="object-cover"
           alt="Hero Background"
         />
-
         <div className="absolute inset-0 flex flex-col justify-center px-12 z-20 w-full">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
+            className="w-full max-w-[800px]"
           >
             <h1
-              className={`text-5xl font-bold mb-4 leading-tight ${
+              className={`text-4xl md:text-5xl font-bold mb-4 leading-tight ${
                 isDark ? "text-white" : "text-gray-900"
               }`}
             >
@@ -54,13 +54,11 @@ export const MarketplacePublicHero: React.FC = () => {
               </span>
             </h1>
             <p
-              className={`text-lg mb-6 max-w-xl leading-relaxed ${
+              className={`text-base md:text-lg mb-6 w-full max-w-[600px] shrink-0 leading-relaxed ${
                 isDark ? "text-gray-300" : "text-gray-700"
               }`}
             >
-              Soluciones profesionales listas para usar. Sin complejidad
-              técnica, sin configuraciones difíciles. Solo resultados
-              garantizados.
+              Soluciones profesionales listas para usar. Sin complejidad técnica, sin configuraciones difíciles. Solo resultados garantizados.
             </p>
             <TrustBadges />
           </motion.div>
@@ -83,7 +81,7 @@ export const MarketplacePublicHero: React.FC = () => {
           animate={{ y: [0, 5, 0] }}
           transition={{ duration: 1.5, repeat: Infinity }}
         >
-          <ChevronDown size={20} />
+          <CaretDown size={20} />
         </motion.div>
       </motion.button>
     </div>

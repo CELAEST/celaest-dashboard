@@ -3,13 +3,13 @@
 import React from "react";
 import { useAIPool, useAIPoolStats } from "../../hooks/useAI";
 import {
-  Activity,
-  Zap,
+  Pulse,
+  Lightning,
   Coins,
   Clock,
-  BarChart3,
-  TrendingUp,
-} from "lucide-react";
+  ChartBar,
+  TrendUp,
+} from "@phosphor-icons/react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface AIStatsTabProps {
@@ -40,7 +40,7 @@ export const AIStatsTab: React.FC<AIStatsTabProps> = ({ token, orgId }) => {
       label: "Active Workers",
       value: status?.active_workers || 0,
       sub: `Pool: ${status?.max_workers || 0}`,
-      icon: Activity,
+      icon: Pulse,
       color: "text-cyan-400",
       bg: "bg-cyan-400/10",
     },
@@ -48,7 +48,7 @@ export const AIStatsTab: React.FC<AIStatsTabProps> = ({ token, orgId }) => {
       label: "Throughput",
       value: status?.requests_per_min || 0,
       sub: "RPM (Avg)",
-      icon: Zap,
+      icon: Lightning,
       color: "text-yellow-400",
       bg: "bg-yellow-400/10",
     },
@@ -97,7 +97,7 @@ export const AIStatsTab: React.FC<AIStatsTabProps> = ({ token, orgId }) => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="p-6 bg-white/5 border border-white/5 rounded-2xl">
           <h3 className="text-sm font-semibold text-white mb-6 flex items-center gap-2">
-            <Activity size={16} className="text-cyan-400" /> Queue Manager
+            <Pulse size={16} className="text-cyan-400" /> Queue Manager
           </h3>
           <div className="space-y-4">
             <div className="flex justify-between items-center text-sm">
@@ -134,7 +134,7 @@ export const AIStatsTab: React.FC<AIStatsTabProps> = ({ token, orgId }) => {
 
         <div className="p-6 bg-white/5 border border-white/5 rounded-2xl">
           <h3 className="text-sm font-semibold text-white mb-6 flex items-center gap-2">
-            <Zap size={16} className="text-emerald-400" /> Success Rate
+            <Lightning size={16} className="text-emerald-400" /> Success Rate
           </h3>
           <div className="flex items-end gap-1 mb-2">
             <span className="text-4xl font-bold text-white">
@@ -169,7 +169,7 @@ export const AIStatsTab: React.FC<AIStatsTabProps> = ({ token, orgId }) => {
         <div className="p-8 border-b border-white/5 flex items-center justify-between">
           <div>
             <h3 className="text-xl font-bold text-white flex items-center gap-3">
-              <BarChart3 className="text-cyan-400" size={20} />
+              <ChartBar className="text-cyan-400" size={20} />
               Provider Performance
             </h3>
             <p className="text-sm text-gray-500 mt-1">
@@ -211,7 +211,7 @@ export const AIStatsTab: React.FC<AIStatsTabProps> = ({ token, orgId }) => {
                   <td className="px-8 py-5">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20 group-hover:border-cyan-500/40 transition-all">
-                        <TrendingUp size={14} className="text-cyan-400" />
+                        <TrendUp size={14} className="text-cyan-400" />
                       </div>
                       <span className="text-sm font-bold text-white uppercase tracking-tighter">
                         {p.provider}

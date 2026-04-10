@@ -1,5 +1,5 @@
 import React from "react";
-import { Key, Eye, EyeOff, Zap, CheckCircle } from "lucide-react";
+import { Key, Eye, EyeSlash, Lightning, CheckCircle } from "@phosphor-icons/react";
 import { motion } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { PaymentGateway } from "../../../types";
@@ -73,7 +73,7 @@ export const GatewayEditForm: React.FC<GatewayEditFormProps> = ({
             }`}
           >
             {showApiKey[gatewayId] ? (
-              <EyeOff className="w-4 h-4" />
+              <EyeSlash className="w-4 h-4" />
             ) : (
               <Eye className="w-4 h-4" />
             )}
@@ -91,7 +91,7 @@ export const GatewayEditForm: React.FC<GatewayEditFormProps> = ({
           Webhook URL
         </label>
         <div className="relative">
-          <Zap
+          <Lightning
             className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${
               isDark ? "text-gray-500" : "text-gray-400"
             }`}
@@ -192,7 +192,7 @@ export const GatewayEditForm: React.FC<GatewayEditFormProps> = ({
           }`}
         >
           <CheckCircle className="w-4 h-4" />
-          Save Configuration
+          FloppyDisk Configuration
         </motion.button>
       </div>
     </motion.div>

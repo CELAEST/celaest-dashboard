@@ -1,5 +1,5 @@
 import React, { memo, useState } from "react";
-import { Smartphone, ShieldCheck, QrCode } from "lucide-react";
+import { DeviceMobile, ShieldCheck, QrCode } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { SettingsModal } from "../../SettingsModal";
 
@@ -37,22 +37,22 @@ export const SecurityTwoFactor: React.FC<SecurityTwoFactorProps> = memo(
                   isDark ? "bg-cyan-500/10" : "bg-cyan-50"
                 }`}
               >
-                <Smartphone
+                <DeviceMobile
                   className={`w-6 h-6 ${
                     isDark ? "text-cyan-400" : "text-cyan-600"
                   }`}
                 />
               </div>
-              <div>
+              <div className="flex-1 min-w-0">
                 <h3
-                  className={`text-lg font-bold mb-1 ${
+                  className={`text-lg font-bold mb-1 truncate ${
                     isDark ? "text-white" : "text-gray-900"
                   }`}
                 >
                   Two-Factor Authentication (2FA)
                 </h3>
                 <p
-                  className={`text-sm mb-4 max-w-lg ${
+                  className={`text-sm mb-4 w-full ${
                     isDark ? "text-gray-400" : "text-gray-500"
                   }`}
                 >

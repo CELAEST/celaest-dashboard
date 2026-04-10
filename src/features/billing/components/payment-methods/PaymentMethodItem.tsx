@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "motion/react";
-import { CreditCard, MoreVertical, Check, Edit2, Trash2 } from "lucide-react";
+import { CreditCard, DotsThreeVertical, Check, PencilSimple, Trash } from "@phosphor-icons/react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { PaymentMethod } from "../../types";
@@ -109,7 +109,7 @@ export const PaymentMethodItem = React.memo(
                       : "hover:bg-gray-100 text-gray-600"
                   }`}
                 >
-                  <MoreVertical className="w-5 h-5" />
+                  <DotsThreeVertical className="w-5 h-5" />
                 </button>
               </DropdownMenu.Trigger>
 
@@ -145,8 +145,8 @@ export const PaymentMethodItem = React.memo(
                         : "text-gray-700 hover:bg-gray-50 focus:bg-gray-50"
                     }`}
                   >
-                    <Edit2 size={16} />
-                    Edit Details
+                    <PencilSimple size={16} />
+                    PencilSimple Details
                   </DropdownMenu.Item>
                   <DropdownMenu.Separator
                     className={`h-px ${isDark ? "bg-white/5" : "bg-gray-100"}`}
@@ -159,7 +159,7 @@ export const PaymentMethodItem = React.memo(
                         : "text-red-600 hover:bg-red-50 focus:bg-red-50"
                     }`}
                   >
-                    <Trash2 size={16} />
+                    <Trash size={16} />
                     Delete
                   </DropdownMenu.Item>
                 </DropdownMenu.Content>

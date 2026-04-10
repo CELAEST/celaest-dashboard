@@ -5,15 +5,14 @@ import React, {
   useContext,
   useState,
   useCallback,
+  useEffect,
+  useMemo,
+  useRef,
   ReactNode,
 } from "react";
 import { NotificationToast } from "@/features/shared/components/NotificationToast";
 import { socket } from "@/lib/socket-client";
-import { useEffect, useRef } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { settingsApi } from "@/features/settings/api/settings.api";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
-import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
 import { toast } from "sonner";
 import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 
@@ -66,58 +65,34 @@ interface NotificationProviderProps {
 export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   children,
 }) => {
-  const { session } = useAuthStore();
-  const token = session?.accessToken;
-  const _currentUserId = session?.user?.id;
-
-  // We need to access useOrgStore for currentOrg and forcing fetch
-  const { currentOrg, fetchOrgs } = useOrgStore();
-  const _currentOrgId = currentOrg?.id;
+  // Read token via selector — only re-renders when accessToken changes, not the whole session object
+  const token = useAuthStore((s) => s.session?.accessToken);
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [toasts, setToasts] = useState<Notification[]>([]);
 
-  // Fetch preferences for filtering
-  // staleTime 5m: notification preferences rarely change mid-session
-  const { data: prefs } = useQuery({
-    queryKey: [...QUERY_KEYS.users.all, "notifications"],
-    queryFn: async () => {
-      if (!token) return null;
-      const response = await settingsApi.getNotificationPreferences(token);
-      if (response.notifications) {
-        return typeof response.notifications === "string"
-          ? JSON.parse(response.notifications)
-          : response.notifications;
-      }
-      return null;
-    },
-    enabled: !!token,
-    staleTime: 5 * 60 * 1000, // 5 minutes — preferences rarely change mid-session
-    gcTime: 10 * 60 * 1000,
-  });
+  // Deduplication guard: prevents duplicate toasts when the backend emits
+  // multiple related events for the same action (e.g. order.paid + license.created +
+  // license.activated all fire within milliseconds of a single purchase).
+  const recentEvents = useRef<Map<string, number>>(new Map());
+  const DEDUP_WINDOW_MS = 3000;
 
-  const prefsRef = useRef(prefs);
-  useEffect(() => {
-    prefsRef.current = prefs;
-  }, [prefs]);
-
-  // Memoized callbacks for performance - Open/Closed Principle
+  // Stable callback — empty deps because setters from useState are always stable.
   const addNotification = useCallback(
     (notification: Omit<Notification, "id" | "read">) => {
+      // Skip if the exact same type+title was already shown within the dedup window
+      const dedupKey = `${notification.type}:${notification.title}`;
+      const lastFired = recentEvents.current.get(dedupKey) ?? 0;
+      const now = Date.now();
+      if (now - lastFired < DEDUP_WINDOW_MS) return;
+      recentEvents.current.set(dedupKey, now);
+
       const id = generateId();
-      const newNotification: Notification = {
-        ...notification,
-        id,
-        read: false,
-      };
+      const newNotification: Notification = { ...notification, id, read: false };
 
-      // Add to persistent notifications list
       setNotifications((prev) => [newNotification, ...prev]);
-
-      // Add to toast queue for temporary display
       setToasts((prev) => [...prev, newNotification]);
 
-      // Auto-remove toast after 5 seconds
       setTimeout(() => {
         setToasts((prev) => prev.filter((t) => t.id !== id));
       }, 5000);
@@ -147,8 +122,10 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
-  // derived state
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const unreadCount = useMemo(
+    () => notifications.filter((n) => !n.read).length,
+    [notifications],
+  );
 
   // Global Socket Listeners for Real-time Notifications
   useEffect(() => {
@@ -158,13 +135,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
       type: NotificationType,
       title: string,
       message: string,
-      prefId?: string,
     ) => {
-      // Check filtering
-      if (prefId && prefsRef.current && prefsRef.current[prefId] === false) {
-        return;
-      }
-
       addNotification({
         type,
         title,
@@ -175,31 +146,19 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
 
     const unsubscribers = [
       socket.on("order.created", (raw: unknown) => {
-        const payload = raw as { id: string };
-        handleEvent(
-          "info",
-          "Nueva Orden",
-          `Se ha creado la orden #${payload.id?.slice(0, 8)}`,
-          "email_activity",
-        );
+        const payload = raw as { order_id: string };
+        const ref = payload.order_id?.slice(0, 8) ?? "nueva";
+        handleEvent("info", "Nueva Orden", `Se ha creado la orden #${ref}`);
       }),
       socket.on("order.updated", (raw: unknown) => {
-        const payload = raw as { id: string; status: string };
-        handleEvent(
-          "info",
-          "Orden Actualizada",
-          `La orden #${payload.id?.slice(0, 8)} ahora está en estado ${payload.status}`,
-          "email_activity",
-        );
+        const payload = raw as { order_id: string; status: string };
+        const ref = payload.order_id?.slice(0, 8) ?? "—";
+        handleEvent("info", "Orden Actualizada", `La orden #${ref} ahora está en estado ${payload.status ?? "—"}`);
       }),
       socket.on("order.paid", (raw: unknown) => {
-        const payload = raw as { id: string };
-        handleEvent(
-          "success",
-          "Pago Recibido",
-          `La orden #${payload.id?.slice(0, 8)} ha sido pagada.`,
-          "email_activity",
-        );
+        const payload = raw as { order_id: string; order_number?: string };
+        const ref = payload.order_number ?? `#${payload.order_id?.slice(0, 8) ?? "—"}`;
+        handleEvent("success", "Pago Recibido", `La orden ${ref} ha sido pagada.`);
       }),
       socket.on("payment.failed", (raw: unknown) => {
         const payload = raw as { order_id: string; error?: string };
@@ -207,7 +166,6 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
           "error",
           "Pago Fallido",
           `Error en el pago de la orden #${payload.order_id?.slice(0, 8)}. ${payload.error || ""}`,
-          "push_security",
         );
       }),
       socket.on("organization.member_added", (raw: unknown) => {
@@ -230,18 +188,16 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
             "success",
             "Nuevo Workspace",
             `Te han invitado a una nueva organización con el rol de ${role}`,
-            "push_mentions",
           );
 
-          // Hacer fetch automático silencioso para que la UI se actualice
-          if (token) fetchOrgs(token, true);
+          // Fetch silencioso desde getState() — sin suscripción reactiva al store
+          if (token) useOrgStore.getState().fetchOrgs(token, true);
         } else {
           // Si es el evento general de la org de que entró ALGUIEN más (y no somos nosotros)
           handleEvent(
             "info",
             "Nuevo Miembro",
             `Un nuevo miembro se ha unido a la organización.`,
-            "push_mentions",
           );
         }
       }),
@@ -270,6 +226,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
           // y el redirect nunca ocurría. getState() siempre lee el valor fresco.
           const freshCurrentOrgId = useOrgStore.getState().currentOrg?.id;
           if (eventOrgId === freshCurrentOrgId || !freshCurrentOrgId) {
+
             toast.error("Fuiste removido de este Workspace.", {
               description: "Redirigiendo a tu espacio por defecto...",
             });
@@ -297,7 +254,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
               description:
                 "Fuiste removido de uno de tus Workspaces inactivos.",
             });
-            if (token) fetchOrgs(token, true); // update sidebars without interrupting
+            if (token) useOrgStore.getState().fetchOrgs(token, true); // update sidebars without interrupting
           }
           return;
         }
@@ -308,64 +265,45 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
             "warning",
             "Miembro Eliminado",
             `Un miembro ha sido eliminado de la organización.`,
-            "push_mentions",
           );
         }
       }),
-      socket.on("product.asset_created", () => {
-        handleEvent(
-          "success",
-          "Compra Exitosa",
-          `Tu nuevo activo ha sido añadido correctamente.`,
-          "email_activity",
-        );
-      }),
-      socket.on("license.created", () => {
-        handleEvent(
-          "success",
-          "Licencia Generada",
-          `Se ha emitido una nueva licencia para tu cuenta.`,
-          "push_security",
-        );
-      }),
-      socket.on("license.activated", () => {
-        handleEvent(
-          "success",
-          "Licencia Activada",
-          `Tu licencia ha sido activada correctamente.`,
-          "push_security",
-        );
-      }),
+      // NOTE: product.asset_created, license.created and license.activated are
+      // intentionally NOT listed here. A single purchase emits all three of those
+      // events plus order.paid within milliseconds — showing a toast for each would
+      // flood the user with 4 notifications for one action. order.paid is the
+      // correct user-facing event. invoice.generated is kept as a separate,
+      // distinct action the user cares about.
       socket.on("invoice.generated", (raw: unknown) => {
-        const payload = raw as { id: string };
-        handleEvent(
-          "info",
-          "Factura Generada",
-          `Se ha generado una nueva factura #${payload.id?.slice(0, 8)}`,
-          "email_activity",
-        );
+        const payload = raw as { invoice_id: string; invoice_number?: string };
+        const ref = payload.invoice_number ?? `#${payload.invoice_id?.slice(0, 8) ?? "—"}`;
+        handleEvent("info", "Factura Generada", `Se ha generado una nueva factura ${ref}`);
       }),
     ];
 
     return () => {
       unsubscribers.forEach((unsub) => unsub());
     };
-  // currentOrgId and currentUserId are intentionally EXCLUDED from deps.
-  // Both values are read via useOrgStore.getState() inside the handlers so
-  // there is no stale-closure risk. Including them would tear down and
-  // re-register all 11 socket listeners on every org switch, creating a
-  // brief window where real-time events could be silently dropped.
-  }, [token, addNotification, fetchOrgs]);
+  // All mutable state accessed inside handlers is read via useOrgStore.getState()
+  // so there is no stale-closure risk. fetchOrgs is never stored in component scope.
+  // Do NOT add fetchOrgs, currentOrg, or currentOrgId here — that would tear down
+  // and re-register all socket listeners on every org switch or store change.
+  }, [token, addNotification]);
 
-  const contextValue: NotificationContextType = {
-    notifications,
-    addNotification,
-    removeNotification,
-    markAsRead,
-    markAllAsRead,
-    clearAll,
-    unreadCount,
-  };
+  // Memoize context value to prevent all consumers from re-rendering on every
+  // unrelated state change inside NotificationProvider.
+  const contextValue = useMemo<NotificationContextType>(
+    () => ({
+      notifications,
+      addNotification,
+      removeNotification,
+      markAsRead,
+      markAllAsRead,
+      clearAll,
+      unreadCount,
+    }),
+    [notifications, unreadCount, addNotification, removeNotification, markAsRead, markAllAsRead, clearAll],
+  );
 
   return (
     <NotificationContext.Provider value={contextValue}>

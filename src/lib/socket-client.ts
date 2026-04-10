@@ -1,7 +1,7 @@
 /**
- * Socket Client global - celaest-back /ws
- * Una conexión global, eventos desacoplados de la UI
- * Requiere JWT para autenticación
+ * Socket Client — celaest-back /ws
+ * Single global connection, events decoupled from UI.
+ * Requires JWT for authentication via Sec-WebSocket-Protocol header.
  */
 
 const getWsUrl = () => {
@@ -23,20 +23,22 @@ class SocketClient {
   private reconnectTimeout: NodeJS.Timeout | null = null;
   private pingInterval: NodeJS.Timeout | null = null;
   private isIntentionalDisconnect = false;
-
+  private visibilityTimeout: NodeJS.Timeout | null = null;
+  private hasVisibilityListener = false;
+  private readonly VISIBILITY_DISCONNECT_MS = 5 * 60 * 1000; // 5 minutes
   connect(token: string, orgId?: string): void {
     if (typeof window === "undefined") return;
     
     const targetOrgId = orgId || null;
     
-    // Si ya estamos conectados con el mismo token y org, no re-conectar
+    // If already connected with same token and org, skip
     if (this.ws?.readyState === WebSocket.OPEN && 
         this.token === token && 
         this.currentOrgId === targetOrgId) {
       return;
     }
 
-    // Si el token cambió pero estamos conectados, desconectar para refrescar
+    // If token changed but connected, disconnect to refresh
     if (this.ws && (this.token !== token || this.currentOrgId !== targetOrgId)) {
       this.disconnect();
     }
@@ -44,9 +46,44 @@ class SocketClient {
     this.token = token;
     this.currentOrgId = targetOrgId;
     this.isIntentionalDisconnect = false;
-    this.reconnectAttempts = 0; // Reset attempts on manual connect
+    this.reconnectAttempts = 0;
     
+    this.setupVisibilityListener();
     this.setupConnection();
+  }
+
+  private setupVisibilityListener(): void {
+    if (typeof document === "undefined" || this.hasVisibilityListener) return;
+
+    this.hasVisibilityListener = true;
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") {
+        if (this.visibilityTimeout) clearTimeout(this.visibilityTimeout);
+        this.visibilityTimeout = setTimeout(() => {
+          logger.debug("[SocketClient] Page hidden for 5mins. Disconnecting socket to save resources.");
+          if (this.ws?.readyState === WebSocket.OPEN) {
+             this.isIntentionalDisconnect = true; // prevent auto handleReconnect
+             this.ws.close();
+             if (this.pingInterval) clearInterval(this.pingInterval);
+          }
+        }, this.VISIBILITY_DISCONNECT_MS);
+      } else {
+        if (this.visibilityTimeout) {
+          clearTimeout(this.visibilityTimeout);
+          this.visibilityTimeout = null;
+        }
+        
+        // Reconnect immediately if we had disconnected
+        if (!this.ws || this.ws.readyState === WebSocket.CLOSED || this.ws.readyState === WebSocket.CLOSING) {
+          if (this.token) {
+            logger.debug("[SocketClient] Page visible. Reconnecting socket immediately.");
+            this.isIntentionalDisconnect = false;
+            this.reconnectAttempts = 0;
+            this.setupConnection();
+          }
+        }
+      }
+    });
   }
 
   private setupConnection(): void {
@@ -55,16 +92,18 @@ class SocketClient {
 
     if (!this.token) return;
 
-    // Use Sec-WebSocket-Protocol for the token to avoid URL exposure in logs
-    // The backend must be configured to extract the token from this header
+    // SECURITY: Send JWT via Sec-WebSocket-Protocol header instead of URL query.
+    // This prevents the token from appearing in server access logs, proxy logs,
+    // and browser history. The backend extracts it from the protocol header.
     const url = new URL(getWsUrl());
-    url.searchParams.append("token", this.token);
     if (this.currentOrgId) {
       url.searchParams.append("org_id", this.currentOrgId);
     }
     
     try {
-      this.ws = new WebSocket(url);
+      // Pass token as WebSocket sub-protocol — browser sends it via
+      // Sec-WebSocket-Protocol header, never in the URL.
+      this.ws = new WebSocket(url, [this.token]);
     } catch (e: unknown) {
       logger.error("WebSocket connection error:", e);
       this.handleReconnect();
@@ -73,9 +112,9 @@ class SocketClient {
 
     this.ws.onopen = () => {
       this.reconnectAttempts = 0;
-      console.log("[SocketClient] Connected to WebSocket at", getWsUrl());
+      logger.debug("[SocketClient] Connected");
       
-      // Setup keepalive ping every 30 seconds
+      // Keepalive ping every 30 seconds
       this.pingInterval = setInterval(() => {
         if (this.ws?.readyState === WebSocket.OPEN) {
           this.ws.send(JSON.stringify({ type: "ping" }));
@@ -86,7 +125,6 @@ class SocketClient {
     this.ws.onmessage = (event) => {
       try {
         const rawData = JSON.parse(event.data);
-        console.log("[SocketClient] INCOMING:", rawData);
         
         // Backend sends: { type: "event", event: "order.created", payload: {...} }
         let type = rawData.event || rawData.type;
@@ -104,7 +142,7 @@ class SocketClient {
         }
         this.listeners.get("*")?.forEach((fn) => fn({ type, payload }));
       } catch {
-        // Ignorar mensajes no JSON o pongs
+        // Ignore non-JSON messages or pongs
       }
     };
 
@@ -115,7 +153,7 @@ class SocketClient {
     };
 
     this.ws.onerror = () => {
-      // Browser ws API fires onerror before onclose, keep minimal logic here
+      // Browser WS API fires onerror before onclose, keep minimal logic here
     };
   }
 
@@ -145,6 +183,7 @@ class SocketClient {
   disconnect(): void {
     this.isIntentionalDisconnect = true;
     if (this.reconnectTimeout) clearTimeout(this.reconnectTimeout);
+    if (this.visibilityTimeout) clearTimeout(this.visibilityTimeout);
     if (this.pingInterval) clearInterval(this.pingInterval);
     
     if (this.ws) {
@@ -156,10 +195,12 @@ class SocketClient {
   }
 
   /**
-   * Solo para pruebas: Simula la llegada de un evento por el socket
+   * Simulate an incoming socket event. Development only — stripped from production builds.
    */
   simulateEvent(type: string, payload: unknown): void {
-    console.log(`[SocketClient] SIMULATED INCOMING: ${type}`, payload);
+    if (process.env.NODE_ENV === "production") return;
+    
+    logger.debug(`[SocketClient] SIMULATED: ${type}`);
     const handlers = this.listeners.get(type);
     if (handlers) {
       handlers.forEach((fn) => fn(payload));

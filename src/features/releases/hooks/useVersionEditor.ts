@@ -3,7 +3,7 @@ import { Version } from "../types";
 
 interface UseVersionEditorProps {
   version: Version | null;
-  onSave: (version: Partial<Version> & { productId?: string; file?: File; changelogItems?: string[] }) => void;
+  onSave: (version: Partial<Version> & { productId?: string; downloadUrl?: string; changelogItems?: string[] }) => void;
   onClose: () => void;
 }
 
@@ -11,7 +11,7 @@ export const useVersionEditor = ({
   version,
   onSave,
 }: UseVersionEditorProps) => {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [downloadUrl, setDownloadUrl] = useState<string>(version?.downloadUrl || "");
 
   const [formData, setFormData] = useState({
     productId: version?.productId || "",
@@ -23,6 +23,15 @@ export const useVersionEditor = ({
     changelog: version?.changelog?.length ? version.changelog : [""],
     compatibility: version?.compatibility || "",
   });
+
+  // Auto-fill version number from GitHub URL
+  const handleUrlChange = useCallback((url: string) => {
+    setDownloadUrl(url);
+    const match = url.match(/releases\/download\/(v[\d.]+(?:-[\w.]+)?)\//i);
+    if (match && !formData.versionNumber) {
+      setFormData((prev) => ({ ...prev, versionNumber: match[1] }));
+    }
+  }, [formData.versionNumber]);
 
   const handleChange = useCallback((field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -63,24 +72,25 @@ export const useVersionEditor = ({
       const cleanChangelog = formData.changelog.filter(
         (item) => item.trim() !== "",
       );
-      onSave({ 
-        ...formData, 
+      onSave({
+        ...formData,
         changelogItems: cleanChangelog,
-        file: selectedFile || undefined 
+        downloadUrl: downloadUrl || undefined,
       });
     },
-    [formData, onSave, selectedFile],
+    [formData, onSave, downloadUrl],
   );
 
   return {
     formData,
     handleChange,
+    handleUrlChange,
     generateChecksum,
     handleChangelogChange,
     addChangelogItem,
     removeChangelogItem,
     handleSubmit,
-    selectedFile,
-    setSelectedFile,
+    downloadUrl,
+    setDownloadUrl,
   };
 };

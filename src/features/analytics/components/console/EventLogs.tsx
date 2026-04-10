@@ -1,10 +1,16 @@
 import React from "react";
 import { motion } from "motion/react";
-import { Terminal, Minus, Square, X, ChevronRight } from "lucide-react";
-import { useAnalytics } from "@/features/analytics/hooks/useAnalytics";
+import { Terminal, Minus, Square, X, CaretRight } from "@phosphor-icons/react";
+import type { useAnalytics } from "@/features/analytics/hooks/useAnalytics";
 
-export const EventLogs = React.memo(() => {
-  const { isDark, eventLogs } = useAnalytics();
+type AnalyticsData = ReturnType<typeof useAnalytics>;
+
+interface EventLogsProps {
+  isDark: boolean;
+  eventLogs: AnalyticsData["eventLogs"];
+}
+
+export const EventLogs = React.memo(({ isDark, eventLogs }: EventLogsProps) => {
 
   return (
     <motion.div
@@ -72,7 +78,7 @@ export const EventLogs = React.memo(() => {
                   })}
                   ]
                 </span>
-                <div className="break-all flex-1">
+                <div className="min-w-0 flex-1 wrap-anywhere">
                   <span
                     className={`font-bold mr-2 ${
                       log.type === "error"
@@ -110,7 +116,7 @@ export const EventLogs = React.memo(() => {
 
           {/* Blinking Cursor */}
           <div className="mt-2 flex items-center gap-1 text-emerald-500">
-            <ChevronRight className="w-3 h-3" strokeWidth={3} />
+            <CaretRight className="w-3 h-3" strokeWidth={3} />
             <span className="animate-pulse">_</span>
           </div>
         </div>

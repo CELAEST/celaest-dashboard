@@ -1,5 +1,5 @@
 import React from "react";
-import { Lock, Download, ShoppingCart, ExternalLink } from "lucide-react";
+import { Lock, DownloadSimple, ShoppingCart, ArrowSquareOut } from "@phosphor-icons/react";
 import { Asset } from "../../services/assets.service";
 
 interface ProductActionsSectionProps {
@@ -46,7 +46,7 @@ export const ProductActionsSection: React.FC<ProductActionsSectionProps> = ({
                   isDark ? "text-orange-400/80" : "text-orange-600/80"
                 }`}
               >
-                Download access and private documentation will be available
+                DownloadSimple access and private documentation will be available
                 after payment confirmation.
               </p>
             </div>
@@ -69,7 +69,7 @@ export const ProductActionsSection: React.FC<ProductActionsSectionProps> = ({
                     : "bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
                 }`}
               >
-                <ExternalLink size={18} />
+                <ArrowSquareOut size={18} />
                 Open Resource
               </a>
             ) : (
@@ -85,13 +85,13 @@ export const ProductActionsSection: React.FC<ProductActionsSectionProps> = ({
                 {isProcessing ? (
                   <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                 ) : (
-                  <Download size={18} />
+                  <DownloadSimple size={18} />
                 )}
                 {isProcessing
                   ? "Downloading..."
                   : product.accessType === "subscription"
-                    ? "Download (Plan)"
-                    : "Download Asset"}
+                    ? "DownloadSimple (Plan)"
+                    : "DownloadSimple Asset"}
               </button>
             )}
             <button

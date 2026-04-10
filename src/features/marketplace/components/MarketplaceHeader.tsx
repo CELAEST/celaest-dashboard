@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { MagnifyingGlass, Sliders } from "@phosphor-icons/react";
 import { useMarketplaceStore } from "../store";
 
 export const MarketplaceHeader: React.FC = () => {
@@ -25,7 +25,7 @@ export const MarketplaceHeader: React.FC = () => {
 
       <div className="flex w-full max-w-md items-center gap-3">
         <form onSubmit={handleSearch} className="relative flex-1">
-          <Search className="absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-white/30" />
+          <MagnifyingGlass className="absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-white/30" />
           <input
             type="text"
             placeholder="Buscar productos..."
@@ -36,7 +36,7 @@ export const MarketplaceHeader: React.FC = () => {
         </form>
 
         <button className="flex h-12 w-12 items-center justify-center rounded-xl border border-white/10 bg-black/40 text-white backdrop-blur-md transition-all hover:bg-white/5 active:scale-95">
-          <SlidersHorizontal className="h-5 w-5" />
+          <Sliders className="h-5 w-5" />
         </button>
       </div>
     </div>

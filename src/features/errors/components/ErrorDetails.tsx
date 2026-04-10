@@ -1,5 +1,5 @@
 import React from "react";
-import { Smartphone, Terminal, Lightbulb } from "lucide-react";
+import { DeviceMobile, Terminal, Lightbulb } from "@phosphor-icons/react";
 import {
   ErrorLog,
   ErrorStatus,
@@ -21,7 +21,7 @@ export const ErrorDetails = React.memo(
           <h4
             className={`text-sm font-semibold mb-3 flex items-center gap-2 ${isDark ? "text-white" : "text-gray-900"}`}
           >
-            <Smartphone size={14} />
+            <DeviceMobile size={14} />
             Entorno del Cliente
           </h4>
           <div

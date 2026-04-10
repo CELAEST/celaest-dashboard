@@ -8,12 +8,12 @@ import { useTheme } from "@/features/shared/hooks/useTheme";
 import { motion } from "motion/react";
 import {
   Shield,
-  AlertCircle,
-  CheckCircle2,
+  Warning,
+  CheckCircle,
   Lock,
-  Mail,
+  Envelope,
   User,
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
@@ -65,7 +65,7 @@ export const InitialSetup: React.FC = () => {
       const response = await fetch(`${API_BASE}/auth/signup`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-TextT": "application/json",
         },
         body: JSON.stringify({
           email: data.email,
@@ -112,7 +112,7 @@ export const InitialSetup: React.FC = () => {
                     isDark ? "bg-green-500/20" : "bg-green-100"
                   }`}
                 >
-                  <CheckCircle2 className="w-8 h-8 text-green-500" />
+                  <CheckCircle className="w-8 h-8 text-green-500" />
                 </div>
               </div>
               <CardTitle
@@ -183,7 +183,7 @@ export const InitialSetup: React.FC = () => {
               <Alert
                 className={`mb-4 border ${isDark ? "border-red-500/30 bg-red-500/10" : "border-red-300 bg-red-50"}`}
               >
-                <AlertCircle className="h-4 w-4 text-red-500" />
+                <Warning className="h-4 w-4 text-red-500" />
                 <AlertDescription
                   className={isDark ? "text-red-400" : "text-red-700"}
                 >
@@ -226,7 +226,7 @@ export const InitialSetup: React.FC = () => {
                       <FormLabel>Email Address</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                          <Envelope className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                           <Input
                             type="email"
                             placeholder="admin@celaest.com"

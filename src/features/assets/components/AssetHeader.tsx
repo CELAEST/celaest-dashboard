@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "motion/react";
-import { Plus } from "lucide-react";
+import { Plus } from "@phosphor-icons/react";
 
 interface AssetHeaderProps {
   isDark: boolean;
@@ -15,7 +15,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({
 }) => {
   return (
     <div
-      className={`p-6 border-b ${isDark ? "border-white/5" : "border-gray-200"}`}
+      className={`px-6 py-4 border-b ${isDark ? "border-white/5" : "border-gray-200"}`}
     >
       <div className="flex items-center justify-between">
         <div>

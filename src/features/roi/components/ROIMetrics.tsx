@@ -22,7 +22,7 @@ export const ROIMetrics: React.FC = () => {
     metrics,
     topTemplates,
     zombieUsers,
-    weeklyData,
+    timeSavedData,
     monthlyData,
     refresh,
     isLoading,
@@ -51,8 +51,8 @@ export const ROIMetrics: React.FC = () => {
         isSuperAdmin={isSuperAdmin}
       />
 
-      {/* Content Area (Scrollable if needed, but aimed for Zero Scroll) */}
-      <div className="flex-1 min-h-0 relative">
+      {/* Content Area */}
+      <div className="flex-1 min-h-0 relative px-3 pb-3">
         <AnimatePresence mode="wait">
           {activeTab === "overview" ? (
             <motion.div
@@ -61,7 +61,7 @@ export const ROIMetrics: React.FC = () => {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
               transition={{ duration: 0.2 }}
-              className="h-full flex flex-col gap-6"
+              className="h-full flex flex-col gap-4"
             >
               {/* Metrics Cards - Compact Row */}
               <div className="shrink-0">
@@ -69,9 +69,9 @@ export const ROIMetrics: React.FC = () => {
               </div>
 
               {/* Charts Section - Fills remaining space */}
-              <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-2 gap-6 pb-6">
+              <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <TimeSavedChart
-                  data={weeklyData}
+                  data={timeSavedData}
                   timeRange={timeRange}
                   setTimeRange={setTimeRange}
                 />
@@ -85,7 +85,7 @@ export const ROIMetrics: React.FC = () => {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.2 }}
-              className="h-full grid grid-cols-1 lg:grid-cols-2 gap-6 pb-6"
+              className="h-full grid grid-cols-1 lg:grid-cols-2 gap-4"
             >
               {/* Admin Insights - Split 50/50 */}
               <div className="h-full min-h-0 overflow-hidden">

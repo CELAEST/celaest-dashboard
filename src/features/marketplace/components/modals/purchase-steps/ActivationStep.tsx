@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "motion/react";
-import { Loader, CheckCircle } from "lucide-react";
+import { CircleNotch, CheckCircle } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { Progress } from "@/components/ui/progress";
 
@@ -9,6 +9,7 @@ interface ActivationStepProps {
   progress: number;
   statusMessage?: string;
   onReset: () => void;
+  onGoToAssets?: () => void;
 }
 
 export const ActivationStep: React.FC<ActivationStepProps> = ({
@@ -16,6 +17,7 @@ export const ActivationStep: React.FC<ActivationStepProps> = ({
   progress,
   statusMessage,
   onReset,
+  onGoToAssets,
 }) => {
   const { theme } = useTheme();
 
@@ -59,7 +61,7 @@ export const ActivationStep: React.FC<ActivationStepProps> = ({
             </p>
           </div>
           <button
-            onClick={onReset}
+            onClick={onGoToAssets || onReset}
             className={`
               w-full py-3 rounded-xl font-medium transition-all
               ${
@@ -74,7 +76,7 @@ export const ActivationStep: React.FC<ActivationStepProps> = ({
         </>
       ) : (
         <>
-          <Loader
+          <CircleNotch
             className={`mx-auto animate-spin ${theme === "dark" ? "text-cyan-400" : "text-cyan-600"}`}
             size={48}
           />

@@ -1,5 +1,5 @@
 import React from "react";
-import { Shield } from "lucide-react";
+import { Shield } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
 export const TabCompatibility: React.FC = React.memo(() => {

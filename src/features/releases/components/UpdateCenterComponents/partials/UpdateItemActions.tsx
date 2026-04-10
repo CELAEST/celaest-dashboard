@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { Download, CheckCircle2 } from "lucide-react";
+import { DownloadSimple, CheckCircle } from "@phosphor-icons/react";
 import { CustomerAsset } from "../../../types";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
@@ -29,8 +29,8 @@ export const UpdateItemActions: React.FC<UpdateItemActionsProps> = memo(
                   : "bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
               }`}
             >
-              <Download size={18} />
-              Download Update
+              <DownloadSimple size={18} />
+              DownloadSimple Update
             </button>
             <button
               onClick={onSkip}
@@ -52,7 +52,7 @@ export const UpdateItemActions: React.FC<UpdateItemActionsProps> = memo(
                   : "bg-emerald-50 text-emerald-700 border border-emerald-200"
               }`}
             >
-              <CheckCircle2 size={18} />
+              <CheckCircle size={18} />
               Up to Date
             </button>
             <button

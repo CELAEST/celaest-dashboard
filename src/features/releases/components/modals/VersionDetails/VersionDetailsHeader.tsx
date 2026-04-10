@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { Hash, X, CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
+import { Hash, X, CheckCircle, Warning, XCircle } from "@phosphor-icons/react";
 
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { Version } from "@/features/releases/types";
@@ -34,71 +34,76 @@ export const VersionDetailsHeader: React.FC<VersionDetailsHeaderProps> = memo(
     const getStatusIcon = (status: Version["status"]) => {
       switch (status) {
         case "stable":
-          return <CheckCircle2 size={16} />;
+          return <CheckCircle size={16} />;
         case "beta":
-          return <AlertTriangle size={16} />;
+          return <Warning size={16} />;
         case "deprecated":
           return <XCircle size={16} />;
       }
     };
 
     return (
-      <div className="relative p-6 shrink-0">
+      <div className="relative px-8 py-6 border-b border-white/8 flex items-center justify-between overflow-hidden shrink-0">
+        {/* Gradient wash */}
+        <div className="absolute inset-0 bg-linear-to-r from-purple-500/10 via-violet-600/8 to-transparent" />
+        {/* Grid dots */}
         <div
-          className={`absolute inset-0 opacity-20 ${
-            isDark
-              ? "bg-linear-to-r from-cyan-500 via-blue-600 to-purple-600"
-              : "bg-linear-to-r from-cyan-100 via-blue-100 to-purple-100"
-          }`}
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px)",
+            backgroundSize: "20px 20px",
+            pointerEvents: "none",
+          }}
         />
+        {/* Bottom accent line */}
+        <div className="absolute bottom-0 left-0 h-px w-2/5 bg-linear-to-r from-purple-500/50 to-transparent" />
 
-        <div className="relative flex items-start justify-between">
-          <div className="flex gap-4">
-            <div
-              className={`h-16 w-16 rounded-xl flex items-center justify-center text-3xl shadow-lg border ${
-                isDark
-                  ? "bg-gray-900 border-white/10 text-cyan-400"
-                  : "bg-white border-gray-100 text-blue-600"
-              }`}
-            >
-              <Hash strokeWidth={2.5} size={32} />
-            </div>
-            <div>
-              <div className="flex items-center gap-3 mb-1">
-                <h2
-                  className={`text-2xl font-bold ${
-                    isDark ? "text-white" : "text-gray-900"
-                  }`}
-                >
-                  {version.versionNumber}
-                </h2>
-                <span
-                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border uppercase tracking-wider ${getStatusColor(
-                    version.status,
-                  )}`}
-                >
-                  {getStatusIcon(version.status)}
-                  {version.status}
-                </span>
-              </div>
-              <p
-                className={`font-medium ${
-                  isDark ? "text-gray-400" : "text-gray-600"
-                }`}
-              >
-                {version.assetName}
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className={`p-2 rounded-full transition-colors ${
+        <div className="relative z-10 flex items-center gap-4">
+          <div
+            className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-lg shrink-0 border ${
               isDark
-                ? "hover:bg-white/10 text-gray-400 hover:text-white"
-                : "hover:bg-gray-100 text-gray-500 hover:text-gray-900"
+                ? "bg-[#111] text-purple-400 border-white/10 shadow-purple-500/10"
+                : "bg-white text-purple-600 border-gray-100"
             }`}
           >
-            <X size={20} />
+            <Hash size={24} />
+          </div>
+          <div>
+            <div className="flex items-center gap-3">
+              <h2
+                className={`text-xl font-black italic tracking-tighter uppercase ${
+                  isDark ? "text-white" : "text-gray-900"
+                }`}
+              >
+                {version.versionNumber}
+              </h2>
+              <span
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border uppercase tracking-wider ${getStatusColor(
+                  version.status,
+                )}`}
+              >
+                {getStatusIcon(version.status)}
+                {version.status}
+              </span>
+            </div>
+            <p
+              className={`text-[10px] font-mono uppercase tracking-[0.2em] mt-0.5 ${
+                isDark ? "text-white/40" : "text-gray-400"
+              }`}
+            >
+              {version.assetName}
+            </p>
+          </div>
+        </div>
+
+        <div className="relative z-10">
+          <button
+            onClick={onClose}
+            aria-label="Close modal"
+            className="p-2 rounded-full transition-colors text-gray-400 hover:text-white hover:bg-white/10"
+          >
+            <X size={22} />
           </button>
         </div>
       </div>

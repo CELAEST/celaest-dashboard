@@ -4,10 +4,10 @@ import {
   Clock,
   Code,
   Monitor,
-  TrendingDown,
-  ChevronDown,
-  ChevronUp,
-} from "lucide-react";
+  TrendDown,
+  CaretDown,
+  CaretUp,
+} from "@phosphor-icons/react";
 import {
   ErrorLog,
   ErrorStatus,
@@ -131,13 +131,13 @@ export const ErrorListItem = React.memo(
                   <span
                     className={`flex items-center gap-1.5 ${isDark ? "text-cyan-400 font-bold" : "text-blue-600 font-bold"}`}
                   >
-                    <span className="opacity-50 min-w-[35px]">User:</span>
+                    <span className="opacity-50 min-w-9">User:</span>
                     {error.userEmail}
                   </span>
                 )}
                 {isAdmin && error.affectedUsers > 20 && (
                   <span className="flex items-center gap-1.5 font-bold text-red-500 bg-red-500/10 px-2 py-0.5 rounded-full">
-                    <TrendingDown size={12} />
+                    <TrendDown size={12} />
                     {error.affectedUsers} users
                   </span>
                 )}
@@ -152,7 +152,7 @@ export const ErrorListItem = React.memo(
                   : "bg-gray-100 text-gray-600 group-hover:bg-blue-100 group-hover:text-blue-600"
               }`}
             >
-              {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+              {isExpanded ? <CaretUp size={20} /> : <CaretDown size={20} />}
             </div>
           </div>
         </button>

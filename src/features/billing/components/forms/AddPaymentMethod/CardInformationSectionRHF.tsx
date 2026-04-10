@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { CreditCard, User, Check } from "lucide-react";
+import { CreditCard, User, Check } from "@phosphor-icons/react";
 import { useFormContext } from "react-hook-form";
 import { motion } from "motion/react";
 import {

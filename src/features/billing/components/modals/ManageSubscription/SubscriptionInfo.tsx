@@ -1,5 +1,5 @@
 import React from "react";
-import { Calendar, CheckCircle } from "lucide-react";
+import { Calendar, CheckCircle } from "@phosphor-icons/react";
 import { motion } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 

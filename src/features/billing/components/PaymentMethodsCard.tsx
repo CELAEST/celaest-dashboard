@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Plus, Shield } from "lucide-react";
+import { Plus, Shield } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { AddPaymentMethodModal } from "./modals/AddPaymentMethodModal";
 import { EditPaymentMethodModal } from "./modals/EditPaymentMethodModal";
@@ -60,7 +60,7 @@ export const PaymentMethodsCard: React.FC = () => {
   return (
     <>
       <div
-        className={`relative w-full rounded-3xl transition-all duration-500 hover:shadow-2xl flex flex-col h-full overflow-hidden lg:max-h-[560px] ${
+        className={`relative w-full rounded-2xl transition-all duration-500 hover:shadow-2xl flex flex-col h-full overflow-hidden ${
           isDark
             ? "bg-linear-to-br from-cyan-900/40 via-blue-900/20 to-indigo-900/40 backdrop-blur-2xl border border-cyan-500/20"
             : "bg-linear-to-br from-blue-50 to-indigo-50 border border-blue-200 shadow-xl"
@@ -89,7 +89,7 @@ export const PaymentMethodsCard: React.FC = () => {
           <div className="flex items-center justify-between mb-4 shrink-0">
             <div>
               <h3
-                className={`text-xl font-bold tracking-tight ${
+                className={`text-lg font-bold tracking-tight ${
                   isDark ? "text-white" : "text-gray-900"
                 }`}
               >
@@ -159,7 +159,7 @@ export const PaymentMethodsCard: React.FC = () => {
 
           {/* Security Notice */}
           <div
-            className={`mt-4 p-3 rounded-lg flex items-start gap-2 ${
+            className={`mt-3 p-2.5 rounded-lg flex items-start gap-2 ${
               isDark
                 ? "bg-blue-500/5 border border-blue-500/20"
                 : "bg-blue-500/5 border border-blue-500/20"

@@ -2,7 +2,7 @@
 
 import React, { useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Globe, Activity } from "lucide-react";
+import { Globe, Pulse } from "@phosphor-icons/react";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 import { useLiveFeed } from "@/features/analytics/hooks/useAnalyticsQuery";
@@ -36,7 +36,7 @@ export const GlobalFeedWidget: React.FC = () => {
     <div className="w-full bg-black/60 backdrop-blur-md border border-white/10 rounded-xl overflow-hidden flex flex-col h-full">
       <div className="p-4 border-b border-white/10 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Activity size={14} className="text-cyan-400 animate-pulse" />
+          <Pulse size={14} className="text-cyan-400 animate-pulse" />
           <span className="text-xs font-bold text-white uppercase tracking-widest">
             Global Ops
           </span>

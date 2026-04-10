@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
 interface VersionChangelogProps {
@@ -69,7 +69,7 @@ export const VersionChangelog: React.FC<VersionChangelogProps> = memo(
                       : "text-red-600 hover:bg-red-50"
                   }`}
                 >
-                  <Trash2 size={18} />
+                  <Trash size={18} />
                 </button>
               )}
             </div>

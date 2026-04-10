@@ -4,9 +4,6 @@ import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { billingApi } from "../api/billing.api";
 import { Subscription, Plan } from "../types";
-import { useEffect } from "react";
-import { socket } from "@/lib/socket-client";
-import { useQueryClient } from "@tanstack/react-query";
 
 import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
 
@@ -15,30 +12,6 @@ export const useBilling = () => {
   const { session } = useAuth();
   const token = session?.accessToken;
   const orgId = currentOrg?.id;
-  const queryClient = useQueryClient();
-
-  // Sincronización Real-Time
-  useEffect(() => {
-    if (!token) return;
-
-    const handler = () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.billing.all });
-    };
-
-    const unsubscribers = [
-      socket.on("subscription.created", handler),
-      socket.on("subscription.updated", handler),
-      socket.on("subscription.cancelled", handler),
-      socket.on("license.activated", handler),
-      socket.on("license.created", handler),
-      socket.on("order.paid", handler),
-    ];
-
-    return () => {
-      unsubscribers.forEach((unsub) => unsub());
-    };
-  }, [token, queryClient]);
-
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: orgId ? QUERY_KEYS.billing.profile(orgId) : QUERY_KEYS.billing.all,
     queryFn: async () => {
@@ -51,14 +24,37 @@ export const useBilling = () => {
       ]);
 
       const allSubs = subsResponse.subscriptions;
-      const activeSubs = allSubs.filter(
+      
+      const getPlanForSub = (sub: Subscription): Plan | undefined => {
+          if (sub.plan) return sub.plan;
+          const catalogPlan = plansResponse.plans.find(p => p.id === sub.plan_id);
+          if (catalogPlan) return catalogPlan;
+          // Marketplace product licenses: build synthetic plan from metadata
+          if (sub.metadata?.product_name) {
+            return {
+              id: sub.plan_id || sub.metadata.product_id as string || '',
+              name: sub.metadata.product_name as string,
+              code: 'marketplace_product',
+              price_monthly: sub.metadata.product_price ? Number(sub.metadata.product_price) : undefined,
+              currency: (sub.metadata.product_currency as string) || 'USD',
+              tier: 0,
+              sort_order: 0,
+              is_active: true,
+              is_public: false,
+            } as Plan;
+          }
+          return undefined;
+      };
+
+      // Enrich every subscription with its plan data
+      const enrichedSubs = allSubs.map(sub => ({
+        ...sub,
+        plan: getPlanForSub(sub) || sub.plan,
+      }));
+
+      const activeSubs = enrichedSubs.filter(
         (s) => s.status === "active" || s.status === "trial"
       );
-      
-      const getPlanForSub = (sub: Subscription) => {
-          if (sub.plan) return sub.plan;
-          return plansResponse.plans.find(p => p.id === sub.plan_id);
-      };
 
       const sortedSubs = [...activeSubs].sort((a, b) => {
           const planA = getPlanForSub(a);
@@ -86,22 +82,13 @@ export const useBilling = () => {
 
       const currentPlan = activeSub ? (activeSub.plan || plansResponse.plans.find(p => p.id === activeSub.plan_id) || null) : null;
       
-      let apiUsageCount = 0;
-      if (activeSub) {
-        try {
-          const usageData = await billingApi.getUsage(orgId, token, activeSub.id);
-          if (Array.isArray(usageData)) {
-            apiUsageCount = usageData
-              .filter(u => u.metric_name === 'ai_requests')
-              .reduce((acc, curr) => acc + curr.quantity, 0);
-          }
-        } catch (err: unknown) {
-            logger.warn("Failed to fetch usage:", err);
-        }
-      }
+
 
       const totalLicenses = activeSub?.quantity || 0; 
-      const usedLicenses = activeSub?.metadata?.active_users ? Number(activeSub.metadata.active_users) : 0; 
+      const metadataUsers = activeSub?.metadata?.active_users ? Number(activeSub.metadata.active_users) : 0;
+      // Fallback: if active_users metadata isn't tracked, count active/trial subscriptions as used
+      const activeSubCount = allSubs.filter(s => s.status === "active" || s.status === "trial").length;
+      const usedLicenses = metadataUsers > 0 ? metadataUsers : Math.min(activeSubCount, totalLicenses || activeSubCount);
       const apiLimit = currentPlan?.limits?.api_calls_monthly ? Number(currentPlan.limits.api_calls_monthly) : 0;
       
       return {
@@ -109,7 +96,7 @@ export const useBilling = () => {
         plan: currentPlan,
         activePlanIds: activePlanIdsList,
         activePlans: activePlansList,
-        allSubscriptions: allSubs,
+        allSubscriptions: enrichedSubs,
         usage: {
           licenses: {
             used: usedLicenses,
@@ -117,9 +104,9 @@ export const useBilling = () => {
             percent: totalLicenses > 0 ? Math.min((usedLicenses / totalLicenses) * 100, 100) : 0,
           },
           apiCalls: {
-            used: apiUsageCount,
+            used: 0,
             total: apiLimit,
-            percent: apiLimit > 0 ? Math.min((apiUsageCount / apiLimit) * 100, 100) : 0,
+            percent: 0,
           },
         },
         invoices: invoicesResponse.invoices || [],
@@ -127,6 +114,28 @@ export const useBilling = () => {
       };
     },
     enabled: !!orgId && !!token,
+  });
+
+  const activeSubId = data?.subscription?.id;
+
+  const usageQuery = useQuery({
+    queryKey: ['billing_usage', orgId, activeSubId],
+    queryFn: async () => {
+      if (!orgId || !token || !activeSubId) return 0;
+      try {
+        const usageData = await billingApi.getUsage(orgId, token, activeSubId);
+        if (Array.isArray(usageData)) {
+          return usageData
+            .filter(u => u.metric_name === 'ai_requests')
+            .reduce((acc, curr) => acc + curr.quantity, 0);
+        }
+        return 0;
+      } catch (err) {
+        logger.warn("Failed to fetch usage:", err);
+        return 0;
+      }
+    },
+    enabled: !!orgId && !!token && !!activeSubId
   });
 
   return {
@@ -143,6 +152,17 @@ export const useBilling = () => {
       invoices: [],
       plans: [],
     }),
+    usage: data?.usage ? {
+      ...data.usage,
+      apiCalls: {
+        used: usageQuery.data || 0,
+        total: data.usage.apiCalls.total,
+        percent: data.usage.apiCalls.total > 0 ? Math.min(((usageQuery.data || 0) / data.usage.apiCalls.total) * 100, 100) : 0,
+      }
+    } : {
+      licenses: { used: 0, total: 0, percent: 0 },
+      apiCalls: { used: 0, total: 0, percent: 0 },
+    },
     isLoading,
     error: error ? (error instanceof Error ? error.message : String(error)) : null,
     refresh: refetch,

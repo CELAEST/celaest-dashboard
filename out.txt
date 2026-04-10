@@ -1,0 +1,62 @@
+﻿
+Running 3 tests using 3 workers
+
+  Ô£ô  2 [chromium] ÔÇ║ e2e\marketplace-business-logic.spec.ts:174:7 ÔÇ║ ­ƒææ CELAEST Master Business Logic Test: Marketplace & Licensing ÔÇ║ Escenario C: Tenant bloqueado (Sin plan, sin compra, no owner) (1.5s)
+  Ô£ÿ  3 [chromium] ÔÇ║ e2e\marketplace-business-logic.spec.ts:137:7 ÔÇ║ ­ƒææ CELAEST Master Business Logic Test: Marketplace & Licensing ÔÇ║ Escenario B: Tenant en Plan Gratuito (Compra Individual/A la Carta) (6.5s)
+  Ô£ÿ  1 [chromium] ÔÇ║ e2e\marketplace-business-logic.spec.ts:101:7 ÔÇ║ ­ƒææ CELAEST Master Business Logic Test: Marketplace & Licensing ÔÇ║ Escenario A: Tenant con Plan Enterprise (Acceso por Suscripci├│n) (9.0s)
+
+
+  1) [chromium] ÔÇ║ e2e\marketplace-business-logic.spec.ts:101:7 ÔÇ║ ­ƒææ CELAEST Master Business Logic Test: Marketplace & Licensing ÔÇ║ Escenario A: Tenant con Plan Enterprise (Acceso por Suscripci├│n) 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: locator('div').filter({ hasText: 'Sistema de Automatizaci├│n Empresarial' }).first().locator('button').filter({ hasText: /en plan/i }).first()
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for locator('div').filter({ hasText: 'Sistema de Automatizaci├│n Empresarial' }).first().locator('button').filter({ hasText: /en plan/i }).first()[22m
+
+
+      129 |     
+      130 |     // FIX: Using locator with hasText to bypass any hidden SVG labels that might mess up getByRole('button', { name: "En Plan" })
+    > 131 |     await expect(card.locator('button', { hasText: /en plan/i }).first()).toBeVisible({ timeout: 5000 });
+          |                                                                           ^
+      132 |     
+      133 |     // El bot├│n de Adquirir / Comprar no deber├¡a existir en este estado
+      134 |     await expect(card.locator('button', { hasText: /adquirir/i })).toHaveCount(0);
+        at C:\Users\user\Music\celaest-dashboard\e2e\marketplace-business-logic.spec.ts:131:75
+
+    Error Context: test-results\marketplace-business-logic-0e651-ise-Acceso-por-Suscripci├│n--chromium\error-context.md
+
+  2) [chromium] ÔÇ║ e2e\marketplace-business-logic.spec.ts:137:7 ÔÇ║ ­ƒææ CELAEST Master Business Logic Test: Marketplace & Licensing ÔÇ║ Escenario B: Tenant en Plan Gratuito (Compra Individual/A la Carta) 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: locator('div').filter({ hasText: 'Sistema de Automatizaci├│n Empresarial' }).first().locator('button').filter({ hasText: /adquirido/i }).first()
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for locator('div').filter({ hasText: 'Sistema de Automatizaci├│n Empresarial' }).first().locator('button').filter({ hasText: /adquirido/i }).first()[22m
+
+
+      162 |     
+      163 |     // Verificamos que el bot├│n diga "Adquirido"
+    > 164 |     await expect(card.locator('button', { hasText: /adquirido/i }).first()).toBeVisible({ timeout: 5000 });
+          |                                                                             ^
+      165 |     
+      166 |     // Abrimos el Modal
+      167 |     await card.locator('button', { hasText: /adquirido/i }).first().click();
+        at C:\Users\user\Music\celaest-dashboard\e2e\marketplace-business-logic.spec.ts:164:77
+
+    Error Context: test-results\marketplace-business-logic-0013c-mpra-Individual-A-la-Carta--chromium\error-context.md
+
+  2 failed
+    [chromium] ÔÇ║ e2e\marketplace-business-logic.spec.ts:101:7 ÔÇ║ ­ƒææ CELAEST Master Business Logic Test: Marketplace & Licensing ÔÇ║ Escenario A: Tenant con Plan Enterprise (Acceso por Suscripci├│n) 
+    [chromium] ÔÇ║ e2e\marketplace-business-logic.spec.ts:137:7 ÔÇ║ ­ƒææ CELAEST Master Business Logic Test: Marketplace & Licensing ÔÇ║ Escenario B: Tenant en Plan Gratuito (Compra Individual/A la Carta) 
+  1 passed (13.6s)

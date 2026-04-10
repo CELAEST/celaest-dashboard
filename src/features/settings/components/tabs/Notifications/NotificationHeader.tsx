@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { Bell } from "lucide-react";
+import { Bell } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { toast } from "sonner";
 

@@ -11,15 +11,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Send,
+  PaperPlaneTilt,
   User,
-  Bot,
-  Sparkles,
-  Loader2,
-  Zap,
-  BrainCircuit,
+  Robot,
+  Sparkle,
+  CircleNotch,
+  Lightning,
+  Brain,
   Terminal,
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import { ChatMessage } from "../../types";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -82,7 +82,7 @@ export const AIChatTab: React.FC<AIChatTabProps> = ({ token, orgId }) => {
         <div className="flex items-center gap-4">
           <div className="relative">
             <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20 shadow-[0_0_20px_rgba(34,211,238,0.1)]">
-              <BrainCircuit className="text-cyan-400" size={24} />
+              <Brain className="text-cyan-400" size={24} weight="duotone" />
             </div>
             <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-black border-2 border-cyan-500/20 flex items-center justify-center">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -100,7 +100,7 @@ export const AIChatTab: React.FC<AIChatTabProps> = ({ token, orgId }) => {
 
         <div className="flex items-center gap-4">
           <div className="hidden lg:flex items-center gap-3 px-4 py-2 rounded-xl bg-white/5 border border-white/5">
-            <Zap size={14} className="text-amber-400" />
+            <Lightning size={14} className="text-amber-400" weight="fill" />
             <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">
               Low Latency Mode
             </span>
@@ -144,9 +144,10 @@ export const AIChatTab: React.FC<AIChatTabProps> = ({ token, orgId }) => {
               className="h-full flex flex-col items-center justify-center text-center space-y-6"
             >
               <div className="p-8 rounded-full bg-cyan-500/[0.03] border border-cyan-500/10">
-                <Sparkles
+                <Sparkle
                   size={64}
                   className="text-cyan-400/40 animate-pulse"
+                  weight="fill"
                 />
               </div>
               <div className="space-y-2">
@@ -176,9 +177,9 @@ export const AIChatTab: React.FC<AIChatTabProps> = ({ token, orgId }) => {
                 }`}
               >
                 {msg.role === "user" ? (
-                  <User size={18} className="text-blue-400" />
+                  <User size={18} className="text-blue-400" weight="duotone" />
                 ) : (
-                  <Bot size={18} className="text-cyan-400" />
+                  <Robot size={18} className="text-cyan-400" weight="duotone" />
                 )}
               </div>
               <div
@@ -200,7 +201,7 @@ export const AIChatTab: React.FC<AIChatTabProps> = ({ token, orgId }) => {
               className="flex gap-6"
             >
               <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
-                <Loader2 className="text-cyan-400 animate-spin" size={18} />
+                <CircleNotch className="text-cyan-400 animate-spin" size={18} />
               </div>
               <div className="bg-white/[0.04] p-6 rounded-3xl rounded-tl-none border border-white/5 backdrop-blur-xl">
                 <div className="flex gap-2">
@@ -224,7 +225,7 @@ export const AIChatTab: React.FC<AIChatTabProps> = ({ token, orgId }) => {
           className="relative group"
         >
           <div className="absolute left-5 top-1/2 -translate-y-1/2 text-cyan-500/40 group-focus-within:text-cyan-400 transition-colors">
-            <Terminal size={18} />
+            <Terminal size={18} weight="duotone" />
           </div>
           <input
             value={input}
@@ -239,9 +240,9 @@ export const AIChatTab: React.FC<AIChatTabProps> = ({ token, orgId }) => {
               className="bg-cyan-600 hover:bg-cyan-500 text-white h-11 w-11 rounded-xl shadow-[0_0_20px_rgba(34,211,238,0.2)] transition-all p-0"
             >
               {chatMutation.isPending ? (
-                <Loader2 className="animate-spin" size={20} />
+                <CircleNotch className="animate-spin" size={20} />
               ) : (
-                <Send size={20} />
+                <PaperPlaneTilt size={20} weight="fill" />
               )}
             </Button>
           </div>

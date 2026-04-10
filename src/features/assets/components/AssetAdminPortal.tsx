@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { AssetEditor } from "./AssetEditor";
 import { AssetTable } from "./AssetTable";
-import { AssetHeader } from "./AssetHeader";
 import { AssetMetrics } from "./AssetMetrics";
 import { CategoryManagementTab } from "./CategoryManagementTab";
 import { ProductDetailModal } from "./ProductDetailModal";
@@ -15,13 +14,22 @@ import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
 import { ReleaseManagementModal } from "./ReleaseManagementModal";
+import { ConfirmArchiveModal } from "./ConfirmArchiveModal";
+import { TableChrome } from "@/components/layout/TableChrome";
+import { AssetMenuState } from "./AssetActionMenu";
 
 interface AssetAdminPortalProps {
   activeTab: "inventory" | "categories" | "analytics";
+  analyticsPeriod?: string;
+  onCreateRef?: (fn: () => void) => void;
+  onCategoryCreateRef?: (fn: () => void) => void;
 }
 
 export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
   activeTab,
+  analyticsPeriod = "month",
+  onCreateRef,
+  onCategoryCreateRef,
 }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
@@ -31,6 +39,10 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
 
   const {
     data: inventory = [],
+    total: inventoryTotal,
+    hasNextPage: inventoryHasNextPage,
+    isFetchingNextPage: inventoryIsFetchingNextPage,
+    fetchNextPage: inventoryFetchNextPage,
     isLoading: isInventoryLoading,
     refetch: fetchInventory,
   } = useOrgInventory();
@@ -39,7 +51,24 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [editingAsset, setEditingAsset] = useState<Asset | null>(null);
   const [previewingAsset, setPreviewingAsset] = useState<Asset | null>(null);
-  const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const [activeMenu, setActiveMenu] = useState<AssetMenuState | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleOpenMenu = (e: React.MouseEvent, asset: Asset) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const menuHeight = 220;
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const showAbove = spaceBelow < menuHeight;
+    setActiveMenu({
+      id: asset.id,
+      x: rect.right - 12,
+      y: showAbove ? window.innerHeight - rect.top + 8 : rect.bottom + 8,
+      align: showAbove ? "bottom" : "top",
+    });
+  };
 
   // Note: Local listeners removed - synchronized via useRealtimeDashboard globally
 
@@ -52,6 +81,11 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
     setEditingAsset(null);
     setIsEditorOpen(true);
   };
+
+  // Expose handleCreate to parent
+  React.useEffect(() => {
+    onCreateRef?.(handleCreate);
+  }, [onCreateRef]);
 
   const handlePreview = (asset: Asset) => {
     setPreviewingAsset(asset);
@@ -191,6 +225,9 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
       technical_stack: data.technical_stack
         ? data.technical_stack.split("\n").filter(Boolean)
         : [],
+      requirements: data.requirements
+        ? data.requirements.split("\n").filter(Boolean)
+        : [],
       min_plan_tier: data.min_plan_tier,
     };
 
@@ -243,19 +280,25 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!session?.accessToken || !orgId) return;
+  const handleDelete = (id: string) => {
+    const asset = inventory.find((a) => a.id === id);
+    setDeleteTarget({ id, name: asset?.name ?? "este asset" });
+  };
 
-    if (window.confirm("Are you sure you want to archive this asset?")) {
-      try {
-        await assetsService.deleteAsset(session.accessToken, orgId, id);
-        toast.success("Asset archived");
-        fetchInventory();
-      } catch (err: unknown) {
-        toast.error(
-          `Error: ${err instanceof Error ? err.message : "Failed to archive"}`,
-        );
-      }
+  const confirmDelete = async () => {
+    if (!session?.accessToken || !orgId || !deleteTarget) return;
+    setIsDeleting(true);
+    try {
+      await assetsService.deleteAsset(session.accessToken, orgId, deleteTarget.id);
+      toast.success(`"${deleteTarget.name}" archivado correctamente`);
+      fetchInventory();
+      setDeleteTarget(null);
+    } catch (err: unknown) {
+      toast.error(
+        `Error: ${err instanceof Error ? err.message : "Failed to archive"}`,
+      );
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -294,7 +337,7 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
   const handleManageReleases = (asset: Asset) => {
     setSelectedAssetForReleases(asset);
     setIsReleaseModalOpen(true);
-    setActiveMenu(null); // Close the menu
+    setActiveMenu(null);
   };
 
   return (
@@ -308,123 +351,118 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
               transition={{ duration: 0.2 }}
-              className="h-full flex flex-col pb-2 relative"
+              className="h-full"
             >
-              <div
-                className={`flex-1 relative backdrop-blur-xl border rounded-3xl overflow-hidden flex flex-col ${isDark ? "bg-[#0a0a0a]/60 border-white/5" : "bg-white border-gray-200 shadow-sm"}`}
-              >
-                <div
-                  className={`shrink-0 border-b ${isDark ? "border-white/5" : "border-gray-100"}`}
-                >
-                  <AssetHeader isDark={isDark} onCreate={handleCreate} />
-                </div>
-                <div className="flex-1 relative">
-                  <div className="absolute inset-0 overflow-hidden">
-                    <div className="h-full w-full overflow-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-                      {isInventoryLoading ? (
-                        <div className="flex items-center justify-center h-64">
-                          <motion.div
-                            animate={{ rotate: 360 }}
-                            transition={{
-                              duration: 1,
-                              repeat: Infinity,
-                              ease: "linear",
-                            }}
-                            className="w-8 h-8 border-2 border-cyan-500 border-t-transparent rounded-full"
-                          />
-                        </div>
-                      ) : (
-                        <AssetTable
-                          assets={inventory}
-                          isDark={isDark}
-                          activeMenu={activeMenu}
-                          setActiveMenu={setActiveMenu}
-                          onEdit={handleEdit}
-                          onDuplicate={handleDuplicate}
-                          onDelete={handleDelete}
-                          onDownload={async (asset) => {
-                            if (!session?.accessToken) {
-                              toast.error("Authentication required");
-                              return;
-                            }
-
-                            try {
-                              toast.info("Preparing secure download...");
-                              const { download_url } =
-                                await assetsService.downloadAsset(
-                                  session.accessToken,
-                                  asset.id,
-                                );
-
-                              if (!download_url) {
-                                throw new Error(
-                                  "No download URL returned from server",
-                                );
-                              }
-
-                              // download_url is already the secure proxy path
-                              const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-                              if (!apiUrl)
-                                throw new Error(
-                                  "NEXT_PUBLIC_API_URL is not configured",
-                                );
-                              const url = `${apiUrl}${download_url}`;
-
-                              const response = await fetch(url, {
-                                headers: {
-                                  Authorization: `Bearer ${session.accessToken}`,
-                                },
-                              });
-
-                              if (!response.ok) {
-                                const err = await response.json();
-                                throw new Error(err.error || "Download failed");
-                              }
-
-                              const blob = await response.blob();
-                              const objUrl = window.URL.createObjectURL(blob);
-                              const a = document.createElement("a");
-                              a.href = objUrl;
-
-                              // Extract filename from URL or response headers if possible,
-                              // but backend DownloadMyAsset includes it in the query param 'asset'
-                              const urlObj = new URL(url);
-                              const fileName =
-                                urlObj.searchParams.get("asset") ||
-                                "bundle.zip";
-
-                              a.download = fileName;
-                              document.body.appendChild(a);
-                              a.click();
-                              window.URL.revokeObjectURL(objUrl);
-                              document.body.removeChild(a);
-                              toast.success("Download completed");
-                            } catch (err: unknown) {
-                              toast.error(
-                                `Download error: ${err instanceof Error ? err.message : "Unknown error"}`,
-                              );
-                            }
-                          }}
-                          onPreview={handlePreview}
-                          onManageReleases={handleManageReleases}
-                        />
-                      )}
+              <TableChrome
+                toolbar={
+                  <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse" />
+                      <span
+                        className={`text-xs font-semibold ${isDark ? "text-white" : "text-gray-900"}`}
+                      >
+                        All Assets
+                      </span>
                     </div>
-                  </div>
-                </div>
-                <div
-                  className={`p-2 border-t flex items-center justify-between shrink-0 ${isDark ? "bg-white/5 border-white/5" : "bg-gray-50 border-gray-200"}`}
-                >
-                  <p
-                    className={`text-[10px] uppercase font-mono tracking-widest ${isDark ? "text-gray-500" : "text-gray-600"}`}
-                  >
-                    Inventory:{" "}
-                    <span className={isDark ? "text-white" : "text-black"}>
-                      {inventory.length}
+                    <span className={`text-[11px] tabular-nums ${isDark ? "text-gray-500" : "text-gray-400"}`}>
+                      {inventoryTotal != null ? `Showing ${inventory.length} of ${inventoryTotal} entries` : ""}
                     </span>
-                  </p>
-                </div>
-              </div>
+                  </div>
+                }
+              >
+                {isInventoryLoading ? (
+                  <div className="flex items-center justify-center h-64">
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{
+                        duration: 1,
+                        repeat: Infinity,
+                        ease: "linear",
+                      }}
+                      className="w-8 h-8 border-2 border-cyan-500 border-t-transparent rounded-full"
+                    />
+                  </div>
+                ) : (
+                  <AssetTable
+                    assets={inventory}
+                    isDark={isDark}
+                    isLoading={isInventoryLoading}
+                    activeMenu={activeMenu}
+                    onOpenMenu={handleOpenMenu}
+                    onCloseMenu={() => setActiveMenu(null)}
+                    onEdit={handleEdit}
+                    onDuplicate={handleDuplicate}
+                    onDelete={handleDelete}
+                    totalItems={inventoryTotal}
+                    hasNextPage={inventoryHasNextPage}
+                    isFetchingNextPage={inventoryIsFetchingNextPage}
+                    onLoadMore={inventoryFetchNextPage}
+                    hideFooter
+                    onDownload={async (asset) => {
+                      if (!session?.accessToken) {
+                        toast.error("Authentication required");
+                        return;
+                      }
+
+                      try {
+                        toast.info("Preparing secure download...");
+                        const { download_url } =
+                          await assetsService.downloadAsset(
+                            session.accessToken,
+                            asset.id,
+                          );
+
+                        if (!download_url) {
+                          throw new Error(
+                            "No download URL returned from server",
+                          );
+                        }
+
+                        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+                        if (!apiUrl)
+                          throw new Error(
+                            "NEXT_PUBLIC_API_URL is not configured",
+                          );
+                        const url = `${apiUrl}${download_url}`;
+
+                        const response = await fetch(url, {
+                          headers: {
+                            Authorization: `Bearer ${session.accessToken}`,
+                          },
+                        });
+
+                        if (!response.ok) {
+                          const err = await response.json();
+                          throw new Error(err.error || "Download failed");
+                        }
+
+                        const blob = await response.blob();
+                        const objUrl = window.URL.createObjectURL(blob);
+                        const a = document.createElement("a");
+                        a.href = objUrl;
+
+                        const urlObj = new URL(url);
+                        const fileName =
+                          urlObj.searchParams.get("asset") ||
+                          "bundle.zip";
+
+                        a.download = fileName;
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(objUrl);
+                        document.body.removeChild(a);
+                        toast.success("Download completed");
+                      } catch (err: unknown) {
+                        toast.error(
+                          `Download error: ${err instanceof Error ? err.message : "Unknown error"}`,
+                        );
+                      }
+                    }}
+                    onPreview={handlePreview}
+                    onManageReleases={handleManageReleases}
+                  />
+                )}
+              </TableChrome>
             </motion.div>
           ) : activeTab === "analytics" ? (
             <motion.div
@@ -435,7 +473,7 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
               transition={{ duration: 0.2 }}
               className="h-full flex flex-col overflow-hidden"
             >
-              <AssetMetrics />
+              <AssetMetrics period={analyticsPeriod} />
             </motion.div>
           ) : (
             <motion.div
@@ -446,7 +484,7 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
               transition={{ duration: 0.2 }}
               className="h-full flex flex-col overflow-hidden"
             >
-              <CategoryManagementTab isDark={isDark} />
+              <CategoryManagementTab isDark={isDark} onCreateRef={onCategoryCreateRef} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -472,6 +510,14 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
         isOpen={isReleaseModalOpen}
         onClose={() => setIsReleaseModalOpen(false)}
         asset={selectedAssetForReleases}
+      />
+
+      <ConfirmArchiveModal
+        isOpen={!!deleteTarget}
+        assetName={deleteTarget?.name ?? ""}
+        isDeleting={isDeleting}
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteTarget(null)}
       />
     </div>
   );

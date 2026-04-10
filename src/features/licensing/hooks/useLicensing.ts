@@ -1,18 +1,26 @@
 import { useState, useCallback, useMemo } from "react";
 import { toast } from "sonner";
-import { useQueryClient, useMutation } from "@tanstack/react-query";
+import { toastMutationError } from "@/lib/toast-helpers";
+import { useQueryClient, useMutation, InfiniteData } from "@tanstack/react-query";
 import { licensingService } from "@/features/licensing/services/licensing.service";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
-import { socket } from "@/lib/socket-client";
-import { useEffect } from "react";
 
 import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
+
+// Helper: invalidate licensing + marketplace-related queries after license changes
+const invalidateAfterLicenseChange = (queryClient: ReturnType<typeof useQueryClient>) => {
+  queryClient.invalidateQueries({ queryKey: QUERY_KEYS.licensing.all });
+  queryClient.invalidateQueries({ queryKey: QUERY_KEYS.assets.all });
+  queryClient.invalidateQueries({ queryKey: QUERY_KEYS.billing.all });
+};
+
 import {
   useLicensesQuery,
   useLicenseStatsQuery,
 } from "./useLicensesQuery";
 import type {
   LicenseResponse,
+  LicenseListResponse,
   IPBinding,
   LicenseStatus,
 } from "@/features/licensing/types";
@@ -21,8 +29,6 @@ import type { ValidationLog } from "@/features/licensing/constants/mock-data";
 export const useLicensing = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(20);
   const [activeTab, setActiveTab] = useState<
     "licenses" | "collisions" | "analytics"
   >("licenses");
@@ -36,36 +42,20 @@ export const useLicensing = () => {
   const queryClient = useQueryClient();
 
   // Queries
-  const { data: listData, isLoading: loadingLicenses } = useLicensesQuery({
+  const {
+    data: listData,
+    isLoading: loadingLicenses,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useLicensesQuery({
     search: searchQuery || undefined,
     status: statusFilter === "all" ? undefined : (statusFilter as LicenseStatus),
-    page,
-    limit,
   });
 
   const { data: statsData } = useLicenseStatsQuery();
 
-  // Real-time synchronization for Licensing Hub
-  useEffect(() => {
-    if (!session?.accessToken) return;
 
-    const handler = () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.licensing.all });
-    };
-
-    const unsubscribers = [
-      socket.on("license.created", handler),
-      socket.on("license.updated", handler),
-      socket.on("license.activated", handler),
-      socket.on("subscription.created", handler),
-      socket.on("subscription.updated", handler),
-      socket.on("subscription.cancelled", handler),
-    ];
-
-    return () => {
-      unsubscribers.forEach((unsub) => unsub());
-    };
-  }, [session?.accessToken, queryClient]);
 
   // Determine if user is admin/super_admin
   const isAdminUser = useMemo(() => {
@@ -79,27 +69,34 @@ export const useLicensing = () => {
       licensingService.changeStatus(id, status),
     onMutate: async ({ id, status }) => {
       await queryClient.cancelQueries({ queryKey: QUERY_KEYS.licensing.all });
-      const snapshots = queryClient.getQueriesData<{ licenses: LicenseResponse[]; total: number }>({ queryKey: QUERY_KEYS.licensing.all });
-      queryClient.setQueriesData<{ licenses: LicenseResponse[]; total: number }>(
-        { queryKey: QUERY_KEYS.licensing.all },
+      const snapshots = queryClient.getQueriesData<InfiniteData<LicenseListResponse>>({ queryKey: ["licensing", "list"] });
+      queryClient.setQueriesData<InfiniteData<LicenseListResponse>>(
+        { queryKey: ["licensing", "list"] },
         (old) => {
-          if (!old || !old.licenses) return old;
+          if (!old?.pages) return old;
           return {
             ...old,
-            licenses: old.licenses.map((l) =>
-              l.id === id ? { ...l, status } : l
-            ),
+            pages: old.pages.map((p) => ({
+              ...p,
+              licenses: p.licenses.map((l) =>
+                l.id === id ? { ...l, status } : l
+              ),
+            })),
           };
         }
       );
       return { snapshots };
     },
-    onError: (_err, _vars, context) => {
+    onError: (err, vars, context) => {
       context?.snapshots?.forEach(([key, data]) => queryClient.setQueryData(key, data));
-      toast.error("Failed to update license status");
+      const msg = err instanceof Error ? err.message : "Failed to update license status";
+      toastMutationError({
+        message: msg,
+        onRetry: () => updateMutation.mutate(vars),
+      });
     },
     onSuccess: (updated) => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.licensing.all });
+      invalidateAfterLicenseChange(queryClient);
       if (selectedLicense?.id === updated.id) setSelectedLicense(updated);
       toast.success(`License status changed to ${updated.status}`);
     },
@@ -110,27 +107,34 @@ export const useLicensing = () => {
       licensingService.revoke(id, "Revoked via dashboard"),
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: QUERY_KEYS.licensing.all });
-      const snapshots = queryClient.getQueriesData<{ licenses: LicenseResponse[]; total: number }>({ queryKey: QUERY_KEYS.licensing.all });
-      queryClient.setQueriesData<{ licenses: LicenseResponse[]; total: number }>(
-        { queryKey: QUERY_KEYS.licensing.all },
+      const snapshots = queryClient.getQueriesData<InfiniteData<LicenseListResponse>>({ queryKey: ["licensing", "list"] });
+      queryClient.setQueriesData<InfiniteData<LicenseListResponse>>(
+        { queryKey: ["licensing", "list"] },
         (old) => {
-          if (!old || !old.licenses) return old;
+          if (!old?.pages) return old;
           return {
             ...old,
-            licenses: old.licenses.map((l) =>
-              l.id === id ? { ...l, status: "revoked" as LicenseStatus } : l
-            ),
+            pages: old.pages.map((p) => ({
+              ...p,
+              licenses: p.licenses.map((l) =>
+                l.id === id ? { ...l, status: "revoked" as LicenseStatus } : l
+              ),
+            })),
           };
         }
       );
       return { snapshots };
     },
-    onError: (_err, _id, context) => {
+    onError: (err, id, context) => {
       context?.snapshots?.forEach(([key, data]) => queryClient.setQueryData(key, data));
-      toast.error("Failed to revoke license");
+      const msg = err instanceof Error ? err.message : "Failed to revoke license";
+      toastMutationError({
+        message: msg,
+        onRetry: () => revokeMutation.mutate(id),
+      });
     },
     onSuccess: (updated) => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.licensing.all });
+      invalidateAfterLicenseChange(queryClient);
       if (selectedLicense?.id === updated.id) setSelectedLicense(updated);
       toast.success(`License revoked successfully`);
     },
@@ -139,31 +143,31 @@ export const useLicensing = () => {
   const renewMutation = useMutation({
     mutationFn: (id: string) => licensingService.renew(id),
     onSuccess: (updated) => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.licensing.all });
+      invalidateAfterLicenseChange(queryClient);
       if (selectedLicense?.id === updated.id) setSelectedLicense(updated);
       toast.success("License renewed successfully");
     },
-    onError: () => toast.error("Failed to renew license"),
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Failed to renew license"),
   });
 
   const convertTrialMutation = useMutation({
     mutationFn: (id: string) => licensingService.convertTrial(id),
     onSuccess: (updated) => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.licensing.all });
+      invalidateAfterLicenseChange(queryClient);
       if (selectedLicense?.id === updated.id) setSelectedLicense(updated);
       toast.success("Trial converted to paid license");
     },
-    onError: () => toast.error("Failed to convert trial"),
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Failed to convert trial"),
   });
 
   const reactivateMutation = useMutation({
     mutationFn: (id: string) => licensingService.reactivate(id),
     onSuccess: (updated) => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.licensing.all });
+      invalidateAfterLicenseChange(queryClient);
       if (selectedLicense?.id === updated.id) setSelectedLicense(updated);
       toast.success("License reactivated successfully");
     },
-    onError: () => toast.error("Failed to reactivate license"),
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Failed to reactivate license"),
   });
 
   const unbindMutation = useMutation({
@@ -171,22 +175,29 @@ export const useLicensing = () => {
       licensingService.unbindIP(id, ip),
     onMutate: async ({ id, ip }) => {
       await queryClient.cancelQueries({ queryKey: QUERY_KEYS.licensing.all });
-      const snapshots = queryClient.getQueriesData<{ licenses: LicenseResponse[]; total: number }>({ queryKey: QUERY_KEYS.licensing.all });
-      queryClient.setQueriesData<{ licenses: LicenseResponse[]; total: number }>(
-        { queryKey: QUERY_KEYS.licensing.all },
-        (old) => old ? {
-          ...old,
-          licenses: old.licenses.map(l => l.id === id
-            ? { ...l, ip_bindings: (l.ip_bindings || []).filter((b: IPBinding) => b.ip_address !== ip) }
-            : l
-          )
-        } : old
+      const snapshots = queryClient.getQueriesData<InfiniteData<LicenseListResponse>>({ queryKey: ["licensing", "list"] });
+      queryClient.setQueriesData<InfiniteData<LicenseListResponse>>(
+        { queryKey: ["licensing", "list"] },
+        (old) => {
+          if (!old?.pages) return old;
+          return {
+            ...old,
+            pages: old.pages.map((p) => ({
+              ...p,
+              licenses: p.licenses.map(l => l.id === id
+                ? { ...l, ip_bindings: (l.ip_bindings || []).filter((b: IPBinding) => b.ip_address !== ip) }
+                : l
+              ),
+            })),
+          };
+        }
       );
       return { snapshots };
     },
-    onError: (_err, _vars, context) => {
+    onError: (err, _vars, context) => {
       context?.snapshots?.forEach(([key, data]) => queryClient.setQueryData(key, data));
-      toast.error("Failed to unbind IP");
+      const msg = err instanceof Error ? err.message : "Failed to unbind IP";
+      toast.error(msg);
     },
     onSuccess: (_, { id, ip }) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.licensing.all });
@@ -268,12 +279,16 @@ export const useLicensing = () => {
   }, [queryClient]);
 
   // Derived Data
-  const filteredLicenses = useMemo(() => {
-    const baseLicenses = listData?.licenses || [];
+  const allLicenses = useMemo(
+    () => listData?.pages.flatMap((p) => p.licenses) ?? [],
+    [listData],
+  );
+  const totalLicenses = listData?.pages[0]?.total ?? 0;
 
+  const filteredLicenses = useMemo(() => {
     // For regular users, show their licenses sorted by tier, excluding revoked
-    if (!isAdminUser && baseLicenses.length > 0) {
-      const displayLicenses = baseLicenses.filter(
+    if (!isAdminUser && allLicenses.length > 0) {
+      const displayLicenses = allLicenses.filter(
         (lic) => lic.status !== "revoked"
       );
 
@@ -288,12 +303,15 @@ export const useLicensing = () => {
       return [];
     }
 
-    return baseLicenses;
-  }, [listData, isAdminUser]);
+    return allLicenses;
+  }, [allLicenses, isAdminUser]);
 
   return {
     licenses: filteredLicenses,
-    total: listData?.total || 0,
+    total: totalLicenses,
+    hasNextPage: !!hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
     analytics: statsData || null,
     collisions: [] as IPBinding[], 
     loading: loadingLicenses,
@@ -301,10 +319,6 @@ export const useLicensing = () => {
     setSearchQuery,
     statusFilter,
     setStatusFilter,
-    page,
-    setPage,
-    limit,
-    setLimit,
     activeTab,
     setActiveTab,
     selectedLicense,

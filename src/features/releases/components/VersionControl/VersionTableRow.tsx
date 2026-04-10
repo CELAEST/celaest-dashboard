@@ -2,12 +2,12 @@ import React, { memo } from "react";
 import { motion } from "motion/react";
 import {
   Calendar,
-  Download,
+  DownloadSimple,
   Shield,
-  CheckCircle2,
-  AlertTriangle,
+  CheckCircle,
+  Warning,
   XCircle,
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import { Version, ReleaseStatus } from "../../types";
 import { VersionActions } from "./VersionActions";
@@ -55,9 +55,9 @@ export const VersionTableRow: React.FC<VersionTableRowProps> = memo(
     const getStatusIcon = (status: ReleaseStatus) => {
       switch (status) {
         case "stable":
-          return <CheckCircle2 size={14} />;
+          return <CheckCircle size={14} />;
         case "beta":
-          return <AlertTriangle size={14} />;
+          return <Warning size={14} />;
         case "deprecated":
           return <XCircle size={14} />;
       }
@@ -147,7 +147,7 @@ export const VersionTableRow: React.FC<VersionTableRowProps> = memo(
         </td>
         <td className="px-6 py-4">
           <div className="flex items-center gap-2">
-            <Download
+            <DownloadSimple
               size={14}
               className={isDark ? "text-gray-600" : "text-gray-400"}
             />

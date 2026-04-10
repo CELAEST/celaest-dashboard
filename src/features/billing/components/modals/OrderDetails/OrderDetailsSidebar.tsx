@@ -1,5 +1,5 @@
 import React from "react";
-import { User, CreditCard, Key, Mail, FileText } from "lucide-react";
+import { User, CreditCard, Key, Envelope, FileText } from "@phosphor-icons/react";
 import { toast } from "sonner";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { Order } from "../../../types";
@@ -157,8 +157,9 @@ export const OrderDetailsSidebar: React.FC<OrderDetailsSidebarProps> = ({
               className={`text-sm font-mono truncate w-32 ${
                 isDark ? "text-gray-300" : "text-gray-600"
               }`}
+              title={formData.licenseKey || "N/A"}
             >
-              XXXX-XXXX-XXXX
+              {formData.licenseKey || "N/A"}
             </div>
           </div>
         </div>
@@ -169,7 +170,7 @@ export const OrderDetailsSidebar: React.FC<OrderDetailsSidebarProps> = ({
               isDark ? "bg-white/5" : "bg-white shadow-sm"
             }`}
           >
-            <Mail
+            <Envelope
               size={16}
               className={isDark ? "text-gray-400" : "text-gray-500"}
             />
@@ -207,7 +208,7 @@ export const OrderDetailsSidebar: React.FC<OrderDetailsSidebarProps> = ({
           }`}
         >
           <FileText size={16} />
-          Download Invoice
+          DownloadSimple Invoice
         </button>
       </div>
     </div>

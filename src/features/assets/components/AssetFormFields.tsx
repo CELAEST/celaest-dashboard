@@ -1,6 +1,6 @@
 import React from "react";
 import { useFormContext } from "react-hook-form";
-import { FileSpreadsheet, Code, Globe, Github } from "lucide-react";
+import { FileCsv, Code, Globe, GithubLogo } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { SettingsSelect } from "../../settings/components/SettingsSelect";
 import { AssetFormValues } from "../hooks/useAssetForm";
@@ -50,21 +50,21 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
 
   return (
     <div className="space-y-8">
-      {/* Asset Type */}
+      {/* Asset TextT */}
       <div>
         <label
           className={`block text-xs uppercase tracking-wider font-bold mb-3 ${
-            isDark ? "text-gray-500" : "text-gray-400"
+            isDark ? "text-gray-300" : "text-gray-400"
           }`}
         >
-          Asset Type
+          Asset TextT
         </label>
         <div className="grid grid-cols-3 gap-3">
           {[
             {
               value: "excel",
               label: "Excel Macro",
-              icon: FileSpreadsheet,
+              icon: FileCsv,
             },
             { value: "script", label: "Script/Code", icon: Code },
             { value: "google-sheet", label: "Google Sheet", icon: Globe },
@@ -87,7 +87,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
                       ? "bg-cyan-500/10 border-cyan-500/50 text-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.15)]"
                       : "bg-blue-50 border-blue-500 text-blue-700 shadow-md"
                     : isDark
-                      ? "bg-white/5 border-white/10 text-gray-400 hover:border-white/20 hover:bg-white/10"
+                      ? "bg-white/8 border-white/13 text-gray-400 hover:border-white/20 hover:bg-white/12"
                       : "bg-white border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50"
                 }`}
               >
@@ -114,7 +114,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
           <label
             htmlFor="name"
             className={`block text-xs uppercase tracking-wider font-bold mb-2 ${
-              isDark ? "text-gray-500" : "text-gray-400"
+              isDark ? "text-gray-300" : "text-gray-400"
             }`}
           >
             Asset Name *
@@ -125,7 +125,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
             {...register("name")}
             className={`w-full px-4 py-3 rounded-lg border transition-all outline-none ${
               isDark
-                ? "bg-white/5 border-white/10 text-white placeholder-gray-500 focus:border-cyan-500/30 focus:bg-white/10"
+                ? "bg-white/8 border-white/13 text-white placeholder-gray-400 focus:border-cyan-500/30 focus:bg-white/12"
                 : "bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
             } ${errors.name ? "border-red-500" : ""}`}
             placeholder="e.g., Advanced Financial Dashboard"
@@ -156,7 +156,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
         <label
           htmlFor="external_url"
           className={`block text-xs uppercase tracking-wider font-bold mb-2 ${
-            isDark ? "text-gray-500" : "text-gray-400"
+            isDark ? "text-gray-300" : "text-gray-400"
           }`}
         >
           Automation / External Link (Optional)
@@ -178,7 +178,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
             {...register("external_url")}
             className={`w-full pl-11 pr-4 py-3 rounded-lg border transition-all outline-none ${
               isDark
-                ? "bg-white/5 border-white/10 text-white placeholder-gray-500 focus:border-cyan-500/30 focus:bg-white/10"
+                ? "bg-white/8 border-white/13 text-white placeholder-gray-400 focus:border-cyan-500/30 focus:bg-white/12"
                 : "bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
             } ${errors.external_url ? "border-red-500 shadow-[0_0_0_1px_rgba(239,68,68,0.2)]" : ""}`}
             placeholder="e.g., https://docs.google.com/spreadsheets/d/..."
@@ -201,13 +201,13 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
           <label
             htmlFor="github_repository"
             className={`block text-xs uppercase tracking-wider font-bold mb-2 ${
-              isDark ? "text-gray-500" : "text-gray-400"
+              isDark ? "text-gray-300" : "text-gray-400"
             }`}
           >
             GitHub Repository (Private Distribution)
           </label>
           <div className="relative">
-            <Github
+            <GithubLogo
               size={18}
               className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors pointer-events-none ${
                 watch("github_repository")
@@ -223,7 +223,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
               {...register("github_repository")}
               className={`w-full pl-11 pr-4 py-3 rounded-lg border transition-all outline-none ${
                 isDark
-                  ? "bg-white/5 border-white/10 text-white placeholder-gray-500 focus:border-cyan-500/30 focus:bg-white/10"
+                  ? "bg-white/8 border-white/13 text-white placeholder-gray-400 focus:border-cyan-500/30 focus:bg-white/12"
                   : "bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
               }`}
               placeholder="e.g. owner/repo"
@@ -242,7 +242,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
       <div className="space-y-4">
         <label
           className={`block text-xs uppercase tracking-wider font-bold mb-2 ${
-            isDark ? "text-gray-500" : "text-gray-400"
+            isDark ? "text-gray-300" : "text-gray-400"
           }`}
         >
           Product Thumbnail / Image
@@ -265,12 +265,12 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
       </div>
 
       {/* Pricing */}
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-2 gap-6">
         <div>
           <label
             htmlFor="price"
             className={`block text-xs uppercase tracking-wider font-bold mb-2 ${
-              isDark ? "text-gray-500" : "text-gray-400"
+              isDark ? "text-gray-300" : "text-gray-400"
             }`}
           >
             Sale Price *
@@ -278,7 +278,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
           <div className="relative">
             <span
               className={`absolute left-4 top-1/2 -translate-y-1/2 font-medium ${
-                isDark ? "text-gray-500" : "text-gray-400"
+                isDark ? "text-gray-300" : "text-gray-400"
               }`}
             >
               $
@@ -290,61 +290,35 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
               {...register("price", { valueAsNumber: true })}
               className={`w-full pl-8 pr-4 py-3 rounded-lg border transition-all outline-none ${
                 isDark
-                  ? "bg-white/5 border-white/10 text-white focus:border-cyan-500/30 focus:bg-white/10"
+                  ? "bg-white/8 border-white/13 text-white focus:border-cyan-500/30 focus:bg-white/12"
                   : "bg-white border-gray-200 text-gray-900 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
               } ${errors.price ? "border-red-500" : ""}`}
             />
           </div>
+          {errors.price && (
+            <p className="text-red-500 text-xs mt-1">{errors.price.message}</p>
+          )}
         </div>
         <div>
           <label
-            htmlFor="operationalCost"
+            htmlFor="currency"
             className={`block text-xs uppercase tracking-wider font-bold mb-2 ${
-              isDark ? "text-gray-500" : "text-gray-400"
+              isDark ? "text-gray-300" : "text-gray-400"
             }`}
           >
-            Operational Cost
+            Currency
           </label>
-          <div className="relative">
-            <span
-              className={`absolute left-4 top-1/2 -translate-y-1/2 font-medium ${
-                isDark ? "text-gray-500" : "text-gray-400"
-              }`}
-            >
-              $
-            </span>
-            <input
-              id="operationalCost"
-              type="number"
-              step="0.01"
-              {...register("operationalCost", { valueAsNumber: true })}
-              className={`w-full pl-8 pr-4 py-3 rounded-lg border transition-all outline-none ${
-                isDark
-                  ? "bg-white/5 border-white/10 text-white focus:border-cyan-500/30 focus:bg-white/10"
-                  : "bg-white border-gray-200 text-gray-900 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
-              } ${errors.operationalCost ? "border-red-500" : ""}`}
-            />
-          </div>
-        </div>
-        <div>
-          <label
-            className={`block text-xs uppercase tracking-wider font-bold mb-2 ${
-              isDark ? "text-gray-500" : "text-gray-400"
-            }`}
-          >
-            Net Margin
-          </label>
-          <div
-            className={`px-4 py-3.5 rounded-lg border flex items-center ${
+          <input
+            id="currency"
+            type="text"
+            defaultValue="USD"
+            disabled
+            className={`w-full px-4 py-3 rounded-lg border transition-all outline-none opacity-50 cursor-not-allowed ${
               isDark
-                ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
-                : "bg-emerald-50 border-emerald-200 text-emerald-700"
+                ? "bg-white/5 border-white/8 text-gray-400"
+                : "bg-gray-100 border-gray-200 text-gray-500"
             }`}
-          >
-            <div className="font-bold">
-              ${(watch("price") - watch("operationalCost")).toFixed(2)}
-            </div>
-          </div>
+          />
         </div>
       </div>
 
@@ -367,7 +341,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
                 ? "bg-cyan-500/10 border-cyan-500/30"
                 : "bg-blue-50 border-blue-300"
               : isDark
-                ? "bg-white/5 border-white/10"
+                ? "bg-white/8 border-white/13"
                 : "bg-gray-50 border-gray-200"
           }`}
         >
@@ -381,7 +355,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
             </p>
             <p
               className={`text-xs mt-0.5 ${
-                isDark ? "text-gray-500" : "text-gray-500"
+                isDark ? "text-gray-300" : "text-gray-500"
               }`}
             >
               {watch("is_public")
@@ -416,7 +390,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
         <label
           htmlFor="description"
           className={`block text-xs uppercase tracking-wider font-bold mb-2 ${
-            isDark ? "text-gray-500" : "text-gray-400"
+            isDark ? "text-gray-300" : "text-gray-400"
           }`}
         >
           Description
@@ -428,7 +402,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
           placeholder="Detailed description of the asset, features, and use cases..."
           className={`w-full px-4 py-3 rounded-lg border transition-all outline-none resize-none ${
             isDark
-              ? "bg-white/5 border-white/10 text-white placeholder-gray-500 focus:border-cyan-500/30 focus:bg-white/10"
+              ? "bg-white/8 border-white/13 text-white placeholder-gray-400 focus:border-cyan-500/30 focus:bg-white/12"
               : "bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
           }`}
         />
@@ -439,7 +413,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
         <label
           htmlFor="features"
           className={`block text-xs uppercase tracking-wider font-bold mb-2 ${
-            isDark ? "text-gray-500" : "text-gray-400"
+            isDark ? "text-gray-300" : "text-gray-400"
           }`}
         >
           Key Features (One per line)
@@ -451,7 +425,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
           placeholder="Automated reporting&#10;Multi-currency support&#10;Budget vs Actual..."
           className={`w-full px-4 py-3 rounded-lg border transition-all outline-none resize-none ${
             isDark
-              ? "bg-white/5 border-white/10 text-white placeholder-gray-500 focus:border-cyan-500/30 focus:bg-white/10"
+              ? "bg-white/8 border-white/13 text-white placeholder-gray-400 focus:border-cyan-500/30 focus:bg-white/12"
               : "bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
           }`}
         />
@@ -461,7 +435,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
         <label
           htmlFor="requirements"
           className={`block text-xs uppercase tracking-wider font-bold mb-2 ${
-            isDark ? "text-gray-500" : "text-gray-400"
+            isDark ? "text-gray-300" : "text-gray-400"
           }`}
         >
           Technical Requirements (One per line)
@@ -473,7 +447,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
           placeholder="Excel 2016 or higher&#10;Windows 10+&#10;Macros enabled..."
           className={`w-full px-4 py-3 rounded-lg border transition-all outline-none resize-none ${
             isDark
-              ? "bg-white/5 border-white/10 text-white placeholder-gray-500 focus:border-cyan-500/30 focus:bg-white/10"
+              ? "bg-white/8 border-white/13 text-white placeholder-gray-400 focus:border-cyan-500/30 focus:bg-white/12"
               : "bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
           }`}
         />
@@ -485,10 +459,10 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
           <label
             htmlFor="tags"
             className={`block text-xs uppercase tracking-wider font-bold mb-2 ${
-              isDark ? "text-gray-500" : "text-gray-400"
+              isDark ? "text-gray-300" : "text-gray-400"
             }`}
           >
-            Search Tags (One per line)
+            MagnifyingGlass Tags (One per line)
           </label>
           <textarea
             id="tags"
@@ -497,7 +471,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
             placeholder="Finanzas&#10;Excel&#10;Automatización..."
             className={`w-full px-4 py-3 rounded-lg border transition-all outline-none resize-none ${
               isDark
-                ? "bg-white/5 border-white/10 text-white placeholder-gray-500 focus:border-cyan-500/30 focus:bg-white/10"
+                ? "bg-white/8 border-white/13 text-white placeholder-gray-400 focus:border-cyan-500/30 focus:bg-white/12"
                 : "bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
             }`}
           />
@@ -506,7 +480,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
           <label
             htmlFor="technical_stack"
             className={`block text-xs uppercase tracking-wider font-bold mb-2 ${
-              isDark ? "text-gray-500" : "text-gray-400"
+              isDark ? "text-gray-300" : "text-gray-400"
             }`}
           >
             Technical Stack (One per line)
@@ -518,7 +492,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
             placeholder="VBA&#10;TypeScript&#10;PostgreSQL..."
             className={`w-full px-4 py-3 rounded-lg border transition-all outline-none resize-none ${
               isDark
-                ? "bg-white/5 border-white/10 text-white placeholder-gray-500 focus:border-cyan-500/30 focus:bg-white/10"
+                ? "bg-white/8 border-white/13 text-white placeholder-gray-400 focus:border-cyan-500/30 focus:bg-white/12"
                 : "bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
             }`}
           />
@@ -528,38 +502,53 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
       {/* Minimum Plan Tier */}
       <div>
         <label
-          htmlFor="min_plan_tier"
-          className={`block text-xs uppercase tracking-wider font-bold mb-2 ${
-            isDark ? "text-gray-500" : "text-gray-400"
+          className={`block text-xs uppercase tracking-wider font-bold mb-3 ${
+            isDark ? "text-gray-300" : "text-gray-500"
           }`}
         >
           Minimum Required Plan Tier
         </label>
-        <div className="flex items-center gap-4">
-          <input
-            id="min_plan_tier"
-            type="range"
-            min="0"
-            max="4"
-            step="1"
-            {...register("min_plan_tier", { valueAsNumber: true })}
-            className="flex-1 accent-cyan-500"
-          />
-          <div
-            className={`px-4 py-2 rounded-lg font-bold border ${
-              isDark
-                ? "bg-white/5 border-white/10 text-cyan-400"
-                : "bg-gray-100 border-gray-200 text-blue-600"
-            }`}
-          >
-            Level {watch("min_plan_tier")}
-          </div>
+        <div className="grid grid-cols-5 gap-1.5">
+          {(
+            [
+              { value: 0, label: "Free", sub: "All users" },
+              { value: 1, label: "Basic", sub: "Tier 1" },
+              { value: 2, label: "Pro", sub: "Tier 2" },
+              { value: 3, label: "Enterprise", sub: "Tier 3" },
+              { value: 4, label: "Private", sub: "Restricted" },
+            ] as const
+          ).map((tier) => {
+            const selected = watch("min_plan_tier") === tier.value;
+            return (
+              <button
+                key={tier.value}
+                type="button"
+                onClick={() => setValue("min_plan_tier", tier.value)}
+                className={`flex flex-col items-center gap-0.5 py-2.5 px-1 rounded-lg border text-center transition-all duration-150 cursor-pointer ${
+                  selected
+                    ? isDark
+                      ? "bg-cyan-500/15 border-cyan-500/40 text-cyan-300"
+                      : "bg-cyan-50 border-cyan-400 text-cyan-700"
+                    : isDark
+                      ? "bg-white/4 border-white/8 text-gray-400 hover:border-white/15 hover:text-gray-200"
+                      : "bg-white border-gray-200 text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                }`}
+              >
+                <span className={`text-[11px] font-bold leading-none ${selected ? "" : ""}`}>
+                  {tier.label}
+                </span>
+                <span className={`text-[9px] leading-none mt-0.5 ${
+                  selected
+                    ? isDark ? "text-cyan-400/70" : "text-cyan-500/80"
+                    : isDark ? "text-gray-600" : "text-gray-400"
+                }`}>
+                  {tier.sub}
+                </span>
+              </button>
+            );
+          })}
         </div>
-        <p
-          className={`text-[10px] mt-2 ml-1 ${isDark ? "text-gray-600" : "text-gray-400"}`}
-        >
-          0: Free/All, 1: Basic, 2: Pro, 3: Enterprise, 4: Private
-        </p>
+        <input type="hidden" {...register("min_plan_tier", { valueAsNumber: true })} />
       </div>
     </div>
   );

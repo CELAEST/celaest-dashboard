@@ -8,6 +8,9 @@ export function useDashboardStats(token: string | null, orgId: string | null, pe
     queryFn: () => analyticsApi.getDashboardStats(token!, orgId!, period),
     enabled: !!token && !!orgId,
     staleTime: 60 * 1000, // 1 minute
+    // WebSocket invalidations drive updates — don't blindly refetch on every remount.
+    // Only refetch on mount if the data is actually stale (covered by staleTime).
+    refetchOnMount: true,
   });
 }
 
@@ -16,7 +19,8 @@ export function useSalesByPeriod(token: string | null, orgId: string | null, per
     queryKey: QUERY_KEYS.analytics.sales(orgId || "", period),
     queryFn: () => analyticsApi.getSalesByPeriod(token!, orgId!, period),
     enabled: !!token && !!orgId,
-    staleTime: 60 * 1000,
+    staleTime: 5 * 60 * 1000, // 5 min — sales chart updates less frequently
+    refetchOnMount: true,
   });
 }
 
@@ -26,6 +30,7 @@ export function useROIMetrics(token: string | null, orgId: string | null, period
     queryFn: () => analyticsApi.getROI(token!, orgId!, period),
     enabled: !!token && !!orgId,
     staleTime: 60 * 1000,
+    refetchOnMount: true,
   });
 }
 
@@ -35,6 +40,7 @@ export function useUsageReport(token: string | null, orgId: string | null, perio
     queryFn: () => analyticsApi.getUsageReport(token!, orgId!, period),
     enabled: !!token && !!orgId,
     staleTime: 60 * 1000,
+    refetchOnMount: true,
   });
 }
 
@@ -44,6 +50,7 @@ export function useCategoryDistribution(token: string | null, orgId: string | nu
     queryFn: () => analyticsApi.getCategoryDistribution(token!, orgId!),
     enabled: !!token && !!orgId,
     staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnMount: true,
   });
 }
 
@@ -52,7 +59,10 @@ export function useLiveFeed(token: string | null, orgId: string | null) {
     queryKey: QUERY_KEYS.analytics.liveFeed(orgId || ""),
     queryFn: () => analyticsApi.getLiveFeed(token!, orgId!),
     enabled: !!token && !!orgId,
-    staleTime: 10 * 1000,
-    // Polling removed: Real-time via WebSockets integrated in useRealtimeDashboard
+    // Real-time updates come through WebSocket (useRealtimeDashboard).
+    // Do NOT poll: staleTime Infinity means this query only re-fetches when
+    // explicitly invalidated via queryClient.invalidateQueries().
+    staleTime: Infinity,
+    refetchOnMount: true,
   });
 }

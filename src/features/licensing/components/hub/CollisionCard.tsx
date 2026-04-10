@@ -1,5 +1,5 @@
 import React from "react";
-import { ShieldAlert } from "lucide-react";
+import { ShieldWarning } from "@phosphor-icons/react";
 import { motion } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import type { IPBinding } from "@/features/licensing/types";
@@ -45,7 +45,7 @@ export const CollisionCard: React.FC<CollisionCardProps> = ({
                 : "bg-rose-50 text-rose-600"
             }`}
           >
-            <ShieldAlert size={32} />
+            <ShieldWarning size={32} />
           </div>
           <div>
             <div className="flex items-center gap-3">
