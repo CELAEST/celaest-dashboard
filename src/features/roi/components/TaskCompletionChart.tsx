@@ -71,10 +71,20 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
   return null;
 };
 
+interface GlowBarProps {
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  fill?: string;
+  isActive?: boolean;
+  index?: number;
+}
+
 /* Custom bar shape with subtle glow on hover */
-const GlowBar = (props: any) => {
+const GlowBar = (props: GlowBarProps) => {
   const { x, y, width, height, fill, isActive } = props;
-  if (!width || !height || height <= 0) return null;
+  if (x === undefined || y === undefined || !width || !height || height <= 0) return null;
   const rx = Math.min(6, width / 2);
   return (
     <g>
@@ -164,7 +174,7 @@ export const TaskCompletionChart = React.memo(
                 margin={{ top: 12, right: 8, left: -18, bottom: 0 }}
                 maxBarSize={44}
                 barCategoryGap="18%"
-                onMouseMove={(state: any) => {
+                onMouseMove={(state: { activeTooltipIndex?: number } | undefined) => {
                   if (state?.activeTooltipIndex !== undefined) {
                     setActiveIdx(state.activeTooltipIndex);
                   }
@@ -222,7 +232,7 @@ export const TaskCompletionChart = React.memo(
                 />
                 <Bar
                   dataKey="tasks"
-                  shape={(props: any) => (
+                  shape={(props: GlowBarProps) => (
                     <GlowBar
                       {...props}
                       fill={isDark ? "url(#barGradDarkRoi)" : "url(#barGradLightRoi)"}

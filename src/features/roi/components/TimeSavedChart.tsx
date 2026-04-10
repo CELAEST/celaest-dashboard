@@ -70,8 +70,14 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
   return null;
 };
 
+interface GlowActiveDotProps {
+  cx?: number;
+  cy?: number;
+  fill?: string;
+}
+
 /* Custom active dot with glow */
-const GlowActiveDot = (props: any) => {
+const GlowActiveDot = (props: GlowActiveDotProps) => {
   const { cx, cy, fill } = props;
   if (cx == null || cy == null) return null;
   return (

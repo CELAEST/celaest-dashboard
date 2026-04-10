@@ -67,6 +67,7 @@ export const UserActionModal: React.FC<UserActionModalProps> = ({
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
@@ -95,7 +96,7 @@ export const UserActionModal: React.FC<UserActionModalProps> = ({
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ type: "spring", duration: 0.5 }}
-              className={`pointer-events-auto w-[28rem] min-w-[320px] sm:min-w-[28rem] max-w-[90vw] shrink-0 overflow-hidden rounded-2xl border shadow-2xl relative ${
+              className={`pointer-events-auto w-112 min-w-[320px] sm:min-w-112 max-w-[90vw] shrink-0 overflow-hidden rounded-2xl border shadow-2xl relative ${
                 isDark
                   ? "bg-[#0a0a0a]/90 border-white/10"
                   : "bg-white/90 border-white/20"

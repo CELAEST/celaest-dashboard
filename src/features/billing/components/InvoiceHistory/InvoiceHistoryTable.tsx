@@ -66,6 +66,7 @@ const DownloadActionCell: React.FC<{
       previousDownloadingIdRef.current === actionId &&
       downloadingId === null
     ) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsSuccess(true);
     }
 

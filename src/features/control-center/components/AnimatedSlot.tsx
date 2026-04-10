@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import { ReactNode, useRef } from "react";
+import { ReactNode, useState } from "react";
 
 interface AnimatedSlotProps {
   /** The current active key — changing this triggers the enter/exit animation. */
@@ -32,9 +32,9 @@ const FrozenSlot = ({
   tabKey: string;
   render: (key: string) => ReactNode;
 }) => {
-  // useRef initialValue is only used on the FIRST render of this component
-  // instance. Subsequent re-renders return the same ref with the frozen value.
-  const frozenKey = useRef(tabKey).current;
+  // useState initialValue is only used on the FIRST render of this component
+  // instance. Subsequent re-renders return the same state with the frozen value.
+  const [frozenKey] = useState(tabKey);
   return (
     <motion.div
       initial={{ opacity: 0 }}

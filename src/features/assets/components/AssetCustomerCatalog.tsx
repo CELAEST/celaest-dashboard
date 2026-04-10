@@ -35,7 +35,7 @@ export const AssetCustomerCatalog: React.FC<
   }, [assets]);
 
   // Refresh on mount ONLY (sin dependencias para evitar loop infinito)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   React.useEffect(() => {
     refresh();
   }, []);
