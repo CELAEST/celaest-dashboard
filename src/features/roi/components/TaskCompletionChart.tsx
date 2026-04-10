@@ -174,9 +174,10 @@ export const TaskCompletionChart = React.memo(
                 margin={{ top: 12, right: 8, left: -18, bottom: 0 }}
                 maxBarSize={44}
                 barCategoryGap="18%"
-                onMouseMove={(state: { activeTooltipIndex?: number } | undefined) => {
-                  if (state?.activeTooltipIndex !== undefined) {
-                    setActiveIdx(state.activeTooltipIndex);
+                onMouseMove={(state: unknown) => {
+                  const s = state as { activeTooltipIndex?: number } | undefined;
+                  if (s?.activeTooltipIndex !== undefined) {
+                    setActiveIdx(s.activeTooltipIndex);
                   }
                 }}
                 onMouseLeave={() => setActiveIdx(null)}
@@ -232,11 +233,11 @@ export const TaskCompletionChart = React.memo(
                 />
                 <Bar
                   dataKey="tasks"
-                  shape={(props: GlowBarProps) => (
+                  shape={(props: unknown) => (
                     <GlowBar
-                      {...props}
+                      {...(props as GlowBarProps)}
                       fill={isDark ? "url(#barGradDarkRoi)" : "url(#barGradLightRoi)"}
-                      isActive={activeIdx === props.index}
+                      isActive={activeIdx === (props as GlowBarProps).index}
                     />
                   )}
                   animationDuration={800}
