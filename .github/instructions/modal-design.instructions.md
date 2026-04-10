@@ -5,19 +5,20 @@ applyTo: "**/features/**/components/modals/**"
 # Modal Design System — Celaest Dashboard
 
 ## Regla fundamental
+
 Cada feature tiene **UN único color de acento**. Ese color se aplica de forma consistente en todo el modal: header, footer, botones, badges, bordes. **Nunca mezclar dos colores de acento en el mismo modal**.
 
 ---
 
 ## Mapa global de colores por feature
 
-| Feature | Color Tailwind | RGB para inline styles |
-|---|---|---|
-| `marketplace` | `emerald` (verde) | `rgba(16,185,129,…)` |
-| `assets` | `blue` (azul) | `rgba(59,130,246,…)` |
-| `releases` | `violet` (violeta) | `rgba(139,92,246,…)` |
-| `licensing` | `amber` (dorado) | `rgba(245,158,11,…)` |
-| `billing` | `purple` (morado) | `rgba(168,85,247,…)` |
+| Feature       | Color Tailwind         | RGB para inline styles |
+| ------------- | ---------------------- | ---------------------- |
+| `marketplace` | `emerald` (verde)      | `rgba(16,185,129,…)`   |
+| `assets`      | `blue` (azul)          | `rgba(59,130,246,…)`   |
+| `releases`    | `violet` (violeta)     | `rgba(139,92,246,…)`   |
+| `licensing`   | `amber` (dorado)       | `rgba(245,158,11,…)`   |
+| `billing`     | `teal` (verde azulado) | `rgba(20,184,166,…)`   |
 
 Al crear un modal en una feature nueva, asignarle un color que **no esté en esta tabla** y añadirlo aquí.
 
@@ -28,7 +29,12 @@ Al crear un modal en una feature nueva, asignarle un color que **no esté en est
 El wrapper ya está implementado en `BillingModal` (`src/features/billing/components/modals/shared/BillingModal.tsx`). **Siempre usar `<BillingModal>` como wrapper externo**; nunca reimplementar portales ni AnimatePresence.
 
 ```tsx
-<BillingModal isOpen={isOpen} onClose={onClose} className="max-w-{N}" showCloseButton={false}>
+<BillingModal
+  isOpen={isOpen}
+  onClose={onClose}
+  className="max-w-{N}"
+  showCloseButton={false}
+>
   {/* 1. Línea de acento superior */}
   {/* 2. Corner glow */}
   {/* 3. Header */}
@@ -57,7 +63,8 @@ El wrapper ya está implementado en `BillingModal` (`src/features/billing/compon
     right: 0,
     width: "22rem",
     height: "22rem",
-    background: "radial-gradient(circle at top right, rgba({RGB},0.06), transparent 70%)",
+    background:
+      "radial-gradient(circle at top right, rgba({RGB},0.06), transparent 70%)",
     pointerEvents: "none",
     zIndex: 0,
   }}
@@ -77,7 +84,8 @@ El wrapper ya está implementado en `BillingModal` (`src/features/billing/compon
     style={{
       position: "absolute",
       inset: 0,
-      backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px)",
+      backgroundImage:
+        "radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px)",
       backgroundSize: "20px 20px",
       pointerEvents: "none",
     }}
@@ -91,14 +99,21 @@ El wrapper ya está implementado en `BillingModal` (`src/features/billing/compon
       <PhosphorIcon size={22} />
     </div>
     <div>
-      <h2 className="text-xl font-black italic tracking-tighter text-white uppercase">Título</h2>
-      <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40">Subtítulo</p>
+      <h2 className="text-xl font-black italic tracking-tighter text-white uppercase">
+        Título
+      </h2>
+      <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40">
+        Subtítulo
+      </p>
     </div>
   </div>
 
   {/* Close button */}
   <div className="relative z-10">
-    <button onClick={onClose} className="p-2 rounded-full transition-colors text-gray-400 hover:text-white hover:bg-white/10">
+    <button
+      onClick={onClose}
+      className="p-2 rounded-full transition-colors text-gray-400 hover:text-white hover:bg-white/10"
+    >
       <X size={22} />
     </button>
   </div>
@@ -116,19 +131,26 @@ El wrapper ya está implementado en `BillingModal` (`src/features/billing/compon
 ```
 
 ### Inputs / campos
+
 ```tsx
 <input className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-white text-sm focus:outline-none focus:border-{color}-500/50 focus:ring-1 focus:ring-{color}-500/20 transition-colors placeholder:text-white/20" />
 ```
 
 ### Labels sobre campos
+
 ```tsx
-<label className="text-[10px] uppercase font-black tracking-widest text-white/40">Label</label>
+<label className="text-[10px] uppercase font-black tracking-widest text-white/40">
+  Label
+</label>
 ```
 
 ### Secciones internas
+
 ```tsx
 <div className="space-y-3">
-  <h3 className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/30">Sección</h3>
+  <h3 className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/30">
+    Sección
+  </h3>
   {/* contenido */}
 </div>
 ```
@@ -151,7 +173,8 @@ El footer tiene su propio mini acento superior y glow inferior. **Mismo color qu
       left: 0,
       width: "18rem",
       height: "8rem",
-      background: "radial-gradient(circle at bottom left, rgba({RGB},0.07), transparent 70%)",
+      background:
+        "radial-gradient(circle at bottom left, rgba({RGB},0.07), transparent 70%)",
       pointerEvents: "none",
     }}
   />
@@ -182,8 +205,13 @@ Para modales de detalle que muestran metadata en el footer:
   <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-{color}-500/50 to-transparent" />
   <div
     style={{
-      position: "absolute", bottom: 0, left: 0, width: "16rem", height: "7rem",
-      background: "radial-gradient(circle at bottom left, rgba({RGB},0.07), transparent 70%)",
+      position: "absolute",
+      bottom: 0,
+      left: 0,
+      width: "16rem",
+      height: "7rem",
+      background:
+        "radial-gradient(circle at bottom left, rgba({RGB},0.07), transparent 70%)",
       pointerEvents: "none",
     }}
   />
@@ -193,7 +221,9 @@ Para modales de detalle que muestran metadata en el footer:
         <PhosphorIcon size={14} />
       </div>
       <div>
-        <p className="text-[9px] font-mono uppercase tracking-[0.2em] text-white/30 mb-0.5">Label</p>
+        <p className="text-[9px] font-mono uppercase tracking-[0.2em] text-white/30 mb-0.5">
+          Label
+        </p>
         <p className="text-sm font-mono text-white/60 tracking-wider">valor</p>
       </div>
     </div>

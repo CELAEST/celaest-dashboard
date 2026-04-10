@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { InvoiceHistoryTable } from "./InvoiceHistory/InvoiceHistoryTable";
 import { useInvoicesQuery } from "../hooks/useInvoicesQuery";
-import { CircleNotch } from "@phosphor-icons/react";
+import { TableSkeleton } from "@/components/ui/skeletons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 import { useOrgStore } from "@/features/shared/stores/useOrgStore";
@@ -74,13 +74,13 @@ export const InvoiceHistory: React.FC = () => {
   if (isLoading) {
     return (
       <div
-        className={`flex-1 overflow-hidden flex flex-col rounded-2xl p-8 items-center justify-center ${
+        className={`flex-1 overflow-hidden flex flex-col rounded-2xl p-4 ${
           isDark
             ? "bg-black/40 backdrop-blur-xl border border-white/10"
             : "bg-white border border-gray-200 shadow-sm"
         }`}
       >
-        <CircleNotch className="w-8 h-8 animate-spin text-blue-500" />
+        <TableSkeleton rows={6} columns={4} />
       </div>
     );
   }

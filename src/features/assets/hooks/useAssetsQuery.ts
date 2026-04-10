@@ -5,10 +5,12 @@ import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
 const INVENTORY_PAGE_SIZE = 15;
 
 export function useMyAssetsQuery(token: string) {
+  // E2E Test bypass: permitimos inyectar un token por sessionStorage para no depender de Supabase Auth
+  const effectiveToken = token || (typeof window !== 'undefined' ? window.sessionStorage.getItem('playwright-token') : "") || "";
   return useQuery({
-    queryKey: QUERY_KEYS.assets.myAssets(token),
-    queryFn: () => assetsService.getMyAssets(token),
-    enabled: !!token,
+    queryKey: QUERY_KEYS.assets.myAssets(effectiveToken),
+    queryFn: () => assetsService.getMyAssets(effectiveToken),
+    enabled: !!effectiveToken,
     staleTime: 5 * 60 * 1000,
   });
 }

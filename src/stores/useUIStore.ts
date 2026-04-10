@@ -25,7 +25,7 @@ export const useUIStore = create<UIState>()(
       // Defaults
       navbarSearchVisible: false,
       searchQuery: '',
-      theme: 'system',
+      theme: 'dark',
       isMounted: false,
 
       // Actions

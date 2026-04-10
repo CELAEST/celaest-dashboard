@@ -1,29 +1,64 @@
 import { test, expect } from '@playwright/test';
+import { setupAuthenticatedSession } from './fixtures';
 
-test.describe('Flujo de Facturación y Licenciamiento', () => {
-  test('La página principal carga y muestra opciones de autenticación', async ({ page }) => {
-    // Navigate to root
-    await page.goto('/');
+/**
+ * Billing & Subscription E2E Tests
+ *
+ * Validates:
+ *   1. Root page loads (auth redirect or dashboard)
+ *   2. Billing tab renders structural elements
+ */
 
-    // Check if redirect to login or dashboard happens
-    // Wait for network idle or main container
-    await page.waitForLoadState('networkidle');
+test.describe('Billing — UI Smoke Tests', () => {
 
-    // Basic assertions
-    await expect(page.locator('body')).toBeVisible();
-    
-    // Check for login forms or dashboard elements
-    const emailInput = page.getByPlaceholder(/email@/i).or(page.getByRole('textbox', { name: "email" }));
-    if (await emailInput.count() > 0) {
-      await expect(emailInput.first()).toBeVisible();
-    }
+  test.beforeEach(async ({ page, context }) => {
+    await setupAuthenticatedSession(page, context);
   });
 
-  test('El entorno de la tienda se renderiza estructuralmente', async ({ page }) => {
-    // A mock test that demonstrates URL reachability
-    await page.goto('/dashboard/marketplace');
-    
-    // We expect NextJS to either render the marketplace or redirect to login
+  test('Root page loads and shows either auth form or dashboard', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
     await expect(page.locator('body')).toBeVisible();
+
+    // Check for login form OR dashboard content
+    const emailInput = page.getByPlaceholder(/email/i)
+      .or(page.getByRole('textbox', { name: /email/i }));
+    const dashboardContent = page.locator('button').first();
+
+    // At least ONE of these should be visible (either auth or dashboard)
+    const hasEmailInput = await emailInput.count() > 0;
+    const hasDashboard = await dashboardContent.count() > 0;
+    expect(hasEmailInput || hasDashboard).toBe(true);
+  });
+
+  test('Billing tab renders without crashing', async ({ page }) => {
+    // Mock billing endpoints
+    await page.route('**/api/v1/billing/subscriptions*', route => route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ status: "success", data: { subscriptions: [] } }),
+    }));
+
+    await page.route('**/api/v1/billing/invoices*', route => route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ status: "success", data: { invoices: [] } }),
+    }));
+
+    await page.route('**/api/v1/billing/plans*', route => route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ status: "success", data: { plans: [] } }),
+    }));
+
+    await page.goto('/?tab=billing');
+    await page.waitForLoadState('domcontentloaded');
+
+    await expect(page.locator('body')).toBeVisible();
+
+    // No Next.js error overlay should be present
+    const errorOverlay = page.locator('nextjs-portal');
+    await expect(errorOverlay).toHaveCount(0);
   });
 });

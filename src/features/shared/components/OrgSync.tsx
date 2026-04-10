@@ -8,6 +8,7 @@ import { socket } from "@/lib/socket-client";
 import { toast } from "sonner";
 import { decodeJWT } from "@/lib/jwt";
 import { useQueryClient } from "@tanstack/react-query";
+import { logger } from "@/lib/logger";
 import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
 
 /**
@@ -150,7 +151,7 @@ export const OrgSync = () => {
             (o) => o.id === payload.organization_id,
           );
           if (newOrg) {
-            console.log(
+            logger.debug(
               "[OrgSync] Workspace updated from another tab/session. Syncing...",
             );
             setCurrentOrg(newOrg);
@@ -178,7 +179,7 @@ export const OrgSync = () => {
           action?: string;
           plan_id?: string;
         };
-        console.log(
+        logger.debug(
           `[OrgSync] Organization updated (${payload.action || "general"}). Refetching context...`,
         );
 
@@ -221,7 +222,7 @@ export const OrgSync = () => {
       if (!token || isRedirecting.current) return;
 
       isRedirecting.current = true;
-      console.warn(
+      logger.warn(
         "[OrgSync] 🚨 NUCLEAR RECOVERY TRIGGERED. Revoked ID detected.",
       );
 

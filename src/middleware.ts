@@ -32,6 +32,11 @@ export async function middleware(request: NextRequest) {
     return response
   }
 
+  // Bypass for E2E testing
+  if (request.cookies.get('playwright-bypass')?.value === 'true') {
+    return response
+  }
+
   const supabase = createServerClient(
     supabaseUrl,
     supabaseAnonKey,

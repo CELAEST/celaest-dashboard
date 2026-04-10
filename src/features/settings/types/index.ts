@@ -155,6 +155,7 @@ export interface SettingsModalProps {
   onClose: () => void;
   title: string;
   children: React.ReactNode;
+  className?: string;
 }
 
 // ============================================

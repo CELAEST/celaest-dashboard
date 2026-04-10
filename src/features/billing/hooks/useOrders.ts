@@ -5,8 +5,6 @@ import { OrdersPage } from "../services/orders.service";
 import { toast } from "sonner";
 import { useApiAuth } from "@/lib/use-api-auth";
 import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
-import { socket } from "@/lib/socket-client";
-import { useEffect } from "react";
 
 const PAGE_SIZE = 15;
 
@@ -14,33 +12,7 @@ export const useOrders = () => {
   const { token, orgId, isReady } = useApiAuth();
   const queryClient = useQueryClient();
 
-  // Real-time synchronization for Orders Hub
-  useEffect(() => {
-    if (!token) return;
 
-    const handler = () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.billing.all });
-    };
-
-    const unsubscribers = [
-      // Order lifecycle events
-      socket.on("order.created", handler),
-      socket.on("order.updated", handler),
-      socket.on("order.paid", handler),
-      socket.on("order.cancelled", handler),
-      socket.on("order.refunded", handler),
-      socket.on("order.completed", handler),
-      socket.on("order.deleted", handler),
-      // Invoice events that affect order state
-      socket.on("invoice.voided", handler),
-      socket.on("invoice.generated", handler),
-      socket.on("invoice.paid", handler),
-    ];
-
-    return () => {
-      unsubscribers.forEach((unsub) => unsub());
-    };
-  }, [token, queryClient]);
 
   const {
     data,

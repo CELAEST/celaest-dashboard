@@ -65,7 +65,7 @@ export default function RootLayout({
               (function() {
                 try {
                   var uiStore = JSON.parse(localStorage.getItem('ui-storage'));
-                  var theme = uiStore ? uiStore.state.theme : 'system';
+                  var theme = uiStore ? uiStore.state.theme : 'dark';
                   var isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
                   if (isDark) {
                     document.documentElement.classList.add('dark');

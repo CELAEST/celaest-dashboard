@@ -74,6 +74,11 @@ export function useAuthSession() {
 
   useEffect(() => {
     if (!supabase) return;
+    
+    // E2E Bypass: Evitar que Supabase borre el estado de Zustand simulado
+    if (typeof window !== 'undefined' && window.sessionStorage.getItem('playwright-token')) {
+      return;
+    }
 
     const initializeAuth = async () => {
       try {

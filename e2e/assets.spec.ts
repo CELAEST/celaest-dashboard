@@ -1,26 +1,50 @@
 import { test, expect } from '@playwright/test';
+import { setupAuthenticatedSession } from './fixtures';
 
-test.describe('Asset Manager - Flujo de Archivos', () => {
-  test('El portal de administración de Assets carga la UI', async ({ page }) => {
-    // Navigate to the assets portal
-    await page.goto('/dashboard/assets');
+/**
+ * Asset Manager E2E Tests
+ *
+ * Validates:
+ *   1. Asset Manager tab loads without crashing
+ *   2. Inventory grid renders in the DOM
+ */
 
-    await page.waitForLoadState('networkidle');
+test.describe('Asset Manager — UI Smoke Tests', () => {
 
-    // Structural Test: Ensure Next.js doesn't crash throwing 500s 
+  test.beforeEach(async ({ page, context }) => {
+    await setupAuthenticatedSession(page, context);
+  });
+
+  test('Asset Manager view loads and renders interactive elements', async ({ page }) => {
+    await page.goto('/?tab=catalog');
+    await page.waitForLoadState('domcontentloaded');
+
     await expect(page.locator('body')).toBeVisible();
 
-    // Verify basic HTML elements are alive
+    // Verify at least one interactive element rendered
     const buttons = page.locator('button');
     if (await buttons.count() > 0) {
       await expect(buttons.first()).toBeVisible();
     }
   });
 
-  test('La tabla o grilla de inventario se monta en el DOM', async ({ page }) => {
-    await page.goto('/dashboard/assets/library');
+  test('Asset inventory section mounts in the DOM', async ({ page }) => {
+    // Mock inventory endpoint
+    await page.route('**/api/v1/assets/inventory*', route => route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        status: "success",
+        data: { assets: [], total: 0, page: 1, page_size: 20 },
+      }),
+    }));
+
+    await page.goto('/?tab=catalog');
     await page.waitForLoadState('domcontentloaded');
-    
+
     await expect(page.locator('body')).toBeVisible();
+
+    // The page should render without Next.js error overlays
+    await expect(page.locator('#__next')).toBeVisible();
   });
 });

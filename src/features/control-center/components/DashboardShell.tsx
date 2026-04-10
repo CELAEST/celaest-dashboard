@@ -1,12 +1,19 @@
 "use client";
 
-import { useState, useSyncExternalStore, useEffect, startTransition } from "react";
+import {
+  useState,
+  useSyncExternalStore,
+  useEffect,
+  startTransition,
+} from "react";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 import { motion } from "motion/react";
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
 import { useSearchParams } from "next/navigation";
+import { logger } from "@/lib/logger";
+import { ConnectionBanner } from "@/components/ui/ConnectionBanner";
 
 // Shared components
 import { Header } from "@/features/shared/components/Header";
@@ -63,13 +70,15 @@ export function DashboardShell() {
   useEffect(() => {
     if (!wasRevoked) return;
     if (currentOrg) {
-      console.log("[DashboardShell] Org recovered:", currentOrg.slug);
+      logger.debug("[DashboardShell] Org recovered:", currentOrg.slug);
       startTransition(() => setWasRevoked(false));
       return;
     }
     // Safety: never block more than 5 seconds regardless of fetchOrgs outcome
     const t = setTimeout(() => {
-      console.warn("[DashboardShell] wasRevoked timeout — releasing spinner. currentOrg still null.");
+      logger.warn(
+        "[DashboardShell] wasRevoked timeout — releasing spinner. currentOrg still null.",
+      );
       setWasRevoked(false);
     }, 5000);
     return () => clearTimeout(t);
@@ -101,16 +110,8 @@ export function DashboardShell() {
   // 2. URL still has ?revoked=true (isRevokedLanding)
   // 3. wasRevoked=true but currentOrg not yet recovered (fetchOrgs in-flight)
   const isRecoveringOrg = wasRevoked && !currentOrg;
-  if (!mounted || isLoading || isRevokedLanding || isRecoveringOrg) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#020202]">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="w-8 h-8 border-[3px] rounded-full border-gray-600 border-t-white"
-        />
-      </div>
-    );
+  if (isRevokedLanding || isRecoveringOrg) {
+    return null;
   }
 
   if (showAuthPage) {
@@ -119,21 +120,16 @@ export function DashboardShell() {
 
   return (
     <div
-      className={`min-h-screen w-full font-sans selection:bg-white/20 selection:text-white overflow-x-hidden transition-colors duration-500 ${
-        isDark ? "bg-[#020202] text-white" : "bg-[#F5F7FA] text-gray-900"
-      }`}
+      className="min-h-screen w-full font-sans selection:bg-white/20 selection:text-white overflow-x-hidden transition-colors duration-500 bg-[#F5F7FA] text-gray-900 dark:bg-[#020202] dark:text-white"
     >
       {/* Background with Overlay */}
       <div className="fixed inset-0 z-0 pointer-events-none">
-        {isDark && (
-          <>
-            <div className="absolute inset-0 bg-[#020202] z-10" />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-white/3 via-transparent to-transparent z-10" />
-          </>
-        )}
-        {!isDark && (
-          <div className="absolute inset-0 bg-linear-to-br from-blue-50 to-white z-10" />
-        )}
+        {/* En Light Mode se muestra el gradiente azulado. En Dark Mode se oculta y en su lugar se pinta el fondo negro puro. */}
+        <div className="absolute inset-0 bg-linear-to-br from-blue-50 to-white dark:hidden z-10" />
+        <div className="absolute inset-0 hidden dark:block bg-[#020202] z-10" />
+        
+        {/* El gradiente radial solo es visible en Dark Mode */}
+        <div className="absolute inset-0 hidden dark:block bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-white/3 via-transparent to-transparent z-10" />
 
         <motion.div
           className="absolute inset-0 z-0 will-change-transform"
@@ -150,18 +146,12 @@ export function DashboardShell() {
         >
           <ImageWithFallback
             src="https://images.unsplash.com/photo-1647356161576-4e80c6619a0e?crop=entropy&cs=tinysrgb&fit=max&fm=webp&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMGRhcmslMjBibHVlJTIwbmV1cmFsJTIwbmV0d29yayUyMGNvbnN0ZWxsYXRpb24lMjBiYWNrZ3JvdW5kfGVufDF8fHx8MTc2ODU3Njg3OHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-            className={`w-full h-full object-cover mix-blend-screen transition-opacity duration-500 ${
-              isDark ? "opacity-40" : "opacity-10 mix-blend-normal"
-            }`}
+            className="w-full h-full object-cover transition-opacity duration-500 opacity-10 mix-blend-normal dark:mix-blend-screen dark:opacity-40"
             alt="background"
           />
         </motion.div>
         {/* Subtle grid overlay */}
-        <div
-          className={`absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] z-20 mix-blend-overlay ${
-            isDark ? "opacity-20" : "opacity-5"
-          }`}
-        ></div>
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] z-20 mix-blend-overlay opacity-5 dark:opacity-20" />
       </div>
 
       <AppSidebar
@@ -171,10 +161,15 @@ export function DashboardShell() {
         onShowLogin={() => setShowLoginModal(true)}
       />
 
+      <ConnectionBanner />
+
       <div className="pl-[80px] w-full min-w-full relative z-10 transition-all duration-300 h-screen flex flex-col">
         <Header onShowLogin={() => setShowLoginModal(true)} />
 
-        <main className="flex-1 w-full min-w-0 overflow-y-auto p-3 scroll-smooth">
+        <main
+          aria-label="Contenido principal del dashboard"
+          className="flex-1 w-full min-w-0 overflow-y-auto p-3 scroll-smooth"
+        >
           <AnimatedSlot
             activeKey={activeTab}
             render={(key) => (

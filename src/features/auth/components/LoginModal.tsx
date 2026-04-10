@@ -90,6 +90,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 
               <button
                 onClick={onClose}
+                aria-label="Cerrar modal de inicio de sesión"
                 className={`absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-xl transition-colors ${
                   isDark
                     ? "bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white"

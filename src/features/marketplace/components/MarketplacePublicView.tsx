@@ -44,7 +44,10 @@ export function MarketplacePublicView() {
     setDetailProduct(product);
   };
 
-  const handlePurchaseAction = () => {
+  const handlePurchaseAction = (product?: MarketplaceProduct) => {
+    if (product) {
+      sessionStorage.setItem("pending_purchase_modal_id", product.id);
+    }
     // En público, adquirir redirige a login
     setShowLoginModal(true);
   };
@@ -113,7 +116,7 @@ export function MarketplacePublicView() {
                 <ProductCardPremium
                   key={product.id}
                   product={product}
-                  onSelect={() => handlePurchaseAction()}
+                  onSelect={() => handlePurchaseAction(product)}
                   onViewDetails={() => handleViewDetails(product)}
                 />
               ))}
@@ -138,8 +141,8 @@ export function MarketplacePublicView() {
           onClose={() => setDetailProduct(null)}
           onPurchase={() => {
             // Logic for purchase inside modal -> Force Login
+            handlePurchaseAction(detailProduct);
             setDetailProduct(null);
-            setShowLoginModal(true);
           }}
         />
       )}

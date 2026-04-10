@@ -40,6 +40,18 @@ export const AssetCustomerCatalog: React.FC<
     refresh();
   }, []);
 
+  // Check if we need to auto-open an asset modal from a recent purchase
+  React.useEffect(() => {
+    const openAssetId = sessionStorage.getItem("open_asset_modal_id");
+    if (openAssetId && assets && assets.length > 0) {
+      const assetToOpen = assets.find((a) => a.id === openAssetId || a.productId === openAssetId);
+      if (assetToOpen) {
+        setSelectedProduct(assetToOpen);
+        sessionStorage.removeItem("open_asset_modal_id");
+      }
+    }
+  }, [assets]);
+
   const filteredAssets = useMemo(() => {
     return displayAssets.filter((item) => {
       let matchesFilter = filter === "all";

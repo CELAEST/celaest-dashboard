@@ -15,6 +15,8 @@ import {
 
 export type FeatureAccessLevel = "public" | "user" | "admin";
 
+export type FeatureSkeletonType = "table" | "cards" | "form" | "none";
+
 export interface FeatureConfig {
   id: string;
   label: string;
@@ -22,6 +24,8 @@ export interface FeatureConfig {
   load: () => Promise<{ default: ComponentType }>;
   access: FeatureAccessLevel;
   ssr?: boolean;
+  /** Skeleton layout shown while the chunk loads. Default: "table" */
+  skeleton?: FeatureSkeletonType;
 }
 
 export const FEATURE_REGISTRY: Record<string, FeatureConfig> = {
@@ -37,6 +41,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureConfig> = {
       ),
     access: "user",
     ssr: false,
+    skeleton: "table",
   },
   marketplace: {
     id: "marketplace",
@@ -50,6 +55,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureConfig> = {
       ),
     access: "public",
     ssr: true,
+    skeleton: "none",
   },
   licensing: {
     id: "licensing",
@@ -61,6 +67,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureConfig> = {
       })),
     access: "user",
     ssr: true,
+    skeleton: "table",
   },
   analytics: {
     id: "analytics",
@@ -72,6 +79,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureConfig> = {
       })),
     access: "user",
     ssr: false,
+    skeleton: "cards",
   },
   billing: {
     id: "billing",
@@ -83,6 +91,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureConfig> = {
       })),
     access: "user",
     ssr: true,
+    skeleton: "table",
   },
   coupons: {
     id: "coupons",
@@ -96,6 +105,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureConfig> = {
       ),
     access: "user",
     ssr: true,
+    skeleton: "table",
   },
   catalog: {
     id: "catalog",
@@ -107,6 +117,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureConfig> = {
       })),
     access: "user",
     ssr: true,
+    skeleton: "cards",
   },
   releases: {
     id: "releases",
@@ -140,6 +151,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureConfig> = {
       })),
     access: "user",
     ssr: false,
+    skeleton: "cards",
   },
   errors: {
     id: "errors",
@@ -157,6 +169,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureConfig> = {
       import("@/features/settings").then((m) => ({ default: m.SettingsView })),
     access: "user",
     ssr: true,
+    skeleton: "form",
   },
   ai: {
     id: "ai",

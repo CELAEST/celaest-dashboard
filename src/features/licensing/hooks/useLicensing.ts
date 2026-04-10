@@ -1,10 +1,9 @@
 import { useState, useCallback, useMemo } from "react";
 import { toast } from "sonner";
+import { toastMutationError } from "@/lib/toast-helpers";
 import { useQueryClient, useMutation, InfiniteData } from "@tanstack/react-query";
 import { licensingService } from "@/features/licensing/services/licensing.service";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
-import { socket } from "@/lib/socket-client";
-import { useEffect } from "react";
 
 import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
 
@@ -56,27 +55,7 @@ export const useLicensing = () => {
 
   const { data: statsData } = useLicenseStatsQuery();
 
-  // Real-time synchronization for Licensing Hub
-  useEffect(() => {
-    if (!session?.accessToken) return;
 
-    const handler = () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.licensing.all });
-    };
-
-    const unsubscribers = [
-      socket.on("license.created", handler),
-      socket.on("license.updated", handler),
-      socket.on("license.activated", handler),
-      socket.on("subscription.created", handler),
-      socket.on("subscription.updated", handler),
-      socket.on("subscription.cancelled", handler),
-    ];
-
-    return () => {
-      unsubscribers.forEach((unsub) => unsub());
-    };
-  }, [session?.accessToken, queryClient]);
 
   // Determine if user is admin/super_admin
   const isAdminUser = useMemo(() => {
@@ -108,10 +87,13 @@ export const useLicensing = () => {
       );
       return { snapshots };
     },
-    onError: (err, _vars, context) => {
+    onError: (err, vars, context) => {
       context?.snapshots?.forEach(([key, data]) => queryClient.setQueryData(key, data));
       const msg = err instanceof Error ? err.message : "Failed to update license status";
-      toast.error(msg);
+      toastMutationError({
+        message: msg,
+        onRetry: () => updateMutation.mutate(vars),
+      });
     },
     onSuccess: (updated) => {
       invalidateAfterLicenseChange(queryClient);
@@ -143,10 +125,13 @@ export const useLicensing = () => {
       );
       return { snapshots };
     },
-    onError: (err, _id, context) => {
+    onError: (err, id, context) => {
       context?.snapshots?.forEach(([key, data]) => queryClient.setQueryData(key, data));
       const msg = err instanceof Error ? err.message : "Failed to revoke license";
-      toast.error(msg);
+      toastMutationError({
+        message: msg,
+        onRetry: () => revokeMutation.mutate(id),
+      });
     },
     onSuccess: (updated) => {
       invalidateAfterLicenseChange(queryClient);

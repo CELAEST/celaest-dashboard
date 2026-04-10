@@ -314,6 +314,7 @@ export const CategoryManagementTab: React.FC<CategoryManagementTabProps> = ({
                       <div className="relative z-10">
                         <button
                           onClick={() => setIsFormOpen(false)}
+                          aria-label="Cerrar formulario de categoría"
                           className={`p-2 rounded-full transition-colors ${
                             isDark
                               ? "hover:bg-white/10 text-gray-400 hover:text-white"

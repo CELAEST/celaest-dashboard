@@ -4,13 +4,13 @@
 import React, { useState } from "react";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { useTheme } from "@/features/shared/hooks/useTheme";
-import { useNotifications } from "@/features/shared/contexts/NotificationContext";
 import { motion, AnimatePresence } from "motion/react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   LoginFormValues,
   SignupFormValues,
 } from "@/lib/validation/schemas/auth";
+import { toast } from "sonner";
 
 import { AuthBackground } from "./layout/AuthBackground";
 import { FloatingThemeToggle } from "./layout/FloatingThemeToggle";
@@ -23,7 +23,6 @@ export const AuthPage: React.FC = () => {
   const router = useRouter();
   const { signIn, signUp } = useAuth();
   const { theme, toggleTheme } = useTheme();
-  const { addNotification } = useNotifications();
   const isDark = theme === "dark";
 
   const initialMode =
@@ -36,20 +35,12 @@ export const AuthPage: React.FC = () => {
     setLoading(true);
     const result = await signIn(data.email, data.password);
     if (!result.success) {
-      addNotification({
-        type: "error",
-        title: "Error de Inicia Sesión",
-        message:
-          result.error?.message ||
-          "No se pudo iniciar sesión. Verifique sus credenciales.",
-        timestamp: new Date(),
+      toast.error("Error al Iniciar Sesión", {
+        description: result.error?.message || "No se pudo iniciar sesión. Verifique sus credenciales."
       });
     } else {
-      addNotification({
-        type: "success",
-        title: "¡Bienvenido de nuevo!",
-        message: "Has iniciado sesión exitosamente.",
-        timestamp: new Date(),
+      toast.success("¡Bienvenido de nuevo!", {
+        description: "Has iniciado sesión exitosamente."
       });
       const redirectTo = searchParams.get("redirect") || "/?tab=marketplace";
       router.push(redirectTo);
@@ -61,18 +52,12 @@ export const AuthPage: React.FC = () => {
     setLoading(true);
     const result = await signUp(data.email, data.password, data.name);
     if (!result.success) {
-      addNotification({
-        type: "error",
-        title: "Error de Registro",
-        message: result.error?.message || "No se pudo crear la cuenta.",
-        timestamp: new Date(),
+      toast.error("Error de Registro", {
+        description: result.error?.message || "No se pudo crear la cuenta."
       });
     } else {
-      addNotification({
-        type: "success",
-        title: "Cuenta Creada",
-        message: "Tu cuenta ha sido creada exitosamente. ¡Bienvenido!",
-        timestamp: new Date(),
+      toast.success("Cuenta Creada", {
+        description: "Tu cuenta ha sido creada exitosamente. ¡Bienvenido!"
       });
       const redirectTo = searchParams.get("redirect") || "/?tab=marketplace";
       router.push(redirectTo);

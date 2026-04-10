@@ -1,0 +1,20 @@
+{
+	"folders": [
+		{
+			"path": "../.."
+		},
+		{
+			"path": "../../../celaest-core"
+		},
+		{
+			"path": "../../../celaest-back"
+		},
+		{
+			"path": "../../../celaest-test"
+		},
+		{
+			"path": "../../../landing-celaest"
+		}
+	],
+	"settings": {}
+}

@@ -309,6 +309,7 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
               <div className="relative z-10">
                 <button
                   onClick={onClose}
+                  aria-label="Cerrar modal de licencia"
                   className={`p-2 rounded-full transition-colors ${
                     isDark
                       ? "hover:bg-white/10 text-gray-400 hover:text-white"
@@ -360,6 +361,7 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
                       </code>
                       <button
                         onClick={handleCopy}
+                        aria-label={copied ? "Licencia copiada" : "Copiar licencia al portapapeles"}
                         className={`p-1.5 rounded-lg transition-colors shrink-0 ${
                           isDark
                             ? "hover:bg-emerald-500/10 text-gray-400 hover:text-emerald-400"

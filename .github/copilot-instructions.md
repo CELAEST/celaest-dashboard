@@ -47,6 +47,12 @@ Esta guía es de cumplimiento obligatorio para cualquier cambio en `celaest-dash
 3. Implementar con cambios mínimos y cohesionados.
 4. Verificar con `tsc --noEmit` que no hay errores de TypeScript.
 
+## Build y Testing
+- **Dev**: `npm run dev` (o `yarn` / `pnpm` equivalente)
+- **Build**: `npm run build`
+- **Lint**: `npm run lint` (ESLint) o `tsc --noEmit` para tipos
+- **Test**: `npm run test` (Vitest)
+
 ## Estructura del proyecto
 - `src/features/<domain>/` — cada feature autónoma con api/, hooks/, components/, stores/, types/
 - `src/components/ui/` — componentes compartidos (DataTable, modals, etc.)

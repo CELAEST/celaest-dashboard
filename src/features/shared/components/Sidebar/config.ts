@@ -38,9 +38,11 @@ export const menuSections: MenuSection[] = [
     title: "Platform",
     items: [
       { id: "dashboard", icon: OrdersIcon, label: "Orders", scope: null },
+      { id: "licensing", icon: LicensingIcon, label: "Licensing", scope: null },
+      { id: "billing", icon: BillingIcon, label: "Billing", scope: "billing:read" },
       { id: "ai", icon: AIConsoleIcon, label: "AI Console", scope: null },
       { id: "marketplace", icon: MarketplaceIcon, label: "Marketplace", scope: "marketplace:purchase" },
-      { id: "catalog", icon: AssetManagerIcon, label: "Asset Manager", scope: "templates:write" },
+      { id: "catalog", icon: AssetManagerIcon, label: "Asset Manager", scope: null },
       { id: "releases", icon: ReleasesIcon, label: "Releases", scope: "releases:read" },
     ],
   },
@@ -57,9 +59,7 @@ export const menuSections: MenuSection[] = [
     title: "Settings & Admin",
     items: [
       { id: "users", icon: UsersIcon, label: "Users & Roles", scope: null },
-      { id: "billing", icon: BillingIcon, label: "Billing", scope: "billing:read" },
       { id: "coupons", icon: CouponsIcon, label: "Coupons", scope: "billing:write" },
-      { id: "licensing", icon: LicensingIcon, label: "Licensing", scope: null },
       { id: "admin_portal", icon: SuperAdminIcon, label: "Super Admin", scope: "users:manage" },
       { id: "settings", icon: SettingsIcon, label: "Workspace Settings", scope: null },
     ],

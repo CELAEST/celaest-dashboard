@@ -12,6 +12,7 @@ import {
 } from "@phosphor-icons/react";
 import { useJobs } from "../../hooks/useJobs";
 import { BackgroundJob } from "../../api/jobs.api";
+import { CardGridSkeleton } from "@/components/ui/skeletons";
 
 interface JobMonitorTabProps {
   token: string;
@@ -31,8 +32,8 @@ export const JobMonitorTab: React.FC<JobMonitorTabProps> = ({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <CircleNotch className="animate-spin text-purple-500" size={32} />
+      <div className="h-full p-4">
+        <CardGridSkeleton count={3} />
       </div>
     );
   }

@@ -21,6 +21,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useBilling } from "../hooks/useBilling";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
+import { useRole } from "@/features/auth/hooks/useAuthorization";
 import { logger } from "@/lib/logger";
 import { billingApi } from "../api/billing.api";
 
@@ -34,10 +35,13 @@ export const BillingPortal: React.FC = () => {
   const router = useRouter();
   const { refresh } = useBilling();
   const { session } = useAuth();
+  const { isAdmin } = useRole();
 
   const [viewMode, setViewMode] = useState<"customer" | "admin">("customer");
   const [activeTab, setActiveTab] = useState<BillingTab>("overview");
   const [activeAdminTab, setActiveAdminTab] = useState<AdminTab>("overview");
+
+  const effectiveView = isAdmin ? viewMode : "customer";
 
   // Guard: run the Stripe redirect handler exactly once per navigation.
   // session?.accessToken stays in deps so we can wait for it to be available
@@ -119,7 +123,7 @@ export const BillingPortal: React.FC = () => {
   }, [searchParams, router, refresh, session?.accessToken]);
 
   const billingTabs =
-    viewMode === "customer" ? (
+    effectiveView === "customer" ? (
       <div
         className={`flex items-center p-0.5 rounded-lg ${
           isDark
@@ -239,58 +243,58 @@ export const BillingPortal: React.FC = () => {
         </span>
       </div>
 
-      <div
-        className={`inline-flex p-0.5 rounded-lg border shadow-sm ${
-          isDark
-            ? "bg-black/40 border-white/10 backdrop-blur-md"
-            : "bg-white border-gray-200"
-        }`}
-      >
-        <button
-          onClick={() => setViewMode("customer")}
-          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[9px] font-black uppercase tracking-[0.18em] transition-all duration-300 ${
-            viewMode === "customer"
-              ? isDark
-                ? "bg-cyan-500 text-white shadow-lg shadow-cyan-500/25"
-                : "bg-blue-600 text-white shadow-lg shadow-blue-500/25"
-              : isDark
-                ? "text-gray-400 hover:text-white hover:bg-white/5"
-                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+        {isAdmin && <div
+          className={`inline-flex p-0.5 rounded-lg border shadow-sm ${
+            isDark
+              ? "bg-black/40 border-white/10 backdrop-blur-md"
+              : "bg-white border-gray-200"
           }`}
         >
-          <User size={13} />
-          Customer
-        </button>
-        <button
-          onClick={() => setViewMode("admin")}
-          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[9px] font-black uppercase tracking-[0.18em] transition-all duration-300 ${
-            viewMode === "admin"
-              ? isDark
-                ? "bg-purple-500 text-white shadow-lg shadow-purple-500/25"
-                : "bg-purple-600 text-white shadow-lg shadow-purple-500/25"
-              : isDark
-                ? "text-gray-400 hover:text-white hover:bg-white/5"
-                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-          }`}
-        >
-          <Crown size={13} />
-          Admin
-        </button>
+          <button
+            onClick={() => setViewMode("customer")}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[9px] font-black uppercase tracking-[0.18em] transition-all duration-300 ${
+              effectiveView === "customer"
+                ? isDark
+                  ? "bg-cyan-500 text-white shadow-lg shadow-cyan-500/25"
+                  : "bg-blue-600 text-white shadow-lg shadow-blue-500/25"
+                : isDark
+                  ? "text-gray-400 hover:text-white hover:bg-white/5"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            }`}
+          >
+            <User size={13} />
+            Customer
+          </button>
+          <button
+            onClick={() => setViewMode("admin")}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[9px] font-black uppercase tracking-[0.18em] transition-all duration-300 ${
+              effectiveView === "admin"
+                ? isDark
+                  ? "bg-purple-500 text-white shadow-lg shadow-purple-500/25"
+                  : "bg-purple-600 text-white shadow-lg shadow-purple-500/25"
+                : isDark
+                  ? "text-gray-400 hover:text-white hover:bg-white/5"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            }`}
+          >
+            <Crown size={13} />
+            Admin
+          </button>
+        </div>}
       </div>
-    </div>
   );
 
   return (
     <div className="flex-1 flex flex-col min-h-0 h-full">
       <PageBanner
-        title={viewMode === "admin" ? "Financial Command Center" : "Billing Portal"}
-        subtitle={viewMode === "admin" ? "Master Financial Repository & Controls" : "Subscription & Payment Management"}
+        title={effectiveView === "admin" ? "Financial Command Center" : "Billing Portal"}
+        subtitle={effectiveView === "admin" ? "Master Financial Repository & Controls" : "Subscription & Payment Management"}
         actions={headerActions}
       />
 
       <div className="flex-1 overflow-hidden flex flex-col min-h-0 relative">
         <AnimatePresence mode="wait">
-          {viewMode === "admin" ? (
+          {effectiveView === "admin" ? (
             <motion.div
               key={`admin-${activeAdminTab}`}
               initial={{ opacity: 0, x: 20 }}

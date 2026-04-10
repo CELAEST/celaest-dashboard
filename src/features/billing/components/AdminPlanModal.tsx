@@ -114,8 +114,8 @@ export const AdminPlanModal: React.FC<AdminPlanModalProps> = ({
   };
 
   return (
-    <BillingModal isOpen={isOpen} onClose={onClose} className="max-w-xl w-full" showCloseButton={false}>
-      <div className="relative w-full flex flex-col" style={{ minWidth: '36rem' }}>
+    <BillingModal isOpen={isOpen} onClose={onClose} className="max-w-2xl w-full" showCloseButton={false}>
+      <div className="relative w-full flex flex-col min-w-[320px] sm:min-w-144 overflow-hidden">
       {/* Top accent line */}
       <div className="absolute inset-x-0 top-0 h-px z-20 bg-linear-to-r from-transparent via-teal-500/70 to-transparent" />
       {/* Corner glow */}

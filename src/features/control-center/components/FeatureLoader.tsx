@@ -2,14 +2,19 @@
 
 import React, { useMemo } from "react";
 import dynamic from "next/dynamic";
-import { FEATURE_REGISTRY, ValidTabId } from "../config/feature-registry";
+import { FEATURE_REGISTRY, ValidTabId, FeatureSkeletonType } from "../config/feature-registry";
 import { useAccessControl } from "../hooks/useAccessControl";
 import { HardDrives } from "@phosphor-icons/react";
 import { useDashboardRouter } from "../hooks/useDashboardRouter";
 import { PageSkeleton } from "@/components/ui/skeletons";
+import { ErrorBoundary } from "@/components/ui/error-boundary";
+import { FeatureError } from "@/components/ui/feature-error";
 
-// Standard Skeleton used for all features
-const ViewSkeleton = () => <PageSkeleton type="table" />;
+// Per-feature skeleton: matches the actual layout of each feature
+const FeatureSkeletonView = ({ type }: { type: FeatureSkeletonType }) => {
+  if (type === "none") return null;
+  return <PageSkeleton type={type} />;
+};
 
 // Cache for dynamic components to prevent recreation on render
 const featureCache = new Map<string, React.ComponentType>();
@@ -18,10 +23,11 @@ const getFeatureComponent = (
   id: string,
   loadFn: () => Promise<{ default: React.ComponentType }>,
   ssr: boolean,
+  skeletonType: FeatureSkeletonType,
 ) => {
   if (!featureCache.has(id)) {
     const Component = dynamic(loadFn, {
-      loading: () => <ViewSkeleton />,
+      loading: () => <FeatureSkeletonView type={skeletonType} />,
       ssr: ssr !== false,
     });
     featureCache.set(id, Component);
@@ -52,8 +58,9 @@ export const FeatureLoader: React.FC<FeatureLoaderProps> = ({
         featureConfig.id,
         featureConfig.load,
         featureConfig.ssr ?? true,
+        featureConfig.skeleton ?? "table",
       ),
-    [featureConfig.id, featureConfig.load, featureConfig.ssr],
+    [featureConfig.id, featureConfig.load, featureConfig.ssr, featureConfig.skeleton],
   );
 
   // Check Permissions
@@ -61,8 +68,8 @@ export const FeatureLoader: React.FC<FeatureLoaderProps> = ({
 
   if (!granted) {
     if (reason === "loading") {
-      // Wait for auth to settle
-      return <ViewSkeleton />;
+      // Wait for auth to settle — show feature-appropriate skeleton
+      return <FeatureSkeletonView type={featureConfig.skeleton ?? "table"} />;
     }
 
     if (reason === "guest") {
@@ -96,6 +103,18 @@ export const FeatureLoader: React.FC<FeatureLoaderProps> = ({
     }
   }
 
-  // Bypass linter check for nested component (stable via clean architecture cache)
-  return React.createElement(FeatureComponent);
+  // Wrap dynamic content with localized Error Boundary
+  return (
+    <ErrorBoundary 
+      fallback={({ error, resetErrorBoundary }: import("@/components/ui/error-boundary").FallbackProps) => (
+        <FeatureError 
+          title={`Error cargando módulo: ${featureConfig.label}`}
+          error={error} 
+          resetError={resetErrorBoundary} 
+        />
+      )}
+    >
+      {React.createElement(FeatureComponent)}
+    </ErrorBoundary>
+  );
 };

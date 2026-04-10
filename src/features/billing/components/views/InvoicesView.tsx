@@ -2,7 +2,7 @@ import React from "react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { InvoiceHistoryTable } from "../InvoiceHistory/InvoiceHistoryTable";
 import { useInvoicesQuery } from "../../hooks/useInvoicesQuery";
-import { CircleNotch } from "@phosphor-icons/react";
+import { TableSkeleton } from "@/components/ui/skeletons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 import { useOrgStore } from "@/features/shared/stores/useOrgStore";
@@ -70,8 +70,8 @@ export const InvoicesView = () => {
 
   if (isLoading) {
     return (
-      <div className="flex-1 min-h-0 px-4 pb-4 flex items-center justify-center">
-        <CircleNotch className="w-8 h-8 animate-spin text-blue-500" />
+      <div className="flex-1 min-h-0 px-4 pb-4">
+        <TableSkeleton rows={6} columns={5} />
       </div>
     );
   }

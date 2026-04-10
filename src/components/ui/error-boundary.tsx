@@ -4,9 +4,14 @@ import React, { Component, ErrorInfo, ReactNode } from "react";
 import { Warning, ArrowClockwise, House } from "@phosphor-icons/react";
 import { logger } from "@/lib/logger";
 
+export interface FallbackProps {
+  error: Error;
+  resetErrorBoundary: () => void;
+}
+
 interface Props {
   children: ReactNode;
-  fallback?: ReactNode;
+  fallback?: ReactNode | ((props: FallbackProps) => ReactNode);
 }
 
 interface State {
@@ -51,7 +56,13 @@ export class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       if (this.props.fallback) {
-        return this.props.fallback;
+        if (typeof this.props.fallback === "function") {
+          return this.props.fallback({
+            error: this.state.error!,
+            resetErrorBoundary: this.handleReset,
+          });
+        }
+        return this.props.fallback as ReactNode;
       }
 
       return (

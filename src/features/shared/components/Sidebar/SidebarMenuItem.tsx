@@ -8,7 +8,6 @@ interface SidebarMenuItemProps {
   isActive: boolean;
   isHovered: boolean;
   isLocked?: boolean;
-  isDark: boolean;
   onClick: () => void;
 }
 
@@ -18,24 +17,15 @@ export const SidebarMenuItem = React.memo(
     isActive,
     isHovered,
     isLocked,
-    isDark,
     onClick,
   }: SidebarMenuItemProps) => {
     const Icon = item.icon;
 
-    const buttonClassName = useMemo(
-      () =>
-        `group relative outline-none flex w-full items-center h-10 px-1 rounded-lg transition-colors duration-200 ${
-          isActive
-            ? isDark
-              ? "text-zinc-100 font-semibold"
-              : "text-zinc-900 font-semibold"
-            : isDark
-              ? "text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.02]"
-              : "text-zinc-500 hover:text-zinc-900 hover:bg-black/[0.02]"
-        } ${isLocked ? "opacity-60 grayscale" : ""}`,
-      [isActive, isDark, isLocked],
-    );
+    const buttonClassName = `group relative overflow-hidden outline-none flex w-full items-center h-[52px] px-2 rounded-xl transition-colors duration-200 ${
+      isActive
+        ? "text-zinc-900 font-semibold dark:text-zinc-100"
+        : "text-zinc-500 hover:text-zinc-900 hover:bg-black/[0.02] dark:text-zinc-400 dark:hover:text-zinc-200 dark:hover:bg-white/[0.02]"
+    } ${isLocked ? "opacity-60 grayscale" : ""}`;
 
     return (
       <button
@@ -47,46 +37,38 @@ export const SidebarMenuItem = React.memo(
         {isActive && !isLocked && (
           <motion.div
             layoutId="activeTabBackground"
-            className={`absolute inset-0 rounded-lg -z-10 overflow-hidden ${
-              isDark 
-                ? "bg-zinc-800/40 border border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]" 
-                : "bg-white border border-black/6 shadow-sm"
-            }`}
+            className="absolute inset-0 rounded-lg -z-10 overflow-hidden bg-white border border-black/6 shadow-sm dark:bg-zinc-800/40 dark:border-white/8 dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
             initial={false}
             transition={{ type: "spring", bounce: 0.15, duration: 0.4 }}
           >
             {/* Premium Animated Sheen (Glass Reflection) */}
-            {isDark && (
-              <motion.div 
-                className="absolute inset-0 bg-linear-to-r from-transparent via-white/4 to-transparent w-[200%]"
-                animate={{ x: ["-100%", "50%"] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-              />
-            )}
+            <motion.div 
+              className="absolute inset-0 bg-linear-to-r from-transparent via-white/4 to-transparent w-[200%] hidden dark:block"
+              animate={{ x: ["-100%", "50%"] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+            />
           </motion.div>
         )}
 
-        <div className="min-w-[40px] flex items-center justify-center relative z-10">
+        <div className="min-w-[48px] flex items-center justify-center relative z-10">
           {isLocked && isHovered ? (
-            <Shield size={18} className="fill-current" />
+            <Shield size={22} className="fill-current" />
           ) : (
             <>
               <Icon
-                size={20}
+                size={26}
                 weight={isActive ? "fill" : "regular"}
                 isActive={isActive}
                 isHovered={isHovered}
                 className={`transition-all duration-300 ${
-                  isActive && isDark
-                    ? "drop-shadow-[0_0_6px_rgba(255,255,255,0.25)]"
+                  isActive
+                    ? "dark:drop-shadow-[0_0_6px_rgba(255,255,255,0.25)]"
                     : ""
                 }`}
               />
               {isLocked && (
                 <div
-                  className={`absolute -top-1 -right-1 p-0.5 rounded-full ${
-                    isDark ? "bg-[#0a0a0a] text-white" : "bg-white text-gray-900"
-                  }`}
+                  className="absolute -top-1 -right-1 p-0.5 rounded-full bg-white text-gray-900 dark:bg-[#0a0a0a] dark:text-white"
                 >
                   <Shield size={8} className="fill-current" />
                 </div>
@@ -96,7 +78,7 @@ export const SidebarMenuItem = React.memo(
         </div>
 
         <motion.span
-          className="whitespace-nowrap shrink-0 font-medium tracking-wide text-[13px] flex items-center gap-2 z-10"
+          className="whitespace-nowrap shrink-0 font-medium tracking-wide text-[16px] flex items-center gap-2 z-10"
           initial={{ opacity: 0, x: -5 }}
           animate={{ opacity: isHovered ? 1 : 0, x: isHovered ? 0 : -5 }}
           transition={{ duration: 0.2 }}

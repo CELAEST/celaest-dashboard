@@ -9,6 +9,7 @@ interface ActivationStepProps {
   progress: number;
   statusMessage?: string;
   onReset: () => void;
+  onGoToAssets?: () => void;
 }
 
 export const ActivationStep: React.FC<ActivationStepProps> = ({
@@ -16,6 +17,7 @@ export const ActivationStep: React.FC<ActivationStepProps> = ({
   progress,
   statusMessage,
   onReset,
+  onGoToAssets,
 }) => {
   const { theme } = useTheme();
 
@@ -59,7 +61,7 @@ export const ActivationStep: React.FC<ActivationStepProps> = ({
             </p>
           </div>
           <button
-            onClick={onReset}
+            onClick={onGoToAssets || onReset}
             className={`
               w-full py-3 rounded-xl font-medium transition-all
               ${

@@ -20,6 +20,7 @@ import { PlansBilling } from "./tabs/PlansBilling";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import type { SettingsTabId } from "./types";
 import { motion, AnimatePresence } from "motion/react";
+import { useSearchParams } from "next/navigation";
 
 /**
  * Gear View - Edge-to-Edge Professional Layout
@@ -27,7 +28,19 @@ import { motion, AnimatePresence } from "motion/react";
  */
 export function SettingsView() {
   const { isDark } = useTheme();
-  const [activeTab, setActiveTab] = useState<SettingsTabId>("account");
+  const searchParams = useSearchParams();
+  const [activeTab, setActiveTab] = useState<SettingsTabId>(() => {
+    const section = searchParams.get("section") as SettingsTabId;
+    return section || "account";
+  });
+
+  // Sync if section changes via URL
+  React.useEffect(() => {
+    const section = searchParams.get("section") as SettingsTabId;
+    if (section) {
+      setActiveTab(section);
+    }
+  }, [searchParams]);
 
   // Tab configuration
   const tabs = useMemo(

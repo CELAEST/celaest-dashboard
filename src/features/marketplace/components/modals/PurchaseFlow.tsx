@@ -11,6 +11,7 @@ import { usePurchaseFlow } from "@/features/marketplace/hooks/usePurchaseFlow";
 import { ConfirmationStep } from "./purchase-steps/ConfirmationStep";
 import { PaymentStep } from "./purchase-steps/PaymentStep";
 import { ActivationStep } from "./purchase-steps/ActivationStep";
+import { useDashboardRouter } from "@/features/control-center/hooks/useDashboardRouter";
 
 interface PurchaseFlowProps {
   isOpen: boolean;
@@ -34,6 +35,7 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
   onSuccess,
 }) => {
   const { theme } = useTheme();
+  const { navigateTo } = useDashboardRouter();
   const {
     step,
     isProcessing,
@@ -240,6 +242,15 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
                   progress={progress}
                   statusMessage={statusMessage}
                   onReset={resetFlow}
+                  onGoToAssets={() => {
+                    if (product) {
+                      navigateTo("catalog");
+                      // Use dispatch event or state approach to open modal for product.id
+                      // Setting a sessionStorage item is the most robust way across navigation boundaries
+                      sessionStorage.setItem("open_asset_modal_id", product.id);
+                    }
+                    resetFlow();
+                  }}
                 />
               )}
             </div>

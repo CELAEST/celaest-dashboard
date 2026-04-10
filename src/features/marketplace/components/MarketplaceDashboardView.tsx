@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import dynamic from "next/dynamic";
 import { MarketplaceFilterSidebar } from "./MarketplaceFilterSidebar";
@@ -216,6 +216,7 @@ export function MarketplaceDashboardView() {
 
   const handleProductSelect = (product: MarketplaceProduct) => {
     if (!isAuthenticated) {
+      sessionStorage.setItem("pending_purchase_modal_id", product.id);
       handlePurchaseAction();
       return;
     }
@@ -241,6 +242,24 @@ export function MarketplaceDashboardView() {
   const clearFilters = () => {
     reset();
   };
+
+  useEffect(() => {
+    if (isAuthenticated && products.length > 0 && !isOrgsLoading && currentOrg) {
+      const pendingId = sessionStorage.getItem("pending_purchase_modal_id");
+      if (pendingId) {
+        sessionStorage.removeItem("pending_purchase_modal_id");
+        const product = products.find((p) => p.id === pendingId);
+        if (product) {
+          const access = checkAccess(product);
+          if (access !== "none") {
+            setDetailProduct(product);
+          } else {
+            handleProductSelect(product);
+          }
+        }
+      }
+    }
+  }, [isAuthenticated, products, isOrgsLoading, currentOrg]);
 
   return (
     <div
@@ -385,10 +404,9 @@ export function MarketplaceDashboardView() {
           />
         </div>
 
-        {/* Product Grid - Hybrid Scroll: Fast scrolling + Auto-align on stop */}
+        {/* Product Grid - Natural Scroll */}
         <div
-          className="flex-1 overflow-y-auto custom-scrollbar p-5 snap-y snap-mandatory scroll-smooth"
-          style={{ scrollPaddingTop: "2rem" }}
+          className="flex-1 overflow-y-auto custom-scrollbar p-5"
         >
           <AnimatePresence mode="wait">
             {isLoading ? (

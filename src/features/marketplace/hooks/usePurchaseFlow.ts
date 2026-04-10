@@ -150,7 +150,6 @@ export const usePurchaseFlow = (onClose: () => void, initialStep = 1, onSuccess?
       return;
     }
 
-    console.log("[DEBUG] handlePurchase called! activeCoupon =", activeCoupon);
     purchaseMutation.mutate(productId);
   }, [purchaseMutation, isAuthReady, isOrgsLoading, isReady, token, orgId, activeCoupon]);
 

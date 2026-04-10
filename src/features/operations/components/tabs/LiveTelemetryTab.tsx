@@ -10,6 +10,7 @@ import {
 } from "@phosphor-icons/react";
 import { useTelemetry } from "../../hooks/useOperations";
 import { EndpointStats, ErrorType } from "../../api/schemas";
+import { StatCardSkeleton, TableSkeleton } from "@/components/ui/skeletons";
 
 interface LiveTelemetryTabProps {
   token: string;
@@ -24,8 +25,17 @@ export const LiveTelemetryTab: React.FC<LiveTelemetryTabProps> = ({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <CircleNotch className="animate-spin text-cyan-500" size={32} />
+      <div className="h-full space-y-6">
+        <div className="grid grid-cols-4 gap-4">
+          <StatCardSkeleton />
+          <StatCardSkeleton />
+          <StatCardSkeleton />
+          <StatCardSkeleton />
+        </div>
+        <div className="grid grid-cols-2 gap-6">
+          <TableSkeleton rows={4} columns={3} />
+          <TableSkeleton rows={4} columns={3} />
+        </div>
       </div>
     );
   }

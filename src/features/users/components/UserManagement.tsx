@@ -45,11 +45,11 @@ const ClientProfileView: React.FC<{ isDark: boolean }> = ({ isDark }) => {
   ];
 
   return (
-    <div className="h-full flex flex-col items-center justify-center p-6">
+    <div className="h-full w-full flex-1 flex flex-col items-center justify-center p-6">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`w-full max-w-lg rounded-3xl border p-8 ${
+        className={`w-full min-w-[320px] sm:min-w-[400px] max-w-lg rounded-3xl border p-8 ${
           isDark
             ? "bg-[#0a0a0a]/60 border-white/10 backdrop-blur-xl"
             : "bg-white border-gray-200 shadow-xl"
@@ -321,7 +321,7 @@ export const UserManagement: React.FC = () => {
   const { isSuperAdmin } = useRole();
 
   return (
-    <div className="h-full flex flex-col min-h-0 overflow-hidden">
+    <div className="h-full w-full flex-1 flex flex-col min-h-0 overflow-hidden">
       {isSuperAdmin ? (
         <SuperAdminUserManagement isDark={isDark} />
       ) : (

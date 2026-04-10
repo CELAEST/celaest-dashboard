@@ -1,28 +1,65 @@
 import { test, expect } from '@playwright/test';
+import { setupAuthenticatedSession } from './fixtures';
 
-test.describe('Control de Acceso (RBAC) y Cambio de Organización', () => {
-  test('La vista de configuración de equipo carga adecuadamente', async ({ page }) => {
-    // Navigate to settings > team
-    await page.goto('/dashboard/settings?tab=team');
+/**
+ * RBAC & Organization Switching E2E Tests
+ *
+ * Validates:
+ *   1. Settings tab with workspace section loads
+ *   2. Dashboard root renders without crashing
+ *   3. Sidebar navigation renders heading structure
+ */
 
+test.describe('RBAC — Access Control & Org Switching', () => {
+
+  test.beforeEach(async ({ page, context }) => {
+    await setupAuthenticatedSession(page, context);
+  });
+
+  test('Settings view loads and shows navigation structure', async ({ page }) => {
+    await page.goto('/?tab=settings');
     await page.waitForLoadState('networkidle');
 
-    // Mínimo de renderizado de la estructura
     await expect(page.locator('body')).toBeVisible();
 
-    // The user should either see the login prompt or the team view
-    // Since we are not strictly mocking auth in this layer, we simply expect no crash
+    // Settings should render heading elements
     const headings = page.locator('h1, h2, h3');
     if (await headings.count() > 0) {
       await expect(headings.first()).toBeVisible();
     }
   });
 
-  test('La vista de Selector de Organización no crashea', async ({ page }) => {
-    await page.goto('/dashboard');
+  test('Dashboard root renders without Next.js error screen', async ({ page }) => {
+    await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
-    
-    // As long as the dashboard root doesn't throw a Next.js red screen, the structure is sound
+
     await expect(page.locator('body')).toBeVisible();
+
+    // Verify the app shell loaded (no 404/500 error page)
+    const errorText = page.locator('text=404').or(page.locator('text=500'));
+    await expect(errorText).toHaveCount(0);
+  });
+
+  test('Organization switcher dropdown is accessible when sidebar is expanded', async ({ page }) => {
+    // Mock multiple organizations so the switcher renders
+    await page.route('**/api/v1/org/organizations*', route => route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        status: "success",
+        data: {
+          organizations: [
+            { id: "org-1", slug: "celaest", name: "CELAEST", role: "owner", is_default: true, is_system_default: true },
+            { id: "org-2", slug: "acme", name: "Acme Corp", role: "viewer", is_default: false },
+          ],
+        },
+      }),
+    }));
+
+    await page.goto('/?tab=marketplace');
+    await page.waitForLoadState('domcontentloaded');
+
+    // The sidebar should be present
+    await expect(page.locator('nav').first()).toBeVisible();
   });
 });
