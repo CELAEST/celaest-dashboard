@@ -14,9 +14,6 @@ import {
 import {
   Area,
   AreaChart,
-  Cell,
-  Pie,
-  PieChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -361,9 +358,9 @@ export const AssetMetrics: React.FC<AssetMetricsProps> = ({ period = "month" }) 
           <div className="flex justify-between items-center mb-4">
             <div className="flex items-center gap-3">
               <div
-                className={`flex items-center justify-center w-7 h-7 rounded-[8px] border shadow-sm shrink-0 ${
+                className={`flex items-center justify-center w-7 h-7 rounded-input border shadow-sm shrink-0 ${
                   isDark
-                    ? "bg-linear-to-b from-white/[0.08] to-transparent border-white/[0.08] shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_2px_4px_rgba(0,0,0,0.2)]"
+                    ? "bg-linear-to-b from-white/8 to-transparent border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_2px_4px_rgba(0,0,0,0.2)]"
                     : "bg-linear-to-b from-white to-gray-50 border-gray-200 shadow-[inset_0_1px_0_rgba(255,255,255,1),0_1px_2px_rgba(0,0,0,0.05)]"
                 }`}
               >
@@ -469,9 +466,9 @@ export const AssetMetrics: React.FC<AssetMetricsProps> = ({ period = "month" }) 
         >
           <div className="flex items-center gap-3 mb-4">
             <div
-              className={`flex items-center justify-center w-7 h-7 rounded-[8px] border shadow-sm shrink-0 ${
+              className={`flex items-center justify-center w-7 h-7 rounded-input border shadow-sm shrink-0 ${
                 isDark
-                  ? "bg-linear-to-b from-white/[0.08] to-transparent border-white/[0.08] shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_2px_4px_rgba(0,0,0,0.2)]"
+                  ? "bg-linear-to-b from-white/8 to-transparent border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_2px_4px_rgba(0,0,0,0.2)]"
                   : "bg-linear-to-b from-white to-gray-50 border-gray-200 shadow-[inset_0_1px_0_rgba(255,255,255,1),0_1px_2px_rgba(0,0,0,0.05)]"
               }`}
             >

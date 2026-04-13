@@ -8,18 +8,11 @@ import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { useRole } from "@/features/auth/hooks/useAuthorization";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { motion, AnimatePresence } from "motion/react";
-import { Users, Clock, SquaresFour, Plus, User, Envelope, Shield, Calendar, MagnifyingGlass, Funnel } from "@phosphor-icons/react";
+import { Plus, User, Envelope, Shield, Calendar, MagnifyingGlass } from "@phosphor-icons/react";
 import { toast } from "sonner";
 import { PageBanner } from "@/components/layout/PageLayout";
 import { TableChrome } from "@/components/layout/TableChrome";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 import { UserActionModal } from "./modals/UserActionModal";
 import { AddUserModal } from "./modals/AddUserModal";

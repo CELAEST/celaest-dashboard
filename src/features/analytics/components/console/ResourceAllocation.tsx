@@ -74,7 +74,7 @@ export const ResourceAllocation = React.memo(
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className={`rounded-[16px] overflow-hidden p-5 group flex flex-col justify-between ${
+        className={`rounded-card overflow-hidden p-5 group flex flex-col justify-between ${
           isDark
             ? "bg-[#09090b] border border-white/10 hover:border-blue-500/30"
             : "bg-white border border-gray-100 shadow-lg hover:border-blue-500/20"
@@ -83,7 +83,7 @@ export const ResourceAllocation = React.memo(
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <div
-              className={`w-7 h-7 flex items-center justify-center rounded-[8px] ${
+              className={`w-7 h-7 flex items-center justify-center rounded-input ${
                 isDark 
                   ? "bg-linear-to-b from-white/8 to-transparent border border-white/8 text-blue-400 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_2px_4px_rgba(0,0,0,0.2)]" 
                   : "bg-linear-to-b from-white to-gray-50 border border-gray-200 text-blue-600 shadow-[inset_0_1px_0_rgba(255,255,255,1),0_1px_2px_rgba(0,0,0,0.05)]"
@@ -105,7 +105,7 @@ export const ResourceAllocation = React.memo(
         </div>
 
         <div className="space-y-4 my-3 flex-1 flex flex-col justify-center">
-          {resourceData.map((resource, index) => (
+          {resourceData.map((resource) => (
             <div key={resource.name} className="group/item">
               <div className="flex items-center justify-between mb-2">
                 <span

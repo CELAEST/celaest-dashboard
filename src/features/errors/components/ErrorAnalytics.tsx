@@ -7,7 +7,6 @@ import {
   Monitor,
   ShieldCheck,
   CheckCircle,
-  Warning,
   Pulse,
 } from "@phosphor-icons/react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";

@@ -6,11 +6,6 @@ import {
   Shield,
   List,
   SquaresFour,
-  Database,
-  CloudCheck,
-  WifiHigh,
-  CheckCircle,
-  XCircle,
 } from "@phosphor-icons/react";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "motion/react";
@@ -54,35 +49,7 @@ const RevenueChart = dynamic(
   { ssr: false, loading: () => <ChartSkeleton /> },
 );
 
-// ─── Status Pill ──────────────────────────────────────────────────
-const StatusPill = ({
-  ok,
-  isDark,
-}: {
-  ok: boolean;
-  isDark: boolean;
-}) => (
-  <div
-    className={cn(
-      "flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest",
-      ok
-        ? isDark
-          ? "text-emerald-400 bg-emerald-500/8"
-          : "text-emerald-600 bg-emerald-50"
-        : isDark
-          ? "text-zinc-500 bg-zinc-800"
-          : "text-gray-400 bg-gray-100",
-    )}
-  >
-    <div
-      className={cn(
-        "w-1.5 h-1.5 rounded-full",
-        ok ? "bg-emerald-400 animate-pulse" : isDark ? "bg-zinc-600" : "bg-gray-300",
-      )}
-    />
-    {ok ? "Online" : "Offline"}
-  </div>
-);
+
 
 // ==================== SUPER ADMIN VIEW ====================
 const SuperAdminDashboard = ({
@@ -274,17 +241,17 @@ const SuperAdminDashboard = ({
               </div>
 
               {/* ═══ BOTTOM ROW: Chart + System Health ═══ */}
-              <div className="flex flex-col lg:flex-row gap-4 flex-1 min-h-[0px]">
+              <div className="flex flex-col lg:flex-row gap-4 flex-1 min-h-0">
                 {/* Main Graph (Flexes to fill remaining vertical or horizontal space) */}
                 <div
                   className={cn(
-                    "flex-1 rounded-xl border flex flex-col min-h-[0px] min-w-[0px] overflow-hidden",
+                    "flex-1 rounded-xl border flex flex-col min-h-0 min-w-0 overflow-hidden",
                     isDark
                       ? "bg-zinc-900/40 border-zinc-800/80"
                       : "bg-white border-gray-200",
                   )}
                 >
-                  <div className="p-4 flex flex-col h-full min-h-[0px]">
+                  <div className="p-4 flex flex-col h-full min-h-0">
                     <div className="flex justify-between items-center mb-3 shrink-0">
                       <div>
                         <h3
@@ -310,7 +277,7 @@ const SuperAdminDashboard = ({
                         LIVE
                       </div>
                     </div>
-                    <div className="flex-1 w-full min-h-[0px] relative">
+                    <div className="flex-1 w-full min-h-0 relative">
                       <div className="absolute inset-0">
                         <RevenueChart data={salesSeries} />
                       </div>
@@ -319,7 +286,7 @@ const SuperAdminDashboard = ({
                 </div>
 
                 {/* System Health Holographic Panel */}
-                <div className="lg:w-[320px] xl:w-[350px] shrink-0 flex flex-col min-h-[0px]">
+                <div className="lg:w-[320px] xl:w-[350px] shrink-0 flex flex-col min-h-0">
                   <DynamicSystemHealth health={health} dashboard={dashboard} isDark={isDark} />
                 </div>
               </div>

@@ -305,7 +305,7 @@ export const VersionTable: React.FC<VersionTableProps> = memo(
           },
         },
       ];
-    }, [isDark, onEdit, onViewDetails, onDeprecate]);
+    }, [isDark]);
 
     return (
       <div className="w-full">

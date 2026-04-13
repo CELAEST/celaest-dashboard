@@ -17,7 +17,7 @@ interface PageHeaderProps {
   subtitle?: string;
   actions?: React.ReactNode;
 }
-export function PageHeader({ title, subtitle, actions }: PageHeaderProps) {
+export function PageHeader({ title, subtitle }: PageHeaderProps) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   return (

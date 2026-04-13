@@ -252,7 +252,7 @@ export function MarketplaceDashboardView() {
         if (product) {
           const access = checkAccess(product);
           if (access !== "none") {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
+             
             setDetailProduct(product);
           } else {
             handleProductSelect(product);
@@ -260,6 +260,7 @@ export function MarketplaceDashboardView() {
         }
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, products, isOrgsLoading, currentOrg]);
 
   return (

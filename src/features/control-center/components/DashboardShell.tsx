@@ -2,12 +2,11 @@
 
 import {
   useState,
-  useSyncExternalStore,
   useEffect,
   startTransition,
 } from "react";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
-import { useTheme } from "@/features/shared/hooks/useTheme";
+
 import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 import { motion } from "motion/react";
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
@@ -27,7 +26,7 @@ import { AnimatedSlot } from "./AnimatedSlot";
 import { useDashboardRouter } from "../hooks/useDashboardRouter";
 import { ValidTabId } from "../config/feature-registry";
 
-const emptySubscribe = () => () => {};
+
 
 export function DashboardShell() {
   const searchParams = useSearchParams();
@@ -84,9 +83,7 @@ export function DashboardShell() {
     return () => clearTimeout(t);
   }, [wasRevoked, currentOrg]);
 
-  const { theme } = useTheme();
   const { user, isLoading } = useAuth();
-  const isDark = theme === "dark";
 
   const isGuest = !isLoading && !user;
   const authMode = searchParams.get("mode");
@@ -98,12 +95,6 @@ export function DashboardShell() {
     navigateTo(tabId as ValidTabId);
   };
 
-  // Fix hydration mismatch
-  const mounted = useSyncExternalStore(
-    emptySubscribe,
-    () => true,
-    () => false,
-  );
 
   // Block render while:
   // 1. Auth is loading
