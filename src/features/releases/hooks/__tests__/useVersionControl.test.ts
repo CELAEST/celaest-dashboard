@@ -55,8 +55,8 @@ const mockInventoryResponse = {
 describe('useVersionControl', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(assetsService.getGlobalReleases).mockResolvedValue(mockReleasesResponse as any);
-    vi.mocked(assetsService.fetchInventory).mockResolvedValue(mockInventoryResponse as any);
+    vi.mocked(assetsService.getGlobalReleases).mockResolvedValue(mockReleasesResponse as never);
+    vi.mocked(assetsService.fetchInventory).mockResolvedValue(mockInventoryResponse as never);
   });
 
   it('fetches versions and available assets correctly', async () => {
@@ -80,7 +80,7 @@ describe('useVersionControl', () => {
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-    vi.mocked(assetsService.updateRelease).mockResolvedValue({} as any);
+    vi.mocked(assetsService.updateRelease).mockResolvedValue({} as never);
 
     act(() => {
       result.current.handleDeprecate('rel-1');
@@ -103,7 +103,7 @@ describe('useVersionControl', () => {
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-    vi.mocked(assetsService.createRelease).mockResolvedValue({} as any);
+    vi.mocked(assetsService.createRelease).mockResolvedValue({} as never);
 
     await act(async () => {
       await result.current.handleSaveVersion({

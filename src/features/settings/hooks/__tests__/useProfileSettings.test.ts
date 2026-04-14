@@ -52,7 +52,7 @@ describe('useProfileSettings', () => {
   });
 
   it('fetches profile data successfully', async () => {
-    vi.mocked(settingsApi.getMe).mockResolvedValue(mockUser as any);
+    vi.mocked(settingsApi.getMe).mockResolvedValue(mockUser as never);
 
     const { result } = renderHook(() => useProfileSettings(), {
       wrapper: createWrapper(),
@@ -69,8 +69,8 @@ describe('useProfileSettings', () => {
   });
 
   it('handles optimistic updates when saving profile', async () => {
-    vi.mocked(settingsApi.getMe).mockResolvedValue(mockUser as any);
-    vi.mocked(settingsApi.updateMe).mockResolvedValue({ ...mockUser, display_name: 'New Name' } as any);
+    vi.mocked(settingsApi.getMe).mockResolvedValue(mockUser as never);
+    vi.mocked(settingsApi.updateMe).mockResolvedValue({ ...mockUser, display_name: 'New Name' } as never);
 
     const { result } = renderHook(() => useProfileSettings(), {
       wrapper: createWrapper(),
@@ -94,7 +94,7 @@ describe('useProfileSettings', () => {
   });
 
   it('handles email change via Supabase', async () => {
-    vi.mocked(settingsApi.getMe).mockResolvedValue(mockUser as any);
+    vi.mocked(settingsApi.getMe).mockResolvedValue(mockUser as never);
     mockUpdateUser.mockResolvedValue({ data: {}, error: null });
 
     const { result } = renderHook(() => useProfileSettings(), {
@@ -114,7 +114,7 @@ describe('useProfileSettings', () => {
   });
 
   it('toggles OAuth account linking (unlink)', async () => {
-    vi.mocked(settingsApi.getMe).mockResolvedValue(mockUser as any);
+    vi.mocked(settingsApi.getMe).mockResolvedValue(mockUser as never);
     vi.mocked(settingsApi.unlinkProvider).mockResolvedValue({ message: 'Success' });
 
     const { result } = renderHook(() => useProfileSettings(), {
@@ -135,7 +135,7 @@ describe('useProfileSettings', () => {
   });
 
   it('toggles OAuth account linking (link)', async () => {
-    vi.mocked(settingsApi.getMe).mockResolvedValue(mockUser as any);
+    vi.mocked(settingsApi.getMe).mockResolvedValue(mockUser as never);
     mockSignInWithOAuth.mockResolvedValue({ data: {}, error: null });
 
     const { result } = renderHook(() => useProfileSettings(), {

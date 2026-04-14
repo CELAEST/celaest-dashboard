@@ -46,7 +46,7 @@ const mockApiKeysResponse = {
 describe('useDeveloperSettings', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(api.get).mockResolvedValue(mockApiKeysResponse as any);
+    vi.mocked(api.get).mockResolvedValue(mockApiKeysResponse as never);
   });
 
   it('fetches api keys correctly', async () => {
@@ -69,7 +69,7 @@ describe('useDeveloperSettings', () => {
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-    vi.mocked(api.post).mockResolvedValue({} as any);
+    vi.mocked(api.post).mockResolvedValue({} as never);
 
     act(() => {
       result.current.generateKey();

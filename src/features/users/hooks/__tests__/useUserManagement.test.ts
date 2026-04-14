@@ -54,7 +54,7 @@ const mockUsersResponse = {
 describe('useUserManagement', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(usersApi.getUsers).mockResolvedValue(mockUsersResponse as any);
+    vi.mocked(usersApi.getUsers).mockResolvedValue(mockUsersResponse as never);
   });
 
   it('fetches users and computes total', async () => {
@@ -105,7 +105,7 @@ describe('useUserManagement', () => {
 
     await waitFor(() => expect(result.current.loading).toBe(false));
 
-    vi.mocked(usersApi.createUser).mockResolvedValue({} as any);
+    vi.mocked(usersApi.createUser).mockResolvedValue({} as never);
 
     let success = false;
     await act(async () => {
@@ -128,7 +128,7 @@ describe('useUserManagement', () => {
 
     await waitFor(() => expect(result.current.loading).toBe(false));
 
-    vi.mocked(usersApi.deleteUser).mockResolvedValue({} as any);
+    vi.mocked(usersApi.deleteUser).mockResolvedValue({} as never);
 
     act(() => {
       result.current.deleteUser('u1');
@@ -150,7 +150,7 @@ describe('useUserManagement', () => {
 
     await waitFor(() => expect(result.current.loading).toBe(false));
 
-    vi.mocked(usersApi.updateRole).mockResolvedValue({} as any);
+    vi.mocked(usersApi.updateRole).mockResolvedValue({} as never);
 
     act(() => {
       result.current.handleChangeRole('u2', 'admin');

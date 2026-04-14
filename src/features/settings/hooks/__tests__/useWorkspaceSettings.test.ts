@@ -61,7 +61,7 @@ const mockMembersResponse = {
 describe('useWorkspaceSettings', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(usersApi.getUsers).mockResolvedValue(mockMembersResponse as any);
+    vi.mocked(usersApi.getUsers).mockResolvedValue(mockMembersResponse as never);
   });
 
   it('fetches members and maps them correctly', async () => {
@@ -116,7 +116,7 @@ describe('useWorkspaceSettings', () => {
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-    vi.mocked(usersApi.createUser).mockResolvedValue({} as any);
+    vi.mocked(usersApi.createUser).mockResolvedValue({} as never);
 
     // Initial state
     act(() => result.current.setShowInviteModal(true));
@@ -151,7 +151,7 @@ describe('useWorkspaceSettings', () => {
 
     vi.mocked(usersApi.updateRole).mockImplementation(async () => {
       await new Promise(r => setTimeout(r, 100));
-      return {} as any;
+      return {} as never;
     });
 
     act(() => {

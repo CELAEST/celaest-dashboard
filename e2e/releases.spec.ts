@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { setupAuthenticatedSession, E2E_USER } from './fixtures';
+import { setupAuthenticatedSession } from './fixtures';
 
 test.describe('Releases Manager E2E', () => {
 

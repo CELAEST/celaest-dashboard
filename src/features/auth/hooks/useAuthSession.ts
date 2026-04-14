@@ -150,7 +150,7 @@ export function useAuthSession() {
     return () => {
       subscription.unsubscribe();
     };
-  }, [supabase, setLoading, reset, syncSession]);
+  }, [supabase, setLoading, reset, syncSession, setAuth]);
 
 
   return { supabase };

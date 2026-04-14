@@ -51,7 +51,7 @@ const mockWebhooks = [
 describe('useWebhooks', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(settingsApi.getWebhooks).mockResolvedValue(mockWebhooks as any);
+    vi.mocked(settingsApi.getWebhooks).mockResolvedValue(mockWebhooks as never);
   });
 
   it('fetches webhooks correctly', async () => {
@@ -73,7 +73,7 @@ describe('useWebhooks', () => {
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-    vi.mocked(settingsApi.createWebhook).mockResolvedValue({} as any);
+    vi.mocked(settingsApi.createWebhook).mockResolvedValue({} as never);
 
     act(() => {
       result.current.createWebhook({ url: 'https://test.com', events: ['user.created'] });
@@ -95,7 +95,7 @@ describe('useWebhooks', () => {
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-    vi.mocked(settingsApi.deleteWebhook).mockResolvedValue({} as any);
+    vi.mocked(settingsApi.deleteWebhook).mockResolvedValue({} as never);
 
     act(() => {
       result.current.deleteWebhook('wh-1');
