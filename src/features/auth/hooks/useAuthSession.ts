@@ -77,6 +77,35 @@ export function useAuthSession() {
     
     // E2E Bypass: Evitar que Supabase borre el estado de Zustand simulado
     if (typeof window !== 'undefined' && window.sessionStorage.getItem('playwright-token')) {
+      // CRITICAL: Synthesize a full session so useApiAuth returns a valid token.
+      // Without this, session stays null → token is null → all React Query hooks
+      // with `enabled: !!token` are disabled → no data fetching → empty UIs.
+      //
+      // RACE CONDITION FIX: Zustand's persist middleware hydrates from localStorage
+      // asynchronously. When this effect fires, getState().user may still be null
+      // (the pre-hydration default). We read directly from localStorage as fallback
+      // to bypass Zustand's async hydration timing.
+      const playwrightToken = window.sessionStorage.getItem('playwright-token')!;
+      let existingUser = useAuthStore.getState().user;
+      if (!existingUser) {
+        try {
+          const stored = JSON.parse(localStorage.getItem('celaest-auth-storage') || '{}');
+          existingUser = stored?.state?.user || null;
+        } catch { /* ignore parse errors */ }
+      }
+      if (existingUser) {
+        setAuth({
+          user: existingUser,
+          session: {
+            user: existingUser,
+            accessToken: playwrightToken,
+            refreshToken: 'e2e-refresh-token',
+            expiresAt: Math.floor(Date.now() / 1000) + 86400, // 24h from now
+          },
+        });
+      } else {
+        setLoading(false);
+      }
       return;
     }
 
