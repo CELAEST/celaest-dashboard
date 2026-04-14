@@ -49,7 +49,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
     <AnimatePresence>
       {isOpen && (
         <div
-          className="fixed inset-0 z-[120] flex items-center justify-center p-4 sm:p-6"
+          className="fixed inset-0 z-120 flex items-center justify-center p-4 sm:p-6"
           role="dialog"
           aria-modal="true"
           tabIndex={-1}
@@ -69,7 +69,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               exit={{ opacity: 0, scale: 0.96, y: 16 }}
               transition={{ type: "spring", damping: 24, stiffness: 320 }}
               onClick={(event) => event.stopPropagation()}
-              className={`relative pointer-events-auto shrink-0 w-[30rem] min-w-[320px] sm:min-w-[30rem] max-w-[90vw] overflow-hidden rounded-[2rem] border shadow-2xl ${
+              className={`relative pointer-events-auto shrink-0 w-120 min-w-[320px] sm:min-w-120 max-w-[90vw] overflow-hidden rounded-4xl border shadow-2xl ${
                 isDark
                   ? "bg-[#07090d] border-white/10 shadow-cyan-950/30"
                   : "bg-white border-gray-200 shadow-black/10"
@@ -113,7 +113,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                   </span>
 
                   <div
-                    className={`mx-auto flex h-[4.5rem] w-[4.5rem] items-center justify-center rounded-[1.5rem] border ${
+                    className={`mx-auto flex h-18 w-18 items-center justify-center rounded-3xl border ${
                       isDark
                         ? "border-cyan-500/20 bg-cyan-500/10 text-cyan-300 shadow-[0_0_30px_rgba(34,211,238,0.16)]"
                         : "border-blue-200 bg-blue-50 text-blue-600"
@@ -148,7 +148,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                     }}
                     autoFocus
                     size="lg"
-                    className={`h-[3.25rem] w-full rounded-2xl border text-sm font-semibold transition-all ${
+                    className={`h-13 w-full rounded-2xl border text-sm font-semibold transition-all ${
                       isDark
                         ? "border-white/10 bg-white text-black hover:bg-gray-200"
                         : "border-gray-900 bg-gray-900 text-white hover:bg-gray-800"
@@ -181,7 +181,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                       onClose();
                     }}
                     size="lg"
-                    className={`h-[3.25rem] w-full rounded-2xl border text-sm font-semibold transition-all ${
+                    className={`h-13 w-full rounded-2xl border text-sm font-semibold transition-all ${
                       isDark
                         ? "border-white/15 bg-white/5 text-white hover:bg-white/10"
                         : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50"

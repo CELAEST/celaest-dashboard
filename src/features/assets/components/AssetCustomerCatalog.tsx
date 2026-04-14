@@ -38,7 +38,7 @@ export const AssetCustomerCatalog: React.FC<
    
   React.useEffect(() => {
     refresh();
-  }, []);
+  }, [refresh]);
 
   // Check if we need to auto-open an asset modal from a recent purchase
   React.useEffect(() => {

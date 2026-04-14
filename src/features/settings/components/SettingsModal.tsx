@@ -56,7 +56,7 @@ export function SettingsModal({
       {/* Modal Content */}
       <div
         className={cn(
-          "relative shrink-0 rounded-2xl p-6 w-[28rem] min-w-[320px] sm:min-w-[28rem] max-w-[95vw] max-h-[90vh] overflow-y-auto shadow-2xl transition-all duration-300 animate-in fade-in zoom-in",
+          "relative shrink-0 rounded-2xl p-6 w-112 min-w-[320px] sm:min-w-112 max-w-[95vw] max-h-[90vh] overflow-y-auto shadow-2xl transition-all duration-300 animate-in fade-in zoom-in",
           isDark
             ? "bg-[#0a0a0a] border border-white/10 shadow-black/50"
             : "bg-white border border-gray-200 shadow-gray-400/20",

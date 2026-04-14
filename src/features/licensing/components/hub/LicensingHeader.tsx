@@ -36,8 +36,7 @@ export const LicensingHeader: React.FC<LicensingHeaderProps> = ({
     { id: "analytics", label: "Analytics" },
   ];
 
-  const currentStatusLabel =
-    STATUS_OPTIONS.find((o) => o.value === statusFilter)?.label ?? "Estado";
+
 
   return (
     <PageBanner

@@ -104,6 +104,7 @@ export function DataTable<TData, TValue>({
     [data, columns, sorting],
   );
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable(tableConfig);
 
   const displayTotal = totalItems ?? data.length;

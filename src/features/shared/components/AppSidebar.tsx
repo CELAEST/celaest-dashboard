@@ -5,7 +5,6 @@ import { useShallow } from "zustand/react/shallow";
 import { motion } from "motion/react";
 import { SignOut, Bomb } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
-import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 import { usePermissions } from "@/features/auth/hooks/useAuthorization";
@@ -33,7 +32,7 @@ export const AppSidebar = React.memo(function AppSidebar({
   const router = useRouter(); // Initialize router
   const [isHovered, setIsHovered] = useState(false);
   const [showSignOutModal, setShowSignOutModal] = useState(false);
-  const { theme } = useTheme();
+
   const { signOut } = useAuth();
 
   // Selective subscriptions for performance and reactivity

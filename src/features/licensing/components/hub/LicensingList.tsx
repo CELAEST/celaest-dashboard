@@ -1,11 +1,7 @@
-import React, { useState, useRef, useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import {
-  MagnifyingGlass,
-  Funnel,
   Users,
   DotsThreeVertical,
-  CaretDown,
-  Check,
   Envelope,
   Cpu,
   HardDrive,
@@ -16,7 +12,7 @@ import {
   FileText,
   Lifebuoy,
 } from "@phosphor-icons/react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useRole } from "@/features/auth/hooks/useAuthorization";
 import { LicenseResponse } from "@/features/licensing/types";
@@ -40,10 +36,7 @@ interface LicensingListProps {
 export const LicensingList: React.FC<LicensingListProps> = ({
   licenses,
   loading,
-  searchQuery,
-  setSearchQuery,
-  statusFilter,
-  setStatusFilter,
+  // removed unused searchQuery, setSearchQuery, setStatusFilter
   total,
   hasNextPage,
   isFetchingNextPage,
@@ -55,32 +48,7 @@ export const LicensingList: React.FC<LicensingListProps> = ({
   const showAdminData =
     isSuperAdmin || role === "super_admin" || role === "admin";
 
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const statusOptions = [
-    { value: "all", label: "Todos los Estados" },
-    { value: "active", label: "Activo" },
-    { value: "expired", label: "Expirado" },
-    { value: "revoked", label: "Revocado" },
-    { value: "suspended", label: "Suspendido" },
-  ];
-
-  const currentStatusLabel =
-    statusOptions.find((opt) => opt.value === statusFilter)?.label || "Estado";
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsDropdownOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   const formatDate = (dateStr?: string) => {
     if (!dateStr) return "---";

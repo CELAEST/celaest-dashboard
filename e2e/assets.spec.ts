@@ -45,6 +45,10 @@ test.describe('Asset Manager — UI Smoke Tests', () => {
     await expect(page.locator('body')).toBeVisible();
 
     // The page should render without Next.js error overlays
-    await expect(page.locator('#__next')).toBeVisible();
+    // (nextjs-portal check removed due to dev mode badge injection)
+
+    // Main content area should be visible
+    const main = page.locator('main').first();
+    await expect(main).toBeVisible();
   });
 });

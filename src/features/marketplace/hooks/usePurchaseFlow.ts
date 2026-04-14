@@ -151,7 +151,7 @@ export const usePurchaseFlow = (onClose: () => void, initialStep = 1, onSuccess?
     }
 
     purchaseMutation.mutate(productId);
-  }, [purchaseMutation, isAuthReady, isOrgsLoading, isReady, token, orgId, activeCoupon]);
+  }, [purchaseMutation, isAuthReady, isOrgsLoading, isReady, token, orgId]);
 
   return {
     step,

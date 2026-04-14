@@ -63,6 +63,7 @@ export const AIKeyModal: React.FC<AIKeyModalProps> = ({
     },
   });
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const providerValue = watch("provider");
 
   React.useEffect(() => {

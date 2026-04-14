@@ -18,7 +18,6 @@ export const VersionControl: React.FC<VersionControlProps> = ({ createRef }) => 
 
   const {
     versions,
-    activeMenu,
     isEditorOpen,
     editingVersion,
     detailsModalOpen,
@@ -32,7 +31,6 @@ export const VersionControl: React.FC<VersionControlProps> = ({ createRef }) => 
     handleDeprecate,
     handleSaveVersion,
     handleViewDetails,
-    toggleMenu,
     setIsEditorOpen,
     setDetailsModalOpen,
     availableAssets,

@@ -5,7 +5,6 @@ import {
   Clock,
   Lightning,
   Target,
-  CircleNotch,
   Gauge,
 } from "@phosphor-icons/react";
 import { useTelemetry } from "../../hooks/useOperations";
