@@ -80,11 +80,13 @@ export function MarketplaceDashboardView() {
 
     // 1. Personal Assets — filter by current org so that products purchased in
     // one organization don't bleed into another workspace's marketplace view.
+    // Plan virtual assets (accessType === "subscription") belong to the user regardless of workspace, 
+    // but the backend assigns them the seller's organization ID.
     const matchedAsset = assets.find(
       (a) =>
         a.status === "active" &&
         (a.productId === prod.id || a.slug === prod.slug) &&
-        (!currentOrg || a.organizationId === currentOrg.id),
+        (!currentOrg || a.organizationId === currentOrg.id || a.accessType === "subscription"),
     );
     if (matchedAsset) {
       // If the asset was granted via subscription/plan, show "En Plan" not "Adquirido"
@@ -102,7 +104,7 @@ export function MarketplaceDashboardView() {
     // EXCEPTION: In CELAEST context, we ignore organization inventory for the UI button.
     // This allows Super Admins (owners of CELAEST) to still test the purchase flow
     // for products that are NOT included in their current plan.
-    const isCelaest = currentOrg?.slug === "celaest-official";
+    const isCelaest = currentOrg?.slug === "celaest-official" || currentOrg?.slug === "celaest" || currentOrg?.slug?.toLowerCase().includes("celaest");
     if (!isCelaest) {
       const inInventory = inventory?.some(
         (a) => a.productId === prod.id || a.slug === prod.slug,

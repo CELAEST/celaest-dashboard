@@ -5,6 +5,7 @@ import { useShallow } from "zustand/react/shallow";
 import { motion } from "motion/react";
 import { SignOut, Bomb } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
+import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 import { usePermissions } from "@/features/auth/hooks/useAuthorization";
@@ -32,7 +33,7 @@ export const AppSidebar = React.memo(function AppSidebar({
   const router = useRouter(); // Initialize router
   const [isHovered, setIsHovered] = useState(false);
   const [showSignOutModal, setShowSignOutModal] = useState(false);
-
+  const { theme } = useTheme();
   const { signOut } = useAuth();
 
   // Selective subscriptions for performance and reactivity
@@ -45,6 +46,7 @@ export const AppSidebar = React.memo(function AppSidebar({
   const currentOrgId = currentOrg?.id;
 
   const { hasPermission } = usePermissions();
+  const isDark = theme === "dark";
 
   // Memoizar secciones y filtrar sus ítems
   const visibleMenuSections = useMemo(
@@ -85,29 +87,8 @@ export const AppSidebar = React.memo(function AppSidebar({
     setShowSignOutModal(false);
   }, []);
 
-  const navRef = React.useRef<HTMLElement>(null);
-  const sidebarRef = React.useRef<HTMLDivElement>(null);
   const handleMouseEnter = useCallback(() => setIsHovered(true), []);
-  const handleMouseLeave = useCallback(() => {
-    // Only collapse if focus is NOT inside the sidebar (keyboard user)
-    if (sidebarRef.current?.contains(document.activeElement)) return;
-    setIsHovered(false);
-    if (navRef.current) {
-      navRef.current.scrollTo({ top: 0, behavior: "smooth" });
-    }
-  }, []);
-
-  // Expand on keyboard focus-within, collapse on blur-out
-  const handleFocusIn = useCallback(() => setIsHovered(true), []);
-  const handleFocusOut = useCallback((e: React.FocusEvent) => {
-    // Only collapse if focus moved OUTSIDE the sidebar
-    if (!sidebarRef.current?.contains(e.relatedTarget as Node)) {
-      setIsHovered(false);
-      if (navRef.current) {
-        navRef.current.scrollTo({ top: 0, behavior: "smooth" });
-      }
-    }
-  }, []);
+  const handleMouseLeave = useCallback(() => setIsHovered(false), []);
 
   const handleItemClick = useCallback(
     (id: string) => {
@@ -123,25 +104,32 @@ export const AppSidebar = React.memo(function AppSidebar({
   // Clases memoizadas
   const containerClassName = useMemo(
     () =>
-      "h-screen fixed left-0 top-0 z-50 flex flex-col backdrop-blur-2xl border-r transition-colors duration-300 bg-white/80 border-gray-200 shadow-xl dark:bg-[#020202]/80 dark:border-white/[0.05] dark:shadow-[4px_0_24px_rgba(0,0,0,0.5)] overflow-x-hidden",
-    [],
+      `h-screen fixed left-0 top-0 z-50 flex flex-col backdrop-blur-2xl border-r transition-colors duration-300 ${
+        isDark
+          ? "bg-[#020202]/80 border-white/[0.05] shadow-[4px_0_24px_rgba(0,0,0,0.5)]"
+          : "bg-white/80 border-gray-200 shadow-xl"
+      }`,
+    [isDark],
   );
 
   return (
     <>
       <motion.div
-        ref={sidebarRef}
         className={containerClassName}
         initial={{ width: "88px" }}
         animate={{ width: isHovered ? "280px" : "88px" }}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
-        onFocus={handleFocusIn}
-        onBlur={handleFocusOut}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
       >
-        <div className="h-20 flex items-center justify-center relative overflow-hidden px-4 border-b border-transparent dark:border-white/5">
-          <div className="absolute inset-0 bg-linear-to-r from-blue-500/5 to-transparent dark:from-white/2 dark:to-transparent" />
+        <div className="h-20 flex items-center justify-center relative overflow-hidden px-4 border-b border-transparent dark:border-white/2">
+          <div
+            className={`absolute inset-0 bg-linear-to-r ${
+              isDark
+                ? "from-white/2 to-transparent"
+                : "from-blue-500/5 to-transparent"
+            }`}
+          />
 
           <motion.div
             className="relative z-10 flex items-center gap-1 w-full justify-center"
@@ -158,8 +146,8 @@ export const AppSidebar = React.memo(function AppSidebar({
               transition={{ duration: 0.3 }}
             >
               <Logo
-                className="w-full h-full text-blue-600 dark:text-cyan-400"
-                color="currentColor"
+                className="w-full h-full"
+                color={isDark ? "#22d3ee" : "#2563eb"}
               />
             </motion.div>
 
@@ -173,10 +161,20 @@ export const AppSidebar = React.memo(function AppSidebar({
               transition={{ duration: 0.3 }}
             >
               <div className="flex flex-col shrink-0 leading-none whitespace-nowrap">
-                <span className="text-xl font-bold tracking-tight bg-linear-to-r from-blue-600 via-blue-500 to-indigo-600 bg-clip-text text-transparent dark:text-white dark:bg-none">
+                <span
+                  className={`text-xl font-bold tracking-tight ${
+                    isDark
+                      ? "text-white"
+                      : "bg-linear-to-r from-blue-600 via-blue-500 to-indigo-600 bg-clip-text text-transparent"
+                  }`}
+                >
                   CELAEST
                 </span>
-                <span className="text-[10px] font-medium tracking-[0.21em] mt-0.5 text-blue-500/60 dark:text-gray-500">
+                <span
+                  className={`text-[10px] font-medium tracking-[0.21em] mt-0.5 ${
+                    isDark ? "text-gray-500" : "text-blue-500/60"
+                  }`}
+                >
                   DASHBOARD
                 </span>
               </div>
@@ -188,9 +186,7 @@ export const AppSidebar = React.memo(function AppSidebar({
         {!isGuest && <OrgSwitcher isExpanded={isHovered} />}
 
         <nav
-          ref={navRef}
-          aria-label="Navegación principal"
-          className={`flex-1 py-4 flex flex-col px-3 overflow-y-auto no-scrollbar transition-all duration-300 ${
+          className={`flex-1 py-6 flex flex-col px-3 overflow-y-auto no-scrollbar transition-all duration-300 ${
             isHovered ? "gap-6" : "gap-2"
           }`}
         >
@@ -205,7 +201,11 @@ export const AppSidebar = React.memo(function AppSidebar({
                 className="overflow-hidden flex flex-col justify-end"
               >
                 <div className="px-3 pb-2">
-                  <span className="text-[11px] whitespace-nowrap font-bold tracking-widest uppercase text-gray-400 dark:text-gray-500/80">
+                  <span
+                    className={`text-[11px] whitespace-nowrap font-bold tracking-widest uppercase ${
+                      isDark ? "text-gray-500/80" : "text-gray-400"
+                    }`}
+                  >
                     {section.title}
                   </span>
                 </div>
@@ -217,6 +217,7 @@ export const AppSidebar = React.memo(function AppSidebar({
                   isActive={activeTab === item.id}
                   isHovered={isHovered}
                   isLocked={isGuest && item.id !== "marketplace"}
+                  isDark={isDark}
                   onClick={() => handleItemClick(item.id)}
                 />
               ))}
@@ -225,7 +226,11 @@ export const AppSidebar = React.memo(function AppSidebar({
         </nav>
 
         {!isGuest && (
-          <div className="p-4 border-t flex flex-col gap-3 border-gray-200 dark:border-white/5">
+          <div
+            className={`p-4 border-t flex flex-col gap-3 ${
+              isDark ? "border-white/5" : "border-gray-200"
+            }`}
+          >
             {/* Live Connection Status */}
             <motion.div
               className="flex items-center gap-2 px-1"
@@ -236,10 +241,14 @@ export const AppSidebar = React.memo(function AppSidebar({
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
               </div>
               <div className="flex flex-col">
-                <span className="text-[9px] font-black uppercase tracking-widest text-blue-600/80 dark:text-cyan-400/80">
+                <span
+                  className={`text-[9px] font-black uppercase tracking-widest ${isDark ? "text-cyan-400/80" : "text-blue-600/80"}`}
+                >
                   Live Connection
                 </span>
-                <span className="text-[8px] font-mono truncate max-w-[140px] text-gray-400 dark:text-gray-600">
+                <span
+                  className={`text-[8px] font-mono truncate max-w-[140px] ${isDark ? "text-gray-600" : "text-gray-400"}`}
+                >
                   ID: {currentOrgId || "N/A"}
                 </span>
               </div>
@@ -247,8 +256,11 @@ export const AppSidebar = React.memo(function AppSidebar({
 
             <button
               onClick={handleSignOutClick}
-              aria-label="Cerrar sesión"
-              className="flex items-center w-full h-10 transition-colors rounded-xl px-3 text-gray-500 hover:text-red-600 hover:bg-red-50 dark:text-gray-400 dark:hover:text-red-400 dark:hover:bg-red-500/10"
+              className={`flex items-center w-full h-10 transition-colors rounded-xl px-3 ${
+                isDark
+                  ? "text-gray-400 hover:text-red-400 hover:bg-red-500/10"
+                  : "text-gray-500 hover:text-red-600 hover:bg-red-50"
+              }`}
             >
               <SignOut size={20} />
               <motion.span
@@ -274,7 +286,11 @@ export const AppSidebar = React.memo(function AppSidebar({
                     window.location.href = "/";
                   }
                 }}
-                className="flex items-center w-full h-10 transition-colors rounded-xl px-3 text-orange-600 hover:text-white hover:bg-orange-500 dark:text-orange-400 dark:hover:text-white dark:hover:bg-orange-500"
+                className={`flex items-center w-full h-10 transition-colors rounded-xl px-3 ${
+                  isDark
+                    ? "text-orange-400 hover:text-white hover:bg-orange-500"
+                    : "text-orange-600 hover:text-white hover:bg-orange-500"
+                }`}
                 title="Nuclear Reset (Dev Only)"
               >
                 <Bomb size={20} />

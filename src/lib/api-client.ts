@@ -198,7 +198,7 @@ async function request<T>(
           responseData = config.schema.parse(responseData);
         } catch (err: unknown) {
           if (err instanceof z.ZodError) {
-            logger.error(`🚨 [Zod ERROR] Path: ${path}`, err.issues);
+            logger.error(`🚨 [Zod ERROR] Path: ${path}`, JSON.stringify(err.issues, null, 2));
             throw new ApiError(
               "Respuesta inválida desde el servidor",
               500,

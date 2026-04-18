@@ -21,17 +21,9 @@ import { LicensingIcon } from "../../../../components/icons/custom/LicensingIcon
 import { SuperAdminIcon } from "../../../../components/icons/custom/SuperAdminIcon";
 import { SettingsIcon } from "../../../../components/icons/custom/SettingsIcon";
 
-export interface ComponentIconProps {
-  size?: number | string;
-  weight?: string;
-  className?: string;
-  isActive?: boolean;
-  isHovered?: boolean;
-}
-
 export interface MenuItem {
   id: string;
-  icon: React.ElementType<ComponentIconProps>;
+  icon: React.ElementType<any>;
   label: string;
   scope: string | null;
 }
