@@ -19,7 +19,10 @@ export const useBilling = () => {
 
       const [subsResponse, invoicesResponse, plansResponse] = await Promise.all([
         billingApi.getSubscriptions(orgId, token),
-        billingApi.getInvoices(orgId, token),
+        billingApi.getInvoices(orgId, token).catch(e => {
+          console.error("Failed to fetch invoices (fallback to []):", e);
+          return { invoices: [] };
+        }),
         billingApi.getPlans(orgId, token),
       ]);
 
