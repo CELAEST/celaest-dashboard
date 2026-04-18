@@ -705,7 +705,7 @@ CREATE INDEX idx_invoices_status ON invoices(status);
 
 -- Sessions
 CREATE INDEX idx_sessions_user ON user_sessions(user_id);
-CREATE INDEX idx_sessions_expires ON user_sessions(expires_at) WHERE expires_at < NOW();
+CREATE INDEX idx_sessions_expires ON user_sessions(expires_at);
 
 -- API Keys
 CREATE INDEX idx_api_keys_user ON user_api_keys(user_id);
