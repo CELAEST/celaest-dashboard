@@ -1,0 +1,1 @@
+ALTER TABLE licenses ALTER COLUMN plan_id DROP NOT NULL;

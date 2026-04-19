@@ -1,5 +1,5 @@
 import { logger } from "@/lib/logger";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { hapticFeedback } from "@/features/shared/utils/sound-effects";
 import { marketplaceService } from "../services/marketplace.service";
@@ -56,8 +56,9 @@ export const usePurchaseFlow = (onClose: () => void, initialStep = 1, onSuccess?
   });
 
   // ── Verification Polling (step 3 — return from Stripe) ──────────
+  const isVerifying = useRef(false);
   useEffect(() => {
-    if (step === 3 && !purchaseComplete && !purchaseMutation.isPending) {
+    if (step === 3 && !purchaseComplete && !purchaseMutation.isPending && !isVerifying.current) {       
       const urlParams = new URLSearchParams(window.location.search);
       const sessionId = urlParams.get("session_id");
 
@@ -66,6 +67,7 @@ export const usePurchaseFlow = (onClose: () => void, initialStep = 1, onSuccess?
         return;
       }
 
+      isVerifying.current = true;
       let attempts = 0;
       const maxAttempts = 30;
       let cancelled = false;
@@ -115,7 +117,10 @@ export const usePurchaseFlow = (onClose: () => void, initialStep = 1, onSuccess?
 
       pollVerification();
 
-      return () => { cancelled = true; };
+      return () => { 
+        cancelled = true; 
+        isVerifying.current = false;
+      };
     }
   }, [step, purchaseComplete, purchaseMutation.isPending, onSuccess, token, orgId]);
 
