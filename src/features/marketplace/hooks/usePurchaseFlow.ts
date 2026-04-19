@@ -56,6 +56,9 @@ export const usePurchaseFlow = (onClose: () => void, initialStep = 1, onSuccess?
   });
 
   // ── Verification Polling (step 3 — return from Stripe) ──────────
+  const onSuccessRef = useRef(onSuccess);
+  useEffect(() => { onSuccessRef.current = onSuccess; }, [onSuccess]);
+
   const isVerifying = useRef(false);
   useEffect(() => {
     if (step === 3 && !purchaseComplete && !purchaseMutation.isPending && !isVerifying.current) {       
@@ -85,7 +88,7 @@ export const usePurchaseFlow = (onClose: () => void, initialStep = 1, onSuccess?
             setStatusMessage("¡Activación completa!");
             setProgress(100);
             hapticFeedback("heavy");
-            if (onSuccess) onSuccess();
+                  if (onSuccessRef.current) onSuccessRef.current();
             return;
           }
 
@@ -122,7 +125,7 @@ export const usePurchaseFlow = (onClose: () => void, initialStep = 1, onSuccess?
         isVerifying.current = false;
       };
     }
-  }, [step, purchaseComplete, purchaseMutation.isPending, onSuccess, token, orgId]);
+  }, [step, purchaseComplete, purchaseMutation.isPending, token, orgId]);
 
   const resetFlow = useCallback(() => {
     setStep(1);
