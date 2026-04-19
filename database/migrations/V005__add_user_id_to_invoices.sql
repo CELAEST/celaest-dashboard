@@ -1,0 +1,1 @@
+ALTER TABLE invoices ADD COLUMN user_id UUID REFERENCES users_profile(id) ON DELETE SET NULL;
