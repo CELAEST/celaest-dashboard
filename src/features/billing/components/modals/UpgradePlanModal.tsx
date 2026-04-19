@@ -93,7 +93,12 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
     }
   };
 
-  const isRestricted = false;
+  const isRestricted = (() => {
+    if (!currentOrg) return false;
+    const isCelaest = currentOrg.slug === "celaest-official" || currentOrg.slug === "celaest" || currentOrg.slug?.toLowerCase().includes("celaest");
+    if (isCelaest) return false;
+    return currentOrg.role !== "owner" && currentOrg.role !== "super_admin" && currentOrg.role !== "admin";
+  })();
 
   // Funnel and sort plans — map color by plan code
   const planColorMap: Record<string, "blue" | "purple" | "emerald"> = {
