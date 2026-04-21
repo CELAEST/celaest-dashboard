@@ -23,7 +23,7 @@ import { SettingsIcon } from "../../../../components/icons/custom/SettingsIcon";
 
 export interface MenuItem {
   id: string;
-  icon: React.ElementType<any>;
+  icon: React.ElementType;
   label: string;
   scope: string | null;
 }

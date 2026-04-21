@@ -106,24 +106,26 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
                 {isPlan ? "INCLUIDO EN PLAN" : "ADQUIRIDO"}
               </span>
             </div>
-            <button
-              onClick={onDownload}
-              className={`
-                w-full h-12 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-all mb-3
-                ${
-                  isPlan
-                    ? theme === "dark"
-                      ? "bg-linear-to-r from-violet-400 to-purple-400 text-black hover:shadow-lg hover:scale-[1.02]"
-                      : "bg-linear-to-r from-violet-600 to-purple-600 text-white hover:shadow-lg hover:scale-[1.02]"
-                    : theme === "dark"
-                      ? "bg-linear-to-r from-emerald-400 to-green-400 text-black hover:shadow-lg hover:scale-[1.02]"
-                      : "bg-linear-to-r from-emerald-600 to-green-600 text-white hover:shadow-lg hover:scale-[1.02]"
-                }
-              `}
-            >
-              <DownloadSimple className="size-5" />
-              Descargar
-            </button>
+            {!!product.version && (
+              <button
+                onClick={onDownload}
+                className={`
+                  w-full h-12 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-all mb-3
+                  ${
+                    isPlan
+                      ? theme === "dark"
+                        ? "bg-linear-to-r from-violet-400 to-purple-400 text-black hover:shadow-lg hover:scale-[1.02]"
+                        : "bg-linear-to-r from-violet-600 to-purple-600 text-white hover:shadow-lg hover:scale-[1.02]"
+                      : theme === "dark"
+                        ? "bg-linear-to-r from-emerald-400 to-green-400 text-black hover:shadow-lg hover:scale-[1.02]"
+                        : "bg-linear-to-r from-emerald-600 to-green-600 text-white hover:shadow-lg hover:scale-[1.02]"
+                  }
+                `}
+              >
+                <DownloadSimple className="size-5" />
+                Descargar
+              </button>
+            )}
             {!isPlan && effectiveAccess === "owned" && (
               <button
                 onClick={() => onViewLicense?.()}
@@ -217,7 +219,7 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
                 ? product.version.startsWith("v")
                   ? product.version
                   : `v${product.version}`
-                : "1.0.0",
+                : "N/A",
             },
             {
               label: "Published",
