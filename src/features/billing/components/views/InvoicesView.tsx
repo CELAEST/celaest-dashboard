@@ -10,12 +10,18 @@ import { billingApi } from "../../api/billing.api";
 import { toast } from "sonner";
 import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
 import { TableChrome } from "@/components/layout/TableChrome";
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { AestheticInvoiceTemplate } from "../InvoiceHistory/AestheticInvoiceTemplate";
+import * as htmlToImage from "html-to-image";
+import jsPDF from "jspdf";
+import { Invoice } from "../../types";
 
 export const InvoicesView = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [invoiceToPrint, setInvoiceToPrint] = useState<Invoice | null>(null);
+  const printRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
   const { session } = useAuthStore();
   const { currentOrg } = useOrgStore();
@@ -60,12 +66,45 @@ export const InvoicesView = () => {
   const handleDownload = async (invoiceId: string) => {
     setDownloadingId(invoiceId);
     const invoice = invoices.find((i) => i.id === invoiceId);
-    if (invoice?.pdf_url) {
-      window.open(invoice.pdf_url, "_blank");
-    } else {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+    if (!invoice) {
+      setDownloadingId(null);
+      return;
     }
-    setDownloadingId(null);
+
+    try {
+      // Step 1: Set the invoice to print so the hidden component updates
+      setInvoiceToPrint(invoice);
+      
+      // Step 2: Wait for React to render the hidden component
+      await new Promise(resolve => setTimeout(resolve, 50)); 
+      
+      // Step 3: Capture and generate PDF using html-to-image to avoid lab() parsing crashes
+      if (printRef.current) {
+        const dataUrl = await htmlToImage.toPng(printRef.current, {
+          quality: 1,
+          pixelRatio: 2, // High resolution
+          backgroundColor: "#ffffff",
+        });
+        
+        const pdf = new jsPDF("p", "mm", "a4");
+        
+        // A4 size: 210mm x 297mm
+        const pdfWidth = 210;
+        // The element is 800x1131, so aspect ratio is maintained
+        const pdfHeight = (1131 * pdfWidth) / 800;
+        
+        pdf.addImage(dataUrl, "PNG", 0, 0, pdfWidth, pdfHeight);
+        pdf.save(`Invoice_${invoice.invoice_number || invoice.id.slice(0,8)}.pdf`);
+      }
+    } catch (error) {
+      console.error("PDF generation failed:", error);
+      toast.error("Failed to generate PDF");
+      // Fallback
+      if (invoice.pdf_url) window.open(invoice.pdf_url, "_blank");
+    } finally {
+      setDownloadingId(null);
+      setInvoiceToPrint(null);
+    }
   };
 
   if (isLoading) {
@@ -108,6 +147,18 @@ export const InvoicesView = () => {
           onLoadMore={fetchNextPage}
         />
       </TableChrome>
+      
+      {/* Hidden container for PDF generation */}
+      <div className="fixed top-0 left-[-10000px] pointer-events-none z-[-1]">
+        {invoiceToPrint && (
+          <AestheticInvoiceTemplate 
+            ref={printRef} 
+            invoice={invoiceToPrint} 
+            orgName={currentOrg?.name} 
+            language="es"
+          />
+        )}
+      </div>
     </div>
   );
 };

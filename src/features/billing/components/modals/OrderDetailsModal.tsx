@@ -18,6 +18,7 @@ interface OrderDetailsModalProps {
   initialMode?: "view" | "edit";
   onSave?: (updatedOrder: Order) => void;
   onRefund?: () => void;
+  onDownload?: () => void;
   canRefund?: boolean;
   isSuperAdmin?: boolean;
 }
@@ -29,6 +30,7 @@ export function OrderDetailsModal({
   initialMode = "view",
   onSave,
   onRefund,
+  onDownload,
   canRefund = false,
   isSuperAdmin = false,
 }: OrderDetailsModalProps) {
@@ -99,6 +101,7 @@ export function OrderDetailsModal({
             formData={formData}
             mode={mode}
             updateField={updateField}
+            onDownload={onDownload}
           />
         </div>
       </div>

@@ -175,8 +175,8 @@ export const assetsService = {
     await assetsApi.deleteProduct(token, orgId, id);
   },
 
-  async downloadAsset(token: string, assetId: string) {
-    return assetsApi.downloadAsset(token, assetId);
+  async downloadAsset(token: string, assetId: string, orgId?: string) {
+    return assetsApi.downloadAsset(token, assetId, orgId);
   },
 
   async skipVersion(token: string, assetId: string, version: string) {

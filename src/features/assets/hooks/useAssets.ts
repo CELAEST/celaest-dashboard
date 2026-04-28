@@ -20,14 +20,15 @@ export function useAssets() {
   );
   const inventoryTotal = orgInventoryQuery.data?.pages[0]?.total ?? 0;
 
-  const downloadAsset = async (assetId: string, slug?: string) => {
+  const downloadAsset = async (assetId: string, slug?: string, downloadOrgId?: string) => {
     if (!token) {
       toast.error("Authentication required");
       return;
     }
+    const effectiveOrgId = downloadOrgId || orgId;
     const toastId = toast.loading(`Preparando descarga de ${slug || "archivo"}…`);
     try {
-      const result = await assetsService.downloadAsset(token, assetId);
+      const result = await assetsService.downloadAsset(token, assetId, effectiveOrgId);
       const { download_url, suggested_filename, version } = result;
 
       if (!download_url) {

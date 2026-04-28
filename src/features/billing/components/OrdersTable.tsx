@@ -10,7 +10,14 @@ import { ActionMenu } from "./orders/ActionMenu";
 import { useRole } from "@/features/auth/hooks/useAuthorization";
 import { type ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table";
-import { Order } from "../types";
+import { Order, Invoice } from "../types";
+import { AestheticInvoiceTemplate } from "./InvoiceHistory/AestheticInvoiceTemplate";
+import * as htmlToImage from "html-to-image";
+import jsPDF from "jspdf";
+import { ordersApi } from "../api/orders.api";
+import { useApiAuth } from "@/lib/use-api-auth";
+import { toast } from "sonner";
+import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 import {
   DotsThree,
   Warning,
@@ -52,8 +59,73 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
     handleOpenRefund,
     handleRefundOrder,
     isRefunding,
+    downloadingOrderId,
+    setDownloadingOrderId,
   } = useOrders();
   const { isSuperAdmin } = useRole();
+  const { token, orgId } = useApiAuth();
+  const { currentOrg } = useOrgStore();
+  
+  const [invoiceToPrint, setInvoiceToPrint] = React.useState<Invoice | null>(null);
+  const printRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (!downloadingOrderId || !token || !orgId) return;
+
+    const downloadInvoice = async () => {
+      try {
+        const orderData = await ordersApi.getOrder(orgId, token, downloadingOrderId);
+        
+        // Map BackendOrder to Invoice for the template
+        const mappedInvoice: Invoice = {
+          id: orderData.id,
+          organization_id: orgId,
+          order_id: orderData.id,
+          invoice_number: orderData.order_number,
+          status: orderData.status as any,
+          currency: orderData.currency || "USD",
+          subtotal: orderData.subtotal || orderData.total,
+          discount_amount: orderData.discount_amount || 0,
+          tax_amount: orderData.tax_amount || 0,
+          total: orderData.total,
+          customer_name: orderData.user_name || orderData.billing_name,
+          customer_email: orderData.user_email || orderData.billing_email,
+          item_name: orderData.items?.[0]?.name,
+          created_at: orderData.created_at,
+          updated_at: orderData.created_at,
+        };
+
+        setInvoiceToPrint(mappedInvoice);
+        
+        // Wait for React to render the hidden component
+        await new Promise(resolve => setTimeout(resolve, 100)); 
+        
+        if (printRef.current) {
+          const dataUrl = await htmlToImage.toPng(printRef.current, {
+            quality: 1,
+            pixelRatio: 2,
+            backgroundColor: "#ffffff",
+          });
+          
+          const pdf = new jsPDF("p", "mm", "a4");
+          const pdfWidth = 210;
+          const pdfHeight = (1131 * pdfWidth) / 800;
+          
+          pdf.addImage(dataUrl, "PNG", 0, 0, pdfWidth, pdfHeight);
+          pdf.save(`Invoice_${mappedInvoice.invoice_number || mappedInvoice.id.slice(0,8)}.pdf`);
+          toast.success("Invoice downloaded successfully");
+        }
+      } catch (error) {
+        console.error("PDF generation failed:", error);
+        toast.error("Failed to generate PDF");
+      } finally {
+        setDownloadingOrderId(null);
+        setInvoiceToPrint(null);
+      }
+    };
+
+    downloadInvoice();
+  }, [downloadingOrderId, token, orgId, setDownloadingOrderId]);
 
   const getStatusColor = useCallback(
     (status: string) => {
@@ -371,6 +443,7 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
         initialMode={detailsMode}
         onSave={handleSaveOrder}
         onRefund={() => selectedOrder && handleOpenRefund(selectedOrder)}
+        onDownload={() => selectedOrder && setDownloadingOrderId(selectedOrder.id)}
         canRefund={
           selectedOrder?.status === "Completed" ||
           selectedOrder?.status === "Active"
@@ -393,6 +466,18 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
         orderAmount={selectedOrder?.amount || "$0.00"}
         isLoading={isRefunding}
       />
+
+      {/* Hidden container for PDF generation */}
+      <div className="fixed top-0 left-[-10000px] pointer-events-none z-[-1]">
+        {invoiceToPrint && (
+          <AestheticInvoiceTemplate 
+            ref={printRef} 
+            invoice={invoiceToPrint} 
+            orgName={currentOrg?.name} 
+            language="es"
+          />
+        )}
+      </div>
     </div>
   );
 });

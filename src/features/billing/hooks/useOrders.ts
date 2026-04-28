@@ -51,6 +51,7 @@ export const useOrders = () => {
   const [refundModalOpen, setRefundModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [detailsMode, setDetailsMode] = useState<"view" | "edit">("view");
+  const [downloadingOrderId, setDownloadingOrderId] = useState<string | null>(null);
 
   const handleOpenMenu = useCallback((e: React.MouseEvent, id: string) => {
     e.preventDefault();
@@ -95,7 +96,7 @@ export const useOrders = () => {
           setDeleteModalOpen(true);
           break;
         case "download":
-          toast.success(`Downloading invoice for ${activeMenu.id}`);
+          setDownloadingOrderId(activeMenu.id);
           break;
         case "archive":
           toast("Order archived", {
@@ -254,6 +255,8 @@ export const useOrders = () => {
     handleRefundOrder,
     isRefunding: refundMutation.isPending,
     loading: isLoading,
+    downloadingOrderId,
+    setDownloadingOrderId,
     refresh: () => refetch()
   };
 };

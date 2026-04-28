@@ -8,12 +8,14 @@ interface OrderDetailsSidebarProps {
   formData: Order;
   mode: "view" | "edit";
   updateField: (field: keyof Order, value: string) => void;
+  onDownload?: () => void;
 }
 
 export const OrderDetailsSidebar: React.FC<OrderDetailsSidebarProps> = ({
   formData,
   mode,
   updateField,
+  onDownload,
 }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
@@ -196,11 +198,15 @@ export const OrderDetailsSidebar: React.FC<OrderDetailsSidebarProps> = ({
 
       <div className="pt-4">
         <button
-          onClick={() =>
-            toast.success(`Downloading invoice for ${formData.id}...`, {
-              description: "Check your downloads folder.",
-            })
-          }
+          onClick={() => {
+            if (onDownload) {
+              onDownload();
+            } else {
+              toast.success(`Downloading invoice for ${formData.id}...`, {
+                description: "Check your downloads folder.",
+              });
+            }
+          }}
           className={`w-full py-2.5 rounded-xl text-sm font-semibold border flex items-center justify-center gap-2 transition-colors ${
             isDark
               ? "border-white/10 hover:bg-white/5 text-gray-300"
