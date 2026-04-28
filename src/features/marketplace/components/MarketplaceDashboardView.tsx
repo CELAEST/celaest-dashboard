@@ -308,7 +308,7 @@ export function MarketplaceDashboardView() {
               (a) =>
                 (a.productId === detailProduct.id ||
                   a.slug === detailProduct.slug) &&
-                (!currentOrg || a.organizationId === currentOrg.id),
+                (!currentOrg || a.organizationId === currentOrg.id || a.accessType === "subscription"),
             );
             if (asset) {
               downloadAsset(asset.id, detailProduct.slug);
@@ -328,6 +328,7 @@ export function MarketplaceDashboardView() {
             }
 
             // Plan-granted: backend handles via GetPlanGrantedAsset fallback
+            // Pass product ID — backend resolves it as a product lookup, not asset lookup
             if (checkAccess(detailProduct) === "plan") {
               downloadAsset(detailProduct.id, detailProduct.slug);
               return;

@@ -311,10 +311,10 @@ export const assetsApi = {
   /**
    * Obtener URL de descarga para un activo
    */
-  downloadAsset: async (token: string, assetId: string) => {
+  downloadAsset: async (token: string, assetId: string, orgId?: string) => {
     return api.get<{ download_url: string; version: string; file_size: number; suggested_filename: string; license_key: string; asset_id: string; product_id: string }>(
       `/api/v1/user/my/assets/${assetId}/download`,
-      { token }
+      { token, orgId }
     );
   },
 

@@ -5,8 +5,12 @@ export interface BackendOrder {
   order_number: string;
   status: string;
   currency: string;
+  subtotal: number;
+  discount_amount: number;
+  tax_amount: number;
   total: number;
   billing_name: string;
+  billing_email?: string;
   created_at: string;
   items?: { name: string; item_type?: string }[];
   user_name?: string;
