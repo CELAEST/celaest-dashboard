@@ -23,11 +23,12 @@ export const InvoicesView = () => {
   const [invoiceToPrint, setInvoiceToPrint] = useState<Invoice | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
-  const { session } = useAuthStore();
+  const { session, user } = useAuthStore();
   const { currentOrg } = useOrgStore();
 
   const token = session?.accessToken;
   const orgId = currentOrg?.id;
+  const isAdminOrHigher = user?.role !== "client";
 
   const { invoices, totalInvoices, isLoading, hasNextPage, isFetchingNextPage, fetchNextPage } = useInvoicesQuery();
 
@@ -137,8 +138,8 @@ export const InvoicesView = () => {
           isDark={isDark}
           downloadingId={downloadingId}
           onDownload={handleDownload}
-          onVoid={(id) => voidMutation.mutate(id)}
-          onPay={(id) => payMutation.mutate(id)}
+          onVoid={isAdminOrHigher ? (id) => voidMutation.mutate(id) : undefined}
+          onPay={isAdminOrHigher ? (id) => payMutation.mutate(id) : undefined}
           isLoadingAction={voidMutation.isPending || payMutation.isPending}
           isLoading={isLoading}
           totalItems={totalInvoices}
