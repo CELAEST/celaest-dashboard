@@ -15,7 +15,7 @@ import Logo from "@/components/icons/Logo";
 import { menuSections } from "./Sidebar/config";
 import { SidebarMenuItem } from "./Sidebar/SidebarMenuItem";
 import { OrgSwitcher } from "./Sidebar/OrgSwitcher";
-import { useOrgStore } from "../stores/useOrgStore";
+import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 
 interface SidebarProps {
   activeTab: string;
