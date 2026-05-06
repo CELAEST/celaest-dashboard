@@ -123,7 +123,7 @@ export const AppSidebar = React.memo(function AppSidebar({
     <>
       <motion.div
         className={containerClassName}
-        initial={{ width: "88px" }}
+        initial={false}
         animate={{ width: isHovered ? "280px" : "88px" }}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -140,6 +140,7 @@ export const AppSidebar = React.memo(function AppSidebar({
 
           <motion.div
             className="relative z-10 flex items-center gap-2 w-full justify-center"
+            initial={false}
             animate={{
               x: isHovered ? -16 : 0,
               y: isHovered ? 3 : 0,
@@ -148,6 +149,7 @@ export const AppSidebar = React.memo(function AppSidebar({
           >
             <motion.div
               className="shrink-0 flex items-center justify-center"
+              initial={false}
               animate={{
                 width: isHovered ? 40 : 56,
                 height: isHovered ? 40 : 56,
@@ -162,7 +164,7 @@ export const AppSidebar = React.memo(function AppSidebar({
 
             <motion.div
               className="overflow-hidden"
-              initial={{ width: 0, opacity: 0 }}
+              initial={false}
               animate={{
                 width: isHovered ? "auto" : 0,
                 opacity: isHovered ? 1 : 0,
@@ -244,6 +246,7 @@ export const AppSidebar = React.memo(function AppSidebar({
             {/* Live Connection Status */}
             <motion.div
               className="flex items-center gap-2 px-1"
+              initial={false}
               animate={{ opacity: isHovered ? 1 : 0 }}
             >
               <div className="relative flex h-2 w-2">
@@ -275,7 +278,7 @@ export const AppSidebar = React.memo(function AppSidebar({
               <SignOut size={20} />
               <motion.span
                 className="ml-3 whitespace-nowrap font-medium"
-                initial={{ opacity: 0 }}
+                initial={false}
                 animate={{ opacity: isHovered ? 1 : 0 }}
               >
                 Sign Out
@@ -306,7 +309,7 @@ export const AppSidebar = React.memo(function AppSidebar({
                 <Bomb size={20} />
                 <motion.span
                   className="ml-3 whitespace-nowrap font-medium"
-                  initial={{ opacity: 0 }}
+                  initial={false}
                   animate={{ opacity: isHovered ? 1 : 0 }}
                 >
                   Clear Storage

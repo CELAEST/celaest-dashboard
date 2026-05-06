@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { useMarketplaceCouponStore } from "../store";
 import { couponsService } from "@/features/coupons/services/coupons.service";
@@ -16,8 +16,25 @@ export function CouponFAB() {
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const searchParams = useSearchParams();
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        isOpen &&
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen]);
 
   // Silently load and re-validate the active coupon when the user enters the marketplace
   useEffect(() => {
@@ -138,10 +155,10 @@ export function CouponFAB() {
 
   return (
     <>
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3 group">
+      <div ref={containerRef} className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3 group">
         {/* Popover Bubble for Coupons */}
         {isOpen && (
-          <div className="mb-2 w-72 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-200 origin-bottom-right">
+          <div className="mb-2 w-72 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
             <div className="p-4 border-b border-white/10 flex justify-between items-center bg-white/5">
               <h3 className="text-sm font-medium text-white flex items-center gap-2">
                 <Tag className="w-4 h-4 text-cyan-400" />

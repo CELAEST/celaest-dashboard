@@ -68,11 +68,12 @@ export function MarketplaceDashboardView() {
   const {
     assets,
     inventory,
+    isLoading: isAssetsLoading,
     refresh: refreshAssets,
     downloadAsset,
   } = useAssets();
 
-  const { plan } = useBilling();
+  const { plan, isLoading: isBillingLoading } = useBilling();
 
   // Helper: determine product access level
   const checkAccess = (prod: MarketplaceProduct): "owned" | "plan" | "none" => {
@@ -246,7 +247,7 @@ export function MarketplaceDashboardView() {
   };
 
   useEffect(() => {
-    if (isAuthenticated && products.length > 0 && !isOrgsLoading && currentOrg) {
+    if (isAuthenticated && products.length > 0 && !isOrgsLoading && currentOrg && !isAssetsLoading && !isBillingLoading) {
       const pendingId = sessionStorage.getItem("pending_purchase_modal_id");
       if (pendingId) {
         sessionStorage.removeItem("pending_purchase_modal_id");
@@ -263,7 +264,7 @@ export function MarketplaceDashboardView() {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated, products, isOrgsLoading, currentOrg]);
+  }, [isAuthenticated, products, isOrgsLoading, currentOrg, isAssetsLoading, isBillingLoading]);
 
   return (
     <div
