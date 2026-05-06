@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   Terminal,
   Shield,
@@ -72,11 +72,22 @@ const SuperAdminDashboard = ({
   refresh: () => Promise<void>;
 }) => {
   const [activeTab, setActiveTab] = useState<"metrics" | "feed">("metrics");
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const isRefreshingRef = useRef(false);
 
   const handleRunDiagnostics = async () => {
+    if (isRefreshingRef.current) return;
+    
+    isRefreshingRef.current = true;
+    setIsRefreshing(true);
     toast.info("Ejecutando diagnósticos...");
-    await refresh();
-    toast.success("Diagnósticos completados");
+    try {
+      await refresh();
+      toast.success("Diagnósticos completados");
+    } finally {
+      isRefreshingRef.current = false;
+      setIsRefreshing(false);
+    }
   };
 
   // Ring calculations from real data
@@ -152,7 +163,7 @@ const SuperAdminDashboard = ({
             </div>
             <button
               onClick={handleRunDiagnostics}
-              disabled={loading}
+              disabled={loading || isRefreshing}
               className={`px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 transition-all duration-200 ease-out border ${
                 isDark
                   ? "bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border-blue-500/30"
@@ -160,7 +171,7 @@ const SuperAdminDashboard = ({
               } disabled:opacity-50`}
             >
               <Terminal size={12} />
-              {loading ? "Loading..." : "Run Diagnostics"}
+              {loading || isRefreshing ? "Loading..." : "Run Diagnostics"}
             </button>
           </div>
         }
