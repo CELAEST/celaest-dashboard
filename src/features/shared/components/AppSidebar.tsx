@@ -139,16 +139,18 @@ export const AppSidebar = React.memo(function AppSidebar({
           />
 
           <motion.div
-            className="relative z-10 flex items-center gap-1 w-full justify-center"
-            animate={{ marginLeft: isHovered ? "-12px" : "0px" }}
+            className="relative z-10 flex items-center gap-2 w-full justify-center"
+            animate={{
+              x: isHovered ? -16 : 0,
+              y: isHovered ? 3 : 0,
+            }}
             transition={{ duration: 0.3 }}
           >
             <motion.div
-              className="shrink-0 w-15 h-15"
+              className="shrink-0 flex items-center justify-center"
               animate={{
-                scale: isHovered ? 1.05 : 1.1,
-                x: isHovered ? 0 : 3,
-                y: isHovered ? 4 : 7,
+                width: isHovered ? 40 : 56,
+                height: isHovered ? 40 : 56,
               }}
               transition={{ duration: 0.3 }}
             >
