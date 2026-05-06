@@ -218,8 +218,8 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
           const order = row.original;
           return (
             <div className="flex items-center gap-2.5">
-              <div className={`flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center ${
-                isDark ? "bg-white/[0.06] border border-white/[0.06]" : "bg-gray-100 border border-gray-200/60"
+              <div className={`shrink-0 w-7 h-7 rounded-lg flex items-center justify-center ${
+                isDark ? "bg-white/6 border border-white/6" : "bg-gray-100 border border-gray-200/60"
               }`}>
                 <Package size={14} weight="duotone" className={isDark ? "text-cyan-400" : "text-blue-500"} />
               </div>
@@ -250,10 +250,10 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
           const initials = name.split(/[\s._-]/).filter(Boolean).slice(0, 2).map(s => s[0]?.toUpperCase() ?? '').join('');
           return (
             <div className="flex items-center gap-2.5">
-              <div className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold ${
+              <div className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold ${
                 isDark
-                  ? "bg-gradient-to-br from-cyan-500/20 to-blue-500/20 text-cyan-300 ring-1 ring-inset ring-cyan-500/10"
-                  : "bg-gradient-to-br from-blue-50 to-indigo-50 text-blue-600 ring-1 ring-inset ring-blue-200/60"
+                  ? "bg-linear-to-br from-cyan-500/20 to-blue-500/20 text-cyan-300 ring-1 ring-inset ring-cyan-500/10"
+                  : "bg-linear-to-br from-blue-50 to-indigo-50 text-blue-600 ring-1 ring-inset ring-blue-200/60"
               }`}>
                 {initials}
               </div>
@@ -294,10 +294,10 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
           const initials = name.split(/[\s._-]/).filter(Boolean).slice(0, 2).map(s => s[0]?.toUpperCase() ?? '').join('');
           return (
             <div className="flex items-center gap-2.5">
-              <div className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold ${
+              <div className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold ${
                 isDark
-                  ? "bg-gradient-to-br from-violet-500/20 to-purple-500/20 text-violet-300 ring-1 ring-inset ring-violet-500/10"
-                  : "bg-gradient-to-br from-violet-50 to-purple-50 text-violet-600 ring-1 ring-inset ring-violet-200/60"
+                  ? "bg-linear-to-br from-violet-500/20 to-purple-500/20 text-violet-300 ring-1 ring-inset ring-violet-500/10"
+                  : "bg-linear-to-br from-violet-50 to-purple-50 text-violet-600 ring-1 ring-inset ring-violet-200/60"
               }`}>
                 {initials}
               </div>
@@ -322,7 +322,7 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
             <div
               className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium ${
                 isDark
-                  ? "bg-white/[0.04] text-gray-300 ring-1 ring-inset ring-white/[0.06]"
+                  ? "bg-white/4 text-gray-300 ring-1 ring-inset ring-white/6"
                   : "bg-gray-50 text-gray-600 ring-1 ring-inset ring-gray-200/60"
               }`}
             >
@@ -384,7 +384,7 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
                 }}
                 className={`p-1.5 transition-all duration-200 rounded-lg ${
                   isDark
-                    ? "text-gray-600 hover:text-white hover:bg-white/[0.06]"
+                    ? "text-gray-600 hover:text-white hover:bg-white/6"
                     : "text-gray-400 hover:text-gray-900 hover:bg-gray-100"
                 }`}
               >
