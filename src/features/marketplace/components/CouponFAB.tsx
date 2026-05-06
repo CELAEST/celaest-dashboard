@@ -6,6 +6,7 @@ import { useApiAuth } from "@/lib/use-api-auth";
 import { Tag, X, CheckCircle, CircleNotch, Lightning } from "@phosphor-icons/react";
 import { settingsApi } from "@/features/settings/api/settings.api";
 import { UpgradePlanModal } from "@/features/billing/components/modals/UpgradePlanModal";
+import { motion, AnimatePresence } from "motion/react";
 
 export function CouponFAB() {
   const { activeCoupon, setCoupon, clearCoupon } = useMarketplaceCouponStore();
@@ -157,9 +158,17 @@ export function CouponFAB() {
     <>
       <div ref={containerRef} className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3 group">
         {/* Popover Bubble for Coupons */}
-        {isOpen && (
-          <div className="mb-2 w-72 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
-            <div className="p-4 border-b border-white/10 flex justify-between items-center bg-white/5">
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              layout
+              initial={{ opacity: 0, y: 10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.15 } }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+              className="mb-2 w-72 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden origin-bottom-right"
+            >
+              <div className="p-4 border-b border-white/10 flex justify-between items-center bg-white/5">
               <h3 className="text-sm font-medium text-white flex items-center gap-2">
                 <Tag className="w-4 h-4 text-cyan-400" />
                 Apply Coupon
@@ -236,13 +245,16 @@ export function CouponFAB() {
                 </>
               )}
             </div>
-          </div>
+          </motion.div>
         )}
+      </AnimatePresence>
 
         {/* FAB Stack Content */}
-        <div className="flex flex-col gap-3 items-end">
+        <div className={`flex items-end gap-3 ${isOpen ? "flex-col" : "flex-col-reverse"}`}>
           {/* Coupons Action Button (Top) */}
-          <button
+          <motion.button
+            layout
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
             onClick={() => setIsOpen(!isOpen)}
             className={`relative flex items-center justify-start h-12 rounded-full shadow-lg backdrop-blur-xl border transition-all duration-500 ease-out hover:scale-[1.02] active:scale-95 w-12 group-hover:w-[165px] pl-[13px] overflow-hidden group/btn hover:shadow-[0_0_30px_-5px]
               ${
@@ -265,10 +277,12 @@ export function CouponFAB() {
             <span className="relative z-10 font-bold text-sm whitespace-nowrap overflow-hidden max-w-0 opacity-0 group-hover:max-w-[200px] group-hover:opacity-100 group-hover:ml-3 transition-all duration-500 pointer-events-none">
               {activeCoupon ? currentSavingsText : "Tengo un Cupón"}
             </span>
-          </button>
+          </motion.button>
 
-          {/* Plans Action Button (Bottom) */}
-          <button
+          {/* Plans Action Button */}
+          <motion.button
+            layout
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
             onClick={() => setIsPlansOpen(true)}
             className="relative flex items-center justify-start h-12 rounded-full shadow-lg backdrop-blur-xl border transition-all duration-500 ease-out hover:scale-[1.02] active:scale-95 bg-linear-to-tr from-purple-500/20 to-fuchsia-500/20 border-purple-500/30 text-purple-300 hover:border-purple-400/50 hover:shadow-[0_0_30px_-5px] hover:shadow-purple-500/30 w-12 group-hover:w-[135px] pl-[13px] overflow-hidden group/btn"
           >
@@ -279,7 +293,7 @@ export function CouponFAB() {
             <span className="relative z-10 font-bold text-sm whitespace-nowrap overflow-hidden max-w-0 opacity-0 group-hover:max-w-[200px] group-hover:opacity-100 group-hover:ml-3 transition-all duration-500 pointer-events-none">
               Ver Planes
             </span>
-          </button>
+          </motion.button>
         </div>
       </div>
 
