@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { motion } from "motion/react";
 import { SignOut, Bomb } from "@phosphor-icons/react";
@@ -35,6 +35,13 @@ export const AppSidebar = React.memo(function AppSidebar({
   const [showSignOutModal, setShowSignOutModal] = useState(false);
   const { theme } = useTheme();
   const { signOut } = useAuth();
+  const navRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (!isHovered && navRef.current) {
+      navRef.current.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [isHovered]);
 
   // Selective subscriptions for performance and reactivity
   const user = useAuthStore(useShallow((state) => state.user));
@@ -186,8 +193,9 @@ export const AppSidebar = React.memo(function AppSidebar({
         {!isGuest && <OrgSwitcher isExpanded={isHovered} />}
 
         <nav
+          ref={navRef}
           className={`flex-1 py-6 flex flex-col px-3 overflow-y-auto no-scrollbar transition-all duration-300 ${
-            isHovered ? "gap-6" : "gap-2"
+            isHovered ? "gap-6" : "gap-4"
           }`}
         >
           {visibleMenuSections.map((section, sidx) => (

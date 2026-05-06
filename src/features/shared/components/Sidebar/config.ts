@@ -38,10 +38,10 @@ export const menuSections: MenuSection[] = [
     title: "Platform",
     items: [
       { id: "dashboard", icon: OrdersIcon, label: "Orders", scope: null },
+      { id: "marketplace", icon: MarketplaceIcon, label: "Marketplace", scope: "marketplace:purchase" },
       { id: "licensing", icon: LicensingIcon, label: "Licensing", scope: null },
       { id: "billing", icon: BillingIcon, label: "Billing", scope: "billing:read" },
       { id: "ai", icon: AIConsoleIcon, label: "AI Console", scope: null },
-      { id: "marketplace", icon: MarketplaceIcon, label: "Marketplace", scope: "marketplace:purchase" },
       { id: "catalog", icon: AssetManagerIcon, label: "Asset Manager", scope: null },
       { id: "releases", icon: ReleasesIcon, label: "Releases", scope: "releases:read" },
     ],
