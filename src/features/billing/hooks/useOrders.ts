@@ -11,6 +11,7 @@ const PAGE_SIZE = 15;
 export const useOrders = () => {
   const { token, orgId, isReady } = useApiAuth();
   const queryClient = useQueryClient();
+  const queryKey = useMemo(() => [...QUERY_KEYS.billing.all, "orders", orgId], [orgId]);
 
 
 
@@ -22,7 +23,7 @@ export const useOrders = () => {
     isFetchingNextPage,
     refetch,
   } = useInfiniteQuery({
-    queryKey: QUERY_KEYS.billing.all,
+    queryKey,
     queryFn: async ({ pageParam }) => {
       if (!orgId || !token) return { orders: [], total: 0, page: 1, limit: PAGE_SIZE };
       const { ordersService } = await import("../services/orders.service");
@@ -117,9 +118,9 @@ export const useOrders = () => {
       return updatedOrder;
     },
     onMutate: async (updatedOrder: Order) => {
-      await queryClient.cancelQueries({ queryKey: QUERY_KEYS.billing.all });
-      const previous = queryClient.getQueryData<InfiniteData<OrdersPage>>(QUERY_KEYS.billing.all);
-      queryClient.setQueryData<InfiniteData<OrdersPage>>(QUERY_KEYS.billing.all, old => {
+      await queryClient.cancelQueries({ queryKey });
+      const previous = queryClient.getQueryData<InfiniteData<OrdersPage>>(queryKey);
+      queryClient.setQueryData<InfiniteData<OrdersPage>>(queryKey, old => {
         if (!old) return old;
         return {
           ...old,
@@ -132,12 +133,12 @@ export const useOrders = () => {
       return { previous };
     },
     onError: (_err, _vars, context) => {
-      if (context?.previous) queryClient.setQueryData(QUERY_KEYS.billing.all, context.previous);
+      if (context?.previous) queryClient.setQueryData(queryKey, context.previous);
       const msg = _err instanceof Error ? _err.message : "Error al actualizar la orden";
       toast.error(msg);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.billing.all });
+      queryClient.invalidateQueries({ queryKey });
       toast.success("Orden actualizada correctamente");
     },
   });
@@ -150,9 +151,9 @@ export const useOrders = () => {
       return orderId;
     },
     onMutate: async (orderId: string) => {
-      await queryClient.cancelQueries({ queryKey: QUERY_KEYS.billing.all });
-      const previous = queryClient.getQueryData<InfiniteData<OrdersPage>>(QUERY_KEYS.billing.all);
-      queryClient.setQueryData<InfiniteData<OrdersPage>>(QUERY_KEYS.billing.all, old => {
+      await queryClient.cancelQueries({ queryKey });
+      const previous = queryClient.getQueryData<InfiniteData<OrdersPage>>(queryKey);
+      queryClient.setQueryData<InfiniteData<OrdersPage>>(queryKey, old => {
         if (!old) return old;
         return {
           ...old,
@@ -166,13 +167,13 @@ export const useOrders = () => {
       return { previous };
     },
     onError: (_err, _id, context) => {
-      if (context?.previous) queryClient.setQueryData(QUERY_KEYS.billing.all, context.previous);
+      if (context?.previous) queryClient.setQueryData(queryKey, context.previous);
       const msg = _err instanceof Error ? _err.message : "Error al eliminar la orden";
       toast.error(msg);
     },
     onSuccess: () => {
       setDeleteModalOpen(false);
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.billing.all });
+      queryClient.invalidateQueries({ queryKey });
       toast.success("Orden eliminada correctamente");
     },
   });
@@ -185,9 +186,9 @@ export const useOrders = () => {
       return orderId;
     },
     onMutate: async ({ orderId }) => {
-      await queryClient.cancelQueries({ queryKey: QUERY_KEYS.billing.all });
-      const previous = queryClient.getQueryData<InfiniteData<OrdersPage>>(QUERY_KEYS.billing.all);
-      queryClient.setQueryData<InfiniteData<OrdersPage>>(QUERY_KEYS.billing.all, old => {
+      await queryClient.cancelQueries({ queryKey });
+      const previous = queryClient.getQueryData<InfiniteData<OrdersPage>>(queryKey);
+      queryClient.setQueryData<InfiniteData<OrdersPage>>(queryKey, old => {
         if (!old) return old;
         return {
           ...old,
@@ -200,14 +201,14 @@ export const useOrders = () => {
       return { previous };
     },
     onError: (_err, _vars, context) => {
-      if (context?.previous) queryClient.setQueryData(QUERY_KEYS.billing.all, context.previous);
+      if (context?.previous) queryClient.setQueryData(queryKey, context.previous);
       const msg = _err instanceof Error ? _err.message : "Refund failed";
       toast.error(msg);
     },
     onSuccess: () => {
       setRefundModalOpen(false);
       setDetailsModalOpen(false);
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.billing.all });
+      queryClient.invalidateQueries({ queryKey });
       toast.success("Order refunded successfully");
     },
   });

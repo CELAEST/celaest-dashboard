@@ -17,11 +17,12 @@ export const InvoiceHistory: React.FC = () => {
   const isDark = theme === "dark";
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const queryClient = useQueryClient();
-  const { session } = useAuthStore();
+  const { session, user } = useAuthStore();
   const { currentOrg } = useOrgStore();
 
   const token = session?.accessToken;
   const orgId = currentOrg?.id;
+  const isAdminOrHigher = user?.role !== "client";
 
   // Use paginated invoices query
   const { invoices, totalInvoices, isLoading, hasNextPage, isFetchingNextPage, fetchNextPage } = useInvoicesQuery();
@@ -125,8 +126,8 @@ export const InvoiceHistory: React.FC = () => {
           isDark={isDark}
           downloadingId={downloadingId}
           onDownload={handleDownload}
-          onVoid={(id) => voidMutation.mutate(id)}
-          onPay={(id) => payMutation.mutate(id)}
+          onVoid={isAdminOrHigher ? (id) => voidMutation.mutate(id) : undefined}
+          onPay={isAdminOrHigher ? (id) => payMutation.mutate(id) : undefined}
           isLoadingAction={voidMutation.isPending || payMutation.isPending}
           isLoading={isLoading}
           totalItems={totalInvoices}

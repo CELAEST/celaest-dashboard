@@ -52,15 +52,15 @@ export const Header = React.memo(function Header({ onShowLogin }: HeaderProps) {
 
   return (
     <header className={headerClassName}>
-      <div className="flex items-center w-full max-w-xl relative group mr-4">
-        {/* MagnifyingGlass Input stays same, it will drive the global searchQuery state */}
+      <div className="flex-1 w-full max-w-xl min-w-40 md:min-w-70 relative group mr-4">
+        {/* Search Input stays same, it will drive the global searchQuery state */}
         <MagnifyingGlass
-          className="absolute left-4 w-5 h-5 transition-colors text-gray-400 group-focus-within:text-blue-500 dark:text-gray-500 dark:group-focus-within:text-cyan-400"
+          className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors text-gray-400 group-focus-within:text-blue-500 dark:text-gray-500 dark:group-focus-within:text-cyan-400 pointer-events-none"
         />
         <input
           type="text"
           placeholder={
-            showErrorControls ? "Funnel errors..." : "MagnifyingGlass command or data..."
+            showErrorControls ? "Funnel errors..." : "Search command or data..."
           }
           className={inputClassName}
           value={searchQuery || ""}
@@ -68,7 +68,7 @@ export const Header = React.memo(function Header({ onShowLogin }: HeaderProps) {
           aria-label="Buscar en el dashboard"
         />
         {!searchQuery && !showErrorControls && (
-          <div className="absolute right-4 flex items-center gap-1">
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1 pointer-events-none">
             <Command className="w-3 h-3 text-gray-400 dark:text-gray-600" />
             <span className="text-[10px] font-mono text-gray-400 dark:text-gray-600">
               K
@@ -77,7 +77,7 @@ export const Header = React.memo(function Header({ onShowLogin }: HeaderProps) {
         )}
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
         {/* Feature Specific: Error Monitoring Controls */}
         {showErrorControls && (
           <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-4 duration-500">

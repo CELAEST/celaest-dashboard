@@ -82,7 +82,7 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
           organization_id: orgId,
           order_id: orderData.id,
           invoice_number: orderData.order_number,
-          status: orderData.status as any,
+          status: (orderData.status as Invoice["status"]) || "issued",
           currency: orderData.currency || "USD",
           subtotal: orderData.subtotal || orderData.total,
           discount_amount: orderData.discount_amount || 0,
