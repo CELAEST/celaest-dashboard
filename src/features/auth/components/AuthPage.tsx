@@ -74,10 +74,13 @@ export const AuthPage: React.FC = () => {
     <div className="min-h-screen w-full overflow-hidden font-sans relative">
       <AuthBackground mode={mode} isDark={isDark} />
       
-      <div className="fixed top-6 right-6 z-50 flex items-center gap-3 bg-white/5 backdrop-blur-xl border border-white/10 p-1.5 rounded-full shadow-lg dark:bg-black/20 dark:border-white/10">
+      <motion.div 
+        layout
+        className={`fixed top-6 z-50 flex items-center gap-3 bg-white/5 backdrop-blur-xl border border-white/10 p-1.5 rounded-full shadow-lg dark:bg-black/20 dark:border-white/10 ${mode === "signin" ? "right-6" : "left-6"}`}
+      >
         <LocaleSwitcher />
         <FloatingThemeToggle isDark={isDark} toggleTheme={toggleTheme} />
-      </div>
+      </motion.div>
 
       <div className="w-full h-screen flex items-center relative z-10">
         <motion.div
