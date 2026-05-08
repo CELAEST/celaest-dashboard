@@ -6,6 +6,7 @@ import {
   getInvoiceActionId,
   getInvoiceReferenceSuffix,
 } from "../../lib/invoice-utils";
+import { useTranslations } from "next-intl";
 
 interface InvoiceHistoryItemProps {
   invoice: Invoice;
@@ -22,6 +23,7 @@ export const InvoiceHistoryItem: React.FC<InvoiceHistoryItemProps> = ({
   onDownload,
   index,
 }) => {
+  const t = useTranslations("billing");
   const [isSuccess, setIsSuccess] = React.useState(false);
   const actionId = getInvoiceActionId(invoice);
 
@@ -124,7 +126,7 @@ export const InvoiceHistoryItem: React.FC<InvoiceHistoryItemProps> = ({
           <span
             className={`text-sm font-medium ${isDark ? "text-gray-200" : "text-gray-900"}`}
           >
-            {invoice.customer_name || invoice.billing_name || "Premium Subscription"}
+            {invoice.customer_name || invoice.billing_name || t("premium_subscription")}
           </span>
           <span
             className={`text-[10px] ${isDark ? "text-gray-500" : "text-gray-500"}`}
@@ -220,12 +222,12 @@ export const InvoiceHistoryItem: React.FC<InvoiceHistoryItemProps> = ({
                 className="flex items-center gap-1.5"
               >
                 <CheckCircle size={14} strokeWidth={2.5} />
-                <span>Done</span>
+                <span>{t("done")}</span>
               </motion.div>
             ) : (
               <div className="flex items-center gap-1.5">
                 <DownloadSimple size={14} strokeWidth={2} />
-                <span>PDF</span>
+                <span>{t("pdf")}</span>
               </div>
             )}
           </motion.button>

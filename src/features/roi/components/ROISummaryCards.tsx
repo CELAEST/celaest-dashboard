@@ -2,10 +2,12 @@ import React from "react";
 import { motion } from "motion/react";
 import { Icon } from "@phosphor-icons/react";
 import { StatCard } from "@/features/shared/components/StatCard";
+import { useTranslations } from "next-intl";
 
 interface Metric {
   icon: Icon;
   label: string;
+  labelKey?: string;
   value: string;
   subtext: string;
   change: string;
@@ -152,12 +154,13 @@ const GRADIENTS = [
 
 export const ROISummaryCards = React.memo(
   ({ metrics }: ROISummaryCardsProps) => {
+    const t = useTranslations("roi");
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
         {metrics.map((metric, idx) => (
           <StatCard
             key={idx}
-            title={metric.label}
+            title={metric.labelKey ? t(metric.labelKey) : metric.label}
             value={metric.value}
             trend={metric.change}
             trendUp={metric.positive}

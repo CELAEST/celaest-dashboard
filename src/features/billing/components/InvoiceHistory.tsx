@@ -11,6 +11,7 @@ import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 import { billingApi } from "../api/billing.api";
 import { toast } from "sonner";
 import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
+import { useTranslations } from "next-intl";
 
 export const InvoiceHistory: React.FC = () => {
   const { theme } = useTheme();
@@ -19,6 +20,7 @@ export const InvoiceHistory: React.FC = () => {
   const queryClient = useQueryClient();
   const { session, user } = useAuthStore();
   const { currentOrg } = useOrgStore();
+  const t = useTranslations("billing");
 
   const token = session?.accessToken;
   const orgId = currentOrg?.id;
@@ -38,9 +40,9 @@ export const InvoiceHistory: React.FC = () => {
           ? QUERY_KEYS.billing.profile(orgId)
           : QUERY_KEYS.billing.all,
       });
-      toast.success("Invoice has been voided.");
+      toast.success(t("invoice_voided"));
     },
-    onError: () => toast.error("Failed to void invoice."),
+    onError: () => toast.error(t("void_failed")),
   });
 
   const payMutation = useMutation({
@@ -54,9 +56,9 @@ export const InvoiceHistory: React.FC = () => {
           ? QUERY_KEYS.billing.profile(orgId)
           : QUERY_KEYS.billing.all,
       });
-      toast.success("Invoice marked as paid.");
+      toast.success(t("invoice_marked_paid"));
     },
-    onError: () => toast.error("Failed to mark invoice as paid."),
+    onError: () => toast.error(t("mark_paid_failed")),
   });
 
   const handleDownload = async (invoiceId: string) => {
@@ -102,12 +104,12 @@ export const InvoiceHistory: React.FC = () => {
                 isDark ? "text-white" : "text-gray-900"
               }`}
             >
-              Invoice ClockCounterClockwise
+              {t("invoice_history")}
             </h3>
             <p
               className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}
             >
-              DownloadSimple past invoices and track your payment history
+              {t("download_invoices")}
             </p>
           </div>
           <div
@@ -115,7 +117,7 @@ export const InvoiceHistory: React.FC = () => {
               isDark ? "bg-white/5 text-gray-400" : "bg-gray-100 text-gray-600"
             }`}
           >
-          {invoices.length} Invoices
+          {t("count_invoices", { count: invoices.length })}
           </div>
         </div>
       </div>
@@ -143,7 +145,7 @@ export const InvoiceHistory: React.FC = () => {
           isDark ? "text-gray-500" : "text-gray-400"
         }`}
       >
-        <span>Showing {invoices.length} of {totalInvoices} invoices</span>
+        <span>{t("showing_of_invoices", { current: invoices.length, total: totalInvoices })}</span>
         <button
           className={`font-semibold transition-colors duration-300 ${
             isDark
@@ -151,7 +153,7 @@ export const InvoiceHistory: React.FC = () => {
               : "text-blue-600 hover:text-blue-700"
           }`}
         >
-          View Transaction Details →
+          {t("view_transaction")}
         </button>
       </div>
     </div>

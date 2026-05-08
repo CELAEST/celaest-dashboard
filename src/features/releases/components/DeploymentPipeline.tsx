@@ -11,6 +11,7 @@ import {
 } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 
 import { BackendPipelineStage } from "@/features/assets/api/assets.api";
 
@@ -25,6 +26,7 @@ export const DeploymentPipeline: React.FC<DeploymentPipelineProps> = ({
 }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const t = useTranslations("releases");
 
   const getIcon = (name: string) => {
     switch (name) {
@@ -149,7 +151,7 @@ export const DeploymentPipeline: React.FC<DeploymentPipelineProps> = ({
                               : "text-gray-400"
                       }`}
                     >
-                      {stage.name}
+                      {t(`stage_${stage.name.toLowerCase()}` as string) || stage.name}
                     </h4>
 
                     <div

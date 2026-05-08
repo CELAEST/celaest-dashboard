@@ -1,6 +1,7 @@
 import React, { memo } from "react";
 import { Shield, ClockCounterClockwise, SignOut } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 
 export interface Session {
   id: string;
@@ -19,6 +20,7 @@ interface SecuritySessionsProps {
 export const SecuritySessions: React.FC<SecuritySessionsProps> = memo(
   ({ sessions, onLogoutSession }) => {
     const { isDark } = useTheme();
+    const t = useTranslations("settings");
 
     return (
       <div className="settings-glass-card rounded-2xl p-6">
@@ -28,7 +30,7 @@ export const SecuritySessions: React.FC<SecuritySessionsProps> = memo(
           }`}
         >
           <Shield className="w-5 h-5 text-cyan-500" />
-          Active Sessions
+          {t("active_sessions")}
         </h3>
 
         <div className="space-y-4">
@@ -70,7 +72,7 @@ export const SecuritySessions: React.FC<SecuritySessionsProps> = memo(
                             : "bg-cyan-100 text-cyan-600"
                         }`}
                       >
-                        CURRENT DEVICE
+                        {t("current_device")}
                       </span>
                     )}
                   </div>
@@ -93,7 +95,7 @@ export const SecuritySessions: React.FC<SecuritySessionsProps> = memo(
                   }`}
                 >
                   <SignOut size={14} />
-                  Terminate
+                  {t("terminate")}
                 </button>
               )}
             </div>

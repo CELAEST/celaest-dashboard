@@ -2,6 +2,7 @@ import React from "react";
 import { Key, Eye, EyeSlash, Pulse } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { PaymentGateway } from "../../../types";
+import { useTranslations } from "next-intl";
 
 interface GatewayDisplayProps {
   gateway: PaymentGateway;
@@ -18,6 +19,7 @@ export const GatewayDisplay: React.FC<GatewayDisplayProps> = ({
 }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const t = useTranslations("billing");
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -38,7 +40,7 @@ export const GatewayDisplay: React.FC<GatewayDisplayProps> = ({
               isDark ? "text-gray-500" : "text-gray-400"
             }`}
           >
-            API Credentials
+            {t("api_credentials")}
           </div>
         </div>
         <div className="flex items-center justify-between gap-4">
@@ -83,7 +85,7 @@ export const GatewayDisplay: React.FC<GatewayDisplayProps> = ({
               isDark ? "text-gray-500" : "text-gray-400"
             }`}
           >
-            Endpoint URL
+            {t("endpoint_url")}
           </div>
         </div>
         <code

@@ -2,6 +2,7 @@ import React from "react";
 import { motion } from "motion/react";
 import { StatCard } from "@/features/shared/components/StatCard";
 import { Warning, UsersThree, Clock } from "@phosphor-icons/react";
+import { useTranslations } from "next-intl";
 
 interface ErrorStatsProps {
   stats: {
@@ -142,6 +143,7 @@ const MTTRVisual = () => (
 );
 
 export const ErrorStats = React.memo(({ stats }: ErrorStatsProps) => {
+  const t = useTranslations("error_monitor");
   const criticalHealthy = stats.criticalCount === 0;
   const warningHealthy = stats.warningCount === 0;
   const impactHealthy = stats.totalAffectedUsers === 0;
@@ -151,9 +153,9 @@ export const ErrorStats = React.memo(({ stats }: ErrorStatsProps) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <StatCard
-        title="CRÍTICO"
+        title={t("critical_label")}
         value={stats.criticalCount.toString()}
-        trend={criticalHealthy ? "Estable" : "Requiere atención"}
+        trend={criticalHealthy ? t("stable") : t("requires_attention")}
         trendUp={criticalHealthy}
         icon={<Warning />}
         gradient={criticalHealthy ? "from-emerald-500 to-teal-600" : "from-red-600 to-rose-600"}
@@ -161,9 +163,9 @@ export const ErrorStats = React.memo(({ stats }: ErrorStatsProps) => {
         visual={<CriticalVisual />}
       />
       <StatCard
-        title="ADVERTENCIA"
+        title={t("warning_label")}
         value={stats.warningCount.toString()}
-        trend={warningHealthy ? "Sin cola" : "Pendiente"}
+        trend={warningHealthy ? t("no_queue") : t("pending")}
         trendUp={warningHealthy}
         icon={<Warning />}
         gradient={warningHealthy ? "from-emerald-500 to-teal-600" : "from-amber-500 to-orange-600"}
@@ -171,9 +173,9 @@ export const ErrorStats = React.memo(({ stats }: ErrorStatsProps) => {
         visual={<WarningVisual />}
       />
       <StatCard
-        title="USUARIOS AFECTADOS"
+        title={t("affected_users_label")}
         value={stats.totalAffectedUsers.toString()}
-        trend={impactHealthy ? "Impacto nulo" : "Usuarios impactados"}
+        trend={impactHealthy ? t("null_impact") : t("users_impacted")}
         trendUp={impactHealthy}
         icon={<UsersThree />}
         gradient={impactHealthy ? "from-emerald-500 to-teal-600" : "from-violet-500 to-purple-600"}
@@ -181,9 +183,9 @@ export const ErrorStats = React.memo(({ stats }: ErrorStatsProps) => {
         visual={<UsersAffectedVisual />}
       />
       <StatCard
-        title="MTTR"
+        title={t("mttr_label")}
         value={stats.mttr}
-        trend={mttrMinutes === 0 ? "Sin datos" : "Tiempo medio"}
+        trend={mttrMinutes === 0 ? t("no_data") : t("average_time")}
         trendUp={mttrHealthy}
         icon={<Clock />}
         gradient={mttrHealthy ? "from-blue-500 to-cyan-600" : "from-amber-500 to-orange-600"}

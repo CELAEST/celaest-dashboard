@@ -2,6 +2,7 @@ import React from "react";
 import { motion } from "motion/react";
 import { BellRinging } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 
 interface User {
   email: string;
@@ -24,21 +25,18 @@ function getInitials(email: string) {
 
 const SEVERITY_MAP = {
   high: {
-    label: "Alto",
     badgeDark: "bg-red-500/8 text-red-400 border-red-500/20",
     badgeLight: "bg-red-50 text-red-600 border-red-200",
     avatarDark: "from-red-500/20 to-red-600/10 border-red-500/15",
     avatarLight: "from-red-50 to-red-100 border-red-200",
   },
   medium: {
-    label: "Medio",
     badgeDark: "bg-orange-500/8 text-orange-400 border-orange-500/20",
     badgeLight: "bg-orange-50 text-orange-600 border-orange-200",
     avatarDark: "from-orange-500/20 to-amber-600/10 border-orange-500/15",
     avatarLight: "from-orange-50 to-amber-100 border-orange-200",
   },
   low: {
-    label: "Bajo",
     badgeDark: "bg-yellow-500/8 text-yellow-400 border-yellow-500/20",
     badgeLight: "bg-yellow-50 text-yellow-600 border-yellow-200",
     avatarDark: "from-yellow-500/20 to-yellow-600/10 border-yellow-500/15",
@@ -49,6 +47,7 @@ const SEVERITY_MAP = {
 export const ZombieUsers = React.memo(({ users }: ZombieUsersProps) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const t = useTranslations("roi");
 
   return (
     <motion.div
@@ -70,7 +69,7 @@ export const ZombieUsers = React.memo(({ users }: ZombieUsersProps) => {
               style={{ boxShadow: "0 0 6px 2px rgba(249,115,22,0.4)" }}
             />
             <h3 className={`text-sm font-bold tracking-tight ${isDark ? "text-white" : "text-gray-900"}`}>
-              Usuarios Zombie Detectados
+              {t('zombie_users_title')}
             </h3>
           </div>
           <span
@@ -85,7 +84,7 @@ export const ZombieUsers = React.memo(({ users }: ZombieUsersProps) => {
         </div>
 
         <p className={`text-[10px] font-medium mb-4 shrink-0 ${isDark ? "text-gray-500" : "text-gray-500"}`}>
-          Compraron pero no ejecutan plantillas · riesgo de churn
+          {t('zombie_users_desc')}
         </p>
 
         {/* List */}
@@ -149,7 +148,7 @@ export const ZombieUsers = React.memo(({ users }: ZombieUsersProps) => {
           }`}
         >
           <BellRinging size={15} weight="duotone" />
-          Enviar Recordatorio Automático
+          {t('send_reminder_cta')}
         </button>
       </div>
     </motion.div>

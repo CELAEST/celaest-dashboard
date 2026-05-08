@@ -2,6 +2,7 @@ import React, { memo } from "react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { SettingsSelect } from "@/features/settings/components/SettingsSelect";
 import { Version } from "../../types";
+import { useTranslations } from "next-intl";
 
 interface VersionBasicInfoProps {
   formData: {
@@ -21,6 +22,7 @@ export const VersionBasicInfo: React.FC<VersionBasicInfoProps> = memo(
   ({ formData, assets, isEdit, onChange, autoFocusRef }) => {
     const { theme } = useTheme();
     const isDark = theme === "dark";
+    const t = useTranslations("releases");
 
     const assetOptions =
       assets?.map((a) => ({ value: a.id, label: a.name })) || [];
@@ -31,7 +33,7 @@ export const VersionBasicInfo: React.FC<VersionBasicInfoProps> = memo(
           <div>
             {!isEdit && assets && assets.length > 0 ? (
               <SettingsSelect
-                label="Target Asset *"
+                label={t("info_target_asset")}
                 value={formData.productId}
                 onChange={(val) => {
                   const asset = assets.find((a) => a.id === val);
@@ -47,7 +49,7 @@ export const VersionBasicInfo: React.FC<VersionBasicInfoProps> = memo(
                     isDark ? "text-gray-300" : "text-gray-700"
                   }`}
                 >
-                  Asset Name *
+                  {t("info_asset_name")}
                 </label>
                 <input
                   ref={autoFocusRef}
@@ -56,7 +58,7 @@ export const VersionBasicInfo: React.FC<VersionBasicInfoProps> = memo(
                   onChange={(e) => onChange("assetName", e.target.value)}
                   readOnly={isEdit}
                   required
-                  placeholder="e.g., Advanced Financial Dashboard"
+                  placeholder={t("info_asset_name_placeholder")}
                   className={`w-full px-4 py-3 rounded-xl border transition-colors ${
                     isEdit ? "opacity-60 cursor-not-allowed " : ""
                   } ${
@@ -75,14 +77,14 @@ export const VersionBasicInfo: React.FC<VersionBasicInfoProps> = memo(
                 isDark ? "text-gray-300" : "text-gray-700"
               }`}
             >
-              Version Number *
+              {t("info_version_number")}
             </label>
             <input
               type="text"
               value={formData.versionNumber}
               onChange={(e) => onChange("versionNumber", e.target.value)}
               required
-              placeholder="e.g., v2.1.0"
+              placeholder={t("info_version_placeholder")}
               className={`w-full px-4 py-3 rounded-xl border font-mono transition-colors ${
                 isDark
                   ? "bg-white/5 border-white/10 text-white placeholder-gray-500 focus:border-cyan-500/30 focus:bg-white/10"
@@ -95,15 +97,15 @@ export const VersionBasicInfo: React.FC<VersionBasicInfoProps> = memo(
         <div className="grid grid-cols-2 gap-4">
           <div>
             <SettingsSelect
-              label="Release Status"
+              label={t("info_release_status")}
               value={formData.status}
               onChange={(val) => onChange("status", val)}
               options={[
-                { value: "beta", label: "Beta (Early access testing)" },
-                { value: "stable", label: "Stable (Production ready)" },
+                { value: "beta", label: t("status_beta_desc") },
+                { value: "stable", label: t("status_stable_desc") },
                 {
                   value: "deprecated",
-                  label: "Deprecated (Legacy support only)",
+                  label: t("status_deprecated_desc"),
                 },
               ]}
             />
@@ -115,13 +117,13 @@ export const VersionBasicInfo: React.FC<VersionBasicInfoProps> = memo(
                 isDark ? "text-gray-300" : "text-gray-700"
               }`}
             >
-              Compatibility
+              {t("info_compatibility")}
             </label>
             <input
               type="text"
               value={formData.compatibility}
               onChange={(e) => onChange("compatibility", e.target.value)}
-              placeholder="e.g., Excel 2016+ or Python 3.8+"
+              placeholder={t("info_compatibility_placeholder")}
               className={`w-full px-4 py-3 rounded-xl border transition-colors ${
                 isDark
                   ? "bg-white/5 border-white/10 text-white placeholder-gray-500 focus:border-cyan-500/30 focus:bg-white/10"

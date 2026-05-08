@@ -1,11 +1,13 @@
 import React from "react";
 import { CreditCard, X } from "@phosphor-icons/react";
+import { useTranslations } from "next-intl";
 
 interface ManageSubscriptionHeaderProps {
   onClose?: () => void;
 }
 
 export const ManageSubscriptionHeader: React.FC<ManageSubscriptionHeaderProps> = ({ onClose }) => {
+  const t = useTranslations("billing");
   return (
     <div className="relative px-8 py-6 border-b border-white/8 flex items-center justify-between overflow-hidden shrink-0">
       {/* Gradient wash */}
@@ -29,8 +31,8 @@ export const ManageSubscriptionHeader: React.FC<ManageSubscriptionHeaderProps> =
           <CreditCard size={22} />
         </div>
         <div>
-          <h2 className="text-xl font-black italic tracking-tighter text-white uppercase">Manage Subscription</h2>
-          <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40">Update your subscription settings</p>
+          <h2 className="text-xl font-black italic tracking-tighter text-white uppercase">{t("manage_subscription")}</h2>
+          <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40">{t("update_subscription_settings")}</p>
         </div>
       </div>
 

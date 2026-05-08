@@ -7,11 +7,13 @@ import { NotificationHeader } from "./Notifications/NotificationHeader";
 import { NotificationPreferences } from "./Notifications/NotificationPreferences";
 import { BrowserNotifications } from "./Notifications/BrowserNotifications";
 import { SecurityAlerts } from "./Notifications/SecurityAlerts";
+import { useTranslations } from "next-intl";
 
 /**
  * Notifications Settings Tab
  */
 export function Notifications() {
+  const t = useTranslations("settings");
   const { prefs, togglePref, notificationSections, isLoading } =
     useNotificationSettings();
 
@@ -42,10 +44,10 @@ export function Notifications() {
       {/* Save Button */}
       <div className="flex justify-end pb-8">
         <button
-          onClick={() => toast.success("Notification preferences updated")}
+          onClick={() => toast.success(t("notification_updated"))}
           className="px-8 py-3 rounded-xl bg-linear-to-r from-cyan-600 to-blue-600 text-white font-bold hover:shadow-lg hover:shadow-cyan-500/30 transition-all active:scale-95"
         >
-          Save Settings
+          {t("save_settings")}
         </button>
       </div>
     </div>

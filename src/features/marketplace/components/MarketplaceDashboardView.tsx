@@ -18,6 +18,7 @@ import { useBilling } from "@/features/billing/hooks/useBilling";
 import { LicenseModal } from "./modals/LicenseModal";
 import { toast } from "sonner";
 import { CouponFAB } from "./CouponFAB";
+import { useTranslations } from "next-intl";
 
 const PurchaseFlow = dynamic(
   () =>
@@ -54,6 +55,7 @@ export function MarketplaceDashboardView() {
   const isDark = theme === "dark";
   const { isAuthenticated } = useAuthStore();
   const { currentOrg, isLoading: isOrgsLoading } = useOrgStore();
+  const tMarketplace = useTranslations("marketplace");
 
   // Data from Storefront
   const {
@@ -156,13 +158,13 @@ export function MarketplaceDashboardView() {
 
     // 2. Prevención de recomprar exactamente su mismo plan actual
     if (plan && prod.min_plan_tier > 0 && plan.tier === prod.min_plan_tier) {
-      return "Plan Actual";
+      return tMarketplace("current_plan");
     }
 
     // 3. RBAC & B2B Flow: Si no lo tiene y no es dueño/admin, orientarlo a solicitarlo.
     // EXCEPCIÓN: En CELAEST (HQ), cualquier rol puede comprar porque es contexto PERSONAL.
     if (!canPurchase && !isCelaest) {
-      return "Solo Propietarios";
+      return tMarketplace("owners_only");
     }
 
     return undefined;
@@ -226,14 +228,14 @@ export function MarketplaceDashboardView() {
 
     // If org state is loading (e.g. post-workspace-removal transition), wait
     if (isOrgsLoading && !currentOrg) {
-      toast.info("Cargando tu sesión de organización, intenta en un momento...");
+      toast.info(tMarketplace("loading_org_session"));
       return;
     }
 
     // Safety check in case the button wasn't disabled correctly
     const access = checkAccess(product);
     const reason = getDisabledReason(product, access);
-    if (reason && reason !== "Plan Actual") {
+    if (reason && reason !== tMarketplace("current_plan")) {
       toast.error(reason);
       return;
     }
@@ -287,7 +289,7 @@ export function MarketplaceDashboardView() {
           initialStep={purchaseFlowStep}
           onSuccess={() => {
             refreshAssets();
-            toast.success("Producto adquirido correctamente");
+            toast.success(tMarketplace("product_acquired"));
           }}
         />
       )}
@@ -295,7 +297,7 @@ export function MarketplaceDashboardView() {
       <LoginModal
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
-        message="Sign in to purchase this enterprise solution."
+        message={tMarketplace("sign_in_to_purchase")}
       />
 
       {detailProduct && (
@@ -335,7 +337,7 @@ export function MarketplaceDashboardView() {
               return;
             }
 
-            toast.error("No tienes permisos para descargar este producto.");
+            toast.error(tMarketplace("no_download_permission"));
           }}
           onViewLicense={() => {
             if (!detailProduct) return;
@@ -356,7 +358,7 @@ export function MarketplaceDashboardView() {
                 setSelectedLicenseId(asset.license_id);
                 setShowLicenseModal(true);
               } else {
-                toast.info("Este producto no requiere clave de licencia.");
+                toast.info(tMarketplace("no_license_required"));
               }
               return;
             }
@@ -373,9 +375,7 @@ export function MarketplaceDashboardView() {
             }
 
             // 3. Fallback: Neither found
-            toast.error(
-              "No se encontró información de propiedad para este producto.",
-            );
+            toast.error(tMarketplace("no_ownership_found"));
           }}
           onPurchase={() => {
             if (detailProduct) {
@@ -434,13 +434,13 @@ export function MarketplaceDashboardView() {
                 <p
                   className={`mt-4 text-sm ${isDark ? "text-gray-500" : "text-gray-400"}`}
                 >
-                  No se encontraron productos
+                  {tMarketplace("no_products_found")}
                 </p>
                 <button
                   onClick={clearFilters}
                   className={`mt-2 text-xs ${isDark ? "text-cyan-400" : "text-cyan-600"}`}
                 >
-                  Limpiar filtros
+                  {tMarketplace("clear_filters")}
                 </button>
               </motion.div>
             ) : (

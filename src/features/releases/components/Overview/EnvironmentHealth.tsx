@@ -5,6 +5,7 @@ import { Pulse } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { motion } from "motion/react";
 import { BackendSystemHealth } from "@/features/assets/api/assets.api";
+import { useTranslations } from "next-intl";
 
 export interface EnvironmentHealthProps {
   systemHealth?: BackendSystemHealth;
@@ -15,6 +16,7 @@ export const EnvironmentHealth: React.FC<EnvironmentHealthProps> = ({
   systemHealth,
 }) => {
   const { isDark } = useTheme();
+  const t = useTranslations("releases");
 
   // Defaults if no data yet
   const health = systemHealth || {
@@ -58,10 +60,10 @@ export const EnvironmentHealth: React.FC<EnvironmentHealthProps> = ({
           </div>
           <div className="flex flex-col">
             <h3 className={`text-[9px] font-black uppercase tracking-[0.3em] leading-tight ${isDark ? "text-white/40" : "text-gray-400"}`}>
-              Telemetry
+              {t("telemetry")}
             </h3>
             <h2 className={`text-lg font-black italic tracking-tighter leading-none mt-0.5 ${isDark ? "text-white" : "text-gray-900"}`}>
-              SYSTEM HEALTH
+              {t("system_health")}
             </h2>
           </div>
         </div>
@@ -73,7 +75,7 @@ export const EnvironmentHealth: React.FC<EnvironmentHealthProps> = ({
           }`}
         >
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          Healthy
+          {t("status_healthy")}
         </div>
       </div>
 
@@ -119,7 +121,7 @@ export const EnvironmentHealth: React.FC<EnvironmentHealthProps> = ({
               transition={{ duration: 2, ease: "easeOut" }}
             />
             <text x="0" y="-8" textAnchor="middle" fill={isDark ? "white" : "black"} fontSize="18" fontWeight="900" fontStyle="italic">{health.cpu}<tspan fontSize="10">%</tspan></text>
-            <text x="0" y="8" textAnchor="middle" fill={isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)"} fontSize="8" fontWeight="bold" letterSpacing="0.2em">CPU LOAD</text>
+            <text x="0" y="8" textAnchor="middle" fill={isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)"} fontSize="8" fontWeight="bold" letterSpacing="0.2em">{t("cpu_load")}</text>
           </g>
 
           {/* Node 2: RAM */}
@@ -137,7 +139,7 @@ export const EnvironmentHealth: React.FC<EnvironmentHealthProps> = ({
               transition={{ duration: 2, delay: 0.2, ease: "easeOut" }}
             />
             <text x="0" y="-8" textAnchor="middle" fill={isDark ? "white" : "black"} fontSize="18" fontWeight="900" fontStyle="italic">{health.ram}<tspan fontSize="10">MB</tspan></text>
-            <text x="0" y="8" textAnchor="middle" fill={isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)"} fontSize="8" fontWeight="bold" letterSpacing="0.2em">RAM USAGE</text>
+            <text x="0" y="8" textAnchor="middle" fill={isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)"} fontSize="8" fontWeight="bold" letterSpacing="0.2em">{t("ram_usage")}</text>
             {/* Hexagonal Center Core decoration */}
             <polygon points="0,-15 13,-7 13,8 0,15 -13,8 -13,-7" fill="none" stroke={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"} strokeWidth="1" />
           </g>
@@ -157,12 +159,12 @@ export const EnvironmentHealth: React.FC<EnvironmentHealthProps> = ({
               transition={{ duration: 2, delay: 0.4, ease: "easeOut" }}
             />
             <text x="0" y="-8" textAnchor="middle" fill={isDark ? "white" : "black"} fontSize="18" fontWeight="900" fontStyle="italic">{health.network}<tspan fontSize="10">%</tspan></text>
-            <text x="0" y="8" textAnchor="middle" fill={isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)"} fontSize="8" fontWeight="bold" letterSpacing="0.2em">NET TRAFFIC</text>
+            <text x="0" y="8" textAnchor="middle" fill={isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)"} fontSize="8" fontWeight="bold" letterSpacing="0.2em">{t("net_traffic")}</text>
           </g>
           
           {/* Tech HUD Accents */}
-          <text x="10" y="20" fill={isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)"} fontSize="10" fontFamily="monospace" fontWeight="bold">OP_STAT: VALID</text>
-          <text x="590" y="20" fill={isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)"} fontSize="10" fontFamily="monospace" fontWeight="bold" textAnchor="end">PORT_8080</text>
+          <text x="10" y="20" fill={isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)"} fontSize="10" fontFamily="monospace" fontWeight="bold">{t("op_stat_valid")}</text>
+          <text x="590" y="20" fill={isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)"} fontSize="10" fontFamily="monospace" fontWeight="bold" textAnchor="end">{t("port_8080")}</text>
 
         </svg>
       </div>
@@ -172,14 +174,14 @@ export const EnvironmentHealth: React.FC<EnvironmentHealthProps> = ({
         className={`pt-4 border-t flex justify-between items-center text-xs mt-auto ${isDark ? "border-white/10 text-gray-400" : "border-gray-100 text-gray-500"}`}
       >
         <div className="flex bg-black/10 dark:bg-white/5 rounded px-2 py-1 items-center gap-2">
-          <span className="opacity-60 font-bold uppercase tracking-wider text-[9px]">Uptime</span>
+          <span className="opacity-60 font-bold uppercase tracking-wider text-[9px]">{t("uptime")}</span>
           <span className={`font-mono font-bold text-sm ${isDark ? "text-emerald-400" : "text-emerald-600"}`}>
             {health.uptime}
           </span>
         </div>
         
         <div className="flex bg-black/10 dark:bg-white/5 rounded px-2 py-1 items-center gap-2">
-          <span className="opacity-60 font-bold uppercase tracking-wider text-[9px]">Latency</span>
+          <span className="opacity-60 font-bold uppercase tracking-wider text-[9px]">{t("latency")}</span>
           <span className={`font-mono font-bold text-sm ${isDark ? "text-blue-400" : "text-blue-600"}`}>
             {health.latency}
           </span>

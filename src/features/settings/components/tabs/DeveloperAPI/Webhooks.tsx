@@ -3,16 +3,16 @@ import { Lightning, Globe, Trash, Plus, CircleNotch } from "@phosphor-icons/reac
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useWebhooks } from "@/features/settings/hooks/useWebhooks";
 import { Webhook } from "@/features/settings/api/settings.api";
+import { useTranslations } from "next-intl";
 
 export const Webhooks: React.FC = memo(() => {
   const { isDark } = useTheme();
   const { webhooks, isLoading, deleteWebhook, createWebhook, isCreating } =
     useWebhooks();
+  const t = useTranslations("settings");
 
   const handleAddWebhook = () => {
-    const url = window.prompt(
-      "Enter webhook URL (e.g. https://your-domain.com/webhook)",
-    );
+    const url = window.prompt(t("webhook_prompt"));
 
     if (!url) return;
 
@@ -24,7 +24,7 @@ export const Webhooks: React.FC = memo(() => {
         is_active: true,
       });
     } catch {
-      alert("Please enter a valid URL including http:// or https://");
+      alert(t("webhook_invalid_url"));
     }
   };
 
@@ -37,7 +37,7 @@ export const Webhooks: React.FC = memo(() => {
           }`}
         >
           <Lightning className="w-5 h-5 text-amber-500" />
-          Webhooks
+          {t("webhooks")}
         </h3>
         <button
           onClick={handleAddWebhook}
@@ -53,7 +53,7 @@ export const Webhooks: React.FC = memo(() => {
           ) : (
             <Plus size={12} />
           )}
-          ADD ENDPOINT
+          {t("add_endpoint")}
         </button>
       </div>
 
@@ -74,10 +74,10 @@ export const Webhooks: React.FC = memo(() => {
           >
             <Globe size={40} className="mb-4 opacity-20" />
             <p className="text-sm font-medium">
-              No webhook endpoints configured
+              {t("no_webhooks")}
             </p>
             <p className="text-xs mt-1 opacity-60">
-              Add an endpoint to start receiving real-time events.
+              {t("no_webhooks_desc")}
             </p>
           </div>
         )}

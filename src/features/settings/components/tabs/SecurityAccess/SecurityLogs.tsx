@@ -2,6 +2,7 @@ import React, { memo } from "react";
 import { Warning, ArrowCounterClockwise } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { SecurityLog } from "../../../hooks/useSecuritySettings";
+import { useTranslations } from "next-intl";
 
 interface SecurityLogsProps {
   logs: SecurityLog[];
@@ -11,6 +12,7 @@ interface SecurityLogsProps {
 export const SecurityLogs: React.FC<SecurityLogsProps> = memo(
   ({ logs, isLoading }) => {
     const { isDark } = useTheme();
+    const t = useTranslations("settings");
 
     return (
       <div className="settings-glass-card rounded-2xl p-6">
@@ -21,7 +23,7 @@ export const SecurityLogs: React.FC<SecurityLogsProps> = memo(
             }`}
           >
             <Warning className="w-5 h-5 text-amber-500" />
-            Security Logs
+            {t("security_logs")}
           </h3>
           <button
             className={`p-2 rounded-lg transition-colors ${
@@ -39,11 +41,11 @@ export const SecurityLogs: React.FC<SecurityLogsProps> = memo(
         <div className="space-y-1">
           {isLoading ? (
             <div className="py-8 text-center text-sm text-gray-500">
-              Loading activity...
+              {t("loading_activity")}
             </div>
           ) : logs.length === 0 ? (
             <div className="py-8 text-center text-sm text-gray-500">
-              No recent activity detected.
+              {t("no_recent_activity")}
             </div>
           ) : (
             logs.map((log, i) => (

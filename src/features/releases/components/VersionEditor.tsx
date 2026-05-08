@@ -10,6 +10,7 @@ import { VersionFileUpload } from "./VersionEditor/VersionFileUpload";
 import { VersionBasicInfo } from "./VersionEditor/VersionBasicInfo";
 import { VersionChangelog } from "./VersionEditor/VersionChangelog";
 import { VersionSecurity } from "./VersionEditor/VersionSecurity";
+import { useTranslations } from "next-intl";
 
 interface VersionEditorProps {
   isOpen: boolean;
@@ -47,6 +48,7 @@ export const VersionEditor: React.FC<VersionEditorProps> = ({
     handleSubmit,
     downloadUrl,
   } = useVersionEditor({ version: version || null, onSave, onClose });
+  const t = useTranslations("releases");
 
   const autoFocusRef = useRef<HTMLInputElement>(null);
 
@@ -136,12 +138,12 @@ export const VersionEditor: React.FC<VersionEditorProps> = ({
                 <h2 className={`text-xl font-black italic tracking-tighter uppercase ${
                   isDark ? "text-white" : "text-gray-900"
                 }`}>
-                  {version ? "Edit Version" : "Publish New Release"}
+                  {version ? t("editor_edit_version") : t("editor_publish_release")}
                 </h2>
                 <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40">
                   {version
                     ? version.versionNumber
-                    : "Link a GitHub release and fill in the version details"}
+                    : t("editor_publish_desc")}
                 </p>
               </div>
             </div>
@@ -191,7 +193,7 @@ export const VersionEditor: React.FC<VersionEditorProps> = ({
                 <p className={`text-xs font-semibold uppercase tracking-wider mb-1.5 ${
                   isDark ? "text-gray-500" : "text-gray-400"
                 }`}>
-                  Project Link
+                  {t("editor_project_link")}
                 </p>
                 <a
                   href={version.projectUrl}
@@ -241,7 +243,7 @@ export const VersionEditor: React.FC<VersionEditorProps> = ({
                   : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200"
               }`}
             >
-              Cancel
+              {t("editor_cancel")}
             </button>
             <button
               type="submit"
@@ -259,12 +261,12 @@ export const VersionEditor: React.FC<VersionEditorProps> = ({
               {isSubmitting ? (
                 <>
                   <CircleNotch size={16} className="animate-spin" />
-                  {version ? "Updating..." : "Publishing..."}
+                  {version ? t("editor_updating") : t("editor_publishing")}
                 </>
               ) : version ? (
-                "Update Version"
+                t("editor_update_btn")
               ) : (
-                "Publish Release"
+                t("editor_publish_btn")
               )}
             </button>
           </div>

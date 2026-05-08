@@ -1,6 +1,7 @@
 import React, { memo } from "react";
 import { FileText } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 import { Version } from "@/features/releases/types";
 
 interface VersionDetailsChangelogProps {
@@ -11,6 +12,7 @@ export const VersionDetailsChangelog: React.FC<VersionDetailsChangelogProps> =
   memo(({ version }) => {
     const { theme } = useTheme();
     const isDark = theme === "dark";
+    const t = useTranslations("releases");
 
     return (
       <div>
@@ -19,7 +21,7 @@ export const VersionDetailsChangelog: React.FC<VersionDetailsChangelogProps> =
             isDark ? "text-gray-400" : "text-gray-500"
           }`}
         >
-          <FileText size={16} /> Update Notes
+          <FileText size={16} /> {t("details_update_notes")}
         </h3>
         <div
           className={`rounded-xl border p-5 ${

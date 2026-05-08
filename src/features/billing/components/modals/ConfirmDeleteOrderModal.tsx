@@ -3,6 +3,7 @@
 import React from "react";
 import { Warning, Trash, X } from "@phosphor-icons/react";
 import { BillingModal } from "./shared/BillingModal";
+import { useTranslations } from "next-intl";
 
 interface ConfirmDeleteOrderModalProps {
   isOpen: boolean;
@@ -17,6 +18,7 @@ export function ConfirmDeleteOrderModal({
   onConfirm,
   orderId,
 }: ConfirmDeleteOrderModalProps) {
+  const t = useTranslations("billing");
   return (
     <BillingModal isOpen={isOpen} onClose={onClose} className="max-w-[448px] w-[448px] min-w-[448px] shrink-0" showCloseButton={false}>
       {/* Top accent line — RED for destructive */}
@@ -54,8 +56,8 @@ export function ConfirmDeleteOrderModal({
             <Warning size={22} weight="fill" />
           </div>
           <div>
-            <h2 className="text-xl font-black italic tracking-tighter text-white uppercase">Delete Order</h2>
-            <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40">Irreversible action</p>
+            <h2 className="text-xl font-black italic tracking-tighter text-white uppercase">{t("delete_order")}</h2>
+            <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40">{t("irreversible_action")}</p>
           </div>
         </div>
 
@@ -69,12 +71,11 @@ export function ConfirmDeleteOrderModal({
       {/* Content */}
       <div className="px-8 py-6">
         <p className="text-sm text-white/60 leading-relaxed">
-          You are about to permanently delete order{" "}
-          <span className="font-mono font-bold px-1.5 py-0.5 rounded bg-white/10 text-white">
-            {orderId}
-          </span>.
-          <br />
-          This action is irreversible.
+          {t.rich("delete_order_warning", {
+            orderId,
+            mono: (chunks) => <span className="font-mono font-bold px-1.5 py-0.5 rounded bg-white/10 text-white">{chunks}</span>,
+            br: () => <br />,
+          })}
         </p>
       </div>
 
@@ -98,14 +99,14 @@ export function ConfirmDeleteOrderModal({
             autoFocus
             className="flex-1 py-3 rounded-2xl bg-white/5 border border-white/10 text-white/60 text-sm font-semibold hover:bg-white/10 transition-colors"
           >
-            Cancel
+            {t("cancel")}
           </button>
           <button
             onClick={onConfirm}
             className="flex-1 py-3 rounded-2xl bg-linear-to-r from-red-600 to-red-500 text-white text-sm font-black uppercase tracking-wide shadow-[0_0_20px_rgba(239,68,68,0.3)] hover:shadow-[0_0_30px_rgba(239,68,68,0.5)] transition-all flex items-center justify-center gap-2"
           >
             <Trash size={16} />
-            Delete Forever
+            {t("delete_forever")}
           </button>
         </div>
       </div>

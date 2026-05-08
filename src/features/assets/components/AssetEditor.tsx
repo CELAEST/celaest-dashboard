@@ -6,6 +6,7 @@ import { useForm, FormProvider } from "react-hook-form";
 import { motion, AnimatePresence } from "motion/react";
 import { X, Package } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 import { assetSchema, AssetFormValues } from "../hooks/useAssetForm";
 import { Asset, AssetType } from "../services/assets.service";
 import { AssetFileUploader } from "./AssetFileUploader";
@@ -31,6 +32,7 @@ export const AssetEditor: React.FC<AssetEditorProps> = ({
 }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const t = useTranslations("marketplace");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -331,7 +333,7 @@ export const AssetEditor: React.FC<AssetEditorProps> = ({
                       isDark ? "text-white" : "text-gray-900"
                     }`}
                   >
-                    {asset ? asset.name : "New Asset"}
+                    {asset ? asset.name : t("new_asset")}
                   </h2>
 
                   <div className="flex items-center gap-2 mt-1.5">
@@ -347,7 +349,7 @@ export const AssetEditor: React.FC<AssetEditorProps> = ({
                             : "bg-gray-100 text-gray-600"
                       }`}
                     >
-                      {asset ? "Editing asset" : "Upload and configure digital asset"}
+                      {asset ? t("editing_asset") : t("upload_configure")}
                     </span>
                     {!asset && (
                       <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
@@ -385,7 +387,7 @@ export const AssetEditor: React.FC<AssetEditorProps> = ({
                     const firstError = Object.values(errors)[0];
                     if (firstError?.message) {
                       import("sonner").then(({ toast }) =>
-                        toast.error(`Validation: ${firstError.message}`),
+                        toast.error(t("validation_error", { message: firstError.message ?? "Invalid" })),
                       );
                     }
                   },
@@ -426,7 +428,7 @@ export const AssetEditor: React.FC<AssetEditorProps> = ({
                         : "bg-linear-to-r from-blue-600 to-blue-500 text-white hover:shadow-blue-500/30"
                     }`}
                   >
-                    {asset ? "Update Asset" : "Create Asset"}
+                    {asset ? t("update_asset") : t("create_asset")}
                   </button>
                 </div>
               </form>

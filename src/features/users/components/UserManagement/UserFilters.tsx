@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/select";
 import { CardHeader, CardDescription, CardTitle } from "@/components/ui/card";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 
 interface UserFiltersProps {
   searchQuery: string;
@@ -26,16 +27,17 @@ export const UserFilters = memo(
     setRoleFilter,
   }: UserFiltersProps) => {
     const { isDark } = useTheme();
+    const t = useTranslations("users");
 
     return (
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className={isDark ? "text-white" : "text-gray-900"}>
-              All Users
+              {t("all_users")}
             </CardTitle>
             <CardDescription>
-              Manage user accounts and permissions
+              {t("manage_users_permissions")}
             </CardDescription>
           </div>
           <div className="flex gap-3">
@@ -46,7 +48,7 @@ export const UserFilters = memo(
                 }`}
               />
               <Input
-                placeholder="MagnifyingGlass users..."
+                placeholder={`${t("search_users")}...`}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className={`pl-10 w-64 ${
@@ -64,10 +66,10 @@ export const UserFilters = memo(
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Roles</SelectItem>
-                <SelectItem value="super_admin">Super Admin</SelectItem>
-                <SelectItem value="admin">Admin</SelectItem>
-                <SelectItem value="client">Client</SelectItem>
+                <SelectItem value="all">{t("all_roles")}</SelectItem>
+                <SelectItem value="super_admin">{t("role_super_admin")}</SelectItem>
+                <SelectItem value="admin">{t("role_admin")}</SelectItem>
+                <SelectItem value="client">{t("client")}</SelectItem>
               </SelectContent>
             </Select>
           </div>

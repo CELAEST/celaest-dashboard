@@ -8,6 +8,7 @@ import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 import { api } from "@/lib/api-client";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 interface BrandingSettings {
   brand_primary_color: string;
@@ -39,6 +40,7 @@ export function WorkspaceBranding({
   const { currentOrg } = useOrgStore();
   const { session } = useAuthStore();
   const token = session?.accessToken;
+  const t = useTranslations("settings");
 
   const [branding, setBranding] = useState<BrandingSettings>(defaultBranding);
   const [isSaving, setIsSaving] = useState(false);
@@ -89,9 +91,9 @@ export function WorkspaceBranding({
         branding,
         { token, orgId: currentOrg.id },
       );
-      toast.success("Branding settings saved!");
+      toast.success(t("branding_saved"));
     } catch {
-      toast.error("Failed to save branding settings");
+      toast.error(t("branding_save_error"));
     } finally {
       setIsSaving(false);
     }
@@ -100,7 +102,7 @@ export function WorkspaceBranding({
   const handleReset = () => {
     if (readOnly) return;
     setBranding(defaultBranding);
-    toast.info("Branding reset to defaults");
+    toast.info(t("branding_reset_toast"));
   };
 
   const updateField = (key: keyof BrandingSettings, value: string) => {
@@ -113,13 +115,13 @@ export function WorkspaceBranding({
     label: string;
     desc: string;
   }[] = [
-    { key: "brand_primary_color", label: "Primary", desc: "Buttons & links" },
+    { key: "brand_primary_color", label: t("brand_primary"), desc: t("brand_primary_desc") },
     {
       key: "brand_secondary_color",
-      label: "Secondary",
-      desc: "Accents & badges",
+      label: t("brand_secondary"),
+      desc: t("brand_secondary_desc"),
     },
-    { key: "brand_accent_color", label: "Accent", desc: "Highlights & CTAs" },
+    { key: "brand_accent_color", label: t("brand_accent"), desc: t("brand_accent_desc") },
   ];
 
   return (
@@ -148,14 +150,14 @@ export function WorkspaceBranding({
                 isDark ? "text-white" : "text-gray-900"
               }`}
             >
-              Branding & White Label
+              {t("branding_settings")}
             </h3>
             <p
               className={`text-xs mt-0.5 ${
                 isDark ? "text-gray-500" : "text-gray-400"
               }`}
             >
-              Customize your organization&apos;s visual identity
+              {t("branding_settings_desc")}
             </p>
           </div>
         </div>
@@ -170,7 +172,7 @@ export function WorkspaceBranding({
                     : "text-gray-400 hover:text-gray-700 hover:bg-gray-100"
                 }`}
               >
-                <ArrowCounterClockwise size={12} /> Reset
+                <ArrowCounterClockwise size={12} /> {t("reset_defaults")}
               </button>
               <button
                 onClick={handleSave}
@@ -186,13 +188,13 @@ export function WorkspaceBranding({
                 ) : (
                   <FloppyDisk size={12} />
                 )}
-                SAVE BRANDING
+                {t("save_branding")}
               </button>
             </>
           )}
           {readOnly && (
             <span className="text-[10px] bg-gray-500/10 text-gray-500 px-2 py-1 rounded uppercase tracking-wider font-black">
-              View Only
+              {t("view_only")}
             </span>
           )}
         </div>
@@ -211,7 +213,7 @@ export function WorkspaceBranding({
                 isDark ? "text-gray-500" : "text-gray-400"
               }`}
             >
-              Display Name
+              {t("display_name")}
             </label>
             <input
               type="text"
@@ -220,7 +222,7 @@ export function WorkspaceBranding({
                 updateField("brand_company_name", e.target.value)
               }
               disabled={readOnly}
-              placeholder="Your Company Name"
+              placeholder={t("display_name_placeholder")}
               className={`w-full px-4 py-2.5 rounded-xl border text-sm transition-all ${
                 isDark
                   ? "bg-white/5 border-white/10 text-white placeholder-gray-600 focus:border-purple-500/50"
@@ -236,7 +238,7 @@ export function WorkspaceBranding({
                 isDark ? "text-gray-500" : "text-gray-400"
               }`}
             >
-              Brand Colors
+              {t("brand_colors")}
             </label>
             <div className="grid grid-cols-3 gap-4">
               {colorFields.map(({ key, label, desc }) => (
@@ -296,7 +298,7 @@ export function WorkspaceBranding({
                 isDark ? "text-gray-500" : "text-gray-400"
               }`}
             >
-              Color Preview
+              {t("color_preview")}
             </label>
             <div className="flex rounded-xl overflow-hidden h-8">
               <div
@@ -323,14 +325,14 @@ export function WorkspaceBranding({
                 }`}
               >
                 <UploadSimple size={10} className="inline mr-1" />
-                Logo URL
+                {t("logo_url")}
               </label>
               <input
                 type="text"
                 value={branding.brand_logo_url}
                 onChange={(e) => updateField("brand_logo_url", e.target.value)}
                 disabled={readOnly}
-                placeholder="https://your-cdn.com/logo.png"
+                placeholder={t("logo_url_placeholder")}
                 className={`w-full px-4 py-2.5 rounded-xl border text-sm transition-all ${
                   isDark
                     ? "bg-white/5 border-white/10 text-white placeholder-gray-600 focus:border-purple-500/50"
@@ -363,7 +365,7 @@ export function WorkspaceBranding({
                 }`}
               >
                 <UploadSimple size={10} className="inline mr-1" />
-                Favicon URL
+                {t("favicon_url")}
               </label>
               <input
                 type="text"
@@ -372,7 +374,7 @@ export function WorkspaceBranding({
                   updateField("brand_favicon_url", e.target.value)
                 }
                 disabled={readOnly}
-                placeholder="https://your-cdn.com/favicon.ico"
+                placeholder={t("favicon_url_placeholder")}
                 className={`w-full px-4 py-2.5 rounded-xl border text-sm transition-all ${
                   isDark
                     ? "bg-white/5 border-white/10 text-white placeholder-gray-600 focus:border-purple-500/50"

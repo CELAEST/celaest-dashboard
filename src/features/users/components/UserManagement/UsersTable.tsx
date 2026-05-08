@@ -24,6 +24,7 @@ import { DataTable } from "@/components/ui/data-table";
 
 import { UserData } from "../types";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 
 interface UsersTableProps {
   users: UserData[];
@@ -40,18 +41,20 @@ interface UsersTableProps {
 export const UsersTable = memo(
   ({ users, loading, onForceSignOut, onEdit, onDelete, totalItems, hasNextPage, isFetchingNextPage, onLoadMore }: UsersTableProps) => {
     const { isDark } = useTheme();
+    const t = useTranslations("users");
+    const tCommon = useTranslations("common");
 
     const columns: ColumnDef<UserData>[] = useMemo(
       () => [
         {
           id: "identity",
-          header: "Identidad de Usuario",
+          header: t("user_identity"),
           cell: ({ row }) => {
             const u = row.original;
             const fullName =
               [u.first_name, u.last_name].filter(Boolean).join(" ") ||
               u.display_name ||
-              "Unknown User";
+              t("unknown_user");
 
             return (
               <div className="flex items-center gap-4 py-2">
@@ -95,7 +98,7 @@ export const UsersTable = memo(
         },
         {
           id: "role",
-          header: "Nivel de Acceso",
+          header: t("access_level"),
           accessorKey: "role",
           cell: ({ row }) => {
             const role = row.original.role || "viewer";
@@ -144,7 +147,7 @@ export const UsersTable = memo(
         },
         {
           id: "lastActivity",
-          header: "Última Actividad",
+          header: t("last_activity"),
           accessorKey: "last_login_at",
           cell: ({ row }) => {
             const u = row.original;
@@ -161,14 +164,14 @@ export const UsersTable = memo(
                       hour: "2-digit",
                       minute: "2-digit",
                     })
-                  : "NOT ACTIVE"}
+                  : t("not_active")}
               </div>
             );
           },
         },
         {
           id: "actions",
-          header: () => <div className="text-right">Acciones</div>,
+          header: () => <div className="text-right">{tCommon("actions")}</div>,
           cell: ({ row }) => {
             const u = row.original;
             return (
@@ -184,17 +187,17 @@ export const UsersTable = memo(
                     align="end"
                     className={isDark ? "bg-black/90 border-white/10" : ""}
                   >
-                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuLabel>{tCommon("actions")}</DropdownMenuLabel>
                     <DropdownMenuItem onClick={() => onEdit(u)}>
                       <PencilSimple className="mr-2 h-4 w-4" />
-                      PencilSimple User
+                      {t("edit_user")}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => onForceSignOut(u)}
                       className="text-red-500 focus:text-red-500"
                     >
                       <SignOut className="mr-2 h-4 w-4" />
-                      Sign Out
+                      {t("force_sign_out")}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
@@ -202,7 +205,7 @@ export const UsersTable = memo(
                       className="text-red-500 focus:text-red-500"
                     >
                       <Trash className="mr-2 h-4 w-4" />
-                      Delete User
+                      {t("delete_user")}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -211,7 +214,7 @@ export const UsersTable = memo(
           },
         },
       ],
-      [isDark, onEdit, onForceSignOut, onDelete],
+      [isDark, onEdit, onForceSignOut, onDelete, t, tCommon],
     );
 
     return (
@@ -220,8 +223,8 @@ export const UsersTable = memo(
           columns={columns}
           data={users}
           isLoading={loading}
-          emptyMessage="No hay usuarios registrados"
-          emptySubmessage="Añade miembros a tu organización para verlos aquí."
+          emptyMessage={t("no_registered_users")}
+          emptySubmessage={t("add_members_to_see")}
           totalItems={totalItems}
           hasNextPage={hasNextPage}
           isFetchingNextPage={isFetchingNextPage}

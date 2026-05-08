@@ -7,6 +7,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { billingApi } from "@/features/billing/api/billing.api";
 import { toast } from "sonner";
 import { BillingModal } from "./modals/shared/BillingModal";
+import { useTranslations } from "next-intl";
 
 interface AdminPlanModalProps {
   isOpen: boolean;
@@ -34,6 +35,7 @@ export const AdminPlanModal: React.FC<AdminPlanModalProps> = ({
 }) => {
   const queryClient = useQueryClient();
   const isEditing = !!plan;
+  const t = useTranslations("billing");
 
   const {
     register,
@@ -101,11 +103,11 @@ export const AdminPlanModal: React.FC<AdminPlanModalProps> = ({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "plans"] });
-      toast.success(`Plan ${isEditing ? "updated" : "created"} successfully!`);
+      toast.success(isEditing ? t("plan_updated_success") : t("plan_created_success"));
       onClose();
     },
     onError: (err: Error) => {
-      toast.error(err?.message || "Failed to save plan");
+      toast.error(err?.message || t("failed_to_save_plan"));
     },
   });
 
@@ -152,10 +154,10 @@ export const AdminPlanModal: React.FC<AdminPlanModalProps> = ({
           </div>
           <div>
             <h2 className="text-xl font-black italic tracking-tighter text-white uppercase">
-              {isEditing ? "Edit Plan" : "Create Plan"}
+              {isEditing ? t("edit_plan") : t("create_plan")}
             </h2>
             <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40">
-              {isEditing ? "Modify active plan details" : "Add to system catalog"}
+              {isEditing ? t("modify_active_plan") : t("add_to_system_catalog")}
             </p>
           </div>
         </div>
@@ -172,21 +174,21 @@ export const AdminPlanModal: React.FC<AdminPlanModalProps> = ({
         <div className="px-8 py-6 space-y-5 overflow-y-auto flex-1 min-h-0">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-[10px] uppercase font-black tracking-widest text-white/40">Plan Name</label>
+              <label className="text-[10px] uppercase font-black tracking-widest text-white/40">{t("plan_name")}</label>
               <input
                 className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-white text-sm focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/20 transition-colors placeholder:text-white/20"
                 placeholder="e.g. Pro Tier"
-                {...register("name", { required: "Name is required" })}
+                {...register("name", { required: t("name_required") })}
               />
               {errors.name && <span className="text-red-500 text-xs">{errors.name.message}</span>}
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] uppercase font-black tracking-widest text-white/40">Unique Code</label>
+              <label className="text-[10px] uppercase font-black tracking-widest text-white/40">{t("unique_code")}</label>
               <input
                 className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-white text-sm font-mono focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/20 transition-colors placeholder:text-white/20"
                 placeholder="e.g. plan_pro_m"
-                {...register("code", { required: "Code is required" })}
+                {...register("code", { required: t("code_required") })}
                 disabled={isEditing}
               />
             </div>
@@ -194,7 +196,7 @@ export const AdminPlanModal: React.FC<AdminPlanModalProps> = ({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-[10px] uppercase font-black tracking-widest text-white/40">Monthly Price</label>
+              <label className="text-[10px] uppercase font-black tracking-widest text-white/40">{t("monthly_price")}</label>
               <div className="relative">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 text-sm">$</span>
                 <input
@@ -202,13 +204,13 @@ export const AdminPlanModal: React.FC<AdminPlanModalProps> = ({
                   step="0.01"
                   min="0"
                   className="w-full bg-white/5 border border-white/10 rounded-2xl pl-8 pr-5 py-3 text-white text-sm font-mono focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/20 transition-colors placeholder:text-white/20"
-                  {...register("priceMonthly", { required: "Required" })}
+                  {...register("priceMonthly", { required: t("required") })}
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] uppercase font-black tracking-widest text-white/40">Yearly Price</label>
+              <label className="text-[10px] uppercase font-black tracking-widest text-white/40">{t("yearly_price")}</label>
               <div className="relative">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 text-sm">$</span>
                 <input
@@ -216,7 +218,7 @@ export const AdminPlanModal: React.FC<AdminPlanModalProps> = ({
                   step="0.01"
                   min="0"
                   className="w-full bg-white/5 border border-white/10 rounded-2xl pl-8 pr-5 py-3 text-white text-sm font-mono focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/20 transition-colors placeholder:text-white/20"
-                  {...register("priceYearly", { required: "Required" })}
+                  {...register("priceYearly", { required: t("required") })}
                 />
               </div>
             </div>
@@ -224,7 +226,7 @@ export const AdminPlanModal: React.FC<AdminPlanModalProps> = ({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-[10px] uppercase font-black tracking-widest text-white/40">Sort Order</label>
+              <label className="text-[10px] uppercase font-black tracking-widest text-white/40">{t("sort_order")}</label>
               <input
                 type="number"
                 className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-white text-sm focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/20 transition-colors placeholder:text-white/20"
@@ -232,7 +234,7 @@ export const AdminPlanModal: React.FC<AdminPlanModalProps> = ({
               />
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] uppercase font-black tracking-widest text-white/40">Currency</label>
+              <label className="text-[10px] uppercase font-black tracking-widest text-white/40">{t("currency")}</label>
               <input
                 className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-white text-sm font-mono uppercase focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/20 transition-colors placeholder:text-white/20"
                 placeholder="usd"
@@ -244,8 +246,8 @@ export const AdminPlanModal: React.FC<AdminPlanModalProps> = ({
           {/* Toggle: Public */}
           <div className="flex items-center justify-between p-4 rounded-2xl bg-white/2 border border-white/5">
             <div>
-              <p className="text-sm font-bold text-white">Public Visibility</p>
-              <p className="text-[10px] font-mono uppercase tracking-[0.15em] text-white/30">Can users see this plan?</p>
+              <p className="text-sm font-bold text-white">{t("public_visibility")}</p>
+              <p className="text-[10px] font-mono uppercase tracking-[0.15em] text-white/30">{t("can_users_see")}</p>
             </div>
             <Controller
               control={control}
@@ -260,8 +262,8 @@ export const AdminPlanModal: React.FC<AdminPlanModalProps> = ({
           {isEditing && (
             <div className="flex items-center justify-between p-4 rounded-2xl bg-white/2 border border-white/5">
               <div>
-                <p className="text-sm font-bold text-white">Active Status</p>
-                <p className="text-[10px] font-mono uppercase tracking-[0.15em] text-white/30">Is this plan accepting subs?</p>
+                <p className="text-sm font-bold text-white">{t("active_status")}</p>
+                <p className="text-[10px] font-mono uppercase tracking-[0.15em] text-white/30">{t("accepting_subs")}</p>
               </div>
               <Controller
                 control={control}
@@ -295,7 +297,7 @@ export const AdminPlanModal: React.FC<AdminPlanModalProps> = ({
               disabled={saveMutation.isPending}
               className="flex-1 py-3 rounded-2xl bg-white/5 border border-white/10 text-white/60 text-sm font-semibold hover:bg-white/10 transition-colors"
             >
-              Cancel
+              {t("cancel")}
             </button>
             <button
               type="submit"
@@ -303,7 +305,7 @@ export const AdminPlanModal: React.FC<AdminPlanModalProps> = ({
               className="flex-1 py-3 rounded-2xl bg-linear-to-r from-teal-500 to-teal-600 text-white text-sm font-black uppercase tracking-wide shadow-[0_0_20px_rgba(20,184,166,0.3)] hover:shadow-[0_0_30px_rgba(20,184,166,0.5)] transition-all flex items-center justify-center gap-2"
             >
               <FloppyDisk size={16} />
-              {saveMutation.isPending ? "Saving..." : "Save Plan"}
+              {saveMutation.isPending ? t("saving") : t("save_plan")}
             </button>
           </div>
         </div>

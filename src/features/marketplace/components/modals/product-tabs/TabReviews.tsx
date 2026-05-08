@@ -2,6 +2,7 @@ import React from "react";
 import { Star } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { Review } from "../../../types";
+import { useTranslations } from "next-intl";
 
 interface TabReviewsProps {
   reviews: Review[];
@@ -9,6 +10,7 @@ interface TabReviewsProps {
 
 export const TabReviews: React.FC<TabReviewsProps> = React.memo(
   ({ reviews }) => {
+    const t = useTranslations("marketplace");
     const { theme } = useTheme();
 
     if (!reviews || reviews.length === 0) {
@@ -16,7 +18,7 @@ export const TabReviews: React.FC<TabReviewsProps> = React.memo(
         <div
           className={`text-center py-8 ${theme === "dark" ? "text-gray-500" : "text-gray-400"}`}
         >
-          No hay reseñas todavía.
+          {t("no_reviews_yet")}
         </div>
       );
     }
@@ -52,7 +54,7 @@ export const TabReviews: React.FC<TabReviewsProps> = React.memo(
                       theme === "dark" ? "text-white" : "text-gray-900"
                     }`}
                   >
-                    {review.user_name || "Anonymous"}
+                    {review.user_name || t("anonymous")}
                   </span>
                   <div className="flex">
                     {Array.from({ length: 5 }).map((_, j) => (

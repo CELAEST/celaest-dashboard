@@ -22,6 +22,7 @@ import {
   getInvoiceActionId,
   getInvoiceReferenceSuffix,
 } from "../../lib/invoice-utils";
+import { useTranslations } from "next-intl";
 
 interface InvoiceHistoryTableProps {
   invoices: Invoice[];
@@ -47,6 +48,7 @@ const DownloadActionCell: React.FC<{
   onVoid?: (id: string) => void;
   onPay?: (id: string) => void;
   isLoadingAction?: boolean;
+  t: ReturnType<typeof import("next-intl").useTranslations>;
 }> = ({
   invoice,
   isDark,
@@ -55,6 +57,7 @@ const DownloadActionCell: React.FC<{
   onVoid,
   onPay,
   isLoadingAction,
+  t,
 }) => {
   const [isSuccess, setIsSuccess] = useState(false);
   const actionId = getInvoiceActionId(invoice);
@@ -117,12 +120,12 @@ const DownloadActionCell: React.FC<{
             className="flex items-center gap-1.5"
           >
             <CheckCircle size={14} strokeWidth={2.5} />
-            <span>Done</span>
+            <span>{t("done")}</span>
           </motion.div>
         ) : (
           <div className="flex items-center gap-1.5">
             <DownloadSimple size={14} strokeWidth={2} />
-            <span>PDF</span>
+            <span>{t("pdf")}</span>
           </div>
         )}
       </motion.button>
@@ -154,7 +157,7 @@ const DownloadActionCell: React.FC<{
                   disabled={isLoadingAction}
                   className={`gap-2 font-medium cursor-pointer ${isDark ? "text-emerald-400 focus:bg-emerald-500/10" : "text-emerald-600 focus:bg-emerald-50"}`}
                 >
-                  <CheckSquare size={14} /> Force Mark Paid
+                  <CheckSquare size={14} /> {t("force_mark_paid")}
                 </DropdownMenuItem>
               )}
             {actionId &&
@@ -166,7 +169,7 @@ const DownloadActionCell: React.FC<{
                   disabled={isLoadingAction}
                   className={`gap-2 font-medium cursor-pointer ${isDark ? "text-red-400 focus:bg-red-500/10 focus:text-red-300" : "text-red-600 focus:bg-red-50 focus:text-red-700"}`}
                 >
-                  <ShieldWarning size={14} /> Void Invoice
+                  <ShieldWarning size={14} /> {t("void_invoice")}
                 </DropdownMenuItem>
               )}
             {(!actionId || invoice.status === "paid" || invoice.status === "void") && (
@@ -175,8 +178,8 @@ const DownloadActionCell: React.FC<{
                 className="text-gray-500 text-xs italic"
               >
                 {actionId
-                  ? "No administrative actions available"
-                  : "Invoice ID unavailable"}
+                  ? t("no_admin_actions")
+                  : t("invoice_id_unavailable")}
               </DropdownMenuItem>
             )}
           </DropdownMenuContent>
@@ -200,11 +203,13 @@ export const InvoiceHistoryTable: React.FC<InvoiceHistoryTableProps> = ({
   isFetchingNextPage,
   onLoadMore,
 }) => {
+  const t = useTranslations("billing");
+
   const columns: ColumnDef<Invoice>[] = useMemo(
     () => [
       {
         id: "invoice",
-        header: "Invoice",
+        header: t("invoice_header"),
         cell: ({ row }) => {
           const invoice = row.original;
           return (
@@ -238,7 +243,7 @@ export const InvoiceHistoryTable: React.FC<InvoiceHistoryTableProps> = ({
       },
       {
         id: "date",
-        header: "Date",
+        header: t("date"),
         cell: ({ row }) => {
           const invoice = row.original;
           return (
@@ -266,7 +271,7 @@ export const InvoiceHistoryTable: React.FC<InvoiceHistoryTableProps> = ({
       },
       {
         id: "description",
-        header: "Description",
+        header: t("description"),
         cell: ({ row }) => {
           const invoice = row.original;
           const customerName = invoice.billing_name || invoice.customer_name || "";
@@ -291,7 +296,7 @@ export const InvoiceHistoryTable: React.FC<InvoiceHistoryTableProps> = ({
       },
       {
         id: "payment_method",
-        header: "Payment Method",
+        header: t("payment_method"),
         cell: ({ row }) => {
           const invoice = row.original;
           const last4 = getInvoiceReferenceSuffix(invoice);
@@ -312,7 +317,7 @@ export const InvoiceHistoryTable: React.FC<InvoiceHistoryTableProps> = ({
       },
       {
         id: "amount",
-        header: () => <div className="text-right">Amount</div>,
+        header: () => <div className="text-right">{t("amount")}</div>,
         cell: ({ row }) => {
           const invoice = row.original;
           return (
@@ -329,7 +334,7 @@ export const InvoiceHistoryTable: React.FC<InvoiceHistoryTableProps> = ({
       },
       {
         id: "status",
-        header: () => <div className="text-center">Status</div>,
+        header: () => <div className="text-center">{t("status")}</div>,
         cell: ({ row }) => {
           const invoice = row.original;
           return (
@@ -356,7 +361,7 @@ export const InvoiceHistoryTable: React.FC<InvoiceHistoryTableProps> = ({
                   }
                 `}
               >
-                {invoice.status === "void" ? "anulada" : invoice.status}
+                {invoice.status === "void" ? t("void") : invoice.status}
               </span>
             </div>
           );
@@ -364,7 +369,7 @@ export const InvoiceHistoryTable: React.FC<InvoiceHistoryTableProps> = ({
       },
       {
         id: "actions",
-        header: () => <div className="text-center">Actions</div>,
+        header: () => <div className="text-center">{t("actions")}</div>,
         cell: ({ row }) => {
           const invoice = row.original;
           return (
@@ -376,12 +381,13 @@ export const InvoiceHistoryTable: React.FC<InvoiceHistoryTableProps> = ({
               onVoid={onVoid}
               onPay={onPay}
               isLoadingAction={isLoadingAction}
+              t={t}
             />
           );
         },
       },
     ],
-    [isDark, downloadingId, onDownload, onVoid, onPay, isLoadingAction],
+    [isDark, downloadingId, onDownload, onVoid, onPay, isLoadingAction, t],
   );
 
   return (
@@ -390,8 +396,8 @@ export const InvoiceHistoryTable: React.FC<InvoiceHistoryTableProps> = ({
         columns={columns}
         data={invoices}
         isLoading={isLoading ?? false}
-        emptyMessage="No invoices found."
-        emptySubmessage="You don't have any billing history yet."
+        emptyMessage={t("no_invoices")}
+        emptySubmessage={t("no_billing_history")}
         totalItems={totalItems}
         hasNextPage={hasNextPage}
         isFetchingNextPage={isFetchingNextPage}

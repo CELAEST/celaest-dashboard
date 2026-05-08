@@ -3,6 +3,7 @@ import { motion } from "motion/react";
 import { CircleNotch, CheckCircle } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { Progress } from "@/components/ui/progress";
+import { useTranslations } from "next-intl";
 
 interface ActivationStepProps {
   purchaseComplete: boolean;
@@ -19,6 +20,7 @@ export const ActivationStep: React.FC<ActivationStepProps> = ({
   onReset,
   onGoToAssets,
 }) => {
+  const t = useTranslations("marketplace");
   const { theme } = useTheme();
 
   return (
@@ -43,12 +45,12 @@ export const ActivationStep: React.FC<ActivationStepProps> = ({
             <h2
               className={`text-2xl font-bold mb-2 ${theme === "dark" ? "text-white" : "text-gray-900"}`}
             >
-              ¡Completado!
+              {t("completed_exclamation")}
             </h2>
             <p
               className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}
             >
-              Tu activo está listo para usar
+              {t("asset_ready")}
             </p>
           </div>
           <div
@@ -57,7 +59,7 @@ export const ActivationStep: React.FC<ActivationStepProps> = ({
             <p
               className={`text-sm ${theme === "dark" ? "text-green-400" : "text-green-700"}`}
             >
-              Hemos enviado los detalles de acceso a tu correo
+              {t("access_details_sent")}
             </p>
           </div>
           <button
@@ -71,7 +73,7 @@ export const ActivationStep: React.FC<ActivationStepProps> = ({
               }
             `}
           >
-            Ir a Mis Activos
+            {t("go_to_my_assets")}
           </button>
         </>
       ) : (
@@ -84,12 +86,12 @@ export const ActivationStep: React.FC<ActivationStepProps> = ({
             <h2
               className={`text-2xl font-bold mb-2 ${theme === "dark" ? "text-white" : "text-gray-900"}`}
             >
-              Configurando tu Activo
+              {t("configuring_asset")}
             </h2>
             <p
               className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}
             >
-              {statusMessage || "Esto solo tomará unos segundos..."}
+              {statusMessage || t("take_a_few_seconds")}
             </p>
           </div>
           <Progress value={progress} className="w-64 mx-auto" />

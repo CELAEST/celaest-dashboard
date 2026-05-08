@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { FileText, CaretUp, CaretDown, Shield } from "@phosphor-icons/react";
 import { CustomerAsset } from "../../../types";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 
 interface UpdateItemChangelogProps {
   asset: CustomerAsset;
@@ -13,6 +14,7 @@ interface UpdateItemChangelogProps {
 export const UpdateItemChangelog: React.FC<UpdateItemChangelogProps> = memo(
   ({ asset, isExpanded, onToggle }) => {
     const { isDark } = useTheme();
+    const t = useTranslations("releases");
 
     if (!asset.hasUpdate) return null;
 
@@ -31,7 +33,7 @@ export const UpdateItemChangelog: React.FC<UpdateItemChangelogProps> = memo(
           <div className="flex items-center gap-2">
             <FileText size={16} />
             <span className="text-sm font-semibold">
-              What&apos;s New in {asset.latestVersion}
+              {t("changelog_whats_new", { version: asset.latestVersion })}
             </span>
           </div>
           {isExpanded ? <CaretUp size={18} /> : <CaretDown size={18} />}
@@ -87,7 +89,7 @@ export const UpdateItemChangelog: React.FC<UpdateItemChangelogProps> = memo(
                         isDark ? "text-emerald-400" : "text-emerald-700"
                       }`}
                     >
-                      File Integrity Verification
+                      {t("security_integrity_verify")}
                     </p>
                     <p
                       className={`text-xs font-mono ${

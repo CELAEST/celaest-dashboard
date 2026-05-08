@@ -2,6 +2,7 @@ import React from "react";
 import { Shield, Lock, CheckCircle, Medal } from "@phosphor-icons/react";
 import { motion } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 
 interface TrustBadgesProps {
   className?: string;
@@ -9,12 +10,13 @@ interface TrustBadgesProps {
 
 export const TrustBadges: React.FC<TrustBadgesProps> = ({ className = "" }) => {
   const { theme } = useTheme();
+  const t = useTranslations("marketplace");
 
   const badges = [
-    { icon: <Shield size={14} />, text: "Cifrado de Grado Militar" },
-    { icon: <Lock size={14} />, text: "Pago Seguro SSL" },
-    { icon: <CheckCircle size={14} />, text: "Garantía 30 Días" },
-    { icon: <Medal size={14} />, text: "Soporte Premium 24/7" },
+    { icon: <Shield size={14} />, textKey: "military_grade_encryption" },
+    { icon: <Lock size={14} />, textKey: "secure_ssl_payment" },
+    { icon: <CheckCircle size={14} />, textKey: "thirty_day_guarantee" },
+    { icon: <Medal size={14} />, textKey: "premium_support_247" },
   ];
 
   return (
@@ -35,7 +37,7 @@ export const TrustBadges: React.FC<TrustBadgesProps> = ({ className = "" }) => {
           `}
         >
           {badge.icon}
-          <span>{badge.text}</span>
+          <span>{t(badge.textKey)}</span>
         </motion.div>
       ))}
     </div>

@@ -1,6 +1,7 @@
 import React, { memo } from "react";
 import { ClockCounterClockwise as HistoryIcon } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 
 interface VersionHeaderProps {
   showingCount: number;
@@ -11,6 +12,7 @@ export const VersionHeader: React.FC<VersionHeaderProps> = memo(
   ({ showingCount, totalCount }) => {
     const { theme } = useTheme();
     const isDark = theme === "dark";
+    const t = useTranslations("releases");
 
     return (
       <div
@@ -26,18 +28,18 @@ export const VersionHeader: React.FC<VersionHeaderProps> = memo(
               }`}
             >
               <HistoryIcon size={18} className="text-purple-400" />
-              Version History
+              {t("version_history_title")}
             </h3>
             <p
               className={`text-xs mt-1 ${
                 isDark ? "text-gray-500" : "text-gray-600"
               }`}
             >
-              Complete release timeline with checksums and adoption tracking
+              {t("version_history_desc")}
             </p>
           </div>
           <p className={`text-xs ${isDark ? "text-gray-500" : "text-gray-600"}`}>
-            Showing {showingCount} of {totalCount} versions
+            {t("version_history_showing", { showing: showingCount, total: totalCount })}
           </p>
         </div>
       </div>

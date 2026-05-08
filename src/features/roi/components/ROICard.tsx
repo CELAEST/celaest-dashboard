@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { CurrencyDollar, Clock, Lightning } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useAnalytics } from "@/features/analytics/hooks/useAnalytics";
+import { useTranslations } from "next-intl";
 
 const HolographicClockVisual = () => {
   return (
@@ -281,6 +282,7 @@ const SvgSplineChart = ({ data, isDark }: { data: { name: string; value: number 
 };
 
 export const ROICard = React.memo(() => {
+  const t = useTranslations("roi");
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const { stats, salesByPeriod, roi } = useAnalytics();
@@ -346,7 +348,7 @@ export const ROICard = React.memo(() => {
               isDark ? "text-gray-400" : "text-gray-500"
             }`}
           >
-            Total Time Saved
+            {t("total_time_saved")}
           </div>
           <div className="flex items-baseline gap-2">
             <div
@@ -355,7 +357,7 @@ export const ROICard = React.memo(() => {
               }`}
             >
               {timeSavedHours.toLocaleString()}
-              <span className="text-xl ml-1 opacity-50">hrs</span>
+              <span className="text-xl ml-1 opacity-50">{t("hours_unit")}</span>
             </div>
             <div
               className={`px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-widest border whitespace-nowrap ${
@@ -364,7 +366,7 @@ export const ROICard = React.memo(() => {
                   : "bg-emerald-50 text-emerald-700 border-emerald-200"
               }`}
             >
-              {formatGrowth(revenueGrowth)} vs prev
+              {formatGrowth(revenueGrowth)} {t("vs_prev")}
             </div>
           </div>
         </div>
@@ -395,7 +397,7 @@ export const ROICard = React.memo(() => {
               isDark ? "text-gray-400" : "text-gray-500"
             }`}
           >
-            Revenue Total
+            {t("revenue_total")}
           </div>
           <div className="flex items-baseline gap-2">
             <div
@@ -405,15 +407,15 @@ export const ROICard = React.memo(() => {
             >
               {formatCurrency(totalRevenue)}
             </div>
-            <div
-              className={`px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-widest border whitespace-nowrap ${
-                isDark
-                  ? "bg-emerald-500/5 text-emerald-400 border-emerald-500/20"
-                  : "bg-emerald-50 text-emerald-700 border-emerald-200"
-              }`}
-            >
-              ROI {formatGrowth(roiPercentage)}
-            </div>
+              <div
+                className={`px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-widest border whitespace-nowrap ${
+                  isDark
+                    ? "bg-emerald-500/5 text-emerald-400 border-emerald-500/20"
+                    : "bg-emerald-50 text-emerald-700 border-emerald-200"
+                }`}
+              >
+                {t("roi_label")} {formatGrowth(roiPercentage)}
+              </div>
           </div>
         </div>
       </div>

@@ -13,6 +13,7 @@ import {
   UpdateProductPayload,
 } from "@/features/assets/api/assets.api";
 import { BillingModal } from "./modals/shared/BillingModal";
+import { useTranslations } from "next-intl";
 
 interface AdminProductModalProps {
   isOpen: boolean;
@@ -42,6 +43,7 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
 }) => {
   const queryClient = useQueryClient();
   const isEditing = !!product;
+  const t = useTranslations("billing");
 
   const {
     register,
@@ -117,13 +119,11 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "products"] });
-      toast.success(
-        `Product ${isEditing ? "updated" : "created"} successfully!`,
-      );
+      toast.success(isEditing ? t("product_updated_success") : t("product_created_success"));
       onClose();
     },
     onError: (err: Error) => {
-      toast.error(err?.message || "Failed to save product");
+      toast.error(err?.message || t("failed_to_save_product"));
     },
   });
 
@@ -170,10 +170,10 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
           </div>
           <div>
             <h2 className="text-xl font-black italic tracking-tighter text-white uppercase">
-              {isEditing ? "Edit Product" : "Create Product"}
+              {isEditing ? t("edit_product") : t("create_product")}
             </h2>
             <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40">
-              {isEditing ? "Modify product details" : "Add to global catalog"}
+              {isEditing ? t("modify_product_details") : t("add_to_global_catalog")}
             </p>
           </div>
         </div>
@@ -190,21 +190,21 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
         <div className="px-8 py-6 space-y-5 overflow-y-auto flex-1 min-h-0">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-[10px] uppercase font-black tracking-widest text-white/40">Product Name</label>
+              <label className="text-[10px] uppercase font-black tracking-widest text-white/40">{t("product_name")}</label>
               <input
                 className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-white text-sm focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/20 transition-colors placeholder:text-white/20"
                 placeholder="e.g. Celaest Platform"
-                {...register("name", { required: "Name is required" })}
+                {...register("name", { required: t("name_required") })}
               />
               {errors.name && <span className="text-red-500 text-xs">{errors.name.message}</span>}
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] uppercase font-black tracking-widest text-white/40">URL Slug</label>
+              <label className="text-[10px] uppercase font-black tracking-widest text-white/40">{t("url_slug")}</label>
               <input
                 className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-white text-sm font-mono focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/20 transition-colors placeholder:text-white/20"
                 placeholder="e.g. celaest-platform"
-                {...register("slug", { required: "Slug is required" })}
+                {...register("slug", { required: t("slug_required") })}
                 disabled={isEditing}
               />
             </div>
@@ -212,7 +212,7 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-[10px] uppercase font-black tracking-widest text-white/40">Base Price</label>
+              <label className="text-[10px] uppercase font-black tracking-widest text-white/40">{t("base_price")}</label>
               <div className="relative">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 text-sm">$</span>
                 <input
@@ -220,13 +220,13 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
                   step="0.01"
                   min="0"
                   className="w-full bg-white/5 border border-white/10 rounded-2xl pl-8 pr-5 py-3 text-white text-sm font-mono focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/20 transition-colors placeholder:text-white/20"
-                  {...register("basePrice", { required: "Required" })}
+                  {...register("basePrice", { required: t("required") })}
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] uppercase font-black tracking-widest text-white/40">Type</label>
+              <label className="text-[10px] uppercase font-black tracking-widest text-white/40">{t("type")}</label>
               <input
                 className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-white text-sm font-mono focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/20 transition-colors placeholder:text-white/20"
                 placeholder="software, asset, plugin"
@@ -237,10 +237,10 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
           </div>
 
           <div className="space-y-2">
-            <label className="text-[10px] uppercase font-black tracking-widest text-white/40">Short Description</label>
+            <label className="text-[10px] uppercase font-black tracking-widest text-white/40">{t("short_description")}</label>
             <input
               className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-white text-sm focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/20 transition-colors placeholder:text-white/20"
-              placeholder="Brief description of the product..."
+              placeholder={t("brief_description_placeholder")}
               {...register("shortDescription")}
             />
           </div>
@@ -249,8 +249,8 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
           <div className="grid grid-cols-2 gap-4">
             <div className="flex items-center justify-between p-4 rounded-2xl bg-white/2 border border-white/5">
               <div>
-                <p className="text-sm font-bold text-white">Public</p>
-                <p className="text-[10px] font-mono uppercase tracking-[0.15em] text-white/30">Visible on catalog</p>
+                <p className="text-sm font-bold text-white">{t("public")}</p>
+                <p className="text-[10px] font-mono uppercase tracking-[0.15em] text-white/30">{t("visible_on_catalog")}</p>
               </div>
               <Controller
                 control={control}
@@ -263,8 +263,8 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
 
             <div className="flex items-center justify-between p-4 rounded-2xl bg-white/2 border border-white/5">
               <div>
-                <p className="text-sm font-bold text-white">Featured</p>
-                <p className="text-[10px] font-mono uppercase tracking-[0.15em] text-white/30">Highlight in hero</p>
+                <p className="text-sm font-bold text-white">{t("featured")}</p>
+                <p className="text-[10px] font-mono uppercase tracking-[0.15em] text-white/30">{t("highlight_in_hero")}</p>
               </div>
               <Controller
                 control={control}
@@ -298,7 +298,7 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
               disabled={saveMutation.isPending}
               className="flex-1 py-3 rounded-2xl bg-white/5 border border-white/10 text-white/60 text-sm font-semibold hover:bg-white/10 transition-colors"
             >
-              Cancel
+              {t("cancel")}
             </button>
             <button
               type="submit"
@@ -306,7 +306,7 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
               className="flex-1 py-3 rounded-2xl bg-linear-to-r from-teal-500 to-teal-600 text-white text-sm font-black uppercase tracking-wide shadow-[0_0_20px_rgba(20,184,166,0.3)] hover:shadow-[0_0_30px_rgba(20,184,166,0.5)] transition-all flex items-center justify-center gap-2"
             >
               <FloppyDisk size={16} />
-              {saveMutation.isPending ? "Saving..." : "Save Product"}
+              {saveMutation.isPending ? t("saving") : t("save_product")}
             </button>
           </div>
         </div>

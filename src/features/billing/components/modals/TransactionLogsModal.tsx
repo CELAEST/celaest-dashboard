@@ -20,6 +20,7 @@ import { format } from "date-fns";
 import { type ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table";
 import { BillingModal } from "./shared/BillingModal";
+import { useTranslations } from "next-intl";
 
 interface TransactionLogsModalProps {
   isOpen: boolean;
@@ -31,6 +32,7 @@ export const TransactionLogsModal: React.FC<TransactionLogsModalProps> = ({
   onClose,
 }) => {
   const { session } = useAuth();
+  const t = useTranslations("billing");
 
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useTransactionsInfiniteQuery(
     session?.accessToken ?? null,
@@ -46,7 +48,7 @@ export const TransactionLogsModal: React.FC<TransactionLogsModalProps> = ({
     () => [
       {
         id: "date",
-        header: "Date & Time",
+        header: t("date_and_time"),
         cell: ({ row }) => {
           const tx = row.original;
           return (
@@ -63,7 +65,7 @@ export const TransactionLogsModal: React.FC<TransactionLogsModalProps> = ({
       },
       {
         id: "amount",
-        header: "Amount",
+        header: t("amount"),
         cell: ({ row }) => {
           const tx = row.original;
           return (
@@ -81,7 +83,7 @@ export const TransactionLogsModal: React.FC<TransactionLogsModalProps> = ({
       },
       {
         id: "status",
-        header: "Status",
+        header: t("status"),
         cell: ({ row }) => {
           const tx = row.original;
           const status = tx.status;
@@ -111,7 +113,7 @@ export const TransactionLogsModal: React.FC<TransactionLogsModalProps> = ({
       },
       {
         id: "org",
-        header: "Organization ID",
+        header: t("organization_id"),
         cell: ({ row }) => {
           const tx = row.original;
           return (
@@ -124,7 +126,7 @@ export const TransactionLogsModal: React.FC<TransactionLogsModalProps> = ({
       },
       {
         id: "details",
-        header: "Details",
+        header: t("details"),
         cell: ({ row }) => {
           const tx = row.original;
           return (
@@ -148,7 +150,7 @@ export const TransactionLogsModal: React.FC<TransactionLogsModalProps> = ({
         },
       },
     ],
-    [],
+    [t],
   );
 
   return (
@@ -188,8 +190,8 @@ export const TransactionLogsModal: React.FC<TransactionLogsModalProps> = ({
             <ClockCounterClockwise size={22} />
           </div>
           <div>
-            <h2 className="text-xl font-black italic tracking-tighter text-white uppercase">Transaction Logs</h2>
-            <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40">Total processed: {total} records</p>
+            <h2 className="text-xl font-black italic tracking-tighter text-white uppercase">{t("transaction_logs")}</h2>
+            <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40">{t("total_processed", { count: total })}</p>
           </div>
         </div>
 
@@ -206,16 +208,16 @@ export const TransactionLogsModal: React.FC<TransactionLogsModalProps> = ({
           <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
           <input
             type="text"
-            placeholder="Search transactions..."
+            placeholder={t("search_transactions")}
             className="w-full bg-white/5 border border-white/10 rounded-2xl py-2.5 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/20 transition-colors placeholder:text-white/20"
             disabled
           />
         </div>
         <button className="flex items-center gap-2 px-4 py-2.5 bg-white/5 border border-white/10 rounded-2xl text-sm font-medium text-gray-400 cursor-not-allowed">
-          <Funnel className="w-4 h-4" /> Filter
+          <Funnel className="w-4 h-4" /> {t("filter")}
         </button>
         <button className="flex items-center gap-2 px-4 py-2.5 bg-white/5 border border-white/10 rounded-2xl text-sm font-medium text-gray-400 cursor-not-allowed">
-          <DownloadSimple className="w-4 h-4" /> Export
+          <DownloadSimple className="w-4 h-4" /> {t("export")}
         </button>
       </div>
 
@@ -225,8 +227,8 @@ export const TransactionLogsModal: React.FC<TransactionLogsModalProps> = ({
           columns={columns}
           data={transactions}
           isLoading={isLoading}
-          emptyMessage="No transactions found"
-          emptySubmessage="Transaction history will appear here."
+          emptyMessage={t("no_transactions_found")}
+          emptySubmessage={t("transaction_history_will_appear")}
           totalItems={total}
           hasNextPage={hasNextPage}
           isFetchingNextPage={isFetchingNextPage}

@@ -1,5 +1,6 @@
 import React from "react";
 import { CreditCard, X } from "@phosphor-icons/react";
+import { useTranslations } from "next-intl";
 
 interface ConfigurePaymentGatewaysHeaderProps {
   onClose?: () => void;
@@ -8,6 +9,7 @@ interface ConfigurePaymentGatewaysHeaderProps {
 export const ConfigurePaymentGatewaysHeader: React.FC<
   ConfigurePaymentGatewaysHeaderProps
 > = ({ onClose }) => {
+  const t = useTranslations("billing");
   return (
     <div className="relative px-8 py-6 border-b border-white/8 flex items-center justify-between overflow-hidden shrink-0">
       {/* Gradient wash */}
@@ -33,10 +35,10 @@ export const ConfigurePaymentGatewaysHeader: React.FC<
         </div>
         <div>
           <h2 className="text-xl font-black italic tracking-tighter text-white uppercase">
-            Payment Gateways
+            {t("payment_gateways")}
           </h2>
           <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40">
-            Manage API keys & settings
+            {t("manage_api_keys")}
           </p>
         </div>
       </div>

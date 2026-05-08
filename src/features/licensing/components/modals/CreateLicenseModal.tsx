@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { logger } from "@/lib/logger";
 import React, { useState } from "react";
 import { X, Sparkle } from "@phosphor-icons/react";
@@ -7,6 +7,7 @@ import { useCreateLicense, LicenseFormData } from "@/features/licensing/hooks/us
 import { LicenseForm } from "./create-license/LicenseForm";
 import { LicenseSuccess } from "./create-license/LicenseSuccess";
 import { Form } from "@/components/ui/form";
+import { useTranslations } from "next-intl";
 
 interface CreateLicenseModalProps {
   isOpen: boolean;
@@ -19,6 +20,7 @@ export const CreateLicenseModal = ({
   onClose,
   onCreate,
 }: CreateLicenseModalProps) => {
+  const t = useTranslations("licensing");
   const { form, resetForm: hookReset } = useCreateLicense(() => {});
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -82,10 +84,10 @@ export const CreateLicenseModal = ({
           </div>
           <div>
             <h2 className="text-xl font-black italic tracking-tighter text-white uppercase">
-              Generate License
+              {t("generate_license")}
             </h2>
             <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40">
-              Create a new license key for your product
+              {t("generate_license_desc")}
             </p>
           </div>
         </div>
@@ -138,7 +140,7 @@ export const CreateLicenseModal = ({
               onClick={handleClose}
               className="flex-1 py-3 rounded-2xl bg-white/5 border border-white/10 text-white/60 text-sm font-semibold hover:bg-white/10 transition-colors"
             >
-              Cancel
+              {t("cancel")}
             </button>
             <button
               onClick={form.handleSubmit(onSubmit)}
@@ -150,7 +152,7 @@ export const CreateLicenseModal = ({
               ) : (
                 <>
                   <Sparkle size={16} className="shrink-0" />
-                  Generate Key
+                  {t("generate_key")}
                 </>
               )}
             </button>

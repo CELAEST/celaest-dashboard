@@ -22,6 +22,7 @@ import {
 } from "recharts";
 import { motion } from "motion/react";
 import { useAnalytics as useAnalyticsHook } from "@/features/analytics/hooks/useAnalytics";
+import { useTranslations } from "next-intl";
 import {
   CategoryDistribution,
   SalesByPeriod,
@@ -247,6 +248,7 @@ interface AssetMetricsProps {
 export const AssetMetrics: React.FC<AssetMetricsProps> = ({ period = "month" }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const t = useTranslations("marketplace");
   const {
     stats,
     usage,
@@ -289,7 +291,7 @@ export const AssetMetrics: React.FC<AssetMetricsProps> = ({ period = "month" }) 
   ];
   const mixData = categoryDistribution.map(
     (item: CategoryDistribution, index: number) => ({
-      name: item.category || "Uncategorized",
+      name: item.category || t("uncategorized"),
       value: item.count,
       color: categoryColors[index % categoryColors.length],
     }),
@@ -305,9 +307,9 @@ export const AssetMetrics: React.FC<AssetMetricsProps> = ({ period = "month" }) 
       {/* Row 1: KPI Cards */}
       <div className="shrink-0 grid grid-cols-2 lg:grid-cols-4 gap-3">
         <StatCard
-          title="Active Templates"
+          title={t("active_templates")}
           value={stats?.active_products?.toString() || "0"}
-          trend={`Total: ${stats?.total_products}`}
+          trend={t("total_label", { count: stats?.total_products || 0 })}
           trendUp={true}
           icon={<Package size={24} />}
           delay={0.1}
@@ -315,9 +317,9 @@ export const AssetMetrics: React.FC<AssetMetricsProps> = ({ period = "month" }) 
           visual={<ActiveTemplatesVisual />}
         />
         <StatCard
-          title="Draft Assets"
+          title={t("draft_assets")}
           value={stats?.draft_products?.toString() || "0"}
-          trend="In Review"
+          trend={t("in_review")}
           trendUp={false}
           icon={<FileText size={24} />}
           delay={0.2}
@@ -325,9 +327,9 @@ export const AssetMetrics: React.FC<AssetMetricsProps> = ({ period = "month" }) 
           visual={<DraftAssetsVisual />}
         />
         <StatCard
-          title="Total Licenses"
+          title={t("total_licenses")}
           value={stats?.total_licenses?.toString() || "0"}
-          trend={`${stats?.active_licenses} Active`}
+          trend={t("active_count", { count: stats?.active_licenses || 0 })}
           trendUp={true}
           icon={<Stack size={24} />}
           delay={0.3}
@@ -335,9 +337,9 @@ export const AssetMetrics: React.FC<AssetMetricsProps> = ({ period = "month" }) 
           visual={<TotalLicensesVisual />}
         />
         <StatCard
-          title="Storage Used"
+          title={t("storage_used")}
           value={`${usage?.storage_used_gb?.toFixed(1) || "0.0"} GB`}
-          trend={`${usage?.api_requests || 0} API Calls`}
+          trend={t("api_calls_count", { count: usage?.api_requests || 0 })}
           trendUp={true}
           icon={<HardDrive size={24} />}
           delay={0.4}
@@ -374,12 +376,12 @@ export const AssetMetrics: React.FC<AssetMetricsProps> = ({ period = "month" }) 
                 <h3
                   className={`text-[9px] font-black uppercase tracking-[0.3em] leading-tight ${isDark ? "text-white/40" : "text-gray-400"}`}
                 >
-                  Inteligencia de Activos
+                  {t("asset_intelligence")}
                 </h3>
                 <h2
                   className={`text-lg font-black italic tracking-tighter leading-none mt-0.5 ${isDark ? "text-white" : "text-gray-900"}`}
                 >
-                  ORDER TRENDS
+                  {t("order_trends")}
                 </h2>
               </div>
             </div>
@@ -451,7 +453,7 @@ export const AssetMetrics: React.FC<AssetMetricsProps> = ({ period = "month" }) 
               </ResponsiveContainer>
             ) : (
               <div className="flex items-center justify-center h-full text-gray-500 text-sm">
-                No trend data available for this period
+                {t("no_trend_data")}
               </div>
             )}
           </div>
@@ -482,12 +484,12 @@ export const AssetMetrics: React.FC<AssetMetricsProps> = ({ period = "month" }) 
               <h3
                 className={`text-[9px] font-black uppercase tracking-[0.3em] leading-tight ${isDark ? "text-white/40" : "text-gray-400"}`}
               >
-                Estructura de Catálogo
-              </h3>
-              <h2
-                className={`text-lg font-black italic tracking-tighter leading-none mt-0.5 ${isDark ? "text-white" : "text-gray-900"}`}
-              >
-                ASSET MIX
+                  {t("catalog_structure")}
+                </h3>
+                <h2
+                  className={`text-lg font-black italic tracking-tighter leading-none mt-0.5 ${isDark ? "text-white" : "text-gray-900"}`}
+                >
+                  {t("asset_mix")}
               </h2>
             </div>
           </div>
@@ -628,14 +630,14 @@ export const AssetMetrics: React.FC<AssetMetricsProps> = ({ period = "month" }) 
                       {totalGlobal > 1000 ? `${(totalGlobal / 1000).toFixed(1)}K` : totalGlobal}
                     </span>
                     <span className={`text-[12px] font-black uppercase tracking-[0.3em] mt-1 ${isDark ? "text-gray-400" : "text-gray-500"}`}>
-                      Global Spread
+                      {t("global_spread")}
                     </span>
                   </div>
                 </div>
               </>
             ) : (
               <div className="flex items-center justify-center h-full text-gray-500 text-sm">
-                No category data available
+                {t("no_category_data")}
               </div>
             )}
           </div>

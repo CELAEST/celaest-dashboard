@@ -9,6 +9,8 @@ import { ThemeSync } from "@/features/shared/components/ThemeSync";
 import { OrgSync } from "@/features/shared/components/OrgSync";
 import { RealtimeDashboardSync } from "@/features/shared/components/RealtimeDashboardSync";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -51,13 +53,15 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+  const messages = await getMessages();
   return (
-    <html lang="es" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
@@ -91,7 +95,8 @@ export default function RootLayout({
           Saltar al contenido
         </a>
         <QueryProvider>
-          <ThemeSync />
+          <NextIntlClientProvider messages={messages}>
+            <ThemeSync />
           <ErrorBoundary>
             <AuthProvider>
               <OrgSync />
@@ -102,6 +107,7 @@ export default function RootLayout({
               </NotificationProvider>
             </AuthProvider>
           </ErrorBoundary>
+          </NextIntlClientProvider>
         </QueryProvider>
       </body>
     </html>

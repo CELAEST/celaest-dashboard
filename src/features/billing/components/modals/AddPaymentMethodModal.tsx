@@ -8,6 +8,7 @@ import { useAddPaymentMethodFormRHF } from "../../hooks/useAddPaymentMethodFormR
 
 import { ConnectedCreditCardPreview } from "../payment-methods/ConnectedCreditCardPreview";
 import { AddPaymentMethodFormRHF } from "../forms/AddPaymentMethodFormRHF";
+import { useTranslations } from "next-intl";
 
 interface AddPaymentMethodModalProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ export function AddPaymentMethodModal({
   isOpen,
   onClose,
 }: AddPaymentMethodModalProps) {
+  const t = useTranslations("billing");
   const { form, handleSubmit, isSubmitting } =
     useAddPaymentMethodFormRHF(onClose);
 
@@ -67,8 +69,8 @@ export function AddPaymentMethodModal({
               <CreditCard size={22} />
             </div>
             <div>
-              <h2 className="text-xl font-black italic tracking-tighter text-white uppercase">Add Payment Method</h2>
-              <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40">Securely add a new card</p>
+              <h2 className="text-xl font-black italic tracking-tighter text-white uppercase">{t("add_payment_method")}</h2>
+              <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40">{t("add_payment_method_desc")}</p>
             </div>
           </div>
 
@@ -104,7 +106,7 @@ export function AddPaymentMethodModal({
           <div className="relative px-8 py-5 flex items-center justify-between">
             <div className="flex items-center gap-1 text-white/30">
               <Lock size={12} />
-              <span className="text-[10px] font-mono uppercase tracking-[0.15em]">Encrypted & secure</span>
+              <span className="text-[10px] font-mono uppercase tracking-[0.15em]">{t("encrypted_secure")}</span>
             </div>
             <div className="flex gap-3">
               <button
@@ -112,7 +114,7 @@ export function AddPaymentMethodModal({
                 type="button"
                 className="px-5 py-3 rounded-2xl bg-white/5 border border-white/10 text-white/60 text-sm font-semibold hover:bg-white/10 transition-colors"
               >
-                Cancel
+                {t("cancel")}
               </button>
               <button
                 onClick={handleSubmit}
@@ -124,7 +126,7 @@ export function AddPaymentMethodModal({
                 ) : (
                   <>
                     <Check size={16} />
-                    Save Method
+                    {t("save_method")}
                   </>
                 )}
               </button>

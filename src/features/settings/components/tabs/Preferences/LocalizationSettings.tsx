@@ -7,6 +7,7 @@ import {
   DateFormatOption,
   TimeFormatOption,
 } from "@/features/settings/components/types";
+import { useTranslations } from "next-intl";
 
 interface LocalizationSettingsProps {
   timezone: string;
@@ -33,6 +34,7 @@ export const LocalizationSettings: React.FC<LocalizationSettingsProps> = memo(
     timeFormats,
   }) => {
     const { isDark } = useTheme();
+    const t = useTranslations("settings");
 
     return (
       <div className="settings-glass-card rounded-2xl p-6">
@@ -42,7 +44,7 @@ export const LocalizationSettings: React.FC<LocalizationSettingsProps> = memo(
           }`}
         >
           <Globe className="w-5 h-5 text-cyan-500" />
-          Localization
+          {t("localization")}
         </h3>
 
         <div className="space-y-6">
@@ -53,7 +55,7 @@ export const LocalizationSettings: React.FC<LocalizationSettingsProps> = memo(
                 isDark ? "text-gray-500" : "text-gray-400"
               }`}
             >
-              User Timezone
+              {t("user_timezone")}
             </label>
             <SettingsSelect
               options={timezones}
@@ -65,8 +67,7 @@ export const LocalizationSettings: React.FC<LocalizationSettingsProps> = memo(
                 isDark ? "text-gray-500" : "text-gray-400"
               }`}
             >
-              Your timezone is used to display timestamps consistently
-              throughout the dashboard.
+              {t("timezone_desc")}
             </p>
           </div>
 
@@ -78,7 +79,7 @@ export const LocalizationSettings: React.FC<LocalizationSettingsProps> = memo(
                   isDark ? "text-gray-500" : "text-gray-400"
                 }`}
               >
-                Date Format
+                {t("date_format")}
               </label>
               <div className="space-y-2">
                 {dateFormats.map((format) => (
@@ -112,7 +113,7 @@ export const LocalizationSettings: React.FC<LocalizationSettingsProps> = memo(
                   isDark ? "text-gray-500" : "text-gray-400"
                 }`}
               >
-                Time Format
+                {t("time_format")}
               </label>
               <div className="space-y-2">
                 {timeFormats.map((format) => (

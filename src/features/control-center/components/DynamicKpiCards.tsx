@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { TrendUp, TrendDown } from "@phosphor-icons/react";
+import { useTranslations } from "next-intl";
 
 interface KpiCardProps {
   label: string;
@@ -666,6 +667,7 @@ export function DynamicSystemHealth({
   isDark: boolean;
 }) {
   const [hovered, setHovered] = useState(false);
+  const t = useTranslations("dashboard");
 
   // Generate random data for micro-sparklines once per mount
   const sparklines = [
@@ -730,7 +732,7 @@ export function DynamicSystemHealth({
               isDark ? "text-white" : "text-gray-900",
             )}
           >
-            Core Topology
+            {t("core_topology")}
           </h3>
         </div>
         <div
@@ -753,7 +755,7 @@ export function DynamicSystemHealth({
                 : "bg-rose-400",
             )}
           />
-          {health?.status === "healthy" ? "SYSTEM ONLINE" : "OFFLINE"}
+          {health?.status === "healthy" ? t("system_online") : t("offline_status")}
         </div>
       </div>
 
@@ -872,7 +874,7 @@ export function DynamicSystemHealth({
           }}
         >
           <div className="absolute bottom-full mb-1 flex flex-col items-center whitespace-nowrap scale-90 sm:scale-100 origin-bottom">
-            <span className="text-[9px] font-mono font-bold text-white/50 leading-none mb-0.5">DB_NODE_1</span>
+            <span className="text-[9px] font-mono font-bold text-white/50 leading-none mb-0.5">{t("db_node_1")}</span>
             <span className="text-[9px] font-bold text-white/30 leading-none">0.4ms</span>
           </div>
           <div className="w-7 h-7 rounded-full bg-white/2 border border-white/10 flex items-center justify-center transition-all">
@@ -893,7 +895,7 @@ export function DynamicSystemHealth({
             <CloudCheck size={12} className="text-white/40" />
           </div>
           <div className="absolute top-full mt-1.5 flex flex-col items-center whitespace-nowrap scale-90 sm:scale-100 origin-top">
-            <span className="text-[9px] font-mono font-bold text-white/50 leading-none mb-0.5">CACHE_CTL</span>
+            <span className="text-[9px] font-mono font-bold text-white/50 leading-none mb-0.5">{t("cache_ctl")}</span>
             <span className="text-[9px] font-bold text-white/30 leading-none">0.1ms</span>
           </div>
         </div>
@@ -908,7 +910,7 @@ export function DynamicSystemHealth({
           }}
         >
           <div className="absolute bottom-full mb-1.5 flex justify-center whitespace-nowrap">
-            <span className="text-[9px] font-mono font-bold text-white/70 leading-none">API_GATEWAY</span>
+            <span className="text-[9px] font-mono font-bold text-white/70 leading-none">{t("api_gateway")}</span>
           </div>
           <motion.div
             whileHover={{ scale: 1.05 }}
@@ -932,7 +934,7 @@ export function DynamicSystemHealth({
             <div className="w-1.5 h-1.5 rounded-full bg-white/40 absolute z-10" />
           </div>
           <div className="absolute top-full mt-1.5 flex justify-center whitespace-nowrap">
-            <span className="text-[9px] font-mono font-bold text-zinc-600 leading-none">NETWORK</span>
+            <span className="text-[9px] font-mono font-bold text-zinc-600 leading-none">{t("network")}</span>
           </div>
         </div>
       </div>
@@ -946,17 +948,17 @@ export function DynamicSystemHealth({
           )}
         >
           <SquaresFour size={12} />
-          Telemetry Metrics
+          {t("telemetry_metrics")}
         </h4>
         <div className="grid grid-cols-2 gap-2 flex-1 relative">
           {[
             {
-              label: "SYS.PRODUCTS",
+              label: t("sys_products"),
               value: dashboard?.total_products?.toString() ?? "—",
               id: 0,
             },
             {
-              label: "SYS.CONV_RATE",
+              label: t("sys_conv_rate"),
               value:
                 dashboard?.conversion_rate != null
                   ? `${dashboard.conversion_rate.toFixed(1)}%`
@@ -964,7 +966,7 @@ export function DynamicSystemHealth({
               id: 1,
             },
             {
-              label: "SYS.AVG_ORD",
+              label: t("sys_avg_ord"),
               value:
                 dashboard != null && dashboard.total_orders > 0
                   ? `$${(dashboard.total_revenue / dashboard.total_orders).toFixed(0)}`
@@ -972,7 +974,7 @@ export function DynamicSystemHealth({
               id: 2,
             },
             {
-              label: "SYS.PERIOD",
+              label: t("sys_period"),
               value: dashboard?.period?.toUpperCase() ?? "—",
               id: 3,
             },
@@ -1046,7 +1048,7 @@ export function DynamicSystemHealth({
               isDark ? "text-zinc-500" : "text-gray-400",
             )}
           >
-            Uptime: {health?.uptime ?? "—"}
+            {t("uptime")} {health?.uptime ?? "—"}
           </span>
           <span
             className={cn(
@@ -1054,7 +1056,7 @@ export function DynamicSystemHealth({
               isDark ? "text-emerald-400" : "text-emerald-600",
             )}
           >
-            {health?.status === "healthy" ? "99.999% SLA" : "0.00%"}
+            {health?.status === "healthy" ? t("sla") : "0.00%"}
           </span>
         </div>
         <div className="h-4 w-full relative overflow-hidden rounded-sm opacity-50 group-hover:opacity-100 transition-opacity">

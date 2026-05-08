@@ -8,6 +8,7 @@ import { useTheme } from "@/features/shared/hooks/useTheme";
 import { UserData } from "../types";
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 interface EditUserModalProps {
   isOpen: boolean;
@@ -58,6 +59,7 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
   user,
   onConfirm,
 }) => {
+  const t = useTranslations("users");
   const { isDark } = useTheme();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -103,7 +105,7 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
           "max-w-112 p-0 overflow-hidden border-0 bg-transparent shadow-none [&>button:last-child]:hidden",
         )}
       >
-        <DialogTitle className="sr-only">Edit User Profile</DialogTitle>
+        <DialogTitle className="sr-only">{t("edit_user_profile")}</DialogTitle>
         <AnimatePresence mode="wait">
           {success ? (
             <motion.div
@@ -126,7 +128,7 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
                   isDark ? "text-white" : "text-gray-900",
                 )}
               >
-                Changes Saved!
+                {t("changes_saved")}
               </h2>
               <p
                 className={cn(
@@ -134,7 +136,7 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
                   isDark ? "text-gray-400" : "text-gray-600",
                 )}
               >
-                User profile has been updated successfully.
+                {t("user_profile_updated_desc")}
               </p>
             </motion.div>
           ) : (
@@ -158,7 +160,7 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
                       isDark ? "text-white" : "text-gray-900",
                     )}
                   >
-                    Edit User Profile
+                    {t("edit_user_profile")}
                   </h2>
                   <p
                     className={cn(
@@ -166,7 +168,7 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
                       isDark ? "text-gray-400" : "text-gray-500",
                     )}
                   >
-                    Update details for {user?.email}
+                    {t("update_details_for", { email: user?.email || "user" })}
                   </p>
                 </div>
                 <div className="absolute top-0 right-0 p-4 opacity-10">
@@ -181,7 +183,7 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
                     <Label
                       className={isDark ? "text-gray-400" : "text-gray-600"}
                     >
-                      First Name
+                      {t("first_name")}
                     </Label>
                     <div className="relative">
                       <User
@@ -210,7 +212,7 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
                     <Label
                       className={isDark ? "text-gray-400" : "text-gray-600"}
                     >
-                      Last Name
+                      {t("last_name")}
                     </Label>
                     <div className="relative">
                       <User
@@ -240,7 +242,7 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
                 {/* Role Selection */}
                 <div className="space-y-3">
                   <Label className={isDark ? "text-gray-400" : "text-gray-600"}>
-                    Access Level
+                    {t("access_level")}
                   </Label>
                   <div className="grid grid-cols-2 gap-3">
                     {roles.map((role) => (
@@ -272,13 +274,13 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
                             }
                           />
                           <span className="text-xs font-bold uppercase tracking-wider">
-                            {role.label}
+                            {t(`role_${role.id}` as keyof typeof t)}
                           </span>
                         </div>
                         <p
                           className={cn("text-[10px] leading-tight opacity-70")}
                         >
-                          {role.description}
+                          {t(`role_${role.id}_desc` as keyof typeof t)}
                         </p>
                       </div>
                     ))}
@@ -294,7 +296,7 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
                     disabled={loading}
                     className="hover:bg-white/10"
                   >
-                    Cancel
+                    {t("cancel")}
                   </Button>
                   <Button
                     type="submit"
@@ -307,7 +309,7 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
                     {loading && (
                       <CircleNotch className="mr-2 h-4 w-4 animate-spin" />
                     )}
-                    Save Changes
+                    {t("save_changes")}
                   </Button>
                 </div>
               </form>

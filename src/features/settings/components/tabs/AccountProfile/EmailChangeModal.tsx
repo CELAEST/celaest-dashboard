@@ -18,6 +18,7 @@ import {
   emailChangeSchema,
 } from "@/lib/validation/schemas/settings";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 
 interface EmailChangeModalProps {
   isOpen: boolean;
@@ -31,6 +32,8 @@ export const EmailChangeModal: React.FC<EmailChangeModalProps> = ({
   onConfirm,
 }) => {
   const { isDark } = useTheme();
+  const t = useTranslations("settings");
+  const tCommon = useTranslations("common");
 
   const form = useForm<EmailChangeFormData>({
     resolver: zodResolver(emailChangeSchema),
@@ -55,7 +58,7 @@ export const EmailChangeModal: React.FC<EmailChangeModalProps> = ({
     <SettingsModal
       isOpen={isOpen}
       onClose={onClose}
-      title="Change Email Address"
+      title={t("change_email_title")}
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -64,13 +67,13 @@ export const EmailChangeModal: React.FC<EmailChangeModalProps> = ({
             name="newEmail"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>New Email Address</FormLabel>
+                <FormLabel>{t("new_email_address")}</FormLabel>
                 <FormControl>
                   <div className="relative">
                     <Envelope className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
                       type="email"
-                      placeholder="your.new@email.com"
+                      placeholder={t("new_email_placeholder")}
                       autoFocus
                       className="pl-10 h-11 rounded-xl"
                       {...field}
@@ -87,13 +90,13 @@ export const EmailChangeModal: React.FC<EmailChangeModalProps> = ({
             name="currentPassword"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Current Password</FormLabel>
+                <FormLabel>{t("current_password")}</FormLabel>
                 <FormControl>
                   <div className="relative">
                     <Key className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
                       type="password"
-                      placeholder="Enter your password"
+                      placeholder={t("enter_password")}
                       className="pl-10 h-11 rounded-xl"
                       {...field}
                     />
@@ -115,11 +118,11 @@ export const EmailChangeModal: React.FC<EmailChangeModalProps> = ({
             <p
               className={`text-xs ${isDark ? "text-gray-400" : "text-gray-600"}`}
             >
-              A verification link will be sent to{" "}
+              {t("verification_info")}{" "}
               <strong className="text-cyan-500 font-bold">
-                {newEmail || "your new email"}
+                {newEmail || t("verification_info_default")}
               </strong>
-              . You must click it to complete the change.
+              {t("verification_info_end")}
             </p>
           </div>
 
@@ -133,14 +136,14 @@ export const EmailChangeModal: React.FC<EmailChangeModalProps> = ({
                   : "border-gray-200 text-gray-600 hover:bg-gray-50"
               }`}
             >
-              Cancel
+              {tCommon("cancel")}
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
               className="flex-1 px-4 py-3 rounded-xl bg-linear-to-r from-cyan-600 to-blue-600 text-white font-bold hover:shadow-lg hover:shadow-cyan-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? "Sending..." : "PaperPlaneTilt Verification"}
+              {isSubmitting ? tCommon("sending") : t("send_verification")}
             </button>
           </div>
         </form>

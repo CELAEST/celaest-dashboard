@@ -23,18 +23,20 @@ import { AuditLogsList } from "./UserManagement/AuditLogsList";
 import { useUserManagement } from "../hooks/useUserManagement";
 import { useAuditLogs } from "../hooks/useAuditLogs";
 import { UserData } from "./types";
+import { useTranslations } from "next-intl";
 
 // ─── Client Profile View ──────────────────────────────────────────────
 const ClientProfileView: React.FC<{ isDark: boolean }> = ({ isDark }) => {
   const { user } = useAuth();
+  const t = useTranslations("users");
 
   if (!user) return null;
 
   const profileFields = [
-    { icon: User, label: "Nombre", value: user.name || "—" },
+    { icon: User, label: t("personal_info").split(" ")[0] || "Name", value: user.name || "—" },
     { icon: Envelope, label: "Email", value: user.email || "—" },
-    { icon: Shield, label: "Rol", value: user.role === "super_admin" ? "Super Admin" : user.role === "admin" ? "Admin" : "Cliente" },
-    { icon: Calendar, label: "Miembro desde", value: user.createdAt ? new Date(user.createdAt).toLocaleDateString("es-CO", { year: "numeric", month: "long", day: "numeric" }) : "—" },
+    { icon: Shield, label: t("role_label"), value: user.role === "super_admin" ? "Super Admin" : user.role === "admin" ? "Admin" : t("client") },
+    { icon: Calendar, label: t("member_since"), value: user.createdAt ? new Date(user.createdAt).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" }) : "—" },
   ];
 
   return (
@@ -100,6 +102,7 @@ const SuperAdminUserManagement: React.FC<{ isDark: boolean }> = ({ isDark }) => 
   } = useUserManagement();
 
   const { auditLogs } = useAuditLogs();
+  const t = useTranslations("users");
 
   const [activeTab, setActiveTab] = useState<"overview" | "directory" | "logs">("directory");
   const [isActionModalOpen, setIsActionModalOpen] = useState(false);
@@ -128,7 +131,7 @@ const SuperAdminUserManagement: React.FC<{ isDark: boolean }> = ({ isDark }) => 
   const handleConfirmAction = async () => {
     if (!selectedUser) return;
     if (actionType === "sign_out") {
-      toast.success(`${selectedUser.email} has been signed out (Session Revoked)`);
+      toast.success(t("session_revoked", { email: selectedUser.email }));
     } else if (actionType === "delete") {
       await deleteUser(selectedUser.id);
     }
@@ -140,8 +143,8 @@ const SuperAdminUserManagement: React.FC<{ isDark: boolean }> = ({ isDark }) => 
     <>
       {/* Header Row */}
       <PageBanner
-        title="User Management"
-        subtitle="Governance & Operational Control"
+        title={t("user_management")}
+        subtitle={t("governance")}
         actions={
           <div className="flex items-center gap-3">
             {/* Tabs */}
@@ -151,9 +154,9 @@ const SuperAdminUserManagement: React.FC<{ isDark: boolean }> = ({ isDark }) => 
               }`}
             >
               {[
-                { id: "directory" as const, label: "Directory" },
-                { id: "overview" as const, label: "Overview" },
-                { id: "logs" as const, label: "Audit Logs" },
+                { id: "directory" as const, label: t("directory") },
+                { id: "overview" as const, label: t("overview") },
+                { id: "logs" as const, label: t("audit_logs") },
               ].map((tab) => (
                 <button
                   key={tab.id}
@@ -183,7 +186,7 @@ const SuperAdminUserManagement: React.FC<{ isDark: boolean }> = ({ isDark }) => 
                     }`}
                   />
                   <Input
-                    placeholder="Search users..."
+                    placeholder={t("search_users")}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className={`pl-8 h-7 w-44 text-xs rounded-lg ${
@@ -200,7 +203,7 @@ const SuperAdminUserManagement: React.FC<{ isDark: boolean }> = ({ isDark }) => 
                       : "bg-gray-100 border-gray-200 text-gray-500 hover:text-gray-700"
                   }`}
                 >
-                  <option value="all">All Roles</option>
+                  <option value="all">{t("all_roles")}</option>
                   <option value="super_admin">Super Admin</option>
                   <option value="admin">Admin</option>
                   <option value="manager">Manager</option>
@@ -221,7 +224,7 @@ const SuperAdminUserManagement: React.FC<{ isDark: boolean }> = ({ isDark }) => 
               }`}
             >
               <Plus size={11} weight="bold" />
-              Invite User
+              {t("invite_user")}
             </button>
           </div>
         }
@@ -243,11 +246,11 @@ const SuperAdminUserManagement: React.FC<{ isDark: boolean }> = ({ isDark }) => 
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
                       <span className={`text-xs font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>
-                        All Users
+                        {t("all_users")}
                       </span>
                     </div>
                     <span className={`text-[11px] tabular-nums ${isDark ? "text-gray-500" : "text-gray-400"}`}>
-                      {filteredUsers.length > 0 ? `Showing ${filteredUsers.length} of ${totalUsers} entries` : ""}
+                      {filteredUsers.length > 0 ? t("showing_users", { current: filteredUsers.length, total: totalUsers }) : ""}
                     </span>
                   </div>
                 }
@@ -274,7 +277,7 @@ const SuperAdminUserManagement: React.FC<{ isDark: boolean }> = ({ isDark }) => 
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
                       <span className={`text-xs font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>
-                        Security Audit Trail
+                        {t("security_audit")}
                       </span>
                     </div>
                   </div>
@@ -292,14 +295,14 @@ const SuperAdminUserManagement: React.FC<{ isDark: boolean }> = ({ isDark }) => 
         isOpen={isActionModalOpen}
         onClose={() => setIsActionModalOpen(false)}
         onConfirm={handleConfirmAction}
-        title={actionType === "sign_out" ? "Force Sign Out" : "Delete User"}
+        title={actionType === "sign_out" ? t("force_sign_out") : t("delete_user")}
         description={
           actionType === "sign_out"
-            ? `Are you sure you want to sign out ${selectedUser?.email}? This will immediately invalidate all active sessions.`
-            : `Are you sure you want to delete ${selectedUser?.email}? This action cannot be undone.`
+            ? t("sign_out_description", { email: selectedUser?.email || "" })
+            : t("delete_description", { email: selectedUser?.email || "" })
         }
         actionType="danger"
-        confirmText={actionType === "sign_out" ? "Sign Out" : "Delete User"}
+        confirmText={actionType === "sign_out" ? t("force_sign_out") : t("delete_user")}
       />
       <AddUserModal isOpen={isAddUserModalOpen} onClose={() => setIsAddUserModalOpen(false)} onConfirm={async (data) => { await createUser(data); }} />
       <EditUserModal isOpen={isEditUserModalOpen} onClose={() => setIsEditUserModalOpen(false)} user={selectedUser} onConfirm={async (id, data) => { await updateUser(id, data); }} />
@@ -312,6 +315,7 @@ export const UserManagement: React.FC = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const { isSuperAdmin } = useRole();
+  const t = useTranslations("users");
 
   return (
     <div className="h-full w-full flex-1 flex flex-col min-h-0 overflow-hidden">
@@ -319,7 +323,7 @@ export const UserManagement: React.FC = () => {
         <SuperAdminUserManagement isDark={isDark} />
       ) : (
         <>
-          <PageBanner title="Mi Perfil" subtitle="Información Personal" />
+          <PageBanner title={t("my_profile")} subtitle={t("personal_info")} />
           <ClientProfileView isDark={isDark} />
         </>
       )}

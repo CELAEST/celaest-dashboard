@@ -1,6 +1,7 @@
 import React from "react";
 import { Stack, HardDrives, Clock } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 
 interface LicenseStatsProps {
   tier?: string;
@@ -17,6 +18,7 @@ export const LicenseStats: React.FC<LicenseStatsProps> = ({
 }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const t = useTranslations("licensing");
 
   const formatDate = (dateStr?: string) => {
     if (!dateStr) return "-";
@@ -28,18 +30,18 @@ export const LicenseStats: React.FC<LicenseStatsProps> = ({
       <div
         className={`p-4 rounded-xl border ${isDark ? "bg-white/5 border-white/10" : "bg-gray-50 border-gray-100"}`}
       >
-        <div className="text-gray-500 text-xs mb-1">Nivel de Uso</div>
+        <div className="text-gray-500 text-xs mb-1">{t("usage_level")}</div>
         <div
           className={`font-bold capitalize flex items-center gap-2 ${isDark ? "text-purple-400" : "text-purple-600"}`}
         >
-          <Stack size={16} /> {tier || "Estándar"}
+          <Stack size={16} /> {tier || t("standard")}
         </div>
       </div>
 
       <div
         className={`p-4 rounded-xl border ${isDark ? "bg-white/5 border-white/10" : "bg-gray-50 border-gray-100"}`}
       >
-        <div className="text-gray-500 text-xs mb-1">IPs Activas</div>
+        <div className="text-gray-500 text-xs mb-1">{t("active_ips")}</div>
         <div
           className={`font-bold flex items-center gap-2 ${isDark ? "text-amber-400" : "text-amber-600"}`}
         >
@@ -50,14 +52,14 @@ export const LicenseStats: React.FC<LicenseStatsProps> = ({
       <div
         className={`p-4 rounded-xl border ${isDark ? "bg-white/5 border-white/10" : "bg-gray-50 border-gray-100"}`}
       >
-        <div className="text-gray-500 text-xs mb-1">Periodo de Vigencia</div>
+        <div className="text-gray-500 text-xs mb-1">{t("validity_period")}</div>
         <div
           className={`text-xs font-semibold flex flex-col gap-1 ${isDark ? "text-blue-400" : "text-blue-600"}`}
         >
           <div className="flex items-center gap-1.5 line-clamp-1">
             <Clock size={14} /> {formatDate(startsAt)}
           </div>
-          <div className="line-clamp-1">Hasta: {formatDate(expiresAt)}</div>
+          <div className="line-clamp-1">{t("until", { date: formatDate(expiresAt) })}</div>
         </div>
       </div>
     </div>

@@ -11,10 +11,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { ProfileFormData } from "@/lib/validation/schemas/settings";
+import { useTranslations } from "next-intl";
 
 export const ProfilePersonalInfo: React.FC = memo(() => {
   const { isDark } = useTheme();
   const { control } = useFormContext<ProfileFormData>();
+  const t = useTranslations("settings");
 
   return (
     <div className="settings-glass-card rounded-2xl p-6">
@@ -23,7 +25,7 @@ export const ProfilePersonalInfo: React.FC = memo(() => {
           isDark ? "text-white" : "text-gray-900"
         }`}
       >
-        Personal Information
+        {t("personal_info")}
       </h3>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -32,12 +34,12 @@ export const ProfilePersonalInfo: React.FC = memo(() => {
           name="displayName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Display Name</FormLabel>
+              <FormLabel>{t("display_name")}</FormLabel>
               <FormControl>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
-                    placeholder="Enter your name"
+                    placeholder={t("enter_name")}
                     className="pl-10 h-11 rounded-xl"
                     {...field}
                   />
@@ -53,12 +55,12 @@ export const ProfilePersonalInfo: React.FC = memo(() => {
           name="jobTitle"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Job Title</FormLabel>
+              <FormLabel>{t("job_title")}</FormLabel>
               <FormControl>
                 <div className="relative">
                   <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
-                    placeholder="Your role"
+                    placeholder={t("your_role")}
                     className="pl-10 h-11 rounded-xl"
                     {...field}
                   />

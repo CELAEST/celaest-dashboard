@@ -12,6 +12,7 @@ import { ConfirmationStep } from "./purchase-steps/ConfirmationStep";
 import { PaymentStep } from "./purchase-steps/PaymentStep";
 import { ActivationStep } from "./purchase-steps/ActivationStep";
 import { useDashboardRouter } from "@/features/control-center/hooks/useDashboardRouter";
+import { useTranslations } from "next-intl";
 
 interface PurchaseFlowProps {
   isOpen: boolean;
@@ -34,6 +35,7 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
   initialStep = 1,
   onSuccess,
 }) => {
+  const t = useTranslations("marketplace");
   const { theme } = useTheme();
   const { navigateTo } = useDashboardRouter();
   const {
@@ -75,9 +77,9 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
   }, [isOpen, resetFlow]);
 
   const steps = [
-    { number: 1, title: "Confirmación", icon: <CheckCircle size={20} weight="bold" /> },
-    { number: 2, title: "Pago Seguro", icon: <CreditCard size={20} weight="bold" /> },
-    { number: 3, title: "Activación", icon: <DownloadSimple size={20} weight="bold" /> },
+    { number: 1, title: t("confirmation_step"), icon: <CheckCircle size={20} weight="bold" /> },
+    { number: 2, title: t("secure_payment"), icon: <CreditCard size={20} weight="bold" /> },
+    { number: 3, title: t("activation_step"), icon: <DownloadSimple size={20} weight="bold" /> },
   ];
 
   return (
@@ -125,7 +127,7 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
             </button>
 
             {/* Progress Steps */}
-            <div className={`px-16 sm:px-20 pt-10 pb-8 ${theme === "dark" ? "bg-gradient-to-b from-white/[0.03] to-transparent" : "bg-gradient-to-b from-gray-50/80 to-transparent"}`}>
+            <div className={`px-16 sm:px-20 pt-10 pb-8 ${theme === "dark" ? "bg-linear-to-b from-white/3 to-transparent" : "bg-linear-to-b from-gray-50/80 to-transparent"}`}>
               {/* Row: circle — line — circle — line — circle */}
               <div className="flex items-center justify-center">
                 {steps.map((s, index) => {
@@ -134,7 +136,7 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
                   return (
                     <React.Fragment key={s.number}>
                       {/* Circle */}
-                      <div className="relative flex-shrink-0">
+                      <div className="relative shrink-0">
                         {isActive && (
                           <div className={`absolute inset-0 -m-2 rounded-full ${
                             theme === "dark"
@@ -155,7 +157,7 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
                                     ? "bg-cyan-500 text-black shadow-[0_0_30px_rgba(0,255,255,0.35)]"
                                     : "bg-cyan-500 text-white shadow-xl shadow-cyan-500/30"
                                   : theme === "dark"
-                                    ? "bg-white/[0.08] text-gray-500 ring-1 ring-white/20"
+                                    ? "bg-white/8 text-gray-500 ring-1 ring-white/20"
                                     : "bg-gray-100 text-gray-400 ring-1 ring-gray-300"
                             }
                           `}
@@ -213,7 +215,7 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
             </div>
 
             {/* Divider */}
-            <div className={`h-px ${theme === "dark" ? "bg-white/[0.08]" : "bg-gray-200"}`} />
+            <div className={`h-px ${theme === "dark" ? "bg-white/8" : "bg-gray-200"}`} />
 
             {/* Content */}
             <div className="p-8">

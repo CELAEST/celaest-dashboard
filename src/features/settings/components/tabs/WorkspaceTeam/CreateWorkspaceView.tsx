@@ -16,6 +16,7 @@ import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 import { api } from "@/lib/api-client";
 import { toast } from "sonner";
 import { UpgradePlanModal } from "@/features/billing/components/modals/UpgradePlanModal";
+import { useTranslations } from "next-intl";
 
 /**
  * CreateWorkspaceView — Shown to users who don't own a workspace yet.
@@ -30,6 +31,7 @@ export function CreateWorkspaceView({ planTier }: { planTier: number }) {
   const [slug, setSlug] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const t = useTranslations("settings");
 
   const canCreate = planTier >= 2; // Pro or Enterprise
 
@@ -55,20 +57,20 @@ export function CreateWorkspaceView({ planTier }: { planTier: number }) {
           token: session.accessToken,
         },
       );
-      toast.success("Workspace created! Redirecting...");
+      toast.success(t("workspace_created"));
       // Refresh orgs so the user lands in their new org
       await fetchOrgs(session.accessToken, true);
       window.location.reload();
     } catch (err: unknown) {
       const error = err as { code?: string; message?: string };
       if (error?.code === "SLUG_EXISTS") {
-        toast.error("This slug is already taken. Try another one.");
+        toast.error(t("slug_taken"));
       } else if (error?.code === "PLAN_TOO_LOW") {
-        toast.error("Upgrade to Pro to create a workspace.");
+        toast.error(t("upgrade_for_workspace"));
       } else if (error?.code === "ALREADY_HAS_WORKSPACE") {
-        toast.error("You already have a workspace.");
+        toast.error(t("already_has_workspace"));
       } else {
-        toast.error(error?.message || "Failed to create workspace");
+        toast.error(error?.message || t("workspace_create_error"));
       }
     } finally {
       setIsCreating(false);
@@ -78,18 +80,18 @@ export function CreateWorkspaceView({ planTier }: { planTier: number }) {
   const benefits = [
     {
       icon: Users,
-      label: "Invite team members",
-      desc: planTier >= 3 ? "Unlimited" : "Up to 15",
+      label: t("invite_team"),
+      desc: planTier >= 3 ? t("invite_unlimited") : t("invite_up_to"),
     },
     {
       icon: Palette,
-      label: "Custom branding",
-      desc: "Logo, colors & identity",
+      label: t("custom_branding"),
+      desc: t("custom_branding_desc"),
     },
     {
       icon: Crown,
-      label: "Full admin control",
-      desc: "Manage roles & permissions",
+      label: t("full_admin_control"),
+      desc: t("full_admin_desc"),
     },
   ];
 
@@ -109,13 +111,12 @@ export function CreateWorkspaceView({ planTier }: { planTier: number }) {
         <h3
           className={`text-2xl font-bold mb-2 ${isDark ? "text-white" : "text-gray-900"}`}
         >
-          Create Your Workspace
+          {t("create_workspace")}
         </h3>
         <p
           className={`text-sm max-w-112 mx-auto ${isDark ? "text-gray-400" : "text-gray-500"}`}
         >
-          Set up your own workspace to collaborate with your team, customize
-          branding, and manage everything from one place.
+          {t("create_workspace_desc")}
         </p>
       </div>
 
@@ -154,13 +155,13 @@ export function CreateWorkspaceView({ planTier }: { planTier: number }) {
             <label
               className={`block text-sm font-medium mb-1.5 ${isDark ? "text-gray-300" : "text-gray-700"}`}
             >
-              Workspace Name
+              {t("workspace_name_label")}
             </label>
             <input
               type="text"
               value={name}
               onChange={(e) => handleSlugify(e.target.value)}
-              placeholder="My Company"
+              placeholder={t("workspace_name_placeholder")}
               className={`w-full px-4 py-2.5 rounded-xl border text-sm transition-colors ${
                 isDark
                   ? "bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-cyan-500"
@@ -173,7 +174,7 @@ export function CreateWorkspaceView({ planTier }: { planTier: number }) {
             <label
               className={`block text-sm font-medium mb-1.5 ${isDark ? "text-gray-300" : "text-gray-700"}`}
             >
-              Workspace Slug
+              {t("workspace_slug_label")}
             </label>
             <div className="flex items-center gap-2">
               <span
@@ -189,7 +190,7 @@ export function CreateWorkspaceView({ planTier }: { planTier: number }) {
                     e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""),
                   )
                 }
-                placeholder="my-company"
+                placeholder={t("workspace_slug_placeholder")}
                 className={`flex-1 px-4 py-2.5 rounded-xl border text-sm transition-colors ${
                   isDark
                     ? "bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-cyan-500"
@@ -211,12 +212,12 @@ export function CreateWorkspaceView({ planTier }: { planTier: number }) {
             {isCreating ? (
               <>
                 <CircleNotch className="w-4 h-4 animate-spin" />
-                Creating workspace...
+                {t("creating_workspace")}
               </>
             ) : (
               <>
                 <Buildings className="w-4 h-4" />
-                Create Workspace
+                {t("create_workspace_btn")}
                 <ArrowRight className="w-4 h-4" />
               </>
             )}
@@ -237,19 +238,19 @@ export function CreateWorkspaceView({ planTier }: { planTier: number }) {
           <p
             className={`font-semibold mb-1 ${isDark ? "text-white" : "text-gray-900"}`}
           >
-            Upgrade to Pro to create a workspace
+            {t("upgrade_to_pro")}
           </p>
           <p
             className={`text-sm mb-4 ${isDark ? "text-gray-400" : "text-gray-500"}`}
           >
-            Workspaces require a Pro ($29/mo) or Enterprise ($99/mo) plan.
+            {t("workspace_plan_info")}
           </p>
           <button
             onClick={() => setShowUpgradeModal(true)}
             className="mt-6 mx-auto flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-200 bg-linear-to-r from-cyan-600 to-blue-700 text-white hover:scale-[1.02] shadow-lg shadow-cyan-500/25 cursor-pointer"
           >
             <Crown className="w-4 h-4" />
-            Upgrade Plan
+            {t("upgrade_plan")}
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>

@@ -7,6 +7,7 @@ import { DataTable } from "@/components/ui/data-table";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useRole } from "@/features/auth/hooks/useAuthorization";
 import type { LicenseResponse } from "@/features/licensing/types";
+import { useTranslations } from "next-intl";
 
 interface ActiveLicensesTableProps {
   licenses: LicenseResponse[];
@@ -20,6 +21,8 @@ export const ActiveLicensesTable: React.FC<ActiveLicensesTableProps> = ({
   const { theme } = useTheme();
   const { isSuperAdmin } = useRole();
   const isDark = theme === "dark";
+  const t = useTranslations("licensing");
+  const tCommon = useTranslations("common");
 
   const formatDate = (dateStr?: string) => {
     if (!dateStr) return "-";
@@ -30,7 +33,7 @@ export const ActiveLicensesTable: React.FC<ActiveLicensesTableProps> = ({
     () => [
       {
         id: "producto",
-        header: "Producto",
+        header: t("product"),
         cell: ({ row }) => {
           const license = row.original;
           return (
@@ -51,7 +54,7 @@ export const ActiveLicensesTable: React.FC<ActiveLicensesTableProps> = ({
       },
       {
         id: "usuario",
-        header: "Usuario",
+        header: t("user"),
         cell: ({ row }) => {
           const license = row.original;
           return (
@@ -63,7 +66,7 @@ export const ActiveLicensesTable: React.FC<ActiveLicensesTableProps> = ({
       },
       {
         id: "email",
-        header: "Email",
+        header: t("email"),
         cell: ({ row }) => {
           const license = row.original;
           return (
@@ -75,16 +78,16 @@ export const ActiveLicensesTable: React.FC<ActiveLicensesTableProps> = ({
       },
       {
         id: "vigencia",
-        header: "Vigencia",
+        header: t("validity"),
         cell: ({ row }) => {
           const license = row.original;
           return (
             <div className="text-xs flex flex-col gap-0.5">
               <span className="text-gray-500 whitespace-nowrap">
-                D: {formatDate(license.starts_at)}
+                {t("from_date", { date: formatDate(license.starts_at) })}
               </span>
               <span className={isDark ? "text-white/60" : "text-gray-400"}>
-                H: {formatDate(license.expires_at)}
+                {t("to_date", { date: formatDate(license.expires_at) })}
               </span>
             </div>
           );
@@ -92,7 +95,7 @@ export const ActiveLicensesTable: React.FC<ActiveLicensesTableProps> = ({
       },
       {
         id: "estado",
-        header: "Estado",
+        header: t("status"),
         cell: ({ row }) => {
           const license = row.original;
           return (
@@ -114,14 +117,14 @@ export const ActiveLicensesTable: React.FC<ActiveLicensesTableProps> = ({
                       : "bg-red-500"
                 }`}
               />
-              {license.status}
+              {t(`status_${license.status}`)}
             </span>
           );
         },
       },
       {
         id: "usoIp",
-        header: "Uso IP",
+        header: t("ip_usage"),
         cell: ({ row }) => {
           const license = row.original;
           return (
@@ -154,7 +157,7 @@ export const ActiveLicensesTable: React.FC<ActiveLicensesTableProps> = ({
       },
       {
         id: "acciones",
-        header: () => <div className="text-right">Acciones</div>,
+        header: () => <div className="text-right">{tCommon("actions")}</div>,
         cell: ({ row }) => {
           const license = row.original;
           return (
@@ -167,14 +170,14 @@ export const ActiveLicensesTable: React.FC<ActiveLicensesTableProps> = ({
                   onSelectLicense(license);
                 }}
               >
-                Ver
+                {tCommon("view")}
               </Button>
             </div>
           );
         },
       },
     ],
-    [isDark, onSelectLicense],
+    [isDark, onSelectLicense, t, tCommon],
   );
 
   const columns = useMemo(() => {
@@ -194,8 +197,8 @@ export const ActiveLicensesTable: React.FC<ActiveLicensesTableProps> = ({
         columns={columns}
         data={licenses}
         isLoading={false}
-        emptyMessage="No active licenses found"
-        emptySubmessage="You don't have any licenses assigned yet."
+        emptyMessage={t("no_active_licenses")}
+        emptySubmessage={t("no_licenses_assigned")}
         onRowClick={onSelectLicense}
       />
     </div>

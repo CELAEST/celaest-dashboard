@@ -11,6 +11,7 @@ import {
 import { CreateCouponForm } from "../forms/CreateCouponForm";
 import { Tag } from "@phosphor-icons/react";
 import { useApiAuth } from "@/lib/use-api-auth";
+import { useTranslations } from "next-intl";
 import { CreateCouponFormValues } from "../../lib/validation";
 
 interface CreateCouponModalProps {
@@ -27,6 +28,7 @@ export const CreateCouponModal = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { token, orgId } = useApiAuth();
+  const t = useTranslations("coupons");
 
   const handleSubmit = async (values: CreateCouponFormValues) => {
     setIsSubmitting(true);
@@ -41,7 +43,7 @@ export const CreateCouponModal = ({
       const errorMessage =
         err instanceof Error
           ? err.message
-          : "Ha ocurrido un error inesperado al intentar crear el cupón. Por favor verifica los datos e intenta nuevamente.";
+          : t("modal_error");
       setError(errorMessage);
     } finally {
       setIsSubmitting(false);
@@ -60,10 +62,10 @@ export const CreateCouponModal = ({
                 </div>
                 <div>
                   <DialogTitle className="text-2xl font-black tracking-tight">
-                    Maestro de Cupones
+                    {t("modal_title")}
                   </DialogTitle>
                   <DialogDescription className="text-neutral-500 font-medium text-xs mt-1 uppercase tracking-widest text-left">
-                    Arquitectura de descuentos de alto rendimiento
+                    {t("modal_desc")}
                   </DialogDescription>
                 </div>
               </div>

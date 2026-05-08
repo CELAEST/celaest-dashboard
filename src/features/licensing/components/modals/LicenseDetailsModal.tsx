@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import React from "react";
 import { Key } from "@phosphor-icons/react";
 import { BillingModal } from "@/features/billing/components/modals/shared/BillingModal";
@@ -9,6 +9,7 @@ import { LicenseActions } from "./license-details/LicenseActions";
 import { LicenseStats } from "./license-details/LicenseStats";
 import { LicenseBindings } from "./license-details/LicenseBindings";
 import { LicenseActivityLog } from "./license-details/LicenseActivityLog";
+import { useTranslations } from "next-intl";
 
 interface LicenseDetailsModalProps {
   isOpen: boolean;
@@ -35,6 +36,8 @@ export const LicenseDetailsModal = ({
   onConvertTrial,
   onReactivate,
 }: LicenseDetailsModalProps) => {
+  const t = useTranslations("licensing");
+
   if (!license) return null;
 
   return (
@@ -103,7 +106,7 @@ export const LicenseDetailsModal = ({
               <Key size={14} />
             </div>
             <div>
-              <p className="text-[9px] font-mono uppercase tracking-[0.2em] text-white/30 mb-0.5">License Key</p>
+              <p className="text-[9px] font-mono uppercase tracking-[0.2em] text-white/30 mb-0.5">{t("license_key")}</p>
               <p className="text-sm font-mono text-white/60 tracking-wider">
                 {"\u2022\u2022\u2022\u2022\u2022-\u2022\u2022\u2022\u2022\u2022-"}
                 {license.license_key?.substring(license.license_key.length - 4) ?? "XXXX"}
@@ -111,7 +114,7 @@ export const LicenseDetailsModal = ({
             </div>
           </div>
           <div className="text-[9px] font-mono uppercase tracking-[0.15em] text-amber-400/70 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-lg">
-            Licensed
+            {t("licensed")}
           </div>
         </div>
       </div>

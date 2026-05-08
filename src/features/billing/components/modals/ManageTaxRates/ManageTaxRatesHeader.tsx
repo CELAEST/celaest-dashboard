@@ -1,5 +1,6 @@
 import React from "react";
 import { Globe, Plus, X } from "@phosphor-icons/react";
+import { useTranslations } from "next-intl";
 
 interface ManageTaxRatesHeaderProps {
   isAdding: boolean;
@@ -12,6 +13,7 @@ export const ManageTaxRatesHeader: React.FC<ManageTaxRatesHeaderProps> = ({
   setIsAdding,
   onClose,
 }) => {
+  const t = useTranslations("billing");
   return (
     <div className="relative px-8 py-6 border-b border-white/8 flex items-center justify-between overflow-hidden shrink-0">
       {/* Gradient wash */}
@@ -35,8 +37,8 @@ export const ManageTaxRatesHeader: React.FC<ManageTaxRatesHeaderProps> = ({
           <Globe size={22} />
         </div>
         <div>
-          <h2 className="text-xl font-black italic tracking-tighter text-white uppercase">Tax Rates</h2>
-          <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40">Configure by country & region</p>
+          <h2 className="text-xl font-black italic tracking-tighter text-white uppercase">{t("tax_rates")}</h2>
+          <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40">{t("configure_by_country")}</p>
         </div>
       </div>
 
@@ -51,7 +53,7 @@ export const ManageTaxRatesHeader: React.FC<ManageTaxRatesHeaderProps> = ({
           }`}
         >
           <Plus size={16} />
-          Add New
+          {t("add_new")}
         </button>
 
         {onClose && (

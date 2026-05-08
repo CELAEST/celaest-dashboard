@@ -3,8 +3,10 @@
 import React from "react";
 import { MagnifyingGlass, Sliders } from "@phosphor-icons/react";
 import { useMarketplaceStore } from "../store";
+import { useTranslations } from "next-intl";
 
 export const MarketplaceHeader: React.FC = () => {
+  const t = useTranslations("marketplace");
   const { filters, setFilters, search } = useMarketplaceStore();
 
   const handleSearch = (e: React.FormEvent) => {
@@ -19,7 +21,7 @@ export const MarketplaceHeader: React.FC = () => {
           Marketplace <span className="text-blue-500">CELAEST</span>
         </h1>
         <p className="mt-2 text-lg text-white/50">
-          Explora soluciones premium diseñadas para potenciar tu organización.
+          {t("marketplace_subtitle")}
         </p>
       </div>
 
@@ -28,7 +30,7 @@ export const MarketplaceHeader: React.FC = () => {
           <MagnifyingGlass className="absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-white/30" />
           <input
             type="text"
-            placeholder="Buscar productos..."
+            placeholder={t("search_products_placeholder")}
             className="h-12 w-full rounded-xl border border-white/10 bg-black/40 pl-11 pr-4 text-sm text-white placeholder-white/30 backdrop-blur-md transition-all focus:border-blue-500/50 focus:bg-black/60 focus:ring-4 focus:ring-blue-500/10"
             value={filters.q || ""}
             onChange={(e) => setFilters({ q: e.target.value })}

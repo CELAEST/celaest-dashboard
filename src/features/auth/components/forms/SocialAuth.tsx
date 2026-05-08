@@ -5,6 +5,7 @@ import { logger } from "@/lib/logger";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { useNotifications } from "@/features/shared/contexts/NotificationContext";
+import { useTranslations } from "next-intl";
 
 interface SocialAuthProps {
   isDark: boolean;
@@ -19,6 +20,7 @@ export const SocialAuth: React.FC<SocialAuthProps> = ({
 }) => {
   const { signInWithGoogle, signInWithGitHub } = useAuth();
   const { addNotification } = useNotifications();
+  const tAuth = useTranslations("auth");
 
   const handleSocialSignIn = async (provider: "google" | "github") => {
     setLoading(true);
@@ -30,10 +32,10 @@ export const SocialAuth: React.FC<SocialAuthProps> = ({
       if (!result.success) {
         addNotification({
           type: "error",
-          title: `Error de ${provider === "google" ? "Google" : "GitHub"}`,
+          title: tAuth("social_error", { provider: provider === "google" ? "Google" : "GitHub" }),
           message:
-            result.error?.message || // Changed to check for error.message
-            `Falló el inicio de sesión con ${provider === "google" ? "Google" : "GitHub"}.`,
+            result.error?.message ||
+            tAuth("social_error_message", { provider: provider === "google" ? "Google" : "GitHub" }),
           timestamp: new Date(),
         });
       }
@@ -41,8 +43,8 @@ export const SocialAuth: React.FC<SocialAuthProps> = ({
       logger.error(`${provider} sign in error`, error);
       addNotification({
         type: "error",
-        title: "Error Inesperado",
-        message: `Ocurrió un error al conectar con ${provider === "google" ? "Google" : "GitHub"}.`,
+        title: tAuth("unexpected_error"),
+        message: tAuth("unexpected_error_message", { provider: provider === "google" ? "Google" : "GitHub" }),
         timestamp: new Date(),
       });
     } finally {

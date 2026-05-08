@@ -2,6 +2,7 @@ import React, { memo } from "react";
 import { DownloadSimple, CheckCircle } from "@phosphor-icons/react";
 import { CustomerAsset } from "../../../types";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 
 interface UpdateItemActionsProps {
   asset: CustomerAsset;
@@ -12,6 +13,7 @@ interface UpdateItemActionsProps {
 export const UpdateItemActions: React.FC<UpdateItemActionsProps> = memo(
   ({ asset, onDownload, onSkip }) => {
     const { isDark } = useTheme();
+    const t = useTranslations("releases");
 
     return (
       <div
@@ -30,7 +32,7 @@ export const UpdateItemActions: React.FC<UpdateItemActionsProps> = memo(
               }`}
             >
               <DownloadSimple size={18} />
-              DownloadSimple Update
+              {t("action_download_update")}
             </button>
             <button
               onClick={onSkip}
@@ -40,7 +42,7 @@ export const UpdateItemActions: React.FC<UpdateItemActionsProps> = memo(
                   : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
               }`}
             >
-              Skip
+              {t("action_skip")}
             </button>
           </>
         ) : (
@@ -53,7 +55,7 @@ export const UpdateItemActions: React.FC<UpdateItemActionsProps> = memo(
               }`}
             >
               <CheckCircle size={18} />
-              Up to Date
+              {t("action_up_to_date")}
             </button>
             <button
               onClick={onDownload}
@@ -63,7 +65,7 @@ export const UpdateItemActions: React.FC<UpdateItemActionsProps> = memo(
                   : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
               }`}
             >
-              Re-download
+              {t("action_redownload")}
             </button>
           </>
         )}

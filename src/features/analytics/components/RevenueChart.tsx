@@ -3,16 +3,7 @@
 import React, { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
-
-const chartData = [
-  { name: "Mon", sales: 4000 },
-  { name: "Tue", sales: 3000 },
-  { name: "Wed", sales: 9000 },
-  { name: "Thu", sales: 2780 },
-  { name: "Fri", sales: 6890 },
-  { name: "Sat", sales: 2390 },
-  { name: "Sun", sales: 7490 },
-];
+import { useTranslations } from "next-intl";
 
 interface RevenueChartProps {
   data?: { date: string; sales: number }[];
@@ -22,9 +13,23 @@ export const RevenueChart = React.memo(function RevenueChart({ data }: RevenueCh
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  const t = useTranslations("analytics");
+
+  const fallbackData = useMemo(
+    () => [
+      { name: t("weekday_mon"), sales: 4000 },
+      { name: t("weekday_tue"), sales: 3000 },
+      { name: t("weekday_wed"), sales: 9000 },
+      { name: t("weekday_thu"), sales: 2780 },
+      { name: t("weekday_fri"), sales: 6890 },
+      { name: t("weekday_sat"), sales: 2390 },
+      { name: t("weekday_sun"), sales: 7490 },
+    ],
+    [t],
+  );
 
   const displayData = useMemo(() => {
-    if (!data || data.length === 0) return chartData;
+    if (!data || data.length === 0) return fallbackData;
     return data
       .map((item) => ({
         name: new Date(item.date).toLocaleDateString(undefined, {
@@ -34,7 +39,7 @@ export const RevenueChart = React.memo(function RevenueChart({ data }: RevenueCh
         sales: item.sales,
       }))
       .reverse();
-  }, [data]);
+  }, [data, fallbackData]);
 
   const width = 1000;
   const height = 300;

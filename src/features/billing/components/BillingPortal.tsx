@@ -24,6 +24,7 @@ import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { useRole } from "@/features/auth/hooks/useAuthorization";
 import { logger } from "@/lib/logger";
 import { billingApi } from "../api/billing.api";
+import { useTranslations } from "next-intl";
 
 type BillingTab = "overview" | "invoices";
 type AdminTab = "overview" | "catalog" | "controls";
@@ -36,6 +37,7 @@ export const BillingPortal: React.FC = () => {
   const { refresh } = useBilling();
   const { session } = useAuth();
   const { isAdmin } = useRole();
+  const t = useTranslations("billing");
 
   const [viewMode, setViewMode] = useState<"customer" | "admin">("customer");
   const [activeTab, setActiveTab] = useState<BillingTab>("overview");
@@ -75,35 +77,35 @@ export const BillingPortal: React.FC = () => {
 
       const handleSuccess = async () => {
         if (sessionId && session?.accessToken) {
-          const toastId = toast.loading("Verifying purchase...");
+          const toastId = toast.loading(t("verifying_purchase"));
           try {
             const result = await billingApi.verifyPurchase(
               session.accessToken,
               sessionId,
             );
             if (result.status === "completed" || result.has_access) {
-              toast.success("Subscription successfully activated!", {
-                description: "Your new plan is now active.",
+              toast.success(t("subscription_activated"), {
+                description: t("plan_now_active"),
                 id: toastId,
                 duration: 5000,
               });
             } else {
-              toast.info("Purchase pending processing", {
-                description: "Your plan will be active shortly.",
+              toast.info(t("purchase_pending"), {
+                description: t("plan_active_shortly"),
                 id: toastId,
               });
             }
           } catch (e: unknown) {
             logger.error("Verification failed", e);
-            toast.success("Purchase recorded", {
-              description: "Updating your subscription details...",
+            toast.success(t("purchase_recorded"), {
+              description: t("updating_subscription"),
               id: toastId,
             });
           }
         } else {
-          toast.success("Subscription successfully activated!", {
+          toast.success(t("subscription_activated"), {
             id: "stripe-success",
-            description: "Your new plan is now active.",
+            description: t("plan_now_active"),
             duration: 5000,
           });
         }
@@ -115,12 +117,12 @@ export const BillingPortal: React.FC = () => {
     } else if (cancel === "true") {
       if (hasHandledRedirectRef.current) return;
       hasHandledRedirectRef.current = true;
-      toast.error("Payment cancelled", {
-        description: "Your subscription remains unchanged.",
+      toast.error(t("payment_cancelled"), {
+        description: t("subscription_unchanged"),
       });
       router.replace(`/?tab=billing`, { scroll: false });
     }
-  }, [searchParams, router, refresh, session?.accessToken]);
+  }, [searchParams, router, refresh, session?.accessToken, t]);
 
   const billingTabs =
     effectiveView === "customer" ? (
@@ -144,7 +146,7 @@ export const BillingPortal: React.FC = () => {
           }`}
         >
           <SquaresFour size={12} />
-          Overview
+          {t("overview")}
         </button>
         <button
           onClick={() => setActiveTab("invoices")}
@@ -159,7 +161,7 @@ export const BillingPortal: React.FC = () => {
           }`}
         >
           <Receipt size={12} />
-          Invoices
+          {t("invoices")}
         </button>
       </div>
     ) : (
@@ -183,7 +185,7 @@ export const BillingPortal: React.FC = () => {
           }`}
         >
           <SquaresFour size={12} />
-          Financial
+          {t("financial")}
         </button>
         <button
           onClick={() => setActiveAdminTab("catalog")}
@@ -198,7 +200,7 @@ export const BillingPortal: React.FC = () => {
           }`}
         >
           <Package size={12} />
-          Catalog
+          {t("catalog")}
         </button>
         <button
           onClick={() => setActiveAdminTab("controls")}
@@ -213,7 +215,7 @@ export const BillingPortal: React.FC = () => {
           }`}
         >
           <Shield size={12} />
-          Controls
+          {t("controls")}
         </button>
       </div>
     );
@@ -263,7 +265,7 @@ export const BillingPortal: React.FC = () => {
             }`}
           >
             <User size={13} />
-            Customer
+            {t("customer_view")}
           </button>
           <button
             onClick={() => setViewMode("admin")}
@@ -278,7 +280,7 @@ export const BillingPortal: React.FC = () => {
             }`}
           >
             <Crown size={13} />
-            Admin
+            {t("admin_view")}
           </button>
         </div>}
       </div>
@@ -287,8 +289,8 @@ export const BillingPortal: React.FC = () => {
   return (
     <div className="flex-1 flex flex-col min-h-0 h-full">
       <PageBanner
-        title={effectiveView === "admin" ? "Financial Command Center" : "Billing Portal"}
-        subtitle={effectiveView === "admin" ? "Master Financial Repository & Controls" : "Subscription & Payment Management"}
+        title={effectiveView === "admin" ? t("financial_center") : t("billing_portal")}
+        subtitle={effectiveView === "admin" ? t("master_repository") : t("subscription_management")}
         actions={headerActions}
       />
 

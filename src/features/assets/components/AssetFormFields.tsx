@@ -6,11 +6,12 @@ import { SettingsSelect } from "../../settings/components/SettingsSelect";
 import { AssetFormValues } from "../hooks/useAssetForm";
 import { AssetImageUploader } from "./AssetImageUploader";
 import { useCategories } from "../hooks/useCategories";
+import { useTranslations } from "next-intl";
 
-const STATUS_OPTIONS = [
-  { value: "draft", label: "Draft (Hidden from marketplace)" },
-  { value: "published", label: "Published (Visible in marketplace)" },
-  { value: "archived", label: "Archived (No longer available)" },
+const getStatusOptions = (t: ReturnType<typeof useTranslations>) => [
+  { value: "draft", label: t("status_draft") },
+  { value: "published", label: t("status_published") },
+  { value: "archived", label: t("status_archived") },
 ];
 
 interface AssetFormFieldsProps {
@@ -24,6 +25,8 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
 }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const t = useTranslations("marketplace");
+  const STATUS_OPTIONS = getStatusOptions(t);
   const {
     register,
     watch,
@@ -57,17 +60,17 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
             isDark ? "text-gray-300" : "text-gray-400"
           }`}
         >
-          Asset TextT
+          {t("asset_type")}
         </label>
         <div className="grid grid-cols-3 gap-3">
           {[
             {
               value: "excel",
-              label: "Excel Macro",
+              label: t("excel_macro"),
               icon: FileCsv,
             },
-            { value: "script", label: "Script/Code", icon: Code },
-            { value: "google-sheet", label: "Google Sheet", icon: Globe },
+            { value: "script", label: t("script_code"), icon: Code },
+            { value: "google-sheet", label: t("google_sheet"), icon: Globe },
           ].map((type) => {
             const Icon = type.icon;
             const isSelected = selectedType === type.value;
@@ -117,7 +120,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
               isDark ? "text-gray-300" : "text-gray-400"
             }`}
           >
-            Asset Name *
+            {t("asset_name_label")}
           </label>
           <input
             id="name"
@@ -128,7 +131,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
                 ? "bg-white/8 border-white/13 text-white placeholder-gray-400 focus:border-cyan-500/30 focus:bg-white/12"
                 : "bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
             } ${errors.name ? "border-red-500" : ""}`}
-            placeholder="e.g., Advanced Financial Dashboard"
+            placeholder={t("asset_name_placeholder")}
           />
           {errors.name && (
             <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>
@@ -136,11 +139,11 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
         </div>
         <div>
           <SettingsSelect
-            label="Category *"
+            label={t("category_label")}
             value={watchCategoryId}
             onChange={(val) => setValue("category_id", val)}
             options={categoryOptions}
-            placeholder={isLoadingCategories ? "Loading..." : "Select category"}
+            placeholder={isLoadingCategories ? t("loading_placeholder") : t("select_category")}
             disabled={isLoadingCategories}
           />
           {errors.category_id && (
@@ -159,7 +162,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
             isDark ? "text-gray-300" : "text-gray-400"
           }`}
         >
-          Automation / External Link (Optional)
+          {t("external_link_label")}
         </label>
         <div className="relative">
           <Globe
@@ -181,7 +184,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
                 ? "bg-white/8 border-white/13 text-white placeholder-gray-400 focus:border-cyan-500/30 focus:bg-white/12"
                 : "bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
             } ${errors.external_url ? "border-red-500 shadow-[0_0_0_1px_rgba(239,68,68,0.2)]" : ""}`}
-            placeholder="e.g., https://docs.google.com/spreadsheets/d/..."
+            placeholder={t("external_link_placeholder")}
           />
         </div>
         {errors.external_url && (
@@ -192,8 +195,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
         <p
           className={`text-[10px] mt-2 ml-1 ${isDark ? "text-gray-600" : "text-gray-400"}`}
         >
-          If this is a Google Sheet or external web tool, provide the direct
-          link here.
+          {t("external_link_hint")}
         </p>
 
         {/* GitHub Repository */}
@@ -204,7 +206,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
               isDark ? "text-gray-300" : "text-gray-400"
             }`}
           >
-            GitHub Repository (Private Distribution)
+            {t("github_repo_label")}
           </label>
           <div className="relative">
             <GithubLogo
@@ -226,14 +228,13 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
                   ? "bg-white/8 border-white/13 text-white placeholder-gray-400 focus:border-cyan-500/30 focus:bg-white/12"
                   : "bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
               }`}
-              placeholder="e.g. owner/repo"
+              placeholder={t("github_repo_placeholder")}
             />
           </div>
           <p
             className={`text-[10px] mt-2 ml-1 ${isDark ? "text-gray-600" : "text-gray-400"}`}
           >
-            Format: owner/repo. Used for secure release distribution via GitHub
-            API.
+            {t("github_repo_hint")}
           </p>
         </div>
       </div>
@@ -245,7 +246,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
             isDark ? "text-gray-300" : "text-gray-400"
           }`}
         >
-          Product Thumbnail / Image
+          {t("product_thumbnail_label")}
         </label>
         <AssetImageUploader
           url={watchThumbnailUrl}
@@ -259,8 +260,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
         <p
           className={`text-[10px] ml-1 ${isDark ? "text-gray-600" : "text-gray-400"}`}
         >
-          This image will be displayed in the Marketplace and your inventory
-          list.
+          {t("product_thumbnail_hint")}
         </p>
       </div>
 
@@ -273,7 +273,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
               isDark ? "text-gray-300" : "text-gray-400"
             }`}
           >
-            Sale Price *
+            {t("sale_price_label")}
           </label>
           <div className="relative">
             <span
@@ -306,7 +306,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
               isDark ? "text-gray-300" : "text-gray-400"
             }`}
           >
-            Currency
+            {t("currency_label")}
           </label>
           <input
             id="currency"
@@ -325,7 +325,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
       {/* Status & Visibility */}
       <div className="space-y-4">
         <SettingsSelect
-          label="Publish Status"
+          label={t("publish_status_label")}
           value={watch("status")}
           onChange={(val) =>
             setValue("status", val as "draft" | "published" | "archived")
@@ -351,7 +351,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
                 isDark ? "text-white" : "text-gray-900"
               }`}
             >
-              Marketplace Visibility
+              {t("marketplace_visibility")}
             </p>
             <p
               className={`text-xs mt-0.5 ${
@@ -359,8 +359,8 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
               }`}
             >
               {watch("is_public")
-                ? "This product is visible in the public marketplace"
-                : "This product is only visible to your organization"}
+                ? t("visibility_public_desc")
+                : t("visibility_private_desc")}
             </p>
           </div>
           <button
@@ -393,13 +393,13 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
             isDark ? "text-gray-300" : "text-gray-400"
           }`}
         >
-          Description
+          {t("description_label")}
         </label>
         <textarea
           id="description"
           {...register("description")}
           rows={4}
-          placeholder="Detailed description of the asset, features, and use cases..."
+          placeholder={t("description_placeholder")}
           className={`w-full px-4 py-3 rounded-lg border transition-all outline-none resize-none ${
             isDark
               ? "bg-white/8 border-white/13 text-white placeholder-gray-400 focus:border-cyan-500/30 focus:bg-white/12"
@@ -416,7 +416,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
             isDark ? "text-gray-300" : "text-gray-400"
           }`}
         >
-          Key Features (One per line)
+          {t("key_features_label")}
         </label>
         <textarea
           id="features"
@@ -438,7 +438,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
             isDark ? "text-gray-300" : "text-gray-400"
           }`}
         >
-          Technical Requirements (One per line)
+          {t("tech_requirements_label")}
         </label>
         <textarea
           id="requirements"
@@ -462,7 +462,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
               isDark ? "text-gray-300" : "text-gray-400"
             }`}
           >
-            MagnifyingGlass Tags (One per line)
+            {t("search_tags_label")}
           </label>
           <textarea
             id="tags"
@@ -483,7 +483,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
               isDark ? "text-gray-300" : "text-gray-400"
             }`}
           >
-            Technical Stack (One per line)
+            {t("technical_stack_label")}
           </label>
           <textarea
             id="technical_stack"
@@ -506,16 +506,16 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
             isDark ? "text-gray-300" : "text-gray-500"
           }`}
         >
-          Minimum Required Plan Tier
+          {t("min_plan_tier_label")}
         </label>
         <div className="grid grid-cols-5 gap-1.5">
           {(
             [
-              { value: 0, label: "Free", sub: "All users" },
-              { value: 1, label: "Basic", sub: "Tier 1" },
-              { value: 2, label: "Pro", sub: "Tier 2" },
-              { value: 3, label: "Enterprise", sub: "Tier 3" },
-              { value: 4, label: "Private", sub: "Restricted" },
+              { value: 0, label: t("tier_free_label"), sub: t("tier_free_sub") },
+              { value: 1, label: t("tier_basic"), sub: t("tier_basic_sub") },
+              { value: 2, label: t("tier_pro"), sub: t("tier_pro_sub") },
+              { value: 3, label: t("tier_enterprise"), sub: t("tier_enterprise_sub") },
+              { value: 4, label: t("tier_private"), sub: t("tier_private_sub") },
             ] as const
           ).map((tier) => {
             const selected = watch("min_plan_tier") === tier.value;

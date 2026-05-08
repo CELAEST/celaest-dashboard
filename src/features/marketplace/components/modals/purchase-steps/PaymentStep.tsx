@@ -9,6 +9,7 @@ import {
 } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { Progress } from "@/components/ui/progress";
+import { useTranslations } from "next-intl";
 
 interface PaymentStepProps {
   finalPrice: string;
@@ -23,6 +24,7 @@ export const PaymentStep: React.FC<PaymentStepProps> = ({
   progress,
   onPurchase,
 }) => {
+  const t = useTranslations("marketplace");
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
@@ -48,10 +50,10 @@ export const PaymentStep: React.FC<PaymentStepProps> = ({
           </div>
           <div className="space-y-1.5">
             <p className={`text-base font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>
-              Procesando pago seguro...
+              {t("processing_secure_payment")}
             </p>
             <p className={`text-sm ${isDark ? "text-gray-500" : "text-gray-500"}`}>
-              Conectando con Stripe
+              {t("connecting_to_stripe")}
             </p>
           </div>
           <div className="w-56 mx-auto">
@@ -66,18 +68,18 @@ export const PaymentStep: React.FC<PaymentStepProps> = ({
         <>
           <div className="text-center space-y-2">
             <h2 className={`text-2xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
-              Pago Seguro
+              {t("secure_payment")}
             </h2>
             <p className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>
-              Serás redirigido a Stripe para completar tu pago
+              {t("redirecting_to_stripe")}
             </p>
           </div>
 
           {/* Stripe visual card */}
           <div className={`relative overflow-hidden rounded-2xl p-6 ${
             isDark
-              ? "bg-gradient-to-br from-[#1a1a2e] to-[#16213e] border border-white/[0.08]"
-              : "bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-200"
+              ? "bg-linear-to-br from-[#1a1a2e] to-[#16213e] border border-white/8"
+              : "bg-linear-to-br from-gray-50 to-gray-100 border border-gray-200"
           }`}>
             {/* Decorative glow */}
             <div className={`absolute -top-10 -right-10 w-32 h-32 rounded-full blur-3xl ${
@@ -92,7 +94,7 @@ export const PaymentStep: React.FC<PaymentStepProps> = ({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
                   <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${
-                    isDark ? "bg-white/[0.08]" : "bg-white shadow-sm"
+                    isDark ? "bg-white/8" : "bg-white shadow-sm"
                   }`}>
                     <CreditCard size={18} weight="duotone" className={isDark ? "text-cyan-400" : "text-cyan-600"} />
                   </div>
@@ -106,14 +108,14 @@ export const PaymentStep: React.FC<PaymentStepProps> = ({
                     : "bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200"
                 }`}>
                   <ShieldCheck size={12} weight="fill" />
-                  Cifrado SSL
+                  {t("ssl_encryption")}
                 </div>
               </div>
 
               {/* Amount */}
               <div className="text-center py-3">
                 <p className={`text-xs font-medium uppercase tracking-wider mb-1.5 ${isDark ? "text-gray-500" : "text-gray-400"}`}>
-                  Total a pagar
+                  {t("total_to_pay")}
                 </p>
                 <p className={`text-4xl font-bold tracking-tight ${isDark ? "text-white" : "text-gray-900"}`}>
                   {finalPrice}
@@ -122,14 +124,14 @@ export const PaymentStep: React.FC<PaymentStepProps> = ({
 
               {/* Trust badges */}
               <div className={`flex items-center justify-center gap-4 pt-2 border-t ${
-                isDark ? "border-white/[0.06]" : "border-gray-200"
+                isDark ? "border-white/6" : "border-gray-200"
               }`}>
                 {["Visa", "Mastercard", "Amex"].map((brand) => (
                   <span
                     key={brand}
                     className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-md ${
                       isDark
-                        ? "bg-white/[0.05] text-gray-500"
+                        ? "bg-white/5 text-gray-500"
                         : "bg-gray-100 text-gray-400"
                     }`}
                   >
@@ -144,7 +146,7 @@ export const PaymentStep: React.FC<PaymentStepProps> = ({
           <div className="flex items-center justify-center gap-2">
             <LockSimple size={14} weight="bold" className={isDark ? "text-emerald-500" : "text-emerald-600"} />
             <p className={`text-xs ${isDark ? "text-gray-500" : "text-gray-500"}`}>
-              Transacción cifrada de extremo a extremo por Stripe
+              {t("end_to_end_encryption")}
             </p>
           </div>
 
@@ -159,7 +161,7 @@ export const PaymentStep: React.FC<PaymentStepProps> = ({
               }
             `}
           >
-            Pagar con Stripe {finalPrice}
+            {t("pay_with_stripe")} {finalPrice}
             <ArrowSquareOut size={18} weight="bold" />
           </button>
         </>

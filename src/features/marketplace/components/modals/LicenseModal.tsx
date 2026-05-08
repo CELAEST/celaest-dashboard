@@ -16,6 +16,7 @@ import { useTheme } from "@/features/shared/hooks/useTheme";
 import { assetsService } from "@/features/assets/services/assets.service";
 import { useApiAuth } from "@/lib/use-api-auth";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 interface LicenseModalProps {
   isOpen: boolean;
@@ -46,6 +47,7 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
   licenseId,
   productName,
 }) => {
+  const t = useTranslations("marketplace");
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const { token } = useApiAuth();
@@ -100,20 +102,20 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
         }
       } catch (error: unknown) {
         logger.error("[LicenseModal] Error fetching license:", error);
-        toast.error("No se pudo cargar la licencia.");
+        toast.error(t("could_not_load_license"));
       } finally {
         setLoading(false);
       }
     };
 
     fetchLicense();
-  }, [isOpen, licenseId, token]);
+  }, [isOpen, licenseId, token, t]);
 
   const handleCopy = () => {
     if (license?.license_key) {
       navigator.clipboard.writeText(license.license_key);
       setCopied(true);
-      toast.success("Licencia copiada al portapapeles");
+      toast.success(t("license_copied"));
       setTimeout(() => setCopied(false), 2000);
     }
   };
@@ -123,7 +125,7 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
 
     if (
       !confirm(
-        "¿Está seguro de que desea desactivar todas las sesiones de esta licencia?",
+        t("confirm_deactivate_sessions"),
       )
     ) {
       return;
@@ -143,10 +145,10 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
         throw new Error(body?.error?.message || "Deactivation failed");
       }
 
-      toast.success("Activaciones reseteadas. Licencia lista para nueva activación.");
+      toast.success(t("activations_reset"));
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Error desconocido";
-      toast.error(`Error al desactivar: ${message}`);
+      toast.error(`${t("deactivation_error")} ${message}`);
     } finally {
       setLoading(false);
     }
@@ -290,7 +292,7 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
                       isDark ? "text-white" : "text-gray-900"
                     }`}
                   >
-                    Detalles de Licencia
+                    {t("license_details_title")}
                   </h2>
                   <p
                     className={`text-xs mt-0.5 ${
@@ -298,10 +300,10 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
                     }`}
                   >
                     {license?.status === "owner"
-                      ? "Licencia de desarrollador"
+                      ? t("developer_license")
                       : productName
-                        ? `Licencia para ${productName}`
-                        : "Tu licencia activa"}
+                        ? t("license_for", { product: productName })
+                        : t("your_active_license")}
                   </p>
                 </div>
               </div>
@@ -309,7 +311,7 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
               <div className="relative z-10">
                 <button
                   onClick={onClose}
-                  aria-label="Cerrar modal de licencia"
+                  aria-label={t("close_license_modal")}
                   className={`p-2 rounded-full transition-colors ${
                     isDark
                       ? "hover:bg-white/10 text-gray-400 hover:text-white"
@@ -331,7 +333,7 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
                   <p
                     className={`text-sm ${isDark ? "text-gray-500" : "text-gray-400"}`}
                   >
-                    Cargando detalles...
+                    {t("loading_details")}
                   </p>
                 </div>
               ) : license ? (
@@ -349,7 +351,7 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
                         isDark ? "text-gray-500" : "text-gray-400"
                       }`}
                     >
-                      License Key
+                      {t("license_key_label")}
                     </label>
                     <div className="flex items-center justify-between gap-2">
                       <code
@@ -361,7 +363,7 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
                       </code>
                       <button
                         onClick={handleCopy}
-                        aria-label={copied ? "Licencia copiada" : "Copiar licencia al portapapeles"}
+                        aria-label={copied ? t("license_copied_aria") : t("copy_license_aria")}
                         className={`p-1.5 rounded-lg transition-colors shrink-0 ${
                           isDark
                             ? "hover:bg-emerald-500/10 text-gray-400 hover:text-emerald-400"
@@ -391,7 +393,7 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
                             isDark ? "text-gray-500" : "text-gray-400"
                           }`}
                         >
-                          Estado
+                          {t("status")}
                         </span>
                       </div>
                       <p
@@ -417,7 +419,7 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
                             isDark ? "text-gray-500" : "text-gray-400"
                           }`}
                         >
-                          Plan
+                          {t("plan")}
                         </span>
                       </div>
                       <p
@@ -443,7 +445,7 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
                             isDark ? "text-gray-500" : "text-gray-400"
                           }`}
                         >
-                          Validez
+                          {t("validity")}
                         </span>
                       </div>
                       <p
@@ -453,7 +455,7 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
                       >
                         {license.expires_at
                           ? new Date(license.expires_at).toLocaleDateString()
-                          : "Lifetime (Sin expiración)"}
+                          : t("lifetime_no_expiration")}
                       </p>
                     </div>
                   </div>
@@ -465,7 +467,7 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
                   }`}
                 >
                   <Warning className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">No se encontraron detalles de la licencia.</p>
+                  <p className="text-sm">{t("no_license_details_found")}</p>
                 </div>
               )}
             </div>
@@ -486,7 +488,7 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
                       : "text-red-600 border-red-200 hover:bg-red-50"
                   }`}
                 >
-                  Resetear Activaciones
+                  {t("reset_activations")}
                 </button>
               )}
               <button
@@ -497,7 +499,7 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200"
                 }`}
               >
-                Cerrar
+                {t("close")}
               </button>
             </div>
           </motion.div>

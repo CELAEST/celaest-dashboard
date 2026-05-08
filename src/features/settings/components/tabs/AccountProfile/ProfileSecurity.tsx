@@ -1,6 +1,7 @@
 import React, { memo } from "react";
 import { Envelope, GithubLogo, Warning } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 
 interface ProfileSecurityProps {
   email: string;
@@ -26,10 +27,12 @@ export const ProfileSecurity: React.FC<ProfileSecurityProps> = memo(
     onChangeEmail,
   }) => {
     const { isDark } = useTheme();
+    const t = useTranslations("settings");
+    const tCommon = useTranslations("common");
 
     const getIdentityEmail = (provider: string) => {
       const identity = identities.find((id) => id.provider === provider);
-      return identity?.email || "Not connected";
+      return identity?.email || t("not_connected");
     };
 
     return (
@@ -40,7 +43,7 @@ export const ProfileSecurity: React.FC<ProfileSecurityProps> = memo(
           }`}
         >
           <Envelope className="w-5 h-5 text-cyan-500" />
-          Email & Authentication
+          {t("email_auth")}
         </h3>
 
         <div className="space-y-6">
@@ -51,7 +54,7 @@ export const ProfileSecurity: React.FC<ProfileSecurityProps> = memo(
                 isDark ? "text-gray-500" : "text-gray-400"
               }`}
             >
-              Primary Email
+              {t("primary_email")}
             </label>
             <div className="flex items-center gap-3">
               <input
@@ -65,7 +68,7 @@ export const ProfileSecurity: React.FC<ProfileSecurityProps> = memo(
                 disabled={isAuthLoading}
                 className="px-5 py-3 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-medium transition-all shadow-sm hover:shadow-cyan-500/20 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isAuthLoading ? "Processing..." : "Change Email"}
+                {isAuthLoading ? tCommon("processing") : t("change_email")}
               </button>
             </div>
           </div>
@@ -77,7 +80,7 @@ export const ProfileSecurity: React.FC<ProfileSecurityProps> = memo(
                 isDark ? "text-gray-500" : "text-gray-400"
               }`}
             >
-              Connected Accounts
+              {t("connected_accounts")}
             </label>
             <div className="space-y-3">
               {/* Google */}
@@ -144,8 +147,8 @@ export const ProfileSecurity: React.FC<ProfileSecurityProps> = memo(
                   {isAuthLoading
                     ? "..."
                     : connectedAccounts.google
-                      ? "Disconnect"
-                      : "Connect"}
+                      ? tCommon("disconnect")
+                      : tCommon("connect")}
                 </button>
               </div>
 
@@ -196,8 +199,8 @@ export const ProfileSecurity: React.FC<ProfileSecurityProps> = memo(
                   {isAuthLoading
                     ? "..."
                     : connectedAccounts.github
-                      ? "Disconnect"
-                      : "Connect"}
+                      ? tCommon("disconnect")
+                      : tCommon("connect")}
                 </button>
               </div>
             </div>
@@ -208,15 +211,14 @@ export const ProfileSecurity: React.FC<ProfileSecurityProps> = memo(
             <Warning className="w-5 h-5 text-cyan-500 shrink-0 mt-0.5" />
             <div>
               <p className="text-sm text-cyan-600 dark:text-cyan-400 font-bold mb-1">
-                Sign in with OAuth
+                {t("sign_in_oauth")}
               </p>
               <p
                 className={`text-xs ${
                   isDark ? "text-gray-400" : "text-gray-500"
                 }`}
               >
-                Connect your Google or GitHub account for faster sign-in and
-                enhanced security.
+                {t("oauth_description")}
               </p>
             </div>
           </div>

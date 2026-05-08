@@ -2,6 +2,7 @@ import React from "react";
 import { motion } from "motion/react";
 import { Pulse } from "@phosphor-icons/react";
 import type { useAnalytics } from "@/features/analytics/hooks/useAnalytics";
+import { useTranslations } from "next-intl";
 
 type AnalyticsData = ReturnType<typeof useAnalytics>;
 
@@ -262,6 +263,7 @@ const UptimeHudVisual = ({
 
 export const SystemUptime = React.memo(
   ({ className, isDark, stats }: SystemUptimeProps) => {
+    const t = useTranslations("analytics");
     const nodesTotal = stats?.total_licenses ?? 0;
     const nodesActive = stats?.active_licenses ?? 0;
     const totalUsers = stats?.total_users ?? 0;
@@ -283,14 +285,15 @@ export const SystemUptime = React.memo(
     const latencyMsBase = 14 + loadRatio * 22 + lossRatio * 48; // ~14..84
     const p50 = Math.max(1, latencyMsBase * (0.72 + uptimeRatio * 0.25));
     const _p99 = Math.max(1, latencyMsBase * (1.07 + lossRatio * 0.95));
-    const status =
+    const statusKey =
       uptimeRatio >= 0.99
-        ? "Excellent"
+        ? "status_excellent"
         : uptimeRatio >= 0.96
-          ? "Stable"
+          ? "status_stable"
           : uptimeRatio >= 0.92
-            ? "Degraded"
-            : "Critical";
+            ? "status_degraded"
+            : "status_critical";
+    const status = t(statusKey as Parameters<typeof t>[0]);
 
     return (
       <motion.div
@@ -338,7 +341,7 @@ export const SystemUptime = React.memo(
                 isDark ? "text-gray-400" : "text-gray-500"
               }`}
             >
-              System Uptime
+              {t("system_uptime")}
             </h3>
           </div>
           <div className="flex items-center gap-2">
@@ -377,7 +380,9 @@ export const SystemUptime = React.memo(
                 isDark ? "text-cyan-300" : "text-cyan-700"
               }`}
             >
-              Nodes Online · {Math.round(uptimeRatio * 100)}% Uptime
+              {t("nodes_online_uptime", {
+                percent: Math.round(uptimeRatio * 100),
+              })}
             </div>
           </div>
         </div>
@@ -387,7 +392,7 @@ export const SystemUptime = React.memo(
             <span
               className={`text-[9px] font-bold uppercase tracking-widest opacity-50 ${isDark ? "text-gray-500" : "text-gray-400"}`}
             >
-              Latency
+              {t("latency")}
             </span>
             <div className="flex items-center gap-2">
               <svg width="24" height="12" viewBox="0 0 24 12" className="opacity-80">

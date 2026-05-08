@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
 import { Tag, Lightning, Check } from "@phosphor-icons/react";
+import { useTranslations } from "next-intl";
 
 interface CouponPreviewCardProps {
   previewData: {
@@ -12,6 +13,7 @@ interface CouponPreviewCardProps {
 }
 
 export const CouponPreviewCard = ({ previewData }: CouponPreviewCardProps) => {
+  const t = useTranslations("coupons");
   return (
     <div className="w-full lg:w-72 shrink-0">
       <div className="sticky top-0 bg-neutral-900/50 border border-white/5 rounded-2xl p-6 overflow-hidden">
@@ -23,7 +25,7 @@ export const CouponPreviewCard = ({ previewData }: CouponPreviewCardProps) => {
           <div className="flex items-center gap-2 mb-8">
             <Lightning className="w-4 h-4 text-amber-500 fill-amber-500" />
             <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">
-              Live Preview
+              {t("preview_live")}
             </span>
           </div>
 
@@ -47,7 +49,7 @@ export const CouponPreviewCard = ({ previewData }: CouponPreviewCardProps) => {
             <div className="space-y-4">
               <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/5 group relative overflow-hidden">
                 <div className="text-[8px] font-bold text-white/40 uppercase mb-1">
-                  Código Promocional
+                  {t("preview_code")}
                 </div>
                 <div className="text-sm font-black text-white font-mono tracking-widest truncate">
                   {previewData.code}
@@ -57,7 +59,7 @@ export const CouponPreviewCard = ({ previewData }: CouponPreviewCardProps) => {
               <div className="flex justify-between items-end">
                 <div className="space-y-0.5">
                   <div className="text-[8px] font-black text-white/30 uppercase">
-                    Expira
+                    {t("preview_expires")}
                   </div>
                   <div className="text-[10px] font-bold text-white/70">
                     {previewData.expires}
@@ -65,7 +67,7 @@ export const CouponPreviewCard = ({ previewData }: CouponPreviewCardProps) => {
                 </div>
                 <div className="bg-black/20 px-2 py-1 rounded-md">
                   <div className="text-[8px] font-black text-white/30 uppercase leading-none">
-                    Limit
+                    {t("preview_limit")}
                   </div>
                   <div className="text-[9px] font-black text-white/60 mt-0.5 leading-none">
                     {previewData.limit}
@@ -81,13 +83,12 @@ export const CouponPreviewCard = ({ previewData }: CouponPreviewCardProps) => {
                 <Check className="w-2.5 h-2.5 text-emerald-500" />
               </div>
               <p className="text-[10px] text-neutral-500 leading-tight">
-                Sincronizado con el motor de CELAEST en tiempo real.
+                {t("preview_sync")}
               </p>
             </div>
             <div className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/10">
               <p className="text-[9px] text-blue-400 font-bold leading-relaxed italic">
-                &quot;Los cupones maestros aumentan la tasa de conversión hasta
-                un 24%.&quot;
+                {t("preview_quote")}
               </p>
             </div>
           </div>

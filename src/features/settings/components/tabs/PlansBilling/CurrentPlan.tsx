@@ -1,6 +1,7 @@
 import React, { memo } from "react";
 import { Lightning } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 
 interface CurrentPlanProps {
   currentPlanName: string;
@@ -12,6 +13,7 @@ interface CurrentPlanProps {
 export const CurrentPlan: React.FC<CurrentPlanProps> = memo(
   ({ currentPlanName, nextBillingDate, billingCycle, onCycleChange }) => {
     const { isDark } = useTheme();
+    const t = useTranslations("settings");
 
     return (
       <div className="settings-glass-card rounded-2xl p-6">
@@ -34,7 +36,7 @@ export const CurrentPlan: React.FC<CurrentPlanProps> = memo(
                   isDark ? "text-white" : "text-gray-900"
                 }`}
               >
-                Current Plan:{" "}
+                {t("current_plan")}{" "}
                 <span className="text-cyan-500">{currentPlanName}</span>
               </h3>
               <p
@@ -42,7 +44,7 @@ export const CurrentPlan: React.FC<CurrentPlanProps> = memo(
                   isDark ? "text-gray-500" : "text-gray-400"
                 }`}
               >
-                Your next billing date is {nextBillingDate}.
+                {t("next_billing_date", { date: nextBillingDate })}
               </p>
             </div>
           </div>
@@ -62,7 +64,7 @@ export const CurrentPlan: React.FC<CurrentPlanProps> = memo(
                     : "text-gray-500 hover:text-gray-900"
               }`}
             >
-              MONTHLY
+              {t("monthly")}
             </button>
             <button
               onClick={() => onCycleChange("annually")}
@@ -74,7 +76,7 @@ export const CurrentPlan: React.FC<CurrentPlanProps> = memo(
                     : "text-gray-500 hover:text-gray-900"
               }`}
             >
-              ANNUALLY
+              {t("annually")}
               <span className="px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 text-[10px] font-black">
                 -20%
               </span>

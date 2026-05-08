@@ -4,6 +4,7 @@ import React from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
 import { Eye, DownloadSimple, PencilSimple, Archive, Trash } from "@phosphor-icons/react";
+import { useTranslations } from "next-intl";
 
 interface ActionMenuProps {
   isOpen: boolean;
@@ -24,6 +25,8 @@ export const ActionMenu = ({
   isDark,
   isSuperAdmin = false,
 }: ActionMenuProps) => {
+  const t = useTranslations("billing");
+  
   if (typeof window === "undefined") return null;
 
   return createPortal(
@@ -61,13 +64,13 @@ export const ActionMenu = ({
               {[
                 {
                   icon: Eye,
-                  label: "View Details",
+                  label: t("view_details"),
                   action: "view",
                   color: isDark ? "text-gray-300" : "text-gray-700",
                 },
                 {
                   icon: DownloadSimple,
-                  label: "Download Invoice",
+                  label: t("download_invoice"),
                   action: "download",
                   color: isDark ? "text-gray-300" : "text-gray-700",
                 },
@@ -75,19 +78,19 @@ export const ActionMenu = ({
                   ? [
                       {
                         icon: PencilSimple,
-                        label: "Edit Order",
+                        label: t("edit_order"),
                         action: "edit",
                         color: isDark ? "text-gray-300" : "text-gray-700",
                       },
                       {
                         icon: Archive,
-                        label: "Archive",
+                        label: t("archive"),
                         action: "archive",
                         color: isDark ? "text-amber-400" : "text-amber-600",
                       },
                       {
                         icon: Trash,
-                        label: "Delete",
+                        label: t("delete"),
                         action: "delete",
                         color: isDark ? "text-red-400" : "text-red-600",
                       },

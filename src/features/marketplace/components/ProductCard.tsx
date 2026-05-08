@@ -9,6 +9,7 @@ import { formatCurrency } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { useMarketplaceCouponStore } from "../store";
+import { useTranslations } from "next-intl";
 
 interface ProductCardProps {
   product: MarketplaceProduct;
@@ -21,6 +22,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   onClick,
   disableNavigation = false,
 }) => {
+  const t = useTranslations("marketplace");
   const { activeCoupon } = useMarketplaceCouponStore();
 
   let finalPrice = product.base_price;
@@ -76,7 +78,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               className="h-5 gap-1 border-emerald-500/30 bg-emerald-500/10 px-1.5 text-[10px] text-emerald-400"
             >
               <ShieldCheck className="h-3 w-3" />
-              Verificado
+              {t("verified")}
             </Badge>
           )}
         </div>
@@ -91,7 +93,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
         <div className="mt-auto flex items-center justify-between pt-2 border-t border-white/5">
           <div className="flex flex-col">
-            <span className="text-xs text-white/40 font-medium">Desde</span>
+            <span className="text-xs text-white/40 font-medium">{t("starting_from")}</span>
             <div className="flex items-center gap-2">
               {activeCoupon && (
                 <span className="text-sm line-through text-white/40 font-medium">

@@ -5,6 +5,7 @@ import { SettingsSelect } from "../../../../settings/components/SettingsSelect";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { TaxRate } from "../../../types";
 import { COUNTRIES } from "../../../constants/countries";
+import { useTranslations } from "next-intl";
 
 interface AddTaxRateFormProps {
   isAdding: boolean;
@@ -28,6 +29,7 @@ export const AddTaxRateForm: React.FC<AddTaxRateFormProps> = ({
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const isEditing = !!editingId;
+  const t = useTranslations("billing");
 
   return (
     <AnimatePresence>
@@ -76,7 +78,7 @@ export const AddTaxRateForm: React.FC<AddTaxRateFormProps> = ({
                 isDark ? "text-white" : "text-gray-900"
               }`}
             >
-              {isEditing ? "PencilSimple Tax Rate" : "Add New Tax Rate"}
+              {isEditing ? t("edit_tax_rate") : t("add_new_tax_rate")}
             </h3>
           </div>
 
@@ -84,7 +86,7 @@ export const AddTaxRateForm: React.FC<AddTaxRateFormProps> = ({
             {/* Country Selector */}
             <div className="flex flex-col gap-1.5">
               <SettingsSelect
-                label="Country"
+                label={t("country")}
                 value={newTaxRate.region || ""}
                 onChange={(val) => {
                   const country = COUNTRIES.find((c) => c.name === val);
@@ -116,7 +118,7 @@ export const AddTaxRateForm: React.FC<AddTaxRateFormProps> = ({
                   isDark ? "text-gray-400" : "text-gray-500"
                 }`}
               >
-                Label/Name
+                {t("label_name")}
               </label>
               <input
                 type="text"
@@ -127,7 +129,7 @@ export const AddTaxRateForm: React.FC<AddTaxRateFormProps> = ({
                     name: e.target.value,
                   })
                 }
-                placeholder="e.g. Standard VAT"
+                placeholder={t("standard_vat")}
                 className={`w-full px-4 py-2.5 rounded-xl text-sm transition-all duration-300 outline-none ${
                   isDark
                     ? "bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50"
@@ -143,7 +145,7 @@ export const AddTaxRateForm: React.FC<AddTaxRateFormProps> = ({
                   isDark ? "text-gray-400" : "text-gray-500"
                 }`}
               >
-                Rate (%)
+                {t("rate_percent")}
               </label>
               <input
                 type="number"
@@ -169,15 +171,15 @@ export const AddTaxRateForm: React.FC<AddTaxRateFormProps> = ({
             {/* TextT */}
             <div className="flex flex-col gap-1.5">
               <SettingsSelect
-                label="Tax TextT"
+                label={t("tax_type")}
                 value={newTaxRate.type || "VAT"}
                 onChange={(val) =>
                   setNewTaxRate({ ...newTaxRate, type: val as string })
                 }
                 options={[
-                  { value: "VAT", label: "VAT" },
-                  { value: "GST", label: "GST" },
-                  { value: "Sales Tax", label: "Sales Tax" },
+                  { value: "VAT", label: t("vat") },
+                  { value: "GST", label: t("gst") },
+                  { value: "Sales Tax", label: t("sales_tax") },
                 ]}
               />
             </div>
@@ -194,7 +196,7 @@ export const AddTaxRateForm: React.FC<AddTaxRateFormProps> = ({
                   : "bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gray-200"
               }`}
             >
-              Cancel
+              {t("cancel")}
             </motion.button>
             <motion.button
               whileHover={{ scale: 1.05 }}
@@ -209,12 +211,12 @@ export const AddTaxRateForm: React.FC<AddTaxRateFormProps> = ({
               {isEditing ? (
                 <>
                   <ArrowCounterClockwise className="w-4 h-4" />
-                  Update Rate
+                  {t("update_rate")}
                 </>
               ) : (
                 <>
                   <Plus className="w-4 h-4" />
-                  Add Tax Rate
+                  {t("add_tax_rate")}
                 </>
               )}
             </motion.button>

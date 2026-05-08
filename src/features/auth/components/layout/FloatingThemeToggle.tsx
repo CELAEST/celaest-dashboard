@@ -16,7 +16,7 @@ export const FloatingThemeToggle: React.FC<FloatingThemeToggleProps> = ({
   return (
     <motion.button
       onClick={toggleTheme}
-      className={`fixed top-6 right-6 z-50 p-3 rounded-full backdrop-blur-xl border transition-all duration-300 shadow-lg ${isDark ? "bg-white/10 border-white/20 hover:bg-white/20 text-white" : "bg-white/95 border-gray-300 hover:bg-white text-gray-900 shadow-xl"}`}
+      className={`p-2 rounded-full transition-all duration-300 ${isDark ? "hover:bg-white/10 text-white" : "hover:bg-black/5 text-gray-900"}`}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
     >

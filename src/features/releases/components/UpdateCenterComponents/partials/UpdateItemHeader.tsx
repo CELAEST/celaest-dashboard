@@ -2,6 +2,7 @@ import React, { memo } from "react";
 import { DownloadSimple, Clock, Warning, CheckCircle } from "@phosphor-icons/react";
 import { CustomerAsset } from "../../../types";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 
 interface UpdateItemHeaderProps {
   asset: CustomerAsset;
@@ -10,6 +11,7 @@ interface UpdateItemHeaderProps {
 export const UpdateItemHeader: React.FC<UpdateItemHeaderProps> = memo(
   ({ asset }) => {
     const { isDark } = useTheme();
+    const t = useTranslations("releases");
 
     return (
       <div
@@ -36,7 +38,7 @@ export const UpdateItemHeader: React.FC<UpdateItemHeaderProps> = memo(
                   }`}
                 >
                   <DownloadSimple size={12} />
-                  UPDATE AVAILABLE
+                  {t("badge_update_available")}
                 </span>
               )}
             </div>
@@ -49,7 +51,7 @@ export const UpdateItemHeader: React.FC<UpdateItemHeaderProps> = memo(
                     isDark ? "text-gray-500" : "text-gray-600"
                   }`}
                 >
-                  Installed:
+                  {t("label_installed")}
                 </span>
                 <span
                   className={`text-sm font-mono px-2 py-0.5 rounded ${
@@ -72,7 +74,7 @@ export const UpdateItemHeader: React.FC<UpdateItemHeaderProps> = memo(
                         isDark ? "text-gray-500" : "text-gray-600"
                       }`}
                     >
-                      Latest:
+                      {t("label_latest")}
                     </span>
                     <span
                       className={`text-sm font-mono px-2 py-0.5 rounded ${
@@ -123,7 +125,7 @@ export const UpdateItemHeader: React.FC<UpdateItemHeaderProps> = memo(
               className={isDark ? "text-gray-600" : "text-gray-400"}
             />
             <span className={isDark ? "text-gray-500" : "text-gray-600"}>
-              Purchased:{" "}
+              {t("label_purchased")}{" "}
               {new Date(asset.purchaseDate).toLocaleDateString("en-US", {
                 month: "short",
                 year: "numeric",

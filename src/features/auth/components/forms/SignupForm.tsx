@@ -16,6 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 
 interface SignupFormProps {
   isDark: boolean;
@@ -29,6 +30,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({
   loading,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
+  const tAuth = useTranslations("auth");
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
@@ -48,7 +50,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({
           render={({ field }) => (
             <FormItem>
               <FormLabel className={isDark ? "text-gray-300" : "text-gray-700"}>
-                Full Name
+                {tAuth("full_name")}
               </FormLabel>
               <FormControl>
                 <div className="relative mt-1.5">
@@ -82,7 +84,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({
           render={({ field }) => (
             <FormItem>
               <FormLabel className={isDark ? "text-gray-300" : "text-gray-700"}>
-                Email Address
+                {tAuth("email_address")}
               </FormLabel>
               <FormControl>
                 <div className="relative mt-1.5">
@@ -98,7 +100,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({
                         ? "bg-white/5 border-white/10 text-white focus:border-cyan-500"
                         : "bg-gray-50 border-gray-300 focus:border-blue-500"
                     }`}
-                    placeholder="you@example.com"
+                    placeholder={tAuth("email_placeholder")}
                     {...field}
                   />
                 </div>
@@ -115,7 +117,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({
           render={({ field }) => (
             <FormItem>
               <FormLabel className={isDark ? "text-gray-300" : "text-gray-700"}>
-                Password
+                {tAuth("password")}
               </FormLabel>
               <FormControl>
                 <div className="relative mt-1.5">
@@ -173,7 +175,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({
             />
           ) : (
             <span className="flex items-center justify-center gap-2">
-              Create Account
+              {tAuth("create_account")}
               <ArrowRight className="w-5 h-5" />
             </span>
           )}

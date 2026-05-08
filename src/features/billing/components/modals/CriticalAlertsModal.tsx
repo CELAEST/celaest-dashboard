@@ -18,6 +18,7 @@ import {
 } from "../../hooks/useBillingQuery";
 import { format } from "date-fns";
 import { BillingModal } from "./shared/BillingModal";
+import { useTranslations } from "next-intl";
 
 interface CriticalAlertsModalProps {
   isOpen: boolean;
@@ -37,6 +38,7 @@ export const CriticalAlertsModal: React.FC<CriticalAlertsModalProps> = ({
 
   const { data: alerts = [], isLoading } = useAlertsQuery(token, type);
   const resolveMutation = useResolveRefundMutation(token);
+  const t = useTranslations("billing");
 
   const handleResolve = async (id: string, approveStatus: boolean) => {
     resolveMutation.mutate(
@@ -49,7 +51,7 @@ export const CriticalAlertsModal: React.FC<CriticalAlertsModalProps> = ({
     );
   };
 
-  const title = type === "failed" ? "Failed Payments" : "Pending Refunds";
+  const title = type === "failed" ? t("failed_payments") : t("pending_refunds");
   const icon =
     type === "failed" ? (
       <XCircle className="w-5 h-5" />
@@ -100,7 +102,7 @@ export const CriticalAlertsModal: React.FC<CriticalAlertsModalProps> = ({
           <div>
             <h2 className="text-xl font-black italic tracking-tighter text-white uppercase">{title}</h2>
             <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40">
-              {alerts.length} {type === "failed" ? "critical failures" : "requests requiring attention"}
+              {alerts.length} {type === "failed" ? t("critical_failures") : t("requests_requiring_attention")}
             </p>
           </div>
         </div>
@@ -118,7 +120,7 @@ export const CriticalAlertsModal: React.FC<CriticalAlertsModalProps> = ({
           <div className="flex flex-col items-center justify-center py-12 gap-4">
             <div className="w-10 h-10 border-2 border-teal-500/20 border-t-teal-500 rounded-full animate-spin" />
             <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40">
-              Synchronizing alert data...
+              {t("syncing_alert_data")}
             </p>
           </div>
         ) : alerts.length === 0 ? (
@@ -126,9 +128,9 @@ export const CriticalAlertsModal: React.FC<CriticalAlertsModalProps> = ({
             <div className="inline-flex p-4 rounded-full bg-emerald-500/10 mb-4">
               <CheckCircle className="w-8 h-8 text-emerald-500" />
             </div>
-            <h3 className="text-white font-semibold text-lg mb-1">Queue Clear</h3>
+            <h3 className="text-white font-semibold text-lg mb-1">{t("queue_clear")}</h3>
             <p className="text-white/40 text-sm">
-              No {title.toLowerCase()} require intervention at this time.
+              {t("no_alerts_require_intervention", { title: title.toLowerCase() })}
             </p>
           </div>
         ) : (
@@ -157,7 +159,7 @@ export const CriticalAlertsModal: React.FC<CriticalAlertsModalProps> = ({
                       <div className="space-y-1">
                         <div className="flex items-center gap-2 text-[10px] text-gray-500 uppercase tracking-widest font-bold">
                           <Buildings className="w-3 h-3" />
-                          Organization
+                          {t("organization")}
                         </div>
                         <div className="text-sm text-white font-medium truncate">
                           {alert.organization_id}
@@ -166,7 +168,7 @@ export const CriticalAlertsModal: React.FC<CriticalAlertsModalProps> = ({
                       <div className="space-y-1 text-right">
                         <div className="flex items-center justify-end gap-2 text-[10px] text-gray-500 uppercase tracking-widest font-bold">
                           <CurrencyDollar className="w-3 h-3" />
-                          Amount
+                          {t("amount")}
                         </div>
                         <div className="text-lg font-black text-white tabular-nums">
                           {alert.amount.toLocaleString("en-US", {
@@ -196,7 +198,7 @@ export const CriticalAlertsModal: React.FC<CriticalAlertsModalProps> = ({
                         ) : (
                           <CheckCircle className="w-3.5 h-3.5" />
                         )}
-                        APPROVE
+                        {t("approve")}
                       </button>
                       <button
                         onClick={() => handleResolve(alert.id, false)}
@@ -204,7 +206,7 @@ export const CriticalAlertsModal: React.FC<CriticalAlertsModalProps> = ({
                         className="flex items-center justify-center gap-2 px-4 py-2 bg-white/5 text-red-400 rounded-lg text-xs font-bold hover:bg-red-500/10 disabled:opacity-50 transition-colors border border-red-500/20"
                       >
                         <XCircle className="w-3.5 h-3.5" />
-                        DECLINE
+                        {t("decline")}
                       </button>
                     </div>
                   )}
@@ -243,13 +245,13 @@ export const CriticalAlertsModal: React.FC<CriticalAlertsModalProps> = ({
         <div className="relative px-8 py-5 flex items-center justify-between">
           <div className="flex items-center gap-2 text-white/30">
             <Warning size={14} />
-            <span className="text-[10px] font-mono uppercase tracking-[0.15em]">Administrative action required</span>
+            <span className="text-[10px] font-mono uppercase tracking-[0.15em]">{t("admin_action_required")}</span>
           </div>
           <button
             onClick={onClose}
             className="px-5 py-3 rounded-2xl bg-white/5 border border-white/10 text-white/60 text-sm font-semibold hover:bg-white/10 transition-colors"
           >
-            Dismiss
+            {t("dismiss")}
           </button>
         </div>
       </div>

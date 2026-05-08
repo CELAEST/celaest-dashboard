@@ -2,6 +2,7 @@ import React from "react";
 import { PauseCircle, XCircle, ArrowCircleDown } from "@phosphor-icons/react";
 import { motion } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 
 interface SubscriptionActionsProps {
   showPauseConfirm: boolean;
@@ -20,6 +21,7 @@ export const SubscriptionActions: React.FC<SubscriptionActionsProps> = ({
 }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const t = useTranslations("billing");
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -50,14 +52,14 @@ export const SubscriptionActions: React.FC<SubscriptionActionsProps> = ({
                   isDark ? "text-white" : "text-gray-900"
                 }`}
               >
-                Pause Subscription
+                {t("pause_subscription")}
               </div>
               <div
                 className={`text-[10px] ${
                   isDark ? "text-gray-400" : "text-gray-500"
                 }`}
               >
-                Temporarily pause billing
+                {t("temporarily_pause_billing")}
               </div>
             </div>
           </div>
@@ -98,14 +100,14 @@ export const SubscriptionActions: React.FC<SubscriptionActionsProps> = ({
                   isDark ? "text-white" : "text-gray-900"
                 }`}
               >
-                Cancel Subscription
+                {t("cancel_subscription")}
               </div>
               <div
                 className={`text-[10px] ${
                   isDark ? "text-gray-400" : "text-gray-500"
                 }`}
               >
-                End your subscription
+                {t("end_your_subscription")}
               </div>
             </div>
           </div>

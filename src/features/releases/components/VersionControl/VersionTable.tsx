@@ -10,6 +10,7 @@ import {
   XCircle,
   DotsThreeVertical,
 } from "@phosphor-icons/react";
+import { useTranslations } from "next-intl";
 
 interface VersionTableProps {
   versions: Version[];
@@ -40,6 +41,7 @@ export const VersionTable: React.FC<VersionTableProps> = memo(
     const { theme } = useTheme();
     const isDark = theme === "dark";
     const [menuState, setMenuState] = useState<ReleaseMenuState | null>(null);
+    const t = useTranslations("releases");
 
     const activeVersion = menuState
       ? (versions.find((v) => v.id === menuState.id) ?? null)
@@ -77,7 +79,7 @@ export const VersionTable: React.FC<VersionTableProps> = memo(
       return [
         {
           id: "release",
-          header: "Release",
+          header: t("table_release"),
           cell: ({ row }) => {
             const version = row.original;
             const barColor =
@@ -136,7 +138,7 @@ export const VersionTable: React.FC<VersionTableProps> = memo(
         },
         {
           id: "releaseDate",
-          header: "Date",
+          header: t("table_date"),
           accessorKey: "releaseDate",
           cell: ({ row }) => {
             const version = row.original;
@@ -158,7 +160,7 @@ export const VersionTable: React.FC<VersionTableProps> = memo(
                     isDark ? "text-gray-700" : "text-gray-400"
                   }`}
                 >
-                  release date
+                  {t("table_release_date")}
                 </span>
               </div>
             );
@@ -166,7 +168,7 @@ export const VersionTable: React.FC<VersionTableProps> = memo(
         },
         {
           id: "checksum",
-          header: "Checksum",
+          header: t("table_checksum"),
           accessorKey: "checksum",
           cell: ({ row }) => {
             const version = row.original;
@@ -186,7 +188,7 @@ export const VersionTable: React.FC<VersionTableProps> = memo(
                     isDark ? "text-gray-700" : "text-gray-400"
                   }`}
                 >
-                  SHA-256
+                  {t("table_sha_256")}
                 </span>
               </div>
             );
@@ -194,7 +196,7 @@ export const VersionTable: React.FC<VersionTableProps> = memo(
         },
         {
           id: "downloads",
-          header: "Downloads",
+          header: t("table_downloads"),
           accessorKey: "downloads",
           cell: ({ row }) => {
             const version = row.original;
@@ -212,7 +214,7 @@ export const VersionTable: React.FC<VersionTableProps> = memo(
                     isDark ? "text-gray-700" : "text-gray-400"
                   }`}
                 >
-                  downloads
+                  {t("table_downloads_lower")}
                 </span>
               </div>
             );
@@ -220,7 +222,7 @@ export const VersionTable: React.FC<VersionTableProps> = memo(
         },
         {
           id: "adoption",
-          header: "Adoption",
+          header: t("table_adoption"),
           accessorKey: "adoptionRate",
           cell: ({ row }) => {
             const version = row.original;
@@ -268,7 +270,7 @@ export const VersionTable: React.FC<VersionTableProps> = memo(
         },
         {
           id: "actions",
-          header: () => <div className="text-right">Actions</div>,
+          header: () => <div className="text-right">{t("table_actions")}</div>,
           cell: ({ row }) => {
             const version = row.original;
             return (
@@ -305,7 +307,7 @@ export const VersionTable: React.FC<VersionTableProps> = memo(
           },
         },
       ];
-    }, [isDark]);
+    }, [isDark, t]);
 
     return (
       <div className="w-full">
@@ -318,8 +320,8 @@ export const VersionTable: React.FC<VersionTableProps> = memo(
           isFetchingNextPage={isFetchingNextPage}
           onLoadMore={onLoadMore}
           onRowClick={onViewDetails}
-          emptyMessage="No versions found"
-          emptySubmessage="Create your first release version."
+          emptyMessage={t("empty_versions_title")}
+          emptySubmessage={t("empty_versions_desc")}
           hideFooter={hideFooter}
           bodyCellClassName="p-0"
         />

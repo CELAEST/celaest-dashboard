@@ -4,9 +4,11 @@ import React, { forwardRef } from "react";
 import { MagnifyingGlass, Funnel } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useMarketplaceProducts } from "../hooks/useMarketplaceProducts";
+import { useTranslations } from "next-intl";
 
 export const MarketplaceSearch = React.memo(
   forwardRef<HTMLDivElement>(function MarketplaceSearch(_, ref) {
+    const t = useTranslations("marketplace");
     const { theme } = useTheme();
     const { filters, searchWithDebounce, refresh } = useMarketplaceProducts();
     const isDark = theme === "dark";
@@ -46,7 +48,7 @@ export const MarketplaceSearch = React.memo(
             />
             <input
               type="text"
-              placeholder="¿Qué necesitas automatizar hoy?"
+              placeholder={t("what_to_automate_today")}
               defaultValue={filters.q || ""}
               onChange={(e) => searchWithDebounce(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -70,7 +72,7 @@ export const MarketplaceSearch = React.memo(
               `}
             >
               <Funnel size={16} />
-              Filtros
+              {t("filters")}
             </button>
             <button
               onClick={handleSearchClick}
@@ -83,7 +85,7 @@ export const MarketplaceSearch = React.memo(
                 }
               `}
             >
-              Buscar
+              {t("search")}
             </button>
           </div>
         </div>

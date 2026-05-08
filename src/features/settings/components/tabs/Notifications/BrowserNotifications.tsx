@@ -2,21 +2,23 @@ import React, { memo } from "react";
 import { Globe } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 export const BrowserNotifications: React.FC = memo(() => {
   const { isDark } = useTheme();
+  const t = useTranslations("settings");
 
   const handleRequestPermission = () => {
     if ("Notification" in window) {
       Notification.requestPermission().then((permission) => {
         if (permission === "granted") {
-          toast.success("Browser alerts enabled!");
+          toast.success(t("browser_alerts_enabled"));
         } else {
-          toast.error("Permission denied");
+          toast.error(t("permission_denied"));
         }
       });
     } else {
-      toast.error("Browser does not support notifications");
+      toast.error(t("browser_not_supported"));
     }
   };
 
@@ -39,14 +41,14 @@ export const BrowserNotifications: React.FC = memo(() => {
             <p
               className={`font-bold ${isDark ? "text-white" : "text-gray-900"}`}
             >
-              Browser Notifications
+              {t("browser_notifications")}
             </p>
             <p
               className={`text-sm ${
                 isDark ? "text-gray-500" : "text-gray-400"
               }`}
             >
-              Show real-time alerts in your web browser.
+              {t("browser_notifications_desc")}
             </p>
           </div>
         </div>
@@ -54,7 +56,7 @@ export const BrowserNotifications: React.FC = memo(() => {
           onClick={handleRequestPermission}
           className="px-6 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-black tracking-widest active:scale-95 transition-all"
         >
-          ENABLE BROWSER ALERTS
+          {t("enable_browser_alerts")}
         </button>
       </div>
     </div>

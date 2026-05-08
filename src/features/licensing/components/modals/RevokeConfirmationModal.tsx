@@ -3,6 +3,7 @@ import { Warning, ShieldSlash, X } from "@phosphor-icons/react";
 import { motion, AnimatePresence } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useEscapeKey } from "@/features/shared/hooks/useEscapeKey";
+import { useTranslations } from "next-intl";
 
 interface RevokeConfirmationModalProps {
   isOpen: boolean;
@@ -20,6 +21,7 @@ export const RevokeConfirmationModal: React.FC<
   RevokeConfirmationModalProps
 > = ({ isOpen, onClose, onConfirm, licenseId, ipCount }) => {
   const { isDark } = useTheme();
+  const t = useTranslations("licensing");
 
   // Keyboard accessibility: Esc to close
   useEscapeKey(onClose, isOpen);
@@ -66,17 +68,19 @@ export const RevokeConfirmationModal: React.FC<
                 <h2
                   className={`text-2xl font-black uppercase tracking-tighter italic ${isDark ? "text-white" : "text-gray-900"}`}
                 >
-                  Authorization Revocation
+                  {t("revoke_auth_title")}
                 </h2>
                 <p
                   className={`mt-2 text-sm font-medium px-4 ${isDark ? "text-gray-400" : "text-gray-500"}`}
                 >
-                  You are about to permanently deauthorize license{" "}
-                  <span className="font-mono font-bold text-rose-500">
-                    {licenseId}
-                  </span>
-                  . This action is irreversible and will immediately disconnect
-                  all active clients.
+                  {t.rich("revoke_auth_desc", {
+                    id: licenseId,
+                    mono: (chunks) => (
+                      <span className="font-mono font-bold text-rose-500">
+                        {chunks}
+                      </span>
+                    ),
+                  })}
                 </p>
               </div>
 
@@ -92,11 +96,10 @@ export const RevokeConfirmationModal: React.FC<
                   <p
                     className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-amber-500/80" : "text-amber-600"}`}
                   >
-                    System Warning
+                    {t("system_warning")}
                   </p>
                   <p className="text-xs text-gray-500 font-medium mt-0.5 leading-relaxed">
-                    Revoking this license will impact {ipCount} users currently
-                    active on the network.
+                    {t("revoke_impact_warning", { count: ipCount })}
                   </p>
                 </div>
               </div>
@@ -110,7 +113,7 @@ export const RevokeConfirmationModal: React.FC<
                       : "bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700"
                   }`}
                 >
-                  Cancel Protocol
+                  {t("cancel_protocol")}
                 </button>
                 <button
                   onClick={() => {
@@ -123,7 +126,7 @@ export const RevokeConfirmationModal: React.FC<
                       : "bg-rose-600 text-white hover:bg-rose-700 shadow-rose-600/30"
                   }`}
                 >
-                  Confirm Deauthorization
+                  {t("confirm_deauthorization")}
                 </button>
               </div>
             </div>
