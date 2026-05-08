@@ -17,7 +17,10 @@ export const AuthHeader: React.FC<AuthHeaderProps> = ({ isDark }) => {
       transition={{ delay: 0.2 }}
     >
       <div className="w-12 h-12 shrink-0 flex items-center justify-center">
-        <Logo className="w-full h-full" color={isDark ? "#22d3ee" : "#2563eb"} />
+        <Logo
+          className="w-full h-full"
+          color={isDark ? "#22d3ee" : "#2563eb"}
+        />
       </div>
       <div className="flex flex-col shrink-0 leading-none whitespace-nowrap">
         <span
