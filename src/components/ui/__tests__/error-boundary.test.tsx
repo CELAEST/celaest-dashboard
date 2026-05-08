@@ -16,6 +16,7 @@ import { ErrorBoundary } from "../error-boundary";
 // Suppress React error boundary console noise during tests
 beforeEach(() => {
   vi.spyOn(console, "error").mockImplementation(() => {});
+  document.documentElement.lang = "es";
 });
 
 // ---------------------------------------------------------------------------

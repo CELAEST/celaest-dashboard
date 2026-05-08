@@ -134,11 +134,11 @@ describe("OrgSwitcher — Create Workspace plan gate", () => {
 
     // Wait for dropdown animation to complete and "Create workspace" to appear
     await waitFor(() => {
-      expect(screen.getByText(/create workspace/i)).toBeVisible();
+      expect(screen.getByText(/crear workspace/i)).toBeVisible();
     });
 
     // Click the "Create workspace" button
-    fireEvent.click(screen.getByText(/create workspace/i));
+    fireEvent.click(screen.getByText(/crear workspace/i));
   };
 
   it("redirects to billing when user has no active plan", async () => {
