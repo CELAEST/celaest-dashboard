@@ -8,9 +8,10 @@ import { useEscapeKey } from "@/features/shared/hooks/useEscapeKey";
 import { createPortal } from "react-dom";
 import { ProductModalTabs } from "./ProductModalTabs";
 import { ProductModalSidebar } from "./ProductModalSidebar";
-import { MarketplaceProduct } from "../../types";
 import { useProductDetail } from "../../hooks/useProductDetail";
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
+import { MarketplaceProduct } from "../../types";
+import { useTranslations } from "next-intl";
 
 interface ProductDetailModalProps {
   initialProduct: MarketplaceProduct;
@@ -31,6 +32,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   onDownload,
   onViewLicense,
 }) => {
+  const t = useTranslations("marketplace");
   const { theme } = useTheme();
   const [activeTab, setActiveTab] = React.useState("overview");
   const [mounted, setMounted] = React.useState(false);
@@ -72,7 +74,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           className={`
-            relative shrink-0 w-[72rem] min-w-[320px] sm:min-w-[72rem] max-w-[95vw] max-h-[90vh] overflow-y-auto rounded-3xl border shadow-2xl
+            relative shrink-0 w-6xl min-w-[320px] sm:min-w-6xl max-w-[95vw] max-h-[90vh] overflow-y-auto rounded-3xl border shadow-2xl
             ${
               theme === "dark"
                 ? "bg-black/90 backdrop-blur-xl border-white/10"
@@ -103,7 +105,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   }
                 `}
                 >
-                  {product.category_name || "General"}
+                  {product.category_name || t("general")}
                 </span>
 
                 {/* Secondary Tags in Header */}
@@ -134,7 +136,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                     }
                   `}
                   >
-                    POPULAR
+                    {t("popular")}
                   </span>
                 )}
               </div>
@@ -157,12 +159,12 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                       ? product.rating_avg.toFixed(1)
                       : "N/A"}
                   </span>
-                  <span>({product.rating_count} reviews)</span>
+                  <span>({product.rating_count} {t("reviews_count")})</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Calendar className="size-4" />
                   <span>
-                    Published{" "}
+                    {t("published")}{" "}
                     {new Date(product.created_at).toLocaleDateString()}
                   </span>
                 </div>

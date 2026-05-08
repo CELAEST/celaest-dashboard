@@ -6,6 +6,7 @@ import { Star, DownloadSimple, CaretRight, Lock } from "@phosphor-icons/react";
 import { AssetTypeIcon } from "./shared/AssetTypeIcon";
 import { getAssetTypeLabel } from "../utils/assetUtils";
 import { Asset } from "../services/assets.service";
+import { useTranslations } from "next-intl";
 
 interface MarketplaceCardProps {
   product: Asset; // Expecting Asset or MockAsset
@@ -20,6 +21,7 @@ export const MarketplaceCard: React.FC<MarketplaceCardProps> = ({
   onViewDetails,
   index,
 }) => {
+  const t = useTranslations("marketplace");
   return (
     <motion.div
       layout
@@ -84,7 +86,7 @@ export const MarketplaceCard: React.FC<MarketplaceCardProps> = ({
                     : "bg-violet-500/90 border border-violet-600 text-white"
                 }`}
               >
-                <span className="text-xs font-bold">PLAN</span>
+                <span className="text-xs font-bold">{t("plan_badge")}</span>
               </div>
             ) : (
               <div
@@ -94,7 +96,7 @@ export const MarketplaceCard: React.FC<MarketplaceCardProps> = ({
                     : "bg-emerald-500/90 border border-emerald-600 text-white"
                 }`}
               >
-                <span className="text-xs font-bold">OWNED</span>
+                <span className="text-xs font-bold">{t("owned_badge")}</span>
               </div>
             )}
           </div>
@@ -190,12 +192,12 @@ export const MarketplaceCard: React.FC<MarketplaceCardProps> = ({
         >
           {product.isPurchased ? (
             <>
-              View Details
+              {t("view_details")}
               <CaretRight size={16} />
             </>
           ) : (
             <>
-              View Details
+              {t("view_details")}
               <Lock size={14} />
             </>
           )}

@@ -1,4 +1,4 @@
-﻿import { logger } from "@/lib/logger";
+import { logger } from "@/lib/logger";
 import React, { useEffect, useState } from "react";
 import { LicenseFormData } from "@/features/licensing/hooks/useCreateLicense";
 import { UseFormReturn } from "react-hook-form";
@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { licensingService } from "@/features/licensing/services/licensing.service";
 import { SubscriptionPlan } from "@/features/licensing/types";
+import { useTranslations } from "next-intl";
 
 interface LicenseFormProps {
   form: UseFormReturn<LicenseFormData>;
@@ -24,6 +25,7 @@ interface LicenseFormProps {
 }
 
 export const LicenseForm: React.FC<LicenseFormProps> = ({ form, loading: _loading }) => {
+  const t = useTranslations("licensing");
   const { watch, setValue, formState: { errors } } = form;
   const currentCycle = watch("billing_cycle");
   const currentPlanId = watch("plan_id");
@@ -62,7 +64,7 @@ export const LicenseForm: React.FC<LicenseFormProps> = ({ form, loading: _loadin
       {/* Billing Cycle */}
       <div className="space-y-2">
         <label className="text-[10px] uppercase font-black tracking-widest text-white/40">
-          Billing Cycle
+          {t("billing_cycle")}
         </label>
         <div className="flex bg-white/5 border border-white/10 rounded-2xl p-1">
           {CYCLES.map((cycle) => (
@@ -90,7 +92,7 @@ export const LicenseForm: React.FC<LicenseFormProps> = ({ form, loading: _loadin
         {fetchingPlans ? (
           <div className="space-y-2">
             <label className="text-[10px] uppercase font-black tracking-widest text-white/40">
-              Subscription Plan
+              {t("subscription_plan")}
             </label>
             <div className="w-full h-12 rounded-2xl animate-pulse bg-white/5 border border-white/10" />
           </div>
@@ -101,7 +103,7 @@ export const LicenseForm: React.FC<LicenseFormProps> = ({ form, loading: _loadin
             render={({ field }) => (
               <FormItem>
                 <label className="text-[10px] uppercase font-black tracking-widest text-white/40">
-                  Subscription Plan
+                  {t("subscription_plan")}
                 </label>
                 <Select
                   onValueChange={field.onChange}
@@ -111,7 +113,7 @@ export const LicenseForm: React.FC<LicenseFormProps> = ({ form, loading: _loadin
                   <FormControl>
                     <SelectTrigger className="h-12 rounded-2xl bg-white/5 border-white/10 text-white text-sm px-5 mt-2">
                       <SelectValue
-                        placeholder={plans.length === 0 ? "No plans available" : "Select a plan..."}
+                        placeholder={plans.length === 0 ? t("no_plans_available") : t("select_plan")}
                       />
                     </SelectTrigger>
                   </FormControl>
@@ -136,12 +138,12 @@ export const LicenseForm: React.FC<LicenseFormProps> = ({ form, loading: _loadin
           render={({ field }) => (
             <FormItem>
               <label className="text-[10px] uppercase font-black tracking-widest text-white/40">
-                Notes (optional)
+                {t("notes")}
               </label>
               <FormControl>
                 <input
                   {...field}
-                  placeholder="Internal notes..."
+                  placeholder={t("internal_notes")}
                   className="w-full mt-2 bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-sm text-white focus:outline-none focus:border-amber-500/50 transition-colors placeholder:text-white/20"
                 />
               </FormControl>
@@ -153,7 +155,7 @@ export const LicenseForm: React.FC<LicenseFormProps> = ({ form, loading: _loadin
 
       {plans.length === 0 && !fetchingPlans && (
         <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-mono">
-          No active plans found. Please seed the plans first.
+          {t("no_active_plans")}
         </div>
       )}
     </div>

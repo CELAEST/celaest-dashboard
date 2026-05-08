@@ -8,6 +8,7 @@ import { useTheme } from "@/features/shared/hooks/useTheme";
 import { MarketplaceProduct } from "../types";
 import { formatCurrency } from "@/lib/utils";
 import { useMarketplaceCouponStore } from "../store";
+import { useTranslations } from "next-intl";
 
 interface ProductCardCompactProps {
   product: MarketplaceProduct;
@@ -30,6 +31,8 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
   const isDark = theme === "dark";
   const [isHovered, setIsHovered] = React.useState(false);
   const { activeCoupon } = useMarketplaceCouponStore();
+  const t = useTranslations("marketplace");
+  const tCommon = useTranslations("common");
 
   // Resolve effective access: prefer accessLevel prop, fallback to isOwned
   const effectiveAccess = accessLevel ?? (isOwned ? "owned" : "none");
@@ -143,12 +146,12 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
         {/* Plan tier badge — top right */}
         {(() => {
           const tierMap: Record<number, { label: string; cls: string }> = {
-            0: { label: "All Plans", cls: "bg-black/20 border-white/20 text-gray-200" },
+            0: { label: t("all_plans"), cls: "bg-black/20 border-white/20 text-gray-200" },
             1: { label: "Basic+", cls: "bg-emerald-700/40 border-emerald-800/30 text-emerald-200" },
             2: { label: "Pro", cls: "bg-violet-500/60 border-violet-500/60 text-violet-200" },
             3: { label: "Enterprise", cls: "bg-amber400/60 border-amber-400/30 text-amber-200" },
           };
-          const tier = tierMap[product.min_plan_tier] ?? { label: "Private", cls: "bg-red-900/60 border-red-400/30 text-red-200" };
+          const tier = tierMap[product.min_plan_tier] ?? { label: t("private"), cls: "bg-red-900/60 border-red-400/30 text-red-200" };
           return (
             <div className="absolute top-3 right-3 z-20">
               <div className={`px-2 py-0.5 rounded-full backdrop-blur-md border text-[8px] font-black uppercase tracking-widest ${tier.cls}`}>
@@ -162,7 +165,7 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
         <div className="absolute bottom-3 left-3 z-20">
           <div className="flex flex-col">
             <span className="text-white/60 text-[8px] font-bold uppercase tracking-widest mb-0.5">
-              Price
+              {tCommon("price")}
             </span>
             <div className="flex flex-col items-start leading-[1.1]">
               {activeCoupon && (
@@ -212,7 +215,7 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
               <span
                 className={`text-[9px] font-black uppercase tracking-widest ${isDark ? "text-gray-500" : "text-gray-400"}`}
               >
-                {reviews} reviews
+                {reviews} {tCommon("reviews")}
               </span>
             </div>
           </div>
@@ -264,7 +267,7 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
             }`}
           >
             <Eye size={14} strokeWidth={3} />
-            Explore
+            {tCommon("explore")}
           </motion.button>
 
           <motion.button
@@ -299,18 +302,18 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
               effectiveAccess === "plan" ? (
                 <>
                   <Check size={14} strokeWidth={3} />
-                  En Plan
+                  {t("in_plan")}
                 </>
               ) : (
                 <>
                   <Check size={14} strokeWidth={3} />
-                  Adquirido
+                  {t("acquired")}
                 </>
               )
             ) : (
               <>
                 <ShoppingCart size={14} strokeWidth={3} />
-                Acquire
+                {t("acquire")}
               </>
             )}
           </motion.button>

@@ -3,14 +3,14 @@ import Image from "next/image";
 import { motion } from "motion/react";
 import { Star, Quotes } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 
-const testimonials = [
+const testimonialsMeta = [
   {
     id: 1,
     name: "Carlos Mendoza",
     role: "CEO, TechFlow Solutions",
-    content:
-      "Implementamos el sistema en menos de 10 minutos. No podía creer lo simple que era. El soporte es excepcional.",
+    contentKey: "testimonial_1_content",
     rating: 5,
     avatar:
       "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?crop=entropy&cs=tinysrgb&fit=max&fm=webp&w=100",
@@ -19,8 +19,7 @@ const testimonials = [
     id: 2,
     name: "María González",
     role: "Directora de Operaciones, Innovatech",
-    content:
-      "La transparencia en los precios y la claridad del proceso me dieron total confianza. Vale cada centavo.",
+    contentKey: "testimonial_2_content",
     rating: 5,
     avatar:
       "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?crop=entropy&cs=tinysrgb&fit=max&fm=webp&w=100",
@@ -29,8 +28,7 @@ const testimonials = [
     id: 3,
     name: "Roberto Silva",
     role: "CTO, DataCorp",
-    content:
-      "Finalmente una solución empresarial que no requiere un equipo técnico para configurar. Increíble.",
+    contentKey: "testimonial_3_content",
     rating: 5,
     avatar:
       "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?crop=entropy&cs=tinysrgb&fit=max&fm=webp&w=100",
@@ -39,6 +37,7 @@ const testimonials = [
 
 export const TestimonialsSection: React.FC = () => {
   const { theme } = useTheme();
+  const t = useTranslations("marketplace");
 
   return (
     <div className="py-16">
@@ -51,17 +50,17 @@ export const TestimonialsSection: React.FC = () => {
         <h2
           className={`text-3xl font-bold mb-3 ${theme === "dark" ? "text-white" : "text-gray-900"}`}
         >
-          Empresas que Confían en Nosotros
+          {t("companies_trust_us")}
         </h2>
         <p
           className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}
         >
-          Miles de empresas ya están usando nuestras soluciones
+          {t("companies_trust_us_desc")}
         </p>
       </motion.div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {testimonials.map((testimonial, index) => (
+        {testimonialsMeta.map((testimonial, index) => (
           <motion.div
             key={testimonial.id}
             initial={{ opacity: 0, y: 20 }}
@@ -98,7 +97,7 @@ export const TestimonialsSection: React.FC = () => {
             <p
               className={`text-sm mb-6 leading-relaxed relative z-10 ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
             >
-              {testimonial.content}
+              {t(testimonial.contentKey)}
             </p>
 
             {/* Author */}
@@ -135,7 +134,7 @@ export const TestimonialsSection: React.FC = () => {
                 }
               `}
             >
-              ✓ Verificado
+              ✓ {t("verified_badge")}
             </div>
           </motion.div>
         ))}

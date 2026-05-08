@@ -3,6 +3,7 @@ import { ShieldWarning } from "@phosphor-icons/react";
 import { motion } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import type { IPBinding } from "@/features/licensing/types";
+import { useTranslations } from "next-intl";
 
 interface CollisionCardProps {
   collision: IPBinding;
@@ -20,6 +21,7 @@ export const CollisionCard: React.FC<CollisionCardProps> = ({
   onRevokeClick,
 }) => {
   const { isDark } = useTheme();
+  const t = useTranslations("licensing");
 
   return (
     <motion.div
@@ -54,23 +56,20 @@ export const CollisionCard: React.FC<CollisionCardProps> = ({
                   isDark ? "text-white" : "text-gray-900"
                 }`}
               >
-                Collision Protocol
+                {t("collision_protocol")}
               </h3>
               <span className="px-2 py-0.5 rounded-sm bg-rose-500 text-white text-[10px] font-black uppercase tracking-widest animate-pulse">
-                Critical
+                {t("critical")}
               </span>
             </div>
             <p
               className={`text-sm mt-1 font-medium ${isDark ? "text-gray-400" : "text-gray-600"}`}
             >
-              IP{" "}
-              <span className="font-mono font-bold text-rose-500">
-                {collision.ip_address}
-              </span>{" "}
-              detected on license{" "}
-              <span className="font-mono font-bold">
-                {collision.license_id}
-              </span>
+              {t.rich("ip_detected_on", {
+                ip: collision.ip_address,
+                license: collision.license_id,
+                mono: (chunks) => <span className="font-mono font-bold text-rose-500">{chunks}</span>
+              })}
             </p>
             <div className="flex items-center gap-4 mt-3">
               <div className="flex -space-x-2">
@@ -82,7 +81,7 @@ export const CollisionCard: React.FC<CollisionCardProps> = ({
                 ))}
               </div>
               <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">
-                {collision.request_count} requests from this IP
+                {t("requests_from_ip", { count: collision.request_count })}
               </span>
             </div>
           </div>
@@ -96,7 +95,7 @@ export const CollisionCard: React.FC<CollisionCardProps> = ({
               : "bg-rose-600 text-white hover:bg-rose-700 shadow-lg shadow-rose-600/30"
           }`}
         >
-          Terminate Key
+          {t("terminate_key")}
         </button>
       </div>
     </motion.div>

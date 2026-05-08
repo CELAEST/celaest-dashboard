@@ -1,9 +1,11 @@
 import React, { memo } from "react";
 import { Warning } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 
 export const ApiSecurityAlert: React.FC = memo(() => {
   const { isDark } = useTheme();
+  const t = useTranslations("settings");
 
   return (
     <div
@@ -23,16 +25,14 @@ export const ApiSecurityAlert: React.FC = memo(() => {
               isDark ? "text-amber-400" : "text-amber-700"
             }`}
           >
-            API KEY SECURITY
+            {t("api_key_security")}
           </p>
           <p
             className={`text-xs mt-1 leading-relaxed font-medium ${
               isDark ? "text-amber-400/60" : "text-amber-600/70"
             }`}
           >
-            Your API keys carry significant privileges. Never share them in
-            publicly accessible areas. If you believe a key has been
-            compromised, regenerate it immediately.
+            {t("api_key_security_desc")}
           </p>
         </div>
       </div>

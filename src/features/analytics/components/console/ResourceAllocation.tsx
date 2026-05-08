@@ -2,6 +2,7 @@ import React from "react";
 import { motion } from "motion/react";
 import { Database, Cpu, HardDrives } from "@phosphor-icons/react";
 import type { useAnalytics } from "@/features/analytics/hooks/useAnalytics";
+import { useTranslations } from "next-intl";
 
 type AnalyticsData = ReturnType<typeof useAnalytics>;
 
@@ -47,23 +48,26 @@ const SvgMeter = ({ value, color, isDark }: { value: number, color: string, isDa
 
 export const ResourceAllocation = React.memo(
   ({ className, isDark, usage }: ResourceAllocationProps) => {
+    const t = useTranslations("analytics");
     const resourceData = React.useMemo(
       () => [
         {
-          name: "CPU Usage (API)",
+          key: "cpu_usage_api",
           value: Math.min(
             Math.round(((usage?.api_requests || 0) / 10000) * 100),
             100,
           ), // Mock calc
           color: "#3b82f6",
+          icon: "cpu" as const,
         },
         {
-          name: "Database Storage",
+          key: "database_storage",
           value: Math.min(
             Math.round(((usage?.storage_used_gb || 0) / 10) * 100),
             100,
           ), // Mock calc assuming 10GB limit
           color: "#8b5cf6",
+          icon: "db" as const,
         },
       ],
       [usage],
@@ -94,31 +98,31 @@ export const ResourceAllocation = React.memo(
             <h3
               className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-gray-400" : "text-gray-500"}`}
             >
-              Resources
+              {t("resources")}
             </h3>
           </div>
           <div
             className={`text-[10px] font-mono opacity-50 ${isDark ? "text-gray-400" : "text-gray-500"}`}
           >
-            org-node
+            {t("org_node")}
           </div>
         </div>
 
         <div className="space-y-4 my-3 flex-1 flex flex-col justify-center">
           {resourceData.map((resource) => (
-            <div key={resource.name} className="group/item">
+            <div key={resource.key} className="group/item">
               <div className="flex items-center justify-between mb-2">
                 <span
                   className={`text-[10px] uppercase font-bold tracking-wider flex items-center gap-2 ${
                     isDark ? "text-gray-400" : "text-gray-600"
                   }`}
                 >
-                  {resource.name.includes("CPU") ? (
+                  {resource.icon === "cpu" ? (
                     <Cpu className="w-3 h-3 opacity-60" />
                   ) : (
                     <Database className="w-3 h-3 opacity-60" />
                   )}
-                  {resource.name}
+                  {t(resource.key as Parameters<typeof t>[0])}
                 </span>
                 <span
                   className={`text-[11px] font-mono font-bold tabular-nums`}
@@ -138,7 +142,7 @@ export const ResourceAllocation = React.memo(
           <span
             className={`text-[9px] font-bold uppercase tracking-wider opacity-60 ${isDark ? "text-gray-400" : "text-gray-500"}`}
           >
-            Active Pods
+            {t("active_pods")}
           </span>
           <span
             className={`text-[11px] font-mono font-bold ${isDark ? "text-blue-400" : "text-blue-600"}`}

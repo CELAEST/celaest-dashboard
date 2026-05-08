@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
 import { socket } from "@/lib/socket-client";
 import { useEffect } from "react";
+import { useTranslations } from "next-intl";
 
 export interface NotificationItem {
   id: string;
@@ -29,6 +30,7 @@ export const useNotificationSettings = () => {
   const { session } = useAuthStore();
   const token = session?.accessToken;
   const queryClient = useQueryClient();
+  const t = useTranslations("settings");
 
   const { data: prefs = {
     email_activity: true,
@@ -88,7 +90,7 @@ export const useNotificationSettings = () => {
       if (context?.previous) {
         queryClient.setQueryData(NOTIF_QUERY_KEY, context.previous);
       }
-      toast.error("Failed to save preference");
+      toast.error(t("pref_save_error"));
     },
   });
 
@@ -99,39 +101,39 @@ export const useNotificationSettings = () => {
   const notificationSections: NotificationSection[] = useMemo(
     () => [
       {
-        title: "Email Notifications",
+        title: t("email_notifications"),
         icon: Envelope,
         items: [
           {
             id: "email_activity",
-            label: "Account Pulse",
-            desc: "Large orders, new logins, and security alerts.",
+            label: t("account_pulse"),
+            desc: t("account_pulse_desc"),
           },
           {
             id: "email_newsletter",
-            label: "Newsletter & Updates",
-            desc: "New features, tips, and marketplace news.",
+            label: t("newsletter_updates"),
+            desc: t("newsletter_updates_desc"),
           },
         ],
       },
       {
-        title: "Push Notifications",
+        title: t("push_notifications"),
         icon: DeviceMobile,
         items: [
           {
             id: "push_security",
-            label: "Security Alerts",
-            desc: "Critical alerts about your account security.",
+            label: t("security_alerts_push"),
+            desc: t("security_alerts_push_desc"),
           },
           {
             id: "push_mentions",
-            label: "Mentions & Comments",
-            desc: "When someone mentions you in a workspace.",
+            label: t("mentions_comments"),
+            desc: t("mentions_comments_desc"),
           },
         ],
       },
     ],
-    [],
+    [t],
   );
 
   return {

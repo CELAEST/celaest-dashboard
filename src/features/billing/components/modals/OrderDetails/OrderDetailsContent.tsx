@@ -2,14 +2,15 @@ import React from "react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { SettingsSelect } from "../../../../settings/components/SettingsSelect";
 import { Order, OrderActivityEvent } from "../../../types";
+import { useTranslations } from "next-intl";
 
-const EVENT_LABELS: Record<string, string> = {
-  created: "Order Created",
-  paid: "Payment Confirmed",
-  completed: "Order Completed",
-  cancelled: "Order Cancelled",
-  refunded: "Order Refunded",
-};
+const getEventLabels = (t: ReturnType<typeof import("next-intl").useTranslations>): Record<string, string> => ({
+  created: t("event_created"),
+  paid: t("event_paid"),
+  completed: t("event_completed"),
+  cancelled: t("event_cancelled"),
+  refunded: t("event_refunded"),
+});
 
 function formatEventDate(iso: string): string {
   try {
@@ -34,6 +35,8 @@ export const OrderDetailsContent: React.FC<OrderDetailsContentProps> = ({
 }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const t = useTranslations("billing");
+  const eventLabels = getEventLabels(t);
 
   // Events come sorted ASC from backend; show newest first for the timeline
   const sortedEvents = [...events].reverse();
@@ -47,7 +50,7 @@ export const OrderDetailsContent: React.FC<OrderDetailsContentProps> = ({
             isDark ? "text-gray-500" : "text-gray-400"
           }`}
         >
-          Digital Product
+          {t("digital_product")}
         </h3>
         <div
           className={`p-4 rounded-xl border transition-colors ${
@@ -69,8 +72,8 @@ export const OrderDetailsContent: React.FC<OrderDetailsContentProps> = ({
                 }`}
               >
                 {formData.itemType
-                  ? `Type: ${formData.itemType.charAt(0).toUpperCase() + formData.itemType.slice(1)}`
-                  : "Digital Product"}
+                  ? t("type_label", { type: formData.itemType.charAt(0).toUpperCase() + formData.itemType.slice(1) })
+                  : t("digital_product")}
               </div>
             </div>
           ) : (
@@ -80,7 +83,7 @@ export const OrderDetailsContent: React.FC<OrderDetailsContentProps> = ({
                   isDark ? "text-gray-400" : "text-gray-500"
                 }`}
               >
-                Product Name
+                {t("product_name")}
               </label>
               <input
                 type="text"
@@ -104,7 +107,7 @@ export const OrderDetailsContent: React.FC<OrderDetailsContentProps> = ({
             isDark ? "text-gray-500" : "text-gray-400"
           }`}
         >
-          Activity Log
+          {t("activity_log")}
         </h3>
         {mode === "view" ? (
           <div className="relative">
@@ -137,7 +140,7 @@ export const OrderDetailsContent: React.FC<OrderDetailsContentProps> = ({
                     isDark ? "text-gray-500" : "text-gray-400"
                   }`}
                 >
-                  Current Status
+                  {t("current_status")}
                 </div>
               </div>
 
@@ -158,7 +161,7 @@ export const OrderDetailsContent: React.FC<OrderDetailsContentProps> = ({
                         isDark ? "text-white" : "text-gray-900"
                       }`}
                     >
-                      {EVENT_LABELS[event.type] || event.type}
+                      {eventLabels[event.type] || event.type}
                     </div>
                     <div
                       className={`text-xs mt-1 ${
@@ -185,7 +188,7 @@ export const OrderDetailsContent: React.FC<OrderDetailsContentProps> = ({
                       isDark ? "text-white" : "text-gray-900"
                     }`}
                   >
-                    No events recorded
+                    {t("no_events_recorded")}
                   </div>
                   <div
                     className={`text-xs mt-1 ${
@@ -205,7 +208,7 @@ export const OrderDetailsContent: React.FC<OrderDetailsContentProps> = ({
                 isDark ? "text-gray-400" : "text-gray-500"
               }`}
             >
-              Update Status
+              {t("update_status")}
             </label>
             <SettingsSelect
               label=""

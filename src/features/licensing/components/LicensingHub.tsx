@@ -13,11 +13,13 @@ import { LicensingStats } from "./hub/LicensingStats";
 import { LicensingList } from "./hub/LicensingList";
 import { LicensingCollisions } from "./hub/LicensingCollisions";
 import { TableChrome } from "@/components/layout/TableChrome";
+import { useTranslations } from "next-intl";
 
 export const LicensingHub: React.FC = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const t = useTranslations("licensing");
 
   const {
     licenses,
@@ -93,11 +95,11 @@ export const LicensingHub: React.FC = () => {
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
                       <span className={`text-xs font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>
-                        All Licenses
+                        {t("all_licenses")}
                       </span>
                     </div>
                     <span className={`text-[11px] tabular-nums ${isDark ? "text-gray-500" : "text-gray-400"}`}>
-                      {licenses.length > 0 ? `Showing ${licenses.length} of ${total} entries` : ""}
+                      {licenses.length > 0 ? t("showing_entries", { current: licenses.length, total }) : ""}
                     </span>
                   </div>
                 }

@@ -4,6 +4,7 @@ import { TabOverview } from "./product-tabs/TabOverview";
 import { TabFeatures } from "./product-tabs/TabFeatures";
 import { TabReviews } from "./product-tabs/TabReviews";
 import { MarketplaceProduct, Review } from "../../types";
+import { useTranslations } from "next-intl";
 
 interface ProductModalTabsProps {
   product: MarketplaceProduct;
@@ -18,12 +19,13 @@ export const ProductModalTabs: React.FC<ProductModalTabsProps> = ({
   activeTab,
   setActiveTab,
 }) => {
+  const t = useTranslations("marketplace");
   const { theme } = useTheme();
 
   const tabs = [
-    { id: "overview", label: "Overview" },
-    { id: "features", label: "Features" },
-    { id: "reviews", label: "Reviews" },
+    { id: "overview", label: t("overview") },
+    { id: "features", label: t("features") },
+    { id: "reviews", label: t("reviews") },
   ];
 
   return (

@@ -1,6 +1,7 @@
 import React, { memo } from "react";
 import { Sparkle } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 
 interface UpdateSummaryProps {
   updateCount: number;
@@ -10,6 +11,7 @@ export const UpdateSummary: React.FC<UpdateSummaryProps> = memo(
   ({ updateCount }) => {
     const { theme } = useTheme();
     const isDark = theme === "dark";
+    const t = useTranslations("releases");
 
     return (
       <div
@@ -26,16 +28,16 @@ export const UpdateSummary: React.FC<UpdateSummaryProps> = memo(
                 isDark ? "text-white" : "text-gray-900"
               }`}
             >
-              {updateCount} Update
-              {updateCount !== 1 ? "s" : ""} Available
+              {updateCount === 1 
+                ? t("update_summary_title_single", { count: updateCount }) 
+                : t("update_summary_title_plural", { count: updateCount })}
             </h2>
             <p
               className={`text-sm ${
                 isDark ? "text-gray-400" : "text-gray-600"
               }`}
             >
-              Stay current with the latest features, security patches, and
-              performance improvements
+              {t("update_summary_desc")}
             </p>
           </div>
           <Sparkle

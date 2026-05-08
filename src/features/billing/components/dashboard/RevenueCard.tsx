@@ -4,6 +4,7 @@ import React from "react";
 import { motion } from "motion/react";
 import { CurrencyDollar } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 
 /* ───────────────────────────────────────────────────────────────
    BESPOKE SVG: Holographic Revenue Diamond
@@ -186,6 +187,7 @@ export const RevenueCard = React.memo(
   ({ totalRevenue, paidInvoices, refundedFunds, className }: RevenueCardProps) => {
     const { theme } = useTheme();
     const isDark = theme === "dark";
+    const t = useTranslations("billing");
 
     return (
       <motion.div
@@ -233,7 +235,7 @@ export const RevenueCard = React.memo(
                     : "bg-emerald-50 text-emerald-700 border-emerald-200"
                 }`}
               >
-                All Time
+                {t("all_time")}
               </div>
             </div>
 
@@ -244,7 +246,7 @@ export const RevenueCard = React.memo(
                   isDark ? "text-gray-400" : "text-gray-500"
                 }`}
               >
-                Total Revenue
+                {t("total_revenue")}
               </div>
               <div
                 className={`text-3xl sm:text-4xl lg:text-4xl font-black tracking-tighter tabular-nums transition-all duration-300 truncate ${
@@ -276,7 +278,7 @@ export const RevenueCard = React.memo(
                   isDark ? "text-emerald-200" : "text-emerald-700"
                 }`}
               >
-                Paid
+                {t("paid")}
               </div>
               <div
                 className={`text-xl lg:text-2xl font-bold tabular-nums relative z-10 ${
@@ -301,7 +303,7 @@ export const RevenueCard = React.memo(
                   isDark ? "text-orange-200" : "text-orange-700"
                 }`}
               >
-                Refunds
+                {t("refunds")}
               </div>
               <div
                 className={`text-xl lg:text-2xl font-bold tabular-nums relative z-10 ${

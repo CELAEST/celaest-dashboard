@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 
 interface InviteMemberModalProps {
   isOpen: boolean;
@@ -30,6 +31,8 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({
   onInvite,
 }) => {
   const { isDark } = useTheme();
+  const t = useTranslations("settings");
+  const tCommon = useTranslations("common");
 
   const form = useForm<InviteMemberFormData>({
     resolver: zodResolver(inviteMemberSchema),
@@ -52,7 +55,7 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({
   };
 
   return (
-    <SettingsModal isOpen={isOpen} onClose={onClose} title="Invite New Member">
+    <SettingsModal isOpen={isOpen} onClose={onClose} title={t("invite_new_member")}>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <FormField
@@ -60,13 +63,13 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email Address</FormLabel>
+                <FormLabel>{t("email_address")}</FormLabel>
                 <FormControl>
                   <div className="relative">
                     <Envelope className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
                       type="email"
-                      placeholder="colleague@company.com"
+                      placeholder={t("email_placeholder")}
                       autoFocus
                       className="pl-10 h-11 rounded-xl"
                       {...field}
@@ -84,15 +87,15 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({
                 isDark ? "text-gray-500" : "text-gray-400"
               }`}
             >
-              Assigned Role
+              {t("assigned_role")}
             </label>
             <div className="grid grid-cols-2 gap-4">
               {[
-                { id: "viewer", label: "Member", desc: "Can view and edit" },
+                { id: "viewer", label: t("role_member_label"), desc: t("role_member_desc") },
                 {
                   id: "admin",
-                  label: "Admin",
-                  desc: "Full access to settings",
+                  label: t("role_admin_label"),
+                  desc: t("role_admin_desc"),
                 },
               ].map((role) => (
                 <button
@@ -143,14 +146,14 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({
                   : "border-gray-200 text-gray-600 hover:bg-gray-50"
               }`}
             >
-              Cancel
+              {tCommon("cancel")}
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
               className="flex-1 px-4 py-3 rounded-xl bg-linear-to-r from-cyan-600 to-blue-600 text-white font-black shadow-lg shadow-cyan-500/20 active:scale-95 transition-all disabled:opacity-50"
             >
-              {isSubmitting ? "Sending..." : "PaperPlaneTilt Invitation"}
+              {isSubmitting ? tCommon("sending") : t("send_invitation")}
             </button>
           </div>
         </form>

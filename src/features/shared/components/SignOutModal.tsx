@@ -65,7 +65,7 @@ export const SignOutModal: React.FC<SignOutModalProps> = ({
     <AnimatePresence>
       {isOpen && (
         <div
-          className="fixed inset-0 z-[120] flex items-center justify-center p-4 sm:p-6"
+          className="fixed inset-0 z-120 flex items-center justify-center p-4 sm:p-6"
           role="dialog"
           aria-modal="true"
         >
@@ -84,7 +84,7 @@ export const SignOutModal: React.FC<SignOutModalProps> = ({
               exit={{ opacity: 0, scale: 0.96, y: 16 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
               onClick={(event) => event.stopPropagation()}
-              className="pointer-events-auto relative shrink-0 w-[34rem] min-w-[320px] sm:min-w-[34rem] max-w-[90vw]"
+              className="pointer-events-auto relative shrink-0 w-136 min-w-80 sm:min-w-136 max-w-[90vw]"
             >
               <SignOutCard
                 onClose={onClose}

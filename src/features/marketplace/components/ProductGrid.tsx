@@ -5,6 +5,7 @@ import { ProductCard } from "./ProductCard";
 import { MarketplaceProduct } from "../types";
 import { AnimatePresence } from "framer-motion";
 import { ShoppingBag } from "@phosphor-icons/react";
+import { useTranslations } from "next-intl";
 
 interface ProductGridProps {
   products: MarketplaceProduct[];
@@ -15,6 +16,8 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
   products,
   loading,
 }) => {
+  const t = useTranslations("marketplace");
+
   if (loading) {
     return (
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -35,10 +38,10 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
           <ShoppingBag className="h-8 w-8" />
         </div>
         <h3 className="text-xl font-semibold text-white">
-          No se encontraron productos
+          {t("no_products_found")}
         </h3>
         <p className="mt-2 text-sm text-white/50">
-          Prueba ajustando tus filtros de búsqueda.
+          {t("try_adjusting_filters")}
         </p>
       </div>
     );

@@ -5,6 +5,7 @@ import { useTheme } from "@/features/shared/hooks/useTheme";
 import type { IPBinding } from "@/features/licensing/types";
 import { CollisionCard } from "./CollisionCard";
 import { RevokeConfirmationModal } from "../modals/RevokeConfirmationModal";
+import { useTranslations } from "next-intl";
 
 interface LicensingCollisionsProps {
   collisions: IPBinding[];
@@ -21,6 +22,7 @@ export const LicensingCollisions: React.FC<LicensingCollisionsProps> = ({
   onRevoke,
 }) => {
   const { isDark } = useTheme();
+  const t = useTranslations("licensing");
   const [selectedCollision, setSelectedCollision] = useState<IPBinding | null>(
     null,
   );
@@ -58,11 +60,10 @@ export const LicensingCollisions: React.FC<LicensingCollisionsProps> = ({
                   <h3
                     className={`text-xl font-black uppercase tracking-tighter italic ${isDark ? "text-white" : "text-gray-900"}`}
                   >
-                    System Integrous
+                    {t("system_integrous")}
                   </h3>
                   <p className="text-sm text-gray-500 font-medium max-w-[280px] mx-auto leading-relaxed">
-                    No active IP collisions detected in the current
-                    authorization cluster.
+                    {t("no_active_collisions")}
                   </p>
                 </div>
               </div>

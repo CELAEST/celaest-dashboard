@@ -3,6 +3,7 @@ import { User, CreditCard, Key, Envelope, FileText } from "@phosphor-icons/react
 import { toast } from "sonner";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { Order } from "../../../types";
+import { useTranslations } from "next-intl";
 
 interface OrderDetailsSidebarProps {
   formData: Order;
@@ -19,6 +20,8 @@ export const OrderDetailsSidebar: React.FC<OrderDetailsSidebarProps> = ({
 }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const t = useTranslations("billing");
+  const tCommon = useTranslations("common");
 
   return (
     <div
@@ -35,7 +38,7 @@ export const OrderDetailsSidebar: React.FC<OrderDetailsSidebarProps> = ({
             isDark ? "text-gray-400" : "text-gray-500"
           }`}
         >
-          Total Paid
+          {t("total_paid")}
         </div>
         {mode === "view" ? (
           <div
@@ -81,7 +84,7 @@ export const OrderDetailsSidebar: React.FC<OrderDetailsSidebarProps> = ({
                 isDark ? "text-gray-500" : "text-gray-400"
               }`}
             >
-              Customer
+              {tCommon("customer")}
             </div>
             {mode === "view" ? (
               <div
@@ -123,7 +126,7 @@ export const OrderDetailsSidebar: React.FC<OrderDetailsSidebarProps> = ({
                 isDark ? "text-gray-500" : "text-gray-400"
               }`}
             >
-              Method
+              {t("method")}
             </div>
             <div
               className={`text-sm capitalize ${
@@ -153,7 +156,7 @@ export const OrderDetailsSidebar: React.FC<OrderDetailsSidebarProps> = ({
                 isDark ? "text-gray-500" : "text-gray-400"
               }`}
             >
-              License Key
+              {t("license_key")}
             </div>
             <div
               className={`text-sm font-mono truncate w-32 ${
@@ -183,7 +186,7 @@ export const OrderDetailsSidebar: React.FC<OrderDetailsSidebarProps> = ({
                 isDark ? "text-gray-500" : "text-gray-400"
               }`}
             >
-              Delivery Email
+              {t("delivery_email")}
             </div>
             <div
               className={`text-sm truncate w-48 ${
@@ -202,8 +205,8 @@ export const OrderDetailsSidebar: React.FC<OrderDetailsSidebarProps> = ({
             if (onDownload) {
               onDownload();
             } else {
-              toast.success(`Downloading invoice for ${formData.id}...`, {
-                description: "Check your downloads folder.",
+              toast.success(t("downloading_invoice_for", { id: formData.id }), {
+                description: t("check_downloads"),
               });
             }
           }}
@@ -214,7 +217,7 @@ export const OrderDetailsSidebar: React.FC<OrderDetailsSidebarProps> = ({
           }`}
         >
           <FileText size={16} />
-          DownloadSimple Invoice
+          {t("download_invoice")}
         </button>
       </div>
     </div>

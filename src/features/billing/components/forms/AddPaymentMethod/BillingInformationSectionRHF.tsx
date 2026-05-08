@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { AddPaymentMethodFormData } from "@/features/billing/hooks/useAddPaymentMethodFormRHF";
+import { useTranslations } from "next-intl";
 
 interface BillingInformationSectionRHFProps {
   isDark: boolean;
@@ -21,6 +22,7 @@ export const BillingInformationSectionRHF: React.FC<
   BillingInformationSectionRHFProps
 > = ({ isDark }) => {
   const { control } = useFormContext<AddPaymentMethodFormData>();
+  const t = useTranslations("billing");
 
   return (
     <div>
@@ -29,7 +31,7 @@ export const BillingInformationSectionRHF: React.FC<
           isDark ? "text-white" : "text-gray-900"
         }`}
       >
-        Billing Information
+        {t("billing_information")}
       </h3>
 
       <div className="space-y-3">
@@ -39,7 +41,7 @@ export const BillingInformationSectionRHF: React.FC<
           name="billingEmail"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>{t("email")}</FormLabel>
               <FormControl>
                 <div className="relative">
                   <Envelope className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -62,7 +64,7 @@ export const BillingInformationSectionRHF: React.FC<
           name="billingAddress"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Address</FormLabel>
+              <FormLabel>{t("address")}</FormLabel>
               <FormControl>
                 <div className="relative">
                   <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -85,7 +87,7 @@ export const BillingInformationSectionRHF: React.FC<
             name="billingCity"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>City</FormLabel>
+                <FormLabel>{t("city")}</FormLabel>
                 <FormControl>
                   <div className="relative">
                     <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -105,7 +107,7 @@ export const BillingInformationSectionRHF: React.FC<
             name="billingZip"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Zip</FormLabel>
+                <FormLabel>{t("zip")}</FormLabel>
                 <FormControl>
                   <Input
                     placeholder="10001"

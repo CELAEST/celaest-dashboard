@@ -12,6 +12,7 @@ import { ManageTaxRatesModal } from "./modals/ManageTaxRatesModal";
 import { CriticalAlertsModal } from "./modals/CriticalAlertsModal";
 import { TransactionLogsModal } from "./modals/TransactionLogsModal";
 import { PaymentGateway } from "../types";
+import { useTranslations } from "next-intl";
 
 export const AdminFinancialDashboard: React.FC = () => {
   const {
@@ -36,12 +37,13 @@ export const AdminFinancialDashboard: React.FC = () => {
   const [activeAlertType, setActiveAlertType] = useState<
     "failed" | "refund_requested"
   >("failed");
+  const t = useTranslations("billing");
 
   const gateways: PaymentGateway[] = useMemo(
     () => [
       {
         id: "stripe",
-        name: "Stripe Gateway",
+        name: t("stripe_gateway"),
         logo: "/logos/stripe.svg",
         status: stripeGatewayActive ? "active" : "standby",
         apiKey: "sk_live_**********************abc123",
@@ -50,7 +52,7 @@ export const AdminFinancialDashboard: React.FC = () => {
       },
       {
         id: "paypal",
-        name: "PayPal Gateway",
+        name: t("paypal_gateway"),
         logo: "/logos/paypal.svg",
         status: "standby",
         apiKey: "client_id_**********************xyz789",
@@ -58,7 +60,7 @@ export const AdminFinancialDashboard: React.FC = () => {
         testMode: true,
       },
     ],
-    [stripeGatewayActive],
+    [stripeGatewayActive, t],
   );
 
   return (

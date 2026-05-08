@@ -9,6 +9,7 @@ import {
   LoginFormValues,
   SignupFormValues,
 } from "@/lib/validation/schemas/auth";
+import { useTranslations } from "next-intl";
 
 interface AuthFormContainerProps {
   mode: "signin" | "signup";
@@ -27,6 +28,7 @@ export const AuthFormContainer: React.FC<AuthFormContainerProps> = ({
   onLoginSubmit,
   onSignupSubmit,
 }) => {
+  const tAuth = useTranslations("auth");
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -61,7 +63,7 @@ export const AuthFormContainer: React.FC<AuthFormContainerProps> = ({
             <span
               className={`px-2 ${isDark ? "bg-black/40 text-gray-400" : "bg-white/90 text-gray-500"}`}
             >
-              Or continue with
+              {tAuth("or_continue_with")}
             </span>
           </div>
         </div>

@@ -22,6 +22,7 @@ import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 import { settingsApi } from "../../../api/settings.api";
 import { organizationsApi } from "@/features/organizations/api/organizations.api";
+import { useTranslations } from "next-intl";
 
 interface WorkspaceProfileProps {
   readOnly?: boolean;
@@ -32,6 +33,7 @@ export const WorkspaceProfile: React.FC<WorkspaceProfileProps> = memo(
     const { isDark } = useTheme();
     const { currentOrg: org, fetchOrgs } = useOrgStore();
     const { session } = useAuthStore();
+    const t = useTranslations("settings");
     const [isFetchingSettings, setIsFetchingSettings] = useState(false);
 
     const form = useForm<WorkspaceProfileFormData>({
@@ -119,9 +121,9 @@ export const WorkspaceProfile: React.FC<WorkspaceProfileProps> = memo(
         } as Record<string, unknown>);
 
         await fetchOrgs(session.accessToken, true);
-        toast.success("Workspace profile updated");
+        toast.success(t("workspace_updated"));
       } catch {
-        toast.error("Failed to update workspace");
+        toast.error(t("workspace_update_error"));
       }
     };
 
@@ -137,17 +139,17 @@ export const WorkspaceProfile: React.FC<WorkspaceProfileProps> = memo(
               }`}
             >
               <Globe className="w-5 h-5 text-cyan-500" />
-              Workspace Profile
+              {t("workspace_profile")}
               {readOnly && (
                 <span className="text-[10px] bg-gray-500/10 text-gray-500 px-2 py-0.5 rounded uppercase tracking-wider font-black">
-                  View Only
+                  {t("view_only")}
                 </span>
               )}
             </h3>
             <p
               className={`text-sm mt-1 ${isDark ? "text-gray-400" : "text-gray-500"}`}
             >
-              Manage your organization&apos;s identity and visual branding.
+              {t("workspace_profile_desc")}
             </p>
           </div>
           {isFetchingSettings && (
@@ -164,10 +166,10 @@ export const WorkspaceProfile: React.FC<WorkspaceProfileProps> = memo(
                 name="workspaceName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Workspace Name</FormLabel>
+                    <FormLabel>{t("workspace_name")}</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="My Workspace"
+                        placeholder={t("my_workspace")}
                         className="h-[42px] rounded-xl"
                         {...field}
                         disabled={readOnly}
@@ -184,7 +186,7 @@ export const WorkspaceProfile: React.FC<WorkspaceProfileProps> = memo(
                     isDark ? "text-gray-500" : "text-gray-400"
                   }`}
                 >
-                  Workspace URL
+                  {t("workspace_url")}
                 </label>
                 <div className="flex">
                   <span
@@ -243,7 +245,7 @@ export const WorkspaceProfile: React.FC<WorkspaceProfileProps> = memo(
               <h4
                 className={`text-sm font-bold uppercase tracking-widest mb-4 flex items-center gap-2 ${isDark ? "text-gray-400" : "text-gray-500"}`}
               >
-                <ImageIcon size={14} /> Brand Identity
+                <ImageIcon size={14} /> {t("brand_identity")}
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
@@ -251,7 +253,7 @@ export const WorkspaceProfile: React.FC<WorkspaceProfileProps> = memo(
                   name="logoUrl"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Brand Logo URL</FormLabel>
+                      <FormLabel>{t("brand_logo_url")}</FormLabel>
                       <div className="flex gap-4 items-start">
                         <div
                           className={`w-12 h-12 rounded-xl border shrink-0 overflow-hidden flex items-center justify-center ${isDark ? "border-white/10 bg-white/5" : "border-gray-200 bg-gray-50"}`}
@@ -299,7 +301,7 @@ export const WorkspaceProfile: React.FC<WorkspaceProfileProps> = memo(
                   name="primaryColor"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Primary Action Color (Hex)</FormLabel>
+                      <FormLabel>{t("primary_action_color")}</FormLabel>
                       <div className="flex gap-4 items-start">
                         <div
                           className={`w-12 h-12 rounded-xl border shrink-0 flex items-center justify-center shadow-inner ${isDark ? "border-white/10" : "border-gray-200"}`}
@@ -337,10 +339,10 @@ export const WorkspaceProfile: React.FC<WorkspaceProfileProps> = memo(
                 >
                   {isSubmitting ? (
                     <>
-                      <CircleNotch size={16} className="animate-spin" /> Saving...
+                      <CircleNotch size={16} className="animate-spin" /> {t("saving")}
                     </>
                   ) : (
-                    "Save Configuration"
+                    t("save_configuration")
                   )}
                 </button>
               </div>

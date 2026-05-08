@@ -7,10 +7,12 @@ import { Tag, X, CheckCircle, CircleNotch, Lightning } from "@phosphor-icons/rea
 import { settingsApi } from "@/features/settings/api/settings.api";
 import { UpgradePlanModal } from "@/features/billing/components/modals/UpgradePlanModal";
 import { motion, AnimatePresence } from "motion/react";
+import { useTranslations } from "next-intl";
 
 export function CouponFAB() {
   const { activeCoupon, setCoupon, clearCoupon } = useMarketplaceCouponStore();
   const { token, orgId } = useApiAuth();
+  const t = useTranslations("marketplace");
 
   const [isOpen, setIsOpen] = useState(false);
   const [isPlansOpen, setIsPlansOpen] = useState(false);
@@ -137,11 +139,11 @@ export function CouponFAB() {
         setIsOpen(false);
         setCode("");
       } else {
-        setError(result.reason || "Invalid coupon code");
+        setError(result.reason || t("invalid_coupon"));
       }
     } catch (err: unknown) {
       setError(
-        err instanceof Error ? err.message : "Failed to validate coupon",
+        err instanceof Error ? err.message : t("validate_failed"),
       );
     } finally {
       setLoading(false);
@@ -150,8 +152,8 @@ export function CouponFAB() {
 
   const currentSavingsText = activeCoupon
     ? activeCoupon.type === "percentage"
-      ? `${activeCoupon.value}% OFF`
-      : `$${activeCoupon.value} OFF`
+      ? t("off", { value: `${activeCoupon.value}%` })
+      : t("off", { value: `$${activeCoupon.value}` })
     : "";
 
   return (
@@ -171,7 +173,7 @@ export function CouponFAB() {
               <div className="p-4 border-b border-white/10 flex justify-between items-center bg-white/5">
               <h3 className="text-sm font-medium text-white flex items-center gap-2">
                 <Tag className="w-4 h-4 text-cyan-400" />
-                Apply Coupon
+                {t("apply_coupon")}
               </h3>
               <button
                 onClick={() => setIsOpen(false)}
@@ -186,13 +188,13 @@ export function CouponFAB() {
                 <div className="flex flex-col items-center justify-center p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl gap-2">
                   <CheckCircle className="w-8 h-8 text-emerald-400" />
                   <p className="text-emerald-300 font-medium text-sm text-center">
-                    Active Code:{" "}
+                    {t("active_code")}:{" "}
                     <span className="text-white font-bold">
                       {activeCoupon.code}
                     </span>
                   </p>
                   <div className="mt-2 text-xs text-emerald-400/80 bg-emerald-500/10 px-3 py-1 rounded-full">
-                    Discount: {currentSavingsText || ""}
+                    {t("discount")}: {currentSavingsText || ""}
                   </div>
                   <button
                     onClick={async () => {
@@ -207,18 +209,18 @@ export function CouponFAB() {
                     }}
                     className="mt-3 text-xs text-red-400 hover:text-red-300 underline"
                   >
-                    Remove Coupon
+                    {t("remove_coupon")}
                   </button>
                 </div>
               ) : (
                 <>
                   <div className="flex flex-col gap-1">
-                    <label className="text-xs text-gray-400">Coupon Code</label>
+                    <label className="text-xs text-gray-400">{t("coupon_code")}</label>
                     <input
                       type="text"
                       value={code}
                       onChange={(e) => setCode(e.target.value.toUpperCase())}
-                      placeholder="e.g. EARLYBIRD"
+                      placeholder={t("coupon_placeholder")}
                       className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-cyan-500/50 uppercase"
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
@@ -239,7 +241,7 @@ export function CouponFAB() {
                     {loading ? (
                       <CircleNotch className="w-4 h-4 animate-spin" />
                     ) : (
-                      "Apply Code"
+                      t("apply_code")
                     )}
                   </button>
                 </>
@@ -275,7 +277,7 @@ export function CouponFAB() {
               }`}
             />
             <span className="relative z-10 font-bold text-sm whitespace-nowrap overflow-hidden max-w-0 opacity-0 group-hover:max-w-[200px] group-hover:opacity-100 group-hover:ml-3 transition-all duration-500 pointer-events-none">
-              {activeCoupon ? currentSavingsText : "Tengo un Cupón"}
+              {activeCoupon ? currentSavingsText : t("have_coupon")}
             </span>
           </motion.button>
 
@@ -291,7 +293,7 @@ export function CouponFAB() {
 
             <Lightning className="relative z-10 w-5 h-5 shrink-0 text-purple-400 drop-shadow-[0_0_8px_rgba(192,132,252,0.5)] transition-transform duration-300 group-hover/btn:scale-110" />
             <span className="relative z-10 font-bold text-sm whitespace-nowrap overflow-hidden max-w-0 opacity-0 group-hover:max-w-[200px] group-hover:opacity-100 group-hover:ml-3 transition-all duration-500 pointer-events-none">
-              Ver Planes
+              {t("view_plans")}
             </span>
           </motion.button>
         </div>

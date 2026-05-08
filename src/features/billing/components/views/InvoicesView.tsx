@@ -15,6 +15,7 @@ import { AestheticInvoiceTemplate } from "../InvoiceHistory/AestheticInvoiceTemp
 import * as htmlToImage from "html-to-image";
 import jsPDF from "jspdf";
 import { Invoice } from "../../types";
+import { useTranslations } from "next-intl";
 
 export const InvoicesView = () => {
   const { theme } = useTheme();
@@ -25,6 +26,7 @@ export const InvoicesView = () => {
   const queryClient = useQueryClient();
   const { session, user } = useAuthStore();
   const { currentOrg } = useOrgStore();
+  const t = useTranslations("billing");
 
   const token = session?.accessToken;
   const orgId = currentOrg?.id;
@@ -43,9 +45,9 @@ export const InvoicesView = () => {
           ? QUERY_KEYS.billing.profile(orgId)
           : QUERY_KEYS.billing.all,
       });
-      toast.success("Invoice has been voided.");
+      toast.success(t("invoice_voided"));
     },
-    onError: () => toast.error("Failed to void invoice."),
+    onError: () => toast.error(t("void_failed")),
   });
 
   const payMutation = useMutation({
@@ -59,9 +61,9 @@ export const InvoicesView = () => {
           ? QUERY_KEYS.billing.profile(orgId)
           : QUERY_KEYS.billing.all,
       });
-      toast.success("Invoice marked as paid.");
+      toast.success(t("invoice_marked_paid"));
     },
-    onError: () => toast.error("Failed to mark invoice as paid."),
+    onError: () => toast.error(t("mark_paid_failed")),
   });
 
   const handleDownload = async (invoiceId: string) => {
@@ -99,7 +101,7 @@ export const InvoicesView = () => {
       }
     } catch (error) {
       console.error("PDF generation failed:", error);
-      toast.error("Failed to generate PDF");
+      toast.error(t("invoice_download_error"));
       // Fallback
       if (invoice.pdf_url) window.open(invoice.pdf_url, "_blank");
     } finally {
@@ -124,11 +126,11 @@ export const InvoicesView = () => {
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
               <span className={`text-xs font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>
-                All Invoices
+                {t("all_invoices")}
               </span>
             </div>
             <span className={`text-[11px] tabular-nums ${isDark ? "text-gray-500" : "text-gray-400"}`}>
-              {invoices.length > 0 ? `Showing ${invoices.length} of ${totalInvoices} entries` : ""}
+              {invoices.length > 0 ? t("showing_invoices", { current: invoices.length, total: totalInvoices }) : ""}
             </span>
           </div>
         }

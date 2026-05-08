@@ -3,6 +3,7 @@ import { motion } from "motion/react";
 import { Globe, MapPin, Pulse, X } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import type { IPBinding } from "@/features/licensing/types";
+import { useTranslations } from "next-intl";
 
 interface LicenseBindingsProps {
   bindings?: IPBinding[];
@@ -15,13 +16,14 @@ export const LicenseBindings: React.FC<LicenseBindingsProps> = ({
 }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const t = useTranslations("licensing");
 
   return (
     <div>
       <h3
         className={`text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2 ${isDark ? "text-gray-400" : "text-gray-500"}`}
       >
-        <Globe size={16} /> Active Bindings
+        <Globe size={16} /> {t("active_bindings")}
       </h3>
       <div className="space-y-3">
         {bindings && bindings.length > 0 ? (
@@ -45,26 +47,24 @@ export const LicenseBindings: React.FC<LicenseBindingsProps> = ({
                       {binding.ip_address}
                     </div>
                     <div className="text-xs text-gray-500 flex items-center gap-2 mt-0.5">
-                      <Pulse size={12} /> {binding.request_count} requests
+                      <Pulse size={12} /> {t("requests_count", { count: binding.request_count })}
                     </div>
                   </div>
                 </div>
                 <button
                   onClick={() => onUnbind(binding.ip_address)}
                   className="opacity-0 group-hover:opacity-100 p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
-                  title="Unbind IP"
+                  title={t("unbind_ip")}
                 >
                   <X size={16} />
                 </button>
               </div>
               <div className="mt-3 text-[10px] text-gray-500 flex justify-between">
                 <span>
-                  First seen:{" "}
-                  {new Date(binding.first_seen_at).toLocaleDateString()}
+                  {t("first_seen", { date: new Date(binding.first_seen_at).toLocaleDateString() })}
                 </span>
                 <span>
-                  Last active:{" "}
-                  {new Date(binding.last_seen_at).toLocaleTimeString()}
+                  {t("last_active", { time: new Date(binding.last_seen_at).toLocaleTimeString() })}
                 </span>
               </div>
             </motion.div>
@@ -73,7 +73,7 @@ export const LicenseBindings: React.FC<LicenseBindingsProps> = ({
           <div
             className={`text-center py-8 rounded-xl border border-dashed ${isDark ? "border-white/10 text-gray-600" : "border-gray-200 text-gray-400"}`}
           >
-            No active IP bindings
+            {t("no_active_ip_bindings")}
           </div>
         )}
       </div>

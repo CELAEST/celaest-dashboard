@@ -7,6 +7,7 @@ import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 import { billingApi } from "@/features/billing/api/billing.api";
 import { PaymentMethod as PaymentMethodType } from "@/features/billing/types";
+import { useTranslations } from "next-intl";
 
 export const PaymentMethod: React.FC = memo(() => {
   const { isDark } = useTheme();
@@ -15,6 +16,7 @@ export const PaymentMethod: React.FC = memo(() => {
 
   const { session } = useAuthStore();
   const { currentOrg } = useOrgStore();
+  const t = useTranslations("settings");
 
   useEffect(() => {
     const fetchMethods = async () => {
@@ -54,21 +56,21 @@ export const PaymentMethod: React.FC = memo(() => {
           }`}
         >
           <CreditCard className="w-4 h-4 text-purple-500" />
-          Payment Method
+          {t("payment_method")}
         </h3>
         <button
-          onClick={() => toast.info("Stripe Checkout will open here")}
+          onClick={() => toast.info(t("stripe_checkout_info"))}
           className={`flex items-center gap-1 text-xs font-black tracking-widest transition-colors text-cyan-500 hover:text-cyan-400`}
         >
           <Plus size={14} />
-          ADD NEW
+          {t("add_new")}
         </button>
       </div>
 
       <div className="space-y-3">
         {methods.length === 0 ? (
           <p className="text-sm text-gray-500 py-4 italic text-center">
-            No payment methods registered.
+            {t("no_payment_methods")}
           </p>
         ) : (
           methods.map((method) => (
@@ -96,28 +98,28 @@ export const PaymentMethod: React.FC = memo(() => {
                       isDark ? "text-white" : "text-gray-900"
                     }`}
                   >
-                    {method.brand?.toUpperCase() || "CARD"} **** {method.last4}
+                    {method.brand?.toUpperCase() || t("card")} **** {method.last4}
                     {(method.is_default || method.isDefault) && (
                       <span className="ml-2 px-1.5 py-0.5 rounded text-[10px] bg-cyan-500/10 text-cyan-500 uppercase font-black">
-                        Default
+                        {t("default")}
                       </span>
                     )}
                   </p>
                   <p className="text-xs text-gray-500">
-                    Expires {method.expiry_month || method.expiryMonth}/
+                    {t("expires")} {method.expiry_month || method.expiryMonth}/
                     {method.expiry_year || method.expiryYear}
                   </p>
                 </div>
               </div>
               <button
-                onClick={() => toast.info("Payment method settings")}
+                onClick={() => toast.info(t("payment_settings_info"))}
                 className={`text-xs font-black tracking-widest transition-colors ${
                   isDark
                     ? "text-gray-400 hover:text-white"
                     : "text-gray-500 hover:text-gray-900"
                 }`}
               >
-                EDIT
+                {t("edit")}
               </button>
             </div>
           ))

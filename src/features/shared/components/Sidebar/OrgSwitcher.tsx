@@ -14,6 +14,7 @@ import { usersApi } from "@/features/users/api/users.api";
 import { logger } from "@/lib/logger";
 import { useBilling } from "@/features/billing/hooks/useBilling";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 interface OrgSwitcherProps {
   isExpanded: boolean;
@@ -32,6 +33,7 @@ export function OrgSwitcher({ isExpanded }: OrgSwitcherProps) {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const t = useTranslations("sidebar");
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -59,8 +61,8 @@ export function OrgSwitcher({ isExpanded }: OrgSwitcherProps) {
     setCurrentOrg(org);
     setIsOpen(false);
 
-    toast.success(`Contexto cambiado`, {
-      description: `Operando en workspace: ${org.name}`,
+    toast.success(t("context_changed"), {
+      description: t("operating_in_workspace", { orgName: org.name }),
       duration: 3000,
     });
 
@@ -126,12 +128,12 @@ export function OrgSwitcher({ isExpanded }: OrgSwitcherProps) {
           transition={{ duration: 0.2 }}
         >
           <p className="text-sm font-semibold truncate">
-            {currentOrg?.name || "Select Workspace"}
+            {currentOrg?.name || t("select_workspace")}
           </p>
           <p
             className={`text-[10px] truncate ${isDark ? "text-gray-500" : "text-gray-400"}`}
           >
-            {currentOrg?.role || "member"}
+            {currentOrg?.role || t("member")}
           </p>
         </motion.div>
 
@@ -200,7 +202,7 @@ export function OrgSwitcher({ isExpanded }: OrgSwitcherProps) {
                     <p
                       className={`text-[10px] ${isDark ? "text-gray-500" : "text-gray-400"}`}
                     >
-                      {org.role || "member"}
+                      {org.role || t("member")}
                     </p>
                   </div>
                   {currentOrg?.id === org.id && (
@@ -221,8 +223,8 @@ export function OrgSwitcher({ isExpanded }: OrgSwitcherProps) {
                 onClick={(e) => {
                   e.preventDefault();
                   if (!plan) {
-                    toast.info("Mejora requerida", {
-                      description: "Necesitas un plan activo en tu organización actual para crear nuevos workspaces.",
+                    toast.info(t("upgrade_required"), {
+                      description: t("upgrade_required_desc"),
                       duration: 4000,
                     });
                     // Lleva al usuario a ver los planes
@@ -240,7 +242,7 @@ export function OrgSwitcher({ isExpanded }: OrgSwitcherProps) {
                 }`}
               >
                 <Plus size={14} />
-                <span>Create workspace</span>
+                <span>{t("create_workspace")}</span>
               </button>
             </div>
           </motion.div>

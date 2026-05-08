@@ -11,6 +11,7 @@ import { Asset } from "../services/assets.service";
 import { MarketplaceCard } from "./MarketplaceCard";
 import { useAssets } from "../hooks/useAssets";
 import { useCategories } from "../hooks/useCategories";
+import { useTranslations } from "next-intl";
 
 interface AssetCustomerCatalogProps {
   assets: Asset[];
@@ -21,6 +22,7 @@ export const AssetCustomerCatalog: React.FC<
 > = ({}) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const t = useTranslations("marketplace");
   const [selectedProduct, setSelectedProduct] = useState<Asset | null>(null);
   const [filter, setFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -77,16 +79,16 @@ export const AssetCustomerCatalog: React.FC<
       setDownloading(product.id);
       try {
         await downloadAsset(product.id, product.slug);
-        toast.success("DownloadSimple started");
+        toast.success(t("download_started"));
       } catch (error: unknown) {
         logger.error("DownloadSimple failed", error);
-        toast.error("DownloadSimple failed");
+        toast.error(t("download_failed"));
       } finally {
         setDownloading(null);
       }
     } else if (type === "docs") {
       // Placeholder for docs
-      toast.info("Documentation coming soon");
+      toast.info(t("documentation_soon"));
     }
   };
 
@@ -103,7 +105,7 @@ export const AssetCustomerCatalog: React.FC<
           </div>
           <input
             type="text"
-            placeholder="MagnifyingGlass assets..."
+            placeholder={t("search_assets")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className={`w-full pl-10 pr-4 py-2.5 rounded-xl border outline-none transition-all ${
@@ -129,7 +131,7 @@ export const AssetCustomerCatalog: React.FC<
                   : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50 hover:text-gray-900"
             }`}
           >
-            All Assets
+            {t("all_assets")}
           </button>
 
           {isLoadingCategories ? (
@@ -184,11 +186,10 @@ export const AssetCustomerCatalog: React.FC<
               <p
                 className={`text-lg font-bold ${isDark ? "text-white" : "text-gray-900"}`}
               >
-                No items found
+                {t("no_items_found")}
               </p>
               <p className="text-sm text-gray-500">
-                You haven&apos;t purchased any assets yet, or they don&apos;t
-                match your search.
+                {t("no_items_desc")}
               </p>
             </div>
           )}

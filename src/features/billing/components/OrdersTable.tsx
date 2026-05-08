@@ -18,6 +18,7 @@ import { ordersApi } from "../api/orders.api";
 import { useApiAuth } from "@/lib/use-api-auth";
 import { toast } from "sonner";
 import { useOrgStore } from "@/features/shared/stores/useOrgStore";
+import { useTranslations } from "next-intl";
 import {
   DotsThree,
   Warning,
@@ -65,6 +66,8 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
   const { isSuperAdmin } = useRole();
   const { token, orgId } = useApiAuth();
   const { currentOrg } = useOrgStore();
+  const t = useTranslations("common");
+  const tBilling = useTranslations("billing");
   
   const [invoiceToPrint, setInvoiceToPrint] = React.useState<Invoice | null>(null);
   const printRef = React.useRef<HTMLDivElement>(null);
@@ -113,11 +116,11 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
           
           pdf.addImage(dataUrl, "PNG", 0, 0, pdfWidth, pdfHeight);
           pdf.save(`Invoice_${mappedInvoice.invoice_number || mappedInvoice.id.slice(0,8)}.pdf`);
-          toast.success("Invoice downloaded successfully");
+          toast.success(tBilling("invoice_downloaded"));
         }
       } catch (error) {
         console.error("PDF generation failed:", error);
-        toast.error("Failed to generate PDF");
+        toast.error(tBilling("invoice_download_error"));
       } finally {
         setDownloadingOrderId(null);
         setInvoiceToPrint(null);
@@ -125,7 +128,7 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
     };
 
     downloadInvoice();
-  }, [downloadingOrderId, token, orgId, setDownloadingOrderId]);
+  }, [downloadingOrderId, token, orgId, setDownloadingOrderId, tBilling]);
 
   const getStatusColor = useCallback(
     (status: string) => {
@@ -187,7 +190,7 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
     () => [
       {
         id: "displayId",
-        header: "Order",
+        header: t("order"),
         cell: ({ row }) => {
           const order = row.original;
           const parts = order.displayId.split('-');
@@ -213,7 +216,7 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
       },
       {
         id: "product",
-        header: "Product",
+        header: t("product"),
         cell: ({ row }) => {
           const order = row.original;
           return (
@@ -243,7 +246,7 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
       },
       {
         id: "user",
-        header: "User",
+        header: t("user"),
         cell: ({ row }) => {
           const order = row.original;
           const name = order.userName || "N/A";
@@ -271,7 +274,7 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
       },
       {
         id: "email",
-        header: "Email",
+        header: t("email"),
         cell: ({ row }) => {
           const order = row.original;
           return (
@@ -287,7 +290,7 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
       },
       {
         id: "customer",
-        header: "Customer",
+        header: t("customer"),
         cell: ({ row }) => {
           const order = row.original;
           const name = order.customer;
@@ -315,7 +318,7 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
       },
       {
         id: "payment",
-        header: "Payment",
+        header: t("payment"),
         cell: ({ row }) => {
           const order = row.original;
           return (
@@ -340,7 +343,7 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
       },
       {
         id: "status",
-        header: "Status",
+        header: t("status"),
         cell: ({ row }) => {
           const order = row.original;
           return (
@@ -357,7 +360,7 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
       },
       {
         id: "amount",
-        header: () => <div className="text-right">Amount</div>,
+        header: () => <div className="text-right">{t("amount")}</div>,
         cell: ({ row }) => {
           const order = row.original;
           const currency = order.amount.replace(/[\d.,]/g, '').trim();
@@ -395,7 +398,7 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
         },
       },
     ],
-    [isDark, getStatusColor, getStatusIcon, handleOpenMenu],
+    [isDark, getStatusColor, getStatusIcon, handleOpenMenu, t],
   );
 
   const columns = useMemo(() => {
@@ -414,8 +417,8 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
         columns={columns}
         data={orders}
         isLoading={loading}
-        emptyMessage="No orders found."
-        emptySubmessage="You haven't received any orders yet."
+        emptyMessage={tBilling("no_orders")}
+        emptySubmessage={tBilling("no_orders_yet")}
         totalItems={totalOrders}
         hasNextPage={hasNextPage}
         isFetchingNextPage={isFetchingNextPage}

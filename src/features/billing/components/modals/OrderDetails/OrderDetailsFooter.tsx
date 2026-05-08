@@ -1,5 +1,6 @@
 import React from "react";
 import { ArrowCounterClockwise, PencilSimple, FloppyDisk, Package } from "@phosphor-icons/react";
+import { useTranslations } from "next-intl";
 
 interface OrderDetailsFooterProps {
   mode: "view" | "edit";
@@ -22,6 +23,8 @@ export const OrderDetailsFooter: React.FC<OrderDetailsFooterProps> = ({
   lastEditDate,
   isSuperAdmin = false,
 }) => {
+  const t = useTranslations("billing");
+  const tCommon = useTranslations("common");
   return (
     <div className="relative shrink-0 overflow-hidden">
       {/* Top accent */}
@@ -46,7 +49,7 @@ export const OrderDetailsFooter: React.FC<OrderDetailsFooterProps> = ({
             <Package size={14} />
           </div>
           <div>
-            <p className="text-[9px] font-mono uppercase tracking-[0.2em] text-white/30 mb-0.5">Last edit</p>
+            <p className="text-[9px] font-mono uppercase tracking-[0.2em] text-white/30 mb-0.5">{t("last_edit")}</p>
             <p className="text-sm font-mono text-white/60 tracking-wider">{lastEditDate}</p>
           </div>
         </div>
@@ -59,7 +62,7 @@ export const OrderDetailsFooter: React.FC<OrderDetailsFooterProps> = ({
                 onClick={onClose}
                 className="px-5 py-3 rounded-2xl bg-white/5 border border-white/10 text-white/60 text-sm font-semibold hover:bg-white/10 transition-colors"
               >
-                Close
+                {tCommon("close")}
               </button>
               {isSuperAdmin && (
                 <button
@@ -67,7 +70,7 @@ export const OrderDetailsFooter: React.FC<OrderDetailsFooterProps> = ({
                   className="px-5 py-3 rounded-2xl bg-white/5 border border-white/10 text-white/60 text-sm font-semibold hover:bg-white/10 transition-colors flex items-center gap-2"
                 >
                   <PencilSimple size={16} />
-                  Edit
+                  {tCommon("edit")}
                 </button>
               )}
               {canRefund && onRefund && (
@@ -76,7 +79,7 @@ export const OrderDetailsFooter: React.FC<OrderDetailsFooterProps> = ({
                   className="px-5 py-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 text-sm font-semibold hover:bg-amber-500/20 transition-colors flex items-center gap-2"
                 >
                   <ArrowCounterClockwise size={16} />
-                  Refund
+                  {t("refund")}
                 </button>
               )}
             </>
@@ -86,14 +89,14 @@ export const OrderDetailsFooter: React.FC<OrderDetailsFooterProps> = ({
                 onClick={() => setMode("view")}
                 className="flex-1 py-3 px-5 rounded-2xl bg-white/5 border border-white/10 text-white/60 text-sm font-semibold hover:bg-white/10 transition-colors"
               >
-                Cancel
+                {tCommon("cancel")}
               </button>
               <button
                 onClick={onSave}
                 className="py-3 px-5 rounded-2xl bg-linear-to-r from-teal-500 to-teal-600 text-white text-sm font-black uppercase tracking-wide shadow-[0_0_20px_rgba(20,184,166,0.3)] hover:shadow-[0_0_30px_rgba(20,184,166,0.5)] transition-all flex items-center gap-2"
               >
                 <FloppyDisk size={16} />
-                Save
+                {t("save")}
               </button>
             </>
           )}

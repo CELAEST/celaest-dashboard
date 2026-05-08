@@ -1,6 +1,7 @@
 import React, { memo } from "react";
 import { Shield, Copy } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 import { Version } from "@/features/releases/types";
 
 interface VersionDetailsTechnicalProps {
@@ -11,6 +12,7 @@ export const VersionDetailsTechnical: React.FC<VersionDetailsTechnicalProps> =
   memo(({ version }) => {
     const { theme } = useTheme();
     const isDark = theme === "dark";
+    const t = useTranslations("releases");
 
     const copyToClipboard = (text: string) => {
       navigator.clipboard.writeText(text);
@@ -24,7 +26,7 @@ export const VersionDetailsTechnical: React.FC<VersionDetailsTechnicalProps> =
             isDark ? "text-gray-400" : "text-gray-500"
           }`}
         >
-          <Shield size={16} /> Security & Compatibility
+          <Shield size={16} /> {t("details_security_compat")}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div
@@ -39,7 +41,7 @@ export const VersionDetailsTechnical: React.FC<VersionDetailsTechnicalProps> =
                 isDark ? "text-gray-500" : "text-gray-500"
               }`}
             >
-              SHA-256 Checksum
+              {t("details_sha256")}
             </div>
             <div className="flex items-center justify-between gap-2">
               <code
@@ -73,7 +75,7 @@ export const VersionDetailsTechnical: React.FC<VersionDetailsTechnicalProps> =
                 isDark ? "text-gray-500" : "text-gray-500"
               }`}
             >
-              Compatibility
+              {t("details_compatibility")}
             </div>
             <div
               className={`text-sm font-medium ${

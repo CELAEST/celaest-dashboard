@@ -3,6 +3,7 @@ import Image from "next/image";
 import { motion } from "motion/react";
 import { ShieldCheck } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 
 interface ConfirmationStepProps {
   product: {
@@ -22,6 +23,7 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
   hasCoupon,
   onContinue,
 }) => {
+  const t = useTranslations("marketplace");
   const { theme } = useTheme();
 
   return (
@@ -34,12 +36,12 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
         <h2
           className={`text-2xl font-bold mb-2 ${theme === "dark" ? "text-white" : "text-gray-900"}`}
         >
-          Confirmar Adquisición
+          {t("confirm_acquisition")}
         </h2>
         <p
           className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}
         >
-          Revisa los detalles antes de continuar
+          {t("review_details_before_continue")}
         </p>
       </div>
 
@@ -91,7 +93,7 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
           size={18}
         />
         <span className={theme === "dark" ? "text-gray-300" : "text-gray-700"}>
-          Transacción protegida con cifrado de grado militar
+          {t("transaction_protected")}
         </span>
       </div>
 
@@ -106,7 +108,7 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
           }
         `}
       >
-        Continuar al Pago
+        {t("continue_to_payment")}
       </button>
     </motion.div>
   );

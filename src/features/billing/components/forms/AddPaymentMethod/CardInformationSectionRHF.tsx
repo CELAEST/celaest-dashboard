@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { AddPaymentMethodFormData } from "@/features/billing/hooks/useAddPaymentMethodFormRHF";
 import { formatCardNumber } from "@/lib/validation/schemas/billing";
+import { useTranslations } from "next-intl";
 
 interface CardInformationSectionRHFProps {
   isDark: boolean;
@@ -22,6 +23,7 @@ interface CardInformationSectionRHFProps {
 export const CardInformationSectionRHF: React.FC<
   CardInformationSectionRHFProps
 > = ({ isDark }) => {
+  const t = useTranslations("billing");
   const {
     control,
     watch,
@@ -37,7 +39,7 @@ export const CardInformationSectionRHF: React.FC<
           isDark ? "text-white" : "text-gray-900"
         }`}
       >
-        Card Information
+        {t("card_information")}
       </h3>
 
       {/* Card Number - Custom Controller for Formatting */}
@@ -47,7 +49,7 @@ export const CardInformationSectionRHF: React.FC<
           name="cardNumber"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Card Number</FormLabel>
+              <FormLabel>{t("card_number")}</FormLabel>
               <FormControl>
                 <div className="relative">
                   <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -87,7 +89,7 @@ export const CardInformationSectionRHF: React.FC<
           name="cardName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Cardholder Name</FormLabel>
+              <FormLabel>{t("cardholder_name")}</FormLabel>
               <FormControl>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -111,7 +113,7 @@ export const CardInformationSectionRHF: React.FC<
           name="expiryMonth"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Month</FormLabel>
+              <FormLabel>{t("month")}</FormLabel>
               <FormControl>
                 <Input
                   placeholder="MM"
@@ -128,7 +130,7 @@ export const CardInformationSectionRHF: React.FC<
           name="expiryYear"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Year</FormLabel>
+              <FormLabel>{t("year")}</FormLabel>
               <FormControl>
                 <Input
                   placeholder="YY"
@@ -145,7 +147,7 @@ export const CardInformationSectionRHF: React.FC<
           name="cvv"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>CVV</FormLabel>
+              <FormLabel>{t("cvv")}</FormLabel>
               <FormControl>
                 <Input
                   type="password"

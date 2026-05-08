@@ -7,8 +7,9 @@ import { useAccessControl } from "../hooks/useAccessControl";
 import { HardDrives } from "@phosphor-icons/react";
 import { useDashboardRouter } from "../hooks/useDashboardRouter";
 import { PageSkeleton } from "@/components/ui/skeletons";
-import { ErrorBoundary } from "@/components/ui/error-boundary";
+import { ErrorBoundary, FallbackProps } from "@/components/ui/error-boundary";
 import { FeatureError } from "@/components/ui/feature-error";
+import { useTranslations } from "next-intl";
 
 // Per-feature skeleton: matches the actual layout of each feature
 const FeatureSkeletonView = ({ type }: { type: FeatureSkeletonType }) => {
@@ -47,6 +48,8 @@ export const FeatureLoader: React.FC<FeatureLoaderProps> = ({
 }) => {
   const { activeTab } = useDashboardRouter();
   const currentTab = tab || activeTab;
+  const tAuth = useTranslations("auth");
+  const tErrors = useTranslations("errors");
 
   const featureConfig =
     FEATURE_REGISTRY[currentTab] || FEATURE_REGISTRY["dashboard"];
@@ -76,15 +79,15 @@ export const FeatureLoader: React.FC<FeatureLoaderProps> = ({
       return (
         <div className="flex flex-col items-center justify-center h-[50vh] text-gray-500">
           <HardDrives size={48} className="mb-4 opacity-50" />
-          <h2 className="text-xl font-bold mb-2">Access Restricted</h2>
+          <h2 className="text-xl font-bold mb-2">{tAuth("account_required")}</h2>
           <p className="font-mono text-sm">
-            Please sign in to access this module.
+            {tAuth("sign_in_to_access")}
           </p>
           <button
             onClick={onShowLogin}
             className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
-            Sign In
+            {tAuth("sign_in")}
           </button>
         </div>
       );
@@ -94,9 +97,9 @@ export const FeatureLoader: React.FC<FeatureLoaderProps> = ({
       return (
         <div className="flex flex-col items-center justify-center h-[50vh] text-red-500">
           <HardDrives size={48} className="mb-4 opacity-50" />
-          <h2 className="text-xl font-bold mb-2">Access Denied</h2>
+          <h2 className="text-xl font-bold mb-2">{tErrors("access_denied")}</h2>
           <p className="font-mono text-sm">
-            You do not have permission to view this module.
+            {tErrors("no_permission")}
           </p>
         </div>
       );
@@ -106,9 +109,9 @@ export const FeatureLoader: React.FC<FeatureLoaderProps> = ({
   // Wrap dynamic content with localized Error Boundary
   return (
     <ErrorBoundary 
-      fallback={({ error, resetErrorBoundary }: import("@/components/ui/error-boundary").FallbackProps) => (
+      fallback={({ error, resetErrorBoundary }: FallbackProps) => (
         <FeatureError 
-          title={`Error cargando módulo: ${featureConfig.label}`}
+          title={tErrors("module_load_error", { module: featureConfig.label })}
           error={error} 
           resetError={resetErrorBoundary} 
         />

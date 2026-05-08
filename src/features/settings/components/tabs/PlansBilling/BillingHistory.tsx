@@ -6,6 +6,7 @@ import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 import { billingApi } from "@/features/billing/api/billing.api";
 import { Invoice } from "@/features/billing/types";
+import { useTranslations } from "next-intl";
 
 export const BillingHistory: React.FC = memo(() => {
   const { isDark } = useTheme();
@@ -14,6 +15,7 @@ export const BillingHistory: React.FC = memo(() => {
 
   const { session } = useAuthStore();
   const { currentOrg } = useOrgStore();
+  const t = useTranslations("settings");
 
   useEffect(() => {
     const fetchInvoices = async () => {
@@ -53,7 +55,7 @@ export const BillingHistory: React.FC = memo(() => {
           }`}
         >
           <Receipt className="w-4 h-4 text-emerald-500" />
-          Billing ClockCounterClockwise
+          {t("billing_history")}
         </h3>
         <button
           className={`flex items-center gap-1.5 text-xs font-black tracking-widest transition-colors ${
@@ -62,7 +64,7 @@ export const BillingHistory: React.FC = memo(() => {
               : "text-gray-500 hover:text-gray-900"
           }`}
         >
-          VIEW ALL
+          {t("view_all")}
           <ArrowUpRight size={14} />
         </button>
       </div>
@@ -70,7 +72,7 @@ export const BillingHistory: React.FC = memo(() => {
       <div className="space-y-1">
         {invoices.length === 0 ? (
           <p className="text-sm text-gray-500 py-4 italic text-center">
-            No invoices found.
+            {t("no_invoices")}
           </p>
         ) : (
           invoices.map((invoice) => (
@@ -86,7 +88,7 @@ export const BillingHistory: React.FC = memo(() => {
                     isDark ? "text-gray-300" : "text-gray-700"
                   }`}
                 >
-                  Invoice {invoice.invoice_number}
+                  {t("invoice")} {invoice.invoice_number}
                 </p>
                 <p className="text-xs text-gray-500 mt-0.5 font-mono">
                   {new Date(invoice.created_at).toLocaleDateString()} • $

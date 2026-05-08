@@ -8,11 +8,14 @@ import { AdminPlanModal } from "./AdminPlanModal";
 import { AdminProductModal } from "./AdminProductModal";
 import { Plus, Package, CreditCard, PencilSimple, CircleNotch } from "@phosphor-icons/react";
 import { assetsService } from "@/features/assets/services/assets.service";
+import { useTranslations } from "next-intl";
 
 export const AdminProductCatalog: React.FC = () => {
   const { session } = useAuth();
   const token = session?.accessToken || "";
   const [activeTab, setActiveTab] = useState<"products" | "plans">("plans");
+  const t = useTranslations("billing");
+  const tCommon = useTranslations("common");
 
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
@@ -53,7 +56,7 @@ export const AdminProductCatalog: React.FC = () => {
               size={16}
               className={activeTab === "products" ? "text-cyan-500" : ""}
             />
-            Products (Assets)
+            {t("products_assets")}
           </button>
           <button
             onClick={() => setActiveTab("plans")}
@@ -67,7 +70,7 @@ export const AdminProductCatalog: React.FC = () => {
               size={16}
               className={activeTab === "plans" ? "text-cyan-500" : ""}
             />
-            Subscription Plans
+            {t("subscription_plans")}
           </button>
         </div>
 
@@ -84,7 +87,7 @@ export const AdminProductCatalog: React.FC = () => {
           className="flex items-center gap-2 px-5 py-2.5 bg-linear-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white rounded-xl text-sm font-bold transition-all shadow-lg hover:shadow-cyan-500/25 active:scale-95 border border-white/10"
         >
           <Plus size={16} strokeWidth={3} />
-          <span>Create {activeTab === "products" ? "Product" : "Plan"}</span>
+          <span>{activeTab === "products" ? t("create_product") : t("create_plan")}</span>
         </button>
       </div>
 
@@ -97,19 +100,19 @@ export const AdminProductCatalog: React.FC = () => {
             </div>
           ) : plans.length === 0 ? (
             <div className="text-center p-12 text-gray-400 text-sm">
-              No plans found. Create one to get started.
+              {t("no_plans_found")}
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left border-collapse">
                 <thead className="text-[10px] uppercase font-black tracking-[0.2em] text-gray-500 dark:text-gray-400 bg-gray-50/50 dark:bg-white/2 border-gray-100 dark:border-white/10 border-b">
                   <tr>
-                    <th className="px-6 py-4">Plan Name</th>
-                    <th className="px-6 py-4">Code</th>
-                    <th className="px-6 py-4">Monthly</th>
-                    <th className="px-6 py-4">Yearly</th>
-                    <th className="px-6 py-4">Status</th>
-                    <th className="px-6 py-4 text-right">Actions</th>
+                    <th className="px-6 py-4">{t("plan_name")}</th>
+                    <th className="px-6 py-4">{t("code")}</th>
+                    <th className="px-6 py-4">{t("monthly")}</th>
+                    <th className="px-6 py-4">{t("yearly")}</th>
+                    <th className="px-6 py-4">{tCommon("status")}</th>
+                    <th className="px-6 py-4 text-right">{tCommon("actions")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 dark:divide-white/5">
@@ -136,7 +139,7 @@ export const AdminProductCatalog: React.FC = () => {
                         <span
                           className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${plan.is_active ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" : "bg-gray-500/10 text-gray-400 border-gray-500/20"}`}
                         >
-                          {plan.is_active ? "Active" : "Archived"}
+                          {plan.is_active ? tCommon("active") : t("archived")}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right">
@@ -166,17 +169,17 @@ export const AdminProductCatalog: React.FC = () => {
               </div>
             ) : products.length === 0 ? (
               <div className="text-center p-12 text-gray-400 text-sm">
-                No global products found.
+                {t("no_global_products_found")}
               </div>
             ) : (
               <table className="w-full text-sm text-left border-collapse">
                 <thead className="text-[10px] uppercase font-black tracking-[0.2em] text-gray-500 dark:text-gray-400 bg-gray-50/50 dark:bg-white/2 border-gray-100 dark:border-white/10 border-b">
                   <tr>
-                    <th className="px-6 py-4">Product Name</th>
-                    <th className="px-6 py-4">Category</th>
-                    <th className="px-6 py-4">Price</th>
-                    <th className="px-6 py-4">Status</th>
-                    <th className="px-6 py-4 text-right">Actions</th>
+                    <th className="px-6 py-4">{t("product_name")}</th>
+                    <th className="px-6 py-4">{t("category")}</th>
+                    <th className="px-6 py-4">{tCommon("price")}</th>
+                    <th className="px-6 py-4">{tCommon("status")}</th>
+                    <th className="px-6 py-4 text-right">{tCommon("actions")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 dark:divide-white/5">
@@ -199,7 +202,7 @@ export const AdminProductCatalog: React.FC = () => {
                         <span
                           className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${prod.status === "active" ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" : "bg-amber-500/10 text-amber-500 border-amber-500/20"}`}
                         >
-                          {prod.status}
+                          {tCommon(prod.status)}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right">

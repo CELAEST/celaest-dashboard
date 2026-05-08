@@ -5,6 +5,7 @@ import { GitBranch, TrendUp, Users, Warning } from "@phosphor-icons/react";
 import { StatCard } from "@/features/shared/components/StatCard";
 import { motion } from "motion/react";
 import { BackendReleaseMetrics } from "@/features/assets/api/assets.api";
+import { useTranslations } from "next-intl";
 
 const TotalReleasesVisual = () => (
   <svg viewBox="0 0 100 100" className="w-[110px] h-[110px]">
@@ -145,6 +146,8 @@ export const ReleaseMetrics: React.FC<ReleaseMetricsProps> = ({
   metrics,
   isLoading,
 }) => {
+  const t = useTranslations("releases");
+
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 animate-pulse">
@@ -161,9 +164,9 @@ export const ReleaseMetrics: React.FC<ReleaseMetricsProps> = ({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <StatCard
-        title="Total Releases"
+        title={t("metric_total_releases")}
         value={metrics?.total_releases.toString() || "0"}
-        trend="+12 this month"
+        trend={t("metric_total_releases_trend")}
         trendUp={true}
         icon={<GitBranch size={24} />}
         delay={0}
@@ -171,9 +174,9 @@ export const ReleaseMetrics: React.FC<ReleaseMetricsProps> = ({
         gradient="from-cyan-400 to-blue-500"
       />
       <StatCard
-        title="Adoption Rate"
+        title={t("metric_adoption_rate")}
         value={`${Math.round(metrics?.adoption_rate || 0)}%`}
-        trend="+4.2% engagement"
+        trend={t("metric_adoption_rate_trend")}
         trendUp={true}
         icon={<TrendUp size={24} />}
         delay={0.1}
@@ -181,9 +184,9 @@ export const ReleaseMetrics: React.FC<ReleaseMetricsProps> = ({
         gradient="from-purple-400 to-fuchsia-500"
       />
       <StatCard
-        title="Active Versions"
+        title={t("metric_active_versions")}
         value={metrics?.active_versions.toString() || "0"}
-        trend="-2 outdated"
+        trend={t("metric_active_versions_trend")}
         trendUp={false}
         icon={<Users size={24} />}
         delay={0.2}
@@ -191,9 +194,9 @@ export const ReleaseMetrics: React.FC<ReleaseMetricsProps> = ({
         gradient="from-blue-400 to-indigo-500"
       />
       <StatCard
-        title="Deprecated"
+        title={t("metric_deprecated")}
         value={metrics?.deprecated_count.toString() || "0"}
-        trend="+1 archived"
+        trend={t("metric_deprecated_trend")}
         trendUp={true}
         icon={<Warning size={24} />}
         delay={0.3}

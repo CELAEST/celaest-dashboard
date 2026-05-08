@@ -1,6 +1,7 @@
 import React, { memo } from "react";
 import { Monitor, Sun, Moon } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 
 import { Theme } from "@/stores/useUIStore";
 
@@ -12,13 +13,14 @@ interface ThemeSettingsProps {
 export const ThemeSettings: React.FC<ThemeSettingsProps> = memo(
   ({ currentTheme, onThemeChange }) => {
     const { isDark, isMounted } = useTheme();
+    const t = useTranslations("settings");
 
     if (!isMounted) return null;
 
     const themes: { id: Theme; icon: typeof Sun; label: string }[] = [
-      { id: "light", icon: Sun, label: "Light Mode" },
-      { id: "dark", icon: Moon, label: "Dark Mode" },
-      { id: "system", icon: Monitor, label: "System" },
+      { id: "light", icon: Sun, label: t("light_mode") },
+      { id: "dark", icon: Moon, label: t("dark_mode") },
+      { id: "system", icon: Monitor, label: t("system_theme") },
     ];
 
     return (
@@ -29,7 +31,7 @@ export const ThemeSettings: React.FC<ThemeSettingsProps> = memo(
           }`}
         >
           <Monitor className="w-5 h-5 text-cyan-500" />
-          Appearance & Theme
+          {t("appearance_theme")}
         </h3>
 
         <div className="grid grid-cols-3 gap-4">

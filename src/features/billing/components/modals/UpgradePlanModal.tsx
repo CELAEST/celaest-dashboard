@@ -13,6 +13,7 @@ import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { billingApi } from "../../api/billing.api";
 import { ApiError } from "@/lib/api-client";
+import { useTranslations } from "next-intl";
 
 interface UpgradePlanModalProps {
   isOpen: boolean;
@@ -26,10 +27,11 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
   const { currentOrg } = useOrgStore();
   const { session } = useAuth();
   const [isUpgrading, setIsUpgrading] = useState(false);
+  const t = useTranslations("billing");
 
   const handleUpgrade = async (plan: Plan) => {
     if (!currentOrg?.id || !session?.accessToken) {
-      toast.error("Organization or session information missing");
+      toast.error(t("org_session_missing"));
       return;
     }
 
@@ -63,12 +65,12 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
         resAny?.data?.url;
 
       if (checkoutUrl && typeof checkoutUrl === "string") {
-        toast.info("Redirecting to Stripe for payment...");
+        toast.info(t("redirecting_to_stripe"));
         window.location.href = checkoutUrl;
         return; // Don't close modal yet, we are leaving the page
       }
 
-      toast.success(`Successfully activated ${plan.name} plan!`);
+      toast.success(t("plan_activated", { name: plan.name }));
       onClose();
       // Optional: force reload to refresh all data
       window.location.reload();
@@ -79,14 +81,14 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
         (error.status === 409 ||
           error.code?.toLowerCase().includes("already exists"))
       ) {
-        toast.success(`${plan.name} plan is already active!`);
+        toast.success(t("plan_already_active", { name: plan.name }));
         onClose();
         window.location.reload();
         return;
       }
       logger.error("Upgrade failed:", error);
       toast.error(
-        error instanceof Error ? error.message : "Failed to upgrade plan",
+        error instanceof Error ? error.message : t("upgrade_failed"),
       );
     } finally {
       setIsUpgrading(false);
@@ -166,7 +168,7 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
             transition={{ delay: 0.1 }}
             className="text-2xl font-black italic tracking-tighter text-white uppercase"
           >
-            Choose Your Plan
+            {t("choose_your_plan")}
           </motion.h2>
 
           <motion.p
@@ -175,7 +177,7 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
             transition={{ delay: 0.15 }}
             className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40 mt-1"
           >
-            Scale your business with the right plan
+            {t("scale_your_business")}
           </motion.p>
         </div>
 

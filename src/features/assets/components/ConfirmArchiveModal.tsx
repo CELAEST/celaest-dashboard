@@ -3,6 +3,7 @@
 import React from "react";
 import { motion } from "motion/react";
 import { Trash, WarningCircle } from "@phosphor-icons/react";
+import { useTranslations } from "next-intl";
 
 interface ConfirmArchiveModalProps {
   isOpen: boolean;
@@ -19,6 +20,8 @@ export const ConfirmArchiveModal: React.FC<ConfirmArchiveModalProps> = ({
   onConfirm,
   onCancel,
 }) => {
+  const t = useTranslations("marketplace");
+
   if (!isOpen) return null;
 
   return (
@@ -136,7 +139,7 @@ export const ConfirmArchiveModal: React.FC<ConfirmArchiveModalProps> = ({
                 margin: 0,
               }}
             >
-              Archivar Asset
+              {t("archive_asset_title")}
             </h3>
             <p
               style={{
@@ -146,11 +149,7 @@ export const ConfirmArchiveModal: React.FC<ConfirmArchiveModalProps> = ({
                 lineHeight: 1.6,
               }}
             >
-              ¿Estás seguro de que deseas archivar{" "}
-              <span style={{ color: "rgba(255,255,255,0.8)", fontWeight: 600 }}>
-                &quot;{assetName}&quot;
-              </span>
-              ? Esta acción ocultará el asset del marketplace.
+              {t("archive_asset_confirm", { name: assetName })}
             </p>
           </div>
         </div>
@@ -189,7 +188,7 @@ export const ConfirmArchiveModal: React.FC<ConfirmArchiveModalProps> = ({
               opacity: isDeleting ? 0.4 : 1,
             }}
           >
-            Cancelar
+            {t("cancel_btn")}
           </button>
           <button
             onClick={onConfirm}
@@ -210,7 +209,7 @@ export const ConfirmArchiveModal: React.FC<ConfirmArchiveModalProps> = ({
             }}
           >
             <Trash size={13} weight="bold" />
-            {isDeleting ? "Archivando..." : "Sí, archivar"}
+            {isDeleting ? t("archiving") : t("yes_archive")}
           </button>
         </div>
       </motion.div>

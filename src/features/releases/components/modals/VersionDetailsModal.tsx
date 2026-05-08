@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { ShareNetwork, DownloadSimple, Clock } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useEscapeKey } from "@/features/shared/hooks/useEscapeKey";
+import { useTranslations } from "next-intl";
 import { Version } from "@/features/releases/types";
 import { VersionDetailsHeader } from "./VersionDetails/VersionDetailsHeader";
 import { VersionDetailsMetrics } from "./VersionDetails/VersionDetailsMetrics";
@@ -22,6 +23,7 @@ export const VersionDetailsModal = ({
 }: VersionDetailsModalProps) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const t = useTranslations("releases");
 
   // Keyboard accessibility: Esc to close
   useEscapeKey(onClose, isOpen && !!version);
@@ -96,7 +98,7 @@ export const VersionDetailsModal = ({
                     }`}
                   >
                     <Clock size={12} />
-                    Last viewed just now
+                    {t("modal_last_viewed")}
                   </div>
 
                   <div className="flex gap-2.5">
@@ -108,7 +110,7 @@ export const VersionDetailsModal = ({
                       }`}
                     >
                       <ShareNetwork size={15} />
-                      Share
+                      {t("modal_share")}
                     </button>
                     <button
                       className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all border ${
@@ -121,7 +123,7 @@ export const VersionDetailsModal = ({
                       }}
                     >
                       <DownloadSimple size={15} />
-                      Download
+                      {t("modal_download")}
                     </button>
                   </div>
                 </div>

@@ -3,6 +3,7 @@
 import React from "react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 
 import { BackendReleaseActivity } from "@/features/assets/api/assets.api";
 
@@ -57,16 +58,17 @@ export const RecentReleaseFeed: React.FC<RecentReleaseFeedProps> = ({
   isLoading,
 }) => {
   const { isDark } = useTheme();
+  const t = useTranslations("releases");
 
   // Helper to format time (simplified)
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
     const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
-    if (diff < 60) return "just now";
-    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-    return `${Math.floor(diff / 86400)}d ago`;
+    if (diff < 60) return t("time_just_now");
+    if (diff < 3600) return t("time_mins_ago", { count: Math.floor(diff / 60) });
+    if (diff < 86400) return t("time_hours_ago", { count: Math.floor(diff / 3600) });
+    return t("time_days_ago", { count: Math.floor(diff / 86400) });
   };
 
   const displayActivities =
@@ -92,13 +94,13 @@ export const RecentReleaseFeed: React.FC<RecentReleaseFeedProps> = ({
           <h3
             className={`font-black tracking-widest uppercase text-sm flex items-center gap-2 ${isDark ? "text-white" : "text-gray-900"}`}
           >
-            Pulse Log
+            {t("pulse_log")}
           </h3>
         </div>
         <button
           className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded transition-colors border ${isDark ? "bg-white/5 hover:bg-white/10 text-gray-400 border-white/5" : "bg-gray-100 hover:bg-gray-200 text-gray-500 border-gray-200"}`}
         >
-          View All
+          {t("view_all")}
         </button>
       </div>
 
@@ -117,7 +119,7 @@ export const RecentReleaseFeed: React.FC<RecentReleaseFeedProps> = ({
           </div>
         ) : displayActivities.length === 0 ? (
           <div className="text-center py-8 text-gray-500 text-xs font-mono uppercase tracking-widest">
-            No telemetry data
+            {t("no_telemetry_data")}
           </div>
         ) : (
           displayActivities.map(

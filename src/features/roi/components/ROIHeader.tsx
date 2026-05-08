@@ -2,6 +2,7 @@ import React from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { CaretDown, Check, DownloadSimple, ArrowClockwise } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 import { PageBanner } from "@/components/layout/PageLayout";
 
 interface ROIHeaderProps {
@@ -9,7 +10,7 @@ interface ROIHeaderProps {
   setIsFilterOpen: (isOpen: boolean) => void;
   selectedFilter: string;
   setSelectedFilter: (filter: string) => void;
-  filterOptions: { value: string; label: string }[];
+  filterOptions: { value: string; label: string; labelKey?: string }[];
   activeTab: "overview" | "insights";
   setActiveTab: (tab: "overview" | "insights") => void;
   onRefresh: () => void;
@@ -34,12 +35,13 @@ export const ROIHeader = React.memo(
   }: ROIHeaderProps) => {
     const { theme } = useTheme();
     const isDark = theme === "dark";
+    const t = useTranslations("roi");
 
     return (
       <div className="shrink-0 flex flex-col">
         <PageBanner
-          title={isSuperAdmin ? "ROI Analytics - Global View" : "ROI Analytics - My Analytics"}
-          subtitle="Métricas agregadas • Detectando tendencias"
+          title={isSuperAdmin ? t("roi_title_global") : t("roi_title_my")}
+          subtitle={t("roi_subtitle")}
           actions={
             <div className="flex items-center gap-2">
               {/* TAB SWITCHER */}
@@ -50,7 +52,7 @@ export const ROIHeader = React.memo(
                     : "bg-gray-100 border-gray-200"
                 }`}
               >
-                <button
+                  <button
                   onClick={() => setActiveTab("overview")}
                   className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all duration-200 ${
                     activeTab === "overview"
@@ -62,7 +64,7 @@ export const ROIHeader = React.memo(
                         : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
                   }`}
                 >
-                  Overview
+                  {t("overview_label")}
                 </button>
                 {isSuperAdmin && (
                   <button
@@ -76,8 +78,8 @@ export const ROIHeader = React.memo(
                           ? "text-gray-400 hover:text-white hover:bg-white/5"
                           : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
                     }`}
-                  >
-                    Deep Insights
+                    >
+                    {t("deep_insights_label")}
                   </button>
                 )}
               </div>
@@ -91,12 +93,12 @@ export const ROIHeader = React.memo(
                       ? "bg-white/5 border-white/10 text-gray-300 hover:bg-white/10 hover:border-white/20"
                       : "bg-white border-gray-200 text-gray-700 hover:border-gray-300 shadow-sm"
                   }`}
-                  aria-haspopup="true"
-                  aria-expanded={isFilterOpen}
-                  aria-label="Filtrar por periodo de tiempo"
+                    aria-haspopup="true"
+                    aria-expanded={isFilterOpen}
+                    aria-label={t("filter_time_aria")}
                 >
                   <span>
-                    {filterOptions.find((opt) => opt.value === selectedFilter)?.label}
+                    {t(filterOptions.find((opt) => opt.value === selectedFilter)?.labelKey || "period_week")}
                   </span>
                   <CaretDown
                     size={14}
@@ -144,7 +146,7 @@ export const ROIHeader = React.memo(
                               }`}
                               role="menuitem"
                             >
-                              {option.label}
+                              {t(option.labelKey as string)}
                               {selectedFilter === option.value && (
                                 <Check size={13} />
                               )}
@@ -156,8 +158,6 @@ export const ROIHeader = React.memo(
                   )}
                 </AnimatePresence>
               </div>
-
-              {/* REFRESH */}
               <button
                 onClick={onRefresh}
                 className={`p-1.5 rounded-xl transition-all duration-200 border ${
@@ -165,7 +165,7 @@ export const ROIHeader = React.memo(
                     ? "bg-white/5 border-white/8 hover:bg-white/10 hover:border-white/20 text-gray-400 hover:text-white"
                     : "bg-white border-gray-200 hover:border-gray-300 text-gray-500 hover:text-gray-900 shadow-sm"
                 }`}
-                aria-label="Refrescar datos"
+                aria-label={t("refresh_aria")}
                 disabled={isLoading}
               >
                 <ArrowClockwise
@@ -182,10 +182,10 @@ export const ROIHeader = React.memo(
                     ? "bg-linear-to-r from-cyan-500 to-blue-600 text-white shadow-md shadow-cyan-500/25 hover:shadow-cyan-500/40"
                     : "bg-linear-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20 hover:shadow-blue-500/35"
                 }`}
-                aria-label="Exportar reporte de analítica"
+                aria-label={t("export_report_label")}
               >
                 <DownloadSimple size={15} weight="bold" />
-                Exportar Reporte
+                {t("export_report_label")}
               </button>
             </div>
           }

@@ -3,6 +3,7 @@ import { Globe, PencilSimple, Trash } from "@phosphor-icons/react";
 import { motion } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { TaxRate } from "../../../types";
+import { useTranslations } from "next-intl";
 
 interface TaxRateListProps {
   taxRates: TaxRate[];
@@ -19,28 +20,29 @@ export const TaxRateList: React.FC<TaxRateListProps> = ({
 }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const t = useTranslations("billing");
 
   return (
     <div className="space-y-3">
       {/* Grid Header */}
       <div className="hidden md:grid grid-cols-[1.5fr_80px_100px_80px_120px_90px] gap-4 px-4 pb-1">
         <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
-          Country/Region
+          {t("country_region")}
         </div>
         <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider text-center">
-          Code
+          {t("code")}
         </div>
         <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider text-center">
-          Tax Rate
+          {t("tax_rate")}
         </div>
         <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider text-center">
-          TextT
+          {t("type")}
         </div>
         <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider text-center">
-          Status
+          {t("status")}
         </div>
         <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider text-right">
-          Actions
+          {t("actions")}
         </div>
       </div>
 
@@ -65,14 +67,14 @@ export const TaxRateList: React.FC<TaxRateListProps> = ({
                   isDark ? "text-gray-500" : "text-gray-400"
                 }`}
               >
-                COUNTRY/REGION
+                {t("country_region")}
               </div>
               <div
                 className={`text-sm sm:text-base font-bold truncate ${
                   isDark ? "text-white" : "text-gray-900"
                 }`}
               >
-                {rate.region || "Global"}
+                {rate.region || t("global")}
               </div>
               <div
                 className={`text-[10px] ${isDark ? "text-gray-500" : "text-gray-400"} truncate`}
@@ -88,7 +90,7 @@ export const TaxRateList: React.FC<TaxRateListProps> = ({
                   isDark ? "text-gray-500" : "text-gray-400"
                 }`}
               >
-                CODE
+                {t("code")}
               </div>
               <div
                 className={`px-2.5 py-1 rounded-lg font-mono font-bold text-xs inline-flex items-center justify-center ${
@@ -108,7 +110,7 @@ export const TaxRateList: React.FC<TaxRateListProps> = ({
                   isDark ? "text-gray-500" : "text-gray-400"
                 }`}
               >
-                TAX RATE
+                {t("tax_rate")}
               </div>
               <div
                 className={`text-xl sm:text-2xl font-black ${
@@ -126,7 +128,7 @@ export const TaxRateList: React.FC<TaxRateListProps> = ({
                   isDark ? "text-gray-500" : "text-gray-400"
                 }`}
               >
-                TYPE
+                {t("type")}
               </div>
               <div
                 className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-md ${
@@ -135,7 +137,7 @@ export const TaxRateList: React.FC<TaxRateListProps> = ({
                     : "bg-gray-100 text-gray-600"
                 }`}
               >
-                {rate.type || "VAT"}
+                {rate.type === "VAT" ? t("vat") : rate.type === "GST" ? t("gst") : rate.type === "Sales Tax" ? t("sales_tax") : rate.type}
               </div>
             </div>
 
@@ -146,7 +148,7 @@ export const TaxRateList: React.FC<TaxRateListProps> = ({
                   isDark ? "text-gray-500" : "text-gray-400"
                 }`}
               >
-                STATUS
+                {t("status")}
               </div>
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -162,7 +164,7 @@ export const TaxRateList: React.FC<TaxRateListProps> = ({
                       : "bg-gray-500/10 text-gray-600 border border-gray-200 hover:bg-gray-500/20"
                 }`}
               >
-                {rate.isActive ? "ACTIVE" : "INACTIVE"}
+                {rate.isActive ? t("active") : t("inactive")}
               </motion.button>
             </div>
 
@@ -208,9 +210,9 @@ export const TaxRateList: React.FC<TaxRateListProps> = ({
         >
           <Globe className="w-16 h-16 mx-auto mb-4 opacity-20" />
           <div className="text-base font-semibold mb-2">
-            No tax rates configured
+            {t("no_tax_rates")}
           </div>
-          <div className="text-xs">Add your first tax rate to get started</div>
+          <div className="text-xs">{t("add_first_tax_rate")}</div>
         </motion.div>
       )}
     </div>

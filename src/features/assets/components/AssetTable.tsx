@@ -15,6 +15,7 @@ import { Asset } from "../services/assets.service";
 import { AssetTypeIcon } from "./shared/AssetTypeIcon";
 import { AssetStatusBadge } from "./shared/AssetStatusBadge";
 import { AssetActionMenu, AssetMenuState } from "./AssetActionMenu";
+import { useTranslations } from "next-intl";
 
 interface AssetTableProps {
   assets: Asset[];
@@ -55,11 +56,12 @@ export const AssetTable: React.FC<AssetTableProps> = ({
   onLoadMore,
   hideFooter = false,
 }) => {
+  const t = useTranslations("marketplace");
   const columns: ColumnDef<Asset>[] = useMemo(
     () => [
       {
         id: "asset",
-        header: "Asset",
+        header: t("col_asset"),
         cell: ({ row }) => {
           const asset = row.original;
           return (
@@ -104,7 +106,7 @@ export const AssetTable: React.FC<AssetTableProps> = ({
       },
       {
         id: "type",
-        header: "TextT",
+        header: t("col_type"),
         accessorKey: "type",
         cell: ({ row }) => {
           const asset = row.original;
@@ -122,7 +124,7 @@ export const AssetTable: React.FC<AssetTableProps> = ({
       },
       {
         id: "price",
-        header: "Price",
+        header: t("col_price"),
         accessorKey: "price",
         cell: ({ row }) => {
           return (
@@ -136,7 +138,7 @@ export const AssetTable: React.FC<AssetTableProps> = ({
       },
       {
         id: "status",
-        header: "Status",
+        header: t("col_status"),
         accessorKey: "status",
         cell: ({ row }) => {
           return (
@@ -146,16 +148,16 @@ export const AssetTable: React.FC<AssetTableProps> = ({
       },
       {
         id: "plan",
-        header: "Min Plan",
+        header: t("col_min_plan"),
         accessorKey: "minPlanTier",
         cell: ({ row }) => {
           const tier = row.original.minPlanTier;
           const tierLabels: Record<number, string> = {
-            0: "All",
-            1: "Basic",
-            2: "Pro",
-            3: "Enterprise",
-            4: "Private",
+            0: t("tier_all"),
+            1: t("tier_basic"),
+            2: t("tier_pro"),
+            3: t("tier_enterprise"),
+            4: t("tier_private"),
           };
           const tierColors: Record<number, string> = {
             0: isDark
@@ -180,14 +182,14 @@ export const AssetTable: React.FC<AssetTableProps> = ({
               className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border ${tierColors[tier] || tierColors[4]}`}
             >
               <ShieldCheck size={10} weight="duotone" />
-              <span>{tierLabels[tier] || "Private"}</span>
+              <span>{tierLabels[tier] || t("tier_private")}</span>
             </div>
           );
         },
       },
       {
         id: "visibility",
-        header: "Visibility",
+        header: t("col_visibility"),
         accessorKey: "isPublic",
         cell: ({ row }) => {
           const isPublic = row.original.isPublic;
@@ -202,7 +204,7 @@ export const AssetTable: React.FC<AssetTableProps> = ({
                   }`}
                 >
                   <Globe size={12} weight="duotone" />
-                  <span>Public</span>
+                  <span>{t("public")}</span>
                 </div>
               ) : (
                 <div
@@ -213,7 +215,7 @@ export const AssetTable: React.FC<AssetTableProps> = ({
                   }`}
                 >
                   <Lock size={12} weight="fill" />
-                  <span>Private</span>
+                  <span>{t("private_label")}</span>
                 </div>
               )}
             </div>
@@ -222,7 +224,7 @@ export const AssetTable: React.FC<AssetTableProps> = ({
       },
       {
         id: "version",
-        header: "Version",
+        header: t("col_version"),
         accessorKey: "version",
         cell: ({ row }) => {
           return (
@@ -236,7 +238,7 @@ export const AssetTable: React.FC<AssetTableProps> = ({
       },
       {
         id: "downloads",
-        header: "Downloads",
+        header: t("col_downloads"),
         accessorKey: "downloads",
         cell: ({ row }) => {
           return (
@@ -250,7 +252,7 @@ export const AssetTable: React.FC<AssetTableProps> = ({
       },
       {
         id: "actions",
-        header: () => <div className="text-right">Actions</div>,
+        header: () => <div className="text-right">{t("col_actions")}</div>,
         cell: ({ row }) => {
           const asset = row.original;
           return (
@@ -266,7 +268,7 @@ export const AssetTable: React.FC<AssetTableProps> = ({
         },
       },
     ],
-    [isDark, onOpenMenu],
+    [isDark, onOpenMenu, t],
   );
 
   // Resolve active asset from menuState id
@@ -292,8 +294,8 @@ export const AssetTable: React.FC<AssetTableProps> = ({
         columns={columns}
         data={assets}
         isLoading={isLoading}
-        emptyMessage="No assets found"
-        emptySubmessage="You haven't uploaded any assets yet."
+        emptyMessage={t("no_assets_found")}
+        emptySubmessage={t("no_assets_uploaded")}
         totalItems={totalItems}
         hasNextPage={hasNextPage}
         isFetchingNextPage={isFetchingNextPage}

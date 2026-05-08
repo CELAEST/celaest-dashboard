@@ -2,9 +2,11 @@ import React, { memo } from "react";
 import { Bell } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 export const NotificationHeader: React.FC = memo(() => {
   const { isDark } = useTheme();
+  const t = useTranslations("settings");
 
   return (
     <div className="flex items-center justify-between mb-8">
@@ -24,19 +26,19 @@ export const NotificationHeader: React.FC = memo(() => {
               isDark ? "text-white" : "text-gray-900"
             }`}
           >
-            Notification Preferences
+            {t("notification_preferences")}
           </h3>
           <p
             className={`text-sm ${isDark ? "text-gray-500" : "text-gray-400"}`}
           >
-            Choose how and when you want to be notified.
+            {t("notification_preferences_desc")}
           </p>
         </div>
       </div>
       <button
         onClick={() =>
-          toast.message("All notifications muted", {
-            description: "You will no longer receive push or email alerts.",
+          toast.message(t("all_muted"), {
+            description: t("all_muted_desc"),
           })
         }
         className={`px-4 py-2 rounded-xl text-xs font-black tracking-widest transition-all ${
@@ -45,7 +47,7 @@ export const NotificationHeader: React.FC = memo(() => {
             : "bg-gray-100 text-gray-500 hover:bg-gray-200"
         }`}
       >
-        MUTE ALL
+        {t("mute_all")}
       </button>
     </div>
   );

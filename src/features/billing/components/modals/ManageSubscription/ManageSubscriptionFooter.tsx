@@ -1,11 +1,13 @@
 import React from "react";
 import { CheckCircle } from "@phosphor-icons/react";
+import { useTranslations } from "next-intl";
 
 interface ManageSubscriptionFooterProps {
   onClose: () => void;
 }
 
 export const ManageSubscriptionFooter: React.FC<ManageSubscriptionFooterProps> = ({ onClose }) => {
+  const t = useTranslations("billing");
   return (
     <div className="relative shrink-0 overflow-hidden">
       {/* Top accent */}
@@ -28,7 +30,7 @@ export const ManageSubscriptionFooter: React.FC<ManageSubscriptionFooterProps> =
           className="px-6 py-3 rounded-2xl bg-linear-to-r from-teal-500 to-teal-600 text-white text-sm font-black uppercase tracking-wide shadow-[0_0_20px_rgba(20,184,166,0.3)] hover:shadow-[0_0_30px_rgba(20,184,166,0.5)] transition-all flex items-center gap-2"
         >
           <CheckCircle size={16} />
-          Done
+          {t("done")}
         </button>
       </div>
     </div>

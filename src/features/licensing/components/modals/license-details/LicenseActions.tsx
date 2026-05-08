@@ -14,6 +14,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 import { UpgradePlanModal } from "@/features/billing/components/modals/UpgradePlanModal";
+import { useTranslations } from "next-intl";
 
 interface LicenseActionsProps {
   status: string;
@@ -38,6 +39,7 @@ export const LicenseActions: React.FC<LicenseActionsProps> = ({
     session?.user?.role === "super_admin" || session?.user?.role === "admin";
   const [isConfirmingRevoke, setIsConfirmingRevoke] = useState(false);
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
+  const t = useTranslations("licensing");
 
   const handleRevoke = () => {
     if (!isConfirmingRevoke) {
@@ -56,8 +58,8 @@ export const LicenseActions: React.FC<LicenseActionsProps> = ({
   };
 
   const actions = [
-    { id: "active", icon: ShieldCheck, label: "Activate", color: "emerald" },
-    { id: "expired", icon: Clock, label: "Expire", color: "orange" },
+    { id: "active", icon: ShieldCheck, label: t("activate"), color: "emerald" },
+    { id: "expired", icon: Clock, label: t("expire"), color: "orange" },
   ];
 
   if (!isAdmin) {
@@ -67,7 +69,7 @@ export const LicenseActions: React.FC<LicenseActionsProps> = ({
           <h4
             className={`text-[10px] font-black uppercase tracking-[0.2em] ${isDark ? "text-gray-500" : "text-gray-400"}`}
           >
-            License Management
+            {t("license_management")}
           </h4>
         </div>
 
@@ -98,10 +100,10 @@ export const LicenseActions: React.FC<LicenseActionsProps> = ({
               </div>
               <div className="flex flex-col items-start flex-1 text-left relative z-10">
                 <span className="text-sm font-black uppercase tracking-wider">
-                  Upgrade to Premium
+                  {t("upgrade_to_premium")}
                 </span>
                 <span className="text-xs opacity-70 font-medium mt-1">
-                  Unlock all features permanently
+                  {t("unlock_all_features")}
                 </span>
               </div>
             </button>
@@ -127,10 +129,10 @@ export const LicenseActions: React.FC<LicenseActionsProps> = ({
               </div>
               <div className="flex flex-col items-start flex-1 text-left">
                 <span className="text-sm font-black uppercase tracking-wider">
-                  Renew Subscription
+                  {t("renew_subscription")}
                 </span>
                 <span className="text-xs opacity-70 font-medium mt-1">
-                  Ensure uninterrupted access
+                  {t("ensure_uninterrupted_access")}
                 </span>
               </div>
             </button>
@@ -157,8 +159,8 @@ export const LicenseActions: React.FC<LicenseActionsProps> = ({
               />
               <span className="text-sm font-medium tracking-wide">
                 {status === "active"
-                  ? "Your license is active and fully operational"
-                  : `Your license is currently ${status}`}
+                  ? t("license_active")
+                  : t("license_status", { status })}
               </span>
             </div>
           )}
@@ -180,7 +182,7 @@ export const LicenseActions: React.FC<LicenseActionsProps> = ({
         <h4
           className={`text-[10px] font-black uppercase tracking-[0.2em] ${isDark ? "text-gray-500" : "text-gray-400"}`}
         >
-          Administrative Controls
+          {t("administrative_controls")}
         </h4>
       </div>
 
@@ -216,7 +218,7 @@ export const LicenseActions: React.FC<LicenseActionsProps> = ({
                 {action.label}
               </span>
               <span className="text-[10px] opacity-50 font-medium">
-                Set status to {action.id}
+                {t("set_status_to", { status: action.id })}
               </span>
             </div>
           </button>
@@ -236,10 +238,10 @@ export const LicenseActions: React.FC<LicenseActionsProps> = ({
             </div>
             <div className="flex flex-col items-start">
               <span className="text-xs font-bold uppercase tracking-wider">
-                Upgrade Trial
+                {t("upgrade_trial")}
               </span>
               <span className="text-[10px] opacity-50 font-medium">
-                Convert to paid license
+                {t("convert_to_paid")}
               </span>
             </div>
           </button>
@@ -259,10 +261,10 @@ export const LicenseActions: React.FC<LicenseActionsProps> = ({
             </div>
             <div className="flex flex-col items-start">
               <span className="text-xs font-bold uppercase tracking-wider">
-                Force Renew
+                {t("force_renew")}
               </span>
               <span className="text-[10px] opacity-50 font-medium">
-                Extend billing cycle
+                {t("extend_billing_cycle")}
               </span>
             </div>
           </button>
@@ -282,10 +284,10 @@ export const LicenseActions: React.FC<LicenseActionsProps> = ({
             </div>
             <div className="flex flex-col items-start">
               <span className="text-xs font-bold uppercase tracking-wider">
-                Reactivate
+                {t("reactivate")}
               </span>
               <span className="text-[10px] opacity-50 font-medium">
-                Lift suspension immediately
+                {t("lift_suspension")}
               </span>
             </div>
           </button>
@@ -317,10 +319,10 @@ export const LicenseActions: React.FC<LicenseActionsProps> = ({
                 </div>
                 <div className="flex flex-col items-start">
                   <span className="text-xs font-black uppercase tracking-wider">
-                    Revoke Key
+                    {t("revoke_key")}
                   </span>
                   <span className="text-[10px] opacity-60 font-medium">
-                    Deauthorize access
+                    {t("deauthorize_access")}
                   </span>
                 </div>
               </motion.button>
@@ -344,7 +346,7 @@ export const LicenseActions: React.FC<LicenseActionsProps> = ({
                   <span
                     className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-rose-200" : "text-rose-700"}`}
                   >
-                    Are you sure?
+                    {t("are_you_sure")}
                   </span>
                 </div>
                 <div className="flex gap-2">

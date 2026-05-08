@@ -11,6 +11,7 @@ import { Storefront } from "@phosphor-icons/react";
 import { AnimatePresence } from "motion/react";
 import dynamic from "next/dynamic";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 
 const LoginModal = dynamic(
   () =>
@@ -29,6 +30,7 @@ const ProductDetailModal = dynamic(
 );
 
 export function MarketplacePublicView() {
+  const t = useTranslations("marketplace");
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
@@ -69,14 +71,14 @@ export function MarketplacePublicView() {
                 isDark ? "text-white" : "text-gray-900"
               }`}
             >
-              Soluciones Disponibles
+              {t("available_solutions")}
             </h2>
             <p
               className={`text-sm ${
                 isDark ? "text-gray-400" : "text-gray-600"
               }`}
             >
-              Cada producto incluye garantía de 30 días y soporte premium
+              {t("every_product_includes")}
             </p>
           </div>
           <div
@@ -86,7 +88,7 @@ export function MarketplacePublicView() {
                 : "bg-cyan-50 text-cyan-700 border border-cyan-200"
             }`}
           >
-            {products.length} productos
+            {t("products_count", { count: products.length })}
           </div>
         </div>
 
@@ -101,13 +103,13 @@ export function MarketplacePublicView() {
             <div className="text-center py-20 bg-white/5 rounded-3xl border border-dashed border-white/10 mx-8">
               <Storefront className="mx-auto h-12 w-12 text-gray-400 mb-4" />
               <h3 className="text-lg font-medium text-gray-500">
-                No se encontraron productos
+                {t("no_products_found")}
               </h3>
               <button
                 onClick={reset}
                 className="text-cyan-500 mt-2 hover:underline"
               >
-                Limpiar filtros
+                {t("clear_filters")}
               </button>
             </div>
           ) : (
@@ -132,7 +134,7 @@ export function MarketplacePublicView() {
       <LoginModal
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
-        message="Inicia sesión para adquirir soluciones premium."
+        message={t("login_to_acquire")}
       />
 
       {detailProduct && (

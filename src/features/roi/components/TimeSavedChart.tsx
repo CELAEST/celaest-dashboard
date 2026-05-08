@@ -10,6 +10,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 
 interface DataPoint {
   label: string;
@@ -24,6 +25,7 @@ interface CustomTooltipProps {
   }>;
   label?: string;
   isDark: boolean;
+  unit?: string;
 }
 
 const CustomTooltip: React.FC<CustomTooltipProps> = ({
@@ -31,6 +33,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
   payload,
   label,
   isDark,
+  unit,
 }) => {
   if (active && payload && payload.length) {
     return (
@@ -61,7 +64,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
               isDark ? "text-cyan-400/70" : "text-blue-500/70"
             }`}
           >
-            horas
+            {unit ?? 'horas'}
           </span>
         </div>
       </div>
@@ -99,6 +102,7 @@ export const TimeSavedChart = React.memo(
   ({ data, timeRange, setTimeRange }: TimeSavedChartProps) => {
     const { theme } = useTheme();
     const isDark = theme === "dark";
+    const t = useTranslations("roi");
 
     return (
       <motion.div
@@ -129,13 +133,13 @@ export const TimeSavedChart = React.memo(
                   isDark ? "text-white" : "text-gray-900"
                 }`}
               >
-                Tiempo Ahorrado —{" "}
+                {t("time_saved_title")} —{" "}
                 <span className={`font-medium ${isDark ? "text-gray-400" : "text-gray-500"}`}>
                   {timeRange === "week"
-                    ? "Última Semana"
+                    ? t("period_week")
                     : timeRange === "month"
-                      ? "Último Mes"
-                      : "Último Año"}
+                      ? t("period_month")
+                      : t("period_year")}
                 </span>
               </h3>
             </div>
@@ -144,20 +148,20 @@ export const TimeSavedChart = React.memo(
                 isDark ? "bg-white/5 border-white/5" : "bg-gray-100/80 border-gray-200"
               }`}
             >
-              {["Semana", "Mes", "Año"].map((period) => {
+              {[t('period_week'), t('period_month'), t('period_year')].map((period) => {
                 const isSelected =
-                  (timeRange === "week" && period === "Semana") ||
-                  (timeRange === "month" && period === "Mes") ||
-                  (timeRange === "year" && period === "Año");
+                  (timeRange === "week" && period === t("period_week")) ||
+                  (timeRange === "month" && period === t("period_month")) ||
+                  (timeRange === "year" && period === t("period_year"));
 
                 return (
                   <button
                     key={period}
                     onClick={() =>
                       setTimeRange(
-                        period === "Semana"
+                        period === t("period_week")
                           ? "week"
-                          : period === "Mes"
+                          : period === t("period_month")
                             ? "month"
                             : "year",
                       )
@@ -258,7 +262,7 @@ export const TimeSavedChart = React.memo(
                   }}
                 />
                 <Tooltip
-                  content={<CustomTooltip isDark={isDark} />}
+                  content={<CustomTooltip isDark={isDark} unit={t('hours_unit')} />}
                   cursor={{
                     stroke: isDark ? "rgba(34,211,238,0.25)" : "rgba(59,130,246,0.15)",
                     strokeWidth: 1.5,

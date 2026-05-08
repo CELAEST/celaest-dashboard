@@ -15,6 +15,7 @@ import { socket } from "@/lib/socket-client";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 import { toast } from "sonner";
 import { useOrgStore } from "@/features/shared/stores/useOrgStore";
+import { useTranslations } from "next-intl";
 
 // ============================================================================
 // Types - Interface Segregation Principle
@@ -67,6 +68,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
 }) => {
   // Read token via selector — only re-renders when accessToken changes, not the whole session object
   const token = useAuthStore((s) => s.session?.accessToken);
+  const t = useTranslations("notifications");
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [toasts, setToasts] = useState<Notification[]>([]);
@@ -147,25 +149,26 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     const unsubscribers = [
       socket.on("order.created", (raw: unknown) => {
         const payload = raw as { order_id: string };
-        const ref = payload.order_id?.slice(0, 8) ?? "nueva";
-        handleEvent("info", "Nueva Orden", `Se ha creado la orden #${ref}`);
+        const ref = payload.order_id?.slice(0, 8) ?? "—";
+        handleEvent("info", t("new_order"), t("order_created", { ref }));
       }),
       socket.on("order.updated", (raw: unknown) => {
         const payload = raw as { order_id: string; status: string };
         const ref = payload.order_id?.slice(0, 8) ?? "—";
-        handleEvent("info", "Orden Actualizada", `La orden #${ref} ahora está en estado ${payload.status ?? "—"}`);
+        handleEvent("info", t("order_updated"), t("order_status_changed", { ref, status: payload.status ?? "—" }));
       }),
       socket.on("order.paid", (raw: unknown) => {
         const payload = raw as { order_id: string; order_number?: string };
         const ref = payload.order_number ?? `#${payload.order_id?.slice(0, 8) ?? "—"}`;
-        handleEvent("success", "Pago Recibido", `La orden ${ref} ha sido pagada.`);
+        handleEvent("success", t("payment_received"), t("order_paid", { ref }));
       }),
       socket.on("payment.failed", (raw: unknown) => {
         const payload = raw as { order_id: string; error?: string };
+        const ref = payload.order_id?.slice(0, 8) ?? "—";
         handleEvent(
           "error",
-          "Pago Fallido",
-          `Error en el pago de la orden #${payload.order_id?.slice(0, 8)}. ${payload.error || ""}`,
+          t("payment_failed"),
+          t("order_payment_error", { ref, error: payload.error || "" })
         );
       }),
       socket.on("organization.member_added", (raw: unknown) => {
@@ -179,15 +182,15 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
 
         // Si el evento viene dirigido hacia el usuario indicando que lo agregaron:
         if (action === "added_to_workspace") {
-          toast.success("¡Nuevo Workspace!", {
-            description: `Te han invitado y otorgado el rol de ${role}. Revísalo en tu lista de organizaciones.`,
+          toast.success(t("new_workspace"), {
+            description: t("workspace_invited", { role: role || "member" }),
             duration: 8000,
           });
 
           handleEvent(
             "success",
-            "Nuevo Workspace",
-            `Te han invitado a una nueva organización con el rol de ${role}`,
+            t("new_workspace_title"),
+            t("workspace_invited_title", { role: role || "member" }),
           );
 
           // Fetch silencioso desde getState() — sin suscripción reactiva al store
@@ -196,8 +199,8 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
           // Si es el evento general de la org de que entró ALGUIEN más (y no somos nosotros)
           handleEvent(
             "info",
-            "Nuevo Miembro",
-            `Un nuevo miembro se ha unido a la organización.`,
+            t("new_member"),
+            t("member_joined"),
           );
         }
       }),
@@ -227,8 +230,8 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
           const freshCurrentOrgId = useOrgStore.getState().currentOrg?.id;
           if (eventOrgId === freshCurrentOrgId || !freshCurrentOrgId) {
 
-            toast.error("Fuiste removido de este Workspace.", {
-              description: "Redirigiendo a tu espacio por defecto...",
+            toast.error(t("removed_from_workspace"), {
+              description: t("redirecting_default"),
             });
 
             // IMPORTANT: Do NOT rely on fetchOrgs().then(redirect) here.
@@ -250,9 +253,8 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
             window.location.href = "/?revoked=true";
           } else {
             // Fuimos removidos de un workspace diferente al que estamos viendo
-            toast.warning("Privilegios Revocados", {
-              description:
-                "Fuiste removido de uno de tus Workspaces inactivos.",
+            toast.warning(t("privileges_revoked"), {
+              description: t("removed_inactive_workspace"),
             });
             if (token) useOrgStore.getState().fetchOrgs(token, true); // update sidebars without interrupting
           }
@@ -263,8 +265,8 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
         if (action !== "membership_revoked") {
           handleEvent(
             "warning",
-            "Miembro Eliminado",
-            `Un miembro ha sido eliminado de la organización.`,
+            t("member_removed"),
+            t("member_removed_desc"),
           );
         }
       }),
@@ -277,7 +279,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
       socket.on("invoice.generated", (raw: unknown) => {
         const payload = raw as { invoice_id: string; invoice_number?: string };
         const ref = payload.invoice_number ?? `#${payload.invoice_id?.slice(0, 8) ?? "—"}`;
-        handleEvent("info", "Factura Generada", `Se ha generado una nueva factura ${ref}`);
+        handleEvent("info", t("invoice_generated"), t("invoice_created", { ref }));
       }),
     ];
 
@@ -288,7 +290,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   // so there is no stale-closure risk. fetchOrgs is never stored in component scope.
   // Do NOT add fetchOrgs, currentOrg, or currentOrgId here — that would tear down
   // and re-register all socket listeners on every org switch or store change.
-  }, [token, addNotification]);
+  }, [token, addNotification, t]);
 
   // Memoize context value to prevent all consumers from re-rendering on every
   // unrelated state change inside NotificationProvider.

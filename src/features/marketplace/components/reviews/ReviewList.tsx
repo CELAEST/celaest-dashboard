@@ -8,6 +8,7 @@ import React from "react";
 import { Review } from "../../types";
 import { ReviewCard } from "./ReviewCard";
 import { Chat } from "@phosphor-icons/react";
+import { useTranslations } from "next-intl";
 
 interface ReviewListProps {
   reviews: Review[];
@@ -15,6 +16,8 @@ interface ReviewListProps {
 }
 
 export const ReviewList: React.FC<ReviewListProps> = ({ reviews, loading }) => {
+  const t = useTranslations("marketplace");
+
   if (loading) {
     return (
       <div className="space-y-4">
@@ -34,9 +37,9 @@ export const ReviewList: React.FC<ReviewListProps> = ({ reviews, loading }) => {
         <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-blue-500/10 text-blue-400">
           <Chat className="h-6 w-6" />
         </div>
-        <h4 className="font-medium text-white">Sin reseñas aún</h4>
+        <h4 className="font-medium text-white">{t("no_reviews_yet_title")}</h4>
         <p className="mt-1 text-sm text-white/50">
-          Sé el primero en dejar una reseña
+          {t("be_first_to_review")}
         </p>
       </div>
     );

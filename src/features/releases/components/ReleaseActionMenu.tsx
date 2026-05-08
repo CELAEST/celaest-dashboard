@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { PencilSimple, Archive, FileText } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { Version } from "../types";
+import { useTranslations } from "next-intl";
 
 export interface ReleaseMenuState {
   id: string;
@@ -33,6 +34,7 @@ export const ReleaseActionMenu: React.FC<ReleaseActionMenuProps> = ({
 }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const t = useTranslations("releases");
 
   if (typeof window === "undefined" || !version) return null;
 
@@ -40,8 +42,8 @@ export const ReleaseActionMenu: React.FC<ReleaseActionMenuProps> = ({
   const align = menuState?.align ?? "top";
 
   const items = [
-    { icon: PencilSimple, label: "Edit Changelog", action: () => onEdit(version) },
-    { icon: FileText, label: "View Details", action: () => onViewDetails(version) },
+    { icon: PencilSimple, label: t("action_edit_changelog"), action: () => onEdit(version) },
+    { icon: FileText, label: t("action_view_details"), action: () => onViewDetails(version) },
   ];
 
   return createPortal(
@@ -93,7 +95,7 @@ export const ReleaseActionMenu: React.FC<ReleaseActionMenuProps> = ({
                   }`}
                 >
                   <Archive size={14} weight="duotone" />
-                  Mark Deprecated
+                  {t("action_mark_deprecated")}
                 </button>
               )}
             </div>

@@ -9,6 +9,7 @@ import { EditPaymentMethodModal } from "./modals/EditPaymentMethodModal";
 import { usePaymentMethods } from "../hooks/usePaymentMethods";
 import { PaymentMethodItem } from "./payment-methods/PaymentMethodItem";
 import { PaymentMethod } from "../types";
+import { useTranslations } from "next-intl";
 
 export const PaymentMethodsCard: React.FC = () => {
   const { theme } = useTheme();
@@ -23,6 +24,7 @@ export const PaymentMethodsCard: React.FC = () => {
     handleDelete,
     refresh,
   } = usePaymentMethods();
+  const t = useTranslations("billing");
 
   const [isAddCardOpen, setIsAddCardOpen] = useState(false);
   const [isEditCardOpen, setIsEditCardOpen] = useState(false);
@@ -93,14 +95,14 @@ export const PaymentMethodsCard: React.FC = () => {
                   isDark ? "text-white" : "text-gray-900"
                 }`}
               >
-                Payment Methods
+                {t("payment_methods")}
               </h3>
               <p
                 className={`text-xs mt-1 ${
                   isDark ? "text-cyan-200/50" : "text-blue-600/70"
                 }`}
               >
-                Secure billing management
+                {t("secure_billing_management")}
               </p>
             </div>
             <motion.button
@@ -137,7 +139,7 @@ export const PaymentMethodsCard: React.FC = () => {
                 <p
                   className={`text-sm ${isDark ? "text-slate-400" : "text-slate-500"}`}
                 >
-                  No payment methods saved.
+                  {t("no_payment_methods")}
                 </p>
               </div>
             ) : (
@@ -172,15 +174,14 @@ export const PaymentMethodsCard: React.FC = () => {
                   isDark ? "text-blue-400" : "text-blue-600"
                 }`}
               >
-                Bank Level Security
+                {t("bank_level_security")}
               </div>
               <div
                 className={`text-xs ${
                   isDark ? "text-gray-400" : "text-gray-600"
                 }`}
               >
-                All payment data is encrypted using industry standard 256-bit
-                encryption. We never store your full card number.
+                {t("bank_level_security_desc")}
               </div>
             </div>
           </div>

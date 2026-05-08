@@ -2,6 +2,7 @@ import React, { memo, useState } from "react";
 import { DeviceMobile, ShieldCheck, QrCode } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { SettingsModal } from "../../SettingsModal";
+import { useTranslations } from "next-intl";
 
 interface SecurityTwoFactorProps {
   isEnabled: boolean;
@@ -13,6 +14,8 @@ export const SecurityTwoFactor: React.FC<SecurityTwoFactorProps> = memo(
   ({ isEnabled, onEnable, onDisable }) => {
     const { isDark } = useTheme();
     const [showModal, setShowModal] = useState(false);
+    const t = useTranslations("settings");
+    const tCommon = useTranslations("common");
 
     const handleToggle = () => {
       if (isEnabled) {
@@ -49,16 +52,14 @@ export const SecurityTwoFactor: React.FC<SecurityTwoFactorProps> = memo(
                     isDark ? "text-white" : "text-gray-900"
                   }`}
                 >
-                  Two-Factor Authentication (2FA)
+                  {t("two_factor_auth")}
                 </h3>
                 <p
                   className={`text-sm mb-4 w-full ${
                     isDark ? "text-gray-400" : "text-gray-500"
                   }`}
                 >
-                  Add an extra layer of security to your account. We&apos;ll ask
-                  for a code from your authenticator app when you sign in from a
-                  new device.
+                  {t("two_factor_desc")}
                 </p>
                 <div
                   onClick={handleToggle}
@@ -80,7 +81,7 @@ export const SecurityTwoFactor: React.FC<SecurityTwoFactorProps> = memo(
               }`}
             >
               {isEnabled && <ShieldCheck size={12} />}
-              {isEnabled ? "SECURED" : "NOT ENABLED"}
+              {isEnabled ? t("secured") : t("not_enabled")}
             </div>
           </div>
         </div>
@@ -88,7 +89,7 @@ export const SecurityTwoFactor: React.FC<SecurityTwoFactorProps> = memo(
         <SettingsModal
           isOpen={showModal}
           onClose={() => setShowModal(false)}
-          title="Enable Two-Factor Authentication"
+          title={t("enable_2fa")}
         >
           <div className="space-y-6">
             <div className="text-center">
@@ -97,8 +98,7 @@ export const SecurityTwoFactor: React.FC<SecurityTwoFactorProps> = memo(
                   isDark ? "text-gray-400" : "text-gray-500"
                 }`}
               >
-                Scan this QR code with your authenticator app (like Google
-                Authenticator or Authy)
+                {t("scan_qr_desc")}
               </p>
 
               <div
@@ -121,7 +121,7 @@ export const SecurityTwoFactor: React.FC<SecurityTwoFactorProps> = memo(
                 }`}
               >
                 <p className="text-[10px] text-gray-400 uppercase tracking-widest mb-1 font-bold">
-                  Manual Entry Code
+                  {t("manual_entry_code")}
                 </p>
                 <code className="text-cyan-500 font-mono text-base font-black tracking-wider">
                   CELST-SECURE-KEY-2024
@@ -135,7 +135,7 @@ export const SecurityTwoFactor: React.FC<SecurityTwoFactorProps> = memo(
                   isDark ? "text-gray-500" : "text-gray-400"
                 }`}
               >
-                Verification Code
+                {t("verification_code")}
               </label>
               <input
                 type="text"
@@ -154,13 +154,13 @@ export const SecurityTwoFactor: React.FC<SecurityTwoFactorProps> = memo(
                     : "border-gray-200 text-gray-600 hover:bg-gray-50"
                 }`}
               >
-                Cancel
+                {tCommon("cancel")}
               </button>
               <button
                 onClick={handleVerify}
                 className="flex-1 px-4 py-3 rounded-xl bg-linear-to-r from-cyan-600 to-blue-600 text-white font-black shadow-lg shadow-cyan-500/20 active:scale-95 transition-all"
               >
-                Verify & Enable
+                {t("verify_enable")}
               </button>
             </div>
           </div>

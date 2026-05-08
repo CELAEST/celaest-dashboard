@@ -6,8 +6,10 @@ import { CaretDown } from "@phosphor-icons/react";
 import { TrustBadges } from "@/features/marketplace/components/TrustBadges";
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 
 export const MarketplacePublicHero: React.FC = () => {
+  const t = useTranslations("marketplace");
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
@@ -20,7 +22,7 @@ export const MarketplacePublicHero: React.FC = () => {
 
   return (
     <div className="relative p-8 pb-0">
-      <div className="relative w-full aspect-[32/9] overflow-hidden rounded-3xl shadow-2xl">
+      <div className="relative w-full aspect-32/9 overflow-hidden rounded-3xl shadow-2xl">
         <div
           className={`absolute inset-0 z-10 ${
             isDark
@@ -47,10 +49,10 @@ export const MarketplacePublicHero: React.FC = () => {
                 isDark ? "text-white" : "text-gray-900"
               }`}
             >
-              Tecnología Empresarial
+              {t("enterprise_technology")}
               <br />
               <span className={isDark ? "text-cyan-400" : "text-cyan-600"}>
-                Innovación Celestial
+                {t("celestial_innovation")}
               </span>
             </h1>
             <p
@@ -58,7 +60,7 @@ export const MarketplacePublicHero: React.FC = () => {
                 isDark ? "text-gray-300" : "text-gray-700"
               }`}
             >
-              Soluciones profesionales listas para usar. Sin complejidad técnica, sin configuraciones difíciles. Solo resultados garantizados.
+              {t("hero_subtitle")}
             </p>
             <TrustBadges />
           </motion.div>
@@ -76,7 +78,7 @@ export const MarketplacePublicHero: React.FC = () => {
             ${isDark ? "text-gray-500 hover:text-cyan-400" : "text-gray-400 hover:text-cyan-600"}
           `}
       >
-        <span>Explorar catálogo</span>
+        <span>{t("explore_catalog")}</span>
         <motion.div
           animate={{ y: [0, 5, 0] }}
           transition={{ duration: 1.5, repeat: Infinity }}

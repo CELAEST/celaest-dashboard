@@ -13,6 +13,7 @@ import {
   profileSchema,
 } from "@/lib/validation/schemas/settings";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 
 /**
  * Account & Profile Settings Tab
@@ -20,6 +21,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
  * Matches the design reference with dark theme and cyan accents.
  */
 export function AccountProfile() {
+  const t = useTranslations("settings");
   const [showEmailModal, setShowEmailModal] = useState(false);
   const {
     profile,
@@ -110,7 +112,7 @@ export function AccountProfile() {
             disabled={form.formState.isSubmitting}
             className="px-8 py-3 rounded-xl bg-linear-to-r from-cyan-600 to-blue-600 text-white font-bold hover:shadow-lg hover:shadow-cyan-500/30 transition-all active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            {form.formState.isSubmitting ? "Saving..." : "Save Changes"}
+            {form.formState.isSubmitting ? t("saving") : t("save_changes")}
           </button>
         </div>
 

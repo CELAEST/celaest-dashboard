@@ -11,6 +11,7 @@ import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 // Layout primitives
 import {
@@ -74,16 +75,18 @@ const SuperAdminDashboard = ({
   const [activeTab, setActiveTab] = useState<"metrics" | "feed">("metrics");
   const [isRefreshing, setIsRefreshing] = useState(false);
   const isRefreshingRef = useRef(false);
+  const t = useTranslations("dashboard");
+  const tCommon = useTranslations("common");
 
   const handleRunDiagnostics = async () => {
     if (isRefreshingRef.current) return;
     
     isRefreshingRef.current = true;
     setIsRefreshing(true);
-    toast.info("Ejecutando diagnósticos...");
+    toast.info(t("diagnostics_running"));
     try {
       await refresh();
-      toast.success("Diagnósticos completados");
+      toast.success(t("diagnostics_complete"));
     } finally {
       isRefreshingRef.current = false;
       setIsRefreshing(false);
@@ -103,19 +106,19 @@ const SuperAdminDashboard = ({
     <PageLayout>
       {/* Header */}
       <PageBanner
-        title="Command Center"
+        title={t("command_center")}
         subtitle={
           orgId
             ? `SYS ${orgId.split("-")[0].toUpperCase()} · ${
                 loading
-                  ? "Connecting..."
+                  ? t("connecting")
                   : health?.status === "healthy"
-                    ? "System Healthy"
+                    ? t("system_healthy")
                     : error
-                      ? "Offline"
-                      : "Connecting..."
+                      ? t("offline")
+                      : t("connecting")
               }`
-            : "System Overview"
+            : t("system_overview")
         }
         actions={
           <div className="flex items-center gap-3">
@@ -136,7 +139,7 @@ const SuperAdminDashboard = ({
                 }`}
               >
                 <SquaresFour size={12} />
-                Overview
+                {t("overview")}
               </button>
               <button
                 onClick={() => setActiveTab("feed")}
@@ -151,7 +154,7 @@ const SuperAdminDashboard = ({
                 }`}
               >
                 <List size={12} />
-                Orders
+                {t("orders")}
               </button>
             </div>
 
@@ -159,7 +162,7 @@ const SuperAdminDashboard = ({
               className={`px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 ${isDark ? "bg-black/40 border border-white/10 text-gray-400" : "bg-white border border-gray-200 text-gray-600"}`}
             >
               <Shield className="w-3 h-3 text-emerald-500" />
-              <span>Secure</span>
+              <span>{tCommon("secure")}</span>
             </div>
             <button
               onClick={handleRunDiagnostics}
@@ -171,7 +174,7 @@ const SuperAdminDashboard = ({
               } disabled:opacity-50`}
             >
               <Terminal size={12} />
-              {loading || isRefreshing ? "Loading..." : "Run Diagnostics"}
+              {loading || isRefreshing ? tCommon("loading") : t("run_diagnostics")}
             </button>
           </div>
         }
@@ -192,7 +195,7 @@ const SuperAdminDashboard = ({
               {/* ═══ TOP ROW: 4 KPI Cards (Fixed Height Grid) ═══ */}
               <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 shrink-0">
                 <DynamicRevenueCard
-                  label="Total Revenue"
+                  label={t("total_revenue")}
                   value={
                     dashboard != null
                       ? `$${(dashboard.total_revenue ?? 0).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
@@ -207,7 +210,7 @@ const SuperAdminDashboard = ({
                   percent={dashboard?.conversion_rate ?? 0}
                 />
                 <DynamicOrdersCard
-                  label="Global Orders"
+                  label={t("global_orders")}
                   value={
                     dashboard?.total_orders != null
                       ? dashboard.total_orders.toLocaleString()
@@ -221,7 +224,7 @@ const SuperAdminDashboard = ({
                   deltaUp={(dashboard?.orders_growth ?? 0) >= 0}
                 />
                 <DynamicLicensesCard
-                  label="Active Licenses"
+                  label={t("active_licenses")}
                   value={
                     dashboard != null
                       ? `${dashboard.active_licenses ?? 0}/${dashboard.total_licenses ?? 0}`
@@ -236,7 +239,7 @@ const SuperAdminDashboard = ({
                   percent={licenseRing}
                 />
                 <DynamicUsersCard
-                  label="Active Users"
+                  label={t("active_users")}
                   value={
                     dashboard != null
                       ? `${dashboard.active_users ?? 0}/${dashboard.total_users ?? 0}`
@@ -268,12 +271,12 @@ const SuperAdminDashboard = ({
                         <h3
                           className={`text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"}`}
                         >
-                          Revenue Analytics
+                          {t("revenue_analytics")}
                         </h3>
                         <p
                           className={`text-[10px] font-mono uppercase tracking-widest ${isDark ? "text-zinc-600" : "text-gray-400"}`}
                         >
-                          Real-time data stream
+                          {t("realtime_data")}
                         </p>
                       </div>
                       <div
@@ -285,7 +288,7 @@ const SuperAdminDashboard = ({
                         )}
                       >
                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                        LIVE
+                        {tCommon("live")}
                       </div>
                     </div>
                     <div className="flex-1 w-full min-h-0 relative">
@@ -319,14 +322,14 @@ const SuperAdminDashboard = ({
                       <span
                         className={`text-xs font-semibold ${isDark ? "text-white" : "text-gray-900"}`}
                       >
-                        All Orders
+                        {t("all_orders")}
                       </span>
                     </div>
                     <span
                       className={`text-[11px] tabular-nums ${isDark ? "text-gray-500" : "text-gray-400"}`}
                     >
                       {dashboard?.total_orders != null
-                        ? `Showing ${dashboard.total_orders} entries`
+                        ? tCommon("showing_entries", { count: dashboard.total_orders })
                         : ""}
                     </span>
                   </div>
@@ -350,14 +353,15 @@ const ClientDashboard = ({
   isDark: boolean;
   orgId: string | null;
 }) => {
+  const t = useTranslations("dashboard");
   return (
     <PageLayout>
       <PageBanner
-        title={orgId ? "My Orders" : "Welcome to Celaest"}
+        title={orgId ? t("my_orders") : t("welcome")}
         subtitle={
           orgId
-            ? "Your purchase history and active orders"
-            : "Activate your account by choosing a workspace plan"
+            ? t("order_history")
+            : t("activate_account")
         }
       />
       <PageContent>
@@ -369,13 +373,13 @@ const ClientDashboard = ({
                 <span
                   className={`text-xs font-semibold ${isDark ? "text-white" : "text-gray-900"}`}
                 >
-                  Order History
+                  {t("order_history")}
                 </span>
               </div>
               <span
                 className={`text-[11px] tabular-nums ${isDark ? "text-gray-500" : "text-gray-400"}`}
               >
-                Your purchases
+                {t("your_purchases")}
               </span>
             </div>
           }

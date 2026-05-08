@@ -11,6 +11,7 @@ import {
   Cell,
 } from "recharts";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 
 interface DataPoint {
   label: string;
@@ -25,6 +26,7 @@ interface CustomTooltipProps {
   }>;
   label?: string;
   isDark: boolean;
+  unit?: string;
 }
 
 const CustomTooltip: React.FC<CustomTooltipProps> = ({
@@ -32,6 +34,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
   payload,
   label,
   isDark,
+  unit,
 }) => {
   if (active && payload && payload.length) {
     return (
@@ -62,7 +65,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
               isDark ? "text-cyan-400/70" : "text-blue-500/70"
             }`}
           >
-            tareas
+            {unit ?? 'tareas'}
           </span>
         </div>
       </div>
@@ -120,6 +123,7 @@ export const TaskCompletionChart = React.memo(
   ({ data }: TaskCompletionChartProps) => {
     const { theme } = useTheme();
     const isDark = theme === "dark";
+    const t = useTranslations("roi");
     const [activeIdx, setActiveIdx] = React.useState<number | null>(null);
 
     return (
@@ -151,9 +155,9 @@ export const TaskCompletionChart = React.memo(
                   isDark ? "text-white" : "text-gray-900"
                 }`}
               >
-                Tareas Completadas —{" "}
+                {t("tasks_completed_title")} —{" "}
                 <span className={`font-medium ${isDark ? "text-gray-400" : "text-gray-500"}`}>
-                  Últimos 6 Meses
+                  {t("last_6_months")}
                 </span>
               </h3>
             </div>
@@ -225,7 +229,7 @@ export const TaskCompletionChart = React.memo(
                   }}
                 />
                 <Tooltip
-                  content={<CustomTooltip isDark={isDark} />}
+                  content={<CustomTooltip isDark={isDark} unit={t('tasks_unit')} />}
                   cursor={{
                     fill: isDark ? "rgba(34,211,238,0.04)" : "rgba(59,130,246,0.04)",
                     radius: 8,
