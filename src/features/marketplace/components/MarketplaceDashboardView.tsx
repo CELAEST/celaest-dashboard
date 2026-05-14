@@ -196,28 +196,49 @@ export function MarketplaceDashboardView() {
     }
   };
 
+  // Rating filter is applied client-side because the backend SearchFilter
+  // doesn't expose a min_rating field. We persist the selection in local
+  // state and filter the rendered list before mapping.
+  const [selectedRating, setSelectedRating] = useState<number>(0);
+
   const handleRatingChange = (rating: number) => {
-    // El API no tiene filtro de rating explícito en SearchFilter, pero podemos sortear o filtrar en cliente
-    // Por ahora lo ignoramos o lo usamos para sort si implementamos sort by rating
+    setSelectedRating(rating);
+    // Optional: when the user picks a rating tier, also bias the sort toward
+    // the best-rated items so the visible cards stay relevant.
     if (rating > 0) {
       updateFilters({ sort: "rating" });
     }
   };
 
+  // Derive the active price range id from the store filters so the sidebar
+  // reflects the real state instead of being hardcoded to "all".
+  const activePriceRange: string = (() => {
+    const { min_price: min, max_price: max } = filters;
+    if (min === undefined && max === undefined) return "all";
+    if (min === 0 && max === 0) return "free";
+    if (min === 0 && max === 50) return "0-50";
+    if (min === 50 && max === 200) return "50-200";
+    if (min === 200 && max === undefined) return "200+";
+    return "all";
+  })();
+
   const handlePriceRangeChange = (range: string) => {
-    // range format: "0-50", "50-100", "100+"
+    // range format: "all" | "free" | "0-50" | "50-200" | "200+"
     if (range === "all") {
       updateFilters({ min_price: undefined, max_price: undefined });
       return;
     }
-
+    if (range === "free") {
+      updateFilters({ min_price: 0, max_price: 0 });
+      return;
+    }
     if (range.includes("+")) {
       const min = parseInt(range.replace("+", ""));
       updateFilters({ min_price: min, max_price: undefined });
-    } else {
-      const [min, max] = range.split("-").map(Number);
-      updateFilters({ min_price: min, max_price: max });
+      return;
     }
+    const [min, max] = range.split("-").map(Number);
+    updateFilters({ min_price: min, max_price: max });
   };
 
   const handlePurchaseAction = () => {
@@ -423,9 +444,9 @@ export function MarketplaceDashboardView() {
           <MarketplaceFilterSidebar
             selectedCategories={filters.category ? [filters.category] : ["all"]}
             onCategoryChange={handleCategoryChange}
-            selectedRating={0}
+            selectedRating={selectedRating}
             onRatingChange={handleRatingChange}
-            priceRange="all"
+            priceRange={activePriceRange}
             onPriceRangeChange={handlePriceRangeChange}
             totalProducts={total}
           />
@@ -442,7 +463,15 @@ export function MarketplaceDashboardView() {
                   <ProductSkeleton key={i} />
                 ))}
               </div>
-            ) : products.length === 0 ? (
+            ) : (() => {
+              // Client-side rating filter: rating === 0 means "all"; otherwise
+              // we keep products whose average rating is at least the picked
+              // tier so the grid mirrors what the sidebar says.
+              const visibleProducts =
+                selectedRating > 0
+                  ? products.filter((p) => (p.rating_avg ?? 0) >= selectedRating)
+                  : products;
+              return visibleProducts.length === 0 ? (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -470,7 +499,7 @@ export function MarketplaceDashboardView() {
                 animate={{ opacity: 1 }}
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 gap-6 w-full"
               >
-                {products.map((product) => {
+                {visibleProducts.map((product) => {
                   const access = checkAccess(product);
                   return (
                     <ProductCardCompact
@@ -484,7 +513,8 @@ export function MarketplaceDashboardView() {
                   );
                 })}
               </motion.div>
-            )}
+              );
+            })()}
           </AnimatePresence>
         </div>
       </div>
