@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { MarketplacePublicHero } from "./MarketplacePublicHero";
 import { MarketplaceSearch } from "./MarketplaceSearch";
 import { ProductCardPremium } from "./ProductCardPremium";
@@ -12,6 +12,8 @@ import { AnimatePresence } from "motion/react";
 import dynamic from "next/dynamic";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useTranslations } from "next-intl";
+import { AuthPromptProvider } from "../context/AuthPromptContext";
+import { setAuthIntent, MarketplaceAuthIntent } from "../utils/authIntent";
 
 const LoginModal = dynamic(
   () =>
@@ -49,12 +51,25 @@ export function MarketplacePublicView() {
   const handlePurchaseAction = (product?: MarketplaceProduct) => {
     if (product) {
       sessionStorage.setItem("pending_purchase_modal_id", product.id);
+      // También persistimos el intent rico (con tab "overview") para que el
+      // dashboard reabra el modal en la misma posición.
+      setAuthIntent({ productId: product.id, tab: "overview" });
     }
     // En público, adquirir redirige a login
     setShowLoginModal(true);
   };
 
+  // Disparado por componentes hijos (p. ej. el form de reseñas dentro del
+  // ProductDetailModal). Persiste el intent + abre el login global.
+  const handleRequestLogin = useCallback((intent: MarketplaceAuthIntent) => {
+    setAuthIntent(intent);
+    // Mantenemos el sessionStorage legacy para no romper otros flujos.
+    sessionStorage.setItem("pending_purchase_modal_id", intent.productId);
+    setShowLoginModal(true);
+  }, []);
+
   return (
+    <AuthPromptProvider onRequestLogin={handleRequestLogin}>
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
       <MarketplacePublicHero />
@@ -152,5 +167,6 @@ export function MarketplacePublicView() {
       {/* Floating Action Button for Coupons */}
       <CouponFAB />
     </div>
+    </AuthPromptProvider>
   );
 }
