@@ -2,11 +2,18 @@ import { api } from "@/lib/api-client";
 import { 
   MarketplaceProduct, 
   Review, 
+  AdminReview,
+  AdminReviewFilter,
+  AdminReviewListResponse,
+  ReviewListResponse,
   SellerProfile, 
   SearchFilter, 
   CreateReviewInput,
+  UpdateReviewInput,
+  UpdateReviewStatusInput,
   ProductSearchResponse,
-  CheckoutResponse
+  CheckoutResponse,
+  ReviewStatus
 } from "../types";
 
 import { z } from "zod";
@@ -55,13 +62,119 @@ export const marketplaceApi = {
   },
 
   /**
+   * Listar reviews paginadas de un producto (público)
+   */
+  listReviews: async (
+    productId: string,
+    page: number = 1,
+    limit: number = 20,
+  ) => {
+    return api.get<ReviewListResponse>(
+      `/api/v1/public/marketplace/products/${productId}/reviews`,
+      { params: { page: String(page), limit: String(limit) } },
+    );
+  },
+
+  /**
    * Enviar una reseña (Requiere Auth)
    */
   submitReview: async (productId: string, data: CreateReviewInput, token: string) => {
-    return api.post<void>(
+    return api.post<{ message: string; review: Review }>(
       `/api/v1/user/marketplace/products/${productId}/reviews`, 
       data, 
       { token }
+    );
+  },
+
+  /**
+   * Obtener mi reseña en un producto (null si no existe). Requiere Auth.
+   */
+  getMyReview: async (productId: string, token: string) => {
+    return api.get<{ review: Review | null }>(
+      `/api/v1/user/marketplace/products/${productId}/reviews/mine`,
+      { token },
+    );
+  },
+
+  /**
+   * Actualizar mi reseña. Requiere Auth.
+   */
+  updateReview: async (reviewId: string, data: UpdateReviewInput, token: string) => {
+    return api.put<{ review: Review }>(
+      `/api/v1/user/marketplace/reviews/${reviewId}`,
+      data,
+      { token },
+    );
+  },
+
+  /**
+   * Eliminar mi reseña. Requiere Auth.
+   */
+  deleteReview: async (reviewId: string, token: string) => {
+    return api.delete<{ message: string }>(
+      `/api/v1/user/marketplace/reviews/${reviewId}`,
+      { token },
+    );
+  },
+
+  /**
+   * Listar reseñas para moderación (admin / super_admin). Requiere Auth.
+   */
+  adminListReviews: async (filter: AdminReviewFilter, token: string) => {
+    const params: Record<string, string> = {};
+    if (filter.status) params.status = filter.status;
+    if (filter.rating) params.rating = String(filter.rating);
+    if (filter.product_id) params.product_id = filter.product_id;
+    if (filter.user_id) params.user_id = filter.user_id;
+    if (filter.q) params.q = filter.q;
+    if (filter.page) params.page = String(filter.page);
+    if (filter.limit) params.limit = String(filter.limit);
+
+    return api.get<AdminReviewListResponse>(
+      "/api/v1/admin/marketplace/reviews",
+      { params, token },
+    );
+  },
+
+  /**
+   * Editar el contenido (rating + comentario) de cualquier reseña.
+   * Requiere super_admin.
+   */
+  adminUpdateReview: async (
+    reviewId: string,
+    data: UpdateReviewInput,
+    token: string,
+  ) => {
+    return api.put<{ review: AdminReview }>(
+      `/api/v1/admin/marketplace/reviews/${reviewId}`,
+      data,
+      { token },
+    );
+  },
+
+  /**
+   * Cambiar el status de una reseña (moderación). Requiere admin Auth.
+   */
+  adminSetReviewStatus: async (
+    reviewId: string,
+    status: ReviewStatus,
+    token: string,
+  ) => {
+    const body: UpdateReviewStatusInput = { status };
+    return api.patch<{ review: AdminReview }>(
+      `/api/v1/admin/marketplace/reviews/${reviewId}`,
+      body,
+      { token },
+    );
+  },
+
+  /**
+   * Hard-delete admin de una reseña. Requiere admin Auth.
+   */
+  adminDeleteReview: async (reviewId: string, token: string) => {
+    return api.delete<{ message: string }>(
+      `/api/v1/admin/marketplace/reviews/${reviewId}`,
+      { token },
     );
   },
 

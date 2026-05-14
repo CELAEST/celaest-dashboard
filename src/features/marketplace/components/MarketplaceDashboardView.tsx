@@ -8,6 +8,10 @@ import { ProductCardCompact } from "./ProductCardCompact";
 import { ProductSkeleton } from "./ProductSkeleton";
 import { useMarketplaceProducts } from "../hooks/useMarketplaceProducts";
 import { MarketplaceProduct } from "../types";
+import {
+  consumeAuthIntent,
+  MarketplaceAuthIntentTab,
+} from "../utils/authIntent";
 import { Storefront } from "@phosphor-icons/react";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
@@ -129,6 +133,8 @@ export function MarketplaceDashboardView() {
   const [detailProduct, setDetailProduct] = useState<MarketplaceProduct | null>(
     null,
   );
+  const [detailInitialTab, setDetailInitialTab] =
+    useState<MarketplaceAuthIntentTab | undefined>(undefined);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showLicenseModal, setShowLicenseModal] = useState(false);
   const [selectedLicenseId, setSelectedLicenseId] = useState<string | null>(
@@ -250,14 +256,25 @@ export function MarketplaceDashboardView() {
 
   useEffect(() => {
     if (isAuthenticated && products.length > 0 && !isOrgsLoading && currentOrg && !isAssetsLoading && !isBillingLoading) {
-      const pendingId = sessionStorage.getItem("pending_purchase_modal_id");
+      // 1) Preferimos el intent rico (productId + tab) si lo dejó el flujo
+      //    público (p. ej. "Iniciar sesión para dejar tu reseña").
+      const intent = consumeAuthIntent();
+      const pendingId =
+        intent?.productId ??
+        sessionStorage.getItem("pending_purchase_modal_id");
       if (pendingId) {
         sessionStorage.removeItem("pending_purchase_modal_id");
         const product = products.find((p) => p.id === pendingId);
         if (product) {
           const access = checkAccess(product);
-          if (access !== "none") {
-             
+          // Si veníamos desde una tab específica (p. ej. "reviews"), siempre
+          // abrimos el modal de detalle — incluso sin acceso — para que el
+          // usuario aterrice exactamente en el lugar donde dejó la acción.
+          if (intent?.tab) {
+            setDetailInitialTab(intent.tab);
+            setDetailProduct(product);
+          } else if (access !== "none") {
+            setDetailInitialTab(undefined);
             setDetailProduct(product);
           } else {
             handleProductSelect(product);
@@ -303,7 +320,11 @@ export function MarketplaceDashboardView() {
       {detailProduct && (
         <ProductDetailModal
           initialProduct={detailProduct}
-          onClose={() => setDetailProduct(null)}
+          initialTab={detailInitialTab}
+          onClose={() => {
+            setDetailProduct(null);
+            setDetailInitialTab(undefined);
+          }}
           isOwned={checkAccess(detailProduct) !== "none"}
           accessLevel={checkAccess(detailProduct)}
           onDownload={() => {

@@ -22,6 +22,8 @@ export interface MarketplaceProduct {
   created_at: string;
 }
 
+export type ReviewStatus = "published" | "hidden" | "flagged" | "removed";
+
 export interface Review {
   id: string;
   product_id: string;
@@ -30,7 +32,40 @@ export interface Review {
   rating: number;
   comment: string;
   is_verified_purchase: boolean;
+  status: ReviewStatus;
   created_at: string;
+  updated_at: string;
+}
+
+export interface AdminReview extends Review {
+  product_name: string;
+  product_slug: string;
+  user_email: string;
+  thumbnail_url?: string;
+}
+
+export interface ReviewListResponse {
+  reviews: Review[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface AdminReviewListResponse {
+  reviews: AdminReview[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface AdminReviewFilter {
+  status?: ReviewStatus | "";
+  rating?: number;
+  product_id?: string;
+  user_id?: string;
+  q?: string;
+  page?: number;
+  limit?: number;
 }
 
 export interface SellerProfile {
@@ -67,6 +102,15 @@ export interface CreateReviewInput {
   product_id: string;
   rating: number;
   comment: string;
+}
+
+export interface UpdateReviewInput {
+  rating: number;
+  comment: string;
+}
+
+export interface UpdateReviewStatusInput {
+  status: ReviewStatus;
 }
 
 export interface CheckoutResponse {

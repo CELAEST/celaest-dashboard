@@ -122,24 +122,30 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
           className={`absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent`}
         />
 
-        {/* Floating Badges */}
+        {/* Floating Badges
+         * Cuando el producto es BESTSELLER ocultamos la categoría para evitar
+         * apilar dos chips en la esquina superior izquierda — el badge ya
+         * comunica jerarquía suficiente y la categoría está visible en el
+         * detalle. Si no hay badge, mostramos la categoría como contexto.
+         */}
         <div className="absolute top-3 left-3 z-20 flex flex-col gap-1.5">
-          {badge && (
+          {badge ? (
             <div className="px-2 py-0.5 rounded-full bg-cyan-500 text-white text-[8px] font-black uppercase tracking-widest shadow-lg shadow-cyan-500/30 flex items-center gap-1">
               <Lightning size={8} fill="currentColor" />
               {badge}
             </div>
-          )}
-          {product.category_name && (
-            <div
-              className={`px-2 py-0.5 rounded-full backdrop-blur-md border text-[8px] font-black uppercase tracking-widest flex items-center gap-1 ${
-                isDark
-                  ? "bg-black/40 border-white/10 text-gray-300"
-                  : "bg-white/60 border-gray-200 text-gray-600 shadow-sm"
-              }`}
-            >
-              {product.category_name}
-            </div>
+          ) : (
+            product.category_name && (
+              <div
+                className={`px-2 py-0.5 rounded-full backdrop-blur-md border text-[8px] font-black uppercase tracking-widest flex items-center gap-1 ${
+                  isDark
+                    ? "bg-black/40 border-white/10 text-gray-300"
+                    : "bg-white/60 border-gray-200 text-gray-600 shadow-sm"
+                }`}
+              >
+                {product.category_name}
+              </div>
+            )
           )}
         </div>
 
@@ -204,10 +210,13 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
                   <Star
                     key={i}
                     size={11}
+                    weight="fill"
                     className={
                       i < Math.floor(rating)
-                        ? "text-amber-400 fill-amber-400"
-                        : "text-gray-200/20"
+                        ? "text-amber-400"
+                        : isDark
+                          ? "text-white/15"
+                          : "text-gray-300"
                     }
                   />
                 ))}
@@ -241,8 +250,8 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
         {/* Professional Feature Set - Compact */}
         <div className="grid grid-cols-2 gap-2 py-1">
           {displayFeatures.slice(0, 4).map((feature, index) => (
-            <div key={index} className="flex items-start gap-1.5">
-              <div className="mt-0.5 w-4 h-4 rounded-full bg-cyan-500/10 flex items-center justify-center shrink-0">
+            <div key={index} className="flex items-center gap-1.5">
+              <div className="w-4 h-4 rounded-full bg-cyan-500/10 flex items-center justify-center shrink-0">
                 <Check size={10} className="text-cyan-500" strokeWidth={3} />
               </div>
               <span

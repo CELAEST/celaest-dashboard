@@ -180,15 +180,14 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
               <Star
                 key={i}
                 size={12}
-                className={`
-                  ${
-                    i < Math.floor(rating)
-                      ? "text-yellow-500 fill-yellow-500"
-                      : theme === "dark"
-                        ? "text-gray-600"
-                        : "text-gray-300"
-                  }
-                `}
+                weight="fill"
+                className={
+                  i < Math.floor(rating)
+                    ? "text-yellow-500"
+                    : theme === "dark"
+                      ? "text-white/15"
+                      : "text-gray-300"
+                }
               />
             ))}
           </div>
@@ -222,10 +221,10 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
         {/* Features - Human language */}
         <div className="space-y-2 pt-2 flex-1">
           {displayFeatures.map((feature, index) => (
-            <div key={index} className="flex items-start gap-2">
+            <div key={index} className="flex items-center gap-2">
               <Check
                 size={16}
-                className={`mt-0.5 shrink-0 ${
+                className={`shrink-0 ${
                   theme === "dark" ? "text-cyan-400" : "text-cyan-600"
                 }`}
               />

@@ -21,6 +21,11 @@ interface ProductDetailModalProps {
   accessLevel?: "owned" | "plan" | "none";
   onDownload?: () => void;
   onViewLicense?: () => void;
+  /**
+   * Pestaña con la que se abre el modal. Útil cuando el modal se reabre tras
+   * un flujo de login iniciado desde una tab específica (p. ej. "reviews").
+   */
+  initialTab?: "overview" | "features" | "reviews";
 }
 
 export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
@@ -31,22 +36,20 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   accessLevel,
   onDownload,
   onViewLicense,
+  initialTab,
 }) => {
   const t = useTranslations("marketplace");
   const { theme } = useTheme();
-  const [activeTab, setActiveTab] = React.useState("overview");
+  const [activeTab, setActiveTab] = React.useState(initialTab ?? "overview");
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Fetch full details (reviews, etc.)
-  const {
-    product: fullProduct,
-    reviews,
-    loading,
-  } = useProductDetail(initialProduct.slug);
+  // Fetch full details (rating aggregates etc.). Paginated reviews are loaded
+  // separately by TabReviews via useProductReviews.
+  const { product: fullProduct, loading } = useProductDetail(initialProduct.slug);
 
   // Use full details if available, otherwise initial
   const product = fullProduct || initialProduct;
@@ -202,7 +205,6 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 
               <ProductModalTabs
                 product={product}
-                reviews={reviews}
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
               />

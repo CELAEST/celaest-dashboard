@@ -1,94 +1,65 @@
+/**
+ * TabReviews
+ *
+ * Tab "Reseñas" del modal de detalle de producto.
+ * Combina:
+ *   - ReviewForm (auth CTA, escribir nueva, o editar/borrar la propia)
+ *   - ReviewList paginada (server-driven con useProductReviews)
+ *
+ * El hook de "mis reseña" se invalida tras submit/update/delete, lo que
+ * dispara la re-renderización del form al cambiar entre create ↔ edit.
+ */
 import React from "react";
-import { Star } from "@phosphor-icons/react";
+import { ReviewForm } from "../../reviews/ReviewForm";
+import { ReviewList } from "../../reviews/ReviewList";
+import { useProductReviews } from "../../../hooks/useProductReviews";
 import { useTheme } from "@/features/shared/hooks/useTheme";
-import { Review } from "../../../types";
 import { useTranslations } from "next-intl";
 
 interface TabReviewsProps {
-  reviews: Review[];
+  productId: string;
 }
 
 export const TabReviews: React.FC<TabReviewsProps> = React.memo(
-  ({ reviews }) => {
+  ({ productId }) => {
     const t = useTranslations("marketplace");
     const { theme } = useTheme();
+    const isDark = theme === "dark";
 
-    if (!reviews || reviews.length === 0) {
-      return (
-        <div
-          className={`text-center py-8 ${theme === "dark" ? "text-gray-500" : "text-gray-400"}`}
-        >
-          {t("no_reviews_yet")}
-        </div>
-      );
-    }
+    const {
+      reviews,
+      total,
+      loading,
+      fetchingMore,
+      hasMore,
+      loadMore,
+    } = useProductReviews(productId);
 
     return (
-      <div className="space-y-4">
-        {reviews.map((review) => (
-          <div
-            key={review.id}
-            className={`p-4 rounded-xl ${
-              theme === "dark" ? "bg-white/5" : "bg-gray-50"
+      <div className="space-y-6">
+        <ReviewForm productId={productId} />
+
+        <div
+          className={`h-px ${isDark ? "bg-white/5" : "bg-gray-100"}`}
+          aria-hidden
+        />
+
+        <div>
+          <h4
+            className={`mb-3 text-sm font-medium ${
+              isDark ? "text-white/70" : "text-gray-700"
             }`}
           >
-            <div className="flex items-start gap-3">
-              <div
-                className={`
-                w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm
-                ${
-                  theme === "dark"
-                    ? "bg-linear-to-r from-cyan-400 to-blue-400 text-black"
-                    : "bg-linear-to-r from-blue-600 to-indigo-600 text-white"
-                }
-              `}
-              >
-                {review.user_name
-                  ? review.user_name.substring(0, 2).toUpperCase()
-                  : "AN"}
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <span
-                    className={`font-medium ${
-                      theme === "dark" ? "text-white" : "text-gray-900"
-                    }`}
-                  >
-                    {review.user_name || t("anonymous")}
-                  </span>
-                  <div className="flex">
-                    {Array.from({ length: 5 }).map((_, j) => (
-                      <Star
-                        key={j}
-                        className={`size-3 ${
-                          j < review.rating
-                            ? "fill-yellow-400 text-yellow-400"
-                            : theme === "dark"
-                              ? "text-gray-600"
-                              : "text-gray-300"
-                        }`}
-                      />
-                    ))}
-                  </div>
-                </div>
-                <p
-                  className={`text-sm ${
-                    theme === "dark" ? "text-gray-400" : "text-gray-600"
-                  }`}
-                >
-                  {review.comment}
-                </p>
-                <div
-                  className={`text-xs mt-2 ${
-                    theme === "dark" ? "text-gray-500" : "text-gray-400"
-                  }`}
-                >
-                  {new Date(review.created_at).toLocaleDateString()}
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
+            {t("reviews")} {total > 0 && `(${total})`}
+          </h4>
+          <ReviewList
+            reviews={reviews}
+            loading={loading}
+            hasMore={hasMore}
+            loadingMore={fetchingMore}
+            onLoadMore={loadMore}
+          />
+        </div>
       </div>
     );
   },
