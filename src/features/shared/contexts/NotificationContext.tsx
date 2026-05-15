@@ -1,5 +1,6 @@
 "use client";
 
+import { createPortal } from "react-dom";
 import React, {
   createContext,
   useContext,
@@ -16,6 +17,7 @@ import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 import { toast } from "sonner";
 import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 import { useTranslations } from "next-intl";
+import { usersApi } from "@/features/users/api/users.api";
 
 // ============================================================================
 // Types - Interface Segregation Principle
@@ -30,11 +32,20 @@ export interface Notification {
   message: string;
   timestamp: Date;
   read: boolean;
+  dedupKey?: string;
+  actions?: Array<{
+    label: string;
+    variant?: "primary" | "danger" | "secondary";
+    onClick: () => void | Promise<void>;
+  }>;
 }
 
 interface NotificationContextType {
   notifications: Notification[];
-  addNotification: (notification: Omit<Notification, "id" | "read">) => void;
+  addNotification: (
+    notification: Omit<Notification, "id" | "read">,
+    options?: { silent?: boolean },
+  ) => void;
   removeNotification: (id: string) => void;
   markAsRead: (id: string) => void;
   markAllAsRead: () => void;
@@ -72,6 +83,16 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [toasts, setToasts] = useState<Notification[]>([]);
+  const [portalReady, setPortalReady] = useState(false);
+
+  // Portal mount guard: document.body only exists on the client. Without it
+  // SSR renders an empty <body> child which mismatches the hydrated tree.
+  // The setState-in-effect pattern is the canonical SSR portal idiom, so we
+  // silence the rule for this single line.
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPortalReady(true);
+  }, []);
 
   // Deduplication guard: prevents duplicate toasts when the backend emits
   // multiple related events for the same action (e.g. order.paid + license.created +
@@ -80,10 +101,13 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   const DEDUP_WINDOW_MS = 3000;
 
   // Stable callback — empty deps because setters from useState are always stable.
+  // `silent` (default false) only adds to the bell panel without popping a toast.
+  // Used for invitations that were already toasted in a previous session/refresh,
+  // so they stay visible in the bell but do not interrupt the user again.
   const addNotification = useCallback(
-    (notification: Omit<Notification, "id" | "read">) => {
+    (notification: Omit<Notification, "id" | "read">, options?: { silent?: boolean }) => {
       // Skip if the exact same type+title was already shown within the dedup window
-      const dedupKey = `${notification.type}:${notification.title}`;
+      const dedupKey = notification.dedupKey ?? `${notification.type}:${notification.title}`;
       const lastFired = recentEvents.current.get(dedupKey) ?? 0;
       const now = Date.now();
       if (now - lastFired < DEDUP_WINDOW_MS) return;
@@ -93,11 +117,12 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
       const newNotification: Notification = { ...notification, id, read: false };
 
       setNotifications((prev) => [newNotification, ...prev]);
-      setToasts((prev) => [...prev, newNotification]);
-
-      setTimeout(() => {
-        setToasts((prev) => prev.filter((t) => t.id !== id));
-      }, 5000);
+      if (!options?.silent) {
+        setToasts((prev) => [...prev, newNotification]);
+        setTimeout(() => {
+          setToasts((prev) => prev.filter((t) => t.id !== id));
+        }, 5000);
+      }
     },
     [],
   );
@@ -128,6 +153,96 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     () => notifications.filter((n) => !n.read).length,
     [notifications],
   );
+
+  const loadWorkspaceInvitations = useCallback(async () => {
+    if (!token) return;
+
+    // Persistent "seen" set of invitation IDs so the toast pops only the first
+    // time we ever see an invitation, not on every page refresh. The bell
+    // panel still lists the invitation; only the auto-popup is suppressed
+    // once it has already been shown.
+    const STORAGE_KEY = "celaest:toasted_invitations";
+    let seenIds = new Set<string>();
+    if (typeof window !== "undefined") {
+      try {
+        const raw = window.localStorage.getItem(STORAGE_KEY);
+        if (raw) seenIds = new Set(JSON.parse(raw) as string[]);
+      } catch {
+        seenIds = new Set();
+      }
+    }
+    const persistSeen = () => {
+      if (typeof window === "undefined") return;
+      try {
+        window.localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify(Array.from(seenIds)),
+        );
+      } catch {
+        /* ignore quota errors */
+      }
+    };
+
+    try {
+      const response = await usersApi.listWorkspaceInvitations(token);
+
+      // Prune storage entries that are no longer pending so accept/reject and
+      // re-invite (after the previous one is cleared) trigger a fresh toast.
+      const stillPending = new Set(response.invitations.map((i) => i.id));
+      let pruned = false;
+      seenIds.forEach((id) => {
+        if (!stillPending.has(id)) {
+          seenIds.delete(id);
+          pruned = true;
+        }
+      });
+      if (pruned) persistSeen();
+
+      response.invitations.forEach((invitation) => {
+        const acceptInvitation = async () => {
+          await usersApi.acceptWorkspaceInvitation(invitation.id, token);
+          toast.success("Invitación aceptada", {
+            description: `Ya tienes acceso a ${invitation.organization_name}.`,
+          });
+          useOrgStore.getState().fetchOrgs(token, true);
+        };
+
+        const rejectInvitation = async () => {
+          await usersApi.rejectWorkspaceInvitation(invitation.id, token);
+          toast.info("Invitación rechazada", {
+            description: `No se agregó el workspace ${invitation.organization_name}.`,
+          });
+        };
+
+        const alreadyToasted = seenIds.has(invitation.id);
+        addNotification(
+          {
+            type: "info",
+            title: "Invitación a workspace",
+            message: `${invitation.organization_name} te invitó como ${invitation.role}.`,
+            timestamp: new Date(invitation.created_at),
+            dedupKey: `workspace-invitation:${invitation.id}`,
+            actions: [
+              { label: "Aceptar", variant: "primary", onClick: acceptInvitation },
+              { label: "Rechazar", variant: "danger", onClick: rejectInvitation },
+            ],
+          },
+          { silent: alreadyToasted },
+        );
+
+        if (!alreadyToasted) {
+          seenIds.add(invitation.id);
+          persistSeen();
+        }
+      });
+    } catch (err) {
+      console.warn("[notifications] Failed to load workspace invitations", err);
+    }
+  }, [token, addNotification]);
+
+  useEffect(() => {
+    loadWorkspaceInvitations();
+  }, [loadWorkspaceInvitations]);
 
   // Global Socket Listeners for Real-time Notifications
   useEffect(() => {
@@ -170,6 +285,11 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
           t("payment_failed"),
           t("order_payment_error", { ref, error: payload.error || "" })
         );
+      }),
+      socket.on("organization.workspace_invitation_created", () => {
+        // Refetch the pending invitations list so the new entry shows up
+        // instantly in the header bell with Accept / Reject actions.
+        loadWorkspaceInvitations();
       }),
       socket.on("organization.member_added", (raw: unknown) => {
         const payload = raw as {
@@ -290,7 +410,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   // so there is no stale-closure risk. fetchOrgs is never stored in component scope.
   // Do NOT add fetchOrgs, currentOrg, or currentOrgId here — that would tear down
   // and re-register all socket listeners on every org switch or store change.
-  }, [token, addNotification, t]);
+  }, [token, addNotification, t, loadWorkspaceInvitations]);
 
   // Memoize context value to prevent all consumers from re-rendering on every
   // unrelated state change inside NotificationProvider.
@@ -311,16 +431,36 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     <NotificationContext.Provider value={contextValue}>
       {children}
 
-      {/* Toast Container - Fixed position top-right */}
-      <div className="fixed top-24 right-4 z-100 flex flex-col gap-3 max-w-md w-full pointer-events-none">
-        {toasts.map((toast) => (
-          <NotificationToast
-            key={toast.id}
-            notification={toast}
-            onClose={() => removeToast(toast.id)}
-          />
-        ))}
-      </div>
+      {/* Toast Container — rendered via portal to document.body so it cannot
+          be clipped by parents with overflow:hidden or repositioned by
+          ancestors with `transform` (which makes `position: fixed` behave
+          like `absolute`). Width is clamped to viewport with explicit
+          `min(420px, calc(100vw - 32px))`. */}
+      {portalReady &&
+        toasts.length > 0 &&
+        createPortal(
+          <div
+            style={{
+              position: "fixed",
+              bottom: 24,
+              right: 16,
+              width: "min(420px, calc(100vw - 32px))",
+              maxHeight: "calc(100vh - 48px)",
+              zIndex: 9999,
+              pointerEvents: "none",
+            }}
+            className="flex flex-col-reverse gap-3 overflow-hidden"
+          >
+            {toasts.map((toastItem) => (
+              <NotificationToast
+                key={toastItem.id}
+                notification={toastItem}
+                onClose={() => removeToast(toastItem.id)}
+              />
+            ))}
+          </div>,
+          document.body,
+        )}
     </NotificationContext.Provider>
   );
 };

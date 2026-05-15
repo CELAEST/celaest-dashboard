@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Buildings, CaretDown, Check, Plus } from "@phosphor-icons/react";
 import {
@@ -49,8 +49,24 @@ export function OrgSwitcher({ isExpanded }: OrgSwitcherProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Hide the Celaest home org from the switcher when the user already owns a
+  // real workspace. The home org is implicit (all content lives there as a
+  // fallback) and showing it next to a user's own workspaces is noisy.
+  // Membership is preserved server-side — this filter is design-only.
+  const isHomeOrg = (org: Organization) =>
+    org.is_system_default === true ||
+    (org.slug ?? "").toLowerCase().startsWith("celaest");
+
+  const visibleOrgs = useMemo(() => {
+    const ownsNonHome = organizations.some(
+      (o) => o.role === "owner" && !isHomeOrg(o),
+    );
+    if (!ownsNonHome) return organizations;
+    return organizations.filter((o) => !isHomeOrg(o));
+  }, [organizations]);
+
   // Don't show if 0 or 1 visible orgs
-  if (organizations.length <= 1) return null;
+  if (visibleOrgs.length <= 1) return null;
 
   const handleSelect = async (org: Organization) => {
     if (org.id === currentOrg?.id) {
@@ -170,7 +186,7 @@ export function OrgSwitcher({ isExpanded }: OrgSwitcherProps) {
             }`}
           >
             <div className="p-1.5 max-h-64 overflow-y-auto">
-              {organizations.map((org: Organization) => (
+              {visibleOrgs.map((org: Organization) => (
                 <button
                   key={org.id}
                   onClick={() => handleSelect(org)}

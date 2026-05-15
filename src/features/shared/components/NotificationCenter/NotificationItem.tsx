@@ -33,6 +33,15 @@ export const NotificationItem = memo(function NotificationItem({
     [notification.id, onRemove],
   );
 
+  const handleAction = useCallback(
+    async (e: React.MouseEvent, action: NonNullable<Notification["actions"]>[number]) => {
+      e.stopPropagation();
+      await action.onClick();
+      onRemove(notification.id);
+    },
+    [notification.id, onRemove],
+  );
+
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
@@ -96,6 +105,31 @@ export const NotificationItem = memo(function NotificationItem({
           >
             {formatTimestamp(notification.timestamp)}
           </span>
+          {notification.actions && notification.actions.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {notification.actions.map((action) => (
+                <button
+                  key={action.label}
+                  onClick={(event) => handleAction(event, action)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+                    action.variant === "danger"
+                      ? isDark
+                        ? "bg-red-500/10 text-red-300 hover:bg-red-500/20"
+                        : "bg-red-50 text-red-700 hover:bg-red-100"
+                      : action.variant === "primary"
+                        ? isDark
+                          ? "bg-cyan-500/15 text-cyan-300 hover:bg-cyan-500/25"
+                          : "bg-blue-50 text-blue-700 hover:bg-blue-100"
+                        : isDark
+                          ? "bg-white/5 text-gray-300 hover:bg-white/10"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  {action.label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </motion.div>
