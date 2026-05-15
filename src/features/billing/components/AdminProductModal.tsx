@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Package, X, FloppyDisk } from "@phosphor-icons/react";
+import { Package, X, FloppyDisk, YoutubeLogo } from "@phosphor-icons/react";
 import { Switch } from "@/components/ui/switch";
 import { useForm, Controller } from "react-hook-form";
 import {
@@ -14,6 +14,10 @@ import {
 } from "@/features/assets/api/assets.api";
 import { BillingModal } from "./modals/shared/BillingModal";
 import { useTranslations } from "next-intl";
+import {
+  extractYouTubeId,
+  youtubeThumbnail,
+} from "@/features/shared/utils/youtube";
 
 interface AdminProductModalProps {
   isOpen: boolean;
@@ -32,6 +36,9 @@ interface ProductFormData {
   isPublic: boolean;
   isFeatured: boolean;
   shortDescription?: string;
+  // Raw URL pasted by the admin. Backend extracts the 11-char id; an empty
+  // string clears the preview and falls back to the thumbnail image.
+  youtubeUrl?: string;
 }
 
 export const AdminProductModal: React.FC<AdminProductModalProps> = ({
@@ -50,6 +57,7 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
     handleSubmit,
     reset,
     control,
+    watch,
     formState: { errors },
   } = useForm<ProductFormData>({
     defaultValues: {
@@ -61,6 +69,7 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
       isPublic: true,
       isFeatured: false,
       shortDescription: "",
+      youtubeUrl: "",
     },
   });
 
@@ -75,6 +84,10 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
         isPublic: product.isPublic ?? true,
         isFeatured: product.isFeatured ?? false,
         shortDescription: product.shortDescription || "",
+        // Editing: rehydrate the bare 11-char id as the input value so the
+        // admin sees what is currently stored. The backend will re-extract
+        // on save, so this round-trips cleanly.
+        youtubeUrl: product.youtubeVideoId || "",
       });
     } else if (!product && isOpen) {
       reset({
@@ -86,12 +99,25 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
         isPublic: true,
         isFeatured: false,
         shortDescription: "",
+        youtubeUrl: "",
       });
     }
   }, [product, isOpen, reset]);
 
+  // Live preview: as the admin types, we extract the id and render the
+  // YouTube CDN thumbnail. No network cost beyond the single ~15 KB image.
+  // No `useMemo` here because `watch()` is intentionally non-memoizable
+  // (re-fires on every form change) and the regex is sub-microsecond.
+  const watchedYoutubeUrl = watch("youtubeUrl") ?? "";
+  const previewVideoId = extractYouTubeId(watchedYoutubeUrl);
+  const youtubeError =
+    watchedYoutubeUrl.trim().length > 0 && !previewVideoId;
+
   const saveMutation = useMutation({
     mutationFn: async (data: ProductFormData) => {
+      // youtube_url is always sent (even empty) on update so the backend
+      // can distinguish "clear preview" from "keep current". On create we
+      // only send it when the admin actually typed something.
       if (isEditing && product) {
         const payload: UpdateProductPayload = {
           name: data.name,
@@ -101,6 +127,7 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
           is_public: data.isPublic,
           is_featured: data.isFeatured,
           short_description: data.shortDescription,
+          youtube_url: data.youtubeUrl ?? "",
         };
         return assetsService.updateAsset(token, orgId, product.id, payload);
       } else {
@@ -113,6 +140,7 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
           is_public: data.isPublic,
           is_featured: data.isFeatured,
           short_description: data.shortDescription,
+          ...(data.youtubeUrl ? { youtube_url: data.youtubeUrl } : {}),
         };
         return assetsService.createAsset(token, orgId, payload);
       }
@@ -243,6 +271,50 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
               placeholder={t("brief_description_placeholder")}
               {...register("shortDescription")}
             />
+          </div>
+
+          {/* YouTube preview video (optional). When empty the marketplace
+              modal falls back to the static thumbnail. Live thumbnail
+              preview validates the URL without any extra request. */}
+          <div className="space-y-2">
+            <label className="flex items-center gap-2 text-[10px] uppercase font-black tracking-widest text-white/40">
+              <YoutubeLogo size={12} weight="fill" className="text-red-500" />
+              {t("youtube_video_label")}
+            </label>
+            <input
+              className={`w-full bg-white/5 border rounded-2xl px-5 py-3 text-white text-sm font-mono focus:outline-none focus:ring-1 transition-colors placeholder:text-white/20 ${
+                youtubeError
+                  ? "border-red-500/50 focus:border-red-500/50 focus:ring-red-500/20"
+                  : "border-white/10 focus:border-teal-500/50 focus:ring-teal-500/20"
+              }`}
+              placeholder="https://www.youtube.com/watch?v=..."
+              autoComplete="off"
+              spellCheck={false}
+              {...register("youtubeUrl")}
+            />
+            {youtubeError ? (
+              <p className="text-[10px] text-red-400/80">
+                {t("youtube_invalid_url")}
+              </p>
+            ) : (
+              <p className="text-[10px] text-white/30">
+                {t("youtube_video_hint")}
+              </p>
+            )}
+            {previewVideoId && (
+              <div className="relative mt-2 aspect-video w-full max-w-xs overflow-hidden rounded-xl border border-white/10 bg-black">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={youtubeThumbnail(previewVideoId)}
+                  alt="YouTube preview"
+                  loading="lazy"
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+                <div className="absolute bottom-1 right-2 rounded-md bg-black/70 px-1.5 py-0.5 text-[9px] font-mono text-white/80">
+                  {previewVideoId}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Toggles */}

@@ -1,12 +1,16 @@
 import React from "react";
 import { useFormContext } from "react-hook-form";
-import { FileCsv, Code, Globe, GithubLogo } from "@phosphor-icons/react";
+import { FileCsv, Code, Globe, GithubLogo, YoutubeLogo } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { SettingsSelect } from "../../settings/components/SettingsSelect";
 import { AssetFormValues } from "../hooks/useAssetForm";
 import { AssetImageUploader } from "./AssetImageUploader";
 import { useCategories } from "../hooks/useCategories";
 import { useTranslations } from "next-intl";
+import {
+  extractYouTubeId,
+  youtubeThumbnail,
+} from "@/features/shared/utils/youtube";
 
 const getStatusOptions = (t: ReturnType<typeof useTranslations>) => [
   { value: "draft", label: t("status_draft") },
@@ -39,6 +43,13 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
   const watchExternalUrl = watch("external_url");
   const watchThumbnailUrl = watch("thumbnail_url");
   const watchCategoryId = watch("category_id");
+  // Live YouTube thumbnail preview as the user types. The regex runs in
+  // sub-microseconds and the only network cost is the single ~15 KB image
+  // from YouTube's CDN, so we don't bother memoising.
+  const watchedYoutubeUrl = watch("youtube_url") ?? "";
+  const previewVideoId = extractYouTubeId(watchedYoutubeUrl);
+  const youtubeInvalid =
+    watchedYoutubeUrl.trim().length > 0 && !previewVideoId;
 
   const categoryOptions = React.useMemo(() => {
     return categories.map((c) => ({
@@ -262,6 +273,77 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
         >
           {t("product_thumbnail_hint")}
         </p>
+      </div>
+
+      {/* YouTube preview video (optional). When set, the marketplace modal
+          plays this video instead of showing the thumbnail. We deliberately
+          accept any URL flavour (watch / youtu.be / embed / shorts) plus the
+          bare 11-char id; the backend normalises before persisting. Leaving
+          this empty keeps the image as the modal preview. */}
+      <div className="space-y-3">
+        <label
+          htmlFor="youtube_url"
+          className={`flex items-center gap-2 text-xs uppercase tracking-wider font-bold mb-2 ${
+            isDark ? "text-gray-300" : "text-gray-400"
+          }`}
+        >
+          <YoutubeLogo size={14} weight="fill" className="text-red-500" />
+          {t("youtube_preview_label")}
+        </label>
+        <div className="relative">
+          <YoutubeLogo
+            size={18}
+            weight="fill"
+            className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors pointer-events-none ${
+              previewVideoId
+                ? "text-red-500"
+                : isDark
+                  ? "text-gray-500"
+                  : "text-gray-400"
+            }`}
+          />
+          <input
+            id="youtube_url"
+            type="text"
+            autoComplete="off"
+            spellCheck={false}
+            {...register("youtube_url")}
+            className={`w-full pl-11 pr-4 py-3 rounded-lg border transition-all outline-none ${
+              isDark
+                ? "bg-white/8 border-white/13 text-white placeholder-gray-400 focus:border-cyan-500/30 focus:bg-white/12"
+                : "bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
+            } ${youtubeInvalid ? "border-red-500 shadow-[0_0_0_1px_rgba(239,68,68,0.2)]" : ""}`}
+            placeholder="https://www.youtube.com/watch?v=..."
+          />
+        </div>
+        <p
+          className={`text-[10px] ml-1 ${
+            youtubeInvalid
+              ? "text-red-400"
+              : isDark
+                ? "text-gray-600"
+                : "text-gray-400"
+          }`}
+        >
+          {youtubeInvalid
+            ? t("youtube_invalid_url")
+            : t("youtube_preview_hint")}
+        </p>
+        {previewVideoId && (
+          <div className="relative mt-1 aspect-video w-full max-w-sm overflow-hidden rounded-xl border border-white/10 bg-black">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={youtubeThumbnail(previewVideoId)}
+              alt="YouTube preview"
+              loading="lazy"
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+            <div className="absolute inset-0 bg-linear-to-t from-black/50 via-transparent to-transparent" />
+            <div className="absolute bottom-2 right-2 rounded-md bg-black/70 px-2 py-0.5 text-[10px] font-mono text-white/80">
+              {previewVideoId}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Pricing */}

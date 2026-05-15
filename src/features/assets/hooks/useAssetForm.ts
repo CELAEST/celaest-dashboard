@@ -21,6 +21,12 @@ export const assetSchema = z.object({
   external_url: z.string().url("Must be a valid URL").or(z.literal("")).optional(),
   github_repository: z.string().optional(),
   thumbnail_url: z.string().url("Must be a valid URL").or(z.literal("")).optional(),
+  // Optional YouTube preview. Accepts any YouTube URL flavour or the bare
+  // 11-char video id; the backend normalises and stores only the id. Empty
+  // string clears the preview (falls back to thumbnail_url in the modal).
+  // We deliberately don't z.string().url() here because youtu.be short
+  // links are valid for us and a bare id (e.g. "dQw4w9WgXcQ") is also OK.
+  youtube_url: z.string().max(255).optional(),
   pending_image: z.custom<File>()
     .superRefine((val, ctx) => {
       if (!val) return;

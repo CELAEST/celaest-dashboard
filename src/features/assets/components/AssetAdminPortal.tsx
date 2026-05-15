@@ -222,6 +222,12 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
       thumbnail_url: finalThumbnailUrl,
       external_url: data.external_url,
       github_repository: data.github_repository,
+      // Forward the YouTube URL verbatim; the backend normalises any
+      // flavour (watch/youtu.be/embed/shorts/nocookie or bare 11-char id)
+      // to the canonical id. Sending "" explicitly clears the preview on
+      // update — that matches the form's "leave empty to fall back to the
+      // image" contract.
+      youtube_url: data.youtube_url ?? "",
       features: data.features ? data.features.split("\n").filter(Boolean) : [],
       tags: data.tags ? data.tags.split("\n").filter(Boolean) : [],
       technical_stack: data.technical_stack

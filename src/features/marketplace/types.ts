@@ -12,6 +12,13 @@ export interface MarketplaceProduct {
   rating_avg: number;
   rating_count: number;
   thumbnail_url: string;
+  /**
+   * 11-char YouTube id (not a URL). When present, the product detail modal
+   * renders a lite-embed facade (thumbnail + play button → iframe on click)
+   * instead of the static `thumbnail_url`. Empty/undefined falls back to
+   * the image.
+   */
+  youtube_video_id?: string;
   images: string[];
   tags: string[];
   features: string[];
