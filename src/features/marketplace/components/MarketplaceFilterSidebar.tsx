@@ -286,8 +286,15 @@ export function MarketplaceFilterSidebar({
                           {[...Array(5)].map((_, i) => (
                             <Star
                               key={i}
-                              size={9}
-                              className={`${i < rating ? "text-yellow-500 fill-yellow-500" : "text-gray-600"}`}
+                              size={11}
+                              weight={i < rating ? "fill" : "regular"}
+                              className={
+                                i < rating
+                                  ? "text-yellow-500"
+                                  : isDark
+                                    ? "text-gray-600"
+                                    : "text-gray-300"
+                              }
                             />
                           ))}
                         </div>
