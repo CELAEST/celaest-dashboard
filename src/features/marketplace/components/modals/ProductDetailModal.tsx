@@ -10,6 +10,7 @@ import { ProductModalTabs } from "./ProductModalTabs";
 import { ProductModalSidebar } from "./ProductModalSidebar";
 import { useProductDetail } from "../../hooks/useProductDetail";
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
+import { LiteYouTube } from "@/features/shared/components/LiteYouTube";
 import { MarketplaceProduct } from "../../types";
 import { useTranslations } from "next-intl";
 
@@ -191,17 +192,28 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           <div className="grid lg:grid-cols-3 gap-6 p-6">
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Product Image */}
-              <div
-                className={`relative aspect-video rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-900 ${loading ? "animate-pulse" : ""}`}
-              >
-                <ImageWithFallback
-                  src={product.thumbnail_url || ""}
-                  alt={product.name}
-                  fill
-                  className={`object-cover transition-opacity duration-300 ${loading ? "opacity-50" : "opacity-100"}`}
+              {/* Product preview: YouTube lite-embed when the product has a
+                  video, otherwise the static thumbnail. The facade renders
+                  ~15 KB of image until the user clicks play, so the modal
+                  stays cheap even for products with a video. */}
+              {product.youtube_video_id ? (
+                <LiteYouTube
+                  videoId={product.youtube_video_id}
+                  title={product.name}
+                  fallbackImage={product.thumbnail_url || undefined}
                 />
-              </div>
+              ) : (
+                <div
+                  className={`relative aspect-video rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-900 ${loading ? "animate-pulse" : ""}`}
+                >
+                  <ImageWithFallback
+                    src={product.thumbnail_url || ""}
+                    alt={product.name}
+                    fill
+                    className={`object-cover transition-opacity duration-300 ${loading ? "opacity-50" : "opacity-100"}`}
+                  />
+                </div>
+              )}
 
               <ProductModalTabs
                 product={product}

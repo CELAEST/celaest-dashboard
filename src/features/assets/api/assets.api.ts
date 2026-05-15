@@ -19,6 +19,9 @@ export interface BackendProduct {
   is_featured: boolean;
   is_public: boolean;
   thumbnail_url?: string;
+  // 11-char YouTube id (not a URL). Empty/absent means "no video preview";
+  // the modal falls back to thumbnail_url.
+  youtube_video_id?: string;
   images?: string;
   tags?: string[];
   features?: string[];
@@ -66,6 +69,9 @@ export interface CreateProductPayload {
   is_featured?: boolean;
   is_public?: boolean;
   thumbnail_url?: string;
+  // Any YouTube URL flavour OR the bare 11-char id. The backend normalises
+  // and stores only the id. Empty string clears the preview.
+  youtube_url?: string;
   external_url?: string;
   github_repository?: string;
   tags?: string[];
@@ -98,6 +104,9 @@ export interface UpdateProductPayload {
   is_featured?: boolean;
   is_public?: boolean;
   thumbnail_url?: string;
+  // Same contract as CreateProductPayload.youtube_url. Empty string clears
+  // any existing video preview; omit the field to keep the current value.
+  youtube_url?: string;
   external_url?: string;
   github_repository?: string;
   tags?: string[];
