@@ -65,8 +65,11 @@ export function OrgSwitcher({ isExpanded }: OrgSwitcherProps) {
     return organizations.filter((o) => !isHomeOrg(o));
   }, [organizations]);
 
-  // Don't show if 0 or 1 visible orgs
-  if (visibleOrgs.length <= 1) return null;
+  // Always render the switcher when there is at least one visible org so the
+  // current workspace label is shown in the sidebar even for users that only
+  // belong to Celaest. We only bail out when there is literally nothing to
+  // display (e.g. data still loading).
+  if (visibleOrgs.length === 0) return null;
 
   const handleSelect = async (org: Organization) => {
     if (org.id === currentOrg?.id) {
