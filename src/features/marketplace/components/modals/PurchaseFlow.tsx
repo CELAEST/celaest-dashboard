@@ -13,6 +13,7 @@ import { PaymentStep } from "./purchase-steps/PaymentStep";
 import { ActivationStep } from "./purchase-steps/ActivationStep";
 import { useDashboardRouter } from "@/features/control-center/hooks/useDashboardRouter";
 import { useTranslations } from "next-intl";
+import { useGeoPricing } from "@/features/billing/providers/GeoPricingProvider";
 
 interface PurchaseFlowProps {
   isOpen: boolean;
@@ -50,21 +51,29 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
   } = usePurchaseFlow(onClose, initialStep, onSuccess);
 
   const { activeCoupon } = useMarketplaceCouponStore();
+  const { pricing, formatPrice } = useGeoPricing();
 
-  let finalPrice = product?.base_price ?? 0;
+  // Geo-pricing
+  const isGeoPriced = !!(pricing && pricing.country_code && pricing.country_code !== "US");
+  const basePrice = product?.base_price ?? 0;
+  const localBasePrice = isGeoPriced
+    ? basePrice * (pricing?.ppp_factor ?? 1)
+    : basePrice;
+
+  let finalPrice = localBasePrice;
   if (activeCoupon && product) {
     if (activeCoupon.type === "percentage") {
-      finalPrice = product.base_price * (1 - activeCoupon.value / 100);
+      finalPrice = localBasePrice * (1 - activeCoupon.value / 100);
     } else if (activeCoupon.type === "fixed_amount") {
-      finalPrice = Math.max(0, product.base_price - activeCoupon.value);
+      finalPrice = Math.max(0, localBasePrice - activeCoupon.value);
     }
   }
 
   const formattedOriginalPrice = product
-    ? formatCurrency(product.base_price, product.currency)
+    ? (isGeoPriced ? formatPrice(product.base_price, "USD") : formatCurrency(product.base_price, product.currency))
     : "";
   const formattedFinalPrice = product
-    ? formatCurrency(finalPrice, product.currency)
+    ? (isGeoPriced ? formatPrice(finalPrice) : formatCurrency(finalPrice, product.currency))
     : "";
 
   // Close on Escape key

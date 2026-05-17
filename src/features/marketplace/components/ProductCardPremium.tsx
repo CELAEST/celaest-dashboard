@@ -9,6 +9,7 @@ import { MarketplaceProduct } from "../types";
 import { formatCurrency } from "@/lib/utils";
 import { useMarketplaceCouponStore } from "../store";
 import { useTranslations } from "next-intl";
+import { useGeoPricing } from "@/features/billing/providers/GeoPricingProvider";
 
 interface ProductCardPremiumProps {
   product: MarketplaceProduct;
@@ -34,6 +35,7 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
   const [isHovered, setIsHovered] = React.useState(false);
   const { activeCoupon } = useMarketplaceCouponStore();
   const t = useTranslations("marketplace");
+  const { pricing, formatPrice } = useGeoPricing();
 
   // Mapping props from MarketplaceProduct
   const {
@@ -57,17 +59,25 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
     "https://images.unsplash.com/photo-1551288049-bebda4e38f71";
   const badge = rating >= 4.5 ? "PREMIUM" : undefined;
 
-  let finalPrice = base_price;
+  // Geo-pricing: resolve localized price for this product
+  const isGeoPriced = !!(pricing && pricing.country_code && pricing.country_code !== "US");
+  const geoPlan = pricing?.plans?.find((p) => p.plan_id === product.id?.toString());
+  // For products, we use the PPP factor directly
+  const localBasePrice = isGeoPriced
+    ? base_price * (pricing?.ppp_factor ?? 1) * (pricing?.currency?.code !== "USD" ? 1 : 1)
+    : base_price;
+
+  let finalPrice = localBasePrice;
   if (activeCoupon) {
     if (activeCoupon.type === "percentage") {
-      finalPrice = base_price * (1 - activeCoupon.value / 100);
+      finalPrice = localBasePrice * (1 - activeCoupon.value / 100);
     } else if (activeCoupon.type === "fixed_amount") {
-      finalPrice = Math.max(0, base_price - activeCoupon.value);
+      finalPrice = Math.max(0, localBasePrice - activeCoupon.value);
     }
   }
 
-  const priceStr = formatCurrency(base_price, currency);
-  const finalPriceStr = formatCurrency(finalPrice, currency);
+  const priceStr = isGeoPriced ? formatPrice(base_price, "USD") : formatCurrency(base_price, currency);
+  const finalPriceStr = isGeoPriced ? formatPrice(finalPrice) : formatCurrency(finalPrice, currency);
 
   return (
     <motion.div
@@ -251,9 +261,9 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
                 {t("investment")}
               </div>
               <div className="flex items-center gap-2">
-                {activeCoupon && (
+                {(activeCoupon || isGeoPriced) && (
                   <span className="text-sm line-through text-gray-500 font-medium">
-                    {priceStr}
+                    {isGeoPriced && !activeCoupon ? priceStr : formatCurrency(base_price, currency)}
                   </span>
                 )}
                 <div
