@@ -59,10 +59,10 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
     "https://images.unsplash.com/photo-1551288049-bebda4e38f71";
   const badge = rating >= 4.5 ? "PREMIUM" : undefined;
 
-  // Geo-pricing: resolve localized price for this product
+  // Geo-pricing: resolve localized price for this product (NO PPP discount, only exchange rate)
   const isGeoPriced = !!(pricing && pricing.country_code && pricing.country_code !== "US");
   const localBasePrice = isGeoPriced
-    ? base_price * (pricing?.ppp_factor ?? 1) * (pricing?.exchange_rate ?? 1)
+    ? base_price * (pricing?.exchange_rate ?? 1)
     : base_price;
 
   let finalPrice = localBasePrice;
