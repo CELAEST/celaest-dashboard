@@ -11,6 +11,7 @@ import { motion } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { Plan } from "../../types";
 import { useTranslations } from "next-intl";
+import { useGeoPricing } from "../../providers/GeoPricingProvider";
 
 /* ─── Types ─── */
 
@@ -94,10 +95,19 @@ export const PlanCard: React.FC<PlanCardProps> = ({
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const t = useTranslations("billing");
+  const { pricing, formatPrice } = useGeoPricing();
+  
   const mode = isDark ? "dark" : "light";
   const isPopular = plan.popular;
   const isCurrent = activePlanIds?.includes(plan.id);
-  const isFree = !plan.price_monthly || plan.price_monthly === 0;
+
+  // Geo-pricing resolution
+  const geoPlan = pricing?.plans.find((p) => p.plan_id === plan.id);
+  const mPrice = geoPlan ? geoPlan.local_price_monthly : (plan.price_monthly || 0);
+  const yPrice = geoPlan ? geoPlan.local_price_yearly : (plan.price_yearly || 0);
+  const currencyCode = geoPlan?.currency_code || "USD";
+
+  const isFree = mPrice === 0;
   const p = palettes[plan.color || "blue"];
 
   const handleSelect = () => {
@@ -173,7 +183,7 @@ export const PlanCard: React.FC<PlanCardProps> = ({
             <span
               className={`text-3xl lg:text-4xl font-extrabold tracking-tight ${isDark ? "text-white" : "text-gray-900"}`}
             >
-              ${plan.price_monthly}
+              {formatPrice(mPrice, currencyCode)}
             </span>
             <span
               className={`text-sm font-medium ${isDark ? "text-gray-500" : "text-gray-400"}`}
@@ -184,14 +194,13 @@ export const PlanCard: React.FC<PlanCardProps> = ({
         )}
       </div>
 
-      {!isFree && plan.price_yearly ? (
+      {!isFree && yPrice > 0 ? (
         <p
           className={`text-center text-xs mt-0.5 ${isDark ? "text-gray-500" : "text-gray-400"}`}
         >
-          ${plan.price_yearly}/{t("yr")}{" "}
+          {formatPrice(yPrice, currencyCode)}/{t("yr")}{" "}
           <span className="text-green-500 font-semibold">
-            {t("save")} $
-            {((plan.price_monthly ?? 0) * 12 - plan.price_yearly).toFixed(0)}
+            {t("save")} {formatPrice(mPrice * 12 - yPrice, currencyCode)}
           </span>
         </p>
       ) : null}

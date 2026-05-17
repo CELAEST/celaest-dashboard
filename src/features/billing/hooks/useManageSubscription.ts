@@ -5,6 +5,7 @@ import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { billingApi } from "../api/billing.api";
 import { Subscription, Plan } from "../types";
+import { useGeoPricing } from "../providers/GeoPricingProvider";
 
 export const useManageSubscription = (subscription: Subscription | null, plan: Plan | null, onClose: () => void) => {
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
@@ -21,6 +22,7 @@ export const useManageSubscription = (subscription: Subscription | null, plan: P
 
   const { currentOrg } = useOrgStore();
   const { session } = useAuth();
+  const { pricing, formatPrice } = useGeoPricing();
 
   const scrollToBottom = () => {
     if (scrollContainerRef.current) {
@@ -108,10 +110,14 @@ export const useManageSubscription = (subscription: Subscription | null, plan: P
     ? new Date(subscription.created_at).toLocaleDateString() 
     : "N/A";
 
+  const geoPlan = pricing?.plans.find(p => p.plan_id === plan?.id);
+  const mPrice = geoPlan ? geoPlan.local_price_monthly : (plan?.price_monthly || 0);
+  const currencyCode = geoPlan?.currency_code || plan?.currency || "USD";
+
   const subscriptionDetails = {
     plan: plan?.name || "No Plan",
     status: subscription?.status || "Inactive",
-    price: plan?.price_monthly ? `${plan.currency === 'EUR' ? '€' : '$'}${plan.price_monthly}` : "$0.00",
+    price: formatPrice(mPrice, currencyCode),
     billingCycle: "Monthly",
     nextBillingDate,
     renewalDate: nextBillingDate,

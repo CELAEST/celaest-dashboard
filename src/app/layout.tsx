@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/features/auth/contexts/AuthContext";
 import { NotificationProvider } from "@/features/shared/contexts/NotificationContext";
+import { GeoPricingProvider } from "@/features/billing/providers/GeoPricingProvider";
 import { Toaster } from "sonner";
 import { ThemeSync } from "@/features/shared/components/ThemeSync";
 import { OrgSync } from "@/features/shared/components/OrgSync";
@@ -99,12 +100,14 @@ export default async function RootLayout({
             <ThemeSync />
           <ErrorBoundary>
             <AuthProvider>
-              <OrgSync />
-              <RealtimeDashboardSync />
-              <NotificationProvider>
-                <main id="main-content">{children}</main>
-                <Toaster />
-              </NotificationProvider>
+              <GeoPricingProvider>
+                <OrgSync />
+                <RealtimeDashboardSync />
+                <NotificationProvider>
+                  <main id="main-content">{children}</main>
+                  <Toaster />
+                </NotificationProvider>
+              </GeoPricingProvider>
             </AuthProvider>
           </ErrorBoundary>
           </NextIntlClientProvider>
