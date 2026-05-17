@@ -61,10 +61,8 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
 
   // Geo-pricing: resolve localized price for this product
   const isGeoPriced = !!(pricing && pricing.country_code && pricing.country_code !== "US");
-  const geoPlan = pricing?.plans?.find((p) => p.plan_id === product.id?.toString());
-  // For products, we use the PPP factor directly
   const localBasePrice = isGeoPriced
-    ? base_price * (pricing?.ppp_factor ?? 1) * (pricing?.currency?.code !== "USD" ? 1 : 1)
+    ? base_price * (pricing?.ppp_factor ?? 1) * (pricing?.exchange_rate ?? 1)
     : base_price;
 
   let finalPrice = localBasePrice;

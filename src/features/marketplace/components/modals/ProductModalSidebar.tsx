@@ -47,7 +47,7 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
   // Geo-pricing
   const isGeoPriced = !!(pricing && pricing.country_code && pricing.country_code !== "US");
   const localBasePrice = isGeoPriced
-    ? product.base_price * (pricing?.ppp_factor ?? 1)
+    ? product.base_price * (pricing?.ppp_factor ?? 1) * (pricing?.exchange_rate ?? 1)
     : product.base_price;
 
   let finalPrice = localBasePrice;

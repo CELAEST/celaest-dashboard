@@ -57,7 +57,7 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
   const isGeoPriced = !!(pricing && pricing.country_code && pricing.country_code !== "US");
   const basePrice = product?.base_price ?? 0;
   const localBasePrice = isGeoPriced
-    ? basePrice * (pricing?.ppp_factor ?? 1)
+    ? basePrice * (pricing?.ppp_factor ?? 1) * (pricing?.exchange_rate ?? 1)
     : basePrice;
 
   let finalPrice = localBasePrice;
