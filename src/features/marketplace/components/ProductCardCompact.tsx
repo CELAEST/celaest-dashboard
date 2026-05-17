@@ -67,16 +67,21 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
     ? base_price * (pricing?.exchange_rate ?? 1)
     : base_price;
 
+  // Fixed-amount coupons are denominated in USD; scale to local currency.
+  const exchangeRate = pricing?.exchange_rate ?? 1;
   let finalPrice = localBasePrice;
   if (activeCoupon) {
     if (activeCoupon.type === "percentage") {
       finalPrice = localBasePrice * (1 - activeCoupon.value / 100);
     } else if (activeCoupon.type === "fixed_amount") {
-      finalPrice = Math.max(0, localBasePrice - activeCoupon.value);
+      const localDiscount = isGeoPriced
+        ? activeCoupon.value * exchangeRate
+        : activeCoupon.value;
+      finalPrice = Math.max(0, localBasePrice - localDiscount);
     }
   }
 
-  const formattedPrice = isGeoPriced ? formatPrice(base_price, "USD") : formatCurrency(base_price, currency);
+  const formattedLocalBase = isGeoPriced ? formatPrice(localBasePrice) : formatCurrency(base_price, currency);
   const formattedFinalPrice = isGeoPriced ? formatPrice(finalPrice) : formatCurrency(finalPrice, currency);
 
   // Badge derivado (ej. si tiene rating alto)
@@ -182,9 +187,9 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
               {tCommon("price")}
             </span>
             <div className="flex flex-col items-start leading-[1.1]">
-              {(activeCoupon || isGeoPriced) && (
+              {activeCoupon && (
                 <span className="text-white/60 text-xs font-medium line-through">
-                  {isGeoPriced && !activeCoupon ? formattedPrice : formatCurrency(base_price, currency)}
+                  {formattedLocalBase}
                 </span>
               )}
               <span

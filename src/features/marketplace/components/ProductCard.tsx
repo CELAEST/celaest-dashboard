@@ -33,12 +33,19 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     ? product.base_price * (pricing?.exchange_rate ?? 1)
     : product.base_price;
 
+  // Coupon `value` for fixed_amount is denominated in USD; convert to local
+  // currency using the same exchange rate as the base price so a $20 USD
+  // coupon doesn't get applied as 20 COP off a localized COP price.
+  const exchangeRate = pricing?.exchange_rate ?? 1;
   let finalPrice = localBasePrice;
   if (activeCoupon) {
     if (activeCoupon.type === "percentage") {
       finalPrice = localBasePrice * (1 - activeCoupon.value / 100);
     } else if (activeCoupon.type === "fixed_amount") {
-      finalPrice = Math.max(0, localBasePrice - activeCoupon.value);
+      const localDiscount = isGeoPriced
+        ? activeCoupon.value * exchangeRate
+        : activeCoupon.value;
+      finalPrice = Math.max(0, localBasePrice - localDiscount);
     }
   }
 
@@ -103,10 +110,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           <div className="flex flex-col">
             <span className="text-xs text-white/40 font-medium">{t("starting_from")}</span>
             <div className="flex items-center gap-2">
-              {(activeCoupon || isGeoPriced) && (
+              {activeCoupon && (
                 <span className="text-sm line-through text-white/40 font-medium">
-                  {isGeoPriced && !activeCoupon
-                    ? formatPrice(product.base_price, "USD")
+                  {isGeoPriced
+                    ? formatPrice(localBasePrice)
                     : formatCurrency(product.base_price, product.currency)}
                 </span>
               )}
