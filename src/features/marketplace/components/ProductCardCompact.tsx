@@ -9,6 +9,7 @@ import { MarketplaceProduct } from "../types";
 import { formatCurrency } from "@/lib/utils";
 import { useMarketplaceCouponStore } from "../store";
 import { useTranslations } from "next-intl";
+import { useGeoPricing } from "@/features/billing/providers/GeoPricingProvider";
 
 interface ProductCardCompactProps {
   product: MarketplaceProduct;
@@ -33,6 +34,7 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
   const { activeCoupon } = useMarketplaceCouponStore();
   const t = useTranslations("marketplace");
   const tCommon = useTranslations("common");
+  const { pricing, formatPrice } = useGeoPricing();
 
   // Resolve effective access: prefer accessLevel prop, fallback to isOwned
   const effectiveAccess = accessLevel ?? (isOwned ? "owned" : "none");
@@ -59,17 +61,23 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
         ? product.tags
         : ["Instant Delivery", "Secure Payment", "24/7 Support"];
 
-  let finalPrice = base_price;
+  // Geo-pricing: resolve localized price for this product
+  const isGeoPriced = !!(pricing && pricing.country_code && pricing.country_code !== "US");
+  const localBasePrice = isGeoPriced
+    ? base_price * (pricing?.ppp_factor ?? 1)
+    : base_price;
+
+  let finalPrice = localBasePrice;
   if (activeCoupon) {
     if (activeCoupon.type === "percentage") {
-      finalPrice = base_price * (1 - activeCoupon.value / 100);
+      finalPrice = localBasePrice * (1 - activeCoupon.value / 100);
     } else if (activeCoupon.type === "fixed_amount") {
-      finalPrice = Math.max(0, base_price - activeCoupon.value);
+      finalPrice = Math.max(0, localBasePrice - activeCoupon.value);
     }
   }
 
-  const formattedPrice = formatCurrency(base_price, currency);
-  const formattedFinalPrice = formatCurrency(finalPrice, currency);
+  const formattedPrice = isGeoPriced ? formatPrice(base_price, "USD") : formatCurrency(base_price, currency);
+  const formattedFinalPrice = isGeoPriced ? formatPrice(finalPrice) : formatCurrency(finalPrice, currency);
 
   // Badge derivado (ej. si tiene rating alto)
   const badge = rating >= 4.5 ? "BESTSELLER" : undefined;
@@ -174,9 +182,9 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
               {tCommon("price")}
             </span>
             <div className="flex flex-col items-start leading-[1.1]">
-              {activeCoupon && (
+              {(activeCoupon || isGeoPriced) && (
                 <span className="text-white/60 text-xs font-medium line-through">
-                  {formattedPrice}
+                  {isGeoPriced && !activeCoupon ? formattedPrice : formatCurrency(base_price, currency)}
                 </span>
               )}
               <span

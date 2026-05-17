@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { useMarketplaceCouponStore } from "../store";
 import { useTranslations } from "next-intl";
+import { useGeoPricing } from "@/features/billing/providers/GeoPricingProvider";
 
 interface ProductCardProps {
   product: MarketplaceProduct;
@@ -24,13 +25,20 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
   const t = useTranslations("marketplace");
   const { activeCoupon } = useMarketplaceCouponStore();
+  const { pricing, formatPrice } = useGeoPricing();
 
-  let finalPrice = product.base_price;
+  // Geo-pricing: resolve localized price
+  const isGeoPriced = !!(pricing && pricing.country_code && pricing.country_code !== "US");
+  const localBasePrice = isGeoPriced
+    ? product.base_price * (pricing?.ppp_factor ?? 1)
+    : product.base_price;
+
+  let finalPrice = localBasePrice;
   if (activeCoupon) {
     if (activeCoupon.type === "percentage") {
-      finalPrice = product.base_price * (1 - activeCoupon.value / 100);
+      finalPrice = localBasePrice * (1 - activeCoupon.value / 100);
     } else if (activeCoupon.type === "fixed_amount") {
-      finalPrice = Math.max(0, product.base_price - activeCoupon.value);
+      finalPrice = Math.max(0, localBasePrice - activeCoupon.value);
     }
   }
 
@@ -95,13 +103,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           <div className="flex flex-col">
             <span className="text-xs text-white/40 font-medium">{t("starting_from")}</span>
             <div className="flex items-center gap-2">
-              {activeCoupon && (
+              {(activeCoupon || isGeoPriced) && (
                 <span className="text-sm line-through text-white/40 font-medium">
-                  {formatCurrency(product.base_price, product.currency)}
+                  {isGeoPriced && !activeCoupon
+                    ? formatPrice(product.base_price, "USD")
+                    : formatCurrency(product.base_price, product.currency)}
                 </span>
               )}
               <span className="text-xl font-bold text-white tracking-tight">
-                {formatCurrency(finalPrice, product.currency)}
+                {isGeoPriced ? formatPrice(finalPrice) : formatCurrency(finalPrice, product.currency)}
               </span>
             </div>
           </div>

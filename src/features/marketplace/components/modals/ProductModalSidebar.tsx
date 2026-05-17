@@ -14,6 +14,7 @@ import { MarketplaceProduct } from "../../types";
 import { formatCurrency } from "@/lib/utils";
 import { useMarketplaceCouponStore } from "../../store";
 import { useTranslations } from "next-intl";
+import { useGeoPricing } from "@/features/billing/providers/GeoPricingProvider";
 
 interface ProductModalSidebarProps {
   product: MarketplaceProduct;
@@ -41,21 +42,29 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
   const isPlan = effectiveAccess === "plan";
 
   const { activeCoupon } = useMarketplaceCouponStore();
+  const { pricing, formatPrice } = useGeoPricing();
 
-  let finalPrice = product.base_price;
+  // Geo-pricing
+  const isGeoPriced = !!(pricing && pricing.country_code && pricing.country_code !== "US");
+  const localBasePrice = isGeoPriced
+    ? product.base_price * (pricing?.ppp_factor ?? 1)
+    : product.base_price;
+
+  let finalPrice = localBasePrice;
   if (activeCoupon) {
     if (activeCoupon.type === "percentage") {
-      finalPrice = product.base_price * (1 - activeCoupon.value / 100);
+      finalPrice = localBasePrice * (1 - activeCoupon.value / 100);
     } else if (activeCoupon.type === "fixed_amount") {
-      finalPrice = Math.max(0, product.base_price - activeCoupon.value);
+      finalPrice = Math.max(0, localBasePrice - activeCoupon.value);
     }
   }
 
-  const formattedOriginalPrice = formatCurrency(
-    product.base_price,
-    product.currency,
-  );
-  const formattedFinalPrice = formatCurrency(finalPrice, product.currency);
+  const formattedOriginalPrice = isGeoPriced
+    ? formatPrice(product.base_price, "USD")
+    : formatCurrency(product.base_price, product.currency);
+  const formattedFinalPrice = isGeoPriced
+    ? formatPrice(finalPrice)
+    : formatCurrency(finalPrice, product.currency);
 
   return (
     <div className="sticky top-24 space-y-4">
@@ -150,7 +159,7 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
           <>
             <div className="mb-4">
               <div className="flex flex-col gap-1 items-start">
-                {activeCoupon && (
+                {(activeCoupon || isGeoPriced) && (
                   <span className="text-sm line-through text-gray-400 font-medium">
                     {formattedOriginalPrice}
                   </span>
