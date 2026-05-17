@@ -64,7 +64,7 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
   // Geo-pricing: resolve localized price for this product
   const isGeoPriced = !!(pricing && pricing.country_code && pricing.country_code !== "US");
   const localBasePrice = isGeoPriced
-    ? base_price * (pricing?.ppp_factor ?? 1)
+    ? base_price * (pricing?.ppp_factor ?? 1) * (pricing?.exchange_rate ?? 1)
     : base_price;
 
   let finalPrice = localBasePrice;

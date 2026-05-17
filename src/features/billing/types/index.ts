@@ -69,6 +69,7 @@ export interface ResolvedPricingContext {
   country_name: string;
   currency: SupportedCurrency;
   ppp_factor: number;
+  exchange_rate: number;
   plans: ResolvedPlanPricing[];
 }
 
