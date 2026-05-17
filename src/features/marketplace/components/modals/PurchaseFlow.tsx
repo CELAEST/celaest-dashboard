@@ -60,17 +60,24 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
     ? basePrice * (pricing?.exchange_rate ?? 1)
     : basePrice;
 
+  // Fixed-amount coupons are denominated in USD; scale to local currency.
+  const exchangeRate = pricing?.exchange_rate ?? 1;
   let finalPrice = localBasePrice;
   if (activeCoupon && product) {
     if (activeCoupon.type === "percentage") {
       finalPrice = localBasePrice * (1 - activeCoupon.value / 100);
     } else if (activeCoupon.type === "fixed_amount") {
-      finalPrice = Math.max(0, localBasePrice - activeCoupon.value);
+      const localDiscount = isGeoPriced
+        ? activeCoupon.value * exchangeRate
+        : activeCoupon.value;
+      finalPrice = Math.max(0, localBasePrice - localDiscount);
     }
   }
 
+  // Original price for strikethrough — shown in local currency when geo-priced
+  // (we no longer display the USD base price here).
   const formattedOriginalPrice = product
-    ? (isGeoPriced ? formatPrice(product.base_price, "USD") : formatCurrency(product.base_price, product.currency))
+    ? (isGeoPriced ? formatPrice(localBasePrice) : formatCurrency(product.base_price, product.currency))
     : "";
   const formattedFinalPrice = product
     ? (isGeoPriced ? formatPrice(finalPrice) : formatCurrency(finalPrice, product.currency))

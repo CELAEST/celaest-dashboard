@@ -65,16 +65,21 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
     ? base_price * (pricing?.exchange_rate ?? 1)
     : base_price;
 
+  // Fixed-amount coupons are denominated in USD; scale to local currency.
+  const exchangeRate = pricing?.exchange_rate ?? 1;
   let finalPrice = localBasePrice;
   if (activeCoupon) {
     if (activeCoupon.type === "percentage") {
       finalPrice = localBasePrice * (1 - activeCoupon.value / 100);
     } else if (activeCoupon.type === "fixed_amount") {
-      finalPrice = Math.max(0, localBasePrice - activeCoupon.value);
+      const localDiscount = isGeoPriced
+        ? activeCoupon.value * exchangeRate
+        : activeCoupon.value;
+      finalPrice = Math.max(0, localBasePrice - localDiscount);
     }
   }
 
-  const priceStr = isGeoPriced ? formatPrice(base_price, "USD") : formatCurrency(base_price, currency);
+  const localBasePriceStr = isGeoPriced ? formatPrice(localBasePrice) : formatCurrency(base_price, currency);
   const finalPriceStr = isGeoPriced ? formatPrice(finalPrice) : formatCurrency(finalPrice, currency);
 
   return (
@@ -259,9 +264,9 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
                 {t("investment")}
               </div>
               <div className="flex items-center gap-2">
-                {(activeCoupon || isGeoPriced) && (
+                {activeCoupon && (
                   <span className="text-sm line-through text-gray-500 font-medium">
-                    {isGeoPriced && !activeCoupon ? priceStr : formatCurrency(base_price, currency)}
+                    {localBasePriceStr}
                   </span>
                 )}
                 <div

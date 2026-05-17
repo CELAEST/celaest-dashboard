@@ -50,17 +50,22 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
     ? product.base_price * (pricing?.exchange_rate ?? 1)
     : product.base_price;
 
+  // Fixed-amount coupons are denominated in USD; scale to local currency.
+  const exchangeRate = pricing?.exchange_rate ?? 1;
   let finalPrice = localBasePrice;
   if (activeCoupon) {
     if (activeCoupon.type === "percentage") {
       finalPrice = localBasePrice * (1 - activeCoupon.value / 100);
     } else if (activeCoupon.type === "fixed_amount") {
-      finalPrice = Math.max(0, localBasePrice - activeCoupon.value);
+      const localDiscount = isGeoPriced
+        ? activeCoupon.value * exchangeRate
+        : activeCoupon.value;
+      finalPrice = Math.max(0, localBasePrice - localDiscount);
     }
   }
 
   const formattedOriginalPrice = isGeoPriced
-    ? formatPrice(product.base_price, "USD")
+    ? formatPrice(localBasePrice)
     : formatCurrency(product.base_price, product.currency);
   const formattedFinalPrice = isGeoPriced
     ? formatPrice(finalPrice)
@@ -159,7 +164,7 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
           <>
             <div className="mb-4">
               <div className="flex flex-col gap-1 items-start">
-                {(activeCoupon || isGeoPriced) && (
+                {activeCoupon && (
                   <span className="text-sm line-through text-gray-400 font-medium">
                     {formattedOriginalPrice}
                   </span>
