@@ -40,6 +40,39 @@ export interface PaymentMetadata {
 }
 
 // ------------------------------------
+// Geo-Pricing Types
+// ------------------------------------
+
+export interface SupportedCurrency {
+  code: string;
+  name: string;
+  symbol: string;
+  decimals: number;
+  symbol_pos: string;
+  is_zero_decimal: boolean;
+}
+
+export interface ResolvedPlanPricing {
+  plan_id: string;
+  plan_code: string;
+  plan_name: string;
+  original_price_monthly: number;
+  original_price_yearly: number;
+  local_price_monthly: number;
+  local_price_yearly: number;
+  currency_code: string;
+  is_override: boolean;
+}
+
+export interface ResolvedPricingContext {
+  country_code: string;
+  country_name: string;
+  currency: SupportedCurrency;
+  ppp_factor: number;
+  plans: ResolvedPlanPricing[];
+}
+
+// ------------------------------------
 
 export interface Money {
   amount: number;

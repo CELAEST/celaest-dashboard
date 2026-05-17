@@ -97,7 +97,6 @@ export const PlanCards: React.FC<PlanCardsProps> = memo(({ plans }) => {
                 isDark ? "text-white" : "text-gray-900"
               }`}
             >
-              {plan.price === "Custom" ? "" : "$"}
               {plan.price}
             </span>
             {plan.price !== "0" && plan.price !== "Custom" && (

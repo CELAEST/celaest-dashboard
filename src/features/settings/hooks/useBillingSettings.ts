@@ -5,6 +5,7 @@ import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 import { billingApi } from "@/features/billing/api/billing.api";
 import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
+import { useGeoPricing } from "@/features/billing/providers/GeoPricingProvider";
 
 /**
  * useBillingSettings — Dynamic Product Configuration
@@ -18,11 +19,12 @@ export const useBillingSettings = () => {
 
   const { session } = useAuthStore();
   const { currentOrg } = useOrgStore();
+  const { pricing, formatPrice } = useGeoPricing();
   const token = session?.accessToken;
   const orgId = currentOrg?.id;
 
-  const { data, isLoading } = useQuery({
-    queryKey: [...QUERY_KEYS.billing.all, "settings", orgId, billingCycle],
+  const { data, isLoading: isLoadingQuery } = useQuery({
+    queryKey: [...QUERY_KEYS.billing.all, "settings", orgId, billingCycle, pricing?.country_code],
     queryFn: async () => {
       if (!token || !orgId) return null;
 
@@ -41,13 +43,19 @@ export const useBillingSettings = () => {
 
       const mappedPlans: Plan[] = plansRes.plans.map(p => {
         const isCurrent = activePlanIds.includes(p.id) || (activeSubs.length === 0 && p.code === 'starter');
-        const monthlyPrice = p.price_monthly?.toString() || "0";
-        const yearlyPrice = p.price_yearly ? (p.price_yearly / 12).toString() : "0";
+        
+        // Find geo-pricing if available
+        const geoPlan = pricing?.plans.find(gp => gp.plan_id === p.id);
+        const monthlyAmount = geoPlan ? geoPlan.local_price_monthly : (p.price_monthly || 0);
+        const yearlyAmount = geoPlan ? geoPlan.local_price_yearly : (p.price_yearly || 0);
+        
+        const monthlyPriceStr = monthlyAmount === 0 ? "0" : formatPrice(monthlyAmount, geoPlan?.currency_code);
+        const yearlyPriceStr = yearlyAmount === 0 ? "0" : formatPrice(yearlyAmount / 12, geoPlan?.currency_code);
 
         return {
           id: p.id,
           name: p.name,
-          price: billingCycle === "monthly" ? monthlyPrice : yearlyPrice,
+          price: billingCycle === "monthly" ? monthlyPriceStr : yearlyPriceStr,
           desc: p.description || "",
           features: p.features || [],
           current: isCurrent,
@@ -70,6 +78,6 @@ export const useBillingSettings = () => {
     plans: data?.plans || [],
     activePlan: data?.activePlan || null,
     nextBillingDate: data?.nextBillingDate || "N/A",
-    isLoading,
+    isLoading: isLoadingQuery,
   };
 };
