@@ -115,7 +115,9 @@ export function OrgSwitcher({ isExpanded }: OrgSwitcherProps) {
       {/* Trigger button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full flex items-center gap-3 rounded-xl p-2 transition-colors ${
+        className={`w-full flex items-center rounded-xl transition-colors ${
+          isExpanded ? "gap-3 p-2" : "h-12 justify-center p-0"
+        } ${
           isDark
             ? "hover:bg-white/5 text-white"
             : "hover:bg-gray-100 text-gray-900"

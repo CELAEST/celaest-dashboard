@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest",
+    "qa:geo-pricing": "node scripts/qa-geo-pricing.mjs",
     "images:webp": "node scripts/convert-images.js",
     "prepare": "npx husky init || true"
   },
