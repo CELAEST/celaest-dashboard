@@ -1,6 +1,7 @@
 import React from "react";
 import { Check, Star, DownloadSimple } from "@phosphor-icons/react";
 import { Asset } from "../../services/assets.service";
+import { useLocalProductPrice } from "@/features/billing/hooks/useLocalProductPrice";
 
 interface ProductInfoSectionProps {
   product: Asset;
@@ -11,6 +12,7 @@ export const ProductInfoSection: React.FC<ProductInfoSectionProps> = ({
   product,
   isDark,
 }) => {
+  const { format: formatLocalPrice } = useLocalProductPrice();
   return (
     <div className="mb-6">
       <div className="flex items-start justify-between mb-2">
@@ -43,7 +45,7 @@ export const ProductInfoSection: React.FC<ProductInfoSectionProps> = ({
               isDark ? "text-white" : "text-gray-900"
             }`}
           >
-            ${product.price}
+            {formatLocalPrice(product.price)}
           </div>
           {product.isPurchased && (
             <span

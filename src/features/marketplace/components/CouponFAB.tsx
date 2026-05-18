@@ -6,6 +6,7 @@ import { useApiAuth } from "@/lib/use-api-auth";
 import { Tag, X, CheckCircle, CircleNotch, Lightning } from "@phosphor-icons/react";
 import { settingsApi } from "@/features/settings/api/settings.api";
 import { UpgradePlanModal } from "@/features/billing/components/modals/UpgradePlanModal";
+import { useLocalProductPrice } from "@/features/billing/hooks/useLocalProductPrice";
 import { motion, AnimatePresence } from "motion/react";
 import { useTranslations } from "next-intl";
 
@@ -150,10 +151,20 @@ export function CouponFAB() {
     }
   };
 
+  // Coupon `value` for fixed_amount is denominated in USD on the backend.
+  // Show it in the user's local currency (e.g. "$83.000 COP off") so the
+  // displayed savings match what they'll actually be discounted at checkout
+  // — the same conversion (USD × exchange_rate) we apply on product cards
+  // and the purchase flow.
+  const { format: formatLocalPrice, isGeoPriced } = useLocalProductPrice();
   const currentSavingsText = activeCoupon
     ? activeCoupon.type === "percentage"
       ? t("off", { value: `${activeCoupon.value}%` })
-      : t("off", { value: `$${activeCoupon.value}` })
+      : t("off", {
+          value: isGeoPriced
+            ? formatLocalPrice(activeCoupon.value)
+            : `$${activeCoupon.value}`,
+        })
     : "";
 
   return (
