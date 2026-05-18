@@ -16,6 +16,7 @@ export const ProductActionsSection: React.FC<ProductActionsSectionProps> = ({
   onAction,
   isProcessing,
 }) => {
+  const { format: formatLocalPrice } = useLocalProductPrice();
   return (
     <>
       {/* Access Notice (if not purchased) */}
