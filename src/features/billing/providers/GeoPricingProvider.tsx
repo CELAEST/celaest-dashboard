@@ -23,8 +23,15 @@ export const GeoPricingProvider = ({ children }: { children: ReactNode }) => {
     try {
       setIsLoading(true);
       setError(null);
-      // The backend API auto-detects country via Vercel/CF headers if ?country= is omitted.
-      const response = await api.get<ResolvedPricingContext>("/api/v1/public/pricing/resolve");
+      const params =
+        typeof window !== "undefined"
+          ? new URLSearchParams(window.location.search)
+          : null;
+      const countryOverride = params?.get("geoCountry") || params?.get("country");
+      const response = await api.get<ResolvedPricingContext>(
+        "/api/v1/public/pricing/resolve",
+        countryOverride ? { params: { country: countryOverride.toUpperCase() } } : undefined,
+      );
       setPricing(response);
     } catch (err: unknown) {
       console.error("Failed to load geo-pricing:", err);

@@ -243,7 +243,7 @@ export const AppSidebar = React.memo(function AppSidebar({
 
         {!isGuest && (
           <div
-            className={`p-4 border-t flex flex-col gap-3 ${
+            className={`${isHovered ? "p-4" : "p-3"} border-t flex flex-col gap-3 ${
               isDark ? "border-white/5" : "border-gray-200"
             }`}
           >
@@ -273,7 +273,9 @@ export const AppSidebar = React.memo(function AppSidebar({
 
             <button
               onClick={handleSignOutClick}
-              className={`flex items-center w-full h-10 transition-colors rounded-xl px-3 ${
+              className={`flex items-center w-full h-10 transition-colors rounded-xl ${
+                isHovered ? "px-3" : "justify-center px-0"
+              } ${
                 isDark
                   ? "text-gray-400 hover:text-red-400 hover:bg-red-500/10"
                   : "text-gray-500 hover:text-red-600 hover:bg-red-50"
@@ -281,9 +283,12 @@ export const AppSidebar = React.memo(function AppSidebar({
             >
               <SignOut size={20} />
               <motion.span
-                className="ml-3 whitespace-nowrap font-medium"
+                className="ml-3 whitespace-nowrap font-medium overflow-hidden"
                 initial={false}
-                animate={{ opacity: isHovered ? 1 : 0 }}
+                animate={{
+                  width: isHovered ? "auto" : 0,
+                  opacity: isHovered ? 1 : 0,
+                }}
               >
                 {tAuth("sign_out")}
               </motion.span>
@@ -299,7 +304,9 @@ export const AppSidebar = React.memo(function AppSidebar({
                     window.location.href = "/";
                   }
                 }}
-                className={`flex items-center w-full h-10 transition-colors rounded-xl px-3 ${
+                className={`flex items-center w-full h-10 transition-colors rounded-xl ${
+                  isHovered ? "px-3" : "justify-center px-0"
+                } ${
                   isDark
                     ? "text-orange-400 hover:text-white hover:bg-orange-500"
                     : "text-orange-600 hover:text-white hover:bg-orange-500"
@@ -308,9 +315,12 @@ export const AppSidebar = React.memo(function AppSidebar({
               >
                 <Bomb size={20} />
                 <motion.span
-                  className="ml-3 whitespace-nowrap font-medium"
+                  className="ml-3 whitespace-nowrap font-medium overflow-hidden"
                   initial={false}
-                  animate={{ opacity: isHovered ? 1 : 0 }}
+                  animate={{
+                    width: isHovered ? "auto" : 0,
+                    opacity: isHovered ? 1 : 0,
+                  }}
                 >
                   {tSidebar("clear_storage")}
                 </motion.span>
