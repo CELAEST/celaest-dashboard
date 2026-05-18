@@ -18,6 +18,7 @@ import {
 import { Asset } from "../services/assets.service";
 import { AssetTypeIcon } from "./shared/AssetTypeIcon";
 import { getAssetTypeLabel } from "../utils/assetUtils";
+import { useLocalProductPrice } from "@/features/billing/hooks/useLocalProductPrice";
 
 interface ProductDetailModalProps {
   product: Asset | null;
@@ -34,6 +35,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const { format: formatLocalPrice } = useLocalProductPrice();
 
   useEscapeKey(onClose, !!product);
 
@@ -307,7 +309,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                     Price
                   </p>
                   <p className={`text-3xl font-black italic tracking-tighter ${isDark ? "text-white" : "text-gray-900"}`}>
-                    ${product.price}
+                    {formatLocalPrice(product.price)}
                   </p>
                 </div>
 
@@ -390,7 +392,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                       className={`w-full py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${isDark ? "bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 border border-cyan-500/20" : "bg-blue-600 text-white hover:bg-blue-700"}`}
                     >
                       <ShoppingCart size={14} />
-                      Add to Cart — ${product.price}
+                      Add to Cart — {formatLocalPrice(product.price)}
                     </button>
                   )}
                 </div>

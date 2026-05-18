@@ -7,6 +7,7 @@ import { AssetTypeIcon } from "./shared/AssetTypeIcon";
 import { getAssetTypeLabel } from "../utils/assetUtils";
 import { Asset } from "../services/assets.service";
 import { useTranslations } from "next-intl";
+import { useLocalProductPrice } from "@/features/billing/hooks/useLocalProductPrice";
 
 interface MarketplaceCardProps {
   product: Asset; // Expecting Asset or MockAsset
@@ -22,6 +23,7 @@ export const MarketplaceCard: React.FC<MarketplaceCardProps> = ({
   index,
 }) => {
   const t = useTranslations("marketplace");
+  const { format: formatLocalPrice } = useLocalProductPrice();
   return (
     <motion.div
       layout
@@ -109,7 +111,7 @@ export const MarketplaceCard: React.FC<MarketplaceCardProps> = ({
               isDark ? "text-white" : "text-white"
             }`}
           >
-            ${product.price}
+            {formatLocalPrice(product.price)}
           </div>
         </div>
       </div>
