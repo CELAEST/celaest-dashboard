@@ -15,6 +15,7 @@ import { useTheme } from "@/features/shared/hooks/useTheme";
 import { ManageSubscriptionModal } from "./modals/ManageSubscriptionModal";
 import { UpgradePlanModal } from "./modals/UpgradePlanModal";
 import { useBilling } from "../hooks/useBilling";
+import { useLocalPlanPrice } from "../hooks/useLocalPlanPrice";
 import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 import { useTranslations } from "next-intl";
 
@@ -95,6 +96,7 @@ export const SubscriptionManager: React.FC = () => {
   const { subscription, plan, usage, isLoading, error } = useBilling();
   const { currentOrg } = useOrgStore();
   const t = useTranslations("billing");
+  const planPrice = useLocalPlanPrice(plan);
 
   // Allow billing management if the user is an owner/admin in their org, OR if they
   // are viewing their personal Celaest workspace (slug = "celaest" or "celaest-official").
@@ -137,10 +139,7 @@ export const SubscriptionManager: React.FC = () => {
     );
   }
 
-  // Format price
-  const rawPrice = Number(plan?.price_monthly) || 0;
-  const currencySymbol = plan?.currency === "EUR" ? "\u20AC" : "$";
-  const priceDisplay = rawPrice === 0 ? t("free") : `${currencySymbol}${rawPrice}`;
+  const priceDisplay = planPrice.monthly.isFree ? t("free") : planPrice.monthly.formatted;
 
   return (
     <>
@@ -211,7 +210,7 @@ export const SubscriptionManager: React.FC = () => {
               >
                 {priceDisplay}
               </span>
-              {rawPrice > 0 && (
+              {!planPrice.monthly.isFree && (
                 <span className={`text-xs font-medium ${isDark ? "text-slate-500" : "text-slate-400"}`}>
                   {t("per_month")}
                 </span>

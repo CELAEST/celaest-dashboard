@@ -16,6 +16,7 @@ import { AssetTypeIcon } from "./shared/AssetTypeIcon";
 import { AssetStatusBadge } from "./shared/AssetStatusBadge";
 import { AssetActionMenu, AssetMenuState } from "./AssetActionMenu";
 import { useTranslations } from "next-intl";
+import { useLocalProductPrice } from "@/features/billing/hooks/useLocalProductPrice";
 
 interface AssetTableProps {
   assets: Asset[];
@@ -57,6 +58,7 @@ export const AssetTable: React.FC<AssetTableProps> = ({
   hideFooter = false,
 }) => {
   const t = useTranslations("marketplace");
+  const { format: formatLocalPrice } = useLocalProductPrice();
   const columns: ColumnDef<Asset>[] = useMemo(
     () => [
       {
@@ -131,7 +133,7 @@ export const AssetTable: React.FC<AssetTableProps> = ({
             <span
               className={`text-sm font-bold tabular-nums ${isDark ? "text-white" : "text-gray-900"}`}
             >
-              ${row.original.price.toFixed(2)}
+              {formatLocalPrice(row.original.price)}
             </span>
           );
         },
@@ -268,7 +270,7 @@ export const AssetTable: React.FC<AssetTableProps> = ({
         },
       },
     ],
-    [isDark, onOpenMenu, t],
+    [formatLocalPrice, isDark, onOpenMenu, t],
   );
 
   // Resolve active asset from menuState id
