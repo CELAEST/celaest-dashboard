@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { licensingService } from "@/features/licensing/services/licensing.service";
 import { SubscriptionPlan } from "@/features/licensing/types";
+import { useLocalPlanPricing } from "@/features/billing/hooks/useLocalPlanPrice";
 import { useTranslations } from "next-intl";
 
 interface LicenseFormProps {
@@ -32,6 +33,7 @@ export const LicenseForm: React.FC<LicenseFormProps> = ({ form, loading: _loadin
 
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [fetchingPlans, setFetchingPlans] = useState(true);
+  const { getPrice } = useLocalPlanPricing();
 
   useEffect(() => {
     const fetchPlans = async () => {
@@ -52,10 +54,14 @@ export const LicenseForm: React.FC<LicenseFormProps> = ({ form, loading: _loadin
     fetchPlans();
   }, [setValue, currentPlanId]);
 
-  const planOptions = plans.map((p) => ({
-    value: p.id,
-    label: `${p.name} (${p.price_monthly ? `$${p.price_monthly}/mo` : "Free"})`,
-  }));
+  const planOptions = plans.map((p) => {
+    const monthlyPrice = getPrice(p).monthly;
+
+    return {
+      value: p.id,
+      label: `${p.name} (${monthlyPrice.isFree ? "Free" : `${monthlyPrice.formatted}/mo`})`,
+    };
+  });
 
   const CYCLES = ["monthly", "quarterly", "yearly"] as const;
 
