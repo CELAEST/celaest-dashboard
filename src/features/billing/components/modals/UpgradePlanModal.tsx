@@ -126,83 +126,91 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
       showCloseButton={false}
     >
       <div
-        className={`relative w-full rounded-2xl flex flex-col ${
+        className={`relative w-full rounded-3xl overflow-hidden flex flex-col ${
           isDark
-            ? "bg-[#0c1221] border border-white/6 shadow-2xl"
+            ? "bg-[#080a0e] border border-white/10 shadow-2xl"
             : "bg-white border border-gray-200 shadow-2xl"
         }`}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Top accent line */}
-        <div className="absolute inset-x-0 top-0 h-px z-20 bg-linear-to-r from-transparent via-teal-500/70 to-transparent" />
-        {/* Corner glow */}
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            right: 0,
-            width: "22rem",
-            height: "22rem",
-            background: "radial-gradient(circle at top right, rgba(20,184,166,0.06), transparent 70%)",
-            pointerEvents: "none",
-            zIndex: 0,
-          }}
-        />
+        {isDark && (
+          <div className="absolute inset-0 z-0 pointer-events-none mix-blend-screen opacity-50">
+            {/* Grid background */}
+            <div
+              className="absolute inset-0 opacity-20"
+              style={{
+                backgroundImage: `linear-gradient(to right, rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,1) 1px, transparent 1px)`,
+                backgroundSize: "32px 32px",
+                maskImage: "radial-gradient(ellipse 80% 80% at 50% 0%, black 20%, transparent 100%)",
+                WebkitMaskImage: "radial-gradient(ellipse 80% 80% at 50% 0%, black 20%, transparent 100%)",
+              }}
+            />
+            {/* Subtle glow orbs */}
+            <div className="absolute top-[-10%] left-1/4 w-125 h-100 bg-cyan-500/20 rounded-full blur-[120px]" />
+            <div className="absolute bottom-[-10%] right-1/4 w-100 h-75 bg-purple-500/15 rounded-full blur-[100px]" />
+          </div>
+        )}
 
-        {/* Header */}
-        <div className="relative px-5 pt-5 pb-2 text-center shrink-0">
-          <button
-            onClick={onClose}
-            className={`absolute right-3 top-3 w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
-              isDark
-                ? "hover:bg-white/10 text-gray-500 hover:text-white"
-                : "hover:bg-gray-100 text-gray-400 hover:text-gray-900"
-            }`}
-          >
-            <X className="w-3.5 h-3.5" />
-          </button>
+        {/* Content wrapper with z-index to stay above background */}
+        <div className="relative z-10 flex flex-col w-full h-full">
+          {/* Header */}
+          <div className="relative px-5 pt-8 pb-4 text-center shrink-0">
+            <button
+              onClick={onClose}
+              className={`absolute right-4 top-4 w-8 h-8 rounded-full flex items-center justify-center transition-colors z-30 ${
+                isDark
+                  ? "bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white border border-white/5"
+                  : "bg-gray-50 hover:bg-gray-100 text-gray-500 hover:text-gray-900 border border-gray-200"
+              }`}
+            >
+              <X className="w-4 h-4" />
+            </button>
 
-          <motion.h2
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-2xl font-black italic tracking-tighter text-white uppercase"
-          >
-            {t("choose_your_plan")}
-          </motion.h2>
+            <motion.h2
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-black italic tracking-tighter uppercase mb-1"
+            >
+              <span className={isDark ? "text-white" : "text-gray-900"}>{t("choose_your_plan").split(' ')[0]} </span>
+              <span className={isDark ? "text-gray-400" : "text-gray-500"}>{t("choose_your_plan").split(' ').slice(1).join(' ')}</span>
+            </motion.h2>
 
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.15 }}
-            className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40 mt-1"
-          >
-            {t("scale_your_business")}
-          </motion.p>
-        </div>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.15 }}
+              className={`text-[8px] sm:text-[10px] lg:text-xs font-mono uppercase tracking-[0.2em] mt-1 sm:mt-2 ${
+                isDark ? "text-cyan-400/70" : "text-cyan-600/70"
+              }`}
+            >
+              {t("scale_your_business")}
+            </motion.p>
+          </div>
 
-        {/* Plans Grid */}
-        <div className="px-3 sm:px-5 lg:px-6 pb-4 pt-3">
-          {isBillingLoading ? (
-            <CardGridSkeleton count={3} />
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 lg:gap-4 mx-auto items-stretch">
-              {displayPlans.map((plan, index) => (
-                <PlanCard
-                  key={plan.id}
-                  plan={plan}
-                  index={index}
-                  onClose={onClose}
-                  onSelect={
-                    isRestricted ? undefined : () => handleUpgrade(plan)
-                  }
-                  isLoading={isUpgrading}
-                  activePlanIds={activePlanIds}
-                  isReadOnly={isRestricted}
-                />
-              ))}
-            </div>
-          )}
+          {/* Plans Grid */}
+          <div className="px-4 sm:px-6 lg:px-8 pb-8 pt-2">
+            {isBillingLoading ? (
+              <CardGridSkeleton count={3} />
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 mx-auto items-stretch max-w-sm lg:max-w-none">
+                {displayPlans.map((plan, index) => (
+                  <PlanCard
+                    key={plan.id}
+                    plan={plan}
+                    index={index}
+                    onClose={onClose}
+                    onSelect={
+                      isRestricted ? undefined : () => handleUpgrade(plan)
+                    }
+                    isLoading={isUpgrading}
+                    activePlanIds={activePlanIds}
+                    isReadOnly={isRestricted}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </BillingModal>
