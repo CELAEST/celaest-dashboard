@@ -194,7 +194,7 @@ export const PlanCard: React.FC<PlanCardProps> = ({
         >
           {planPrice.yearly.formatted}/{t("yr")}{" "}
           <span className="text-green-500 font-semibold">
-            {t("save")} {planPrice.format(planPrice.monthly.value * 12 - planPrice.yearly.value)}
+            Ahorras {planPrice.format(planPrice.monthly.value * 12 - planPrice.yearly.value)}
           </span>
         </p>
       ) : null}
