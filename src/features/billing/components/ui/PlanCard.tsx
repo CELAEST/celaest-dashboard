@@ -45,39 +45,37 @@ function fmtLimit(v: number, unlimitedLabel: string): string {
 
 const palettes = {
   blue: {
-    border: { dark: "border-white/[0.08]", light: "border-gray-200" },
-    bg: { dark: "bg-white/[0.02]", light: "bg-white" },
-    title: { dark: "text-blue-400", light: "text-blue-600" },
-    accent: { dark: "text-blue-400", light: "text-blue-500" },
-    checkBg: { dark: "bg-blue-500/10", light: "bg-blue-50" },
-    check: "text-blue-500",
-    statBg: { dark: "bg-blue-500/[0.07]", light: "bg-blue-50/70" },
-    btn: "bg-white/[0.07] hover:bg-white/[0.14] text-white border border-white/[0.1]",
+    border: { dark: "border-[#1E293B]", light: "border-gray-200" },
+    bg: { dark: "bg-[#0F172A]/40", light: "bg-white" },
+    title: { dark: "text-[#60A5FA]", light: "text-blue-600" },
+    accent: { dark: "text-[#60A5FA]", light: "text-blue-500" },
+    checkBg: { dark: "bg-transparent", light: "bg-blue-50" },
+    check: "text-[#60A5FA]",
+    statBg: { dark: "bg-[#0F172A]", light: "bg-blue-50/70" },
+    btn: "bg-[#1E293B] hover:bg-[#334155] text-white border border-[#334155]",
     btnLight: "bg-blue-600 hover:bg-blue-500 text-white",
   },
   purple: {
-    border: { dark: "border-purple-500/30", light: "border-purple-200" },
-    bg: { dark: "bg-purple-500/[0.03]", light: "bg-white" },
-    title: { dark: "text-purple-300", light: "text-purple-600" },
-    accent: { dark: "text-purple-400", light: "text-purple-500" },
-    checkBg: { dark: "bg-purple-500/10", light: "bg-purple-50" },
-    check: "text-purple-500",
-    statBg: { dark: "bg-purple-500/[0.07]", light: "bg-purple-50/70" },
-    btn: "bg-linear-to-r from-purple-600 to-violet-600 hover:from-purple-500 hover:to-violet-500 text-white shadow-lg shadow-purple-500/20",
-    btnLight:
-      "bg-linear-to-r from-purple-600 to-violet-600 hover:from-purple-500 hover:to-violet-500 text-white shadow-lg shadow-purple-500/20",
+    border: { dark: "border-[#8B5CF6]/50 shadow-[0_0_15px_rgba(139,92,246,0.15)]", light: "border-purple-200" },
+    bg: { dark: "bg-[#1E1B4B]/30", light: "bg-white" },
+    title: { dark: "text-[#C084FC]", light: "text-purple-600" },
+    accent: { dark: "text-[#C084FC]", light: "text-purple-500" },
+    checkBg: { dark: "bg-transparent", light: "bg-purple-50" },
+    check: "text-[#C084FC]",
+    statBg: { dark: "bg-[#2E1065]", light: "bg-purple-50/70" },
+    btn: "bg-linear-to-r from-[#9333EA] to-[#A855F7] hover:from-[#A855F7] hover:to-[#C084FC] text-white shadow-lg shadow-purple-500/25",
+    btnLight: "bg-linear-to-r from-purple-600 to-violet-600 hover:from-purple-500 hover:to-violet-500 text-white shadow-lg shadow-purple-500/20",
   },
   emerald: {
-    border: { dark: "border-white/[0.08]", light: "border-gray-200" },
-    bg: { dark: "bg-white/[0.02]", light: "bg-white" },
-    title: { dark: "text-emerald-400", light: "text-emerald-600" },
-    accent: { dark: "text-emerald-400", light: "text-emerald-500" },
-    checkBg: { dark: "bg-emerald-500/10", light: "bg-emerald-50" },
-    check: "text-emerald-500",
-    statBg: { dark: "bg-emerald-500/[0.07]", light: "bg-emerald-50/70" },
-    btn: "bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/15",
-    btnLight:
-      "bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/15",
+    border: { dark: "border-[#064E3B]", light: "border-gray-200" },
+    bg: { dark: "bg-[#022C22]/30", light: "bg-white" },
+    title: { dark: "text-[#34D399]", light: "text-emerald-600" },
+    accent: { dark: "text-[#34D399]", light: "text-emerald-500" },
+    checkBg: { dark: "bg-transparent", light: "bg-emerald-50" },
+    check: "text-[#34D399]",
+    statBg: { dark: "bg-[#064E3B]/80", light: "bg-emerald-50/70" },
+    btn: "bg-[#10B981] hover:bg-[#059669] text-white shadow-lg shadow-emerald-500/15",
+    btnLight: "bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/15",
   },
 } as const;
 
@@ -138,7 +136,7 @@ export const PlanCard: React.FC<PlanCardProps> = ({
       transition={{ delay: index * 0.07, type: "spring", bounce: 0.18 }}
       className={[
         "relative flex flex-col rounded-2xl border transition-all duration-300",
-        "p-4 lg:p-5",
+        "p-4 sm:p-5 xl:p-6",
         p.border[mode],
         p.bg[mode],
         isPopular
@@ -159,7 +157,7 @@ export const PlanCard: React.FC<PlanCardProps> = ({
 
       {/* ── Plan name ── */}
       <h3
-        className={`text-center text-xs font-semibold tracking-[0.15em] uppercase ${p.title[mode]}`}
+        className={`text-center text-[10px] sm:text-[11px] xl:text-xs font-semibold tracking-[0.15em] uppercase ${p.title[mode]}`}
       >
         {plan.name}
       </h3>
@@ -168,19 +166,19 @@ export const PlanCard: React.FC<PlanCardProps> = ({
       <div className="flex items-baseline justify-center gap-1 mt-2">
         {isFree ? (
           <span
-            className={`text-3xl lg:text-4xl font-extrabold tracking-tight ${isDark ? "text-white" : "text-gray-900"}`}
+            className={`text-2xl sm:text-3xl xl:text-4xl font-extrabold tracking-tight ${isDark ? "text-white" : "text-gray-900"}`}
           >
             {t("free")}
           </span>
         ) : (
           <>
             <span
-              className={`text-3xl lg:text-4xl font-extrabold tracking-tight ${isDark ? "text-white" : "text-gray-900"}`}
+              className={`text-2xl sm:text-3xl xl:text-4xl font-extrabold tracking-tight ${isDark ? "text-white" : "text-gray-900"}`}
             >
               {planPrice.monthly.formatted}
             </span>
             <span
-              className={`text-sm font-medium ${isDark ? "text-gray-500" : "text-gray-400"}`}
+              className={`text-xs sm:text-sm xl:text-base font-medium ${isDark ? "text-gray-500" : "text-gray-400"}`}
             >
               {t("per_mo")}
             </span>
@@ -190,7 +188,7 @@ export const PlanCard: React.FC<PlanCardProps> = ({
 
       {!isFree && planPrice.yearly.value > 0 ? (
         <p
-          className={`text-center text-xs mt-0.5 ${isDark ? "text-gray-500" : "text-gray-400"}`}
+          className={`text-center text-[10px] sm:text-xs mt-0.5 ${isDark ? "text-gray-500" : "text-gray-400"}`}
         >
           {planPrice.yearly.formatted}/{t("yr")}{" "}
           <span className="text-green-500 font-semibold">
@@ -201,7 +199,7 @@ export const PlanCard: React.FC<PlanCardProps> = ({
 
       {/* ── Description ── */}
       <p
-        className={`text-center text-[13px] mt-2 leading-snug ${isDark ? "text-gray-400" : "text-gray-500"}`}
+        className={`text-center text-[11px] sm:text-xs xl:text-[13px] mt-1.5 sm:mt-2 leading-snug ${isDark ? "text-gray-400" : "text-gray-500"}`}
       >
         {plan.code && t.has(`desc_${plan.code}` as string) ? t(`desc_${plan.code}` as string) : plan.description}
       </p>
@@ -209,18 +207,18 @@ export const PlanCard: React.FC<PlanCardProps> = ({
       {/* ── Key metrics row ── */}
       {limits && (
         <div
-          className={`flex items-center justify-around py-2 rounded-xl mt-3 ${p.statBg[mode]}`}
+          className={`flex items-center justify-around py-1.5 sm:py-2 rounded-xl mt-3 ${p.statBg[mode]}`}
         >
           {aiVal !== undefined && (
             <div className="flex flex-col items-center gap-0.5">
-              <Lightning className={`w-3.5 h-3.5 ${p.accent[mode]}`} />
+              <Lightning className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${p.accent[mode]}`} />
               <span
-                className={`text-[13px] font-bold ${isDark ? "text-white" : "text-gray-900"}`}
+                className={`text-[11px] sm:text-xs xl:text-[13px] font-bold ${isDark ? "text-white" : "text-gray-900"}`}
               >
                 {fmtLimit(aiVal, t("unlimited"))}
               </span>
               <span
-                className={`text-[10px] ${isDark ? "text-gray-500" : "text-gray-400"}`}
+                className={`text-[8px] sm:text-[9px] xl:text-[10px] ${isDark ? "text-gray-500" : "text-gray-400"}`}
               >
                 {t("ai_req")}
               </span>
@@ -228,14 +226,14 @@ export const PlanCard: React.FC<PlanCardProps> = ({
           )}
           {teamVal !== undefined && (
             <div className="flex flex-col items-center gap-0.5">
-              <Users className={`w-3.5 h-3.5 ${p.accent[mode]}`} />
+              <Users className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${p.accent[mode]}`} />
               <span
-                className={`text-[13px] font-bold ${isDark ? "text-white" : "text-gray-900"}`}
+                className={`text-[11px] sm:text-xs xl:text-[13px] font-bold ${isDark ? "text-white" : "text-gray-900"}`}
               >
                 {fmtLimit(teamVal, t("unlimited"))}
               </span>
               <span
-                className={`text-[10px] ${isDark ? "text-gray-500" : "text-gray-400"}`}
+                className={`text-[8px] sm:text-[9px] xl:text-[10px] ${isDark ? "text-gray-500" : "text-gray-400"}`}
               >
                 {t("members")}
               </span>
@@ -243,14 +241,14 @@ export const PlanCard: React.FC<PlanCardProps> = ({
           )}
           {storageVal !== undefined && (
             <div className="flex flex-col items-center gap-0.5">
-              <HardDrive className={`w-3.5 h-3.5 ${p.accent[mode]}`} />
+              <HardDrive className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${p.accent[mode]}`} />
               <span
-                className={`text-[13px] font-bold ${isDark ? "text-white" : "text-gray-900"}`}
+                className={`text-[11px] sm:text-xs xl:text-[13px] font-bold ${isDark ? "text-white" : "text-gray-900"}`}
               >
                 {storageVal === -1 ? "\u221E" : `${storageVal}GB`}
               </span>
               <span
-                className={`text-[10px] ${isDark ? "text-gray-500" : "text-gray-400"}`}
+                className={`text-[8px] sm:text-[9px] xl:text-[10px] ${isDark ? "text-gray-500" : "text-gray-400"}`}
               >
                 {t("storage")}
               </span>
@@ -265,33 +263,25 @@ export const PlanCard: React.FC<PlanCardProps> = ({
       />
 
       {/* ── Features — 2 columns ── */}
-      <div className="flex-1 grid grid-cols-2 gap-x-3 gap-y-1.5 mb-4">
-        <div className="space-y-1.5">
+      <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-x-3 gap-y-2 mb-4">
+        <div className="space-y-2">
           {col1.map((f, i) => (
-            <div key={i} className="flex items-start gap-1.5">
-              <div
-                className={`mt-[3px] shrink-0 rounded-full p-[2px] ${p.checkBg[mode]}`}
-              >
-                <Check className={`w-2.5 h-2.5 ${p.check}`} />
-              </div>
+            <div key={i} className="flex items-start gap-2">
+              <Check className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${p.check}`} weight="bold" />
               <span
-                className={`text-[12.5px] leading-snug ${isDark ? "text-gray-300" : "text-gray-600"}`}
+                className={`text-[10px] sm:text-[11px] xl:text-[12px] leading-snug break-words ${isDark ? "text-gray-300" : "text-gray-600"}`}
               >
                 {renderFeature(f)}
               </span>
             </div>
           ))}
         </div>
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           {col2.map((f, i) => (
-            <div key={i} className="flex items-start gap-1.5">
-              <div
-                className={`mt-[3px] shrink-0 rounded-full p-[2px] ${p.checkBg[mode]}`}
-              >
-                <Check className={`w-2.5 h-2.5 ${p.check}`} />
-              </div>
+            <div key={i} className="flex items-start gap-2">
+              <Check className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${p.check}`} weight="bold" />
               <span
-                className={`text-[12.5px] leading-snug ${isDark ? "text-gray-300" : "text-gray-600"}`}
+                className={`text-[10px] sm:text-[11px] xl:text-[12px] leading-snug break-words ${isDark ? "text-gray-300" : "text-gray-600"}`}
               >
                 {renderFeature(f)}
               </span>
@@ -311,7 +301,7 @@ export const PlanCard: React.FC<PlanCardProps> = ({
         onClick={handleSelect}
         disabled={isCurrent || isLoading || isReadOnly}
         className={[
-          "w-full py-2.5 rounded-xl text-sm font-semibold transition-all duration-200",
+          "w-full py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200",
           isCurrent
             ? `border cursor-default ${isDark ? "border-green-500/30 bg-green-500/10 text-green-400" : "border-green-200 bg-green-50 text-green-700"}`
             : isReadOnly
