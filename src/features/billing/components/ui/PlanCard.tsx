@@ -263,25 +263,25 @@ export const PlanCard: React.FC<PlanCardProps> = ({
       />
 
       {/* ── Features — 2 columns ── */}
-      <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-x-3 gap-y-2 mb-4">
-        <div className="space-y-2">
+      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-x-2 gap-y-2 mb-4">
+        <div className="space-y-2 min-w-0">
           {col1.map((f, i) => (
-            <div key={i} className="flex items-start gap-2">
+            <div key={i} className="flex items-start gap-2 w-full">
               <Check className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${p.check}`} weight="bold" />
               <span
-                className={`text-[10px] sm:text-[11px] xl:text-[12px] leading-snug break-words ${isDark ? "text-gray-300" : "text-gray-600"}`}
+                className={`flex-1 min-w-0 text-[10.5px] sm:text-[11px] xl:text-[12px] leading-snug ${isDark ? "text-gray-300" : "text-gray-600"}`}
               >
                 {renderFeature(f)}
               </span>
             </div>
           ))}
         </div>
-        <div className="space-y-2">
+        <div className="space-y-2 min-w-0">
           {col2.map((f, i) => (
-            <div key={i} className="flex items-start gap-2">
+            <div key={i} className="flex items-start gap-2 w-full">
               <Check className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${p.check}`} weight="bold" />
               <span
-                className={`text-[10px] sm:text-[11px] xl:text-[12px] leading-snug break-words ${isDark ? "text-gray-300" : "text-gray-600"}`}
+                className={`flex-1 min-w-0 text-[10.5px] sm:text-[11px] xl:text-[12px] leading-snug ${isDark ? "text-gray-300" : "text-gray-600"}`}
               >
                 {renderFeature(f)}
               </span>
