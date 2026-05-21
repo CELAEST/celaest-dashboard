@@ -9,7 +9,7 @@ import {
 } from "@phosphor-icons/react";
 import { motion } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
-import { Plan } from "../../types";
+import { BillingCycle, Plan } from "../../types";
 import { useTranslations } from "next-intl";
 import { useLocalPlanPrice } from "../../hooks/useLocalPlanPrice";
 
@@ -30,6 +30,7 @@ interface PlanCardProps {
   isLoading?: boolean;
   activePlanIds?: string[];
   isReadOnly?: boolean;
+  billingCycle?: BillingCycle;
 }
 
 /* ─── Helpers ─── */
@@ -89,6 +90,7 @@ export const PlanCard: React.FC<PlanCardProps> = ({
   isLoading = false,
   activePlanIds,
   isReadOnly = false,
+  billingCycle = "monthly",
 }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
@@ -99,7 +101,12 @@ export const PlanCard: React.FC<PlanCardProps> = ({
   const isPopular = plan.popular;
   const isCurrent = activePlanIds?.includes(plan.id);
 
-  const isFree = planPrice.monthly.isFree;
+  const selectedPrice =
+    billingCycle === "yearly" && planPrice.yearly.value > 0
+      ? planPrice.yearly
+      : planPrice.monthly;
+  const isFree = selectedPrice.isFree;
+  const periodLabel = billingCycle === "yearly" ? `/${t("yr")}` : t("per_mo");
   const p = palettes[plan.color || "blue"];
 
   const handleSelect = () => {
@@ -175,12 +182,12 @@ export const PlanCard: React.FC<PlanCardProps> = ({
             <span
               className={`text-2xl sm:text-3xl xl:text-4xl font-extrabold tracking-tight ${isDark ? "text-white" : "text-gray-900"}`}
             >
-              {planPrice.monthly.formatted}
+              {selectedPrice.formatted}
             </span>
             <span
               className={`text-xs sm:text-sm xl:text-base font-medium ${isDark ? "text-gray-500" : "text-gray-400"}`}
             >
-              {t("per_mo")}
+              {periodLabel}
             </span>
           </>
         )}
@@ -190,7 +197,9 @@ export const PlanCard: React.FC<PlanCardProps> = ({
         <p
           className={`text-center text-[10px] sm:text-xs mt-0.5 ${isDark ? "text-gray-500" : "text-gray-400"}`}
         >
-          {planPrice.yearly.formatted}/{t("yr")}{" "}
+          {billingCycle === "yearly"
+            ? `≈ ${planPrice.format(planPrice.yearly.value / 12)}${t("per_mo")}`
+            : `${planPrice.yearly.formatted}/${t("yr")}`}{" "}
           <span className="text-green-500 font-semibold">
             Ahorras {planPrice.format(planPrice.monthly.value * 12 - planPrice.yearly.value)}
           </span>

@@ -2,12 +2,13 @@ import React, { memo } from "react";
 import { Lightning } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useTranslations } from "next-intl";
+import type { BillingCycle } from "@/features/billing/types";
 
 interface CurrentPlanProps {
   currentPlanName: string;
   nextBillingDate: string;
-  billingCycle: "monthly" | "annually";
-  onCycleChange: (cycle: "monthly" | "annually") => void;
+  billingCycle: BillingCycle;
+  onCycleChange: (cycle: BillingCycle) => void;
 }
 
 export const CurrentPlan: React.FC<CurrentPlanProps> = memo(
@@ -67,9 +68,9 @@ export const CurrentPlan: React.FC<CurrentPlanProps> = memo(
               {t("monthly")}
             </button>
             <button
-              onClick={() => onCycleChange("annually")}
+              onClick={() => onCycleChange("yearly")}
               className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-                billingCycle === "annually"
+                billingCycle === "yearly"
                   ? "bg-white text-gray-900 shadow-sm"
                   : isDark
                     ? "text-gray-400 hover:text-white"

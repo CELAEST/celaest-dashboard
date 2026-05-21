@@ -14,6 +14,7 @@ import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { billingApi } from "../../api/billing.api";
 import { ApiError } from "@/lib/api-client";
 import { useTranslations } from "next-intl";
+import type { BillingCycle } from "../../types";
 
 interface UpgradePlanModalProps {
   isOpen: boolean;
@@ -27,6 +28,7 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
   const { currentOrg } = useOrgStore();
   const { session } = useAuth();
   const [isUpgrading, setIsUpgrading] = useState(false);
+  const [billingCycle, setBillingCycle] = useState<BillingCycle>("yearly");
   const t = useTranslations("billing");
 
   const handleUpgrade = async (plan: Plan) => {
@@ -47,6 +49,7 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
           organization_id: currentOrg.id,
           user_id: session.user.id,
           plan_id: plan.id,
+          billing_cycle: billingCycle,
           ...(plan.productId || plan.product_id
             ? { product_id: plan.productId || plan.product_id }
             : {}),
@@ -186,6 +189,31 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
             >
               {t("scale_your_business")}
             </motion.p>
+
+            <div
+              className={`mx-auto mt-4 inline-flex rounded-2xl p-1 ${
+                isDark ? "bg-white/5 border border-white/10" : "bg-gray-100 border border-gray-200"
+              }`}
+            >
+              {(["monthly", "yearly"] as BillingCycle[]).map((cycle) => (
+                <button
+                  key={cycle}
+                  type="button"
+                  onClick={() => setBillingCycle(cycle)}
+                  className={`min-w-24 rounded-xl px-4 py-2 text-xs font-black uppercase tracking-wide transition-all ${
+                    billingCycle === cycle
+                      ? isDark
+                        ? "bg-white text-gray-950 shadow-lg"
+                        : "bg-gray-950 text-white shadow-lg"
+                      : isDark
+                        ? "text-gray-400 hover:text-white"
+                        : "text-gray-500 hover:text-gray-900"
+                  }`}
+                >
+                  {cycle === "monthly" ? t("monthly") : t("yearly")}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Plans Grid */}
@@ -206,6 +234,7 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
                     isLoading={isUpgrading}
                     activePlanIds={activePlanIds}
                     isReadOnly={isRestricted}
+                    billingCycle={billingCycle}
                   />
                 ))}
               </div>

@@ -60,7 +60,7 @@ export const billingApi = {
   createSubscription: (orgId: string, token: string, data: Partial<Subscription>) =>
     api.post<Subscription>("/api/v1/org/subscriptions", data, { orgId, token }),
 
-  updateSubscription: (orgId: string, token: string, subId: string, data: { plan_id?: string; quantity?: number; metadata?: Record<string, unknown> }) =>
+  updateSubscription: (orgId: string, token: string, subId: string, data: { plan_id?: string; quantity?: number; billing_cycle?: "monthly" | "yearly"; metadata?: Record<string, unknown> }) =>
     api.put<Subscription>(`/api/v1/org/subscriptions/${subId}`, data, { orgId, token }),
 
   cancelSubscription: (orgId: string, token: string, subId: string, immediately: boolean = false) =>

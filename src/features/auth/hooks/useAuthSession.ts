@@ -42,6 +42,17 @@ export function useAuthSession() {
     }
   }, [setAuth, reset]);
 
+  const buildVerifiedSession = useCallback((currentSession: Session, verifiedUser: Session["user"]): Session => ({
+    access_token: currentSession.access_token,
+    refresh_token: currentSession.refresh_token,
+    expires_in: currentSession.expires_in,
+    expires_at: currentSession.expires_at,
+    token_type: currentSession.token_type,
+    provider_token: currentSession.provider_token,
+    provider_refresh_token: currentSession.provider_refresh_token,
+    user: verifiedUser,
+  }), []);
+
 
   // Efecto para verificar la sesión con el backend (celaest-back)
   useEffect(() => {
@@ -112,22 +123,9 @@ export function useAuthSession() {
     const initializeAuth = async () => {
       try {
         setLoading(true);
-        const {
-          data: { session: currentSession },
-        } = await supabase.auth.getSession();
-
-        if (currentSession?.user) {
-          // getUser() fetches fresh data from Supabase server, including updated
-          // app_metadata (e.g. role patched after token issuance). This avoids
-          // stale JWT payloads showing wrong roles.
-          const { data: { user: freshUser } } = await supabase.auth.getUser();
-          if (freshUser) {
-            syncSession({ ...currentSession, user: freshUser });
-          } else {
-            syncSession(currentSession);
-          }
-        } else {
-          syncSession(currentSession);
+        const { data: userData, error: userError } = await supabase.auth.getUser();
+        if (userError || !userData.user) {
+          syncSession(null);
         }
       } catch (error: unknown) {
         logger.error("Failed to initialize auth:", error);
@@ -143,14 +141,25 @@ export function useAuthSession() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(
       (_event: AuthChangeEvent, currentSession: Session | null) => {
-        syncSession(currentSession);
+        if (!currentSession) {
+          syncSession(null);
+          return;
+        }
+
+        void supabase.auth.getUser().then(({ data, error }) => {
+          if (error || !data.user) {
+            syncSession(null);
+            return;
+          }
+          syncSession(buildVerifiedSession(currentSession, data.user));
+        });
       },
     );
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [supabase, setLoading, reset, syncSession, setAuth]);
+  }, [supabase, setLoading, reset, syncSession, setAuth, buildVerifiedSession]);
 
 
   return { supabase };
