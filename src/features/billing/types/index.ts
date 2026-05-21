@@ -1,5 +1,6 @@
 
 export type CurrencyCode = "USD" | "EUR" | "GBP";
+export type BillingCycle = "monthly" | "yearly";
 
 // --- Tipos para JSONB Estrictos ---
 
@@ -206,6 +207,7 @@ export interface Subscription {
   trial_end?: string;
   quantity: number;
   metadata?: SubscriptionMetadata;
+  billing_cycle?: BillingCycle;
   created_at: string;
   updated_at: string;
   user_id?: string;

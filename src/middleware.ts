@@ -18,6 +18,12 @@ const PROTECTED_ROUTES: Record<string, string[]> = {
 }
 
 export async function middleware(request: NextRequest) {
+  const pathname = request.nextUrl.pathname
+
+  if (pathname === '/en' || pathname === '/es') {
+    return NextResponse.redirect(new URL('/', request.url))
+  }
+
   let response = NextResponse.next({
     request: {
       headers: request.headers,
@@ -83,10 +89,7 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  // Refresh session if exists
-  const { data: { session } } = await supabase.auth.getSession()
-
-  const pathname = request.nextUrl.pathname
+  const { data: { user } } = await supabase.auth.getUser()
 
   // Allow public routes
   const isPublicRoute = PUBLIC_ROUTES.some(route => pathname === route || pathname.startsWith(`${route}/`))
@@ -100,7 +103,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Check authentication for ALL other routes (default deny)
-  if (!session) {
+  if (!user) {
     // Si no hay sesión y la ruta no es pública, redirigir a la vista de login en la raíz
     const redirectUrl = new URL('/', request.url)
     redirectUrl.searchParams.set('mode', 'signin')
@@ -111,8 +114,8 @@ export async function middleware(request: NextRequest) {
   }
 
   // Check role-based access for explicitly protected endpoints
-  if (session) {
-    const userRole = session.user.user_metadata?.role || 'client'
+  if (user) {
+    const userRole = user.user_metadata?.role || 'client'
     
     for (const [route, allowedRoles] of Object.entries(PROTECTED_ROUTES)) {
       if (pathname === route || pathname.startsWith(`${route}/`)) {

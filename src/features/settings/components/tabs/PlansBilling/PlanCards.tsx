@@ -7,6 +7,7 @@ import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 import { billingApi } from "@/features/billing/api/billing.api";
 import { useTranslations } from "next-intl";
+import type { BillingCycle } from "@/features/billing/types";
 
 export interface Plan {
   id: string;
@@ -20,9 +21,10 @@ export interface Plan {
 
 interface PlanCardsProps {
   plans: Plan[];
+  billingCycle: BillingCycle;
 }
 
-export const PlanCards: React.FC<PlanCardsProps> = memo(({ plans }) => {
+export const PlanCards: React.FC<PlanCardsProps> = memo(({ plans, billingCycle }) => {
   const { isDark } = useTheme();
   const { session } = useAuthStore();
   const { currentOrg } = useOrgStore();
@@ -44,6 +46,7 @@ export const PlanCards: React.FC<PlanCardsProps> = memo(({ plans }) => {
           plan_id: plan.id,
           organization_id: currentOrg.id,
           product_id: plan.id, // Backend currently uses plan_id as product_id in some places
+          billing_cycle: billingCycle,
         },
       );
 

@@ -30,15 +30,16 @@ export const RevenueChart = React.memo(function RevenueChart({ data }: RevenueCh
 
   const displayData = useMemo(() => {
     if (!data || data.length === 0) return fallbackData;
-    return data
+    const normalized = data
       .map((item) => ({
         name: new Date(item.date).toLocaleDateString(undefined, {
           day: "numeric",
           month: "short",
         }),
-        sales: item.sales,
+        sales: Number.isFinite(item.sales) ? item.sales : 0,
       }))
       .reverse();
+    return normalized.length > 0 ? normalized : fallbackData;
   }, [data, fallbackData]);
 
   const width = 1000;
@@ -49,7 +50,10 @@ export const RevenueChart = React.memo(function RevenueChart({ data }: RevenueCh
   const range = max - min || 1;
   const getP = (v: number, i: number) => {
     // Add padding to left (5%) and right (5%)
-    const x = width * 0.05 + (i / (displayData.length - 1)) * (width * 0.9);
+    const x =
+      displayData.length === 1
+        ? width * 0.5
+        : width * 0.05 + (i / (displayData.length - 1)) * (width * 0.9);
     // Add padding to top and bottom
     const y = height * 0.85 - ((v - min) / range) * height * 0.7; 
     return { x, y };
@@ -68,7 +72,7 @@ export const RevenueChart = React.memo(function RevenueChart({ data }: RevenueCh
     dPath += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`;
   }
   
-  const areaD = `${dPath} L ${points[points.length-1].x} ${height * 0.95} L ${points[0].x} ${height * 0.95} Z`;
+  const areaD = `${dPath} L ${points[points.length - 1].x} ${height * 0.95} L ${points[0].x} ${height * 0.95} Z`;
 
   // Calculate generic Y steps
   const ySteps = [min, min + range * 0.33, min + range * 0.66, max].reverse();

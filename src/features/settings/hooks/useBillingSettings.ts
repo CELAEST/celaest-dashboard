@@ -6,6 +6,7 @@ import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 import { billingApi } from "@/features/billing/api/billing.api";
 import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
 import { useGeoPricing } from "@/features/billing/providers/GeoPricingProvider";
+import type { BillingCycle } from "@/features/billing/types";
 
 /**
  * useBillingSettings — Dynamic Product Configuration
@@ -13,8 +14,8 @@ import { useGeoPricing } from "@/features/billing/providers/GeoPricingProvider";
  * Fetches plans and current subscription from the backend.
  */
 export const useBillingSettings = () => {
-  const [billingCycle, setBillingCycle] = useState<"monthly" | "annually">(
-    "annually",
+  const [billingCycle, setBillingCycle] = useState<BillingCycle>(
+    "yearly",
   );
 
   const { session } = useAuthStore();
