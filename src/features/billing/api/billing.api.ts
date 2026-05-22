@@ -69,6 +69,9 @@ export const billingApi = {
   reactivateSubscription: (orgId: string, token: string, subId: string) =>
     api.post(`/api/v1/org/subscriptions/${subId}/reactivate`, {}, { orgId, token }),
 
+  resyncSubscriptionFromStripe: (orgId: string, token: string, subId: string) =>
+    api.post<Subscription>(`/api/v1/org/subscriptions/${subId}/resync-stripe`, {}, { orgId, token }),
+
   getUsage: (orgId: string, token: string, subId: string, start?: string, end?: string) => {
     let url = `/api/v1/org/subscriptions/${subId}/usage`;
     const params = new URLSearchParams();

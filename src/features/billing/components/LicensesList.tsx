@@ -153,9 +153,14 @@ const LicenseItem: React.FC<LicenseItemProps> = ({
   const isSuperseded = sub.status === "superseded";
   const isActive = sub.status === "active" || sub.status === "trial";
   const planPrice = useLocalPlanPrice(sub.plan);
-  const priceLabel = planPrice.monthly.isFree
+  const isYearly = (sub.billing_cycle ?? "monthly") === "yearly";
+  const selectedPrice = isYearly && planPrice.yearly.value > 0
+    ? planPrice.yearly
+    : planPrice.monthly;
+  const periodSuffix = isMarketplace ? "" : isYearly ? "/yr" : "/mo";
+  const priceLabel = selectedPrice.isFree
     ? isMarketplace ? "Producto" : "Gratis"
-    : `${planPrice.monthly.formatted}${isMarketplace ? "" : "/mo"}`;
+    : `${selectedPrice.formatted}${periodSuffix}`;
 
   const StatusIcon = isEffective
     ? Crown
