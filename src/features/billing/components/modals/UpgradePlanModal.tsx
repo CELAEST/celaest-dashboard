@@ -177,7 +177,7 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
         {/* Content wrapper with z-index to stay above background */}
         <div className="relative z-10 flex flex-col w-full h-full">
           {/* Header */}
-          <div className="relative px-5 pt-8 pb-4 text-center shrink-0">
+          <div className="relative pt-10 pb-4 px-6 lg:px-10 text-center">
             <button
               onClick={onClose}
               className={`absolute right-4 top-4 w-8 h-8 rounded-full flex items-center justify-center transition-colors z-30 ${
@@ -189,59 +189,63 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
               <X className="w-4 h-4" />
             </button>
 
-            <motion.h2
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-black italic tracking-tighter uppercase mb-1"
-            >
-              <span className={isDark ? "text-white" : "text-gray-900"}>{t("choose_your_plan").split(' ')[0]} </span>
-              <span className={isDark ? "text-gray-400" : "text-gray-500"}>{t("choose_your_plan").split(' ').slice(1).join(' ')}</span>
-            </motion.h2>
-
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.15 }}
-              className={`text-[8px] sm:text-[10px] lg:text-xs font-mono uppercase tracking-[0.2em] mt-1 sm:mt-2 ${
-                isDark ? "text-cyan-400/70" : "text-cyan-600/70"
-              }`}
-            >
-              {t("scale_your_business")}
-            </motion.p>
-
-            <div
-              className={`mx-auto mt-4 inline-flex rounded-2xl p-1 ${
-                isDark ? "bg-white/5 border border-white/10" : "bg-gray-100 border border-gray-200"
-              }`}
-            >
-              {(["monthly", "yearly"] as BillingCycle[]).map((cycle) => (
-                <button
-                  key={cycle}
-                  type="button"
-                  onClick={() => setBillingCycle(cycle)}
-                  className={`min-w-24 rounded-xl px-4 py-2 text-xs font-black uppercase tracking-wide transition-all ${
-                    billingCycle === cycle
-                      ? isDark
-                        ? "bg-white text-gray-950 shadow-lg"
-                        : "bg-gray-950 text-white shadow-lg"
-                      : isDark
-                        ? "text-gray-400 hover:text-white"
-                        : "text-gray-500 hover:text-gray-900"
+            <div className="flex flex-row items-center justify-center gap-3 sm:gap-8 lg:gap-12 w-full max-w-4xl mx-auto px-2 sm:px-6">
+              <div className="text-left">
+                <motion.h2
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className={`text-sm xs:text-base sm:text-2xl lg:text-3xl font-black italic tracking-tight uppercase leading-tight ${
+                    isDark ? "text-white" : "text-gray-900"
                   }`}
                 >
-                  {cycle === "monthly" ? t("monthly") : t("yearly")}
-                </button>
-              ))}
+                  {t("choose_your_plan")}
+                </motion.h2>
+
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.15 }}
+                  className={`text-[6px] xs:text-[8px] sm:text-[10px] lg:text-xs font-mono uppercase tracking-[0.2em] mt-0.5 sm:mt-1 ${
+                    isDark ? "text-cyan-400/70" : "text-cyan-600/70"
+                  }`}
+                >
+                  {t("scale_your_business")}
+                </motion.p>
+              </div>
+
+              <div
+                className={`shrink-0 grid grid-cols-2 rounded-xl p-0.5 sm:p-1 w-[120px] xs:w-[140px] sm:w-[220px] ${
+                  isDark ? "bg-white/5 border border-white/10" : "bg-gray-100 border border-gray-200"
+                }`}
+              >
+                {(["monthly", "yearly"] as BillingCycle[]).map((cycle) => (
+                  <button
+                    key={cycle}
+                    type="button"
+                    onClick={() => setBillingCycle(cycle)}
+                    className={`rounded-lg py-1 sm:py-2 text-[8px] xs:text-[10px] sm:text-xs font-bold uppercase tracking-widest transition-all duration-200 ${
+                      billingCycle === cycle
+                        ? isDark
+                          ? "bg-white text-gray-950 shadow-md"
+                          : "bg-white text-gray-900 shadow-md border border-gray-200/50"
+                        : isDark
+                          ? "text-gray-400 hover:text-white hover:bg-white/5"
+                          : "text-gray-500 hover:text-gray-900 hover:bg-gray-200/50"
+                    }`}
+                  >
+                    {cycle === "monthly" ? t("monthly") : t("yearly")}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
           {/* Plans Grid */}
-          <div className="px-4 sm:px-6 lg:px-8 pb-8 pt-2">
+          <div className="px-4 sm:px-6 lg:px-8 pb-8 pt-4 sm:pt-5 md:pt-6">
             {isBillingLoading ? (
               <CardGridSkeleton count={3} />
             ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 mx-auto items-stretch max-w-sm lg:max-w-none">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 lg:gap-6 mx-auto items-stretch max-w-sm md:max-w-none">
                 {displayPlans.map((plan, index) => (
                   <PlanCard
                     key={plan.id}

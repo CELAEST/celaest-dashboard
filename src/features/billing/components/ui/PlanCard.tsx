@@ -55,6 +55,9 @@ const palettes = {
     statBg: { dark: "bg-[#0F172A]", light: "bg-blue-50/70" },
     btn: "bg-[#1E293B] hover:bg-[#334155] text-white border border-[#334155]",
     btnLight: "bg-blue-600 hover:bg-blue-500 text-white",
+    activeBtn: { dark: "bg-[#60A5FA]/[0.06] border-[#60A5FA]/25 text-[#93BBFD]", light: "bg-blue-50 border-blue-200 text-blue-600" },
+    activeDot: { dark: "bg-[#60A5FA]", light: "bg-blue-500" },
+    activeRing: { dark: "ring-[#60A5FA]/20", light: "ring-blue-200" },
   },
   purple: {
     border: { dark: "border-[#8B5CF6]/50 shadow-[0_0_15px_rgba(139,92,246,0.15)]", light: "border-purple-200" },
@@ -66,6 +69,9 @@ const palettes = {
     statBg: { dark: "bg-[#2E1065]", light: "bg-purple-50/70" },
     btn: "bg-linear-to-r from-[#9333EA] to-[#A855F7] hover:from-[#A855F7] hover:to-[#C084FC] text-white shadow-lg shadow-purple-500/25",
     btnLight: "bg-linear-to-r from-purple-600 to-violet-600 hover:from-purple-500 hover:to-violet-500 text-white shadow-lg shadow-purple-500/20",
+    activeBtn: { dark: "bg-[#A855F7]/[0.06] border-[#A855F7]/25 text-[#C4A0F8]", light: "bg-purple-50 border-purple-200 text-purple-600" },
+    activeDot: { dark: "bg-[#A855F7]", light: "bg-purple-500" },
+    activeRing: { dark: "ring-[#A855F7]/20", light: "ring-purple-200" },
   },
   emerald: {
     border: { dark: "border-[#064E3B]", light: "border-gray-200" },
@@ -77,6 +83,9 @@ const palettes = {
     statBg: { dark: "bg-[#064E3B]/80", light: "bg-emerald-50/70" },
     btn: "bg-[#10B981] hover:bg-[#059669] text-white shadow-lg shadow-emerald-500/15",
     btnLight: "bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/15",
+    activeBtn: { dark: "bg-[#34D399]/[0.06] border-[#34D399]/25 text-[#6EE7B7]", light: "bg-emerald-50 border-emerald-200 text-emerald-600" },
+    activeDot: { dark: "bg-[#34D399]", light: "bg-emerald-500" },
+    activeRing: { dark: "ring-[#34D399]/20", light: "ring-emerald-200" },
   },
 } as const;
 
@@ -149,7 +158,7 @@ export const PlanCard: React.FC<PlanCardProps> = ({
         isPopular
           ? "shadow-xl shadow-purple-500/10 ring-1 ring-purple-500/20 z-10 md:scale-[1.02]"
           : "shadow-sm hover:shadow-md",
-        isCurrent ? "ring-2 ring-green-500/50" : "",
+        isCurrent ? `ring-1 ${p.activeRing[mode]}` : "",
       ].join(" ")}
     >
       {/* ── Popular badge ── */}
@@ -272,7 +281,7 @@ export const PlanCard: React.FC<PlanCardProps> = ({
       />
 
       {/* ── Features — 2 columns ── */}
-      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-x-2 gap-y-2 mb-4">
+      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 xl:grid-cols-2 gap-x-2 gap-y-2 mb-4">
         <div className="space-y-2 min-w-0">
           {col1.map((f, i) => (
             <div key={i} className="flex items-start gap-2 w-full">
@@ -310,9 +319,9 @@ export const PlanCard: React.FC<PlanCardProps> = ({
         onClick={handleSelect}
         disabled={isCurrent || isLoading || isReadOnly}
         className={[
-          "w-full py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200",
+          "w-full py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-300",
           isCurrent
-            ? `border cursor-default ${isDark ? "border-green-500/30 bg-green-500/10 text-green-400" : "border-green-200 bg-green-50 text-green-700"}`
+            ? `relative overflow-hidden cursor-default border ${p.activeBtn[mode]}`
             : isReadOnly
               ? "bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed dark:bg-zinc-800/50 dark:text-gray-600 dark:border-zinc-800"
               : isDark
@@ -320,11 +329,14 @@ export const PlanCard: React.FC<PlanCardProps> = ({
                 : p.btnLight,
         ].join(" ")}
       >
-        <span className="flex items-center justify-center gap-2">
+        <span className="relative z-10 flex items-center justify-center gap-2.5">
           {isCurrent ? (
             <>
-              <Check className="w-4 h-4" />
-              {t("active_plan")}
+              <span className="relative flex h-2 w-2">
+                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-60 ${p.activeDot[mode]}`} />
+                <span className={`relative inline-flex rounded-full h-2 w-2 ${p.activeDot[mode]}`} />
+              </span>
+              <span className="tracking-wider text-[11px] sm:text-xs uppercase font-bold">{t("active_plan")}</span>
             </>
           ) : isFree ? (
             t("get_started")
