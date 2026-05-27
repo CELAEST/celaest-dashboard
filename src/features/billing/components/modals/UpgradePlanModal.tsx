@@ -189,29 +189,16 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
               <X className="w-4 h-4" />
             </button>
 
-            <div className="flex flex-row items-center justify-center gap-3 sm:gap-8 lg:gap-12 w-full max-w-4xl mx-auto px-2 sm:px-6">
-              <div className="text-left">
-                <motion.h2
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className={`text-sm xs:text-base sm:text-2xl lg:text-3xl font-black italic tracking-tight uppercase leading-tight ${
-                    isDark ? "text-white" : "text-gray-900"
-                  }`}
-                >
-                  {t("choose_your_plan")}
-                </motion.h2>
-
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.15 }}
-                  className={`text-[6px] xs:text-[8px] sm:text-[10px] lg:text-xs font-mono uppercase tracking-[0.2em] mt-0.5 sm:mt-1 ${
-                    isDark ? "text-cyan-400/70" : "text-cyan-600/70"
-                  }`}
-                >
-                  {t("scale_your_business")}
-                </motion.p>
-              </div>
+            <div className="flex flex-row items-center justify-center gap-5 sm:gap-12 lg:gap-16 w-full max-w-4xl mx-auto px-2 sm:px-6">
+              <motion.h2
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`text-sm xs:text-base sm:text-2xl lg:text-3xl font-black italic tracking-tight uppercase leading-none ${
+                  isDark ? "text-white" : "text-gray-900"
+                }`}
+              >
+                {t("choose_your_plan")}
+              </motion.h2>
 
               <div
                 className={`shrink-0 grid grid-cols-2 rounded-xl p-0.5 sm:p-1 w-[120px] xs:w-[140px] sm:w-[220px] ${
