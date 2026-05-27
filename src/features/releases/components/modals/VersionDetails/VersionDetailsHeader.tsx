@@ -2,6 +2,7 @@ import React, { memo } from "react";
 import { Hash, X, CheckCircle, Warning, XCircle } from "@phosphor-icons/react";
 
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 import { Version } from "@/features/releases/types";
 
 interface VersionDetailsHeaderProps {
@@ -13,6 +14,7 @@ export const VersionDetailsHeader: React.FC<VersionDetailsHeaderProps> = memo(
   ({ version, onClose }) => {
     const { theme } = useTheme();
     const isDark = theme === "dark";
+    const t = useTranslations("releases");
 
     const getStatusColor = (status: Version["status"]) => {
       switch (status) {
@@ -84,7 +86,7 @@ export const VersionDetailsHeader: React.FC<VersionDetailsHeaderProps> = memo(
                 )}`}
               >
                 {getStatusIcon(version.status)}
-                {version.status}
+                {t(`status_badge_${version.status}`)}
               </span>
             </div>
             <p

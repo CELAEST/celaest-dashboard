@@ -5,6 +5,7 @@ import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { billingApi } from "../api/billing.api";
 import { Subscription, Plan } from "../types";
+import { useLocalPlanPrice } from "./useLocalPlanPrice";
 
 export const useManageSubscription = (subscription: Subscription | null, plan: Plan | null, onClose: () => void) => {
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
@@ -21,6 +22,7 @@ export const useManageSubscription = (subscription: Subscription | null, plan: P
 
   const { currentOrg } = useOrgStore();
   const { session } = useAuth();
+  const planPrice = useLocalPlanPrice(plan);
 
   const scrollToBottom = () => {
     if (scrollContainerRef.current) {
@@ -111,7 +113,7 @@ export const useManageSubscription = (subscription: Subscription | null, plan: P
   const subscriptionDetails = {
     plan: plan?.name || "No Plan",
     status: subscription?.status || "Inactive",
-    price: plan?.price_monthly ? `${plan.currency === 'EUR' ? '€' : '$'}${plan.price_monthly}` : "$0.00",
+    price: planPrice.monthly.formatted,
     billingCycle: "Monthly",
     nextBillingDate,
     renewalDate: nextBillingDate,

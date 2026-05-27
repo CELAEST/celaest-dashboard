@@ -8,6 +8,10 @@ import { ProductCardCompact } from "./ProductCardCompact";
 import { ProductSkeleton } from "./ProductSkeleton";
 import { useMarketplaceProducts } from "../hooks/useMarketplaceProducts";
 import { MarketplaceProduct } from "../types";
+import {
+  consumeAuthIntent,
+  MarketplaceAuthIntentTab,
+} from "../utils/authIntent";
 import { Storefront } from "@phosphor-icons/react";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
@@ -18,6 +22,7 @@ import { useBilling } from "@/features/billing/hooks/useBilling";
 import { LicenseModal } from "./modals/LicenseModal";
 import { toast } from "sonner";
 import { CouponFAB } from "./CouponFAB";
+import { useTranslations } from "next-intl";
 
 const PurchaseFlow = dynamic(
   () =>
@@ -54,6 +59,7 @@ export function MarketplaceDashboardView() {
   const isDark = theme === "dark";
   const { isAuthenticated } = useAuthStore();
   const { currentOrg, isLoading: isOrgsLoading } = useOrgStore();
+  const tMarketplace = useTranslations("marketplace");
 
   // Data from Storefront
   const {
@@ -127,6 +133,8 @@ export function MarketplaceDashboardView() {
   const [detailProduct, setDetailProduct] = useState<MarketplaceProduct | null>(
     null,
   );
+  const [detailInitialTab, setDetailInitialTab] =
+    useState<MarketplaceAuthIntentTab | undefined>(undefined);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showLicenseModal, setShowLicenseModal] = useState(false);
   const [selectedLicenseId, setSelectedLicenseId] = useState<string | null>(
@@ -156,13 +164,13 @@ export function MarketplaceDashboardView() {
 
     // 2. Prevención de recomprar exactamente su mismo plan actual
     if (plan && prod.min_plan_tier > 0 && plan.tier === prod.min_plan_tier) {
-      return "Plan Actual";
+      return tMarketplace("current_plan");
     }
 
     // 3. RBAC & B2B Flow: Si no lo tiene y no es dueño/admin, orientarlo a solicitarlo.
     // EXCEPCIÓN: En CELAEST (HQ), cualquier rol puede comprar porque es contexto PERSONAL.
     if (!canPurchase && !isCelaest) {
-      return "Solo Propietarios";
+      return tMarketplace("owners_only");
     }
 
     return undefined;
@@ -188,28 +196,49 @@ export function MarketplaceDashboardView() {
     }
   };
 
+  // Rating filter is applied client-side because the backend SearchFilter
+  // doesn't expose a min_rating field. We persist the selection in local
+  // state and filter the rendered list before mapping.
+  const [selectedRating, setSelectedRating] = useState<number>(0);
+
   const handleRatingChange = (rating: number) => {
-    // El API no tiene filtro de rating explícito en SearchFilter, pero podemos sortear o filtrar en cliente
-    // Por ahora lo ignoramos o lo usamos para sort si implementamos sort by rating
+    setSelectedRating(rating);
+    // Optional: when the user picks a rating tier, also bias the sort toward
+    // the best-rated items so the visible cards stay relevant.
     if (rating > 0) {
       updateFilters({ sort: "rating" });
     }
   };
 
+  // Derive the active price range id from the store filters so the sidebar
+  // reflects the real state instead of being hardcoded to "all".
+  const activePriceRange: string = (() => {
+    const { min_price: min, max_price: max } = filters;
+    if (min === undefined && max === undefined) return "all";
+    if (min === 0 && max === 0) return "free";
+    if (min === 0 && max === 50) return "0-50";
+    if (min === 50 && max === 200) return "50-200";
+    if (min === 200 && max === undefined) return "200+";
+    return "all";
+  })();
+
   const handlePriceRangeChange = (range: string) => {
-    // range format: "0-50", "50-100", "100+"
+    // range format: "all" | "free" | "0-50" | "50-200" | "200+"
     if (range === "all") {
       updateFilters({ min_price: undefined, max_price: undefined });
       return;
     }
-
+    if (range === "free") {
+      updateFilters({ min_price: 0, max_price: 0 });
+      return;
+    }
     if (range.includes("+")) {
       const min = parseInt(range.replace("+", ""));
       updateFilters({ min_price: min, max_price: undefined });
-    } else {
-      const [min, max] = range.split("-").map(Number);
-      updateFilters({ min_price: min, max_price: max });
+      return;
     }
+    const [min, max] = range.split("-").map(Number);
+    updateFilters({ min_price: min, max_price: max });
   };
 
   const handlePurchaseAction = () => {
@@ -226,14 +255,14 @@ export function MarketplaceDashboardView() {
 
     // If org state is loading (e.g. post-workspace-removal transition), wait
     if (isOrgsLoading && !currentOrg) {
-      toast.info("Cargando tu sesión de organización, intenta en un momento...");
+      toast.info(tMarketplace("loading_org_session"));
       return;
     }
 
     // Safety check in case the button wasn't disabled correctly
     const access = checkAccess(product);
     const reason = getDisabledReason(product, access);
-    if (reason && reason !== "Plan Actual") {
+    if (reason && reason !== tMarketplace("current_plan")) {
       toast.error(reason);
       return;
     }
@@ -248,14 +277,25 @@ export function MarketplaceDashboardView() {
 
   useEffect(() => {
     if (isAuthenticated && products.length > 0 && !isOrgsLoading && currentOrg && !isAssetsLoading && !isBillingLoading) {
-      const pendingId = sessionStorage.getItem("pending_purchase_modal_id");
+      // 1) Preferimos el intent rico (productId + tab) si lo dejó el flujo
+      //    público (p. ej. "Iniciar sesión para dejar tu reseña").
+      const intent = consumeAuthIntent();
+      const pendingId =
+        intent?.productId ??
+        sessionStorage.getItem("pending_purchase_modal_id");
       if (pendingId) {
         sessionStorage.removeItem("pending_purchase_modal_id");
         const product = products.find((p) => p.id === pendingId);
         if (product) {
           const access = checkAccess(product);
-          if (access !== "none") {
-             
+          // Si veníamos desde una tab específica (p. ej. "reviews"), siempre
+          // abrimos el modal de detalle — incluso sin acceso — para que el
+          // usuario aterrice exactamente en el lugar donde dejó la acción.
+          if (intent?.tab) {
+            setDetailInitialTab(intent.tab);
+            setDetailProduct(product);
+          } else if (access !== "none") {
+            setDetailInitialTab(undefined);
             setDetailProduct(product);
           } else {
             handleProductSelect(product);
@@ -287,7 +327,7 @@ export function MarketplaceDashboardView() {
           initialStep={purchaseFlowStep}
           onSuccess={() => {
             refreshAssets();
-            toast.success("Producto adquirido correctamente");
+            toast.success(tMarketplace("product_acquired"));
           }}
         />
       )}
@@ -295,13 +335,17 @@ export function MarketplaceDashboardView() {
       <LoginModal
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
-        message="Sign in to purchase this enterprise solution."
+        message={tMarketplace("sign_in_to_purchase")}
       />
 
       {detailProduct && (
         <ProductDetailModal
           initialProduct={detailProduct}
-          onClose={() => setDetailProduct(null)}
+          initialTab={detailInitialTab}
+          onClose={() => {
+            setDetailProduct(null);
+            setDetailInitialTab(undefined);
+          }}
           isOwned={checkAccess(detailProduct) !== "none"}
           accessLevel={checkAccess(detailProduct)}
           onDownload={() => {
@@ -335,7 +379,7 @@ export function MarketplaceDashboardView() {
               return;
             }
 
-            toast.error("No tienes permisos para descargar este producto.");
+            toast.error(tMarketplace("no_download_permission"));
           }}
           onViewLicense={() => {
             if (!detailProduct) return;
@@ -356,7 +400,7 @@ export function MarketplaceDashboardView() {
                 setSelectedLicenseId(asset.license_id);
                 setShowLicenseModal(true);
               } else {
-                toast.info("Este producto no requiere clave de licencia.");
+                toast.info(tMarketplace("no_license_required"));
               }
               return;
             }
@@ -373,9 +417,7 @@ export function MarketplaceDashboardView() {
             }
 
             // 3. Fallback: Neither found
-            toast.error(
-              "No se encontró información de propiedad para este producto.",
-            );
+            toast.error(tMarketplace("no_ownership_found"));
           }}
           onPurchase={() => {
             if (detailProduct) {
@@ -402,9 +444,9 @@ export function MarketplaceDashboardView() {
           <MarketplaceFilterSidebar
             selectedCategories={filters.category ? [filters.category] : ["all"]}
             onCategoryChange={handleCategoryChange}
-            selectedRating={0}
+            selectedRating={selectedRating}
             onRatingChange={handleRatingChange}
-            priceRange="all"
+            priceRange={activePriceRange}
             onPriceRangeChange={handlePriceRangeChange}
             totalProducts={total}
           />
@@ -421,7 +463,15 @@ export function MarketplaceDashboardView() {
                   <ProductSkeleton key={i} />
                 ))}
               </div>
-            ) : products.length === 0 ? (
+            ) : (() => {
+              // Client-side rating filter: rating === 0 means "all"; otherwise
+              // we keep products whose average rating is at least the picked
+              // tier so the grid mirrors what the sidebar says.
+              const visibleProducts =
+                selectedRating > 0
+                  ? products.filter((p) => (p.rating_avg ?? 0) >= selectedRating)
+                  : products;
+              return visibleProducts.length === 0 ? (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -434,13 +484,13 @@ export function MarketplaceDashboardView() {
                 <p
                   className={`mt-4 text-sm ${isDark ? "text-gray-500" : "text-gray-400"}`}
                 >
-                  No se encontraron productos
+                  {tMarketplace("no_products_found")}
                 </p>
                 <button
                   onClick={clearFilters}
                   className={`mt-2 text-xs ${isDark ? "text-cyan-400" : "text-cyan-600"}`}
                 >
-                  Limpiar filtros
+                  {tMarketplace("clear_filters")}
                 </button>
               </motion.div>
             ) : (
@@ -449,7 +499,7 @@ export function MarketplaceDashboardView() {
                 animate={{ opacity: 1 }}
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 gap-6 w-full"
               >
-                {products.map((product) => {
+                {visibleProducts.map((product) => {
                   const access = checkAccess(product);
                   return (
                     <ProductCardCompact
@@ -463,7 +513,8 @@ export function MarketplaceDashboardView() {
                   );
                 })}
               </motion.div>
-            )}
+              );
+            })()}
           </AnimatePresence>
         </div>
       </div>

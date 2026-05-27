@@ -1,6 +1,7 @@
 import React from "react";
 import { Lock, DownloadSimple, ShoppingCart, ArrowSquareOut } from "@phosphor-icons/react";
 import { Asset } from "../../services/assets.service";
+import { useLocalProductPrice } from "@/features/billing/hooks/useLocalProductPrice";
 
 interface ProductActionsSectionProps {
   product: Asset;
@@ -15,6 +16,7 @@ export const ProductActionsSection: React.FC<ProductActionsSectionProps> = ({
   onAction,
   isProcessing,
 }) => {
+  const { format: formatLocalPrice } = useLocalProductPrice();
   return (
     <>
       {/* Access Notice (if not purchased) */}
@@ -116,7 +118,7 @@ export const ProductActionsSection: React.FC<ProductActionsSectionProps> = ({
               }`}
             >
               <ShoppingCart size={18} />
-              Add to Cart - ${product.price}
+              Add to Cart - {formatLocalPrice(product.price)}
             </button>
           </>
         )}

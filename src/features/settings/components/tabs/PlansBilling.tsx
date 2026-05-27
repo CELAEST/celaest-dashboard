@@ -39,7 +39,7 @@ export function PlansBilling() {
       />
 
       <div className="settings-glass-card rounded-2xl p-6">
-        <PlanCards plans={plans} />
+        <PlanCards plans={plans} billingCycle={billingCycle} />
       </div>
 
       <PaymentMethod />

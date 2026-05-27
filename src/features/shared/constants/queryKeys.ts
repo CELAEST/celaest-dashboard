@@ -34,6 +34,9 @@ export const QUERY_KEYS = {
     products: (filters: Record<string, unknown>) => ["marketplace", "products", filters] as const,
     detail: (slug: string) => ["marketplace", "detail", slug] as const,
     seller: (id: string) => ["marketplace", "seller", id] as const,
+    reviews: (productId: string, page: number) => ["marketplace", "reviews", productId, page] as const,
+    myReview: (productId: string) => ["marketplace", "my-review", productId] as const,
+    adminReviews: (filters: Record<string, unknown>) => ["marketplace", "admin-reviews", filters] as const,
   },
   assets: {
     all: ["assets"] as const,

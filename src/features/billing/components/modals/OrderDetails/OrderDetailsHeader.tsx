@@ -1,5 +1,6 @@
 import React from "react";
 import { X, Package } from "@phosphor-icons/react";
+import { useTranslations } from "next-intl";
 
 interface OrderDetailsHeaderProps {
   orderId: string;
@@ -12,6 +13,7 @@ export const OrderDetailsHeader: React.FC<OrderDetailsHeaderProps> = ({
   orderDate,
   onClose,
 }) => {
+  const t = useTranslations("billing");
   return (
     <div className="relative px-8 py-6 border-b border-white/8 flex items-center justify-between overflow-hidden shrink-0">
       {/* Gradient wash */}
@@ -35,8 +37,12 @@ export const OrderDetailsHeader: React.FC<OrderDetailsHeaderProps> = ({
           <Package size={22} />
         </div>
         <div>
-          <h2 className="text-xl font-black italic tracking-tighter text-white uppercase">Order {orderId}</h2>
-          <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40">Purchased: {orderDate}</p>
+          <h2 className="text-xl font-black italic tracking-tighter text-white uppercase">
+            {t("order")} {orderId}
+          </h2>
+          <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40">
+            {t("purchased")}: {orderDate}
+          </p>
         </div>
       </div>
 

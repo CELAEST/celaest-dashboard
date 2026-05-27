@@ -6,11 +6,13 @@ import {
 } from "@phosphor-icons/react";
 import { FinancialMetric } from "../types";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
+import { useTranslations } from "next-intl";
 import { useAdminStatsQuery, useTaxRatesQuery } from "./useBillingQuery";
 
 export const useFinancialDashboard = () => {
   const { session } = useAuth();
   const token = session?.accessToken ?? null;
+  const t = useTranslations("billing");
 
   // Query hooks
   const statsQuery = useAdminStatsQuery(token);
@@ -30,7 +32,7 @@ export const useFinancialDashboard = () => {
   const metrics: FinancialMetric[] = useMemo(() => [
     {
       icon: Users,
-      label: "ACTIVE SUBSCRIPTIONS",
+      label: t("active_subscriptions"),
       value: String(stats.paidInvoices),
       change: "+0",
       changeLabel: "this month",
@@ -38,7 +40,7 @@ export const useFinancialDashboard = () => {
     },
     {
       icon: Percent,
-      label: "CHURN RATE",
+      label: t("churn_rate"),
       value: "0%",
       change: "0%",
       changeLabel: "stable",
@@ -46,13 +48,13 @@ export const useFinancialDashboard = () => {
     },
     {
       icon: Lightning,
-      label: "ARPU (AVG REVENUE PER USER)",
+      label: t("arpu"),
       value: `$${stats.paidInvoices > 0 ? (stats.totalRevenue / stats.paidInvoices).toFixed(2) : "0"}`,
-      change: "Avg/mo",
+      change: t("avg_mo"),
       changeLabel: "per user average",
       color: "purple",
     },
-  ], [stats]);
+  ], [stats, t]);
 
   return {
     ...stats,

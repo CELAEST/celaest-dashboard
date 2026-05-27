@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { DotsThreeVertical, PencilSimple, Archive, FileText } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { Version } from "../../types";
+import { useTranslations } from "next-intl";
 
 interface VersionActionsProps {
   version: Version;
@@ -17,6 +18,7 @@ export const VersionActions: React.FC<VersionActionsProps> = memo(
   ({ version, isActive, onToggle, onEdit, onViewDetails, onDeprecate }) => {
     const { theme } = useTheme();
     const isDark = theme === "dark";
+    const t = useTranslations("releases");
 
     return (
       <div className="relative inline-block">
@@ -52,7 +54,7 @@ export const VersionActions: React.FC<VersionActionsProps> = memo(
                 }`}
               >
                 <PencilSimple size={16} />
-                PencilSimple Changelog
+                {t("action_edit_changelog")}
               </button>
               <button
                 onClick={() => onViewDetails(version)}
@@ -63,7 +65,7 @@ export const VersionActions: React.FC<VersionActionsProps> = memo(
                 }`}
               >
                 <FileText size={16} />
-                View Details
+                {t("action_view_details")}
               </button>
               {version.status !== "deprecated" && (
                 <button
@@ -75,7 +77,7 @@ export const VersionActions: React.FC<VersionActionsProps> = memo(
                   }`}
                 >
                   <Archive size={16} />
-                  Mark Deprecated
+                  {t("action_mark_deprecated")}
                 </button>
               )}
             </motion.div>

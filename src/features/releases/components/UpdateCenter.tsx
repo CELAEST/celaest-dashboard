@@ -6,6 +6,7 @@ import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useUpdateCenter } from "../hooks/useUpdateCenter";
 import { UpdateSummary } from "./UpdateCenterComponents/UpdateSummary";
 import { UpdateList } from "./UpdateCenterComponents/UpdateList";
+import { useTranslations } from "next-intl";
 
 export const UpdateCenter: React.FC<{ enabled?: boolean }> = ({
   enabled = true,
@@ -22,6 +23,7 @@ export const UpdateCenter: React.FC<{ enabled?: boolean }> = ({
     isLoading,
     error,
   } = useUpdateCenter({ enabled });
+  const t = useTranslations("releases");
 
   return (
     <div className="space-y-6">
@@ -49,7 +51,7 @@ export const UpdateCenter: React.FC<{ enabled?: boolean }> = ({
             <div className="absolute top-0 h-12 w-12 rounded-full border-t-2 border-cyan-500 animate-spin" />
           </div>
           <p className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-500/60 animate-pulse">
-            Checking for updates...
+            {t("checking_updates")}
           </p>
         </div>
       ) : assets.length === 0 ? (
@@ -61,7 +63,7 @@ export const UpdateCenter: React.FC<{ enabled?: boolean }> = ({
           <p
             className={`text-sm ${isDark ? "text-gray-400" : "text-gray-500"}`}
           >
-            No assets found in your account.
+            {t("no_assets_found")}
           </p>
         </div>
       ) : (
@@ -95,16 +97,14 @@ export const UpdateCenter: React.FC<{ enabled?: boolean }> = ({
                 isDark ? "text-blue-400" : "text-blue-700"
               }`}
             >
-              Version Access Policy
+              {t("version_access_policy")}
             </p>
             <p
               className={`text-xs ${
                 isDark ? "text-blue-400/80" : "text-blue-600/80"
               }`}
             >
-              You can download any version released after your purchase date.
-              Active subscription holders have access to all historical
-              versions.
+              {t("version_access_desc")}
             </p>
           </div>
         </div>

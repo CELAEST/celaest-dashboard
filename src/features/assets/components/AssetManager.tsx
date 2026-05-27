@@ -8,11 +8,13 @@ import { PageBanner } from "@/components/layout/PageLayout";
 import { AssetAdminPortal } from "./AssetAdminPortal";
 import { AssetCustomerCatalog } from "./AssetCustomerCatalog";
 import { useAssets } from "../hooks/useAssets";
+import { useTranslations } from "next-intl";
 
 export const AssetManager: React.FC = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const { isAdmin } = useRole();
+  const t = useTranslations("marketplace");
   const [viewMode, setViewMode] = useState<"admin" | "customer">("admin");
   const [adminTab, setAdminTab] = useState<
     "inventory" | "categories" | "analytics"
@@ -37,8 +39,8 @@ export const AssetManager: React.FC = () => {
   return (
     <div className="h-full flex flex-col min-h-0 overflow-hidden">
       <PageBanner
-        title={effectiveView === "admin" ? "Asset Manager" : "Product Catalog"}
-        subtitle={effectiveView === "admin" ? "Inventory · Versioning · Metadata" : "Browse Available Products"}
+        title={effectiveView === "admin" ? t("asset_manager") : t("product_catalog_title")}
+        subtitle={effectiveView === "admin" ? t("inventory_versioning") : t("browse_available_products")}
         actions={
           <div className="flex items-center gap-3">
             {/* Admin Tabs (Only visible in Admin Mode) */}
@@ -59,7 +61,7 @@ export const AssetManager: React.FC = () => {
                   }`}
                 >
                   <List size={12} />
-                  Inventory
+                  {t("inventory")}
                 </button>
                 <button
                   onClick={() => setAdminTab("analytics")}
@@ -74,7 +76,7 @@ export const AssetManager: React.FC = () => {
                   }`}
                 >
                   <SquaresFour size={12} />
-                  Analytics
+                  {t("analytics")}
                 </button>
                 <button
                   onClick={() => setAdminTab("categories")}
@@ -89,7 +91,7 @@ export const AssetManager: React.FC = () => {
                   }`}
                 >
                   <FolderOpen size={12} />
-                  Categories
+                  {t("categories_tab")}
                 </button>
               </div>
             )}
@@ -105,7 +107,7 @@ export const AssetManager: React.FC = () => {
                 }`}
               >
                 <Plus size={12} weight="bold" />
-                Define Category
+                {t("define_category")}
               </button>
             )}
 
@@ -115,9 +117,9 @@ export const AssetManager: React.FC = () => {
                 className={`flex items-center p-0.5 rounded-lg ${isDark ? "bg-white/5 border border-white/5" : "bg-gray-100 border border-gray-200"}`}
               >
                 {[
-                  { label: "7D", value: "week" },
-                  { label: "30D", value: "month" },
-                  { label: "90D", value: "90d" },
+                  { label: t("time_7d"), value: "week" },
+                  { label: t("time_30d"), value: "month" },
+                  { label: t("time_90d"), value: "90d" },
                 ].map((item) => (
                   <button
                     key={item.value}
@@ -150,7 +152,7 @@ export const AssetManager: React.FC = () => {
                 }`}
               >
                 <Plus size={12} weight="bold" />
-                Create Asset
+                {t("create_asset")}
               </button>
             )}
 
@@ -173,7 +175,7 @@ export const AssetManager: React.FC = () => {
                 }`}
               >
                 <User size={12} />
-                Customer
+                {t("customer")}
               </button>
               <button
                 onClick={() => setViewMode("admin")}
@@ -188,7 +190,7 @@ export const AssetManager: React.FC = () => {
                 }`}
               >
                 <Crown size={12} />
-                Admin
+                {t("admin")}
               </button>
             </div>}
           </div>

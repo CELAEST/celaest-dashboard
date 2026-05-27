@@ -13,6 +13,7 @@ import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { ReleaseManagementModal } from "./ReleaseManagementModal";
 import { ConfirmArchiveModal } from "./ConfirmArchiveModal";
 import { TableChrome } from "@/components/layout/TableChrome";
@@ -33,6 +34,7 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
 }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const t = useTranslations("marketplace");
   const { session } = useAuthStore();
   const { currentOrg: org } = useOrgStore();
   const orgId = org?.id;
@@ -98,21 +100,21 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
     if (type === "download") {
       if (!session?.accessToken) return;
       try {
-        toast.info(`Preparing download for ${asset.name}...`);
+        toast.info(t("preparing_download", { assetName: asset.name }));
         const { download_url } = await assetsService.downloadAsset(
           session.accessToken,
           asset.id,
         );
         if (download_url) {
           window.open(download_url, "_blank");
-          toast.success("Download started");
+          toast.success(t("download_started"));
         }
       } catch {
-        toast.error("Failed to start download");
+        toast.error(t("download_failed"));
       }
     } else {
       toast.info(
-        `Action '${type}' is only available in the public Marketplace, but it's verified!`,
+        t("action_public_only", { action: type }),
       );
     }
   };
@@ -159,7 +161,7 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
         setUploadProgress(100);
       } catch (err: unknown) {
         toast.error(
-          `Upload failed: ${err instanceof Error ? err.message : "Unknown error"}`,
+          t("upload_failed", { error: err instanceof Error ? err.message : "Unknown error" }),
         );
         setIsUploading(false);
         return;
@@ -200,7 +202,7 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
         setUploadProgress(100);
       } catch (err: unknown) {
         toast.error(
-          `Product file upload failed: ${err instanceof Error ? err.message : "Unknown error"}`,
+          t("product_file_upload_failed", { error: err instanceof Error ? err.message : "Unknown error" }),
         );
         setIsUploading(false);
         return;
@@ -220,6 +222,12 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
       thumbnail_url: finalThumbnailUrl,
       external_url: data.external_url,
       github_repository: data.github_repository,
+      // Forward the YouTube URL verbatim; the backend normalises any
+      // flavour (watch/youtu.be/embed/shorts/nocookie or bare 11-char id)
+      // to the canonical id. Sending "" explicitly clears the preview on
+      // update — that matches the form's "leave empty to fall back to the
+      // image" contract.
+      youtube_url: data.youtube_url ?? "",
       features: data.features ? data.features.split("\n").filter(Boolean) : [],
       tags: data.tags ? data.tags.split("\n").filter(Boolean) : [],
       technical_stack: data.technical_stack
@@ -261,18 +269,18 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
             file_size_bytes: productFileSize,
           },
         );
-        toast.success("Release v1.0.0 created successfully!");
+        toast.success(t("release_created_success"));
       }
 
       toast.success(
-        `Asset ${editingAsset ? "updated" : "created"} successfully!`,
+        t("asset_saved_success", { action: editingAsset ? "updated" : "created" }),
       );
 
       fetchInventory();
       setIsEditorOpen(false);
     } catch (err: unknown) {
       toast.error(
-        `Error: ${err instanceof Error ? err.message : "Failed to save asset"}`,
+        t("save_error", { error: err instanceof Error ? err.message : "Failed to save asset" }),
       );
     } finally {
       setIsUploading(false);
@@ -282,7 +290,7 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
 
   const handleDelete = (id: string) => {
     const asset = inventory.find((a) => a.id === id);
-    setDeleteTarget({ id, name: asset?.name ?? "este asset" });
+    setDeleteTarget({ id, name: asset?.name ?? "Asset" });
   };
 
   const confirmDelete = async () => {
@@ -290,12 +298,12 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
     setIsDeleting(true);
     try {
       await assetsService.deleteAsset(session.accessToken, orgId, deleteTarget.id);
-      toast.success(`"${deleteTarget.name}" archivado correctamente`);
+      toast.success(t("archived_successfully", { name: deleteTarget.name }));
       fetchInventory();
       setDeleteTarget(null);
     } catch (err: unknown) {
       toast.error(
-        `Error: ${err instanceof Error ? err.message : "Failed to archive"}`,
+        t("archive_failed", { error: err instanceof Error ? err.message : "Failed to archive" }),
       );
     } finally {
       setIsDeleting(false);
@@ -320,11 +328,11 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
         orgId,
         duplicateData,
       );
-      toast.success("Asset duplicated");
+      toast.success(t("asset_duplicated"));
       fetchInventory();
     } catch (err: unknown) {
       toast.error(
-        `Error duplicating: ${err instanceof Error ? err.message : "Unknown error"}`,
+        t("duplication_error", { error: err instanceof Error ? err.message : "Unknown error" }),
       );
     }
   };
@@ -361,11 +369,11 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
                       <span
                         className={`text-xs font-semibold ${isDark ? "text-white" : "text-gray-900"}`}
                       >
-                        All Assets
+                        {t("all_assets_title")}
                       </span>
                     </div>
                     <span className={`text-[11px] tabular-nums ${isDark ? "text-gray-500" : "text-gray-400"}`}>
-                      {inventoryTotal != null ? `Showing ${inventory.length} of ${inventoryTotal} entries` : ""}
+                      {inventoryTotal != null ? t("showing_entries_of", { current: inventory.length, total: inventoryTotal }) : ""}
                     </span>
                   </div>
                 }
@@ -400,12 +408,12 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
                     hideFooter
                     onDownload={async (asset) => {
                       if (!session?.accessToken) {
-                        toast.error("Authentication required");
+                        toast.error(t("auth_required"));
                         return;
                       }
 
                       try {
-                        toast.info("Preparing secure download...");
+                        toast.info(t("preparing_secure_download"));
                         const { download_url } =
                           await assetsService.downloadAsset(
                             session.accessToken,
@@ -414,7 +422,7 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
 
                         if (!download_url) {
                           throw new Error(
-                            "No download URL returned from server",
+                            t("no_download_url"),
                           );
                         }
 
@@ -451,10 +459,10 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
                         a.click();
                         window.URL.revokeObjectURL(objUrl);
                         document.body.removeChild(a);
-                        toast.success("Download completed");
+                        toast.success(t("download_completed"));
                       } catch (err: unknown) {
                         toast.error(
-                          `Download error: ${err instanceof Error ? err.message : "Unknown error"}`,
+                          t("download_error", { error: err instanceof Error ? err.message : "Unknown error" }),
                         );
                       }
                     }}

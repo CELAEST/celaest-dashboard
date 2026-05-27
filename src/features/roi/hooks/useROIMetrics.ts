@@ -221,6 +221,7 @@ export const useROIMetrics = () => {
     {
       icon: Clock,
       label: "Tiempo Total Ahorrado",
+      labelKey: "time_saved_title",
       value: isLoading ? "..." : `${taskMetrics.saved_hours}h`,
       subtext: "Calculado via AI Tasks",
       change: isLoading ? "—" : calcGrowth(taskMetrics.saved_hours, prevTaskMetrics.saved_hours),
@@ -229,6 +230,7 @@ export const useROIMetrics = () => {
     {
       icon: Users,
       label: "Tareas Completadas",
+      labelKey: "tasks_completed_title",
       value: isLoading ? "..." : taskMetrics.completed_tasks.toLocaleString(),
       subtext: "Procesos automatizados",
       change: isLoading ? "—" : calcGrowth(taskMetrics.completed_tasks, prevTaskMetrics.completed_tasks),
@@ -237,6 +239,7 @@ export const useROIMetrics = () => {
     {
       icon: CurrencyDollar,
       label: "Valor Generado",
+      labelKey: "value_generated",
       value: isLoading ? "..." : `$${taskMetrics.value_generated.toLocaleString()}`,
       subtext: "Basado en costo/hr promedio",
       change: isLoading ? "—" : calcGrowth(taskMetrics.value_generated, prevTaskMetrics.value_generated),
@@ -245,6 +248,7 @@ export const useROIMetrics = () => {
     {
       icon: TrendUp,
       label: "Usuarios Activos",
+      labelKey: "active_users",
       value: isLoading ? "..." : (activeUsersQuery.data?.monthly_active_users || 0).toLocaleString(),
       subtext: "En el periodo seleccionado",
       change: "—", // Simplified for now
@@ -311,9 +315,9 @@ export const useROIMetrics = () => {
   };
 
   const filterOptions = [
-    { value: "week", label: "Esta Semana" },
-    { value: "month", label: "Este Mes" },
-    { value: "year", label: "Este Año" },
+    { value: "week", label: "Esta Semana", labelKey: "period_week" },
+    { value: "month", label: "Este Mes", labelKey: "period_month" },
+    { value: "year", label: "Este Año", labelKey: "period_year" },
   ];
 
   return {

@@ -13,6 +13,8 @@ import { useTheme } from "@/features/shared/hooks/useTheme";
 import { MarketplaceProduct } from "../../types";
 import { formatCurrency } from "@/lib/utils";
 import { useMarketplaceCouponStore } from "../../store";
+import { useTranslations } from "next-intl";
+import { useGeoPricing } from "@/features/billing/providers/GeoPricingProvider";
 
 interface ProductModalSidebarProps {
   product: MarketplaceProduct;
@@ -31,6 +33,7 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
   onDownload,
   onViewLicense,
 }) => {
+  const t = useTranslations("marketplace");
   const { theme } = useTheme();
 
   // Resolve effective access
@@ -39,21 +42,34 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
   const isPlan = effectiveAccess === "plan";
 
   const { activeCoupon } = useMarketplaceCouponStore();
+  const { pricing, formatPrice } = useGeoPricing();
 
-  let finalPrice = product.base_price;
+  // Geo-pricing (NO PPP discount for products, only exchange rate)
+  const isGeoPriced = !!(pricing && pricing.country_code && pricing.country_code !== "US");
+  const localBasePrice = isGeoPriced
+    ? product.base_price * (pricing?.exchange_rate ?? 1)
+    : product.base_price;
+
+  // Fixed-amount coupons are denominated in USD; scale to local currency.
+  const exchangeRate = pricing?.exchange_rate ?? 1;
+  let finalPrice = localBasePrice;
   if (activeCoupon) {
     if (activeCoupon.type === "percentage") {
-      finalPrice = product.base_price * (1 - activeCoupon.value / 100);
+      finalPrice = localBasePrice * (1 - activeCoupon.value / 100);
     } else if (activeCoupon.type === "fixed_amount") {
-      finalPrice = Math.max(0, product.base_price - activeCoupon.value);
+      const localDiscount = isGeoPriced
+        ? activeCoupon.value * exchangeRate
+        : activeCoupon.value;
+      finalPrice = Math.max(0, localBasePrice - localDiscount);
     }
   }
 
-  const formattedOriginalPrice = formatCurrency(
-    product.base_price,
-    product.currency,
-  );
-  const formattedFinalPrice = formatCurrency(finalPrice, product.currency);
+  const formattedOriginalPrice = isGeoPriced
+    ? formatPrice(localBasePrice)
+    : formatCurrency(product.base_price, product.currency);
+  const formattedFinalPrice = isGeoPriced
+    ? formatPrice(finalPrice)
+    : formatCurrency(finalPrice, product.currency);
 
   return (
     <div className="sticky top-24 space-y-4">
@@ -103,7 +119,7 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
                   }
                 `}
               >
-                {isPlan ? "INCLUIDO EN PLAN" : "ADQUIRIDO"}
+                {isPlan ? t("included_in_plan") : t("acquired")}
               </span>
             </div>
             {!!product.version && (
@@ -123,7 +139,7 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
                 `}
               >
                 <DownloadSimple className="size-5" />
-                Descargar
+                {t("download")}
               </button>
             )}
             {!isPlan && effectiveAccess === "owned" && (
@@ -139,7 +155,7 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
                 `}
               >
                 <Key className="size-4" />
-                Ver Licencia
+                {t("view_license")}
               </button>
             )}
           </>
@@ -169,7 +185,7 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
                 </span>
                 {activeCoupon && (
                   <span className="text-xs font-semibold text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-full uppercase tracking-wider mt-1">
-                    Coupon Applied
+                    {t("coupon_applied")}
                   </span>
                 )}
               </div>
@@ -186,7 +202,7 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
               `}
             >
               <ShoppingCart className="size-5" />
-              Comprar Ahora
+              {t("buy_now")}
             </button>
           </>
         )}
@@ -204,17 +220,17 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
             theme === "dark" ? "text-white" : "text-gray-900"
           }`}
         >
-          Product Info
+          {t("product_info")}
         </h4>
         <div className="space-y-3 text-sm">
           {[
             {
-              label: "Author",
-              value: product.seller_name || "Unknown Seller",
+              label: t("author"),
+              value: product.seller_name || t("anonymous"),
             },
-            { label: "Category", value: product.category_name || "General" },
+            { label: t("category"), value: product.category_name || t("general") },
             {
-              label: "Version",
+              label: t("version"),
               value: product.version
                 ? product.version.startsWith("v")
                   ? product.version
@@ -222,21 +238,21 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
                 : "N/A",
             },
             {
-              label: "Published",
+              label: t("published"),
               value: new Date(product.created_at).toLocaleDateString(),
             },
             {
-              label: "Min Plan",
+              label: t("min_plan"),
               value:
                 product.min_plan_tier === 0
-                  ? "All"
+                  ? t("all_plans")
                   : product.min_plan_tier === 1
-                    ? "Basic"
+                    ? t("basic")
                     : product.min_plan_tier === 2
-                      ? "Pro"
+                      ? t("pro")
                       : product.min_plan_tier === 3
-                        ? "Enterprise"
-                        : "Private",
+                        ? t("enterprise")
+                        : t("private"),
             },
           ].map((item) => (
             <div key={item.label} className="flex justify-between">
@@ -280,14 +296,14 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
                 theme === "dark" ? "text-emerald-400" : "text-emerald-900"
               }`}
             >
-              Garantía de 30 Días
+              {t("guarantee_title")}
             </h4>
             <p
               className={`text-xs ${
                 theme === "dark" ? "text-emerald-400/80" : "text-emerald-700"
               }`}
             >
-              Pruébalo sin riesgo. Reembolso completo si no estás satisfecho.
+              {t("guarantee_desc")}
             </p>
           </div>
         </div>
@@ -306,7 +322,7 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
               theme === "dark" ? "text-white" : "text-gray-900"
             }`}
           >
-            Categorías y Tags
+            {t("categories_and_tags")}
           </h4>
           <div className="flex flex-wrap gap-2">
             {product.tags.map((tag, i) => (

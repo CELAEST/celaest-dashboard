@@ -1,6 +1,7 @@
 import React, { memo } from "react";
 import { Users, UserPlus, Trash } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 
 export interface Member {
   id: string;
@@ -30,6 +31,7 @@ export const TeamMembers: React.FC<TeamMembersProps> = memo(
     readOnly = false,
   }) => {
     const { isDark } = useTheme();
+    const t = useTranslations("settings");
 
     return (
       <div className="settings-glass-card rounded-2xl p-6">
@@ -41,14 +43,14 @@ export const TeamMembers: React.FC<TeamMembersProps> = memo(
               }`}
             >
               <Users className="w-5 h-5 text-cyan-500" />
-              Team Members
+              {t("team_members")}
             </h3>
             <p
               className={`text-sm mt-1 ${
                 isDark ? "text-gray-500" : "text-gray-400"
               }`}
             >
-              Manage your team members and their access levels.
+              {t("team_members_desc")}
             </p>
           </div>
           <button
@@ -56,7 +58,7 @@ export const TeamMembers: React.FC<TeamMembersProps> = memo(
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-bold transition-all shadow-sm active:scale-95"
           >
             <UserPlus size={16} />
-            Invite Member
+            {t("invite_member")}
           </button>
         </div>
 
@@ -91,7 +93,7 @@ export const TeamMembers: React.FC<TeamMembersProps> = memo(
                     </p>
                     {member.status === "pending" && (
                       <span className="px-1.5 py-0.5 rounded text-[10px] font-black bg-amber-500/10 text-amber-500 border border-amber-500/20">
-                        PENDING
+                        {t("pending_badge")}
                       </span>
                     )}
                   </div>
@@ -132,10 +134,10 @@ export const TeamMembers: React.FC<TeamMembersProps> = memo(
                           : "bg-gray-200 text-gray-500 border-gray-100"
                     }`}
                   >
-                    <option value="admin">ADMIN</option>
-                    <option value="manager">MANAGER</option>
-                    <option value="operator">OPERATOR</option>
-                    <option value="viewer">VIEWER</option>
+                    <option value="admin">{t("role_admin")}</option>
+                    <option value="manager">{t("role_manager")}</option>
+                    <option value="operator">{t("role_operator")}</option>
+                    <option value="viewer">{t("role_viewer")}</option>
                   </select>
                 )}
                 {member.role !== "owner" && !readOnly && (

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Buildings, CaretDown, Check, Plus } from "@phosphor-icons/react";
 import {
@@ -14,6 +14,7 @@ import { usersApi } from "@/features/users/api/users.api";
 import { logger } from "@/lib/logger";
 import { useBilling } from "@/features/billing/hooks/useBilling";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 interface OrgSwitcherProps {
   isExpanded: boolean;
@@ -32,6 +33,7 @@ export function OrgSwitcher({ isExpanded }: OrgSwitcherProps) {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const t = useTranslations("sidebar");
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -47,8 +49,27 @@ export function OrgSwitcher({ isExpanded }: OrgSwitcherProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Don't show if 0 or 1 visible orgs
-  if (organizations.length <= 1) return null;
+  // Hide the Celaest home org from the switcher when the user already owns a
+  // real workspace. The home org is implicit (all content lives there as a
+  // fallback) and showing it next to a user's own workspaces is noisy.
+  // Membership is preserved server-side — this filter is design-only.
+  const isHomeOrg = (org: Organization) =>
+    org.is_system_default === true ||
+    (org.slug ?? "").toLowerCase().startsWith("celaest");
+
+  const visibleOrgs = useMemo(() => {
+    const ownsNonHome = organizations.some(
+      (o) => o.role === "owner" && !isHomeOrg(o),
+    );
+    if (!ownsNonHome) return organizations;
+    return organizations.filter((o) => !isHomeOrg(o));
+  }, [organizations]);
+
+  // Always render the switcher when there is at least one visible org so the
+  // current workspace label is shown in the sidebar even for users that only
+  // belong to Celaest. We only bail out when there is literally nothing to
+  // display (e.g. data still loading).
+  if (visibleOrgs.length === 0) return null;
 
   const handleSelect = async (org: Organization) => {
     if (org.id === currentOrg?.id) {
@@ -59,8 +80,8 @@ export function OrgSwitcher({ isExpanded }: OrgSwitcherProps) {
     setCurrentOrg(org);
     setIsOpen(false);
 
-    toast.success(`Contexto cambiado`, {
-      description: `Operando en workspace: ${org.name}`,
+    toast.success(t("context_changed"), {
+      description: t("operating_in_workspace", { orgName: org.name }),
       duration: 3000,
     });
 
@@ -94,7 +115,9 @@ export function OrgSwitcher({ isExpanded }: OrgSwitcherProps) {
       {/* Trigger button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full flex items-center gap-3 rounded-xl p-2 transition-colors ${
+        className={`w-full flex items-center rounded-xl transition-colors ${
+          isExpanded ? "gap-3 p-2" : "h-12 justify-center p-0"
+        } ${
           isDark
             ? "hover:bg-white/5 text-white"
             : "hover:bg-gray-100 text-gray-900"
@@ -115,42 +138,48 @@ export function OrgSwitcher({ isExpanded }: OrgSwitcherProps) {
           )}
         </div>
 
-        {/* Org name (visible when expanded) */}
-        <motion.div
-          className="flex-1 min-w-0 text-left overflow-hidden"
-          initial={{ width: 0, opacity: 0 }}
-          animate={{
-            width: isExpanded ? "auto" : 0,
-            opacity: isExpanded ? 1 : 0,
-          }}
-          transition={{ duration: 0.2 }}
-        >
-          <p className="text-sm font-semibold truncate">
-            {currentOrg?.name || "Select Workspace"}
-          </p>
-          <p
-            className={`text-[10px] truncate ${isDark ? "text-gray-500" : "text-gray-400"}`}
-          >
-            {currentOrg?.role || "member"}
-          </p>
-        </motion.div>
+        {/* Org name + chevron only render when expanded.
+            When collapsed they would still claim layout width because of
+            `flex-1` (animated width:0 doesn't override flex-grow), shifting
+            the avatar to the left and breaking the visual symmetry with the
+            menu items below. Conditional render keeps the avatar perfectly
+            centered by the button's justify-center. */}
+        {isExpanded && (
+          <>
+            {/* Org name */}
+            <motion.div
+              className="flex-1 min-w-0 text-left overflow-hidden"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <p className="text-sm font-semibold truncate">
+                {currentOrg?.name || t("select_workspace")}
+              </p>
+              <p
+                className={`text-[10px] truncate ${isDark ? "text-gray-500" : "text-gray-400"}`}
+              >
+                {currentOrg?.role || t("member")}
+              </p>
+            </motion.div>
 
-        {/* Chevron (visible when expanded) */}
-        <motion.div
-          initial={{ width: 0, opacity: 0 }}
-          animate={{
-            width: isExpanded ? "auto" : 0,
-            opacity: isExpanded ? 1 : 0,
-          }}
-          transition={{ duration: 0.2 }}
-        >
-          <CaretDown
-            size={14}
-            className={`transition-transform ${isOpen ? "rotate-180" : ""} ${
-              isDark ? "text-gray-500" : "text-gray-400"
-            }`}
-          />
-        </motion.div>
+            {/* Chevron */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <CaretDown
+                size={14}
+                className={`transition-transform ${isOpen ? "rotate-180" : ""} ${
+                  isDark ? "text-gray-500" : "text-gray-400"
+                }`}
+              />
+            </motion.div>
+          </>
+        )}
       </button>
 
       {/* Dropdown */}
@@ -168,7 +197,7 @@ export function OrgSwitcher({ isExpanded }: OrgSwitcherProps) {
             }`}
           >
             <div className="p-1.5 max-h-64 overflow-y-auto">
-              {organizations.map((org: Organization) => (
+              {visibleOrgs.map((org: Organization) => (
                 <button
                   key={org.id}
                   onClick={() => handleSelect(org)}
@@ -200,7 +229,7 @@ export function OrgSwitcher({ isExpanded }: OrgSwitcherProps) {
                     <p
                       className={`text-[10px] ${isDark ? "text-gray-500" : "text-gray-400"}`}
                     >
-                      {org.role || "member"}
+                      {org.role || t("member")}
                     </p>
                   </div>
                   {currentOrg?.id === org.id && (
@@ -221,8 +250,8 @@ export function OrgSwitcher({ isExpanded }: OrgSwitcherProps) {
                 onClick={(e) => {
                   e.preventDefault();
                   if (!plan) {
-                    toast.info("Mejora requerida", {
-                      description: "Necesitas un plan activo en tu organización actual para crear nuevos workspaces.",
+                    toast.info(t("upgrade_required"), {
+                      description: t("upgrade_required_desc"),
                       duration: 4000,
                     });
                     // Lleva al usuario a ver los planes
@@ -240,7 +269,7 @@ export function OrgSwitcher({ isExpanded }: OrgSwitcherProps) {
                 }`}
               >
                 <Plus size={14} />
-                <span>Create workspace</span>
+                <span>{t("create_workspace")}</span>
               </button>
             </div>
           </motion.div>

@@ -1,5 +1,6 @@
 
 export type CurrencyCode = "USD" | "EUR" | "GBP";
+export type BillingCycle = "monthly" | "yearly";
 
 // --- Tipos para JSONB Estrictos ---
 
@@ -37,6 +38,40 @@ export interface PaymentMetadata {
   receipt_url?: string;
   failure_code?: string;
   failure_message?: string;
+}
+
+// ------------------------------------
+// Geo-Pricing Types
+// ------------------------------------
+
+export interface SupportedCurrency {
+  code: string;
+  name: string;
+  symbol: string;
+  decimals: number;
+  symbol_pos: string;
+  is_zero_decimal: boolean;
+}
+
+export interface ResolvedPlanPricing {
+  plan_id: string;
+  plan_code: string;
+  plan_name: string;
+  original_price_monthly: number;
+  original_price_yearly: number;
+  local_price_monthly: number;
+  local_price_yearly: number;
+  currency_code: string;
+  is_override: boolean;
+}
+
+export interface ResolvedPricingContext {
+  country_code: string;
+  country_name: string;
+  currency: SupportedCurrency;
+  ppp_factor: number;
+  exchange_rate: number;
+  plans: ResolvedPlanPricing[];
 }
 
 // ------------------------------------
@@ -172,6 +207,7 @@ export interface Subscription {
   trial_end?: string;
   quantity: number;
   metadata?: SubscriptionMetadata;
+  billing_cycle?: BillingCycle;
   created_at: string;
   updated_at: string;
   user_id?: string;

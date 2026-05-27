@@ -1,6 +1,7 @@
 import React, { memo } from "react";
 import { Code, Key, Copy, SquaresFour, Trash } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 
 export interface ApiKey {
   id: string;
@@ -20,6 +21,7 @@ interface ApiKeysProps {
 export const ApiKeys: React.FC<ApiKeysProps> = memo(
   ({ apiKeys, onGenerate, onCopy, onRevoke }) => {
     const { isDark } = useTheme();
+    const t = useTranslations("settings");
 
     return (
       <div className="settings-glass-card rounded-2xl p-6">
@@ -41,14 +43,14 @@ export const ApiKeys: React.FC<ApiKeysProps> = memo(
                 isDark ? "text-white" : "text-gray-900"
               }`}
             >
-              Developer API Keys
+              {t("developer_api_keys")}
             </h3>
             <p
               className={`text-sm ${
                 isDark ? "text-gray-500" : "text-gray-400"
               }`}
             >
-              Manage your API keys for programmatic access to Celaest.
+              {t("developer_api_keys_desc")}
             </p>
           </div>
         </div>
@@ -77,7 +79,7 @@ export const ApiKeys: React.FC<ApiKeysProps> = memo(
                       isDark ? "text-gray-500" : "text-gray-400"
                     }`}
                   >
-                    Created {key.created} • Last used {key.lastUsed}
+                    {t("created_label", { date: key.created })} • {t("last_used_label", { date: key.lastUsed })}
                   </p>
                 </div>
                 <div className="flex gap-1.5">
@@ -88,7 +90,7 @@ export const ApiKeys: React.FC<ApiKeysProps> = memo(
                         ? "text-red-500/70 hover:text-red-400 hover:bg-red-500/10"
                         : "text-red-400 hover:text-red-600 hover:bg-red-50"
                     }`}
-                    title="Revoke Key"
+                    title={t("revoke_key")}
                   >
                     <Trash size={15} />
                   </button>
@@ -131,7 +133,7 @@ export const ApiKeys: React.FC<ApiKeysProps> = memo(
           }`}
         >
           <SquaresFour size={14} />
-          GENERATE NEW LIVE KEY
+          {t("generate_new_key")}
         </button>
       </div>
     );

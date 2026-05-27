@@ -8,9 +8,11 @@ import { useEscapeKey } from "@/features/shared/hooks/useEscapeKey";
 import { createPortal } from "react-dom";
 import { ProductModalTabs } from "./ProductModalTabs";
 import { ProductModalSidebar } from "./ProductModalSidebar";
-import { MarketplaceProduct } from "../../types";
 import { useProductDetail } from "../../hooks/useProductDetail";
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
+import { LiteYouTube } from "@/features/shared/components/LiteYouTube";
+import { MarketplaceProduct } from "../../types";
+import { useTranslations } from "next-intl";
 
 interface ProductDetailModalProps {
   initialProduct: MarketplaceProduct;
@@ -20,6 +22,11 @@ interface ProductDetailModalProps {
   accessLevel?: "owned" | "plan" | "none";
   onDownload?: () => void;
   onViewLicense?: () => void;
+  /**
+   * Pestaña con la que se abre el modal. Útil cuando el modal se reabre tras
+   * un flujo de login iniciado desde una tab específica (p. ej. "reviews").
+   */
+  initialTab?: "overview" | "features" | "reviews";
 }
 
 export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
@@ -30,21 +37,20 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   accessLevel,
   onDownload,
   onViewLicense,
+  initialTab,
 }) => {
+  const t = useTranslations("marketplace");
   const { theme } = useTheme();
-  const [activeTab, setActiveTab] = React.useState("overview");
+  const [activeTab, setActiveTab] = React.useState(initialTab ?? "overview");
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Fetch full details (reviews, etc.)
-  const {
-    product: fullProduct,
-    reviews,
-    loading,
-  } = useProductDetail(initialProduct.slug);
+  // Fetch full details (rating aggregates etc.). Paginated reviews are loaded
+  // separately by TabReviews via useProductReviews.
+  const { product: fullProduct, loading } = useProductDetail(initialProduct.slug);
 
   // Use full details if available, otherwise initial
   const product = fullProduct || initialProduct;
@@ -72,7 +78,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           className={`
-            relative shrink-0 w-[72rem] min-w-[320px] sm:min-w-[72rem] max-w-[95vw] max-h-[90vh] overflow-y-auto rounded-3xl border shadow-2xl
+            relative shrink-0 w-6xl min-w-[320px] sm:min-w-6xl max-w-[95vw] max-h-[90vh] overflow-y-auto rounded-3xl border shadow-2xl
             ${
               theme === "dark"
                 ? "bg-black/90 backdrop-blur-xl border-white/10"
@@ -103,7 +109,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   }
                 `}
                 >
-                  {product.category_name || "General"}
+                  {product.category_name || t("general")}
                 </span>
 
                 {/* Secondary Tags in Header */}
@@ -134,7 +140,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                     }
                   `}
                   >
-                    POPULAR
+                    {t("popular")}
                   </span>
                 )}
               </div>
@@ -157,12 +163,12 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                       ? product.rating_avg.toFixed(1)
                       : "N/A"}
                   </span>
-                  <span>({product.rating_count} reviews)</span>
+                  <span>({product.rating_count} {t("reviews_count")})</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Calendar className="size-4" />
                   <span>
-                    Published{" "}
+                    {t("published")}{" "}
                     {new Date(product.created_at).toLocaleDateString()}
                   </span>
                 </div>
@@ -186,21 +192,31 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           <div className="grid lg:grid-cols-3 gap-6 p-6">
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Product Image */}
-              <div
-                className={`relative aspect-video rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-900 ${loading ? "animate-pulse" : ""}`}
-              >
-                <ImageWithFallback
-                  src={product.thumbnail_url || ""}
-                  alt={product.name}
-                  fill
-                  className={`object-cover transition-opacity duration-300 ${loading ? "opacity-50" : "opacity-100"}`}
+              {/* Product preview: YouTube lite-embed when the product has a
+                  video, otherwise the static thumbnail. The facade renders
+                  ~15 KB of image until the user clicks play, so the modal
+                  stays cheap even for products with a video. */}
+              {product.youtube_video_id ? (
+                <LiteYouTube
+                  videoId={product.youtube_video_id}
+                  title={product.name}
+                  fallbackImage={product.thumbnail_url || undefined}
                 />
-              </div>
+              ) : (
+                <div
+                  className={`relative aspect-video rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-900 ${loading ? "animate-pulse" : ""}`}
+                >
+                  <ImageWithFallback
+                    src={product.thumbnail_url || ""}
+                    alt={product.name}
+                    fill
+                    className={`object-cover transition-opacity duration-300 ${loading ? "opacity-50" : "opacity-100"}`}
+                  />
+                </div>
+              )}
 
               <ProductModalTabs
                 product={product}
-                reviews={reviews}
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
               />

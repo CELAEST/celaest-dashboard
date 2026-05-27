@@ -9,6 +9,8 @@ import { formatCurrency } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { useMarketplaceCouponStore } from "../store";
+import { useTranslations } from "next-intl";
+import { useGeoPricing } from "@/features/billing/providers/GeoPricingProvider";
 
 interface ProductCardProps {
   product: MarketplaceProduct;
@@ -21,14 +23,29 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   onClick,
   disableNavigation = false,
 }) => {
+  const t = useTranslations("marketplace");
   const { activeCoupon } = useMarketplaceCouponStore();
+  const { pricing, formatPrice } = useGeoPricing();
 
-  let finalPrice = product.base_price;
+  // Geo-pricing: resolve localized price (NO PPP discount, only exchange rate)
+  const isGeoPriced = !!(pricing && pricing.country_code && pricing.country_code !== "US");
+  const localBasePrice = isGeoPriced
+    ? product.base_price * (pricing?.exchange_rate ?? 1)
+    : product.base_price;
+
+  // Coupon `value` for fixed_amount is denominated in USD; convert to local
+  // currency using the same exchange rate as the base price so a $20 USD
+  // coupon doesn't get applied as 20 COP off a localized COP price.
+  const exchangeRate = pricing?.exchange_rate ?? 1;
+  let finalPrice = localBasePrice;
   if (activeCoupon) {
     if (activeCoupon.type === "percentage") {
-      finalPrice = product.base_price * (1 - activeCoupon.value / 100);
+      finalPrice = localBasePrice * (1 - activeCoupon.value / 100);
     } else if (activeCoupon.type === "fixed_amount") {
-      finalPrice = Math.max(0, product.base_price - activeCoupon.value);
+      const localDiscount = isGeoPriced
+        ? activeCoupon.value * exchangeRate
+        : activeCoupon.value;
+      finalPrice = Math.max(0, localBasePrice - localDiscount);
     }
   }
 
@@ -76,7 +93,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               className="h-5 gap-1 border-emerald-500/30 bg-emerald-500/10 px-1.5 text-[10px] text-emerald-400"
             >
               <ShieldCheck className="h-3 w-3" />
-              Verificado
+              {t("verified")}
             </Badge>
           )}
         </div>
@@ -91,15 +108,17 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
         <div className="mt-auto flex items-center justify-between pt-2 border-t border-white/5">
           <div className="flex flex-col">
-            <span className="text-xs text-white/40 font-medium">Desde</span>
+            <span className="text-xs text-white/40 font-medium">{t("starting_from")}</span>
             <div className="flex items-center gap-2">
               {activeCoupon && (
                 <span className="text-sm line-through text-white/40 font-medium">
-                  {formatCurrency(product.base_price, product.currency)}
+                  {isGeoPriced
+                    ? formatPrice(localBasePrice)
+                    : formatCurrency(product.base_price, product.currency)}
                 </span>
               )}
               <span className="text-xl font-bold text-white tracking-tight">
-                {formatCurrency(finalPrice, product.currency)}
+                {isGeoPriced ? formatPrice(finalPrice) : formatCurrency(finalPrice, product.currency)}
               </span>
             </div>
           </div>

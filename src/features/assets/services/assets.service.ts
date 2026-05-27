@@ -35,6 +35,10 @@ export interface Asset {
   requirements: string[];
   minPlanTier: number;
   thumbnail: string;
+  // 11-char YouTube id (no URL). When present the marketplace modal renders
+  // a lite-embed (facade) instead of the static thumbnail. Empty/undefined
+  // falls back to `thumbnail`.
+  youtubeVideoId?: string;
   external_url?: string;
   display_type?: string;
   accessType?: "purchase" | "subscription";
@@ -118,6 +122,7 @@ export const assetsService = {
     requirements: bp.requirements || [],
     minPlanTier: bp.min_plan_tier || 0,
     thumbnail: bp.thumbnail_url || "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&fm=webp",
+    youtubeVideoId: bp.youtube_video_id || undefined,
     external_url: bp.external_url || "",
     display_type: bp.display_type || bp.product_type,
     isPurchased: false,
@@ -135,7 +140,15 @@ export const assetsService = {
     const dataArray = response && typeof response === 'object' && 'data' in response && Array.isArray((response as Record<string, unknown>).data) 
                       ? (response as Record<string, unknown>).data 
                       : Array.isArray(response) ? response : [];
-    return (dataArray as BackendCustomerAsset[]).map((item) => this.mapBackendAssetToAsset(item));
+    const mapped = (dataArray as BackendCustomerAsset[]).map((item) => this.mapBackendAssetToAsset(item));
+    // Deduplicate by id to prevent React key collisions when the backend
+    // returns the same product via multiple license matches.
+    const seen = new Set<string>();
+    return mapped.filter((a) => {
+      if (seen.has(a.id)) return false;
+      seen.add(a.id);
+      return true;
+    });
   },
 
   // Organization inventory (products owned by org)

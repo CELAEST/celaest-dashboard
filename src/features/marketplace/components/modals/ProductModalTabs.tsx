@@ -3,27 +3,29 @@ import { useTheme } from "@/features/shared/hooks/useTheme";
 import { TabOverview } from "./product-tabs/TabOverview";
 import { TabFeatures } from "./product-tabs/TabFeatures";
 import { TabReviews } from "./product-tabs/TabReviews";
-import { MarketplaceProduct, Review } from "../../types";
+import { MarketplaceProduct } from "../../types";
+import { useTranslations } from "next-intl";
+
+export type ProductModalTabId = "overview" | "features" | "reviews";
 
 interface ProductModalTabsProps {
   product: MarketplaceProduct;
-  reviews: Review[];
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
+  activeTab: ProductModalTabId;
+  setActiveTab: (tab: ProductModalTabId) => void;
 }
 
 export const ProductModalTabs: React.FC<ProductModalTabsProps> = ({
   product,
-  reviews,
   activeTab,
   setActiveTab,
 }) => {
+  const t = useTranslations("marketplace");
   const { theme } = useTheme();
 
   const tabs = [
-    { id: "overview", label: "Overview" },
-    { id: "features", label: "Features" },
-    { id: "reviews", label: "Reviews" },
+    { id: "overview" as const, label: t("overview") },
+    { id: "features" as const, label: t("features") },
+    { id: "reviews" as const, label: t("reviews") },
   ];
 
   return (
@@ -69,7 +71,7 @@ export const ProductModalTabs: React.FC<ProductModalTabsProps> = ({
           <TabFeatures features={product.features} />
         )}
 
-        {activeTab === "reviews" && <TabReviews reviews={reviews} />}
+        {activeTab === "reviews" && <TabReviews productId={product.id} />}
       </div>
     </div>
   );

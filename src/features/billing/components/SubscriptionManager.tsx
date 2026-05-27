@@ -1,4 +1,5 @@
 import React from "react";
+import { useSearchParams } from "next/navigation";
 import { motion } from "motion/react";
 import {
   Lightning,
@@ -15,7 +16,9 @@ import { useTheme } from "@/features/shared/hooks/useTheme";
 import { ManageSubscriptionModal } from "./modals/ManageSubscriptionModal";
 import { UpgradePlanModal } from "./modals/UpgradePlanModal";
 import { useBilling } from "../hooks/useBilling";
+import { useLocalPlanPrice } from "../hooks/useLocalPlanPrice";
 import { useOrgStore } from "@/features/shared/stores/useOrgStore";
+import { useTranslations } from "next-intl";
 
 /* ── Radial gauge with inline bar ─────────────── */
 interface GaugeRingProps {
@@ -87,12 +90,22 @@ const GaugeRing: React.FC<GaugeRingProps> = ({
 export const SubscriptionManager: React.FC = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const searchParams = useSearchParams();
+  const requestedPlan = searchParams.get("plan");
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = React.useState(false);
   const [isManageModalOpen, setIsManageModalOpen] = React.useState(false);
 
   // Use real billing data
   const { subscription, plan, usage, isLoading, error } = useBilling();
   const { currentOrg } = useOrgStore();
+  const t = useTranslations("billing");
+  const planPrice = useLocalPlanPrice(plan);
+
+  React.useEffect(() => {
+    if (requestedPlan) {
+      setIsUpgradeModalOpen(true);
+    }
+  }, [requestedPlan]);
 
   // Allow billing management if the user is an owner/admin in their org, OR if they
   // are viewing their personal Celaest workspace (slug = "celaest" or "celaest-official").
@@ -130,15 +143,17 @@ export const SubscriptionManager: React.FC = () => {
     return (
       <div className="w-full h-full flex items-center justify-center text-red-500">
         <Warning className="w-6 h-6 mr-2" />
-        Failed to load subscription info
+        {t("load_error")}
       </div>
     );
   }
 
-  // Format price
-  const rawPrice = Number(plan?.price_monthly) || 0;
-  const currencySymbol = plan?.currency === "EUR" ? "\u20AC" : "$";
-  const priceDisplay = rawPrice === 0 ? "Gratis" : `${currencySymbol}${rawPrice}`;
+  const isYearly = (subscription?.billing_cycle ?? "monthly") === "yearly";
+  const selectedPrice = isYearly && planPrice.yearly.value > 0
+    ? planPrice.yearly
+    : planPrice.monthly;
+  const priceDisplay = selectedPrice.isFree ? t("free") : selectedPrice.formatted;
+  const periodLabel = isYearly ? "/yr" : t("per_month");
 
   return (
     <>
@@ -173,7 +188,7 @@ export const SubscriptionManager: React.FC = () => {
                 }`}
               >
                 <Lightning className="w-3 h-3" />
-                {plan?.name ? plan.name.toUpperCase() : "SIN PLAN"}
+                {plan?.name ? plan.name.toUpperCase() : t("no_plan")}
               </div>
               <div
                 className={`flex items-center gap-1 px-2.5 py-1 rounded-full font-bold text-[10px] tracking-wide ${
@@ -209,9 +224,9 @@ export const SubscriptionManager: React.FC = () => {
               >
                 {priceDisplay}
               </span>
-              {rawPrice > 0 && (
+              {!selectedPrice.isFree && (
                 <span className={`text-xs font-medium ${isDark ? "text-slate-500" : "text-slate-400"}`}>
-                  /mo
+                  {periodLabel}
                 </span>
               )}
             </div>
@@ -243,9 +258,9 @@ export const SubscriptionManager: React.FC = () => {
           <div className="flex items-center justify-center gap-5 shrink-0">
             <GaugeRing
               percent={usage.licenses.percent}
-              label="Licenses"
+              label={t("licenses")}
               value={`${usage.licenses.used}/${usage.licenses.total}`}
-              sub={`${usage.licenses.total - usage.licenses.used} available`}
+              sub={t("available", { count: usage.licenses.total - usage.licenses.used })}
               colorFrom="#06b6d4" colorTo="#3b82f6"
               glowColor="rgba(6,182,212,0.5)"
               icon={<CheckCircle className={`w-3.5 h-3.5 ${isDark ? "text-cyan-400" : "text-blue-500"}`} />}
@@ -253,9 +268,9 @@ export const SubscriptionManager: React.FC = () => {
             />
             <GaugeRing
               percent={usage.apiCalls.percent}
-              label="API Calls"
+              label={t("api_calls")}
               value={usage.apiCalls.used.toLocaleString()}
-              sub={`Cap: ${usage.apiCalls.total.toLocaleString()}`}
+              sub={t("cap", { count: usage.apiCalls.total.toLocaleString() })}
               colorFrom="#34d399" colorTo="#14b8a6"
               glowColor="rgba(52,211,153,0.5)"
               icon={<TrendUp className={`w-3.5 h-3.5 ${isDark ? "text-emerald-400" : "text-emerald-500"}`} />}
@@ -273,7 +288,7 @@ export const SubscriptionManager: React.FC = () => {
               whileHover={canBilling ? { scale: 1.02 } : {}}
               whileTap={canBilling ? { scale: 0.98 } : {}}
               onClick={canBilling ? () => setIsUpgradeModalOpen(true) : undefined}
-              title={!canBilling ? "Solo Propietarios" : undefined}
+              title={!canBilling ? t("owners_only") : undefined}
               className={`relative overflow-hidden flex-1 lg:flex-initial py-2.5 px-4 rounded-xl font-bold text-xs tracking-wide transition-all duration-300 group ${
                 !canBilling
                   ? "bg-gray-200 text-gray-400 border border-gray-300 cursor-not-allowed dark:bg-zinc-800 dark:text-gray-500 dark:border-zinc-700"
@@ -284,7 +299,7 @@ export const SubscriptionManager: React.FC = () => {
             >
               <span className="relative z-10 flex items-center justify-center gap-1.5">
                 <Sparkle className="w-3.5 h-3.5" />
-                UPGRADE
+                {t("upgrade")}
               </span>
               {canBilling && (
                 <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
@@ -294,7 +309,7 @@ export const SubscriptionManager: React.FC = () => {
               whileHover={canBilling ? { scale: 1.02 } : {}}
               whileTap={canBilling ? { scale: 0.98 } : {}}
               onClick={canBilling ? () => setIsManageModalOpen(true) : undefined}
-              title={!canBilling ? "Solo Propietarios" : undefined}
+              title={!canBilling ? t("owners_only") : undefined}
               className={`flex-1 lg:flex-initial py-2.5 px-4 rounded-xl font-bold text-xs tracking-wide transition-all duration-300 ${
                 !canBilling
                   ? "bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed dark:bg-zinc-800/50 dark:text-gray-600 dark:border-zinc-800"
@@ -303,7 +318,7 @@ export const SubscriptionManager: React.FC = () => {
                     : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300"
               }`}
             >
-              Manage
+              {t("manage")}
             </motion.button>
           </div>
         </div>

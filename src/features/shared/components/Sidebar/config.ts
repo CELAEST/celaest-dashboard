@@ -24,44 +24,44 @@ import { SettingsIcon } from "../../../../components/icons/custom/SettingsIcon";
 export interface MenuItem {
   id: string;
   icon: React.ElementType;
-  label: string;
+  labelKey: string;
   scope: string | null;
 }
 
 export interface MenuSection {
-  title: string;
+  titleKey: string;
   items: MenuItem[];
 }
 
 export const menuSections: MenuSection[] = [
   {
-    title: "Platform",
+    titleKey: "platform",
     items: [
-      { id: "dashboard", icon: OrdersIcon, label: "Orders", scope: null },
-      { id: "marketplace", icon: MarketplaceIcon, label: "Marketplace", scope: "marketplace:purchase" },
-      { id: "licensing", icon: LicensingIcon, label: "Licensing", scope: null },
-      { id: "billing", icon: BillingIcon, label: "Billing", scope: "billing:read" },
-      { id: "ai", icon: AIConsoleIcon, label: "AI Console", scope: null },
-      { id: "catalog", icon: AssetManagerIcon, label: "Asset Manager", scope: null },
-      { id: "releases", icon: ReleasesIcon, label: "Releases", scope: "releases:read" },
+      { id: "dashboard", icon: OrdersIcon, labelKey: "orders", scope: null },
+      { id: "marketplace", icon: MarketplaceIcon, labelKey: "marketplace", scope: "marketplace:purchase" },
+      { id: "licensing", icon: LicensingIcon, labelKey: "licensing", scope: null },
+      { id: "billing", icon: BillingIcon, labelKey: "billing", scope: "billing:read" },
+      { id: "ai", icon: AIConsoleIcon, labelKey: "ai_console", scope: null },
+      { id: "catalog", icon: AssetManagerIcon, labelKey: "asset_manager", scope: null },
+      { id: "releases", icon: ReleasesIcon, labelKey: "releases", scope: "releases:read" },
     ],
   },
   {
-    title: "Insights & Ops",
+    titleKey: "insights_ops",
     items: [
-      { id: "analytics", icon: AnalyticsIcon, label: "Analytics", scope: "analytics:read" },
-      { id: "roi", icon: ROIIcon, label: "ROI Dashboard", scope: "analytics:read" },
-      { id: "errors", icon: ErrorMonitorIcon, label: "Error Monitor", scope: "analytics:read" },
-      { id: "operations", icon: DevOpsIcon, label: "DevOps", scope: null },
+      { id: "analytics", icon: AnalyticsIcon, labelKey: "analytics", scope: "analytics:read" },
+      { id: "roi", icon: ROIIcon, labelKey: "roi_dashboard", scope: "analytics:read" },
+      { id: "errors", icon: ErrorMonitorIcon, labelKey: "error_monitor", scope: "analytics:read" },
+      { id: "operations", icon: DevOpsIcon, labelKey: "devops", scope: null },
     ],
   },
   {
-    title: "Settings & Admin",
+    titleKey: "settings_admin",
     items: [
-      { id: "users", icon: UsersIcon, label: "Users & Roles", scope: null },
-      { id: "coupons", icon: CouponsIcon, label: "Coupons", scope: "billing:write" },
-      { id: "admin_portal", icon: SuperAdminIcon, label: "Super Admin", scope: "users:manage" },
-      { id: "settings", icon: SettingsIcon, label: "Workspace Settings", scope: null },
+      { id: "users", icon: UsersIcon, labelKey: "users_roles", scope: null },
+      { id: "coupons", icon: CouponsIcon, labelKey: "coupons", scope: "billing:write" },
+      { id: "admin_portal", icon: SuperAdminIcon, labelKey: "super_admin", scope: "users:manage" },
+      { id: "settings", icon: SettingsIcon, labelKey: "workspace_settings", scope: null },
     ],
   },
 ];

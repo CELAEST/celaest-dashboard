@@ -4,6 +4,7 @@ import React from "react";
 import { motion } from "motion/react";
 import { X, HardDrives, Lightning, Terminal } from "@phosphor-icons/react";
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
+import { useTranslations } from "next-intl";
 
 interface DeployPanelProps {
   isOpen: boolean;
@@ -19,7 +20,9 @@ export const DeployPanel: React.FC<DeployPanelProps> = ({
   isOpen,
   onClose,
   asset,
-}) => {
+}: DeployPanelProps) => {
+  const t = useTranslations("releases");
+
   if (!asset) return null;
 
   return (
@@ -45,9 +48,9 @@ export const DeployPanel: React.FC<DeployPanelProps> = ({
         {/* Header */}
         <div className="h-20 border-b border-white/10 flex items-center justify-between px-6 bg-linear-to-r from-cyan-900/10 to-transparent">
           <div>
-            <h3 className="text-white font-bold text-lg">Instant Deploy</h3>
+            <h3 className="text-white font-bold text-lg">{t("instant_deploy")}</h3>
             <p className="text-cyan-400 text-xs font-mono uppercase tracking-widest">
-              Secure Environment
+              {t("secure_environment")}
             </p>
           </div>
           <button
@@ -79,21 +82,21 @@ export const DeployPanel: React.FC<DeployPanelProps> = ({
           {/* Config Specs */}
           <div className="space-y-4">
             <h5 className="text-sm font-bold text-gray-400 uppercase tracking-widest">
-              Configuration
+              {t("configuration")}
             </h5>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="p-3 bg-white/5 border border-white/5 rounded hover:border-cyan-400/30 transition-colors cursor-pointer group/item">
                 <div className="flex items-center gap-2 mb-1 text-gray-400 group-hover/item:text-cyan-400">
                   <HardDrives size={14} />
-                  <span className="text-xs font-bold">Region</span>
+                  <span className="text-xs font-bold">{t("region")}</span>
                 </div>
                 <div className="text-sm text-white">US-East (N. Virginia)</div>
               </div>
               <div className="p-3 bg-white/5 border border-white/5 rounded hover:border-cyan-400/30 transition-colors cursor-pointer group/item">
                 <div className="flex items-center gap-2 mb-1 text-gray-400 group-hover/item:text-cyan-400">
                   <Lightning size={14} />
-                  <span className="text-xs font-bold">Power</span>
+                  <span className="text-xs font-bold">{t("power")}</span>
                 </div>
                 <div className="text-sm text-white">High (128 vCPU)</div>
               </div>
@@ -103,20 +106,20 @@ export const DeployPanel: React.FC<DeployPanelProps> = ({
           {/* Cost Breakdown */}
           <div className="space-y-4">
             <h5 className="text-sm font-bold text-gray-400 uppercase tracking-widest">
-              Billing
+              {t("billing")}
             </h5>
             <div className="bg-black/40 border border-white/10 rounded-lg p-4 space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-400">Base License</span>
+                <span className="text-gray-400">{t("base_license")}</span>
                 <span className="text-white font-mono">{asset.price}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-400">Deployment Fee</span>
+                <span className="text-gray-400">{t("deployment_fee")}</span>
                 <span className="text-white font-mono">$0.00</span>
               </div>
               <div className="h-px w-full bg-white/10 my-2" />
               <div className="flex justify-between items-center">
-                <span className="text-white font-bold">Total</span>
+                <span className="text-white font-bold">{t("total")}</span>
                 <span className="text-xl text-cyan-400 font-bold font-mono">
                   {asset.price}
                 </span>
@@ -130,9 +133,9 @@ export const DeployPanel: React.FC<DeployPanelProps> = ({
               <Terminal size={10} className="mr-2" /> deploy_sequence.sh
             </div>
             <div className="pt-8 space-y-1 opacity-60">
-              <p>{`> verifying_wallet_balance... OK`}</p>
-              <p>{`> checking_dependencies... OK`}</p>
-              <p>{`> ready_to_deploy`}</p>
+              <p>{t("deploy_term_verify")}</p>
+              <p>{t("deploy_term_deps")}</p>
+              <p>{t("deploy_term_ready")}</p>
               <span className="animate-pulse">_</span>
             </div>
           </div>
@@ -145,10 +148,10 @@ export const DeployPanel: React.FC<DeployPanelProps> = ({
             onClick={onClose}
           >
             <Lightning size={18} fill="currentColor" />
-            Initialize Deployment
+            {t("initialize_deployment")}
           </button>
           <p className="text-center text-[10px] text-gray-500 mt-3">
-            By deploying, you agree to the CELAEST Operational Protocols.
+            {t("deploy_agreement")}
           </p>
         </div>
       </motion.div>

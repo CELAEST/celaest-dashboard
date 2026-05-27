@@ -2,6 +2,7 @@ import React from "react";
 import { Plus } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { PageBanner } from "@/components/layout/PageLayout";
+import { useTranslations } from "next-intl";
 
 interface LicensingHeaderProps {
   onCreateClick: () => void;
@@ -13,11 +14,11 @@ interface LicensingHeaderProps {
 }
 
 const STATUS_OPTIONS = [
-  { value: "all", label: "Todos los estados" },
-  { value: "active", label: "Activo" },
-  { value: "expired", label: "Expirado" },
-  { value: "revoked", label: "Revocado" },
-  { value: "suspended", label: "Suspendido" },
+  { value: "all", label: "all_statuses" },
+  { value: "active", label: "status_active" },
+  { value: "expired", label: "status_expired" },
+  { value: "revoked", label: "status_revoked" },
+  { value: "suspended", label: "status_suspended" },
 ];
 
 export const LicensingHeader: React.FC<LicensingHeaderProps> = ({
@@ -29,19 +30,20 @@ export const LicensingHeader: React.FC<LicensingHeaderProps> = ({
   onStatusFilterChange,
 }) => {
   const { isDark } = useTheme();
+  const t = useTranslations("licensing");
 
   const tabs: { id: "licenses" | "collisions" | "analytics"; label: string }[] = [
-    { id: "licenses", label: "All Licenses" },
-    { id: "collisions", label: "Collisions" },
-    { id: "analytics", label: "Analytics" },
+    { id: "licenses", label: t("all_licenses_tab") },
+    { id: "collisions", label: t("collisions_tab") },
+    { id: "analytics", label: t("analytics_tab") },
   ];
 
 
 
   return (
     <PageBanner
-      title="Licensing Hub"
-      subtitle="Master Repository & Security Control"
+      title={t("licensing_hub")}
+      subtitle={t("licensing_hub_subtitle")}
       actions={
         <div className="flex items-center gap-3">
           {/* Tabs */}
@@ -87,7 +89,7 @@ export const LicensingHeader: React.FC<LicensingHeaderProps> = ({
             >
               {STATUS_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
-                  {opt.label}
+                  {t(opt.label)}
                 </option>
               ))}
             </select>
@@ -103,7 +105,7 @@ export const LicensingHeader: React.FC<LicensingHeaderProps> = ({
             }`}
           >
             <Plus size={11} weight="bold" />
-            Generate Key
+            {t("generate_key")}
           </button>
         </div>
       }

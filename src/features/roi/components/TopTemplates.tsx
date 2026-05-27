@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 
 interface Template {
   name: string;
@@ -23,6 +24,7 @@ const RANK_ACCENTS = [
 export const TopTemplates = React.memo(({ templates }: TopTemplatesProps) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const t = useTranslations("roi");
 
   const maxExec = Math.max(...templates.map((t) => t.executions), 1);
 
@@ -50,11 +52,11 @@ export const TopTemplates = React.memo(({ templates }: TopTemplatesProps) => {
               }}
             />
             <h3 className={`text-sm font-bold tracking-tight ${isDark ? "text-white" : "text-gray-900"}`}>
-              Plantillas Más Usadas
+              {t('top_templates_title')}
             </h3>
           </div>
           <span className={`text-[9px] font-mono font-semibold uppercase tracking-widest ${isDark ? "text-gray-600" : "text-gray-400"}`}>
-            {templates.length} plantillas
+            {t('templates_count', { count: templates.length })}
           </span>
         </div>
 

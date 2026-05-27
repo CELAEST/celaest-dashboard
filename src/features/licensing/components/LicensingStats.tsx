@@ -6,6 +6,7 @@ import { Key, CheckCircle, Warning, TrendUp } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { LicenseStats } from "@/features/licensing/types";
 import type { IPBinding } from "@/features/licensing/types";
+import { useTranslations } from "next-intl";
 
 interface LicensingStatsProps {
   analytics: LicenseStats | null;
@@ -18,33 +19,34 @@ export const LicensingStats: React.FC<LicensingStatsProps> = ({
 }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const t = useTranslations("licensing");
 
   if (!analytics) return null;
 
   const stats = [
     {
-      label: "Total Licenses",
+      label: t("total_licenses"),
       value: analytics.total,
       icon: Key,
       color: "text-blue-500",
       bg: "bg-blue-500/10",
     },
     {
-      label: "Active Now",
+      label: t("active_now"),
       value: analytics.active,
       icon: CheckCircle,
       color: "text-green-500",
       bg: "bg-green-500/10",
     },
     {
-      label: "IP Collisions",
+      label: t("ip_collisions"),
       value: collisions.length,
       icon: Warning,
       color: "text-red-500",
       bg: "bg-red-500/10",
     },
     {
-      label: "Trial Licenses",
+      label: t("trial_licenses"),
       value: analytics.trial,
       icon: TrendUp,
       color: "text-cyan-500",

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { MarketplacePublicHero } from "./MarketplacePublicHero";
 import { MarketplaceSearch } from "./MarketplaceSearch";
 import { ProductCardPremium } from "./ProductCardPremium";
@@ -11,6 +11,9 @@ import { Storefront } from "@phosphor-icons/react";
 import { AnimatePresence } from "motion/react";
 import dynamic from "next/dynamic";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
+import { AuthPromptProvider } from "../context/AuthPromptContext";
+import { setAuthIntent, MarketplaceAuthIntent } from "../utils/authIntent";
 
 const LoginModal = dynamic(
   () =>
@@ -29,6 +32,7 @@ const ProductDetailModal = dynamic(
 );
 
 export function MarketplacePublicView() {
+  const t = useTranslations("marketplace");
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
@@ -47,12 +51,25 @@ export function MarketplacePublicView() {
   const handlePurchaseAction = (product?: MarketplaceProduct) => {
     if (product) {
       sessionStorage.setItem("pending_purchase_modal_id", product.id);
+      // También persistimos el intent rico (con tab "overview") para que el
+      // dashboard reabra el modal en la misma posición.
+      setAuthIntent({ productId: product.id, tab: "overview" });
     }
     // En público, adquirir redirige a login
     setShowLoginModal(true);
   };
 
+  // Disparado por componentes hijos (p. ej. el form de reseñas dentro del
+  // ProductDetailModal). Persiste el intent + abre el login global.
+  const handleRequestLogin = useCallback((intent: MarketplaceAuthIntent) => {
+    setAuthIntent(intent);
+    // Mantenemos el sessionStorage legacy para no romper otros flujos.
+    sessionStorage.setItem("pending_purchase_modal_id", intent.productId);
+    setShowLoginModal(true);
+  }, []);
+
   return (
+    <AuthPromptProvider onRequestLogin={handleRequestLogin}>
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
       <MarketplacePublicHero />
@@ -69,14 +86,14 @@ export function MarketplacePublicView() {
                 isDark ? "text-white" : "text-gray-900"
               }`}
             >
-              Soluciones Disponibles
+              {t("available_solutions")}
             </h2>
             <p
               className={`text-sm ${
                 isDark ? "text-gray-400" : "text-gray-600"
               }`}
             >
-              Cada producto incluye garantía de 30 días y soporte premium
+              {t("every_product_includes")}
             </p>
           </div>
           <div
@@ -86,7 +103,7 @@ export function MarketplacePublicView() {
                 : "bg-cyan-50 text-cyan-700 border border-cyan-200"
             }`}
           >
-            {products.length} productos
+            {t("products_count", { count: products.length })}
           </div>
         </div>
 
@@ -101,13 +118,13 @@ export function MarketplacePublicView() {
             <div className="text-center py-20 bg-white/5 rounded-3xl border border-dashed border-white/10 mx-8">
               <Storefront className="mx-auto h-12 w-12 text-gray-400 mb-4" />
               <h3 className="text-lg font-medium text-gray-500">
-                No se encontraron productos
+                {t("no_products_found")}
               </h3>
               <button
                 onClick={reset}
                 className="text-cyan-500 mt-2 hover:underline"
               >
-                Limpiar filtros
+                {t("clear_filters")}
               </button>
             </div>
           ) : (
@@ -132,7 +149,7 @@ export function MarketplacePublicView() {
       <LoginModal
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
-        message="Inicia sesión para adquirir soluciones premium."
+        message={t("login_to_acquire")}
       />
 
       {detailProduct && (
@@ -150,5 +167,6 @@ export function MarketplacePublicView() {
       {/* Floating Action Button for Coupons */}
       <CouponFAB />
     </div>
+    </AuthPromptProvider>
   );
 }

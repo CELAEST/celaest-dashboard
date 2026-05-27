@@ -1,8 +1,10 @@
 import React from "react";
 import { Shield } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 
 export const TabCompatibility: React.FC = React.memo(() => {
+  const t = useTranslations("marketplace");
   const { theme } = useTheme();
 
   return (
@@ -13,7 +15,7 @@ export const TabCompatibility: React.FC = React.memo(() => {
             theme === "dark" ? "text-gray-300" : "text-gray-700"
           }`}
         >
-          Requisitos
+          {t("requirements")}
         </h4>
         <div className="space-y-2">
           {[
@@ -39,7 +41,7 @@ export const TabCompatibility: React.FC = React.memo(() => {
             theme === "dark" ? "text-gray-300" : "text-gray-700"
           }`}
         >
-          Idiomas Disponibles
+          {t("available_languages")}
         </h4>
         <div className="flex gap-2">
           {["Español", "English", "Português"].map((lang) => (

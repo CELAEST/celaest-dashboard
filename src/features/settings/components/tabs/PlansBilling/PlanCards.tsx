@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 import { billingApi } from "@/features/billing/api/billing.api";
+import { useTranslations } from "next-intl";
+import type { BillingCycle } from "@/features/billing/types";
 
 export interface Plan {
   id: string;
@@ -19,18 +21,20 @@ export interface Plan {
 
 interface PlanCardsProps {
   plans: Plan[];
+  billingCycle: BillingCycle;
 }
 
-export const PlanCards: React.FC<PlanCardsProps> = memo(({ plans }) => {
+export const PlanCards: React.FC<PlanCardsProps> = memo(({ plans, billingCycle }) => {
   const { isDark } = useTheme();
   const { session } = useAuthStore();
   const { currentOrg } = useOrgStore();
+  const t = useTranslations("settings");
 
   const handleUpgrade = async (plan: Plan) => {
     if (plan.current) return;
 
     if (!session?.accessToken || !currentOrg?.id) {
-      toast.error("Authentication required");
+      toast.error(t("auth_required"));
       return;
     }
 
@@ -42,21 +46,22 @@ export const PlanCards: React.FC<PlanCardsProps> = memo(({ plans }) => {
           plan_id: plan.id,
           organization_id: currentOrg.id,
           product_id: plan.id, // Backend currently uses plan_id as product_id in some places
+          billing_cycle: billingCycle,
         },
       );
 
       toast.promise(promise, {
-        loading: `Preparing to upgrade to ${plan.name}...`,
+        loading: t("preparing_upgrade", { plan: plan.name }),
         success: (res: { checkout_url?: string }) => {
           if (res.checkout_url) {
             window.location.href = res.checkout_url;
-            return "Redirecting to Stripe...";
+            return t("redirecting_stripe");
           }
-          return `${plan.name} plan activated successfully!`;
+          return t("plan_activated", { plan: plan.name });
         },
         error: (err: Error) => {
           logger.error("Upgrade failed:", err);
-          return "Failed to upgrade. Please try again.";
+          return t("upgrade_failed");
         },
       });
     } catch (error: unknown) {
@@ -79,7 +84,7 @@ export const PlanCards: React.FC<PlanCardsProps> = memo(({ plans }) => {
         >
           {plan.popular && (
             <span className="absolute -top-3 left-6 px-3 py-1 rounded-full bg-cyan-600 text-white text-[10px] font-black tracking-widest">
-              POPULAR
+              {t("popular")}
             </span>
           )}
           <h4
@@ -95,11 +100,10 @@ export const PlanCards: React.FC<PlanCardsProps> = memo(({ plans }) => {
                 isDark ? "text-white" : "text-gray-900"
               }`}
             >
-              {plan.price === "Custom" ? "" : "$"}
               {plan.price}
             </span>
             {plan.price !== "0" && plan.price !== "Custom" && (
-              <span className="text-xs text-gray-500">/mo</span>
+              <span className="text-xs text-gray-500">{t("per_month")}</span>
             )}
           </div>
           <p
@@ -135,7 +139,7 @@ export const PlanCards: React.FC<PlanCardsProps> = memo(({ plans }) => {
                 : "bg-cyan-600 hover:bg-cyan-500 text-white shadow-lg shadow-cyan-500/20 active:scale-95"
             }`}
           >
-            {plan.current ? "CURRENT PLAN" : "UPGRADE"}
+            {plan.current ? t("current_plan_btn") : t("upgrade")}
           </button>
         </div>
       ))}

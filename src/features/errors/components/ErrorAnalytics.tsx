@@ -3,6 +3,7 @@
 import React, { useMemo } from "react";
 import { motion } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 import {
   Monitor,
   ShieldCheck,
@@ -105,15 +106,16 @@ function SummaryCard({
 export const ErrorAnalytics: React.FC<ErrorAnalyticsProps> = ({ data }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const t = useTranslations("error_monitor");
 
   const ecosystemData = useMemo(() => {
     if (!data || data.length === 0) {
       return [
         {
-          name: "Enterprise Hub (W11)",
+          name: t("enterprise_hub"),
           value: 100,
           color: "#22d3ee",
-          details: "Excel 365 v2401",
+          details: t("excel_version"),
           status: "optimal" as const,
         },
       ];
@@ -130,7 +132,7 @@ export const ErrorAnalytics: React.FC<ErrorAnalyticsProps> = ({ data }) => {
           ? "warning"
           : "critical") as "optimal" | "warning" | "critical",
     }));
-  }, [data]);
+  }, [data, t]);
 
   const averageHealth = useMemo(() => {
     if (ecosystemData.length === 0) return 100;
@@ -184,12 +186,12 @@ export const ErrorAnalytics: React.FC<ErrorAnalyticsProps> = ({ data }) => {
               <h3
                 className={`text-[9px] font-black uppercase tracking-[0.32em] ${isDark ? "text-gray-500" : "text-gray-400"}`}
               >
-                Ecosystem Integrity
+                {t("ecosystem_integrity")}
               </h3>
               <h2
                 className={`text-2xl font-black italic tracking-tighter mt-0.5 ${isDark ? "text-white" : "text-gray-900"}`}
               >
-                PLATFORM RELIABILITY
+                {t("platform_reliability")}
               </h2>
             </div>
           </div>
@@ -202,7 +204,7 @@ export const ErrorAnalytics: React.FC<ErrorAnalyticsProps> = ({ data }) => {
             }`}
           >
             <div className={`w-1.5 h-1.5 rounded-full bg-current animate-pulse ${isDark ? "shadow-[0_0_6px_2px_rgba(52,211,153,0.4)]" : ""}`} />
-            System Health {averageHealth}%
+            {t("system_health")} {averageHealth}%
           </div>
         </div>
 
@@ -231,7 +233,7 @@ export const ErrorAnalytics: React.FC<ErrorAnalyticsProps> = ({ data }) => {
               <span
                 className={`text-[9px] font-black uppercase tracking-[0.24em] opacity-50 ${isDark ? "text-cyan-400" : "text-blue-600"}`}
               >
-                Integrity
+                {t("integrity")}
               </span>
               <span
                 className={`text-5xl font-black font-mono italic tracking-tighter ${isDark ? "text-white drop-shadow-[0_0_12px_rgba(255,255,255,0.4)]" : "text-gray-900"}`}

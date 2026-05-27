@@ -7,8 +7,10 @@ import { useTheme } from "@/features/shared/hooks/useTheme";
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
 import { TrustBadges } from "@/features/marketplace/components/TrustBadges";
 import { TestimonialsSection } from "@/features/marketplace/components/TestimonialsSection";
+import { useTranslations } from "next-intl";
 
 export const VideoDemoSection = React.memo(function VideoDemoSection() {
+  const t = useTranslations("marketplace");
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
@@ -35,16 +37,14 @@ export const VideoDemoSection = React.memo(function VideoDemoSection() {
                   isDark ? "text-white" : "text-gray-900"
                 }`}
               >
-                Vea cómo funciona
+                {t("see_how_it_works")}
               </h3>
               <p
                 className={`text-lg leading-relaxed ${
                   isDark ? "text-gray-300" : "text-gray-700"
                 }`}
               >
-                En este video de 2 minutos, descubra lo fácil que es activar su
-                nueva solución empresarial. Sin jerga técnica, solo claridad
-                total.
+                {t("video_description")}
               </p>
               <div className="flex items-center gap-3">
                 <button
@@ -58,14 +58,14 @@ export const VideoDemoSection = React.memo(function VideoDemoSection() {
                   `}
                 >
                   <Play size={18} fill="currentColor" />
-                  Ver Demo
+                  {t("watch_demo")}
                 </button>
                 <span
                   className={`text-sm ${
                     isDark ? "text-gray-400" : "text-gray-600"
                   }`}
                 >
-                  2 minutos
+                  {t("two_minutes")}
                 </span>
               </div>
             </div>
@@ -114,15 +114,14 @@ export const VideoDemoSection = React.memo(function VideoDemoSection() {
               isDark ? "text-white" : "text-gray-900"
             }`}
           >
-            Su inversión está protegida
+            {t("investment_protected")}
           </h3>
           <p
             className={`text-sm mb-8 max-w-2xl mx-auto ${
               isDark ? "text-gray-400" : "text-gray-600"
             }`}
           >
-            Procesamos cada transacción con el mismo nivel de seguridad que los
-            bancos suizos. Su información jamás se comparte. Garantizado.
+            {t("investment_protected_desc")}
           </p>
           <TrustBadges className="justify-center" />
         </motion.div>

@@ -2,6 +2,7 @@ import React from "react";
 import { Clock, Warning } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { ValidationLog } from "@/features/licensing/constants/mock-data";
+import { useTranslations } from "next-intl";
 
 interface LicenseActivityLogProps {
   logs: ValidationLog[];
@@ -12,13 +13,14 @@ export const LicenseActivityLog: React.FC<LicenseActivityLogProps> = ({
 }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const t = useTranslations("licensing");
 
   return (
     <div>
       <h3
         className={`text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2 ${isDark ? "text-gray-400" : "text-gray-500"}`}
       >
-        <Clock size={16} /> Recent Pulse
+        <Clock size={16} /> {t("recent_pulse")}
       </h3>
       <div
         className={`relative pl-4 space-y-6 border-l ${isDark ? "border-white/10" : "border-gray-200"}`}
@@ -39,7 +41,7 @@ export const LicenseActivityLog: React.FC<LicenseActivityLogProps> = ({
             <div
               className={`text-sm font-medium ${isDark ? "text-white" : "text-gray-900"}`}
             >
-              {log.success ? "License Validated" : "Validation Failed"}
+              {log.success ? t("license_validated") : t("validation_failed")}
             </div>
             <div className="text-xs text-gray-500 mt-0.5 flex items-center gap-2">
               <span className="font-mono">{log.ip}</span> •{" "}

@@ -1,6 +1,7 @@
 import React from "react";
 import { Code } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 
 interface TabOverviewProps {
   description: string;
@@ -10,6 +11,7 @@ interface TabOverviewProps {
 
 export const TabOverview: React.FC<TabOverviewProps> = React.memo(
   ({ description, stack, tags }) => {
+    const t = useTranslations("marketplace");
     const { theme } = useTheme();
 
     return (
@@ -20,7 +22,7 @@ export const TabOverview: React.FC<TabOverviewProps> = React.memo(
               theme === "dark" ? "text-white" : "text-gray-900"
             }`}
           >
-            Descripción
+            {t("description")}
           </h3>
           <p
             className={`leading-relaxed ${
@@ -37,7 +39,7 @@ export const TabOverview: React.FC<TabOverviewProps> = React.memo(
               theme === "dark" ? "text-white" : "text-gray-900"
             }`}
           >
-            Technology Stack
+            {t("technology_stack")}
           </h3>
           <div className="flex flex-wrap gap-2">
             {(stack || []).map((tech, i) => (
@@ -65,7 +67,7 @@ export const TabOverview: React.FC<TabOverviewProps> = React.memo(
               theme === "dark" ? "text-white" : "text-gray-900"
             }`}
           >
-            Tags
+            {t("tags")}
           </h3>
           <div className="flex flex-wrap gap-2">
             {(tags || []).map((tag, i) => (

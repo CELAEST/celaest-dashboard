@@ -8,6 +8,8 @@ import { useTheme } from "@/features/shared/hooks/useTheme";
 import { MarketplaceProduct } from "../types";
 import { formatCurrency } from "@/lib/utils";
 import { useMarketplaceCouponStore } from "../store";
+import { useTranslations } from "next-intl";
+import { useGeoPricing } from "@/features/billing/providers/GeoPricingProvider";
 
 interface ProductCardCompactProps {
   product: MarketplaceProduct;
@@ -30,6 +32,9 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
   const isDark = theme === "dark";
   const [isHovered, setIsHovered] = React.useState(false);
   const { activeCoupon } = useMarketplaceCouponStore();
+  const t = useTranslations("marketplace");
+  const tCommon = useTranslations("common");
+  const { pricing, formatPrice } = useGeoPricing();
 
   // Resolve effective access: prefer accessLevel prop, fallback to isOwned
   const effectiveAccess = accessLevel ?? (isOwned ? "owned" : "none");
@@ -56,17 +61,28 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
         ? product.tags
         : ["Instant Delivery", "Secure Payment", "24/7 Support"];
 
-  let finalPrice = base_price;
+  // Geo-pricing: resolve localized price for this product (NO PPP discount, only exchange rate)
+  const isGeoPriced = !!(pricing && pricing.country_code && pricing.country_code !== "US");
+  const localBasePrice = isGeoPriced
+    ? base_price * (pricing?.exchange_rate ?? 1)
+    : base_price;
+
+  // Fixed-amount coupons are denominated in USD; scale to local currency.
+  const exchangeRate = pricing?.exchange_rate ?? 1;
+  let finalPrice = localBasePrice;
   if (activeCoupon) {
     if (activeCoupon.type === "percentage") {
-      finalPrice = base_price * (1 - activeCoupon.value / 100);
+      finalPrice = localBasePrice * (1 - activeCoupon.value / 100);
     } else if (activeCoupon.type === "fixed_amount") {
-      finalPrice = Math.max(0, base_price - activeCoupon.value);
+      const localDiscount = isGeoPriced
+        ? activeCoupon.value * exchangeRate
+        : activeCoupon.value;
+      finalPrice = Math.max(0, localBasePrice - localDiscount);
     }
   }
 
-  const formattedPrice = formatCurrency(base_price, currency);
-  const formattedFinalPrice = formatCurrency(finalPrice, currency);
+  const formattedLocalBase = isGeoPriced ? formatPrice(localBasePrice) : formatCurrency(base_price, currency);
+  const formattedFinalPrice = isGeoPriced ? formatPrice(finalPrice) : formatCurrency(finalPrice, currency);
 
   // Badge derivado (ej. si tiene rating alto)
   const badge = rating >= 4.5 ? "BESTSELLER" : undefined;
@@ -119,36 +135,42 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
           className={`absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent`}
         />
 
-        {/* Floating Badges */}
+        {/* Floating Badges
+         * Cuando el producto es BESTSELLER ocultamos la categoría para evitar
+         * apilar dos chips en la esquina superior izquierda — el badge ya
+         * comunica jerarquía suficiente y la categoría está visible en el
+         * detalle. Si no hay badge, mostramos la categoría como contexto.
+         */}
         <div className="absolute top-3 left-3 z-20 flex flex-col gap-1.5">
-          {badge && (
+          {badge ? (
             <div className="px-2 py-0.5 rounded-full bg-cyan-500 text-white text-[8px] font-black uppercase tracking-widest shadow-lg shadow-cyan-500/30 flex items-center gap-1">
               <Lightning size={8} fill="currentColor" />
               {badge}
             </div>
-          )}
-          {product.category_name && (
-            <div
-              className={`px-2 py-0.5 rounded-full backdrop-blur-md border text-[8px] font-black uppercase tracking-widest flex items-center gap-1 ${
-                isDark
-                  ? "bg-black/40 border-white/10 text-gray-300"
-                  : "bg-white/60 border-gray-200 text-gray-600 shadow-sm"
-              }`}
-            >
-              {product.category_name}
-            </div>
+          ) : (
+            product.category_name && (
+              <div
+                className={`px-2 py-0.5 rounded-full backdrop-blur-md border text-[8px] font-black uppercase tracking-widest flex items-center gap-1 ${
+                  isDark
+                    ? "bg-black/40 border-white/10 text-gray-300"
+                    : "bg-white/60 border-gray-200 text-gray-600 shadow-sm"
+                }`}
+              >
+                {product.category_name}
+              </div>
+            )
           )}
         </div>
 
         {/* Plan tier badge — top right */}
         {(() => {
           const tierMap: Record<number, { label: string; cls: string }> = {
-            0: { label: "All Plans", cls: "bg-black/20 border-white/20 text-gray-200" },
+            0: { label: t("all_plans"), cls: "bg-black/20 border-white/20 text-gray-200" },
             1: { label: "Basic+", cls: "bg-emerald-700/40 border-emerald-800/30 text-emerald-200" },
             2: { label: "Pro", cls: "bg-violet-500/60 border-violet-500/60 text-violet-200" },
             3: { label: "Enterprise", cls: "bg-amber400/60 border-amber-400/30 text-amber-200" },
           };
-          const tier = tierMap[product.min_plan_tier] ?? { label: "Private", cls: "bg-red-900/60 border-red-400/30 text-red-200" };
+          const tier = tierMap[product.min_plan_tier] ?? { label: t("private"), cls: "bg-red-900/60 border-red-400/30 text-red-200" };
           return (
             <div className="absolute top-3 right-3 z-20">
               <div className={`px-2 py-0.5 rounded-full backdrop-blur-md border text-[8px] font-black uppercase tracking-widest ${tier.cls}`}>
@@ -162,12 +184,12 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
         <div className="absolute bottom-3 left-3 z-20">
           <div className="flex flex-col">
             <span className="text-white/60 text-[8px] font-bold uppercase tracking-widest mb-0.5">
-              Price
+              {tCommon("price")}
             </span>
             <div className="flex flex-col items-start leading-[1.1]">
               {activeCoupon && (
                 <span className="text-white/60 text-xs font-medium line-through">
-                  {formattedPrice}
+                  {formattedLocalBase}
                 </span>
               )}
               <span
@@ -201,10 +223,13 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
                   <Star
                     key={i}
                     size={11}
+                    weight="fill"
                     className={
                       i < Math.floor(rating)
-                        ? "text-amber-400 fill-amber-400"
-                        : "text-gray-200/20"
+                        ? "text-amber-400"
+                        : isDark
+                          ? "text-white/15"
+                          : "text-gray-300"
                     }
                   />
                 ))}
@@ -212,7 +237,7 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
               <span
                 className={`text-[9px] font-black uppercase tracking-widest ${isDark ? "text-gray-500" : "text-gray-400"}`}
               >
-                {reviews} reviews
+                {reviews} {tCommon("reviews")}
               </span>
             </div>
           </div>
@@ -238,8 +263,8 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
         {/* Professional Feature Set - Compact */}
         <div className="grid grid-cols-2 gap-2 py-1">
           {displayFeatures.slice(0, 4).map((feature, index) => (
-            <div key={index} className="flex items-start gap-1.5">
-              <div className="mt-0.5 w-4 h-4 rounded-full bg-cyan-500/10 flex items-center justify-center shrink-0">
+            <div key={index} className="flex items-center gap-1.5">
+              <div className="w-4 h-4 rounded-full bg-cyan-500/10 flex items-center justify-center shrink-0">
                 <Check size={10} className="text-cyan-500" strokeWidth={3} />
               </div>
               <span
@@ -264,7 +289,7 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
             }`}
           >
             <Eye size={14} strokeWidth={3} />
-            Explore
+            {tCommon("explore")}
           </motion.button>
 
           <motion.button
@@ -299,18 +324,18 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
               effectiveAccess === "plan" ? (
                 <>
                   <Check size={14} strokeWidth={3} />
-                  En Plan
+                  {t("in_plan")}
                 </>
               ) : (
                 <>
                   <Check size={14} strokeWidth={3} />
-                  Adquirido
+                  {t("acquired")}
                 </>
               )
             ) : (
               <>
                 <ShoppingCart size={14} strokeWidth={3} />
-                Acquire
+                {t("acquire")}
               </>
             )}
           </motion.button>

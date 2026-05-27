@@ -1,9 +1,11 @@
 import React, { memo } from "react";
 import { ArrowSquareOut } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 
 export const ApiDocs: React.FC = memo(() => {
   const { isDark } = useTheme();
+  const t = useTranslations("settings");
 
   return (
     <div className="settings-glass-card rounded-2xl p-6">
@@ -13,13 +15,12 @@ export const ApiDocs: React.FC = memo(() => {
         }`}
       >
         <ArrowSquareOut className="w-4 h-4 text-blue-500" />
-        Documentation & Support
+        {t("docs_support")}
       </h3>
       <p
         className={`text-sm mb-6 ${isDark ? "text-gray-500" : "text-gray-400"}`}
       >
-        Learn how to integrate Celaest into your workflow with our comprehensive
-        API documentation and examples.
+        {t("docs_support_desc")}
       </p>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <a
@@ -36,10 +37,10 @@ export const ApiDocs: React.FC = memo(() => {
                 isDark ? "text-white" : "text-gray-900"
               }`}
             >
-              API Reference
+              {t("api_reference")}
             </p>
             <p className="text-[10px] text-gray-500 mt-1">
-              Detailed endpoint documentation
+              {t("api_reference_desc")}
             </p>
           </div>
           <ArrowSquareOut
@@ -63,10 +64,10 @@ export const ApiDocs: React.FC = memo(() => {
                 isDark ? "text-white" : "text-gray-900"
               }`}
             >
-              SDK Guides
+              {t("sdk_guides")}
             </p>
             <p className="text-[10px] text-gray-500 mt-1">
-              Libraries for Python, JS, and Rust
+              {t("sdk_guides_desc")}
             </p>
           </div>
           <ArrowSquareOut

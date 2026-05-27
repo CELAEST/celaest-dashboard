@@ -2,6 +2,7 @@ import React, { memo, useRef } from "react";
 import Image from "next/image";
 import { User, UploadSimple, Trash } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 
 interface ProfileAvatarProps {
   avatarUrl: string | null;
@@ -13,6 +14,7 @@ export const ProfileAvatar: React.FC<ProfileAvatarProps> = memo(
   ({ avatarUrl, onUpload, onRemove }) => {
     const { isDark } = useTheme();
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const t = useTranslations("settings");
 
     return (
       <div className="settings-glass-card rounded-2xl p-6">
@@ -22,7 +24,7 @@ export const ProfileAvatar: React.FC<ProfileAvatarProps> = memo(
           }`}
         >
           <User className="w-5 h-5 text-cyan-500" />
-          Profile Picture
+          {t("profile_picture")}
         </h3>
 
         <div className="flex items-center gap-6">
@@ -43,14 +45,14 @@ export const ProfileAvatar: React.FC<ProfileAvatarProps> = memo(
             )}
           </div>
 
-          {/* UploadSimple Controls */}
+          {/* Upload Controls */}
           <div>
             <p
               className={`text-sm mb-3 ${
                 isDark ? "text-gray-400" : "text-gray-500"
               }`}
             >
-              UploadSimple a profile picture or use your initials as a fallback.
+              {t("upload_avatar_desc")}
             </p>
             <div className="flex items-center gap-3">
               <input
@@ -65,7 +67,7 @@ export const ProfileAvatar: React.FC<ProfileAvatarProps> = memo(
                 className="flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-medium transition-all shadow-sm hover:shadow-cyan-500/20"
               >
                 <UploadSimple className="w-4 h-4" />
-                UploadSimple Photo
+                {t("upload_photo")}
               </button>
               {avatarUrl && (
                 <button
@@ -77,7 +79,7 @@ export const ProfileAvatar: React.FC<ProfileAvatarProps> = memo(
                   }`}
                 >
                   <Trash className="w-4 h-4" />
-                  Remove
+                  {t("remove_photo")}
                 </button>
               )}
             </div>

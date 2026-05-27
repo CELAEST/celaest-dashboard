@@ -21,6 +21,7 @@ import { useTheme } from "@/features/shared/hooks/useTheme";
 import type { SettingsTabId } from "./types";
 import { motion, AnimatePresence } from "motion/react";
 import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 /**
  * Gear View - Edge-to-Edge Professional Layout
@@ -29,6 +30,7 @@ import { useSearchParams } from "next/navigation";
 export function SettingsView() {
   const { isDark } = useTheme();
   const searchParams = useSearchParams();
+  const t = useTranslations("settings");
   const [activeTab, setActiveTab] = useState<SettingsTabId>(() => {
     const section = searchParams.get("section") as SettingsTabId;
     return section || "account";
@@ -49,42 +51,42 @@ export function SettingsView() {
         {
           id: "account",
           icon: User,
-          label: "Account & Profile",
+          label: t("tab_account"),
           color: "cyan",
         },
         {
           id: "security",
           icon: Shield,
-          label: "Security & Access",
+          label: t("tab_security"),
           color: "purple",
         },
         {
           id: "billing",
           icon: CreditCard,
-          label: "Plans & Billing",
+          label: t("tab_billing"),
           color: "emerald",
         },
         {
           id: "workspace",
           icon: Users,
-          label: "Workspace & Team",
+          label: t("tab_workspace"),
           color: "blue",
         },
         {
           id: "notifications",
           icon: Bell,
-          label: "Notifications",
+          label: t("tab_notifications"),
           color: "amber",
         },
-        { id: "developer", icon: Code, label: "Developer API", color: "pink" },
+        { id: "developer", icon: Code, label: t("tab_developer"), color: "pink" },
         {
           id: "preferences",
           icon: Globe,
-          label: "Preferences",
+          label: t("tab_preferences"),
           color: "indigo",
         },
       ] as const,
-    [],
+    [t],
   );
 
   // Tab content renderer
@@ -165,12 +167,12 @@ export function SettingsView() {
           <h1
             className={`text-xl font-black italic tracking-tighter uppercase ${isDark ? "text-white" : "text-gray-900"}`}
           >
-            Configuration
+            {t("configuration")}
           </h1>
           <p
             className={`text-[9px] font-black uppercase tracking-[0.2em] mt-0.5 ${isDark ? "text-gray-500" : "text-gray-400"}`}
           >
-            System Control
+            {t("system_control")}
           </p>
         </div>
 
@@ -228,7 +230,7 @@ export function SettingsView() {
             <span
               className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-emerald-400" : "text-emerald-600"}`}
             >
-              System Online
+              {t("system_online")}
             </span>
           </div>
         </div>
@@ -254,20 +256,13 @@ export function SettingsView() {
               <p
                 className={`text-xs mt-0.5 ${isDark ? "text-gray-400" : "text-gray-500"}`}
               >
-                {activeTab === "account" &&
-                  "Manage your personal information and connected accounts"}
-                {activeTab === "security" &&
-                  "Configure authentication, sessions, and security settings"}
-                {activeTab === "billing" &&
-                  "View your subscription plan and billing information"}
-                {activeTab === "workspace" &&
-                  "Manage team members and workspace settings"}
-                {activeTab === "notifications" &&
-                  "Control how and when you receive notifications"}
-                {activeTab === "developer" &&
-                  "Access API keys, webhooks, and developer documentation"}
-                {activeTab === "preferences" &&
-                  "Customize your experience and interface preferences"}
+                {activeTab === "account" && t("desc_account")}
+                {activeTab === "security" && t("desc_security")}
+                {activeTab === "billing" && t("desc_billing")}
+                {activeTab === "workspace" && t("desc_workspace")}
+                {activeTab === "notifications" && t("desc_notifications")}
+                {activeTab === "developer" && t("desc_developer")}
+                {activeTab === "preferences" && t("desc_preferences")}
               </p>
             </div>
           </div>

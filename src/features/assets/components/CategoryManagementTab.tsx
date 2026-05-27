@@ -12,6 +12,7 @@ import {
   X,
 } from "@phosphor-icons/react";
 import { useCategories } from "../hooks/useCategories";
+import { useTranslations } from "next-intl";
 
 interface CategoryManagementTabProps {
   isDark: boolean;
@@ -23,6 +24,7 @@ export const CategoryManagementTab: React.FC<CategoryManagementTabProps> = ({
   onCreateRef,
 }) => {
   const { categories, isLoading, isCreating, createCategory } = useCategories();
+  const t = useTranslations("marketplace");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [formData, setFormData] = useState({
@@ -97,7 +99,7 @@ export const CategoryManagementTab: React.FC<CategoryManagementTabProps> = ({
             <p
               className={`mt-4 font-bold text-sm ${isDark ? "text-gray-500" : "text-gray-400"}`}
             >
-              No categories defined yet.
+              {t("no_categories_yet")}
             </p>
           </div>
         ) : (
@@ -153,7 +155,7 @@ export const CategoryManagementTab: React.FC<CategoryManagementTabProps> = ({
                     <span
                       className={`text-[9px] uppercase font-black px-2 py-0.5 rounded-full ${isDark ? "bg-white/5 text-gray-500" : "bg-gray-100 text-gray-500"}`}
                     >
-                      Active
+                      {t("active_status")}
                     </span>
                     <span
                       className={`text-[9px] font-mono ${isDark ? "text-gray-600" : "text-gray-400"}`}
@@ -309,7 +311,7 @@ export const CategoryManagementTab: React.FC<CategoryManagementTabProps> = ({
                             isDark ? "text-white" : "text-gray-900"
                           }`}
                         >
-                          New Category
+                          {t("new_category")}
                         </h3>
                       </div>
                       <div className="relative z-10">
@@ -336,7 +338,7 @@ export const CategoryManagementTab: React.FC<CategoryManagementTabProps> = ({
                         <label
                           className={`text-[10px] uppercase font-bold tracking-widest flex items-center gap-2 ${isDark ? "text-gray-400" : "text-gray-500"}`}
                         >
-                          <TextT size={12} /> Name
+                          <TextT size={12} /> {t("cat_name_label")}
                         </label>
                         <input
                           required
@@ -350,7 +352,7 @@ export const CategoryManagementTab: React.FC<CategoryManagementTabProps> = ({
                               ? "bg-white/5 border-white/10 text-white focus:bg-white/8 focus:border-cyan-500/50 outline-none"
                               : "bg-gray-50 border-gray-200 focus:bg-white focus:border-blue-500/50 outline-none"
                           }`}
-                          placeholder="e.g. Premium Tools"
+                          placeholder={t("cat_name_placeholder")}
                         />
                       </div>
 
@@ -358,7 +360,7 @@ export const CategoryManagementTab: React.FC<CategoryManagementTabProps> = ({
                         <label
                           className={`text-[10px] uppercase font-bold tracking-widest flex items-center gap-2 ${isDark ? "text-gray-400" : "text-gray-500"}`}
                         >
-                          <Hash size={12} /> Slug
+                          <Hash size={12} /> {t("cat_slug_label")}
                         </label>
                         <input
                           type="text"
@@ -376,7 +378,7 @@ export const CategoryManagementTab: React.FC<CategoryManagementTabProps> = ({
                               ? "bg-white/5 border-white/10 text-cyan-400 focus:bg-white/8 focus:border-cyan-500/50 outline-none"
                               : "bg-gray-50 border-gray-200 focus:bg-white focus:border-blue-500/50 outline-none"
                           }`}
-                          placeholder="premium-tools (auto-generated if empty)"
+                          placeholder={t("cat_slug_placeholder")}
                         />
                       </div>
 
@@ -384,7 +386,7 @@ export const CategoryManagementTab: React.FC<CategoryManagementTabProps> = ({
                         <label
                           className={`text-[10px] uppercase font-bold tracking-widest flex items-center gap-2 ${isDark ? "text-gray-400" : "text-gray-500"}`}
                         >
-                          <Info size={12} /> Description
+                          <Info size={12} /> {t("cat_description_label")}
                         </label>
                         <textarea
                           rows={4}
@@ -400,7 +402,7 @@ export const CategoryManagementTab: React.FC<CategoryManagementTabProps> = ({
                               ? "bg-white/5 border-white/10 text-white focus:bg-white/8 focus:border-cyan-500/50 outline-none"
                               : "bg-gray-50 border-gray-200 focus:bg-white focus:border-blue-500/50 outline-none"
                           }`}
-                          placeholder="Provide a brief overview of this category..."
+                          placeholder={t("cat_description_placeholder")}
                         />
                       </div>
 
@@ -408,7 +410,7 @@ export const CategoryManagementTab: React.FC<CategoryManagementTabProps> = ({
                         <label
                           className={`text-[10px] uppercase font-bold tracking-widest flex items-center gap-2 ${isDark ? "text-gray-400" : "text-gray-500"}`}
                         >
-                          <Palette size={12} /> Visual Accent
+                          <Palette size={12} /> {t("cat_visual_accent")}
                         </label>
                         <div
                           className={`flex items-center gap-4 p-3 rounded-2xl ${isDark ? "bg-white/5 border border-white/10" : "bg-gray-50 border border-gray-200"}`}
@@ -428,7 +430,7 @@ export const CategoryManagementTab: React.FC<CategoryManagementTabProps> = ({
                             <p
                               className={`text-[10px] font-bold ${isDark ? "text-white" : "text-gray-900"}`}
                             >
-                              Color Identity
+                              {t("cat_color_identity")}
                             </p>
                             <p
                               className={`text-[9px] uppercase font-mono ${isDark ? "text-gray-500" : "text-gray-400"}`}
@@ -460,7 +462,7 @@ export const CategoryManagementTab: React.FC<CategoryManagementTabProps> = ({
                         ) : (
                           <FolderOpen size={18} />
                         )}
-                        {isCreating ? "Deploying..." : "Finalize Category"}
+                        {isCreating ? t("cat_deploying") : t("cat_finalize")}
                       </motion.button>
                     </div>
                   </motion.div>

@@ -10,6 +10,7 @@ import { decodeJWT } from "@/lib/jwt";
 import { useQueryClient } from "@tanstack/react-query";
 import { logger } from "@/lib/logger";
 import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
+import { useTranslations } from "next-intl";
 
 /**
  * Logical component to handle organization fetching and synchronization.
@@ -28,6 +29,7 @@ export const OrgSync = () => {
   const currentOrgId = useOrgStore((s) => s.currentOrg?.id);
   const hasOrg = !!currentOrgId;
   const isRedirecting = useRef(false);
+  const t = useTranslations("notifications");
 
   // Effect 1: Fetch orgs when token changes or there is no org selected.
   // Separated from socket.connect intentionally: org switches should reconnect
@@ -113,9 +115,8 @@ export const OrgSync = () => {
           (payload.session_id && payload.session_id === currentSessionId);
 
         if (isThisSession) {
-          toast.error("Sesión terminada", {
-            description:
-              "Esta sesión ha sido terminada desde otro dispositivo. Redirigiendo...",
+          toast.error(t("session_terminated"), {
+            description: t("session_terminated_desc"),
             duration: 5000,
           });
 
@@ -128,7 +129,7 @@ export const OrgSync = () => {
     );
 
     return () => unsubscribe();
-  }, [session?.accessToken, signOut]);
+  }, [session?.accessToken, signOut, t]);
 
   // Real-time Reactivity: Local workspace synchronization (Multi-tab)
   useEffect(() => {
@@ -155,8 +156,8 @@ export const OrgSync = () => {
               "[OrgSync] Workspace updated from another tab/session. Syncing...",
             );
             setCurrentOrg(newOrg);
-            toast.info("Contexto actualizado", {
-              description: `Workspace cambiado a: ${newOrg.name}`,
+            toast.info(t("context_updated"), {
+              description: t("workspace_changed", { orgName: newOrg.name }),
             });
           }
         }
@@ -164,7 +165,7 @@ export const OrgSync = () => {
     });
 
     return () => unsubscribe();
-  }, [session?.accessToken]);
+  }, [session?.accessToken, t]);
 
   // Real-time Reactivity: Organization Updated (Logo, Name changes)
   useEffect(() => {

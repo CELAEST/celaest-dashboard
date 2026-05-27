@@ -9,6 +9,7 @@ interface SidebarMenuItemProps {
   isHovered: boolean;
   isLocked?: boolean;
   isDark: boolean;
+  label: string;
   onClick: () => void;
 }
 
@@ -19,6 +20,7 @@ export const SidebarMenuItem = React.memo(
     isHovered,
     isLocked,
     isDark,
+    label,
     onClick,
   }: SidebarMenuItemProps) => {
     const Icon = item.icon;
@@ -41,7 +43,7 @@ export const SidebarMenuItem = React.memo(
       <button
         onClick={onClick}
         className={buttonClassName}
-        aria-label={item.label}
+        aria-label={label}
         aria-current={isActive ? "page" : undefined}
       >
         {isActive && !isLocked && (
@@ -101,7 +103,7 @@ export const SidebarMenuItem = React.memo(
           animate={{ opacity: isHovered ? 1 : 0, x: isHovered ? 0 : -5 }}
           transition={{ duration: 0.2 }}
         >
-          {item.label}
+          {label}
           {isLocked && <span className="opacity-50 text-[10px]">🔒</span>}
         </motion.span>
       </button>

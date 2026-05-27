@@ -1,12 +1,13 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
-import { Buildings, Users, Database, ShieldWarning, Key } from "@phosphor-icons/react";
+import { Buildings, Users, Database, ShieldWarning, Key, ChatCircle } from "@phosphor-icons/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { organizationsApi } from "@/features/organizations/api/organizations.api";
 import { Organization } from "@/features/organizations/types";
 import { PageBanner } from "@/components/layout/PageLayout";
+import { ReviewModerationPanel } from "@/features/marketplace/components/admin/ReviewModerationPanel";
 
 function useAdminOrganizations(token: string) {
   return useQuery({
@@ -43,21 +44,6 @@ export const SuperAdminView: React.FC = () => {
     );
   }
 
-  if (orgError) {
-    return (
-      <div className="p-8 text-center bg-red-500/10 text-red-500 rounded-2xl border border-red-500/20">
-        <ShieldWarning className="w-12 h-12 mx-auto mb-4 opacity-50" />
-        <h3 className="text-xl font-bold">
-          Access Denied or Error Loading Data
-        </h3>
-        <p className="mt-2 text-sm opacity-80">
-          Make sure your role is super_admin and the backend services are
-          running.
-        </p>
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-col h-full min-h-0 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <PageBanner title="Global Organizations" subtitle="Super Admin Management Console" />
@@ -71,9 +57,29 @@ export const SuperAdminView: React.FC = () => {
             <Buildings className="w-4 h-4" />
             Organizations
           </TabsTrigger>
+          <TabsTrigger
+            value="reviews"
+            className="flex items-center gap-2 px-6 py-2 rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-900 data-[state=active]:shadow-xl transition-all font-bold uppercase tracking-widest text-[10px]"
+          >
+            <ChatCircle className="w-4 h-4" />
+            Reviews
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="organizations" className="space-y-6">
+          {orgError && (
+            <div className="p-8 text-center bg-red-500/10 text-red-500 rounded-2xl border border-red-500/20">
+              <ShieldWarning className="w-12 h-12 mx-auto mb-4 opacity-50" />
+              <h3 className="text-xl font-bold">
+                Access Denied or Error Loading Data
+              </h3>
+              <p className="mt-2 text-sm opacity-80">
+                Make sure your role is super_admin and the backend services are
+                running.
+              </p>
+            </div>
+          )}
+
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {organizations?.organizations?.map((org: Organization) => (
               <Card
@@ -136,6 +142,13 @@ export const SuperAdminView: React.FC = () => {
               </div>
             )}
           </div>
+        </TabsContent>
+
+        <TabsContent
+          value="reviews"
+          className="flex-1 overflow-hidden focus-visible:outline-none"
+        >
+          <ReviewModerationPanel />
         </TabsContent>
       </Tabs>
     </div>

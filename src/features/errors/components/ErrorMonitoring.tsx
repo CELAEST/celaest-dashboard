@@ -2,6 +2,7 @@ import React from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Pulse, SquaresFour } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 import { useErrorMonitoring } from "@/features/errors/hooks/useErrorMonitoring";
 import { ErrorStats } from "./ErrorStats";
 import { ErrorList } from "./ErrorList";
@@ -11,6 +12,7 @@ import { PageBanner } from "@/components/layout/PageLayout";
 const ErrorMonitoring: React.FC = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const t = useTranslations("error_monitor");
   const [activeTab, setActiveTab] = React.useState<"overview" | "logs">("logs");
 
   const {
@@ -47,7 +49,7 @@ const ErrorMonitoring: React.FC = () => {
         }`}
       >
         <Pulse size={12} />
-        Live Logs
+        {t("live_logs")}
       </button>
       <button
         onClick={() => setActiveTab("overview")}
@@ -62,7 +64,7 @@ const ErrorMonitoring: React.FC = () => {
         }`}
       >
         <SquaresFour size={12} />
-        Overview
+        {t("overview")}
       </button>
     </div>
   );
@@ -70,8 +72,8 @@ const ErrorMonitoring: React.FC = () => {
   return (
     <div className="h-full flex flex-col min-h-0 overflow-hidden">
       <PageBanner
-        title="Monitor de Errores"
-        subtitle="Live Mission Control"
+        title={t("error_monitor_title")}
+        subtitle={t("error_monitor_subtitle")}
         titleAside={tabSwitcher}
       />
 

@@ -9,7 +9,9 @@ import {
 } from "@phosphor-icons/react";
 import { motion } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
-import { Plan } from "../../types";
+import { BillingCycle, Plan } from "../../types";
+import { useTranslations } from "next-intl";
+import { useLocalPlanPrice } from "../../hooks/useLocalPlanPrice";
 
 /* ─── Types ─── */
 
@@ -28,12 +30,13 @@ interface PlanCardProps {
   isLoading?: boolean;
   activePlanIds?: string[];
   isReadOnly?: boolean;
+  billingCycle?: BillingCycle;
 }
 
 /* ─── Helpers ─── */
 
-function fmtLimit(v: number): string {
-  if (v === -1) return "Unlimited";
+function fmtLimit(v: number, unlimitedLabel: string): string {
+  if (v === -1) return unlimitedLabel;
   if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`;
   if (v >= 1_000) return `${(v / 1_000).toFixed(0)}K`;
   return v.toString();
@@ -43,39 +46,37 @@ function fmtLimit(v: number): string {
 
 const palettes = {
   blue: {
-    border: { dark: "border-white/[0.08]", light: "border-gray-200" },
-    bg: { dark: "bg-white/[0.02]", light: "bg-white" },
-    title: { dark: "text-blue-400", light: "text-blue-600" },
-    accent: { dark: "text-blue-400", light: "text-blue-500" },
-    checkBg: { dark: "bg-blue-500/10", light: "bg-blue-50" },
-    check: "text-blue-500",
-    statBg: { dark: "bg-blue-500/[0.07]", light: "bg-blue-50/70" },
-    btn: "bg-white/[0.07] hover:bg-white/[0.14] text-white border border-white/[0.1]",
+    border: { dark: "border-[#1E293B]", light: "border-gray-200" },
+    bg: { dark: "bg-[#0F172A]/40", light: "bg-white" },
+    title: { dark: "text-[#60A5FA]", light: "text-blue-600" },
+    accent: { dark: "text-[#60A5FA]", light: "text-blue-500" },
+    checkBg: { dark: "bg-transparent", light: "bg-blue-50" },
+    check: "text-[#60A5FA]",
+    statBg: { dark: "bg-[#0F172A]", light: "bg-blue-50/70" },
+    btn: "bg-[#1E293B] hover:bg-[#334155] text-white border border-[#334155]",
     btnLight: "bg-blue-600 hover:bg-blue-500 text-white",
   },
   purple: {
-    border: { dark: "border-purple-500/30", light: "border-purple-200" },
-    bg: { dark: "bg-purple-500/[0.03]", light: "bg-white" },
-    title: { dark: "text-purple-300", light: "text-purple-600" },
-    accent: { dark: "text-purple-400", light: "text-purple-500" },
-    checkBg: { dark: "bg-purple-500/10", light: "bg-purple-50" },
-    check: "text-purple-500",
-    statBg: { dark: "bg-purple-500/[0.07]", light: "bg-purple-50/70" },
-    btn: "bg-linear-to-r from-purple-600 to-violet-600 hover:from-purple-500 hover:to-violet-500 text-white shadow-lg shadow-purple-500/20",
-    btnLight:
-      "bg-linear-to-r from-purple-600 to-violet-600 hover:from-purple-500 hover:to-violet-500 text-white shadow-lg shadow-purple-500/20",
+    border: { dark: "border-[#8B5CF6]/50 shadow-[0_0_15px_rgba(139,92,246,0.15)]", light: "border-purple-200" },
+    bg: { dark: "bg-[#1E1B4B]/30", light: "bg-white" },
+    title: { dark: "text-[#C084FC]", light: "text-purple-600" },
+    accent: { dark: "text-[#C084FC]", light: "text-purple-500" },
+    checkBg: { dark: "bg-transparent", light: "bg-purple-50" },
+    check: "text-[#C084FC]",
+    statBg: { dark: "bg-[#2E1065]", light: "bg-purple-50/70" },
+    btn: "bg-linear-to-r from-[#9333EA] to-[#A855F7] hover:from-[#A855F7] hover:to-[#C084FC] text-white shadow-lg shadow-purple-500/25",
+    btnLight: "bg-linear-to-r from-purple-600 to-violet-600 hover:from-purple-500 hover:to-violet-500 text-white shadow-lg shadow-purple-500/20",
   },
   emerald: {
-    border: { dark: "border-white/[0.08]", light: "border-gray-200" },
-    bg: { dark: "bg-white/[0.02]", light: "bg-white" },
-    title: { dark: "text-emerald-400", light: "text-emerald-600" },
-    accent: { dark: "text-emerald-400", light: "text-emerald-500" },
-    checkBg: { dark: "bg-emerald-500/10", light: "bg-emerald-50" },
-    check: "text-emerald-500",
-    statBg: { dark: "bg-emerald-500/[0.07]", light: "bg-emerald-50/70" },
-    btn: "bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/15",
-    btnLight:
-      "bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/15",
+    border: { dark: "border-[#064E3B]", light: "border-gray-200" },
+    bg: { dark: "bg-[#022C22]/30", light: "bg-white" },
+    title: { dark: "text-[#34D399]", light: "text-emerald-600" },
+    accent: { dark: "text-[#34D399]", light: "text-emerald-500" },
+    checkBg: { dark: "bg-transparent", light: "bg-emerald-50" },
+    check: "text-[#34D399]",
+    statBg: { dark: "bg-[#064E3B]/80", light: "bg-emerald-50/70" },
+    btn: "bg-[#10B981] hover:bg-[#059669] text-white shadow-lg shadow-emerald-500/15",
+    btnLight: "bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/15",
   },
 } as const;
 
@@ -89,13 +90,23 @@ export const PlanCard: React.FC<PlanCardProps> = ({
   isLoading = false,
   activePlanIds,
   isReadOnly = false,
+  billingCycle = "monthly",
 }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const t = useTranslations("billing");
+  const planPrice = useLocalPlanPrice(plan);
+  
   const mode = isDark ? "dark" : "light";
   const isPopular = plan.popular;
   const isCurrent = activePlanIds?.includes(plan.id);
-  const isFree = !plan.price_monthly || plan.price_monthly === 0;
+
+  const selectedPrice =
+    billingCycle === "yearly" && planPrice.yearly.value > 0
+      ? planPrice.yearly
+      : planPrice.monthly;
+  const isFree = selectedPrice.isFree;
+  const periodLabel = billingCycle === "yearly" ? `/${t("yr")}` : t("per_mo");
   const p = palettes[plan.color || "blue"];
 
   const handleSelect = () => {
@@ -112,6 +123,13 @@ export const PlanCard: React.FC<PlanCardProps> = ({
   const teamVal = limits?.max_team_members as number | undefined;
   const storageVal = limits?.max_storage_gb as number | undefined;
 
+  const renderFeature = (f: string) => {
+    if (!f) return f;
+    const key = f.replace(/[^a-zA-Z0-9]/g, "_").toLowerCase();
+    const tKey = `features.${key}` as string;
+    return t.has(tKey) ? t(tKey) : f;
+  };
+
   /* Split features into 2 columns to cut vertical height */
   const features = plan.features || [];
   const mid = Math.ceil(features.length / 2);
@@ -125,7 +143,7 @@ export const PlanCard: React.FC<PlanCardProps> = ({
       transition={{ delay: index * 0.07, type: "spring", bounce: 0.18 }}
       className={[
         "relative flex flex-col rounded-2xl border transition-all duration-300",
-        "p-4 lg:p-5",
+        "p-4 sm:p-5 xl:p-6",
         p.border[mode],
         p.bg[mode],
         isPopular
@@ -139,14 +157,14 @@ export const PlanCard: React.FC<PlanCardProps> = ({
         <div className="absolute -top-3 inset-x-0 flex justify-center">
           <span className="inline-flex items-center gap-1.5 bg-linear-to-r from-purple-600 to-violet-600 text-white text-xs font-semibold tracking-wide uppercase px-4 py-1 rounded-full shadow-md shadow-purple-500/30">
             <Sparkle className="w-3 h-3" />
-            Most Popular
+            {t("most_popular")}
           </span>
         </div>
       )}
 
       {/* ── Plan name ── */}
       <h3
-        className={`text-center text-xs font-semibold tracking-[0.15em] uppercase ${p.title[mode]}`}
+        className={`text-center text-[10px] sm:text-[11px] xl:text-xs font-semibold tracking-[0.15em] uppercase ${p.title[mode]}`}
       >
         {plan.name}
       </h3>
@@ -155,92 +173,93 @@ export const PlanCard: React.FC<PlanCardProps> = ({
       <div className="flex items-baseline justify-center gap-1 mt-2">
         {isFree ? (
           <span
-            className={`text-3xl lg:text-4xl font-extrabold tracking-tight ${isDark ? "text-white" : "text-gray-900"}`}
+            className={`text-2xl sm:text-3xl xl:text-4xl font-extrabold tracking-tight ${isDark ? "text-white" : "text-gray-900"}`}
           >
-            Free
+            {t("free")}
           </span>
         ) : (
           <>
             <span
-              className={`text-3xl lg:text-4xl font-extrabold tracking-tight ${isDark ? "text-white" : "text-gray-900"}`}
+              className={`text-2xl sm:text-3xl xl:text-4xl font-extrabold tracking-tight ${isDark ? "text-white" : "text-gray-900"}`}
             >
-              ${plan.price_monthly}
+              {selectedPrice.formatted}
             </span>
             <span
-              className={`text-sm font-medium ${isDark ? "text-gray-500" : "text-gray-400"}`}
+              className={`text-xs sm:text-sm xl:text-base font-medium ${isDark ? "text-gray-500" : "text-gray-400"}`}
             >
-              /mo
+              {periodLabel}
             </span>
           </>
         )}
       </div>
 
-      {!isFree && plan.price_yearly ? (
+      {!isFree && planPrice.yearly.value > 0 ? (
         <p
-          className={`text-center text-xs mt-0.5 ${isDark ? "text-gray-500" : "text-gray-400"}`}
+          className={`text-center text-[10px] sm:text-xs mt-0.5 ${isDark ? "text-gray-500" : "text-gray-400"}`}
         >
-          ${plan.price_yearly}/yr{" "}
+          {billingCycle === "yearly"
+            ? `≈ ${planPrice.format(planPrice.yearly.value / 12)}${t("per_mo")}`
+            : `${planPrice.yearly.formatted}/${t("yr")}`}{" "}
           <span className="text-green-500 font-semibold">
-            save $
-            {((plan.price_monthly ?? 0) * 12 - plan.price_yearly).toFixed(0)}
+            Ahorras {planPrice.format(planPrice.monthly.value * 12 - planPrice.yearly.value)}
           </span>
         </p>
       ) : null}
 
       {/* ── Description ── */}
       <p
-        className={`text-center text-[13px] mt-2 leading-snug ${isDark ? "text-gray-400" : "text-gray-500"}`}
+        className={`text-center text-[11px] sm:text-xs xl:text-[13px] mt-1.5 sm:mt-2 leading-snug ${isDark ? "text-gray-400" : "text-gray-500"}`}
       >
-        {plan.description}
+        {plan.code && t.has(`desc_${plan.code}` as string) ? t(`desc_${plan.code}` as string) : plan.description}
       </p>
 
       {/* ── Key metrics row ── */}
       {limits && (
         <div
-          className={`flex items-center justify-around py-2 rounded-xl mt-3 ${p.statBg[mode]}`}
+          className={`flex items-center justify-around py-1.5 sm:py-2 rounded-xl mt-3 ${p.statBg[mode]}`}
         >
           {aiVal !== undefined && (
             <div className="flex flex-col items-center gap-0.5">
-              <Lightning className={`w-3.5 h-3.5 ${p.accent[mode]}`} />
+              <Lightning className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${p.accent[mode]}`} />
               <span
-                className={`text-[13px] font-bold ${isDark ? "text-white" : "text-gray-900"}`}
+                className={`text-[11px] sm:text-xs xl:text-[13px] font-bold ${isDark ? "text-white" : "text-gray-900"}`}
               >
-                {fmtLimit(aiVal)}
+                {fmtLimit(aiVal, t("unlimited"))}
               </span>
               <span
-                className={`text-[10px] ${isDark ? "text-gray-500" : "text-gray-400"}`}
+                className={`text-[8px] sm:text-[9px] xl:text-[10px] ${isDark ? "text-gray-500" : "text-gray-400"}`}
               >
-                AI Req
+                {t("ai_req")}
               </span>
             </div>
           )}
           {teamVal !== undefined && (
             <div className="flex flex-col items-center gap-0.5">
-              <Users className={`w-3.5 h-3.5 ${p.accent[mode]}`} />
+              <Users className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${p.accent[mode]}`} />
               <span
-                className={`text-[13px] font-bold ${isDark ? "text-white" : "text-gray-900"}`}
+                className={`text-[11px] sm:text-xs xl:text-[13px] font-bold ${isDark ? "text-white" : "text-gray-900"}`}
               >
-                {fmtLimit(teamVal)}
+                {fmtLimit(teamVal, t("unlimited"))}
               </span>
               <span
-                className={`text-[10px] ${isDark ? "text-gray-500" : "text-gray-400"}`}
+                className={`text-[8px] sm:text-[9px] xl:text-[10px] ${isDark ? "text-gray-500" : "text-gray-400"}`}
               >
-                Members
+                {t("members")}
               </span>
             </div>
           )}
           {storageVal !== undefined && (
             <div className="flex flex-col items-center gap-0.5">
-              <HardDrive className={`w-3.5 h-3.5 ${p.accent[mode]}`} />
+              <HardDrive className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${p.accent[mode]}`} />
               <span
-                className={`text-[13px] font-bold ${isDark ? "text-white" : "text-gray-900"}`}
+                className={`text-[11px] sm:text-xs xl:text-[13px] font-bold ${isDark ? "text-white" : "text-gray-900"}`}
               >
                 {storageVal === -1 ? "\u221E" : `${storageVal}GB`}
               </span>
               <span
-                className={`text-[10px] ${isDark ? "text-gray-500" : "text-gray-400"}`}
+                className={`text-[8px] sm:text-[9px] xl:text-[10px] ${isDark ? "text-gray-500" : "text-gray-400"}`}
               >
-                Storage
+                {t("storage")}
               </span>
             </div>
           )}
@@ -253,35 +272,27 @@ export const PlanCard: React.FC<PlanCardProps> = ({
       />
 
       {/* ── Features — 2 columns ── */}
-      <div className="flex-1 grid grid-cols-2 gap-x-3 gap-y-1.5 mb-4">
-        <div className="space-y-1.5">
+      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-x-2 gap-y-2 mb-4">
+        <div className="space-y-2 min-w-0">
           {col1.map((f, i) => (
-            <div key={i} className="flex items-start gap-1.5">
-              <div
-                className={`mt-[3px] shrink-0 rounded-full p-[2px] ${p.checkBg[mode]}`}
-              >
-                <Check className={`w-2.5 h-2.5 ${p.check}`} />
-              </div>
+            <div key={i} className="flex items-start gap-2 w-full">
+              <Check className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${p.check}`} weight="bold" />
               <span
-                className={`text-[12.5px] leading-snug ${isDark ? "text-gray-300" : "text-gray-600"}`}
+                className={`flex-1 min-w-0 text-[10.5px] sm:text-[11px] xl:text-[12px] leading-snug ${isDark ? "text-gray-300" : "text-gray-600"}`}
               >
-                {f}
+                {renderFeature(f)}
               </span>
             </div>
           ))}
         </div>
-        <div className="space-y-1.5">
+        <div className="space-y-2 min-w-0">
           {col2.map((f, i) => (
-            <div key={i} className="flex items-start gap-1.5">
-              <div
-                className={`mt-[3px] shrink-0 rounded-full p-[2px] ${p.checkBg[mode]}`}
-              >
-                <Check className={`w-2.5 h-2.5 ${p.check}`} />
-              </div>
+            <div key={i} className="flex items-start gap-2 w-full">
+              <Check className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${p.check}`} weight="bold" />
               <span
-                className={`text-[12.5px] leading-snug ${isDark ? "text-gray-300" : "text-gray-600"}`}
+                className={`flex-1 min-w-0 text-[10.5px] sm:text-[11px] xl:text-[12px] leading-snug ${isDark ? "text-gray-300" : "text-gray-600"}`}
               >
-                {f}
+                {renderFeature(f)}
               </span>
             </div>
           ))}
@@ -299,7 +310,7 @@ export const PlanCard: React.FC<PlanCardProps> = ({
         onClick={handleSelect}
         disabled={isCurrent || isLoading || isReadOnly}
         className={[
-          "w-full py-2.5 rounded-xl text-sm font-semibold transition-all duration-200",
+          "w-full py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200",
           isCurrent
             ? `border cursor-default ${isDark ? "border-green-500/30 bg-green-500/10 text-green-400" : "border-green-200 bg-green-50 text-green-700"}`
             : isReadOnly
@@ -313,17 +324,17 @@ export const PlanCard: React.FC<PlanCardProps> = ({
           {isCurrent ? (
             <>
               <Check className="w-4 h-4" />
-              Active Plan
+              {t("active_plan")}
             </>
           ) : isFree ? (
-            "Get Started"
+            t("get_started")
           ) : isPopular ? (
             <>
-              Get Started
+              {t("get_started")}
               <ArrowRight className="w-4 h-4" />
             </>
           ) : (
-            "Choose Plan"
+            t("choose_plan")
           )}
           {isLoading && !isCurrent && (
             <div className="w-4 h-4 border-2 border-current/30 border-t-current rounded-full animate-spin" />

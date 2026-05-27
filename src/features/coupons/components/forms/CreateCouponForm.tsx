@@ -10,6 +10,7 @@ import {
 } from "@phosphor-icons/react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { useTranslations } from "next-intl";
 import { CouponPreviewCard } from "./CouponPreviewCard";
 import {
   CreateCouponSchema,
@@ -61,6 +62,7 @@ export const CreateCouponForm = ({
     },
   });
 
+  const t = useTranslations("coupons");
   const watchAll = useWatch({ control: form.control });
 
   const generateCode = useCallback(() => {
@@ -79,7 +81,7 @@ export const CreateCouponForm = ({
       : formatCurrency(watchAll.discount_value ?? 0);
 
     // Safe date formatter
-    let formattedDate = "SIN LÍMITE";
+    let formattedDate = t("preview_default_expires");
     if (watchAll.expires_at) {
       const dateObj = new Date(watchAll.expires_at);
       if (!isNaN(dateObj.getTime())) {
@@ -88,15 +90,15 @@ export const CreateCouponForm = ({
     }
 
     return {
-      code: watchAll.code || "CÓDIGO_PROMO",
+      code: watchAll.code || t("preview_default_code"),
       value: valueStr,
-      type: isPercentage ? "OFF" : "DESC",
+      type: isPercentage ? t("preview_default_type_off") : t("preview_default_type_desc"),
       expires: formattedDate,
       limit: watchAll.max_redemptions
-        ? `${watchAll.max_redemptions} USOS`
-        : "ILIMITADO",
+        ? `${watchAll.max_redemptions} ${t("preview_default_limit_uses")}`
+        : t("preview_default_limit_unlimited"),
     };
-  }, [watchAll]);
+  }, [watchAll, t]);
 
   return (
     <div className="flex flex-col lg:flex-row gap-8">
@@ -111,14 +113,14 @@ export const CreateCouponForm = ({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-neutral-400 text-[10px] font-bold uppercase tracking-widest">
-                      Código del Cupón
+                      {t("form_code_label")}
                     </FormLabel>
                     <div className="flex gap-2">
                       <div className="relative flex-1 group">
                         <Tag className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-600 group-focus-within:text-blue-500 transition-colors" />
                         <FormControl>
                           <Input
-                            placeholder="EJ: CELAEST_PROMO"
+                            placeholder={t("form_code_placeholder")}
                             className="bg-black/40 border-white/5 focus:border-blue-500/30 pl-9 font-mono uppercase h-11 text-sm tracking-widest"
                             {...field}
                             onChange={(e) =>
@@ -134,7 +136,7 @@ export const CreateCouponForm = ({
                         className="shrink-0 h-11 border-white/5 bg-white/5 hover:bg-blue-600/10 hover:border-blue-500/20 text-neutral-400 hover:text-blue-400 font-bold transition-all"
                       >
                         <Lightning className="w-3.5 h-3.5 mr-2" />
-                        Generar
+                        {t("form_btn_generate")}
                       </Button>
                     </div>
                     <FormMessage className="text-[10px]" />
@@ -149,7 +151,7 @@ export const CreateCouponForm = ({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-neutral-400 text-[10px] font-bold uppercase tracking-widest">
-                        Tipo
+                        {t("form_type_label")}
                       </FormLabel>
                       <Select
                         onValueChange={field.onChange}
@@ -157,15 +159,15 @@ export const CreateCouponForm = ({
                       >
                         <FormControl>
                           <SelectTrigger className="bg-black/40 border-white/5 h-11 text-xs">
-                            <SelectValue placeholder="Tipo" />
+                            <SelectValue placeholder={t("form_type_placeholder")} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent className="bg-neutral-900 border-white/10">
                           <SelectItem value="percentage">
-                            Porcentaje (%)
+                            {t("form_type_percentage")}
                           </SelectItem>
                           <SelectItem value="fixed_amount">
-                            Monto Fijo ($)
+                            {t("form_type_fixed")}
                           </SelectItem>
                         </SelectContent>
                       </Select>
@@ -180,7 +182,7 @@ export const CreateCouponForm = ({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-neutral-400 text-[10px] font-bold uppercase tracking-widest">
-                        Valor
+                        {t("form_value_label")}
                       </FormLabel>
                       <div className="relative group">
                         {watchAll.discount_type === "fixed_amount" ? (
@@ -214,12 +216,12 @@ export const CreateCouponForm = ({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-neutral-400 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
-                        <Users className="w-3 h-3" /> Límite de Usos
+                        <Users className="w-3 h-3" /> {t("form_limit_label")}
                       </FormLabel>
                       <FormControl>
                         <Input
                           type="number"
-                          placeholder="Ilimitado"
+                          placeholder={t("form_limit_placeholder")}
                           min="1"
                           className="bg-black/40 border-white/5 h-11 text-sm placeholder:text-neutral-700 font-bold"
                           {...field}
@@ -237,13 +239,13 @@ export const CreateCouponForm = ({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-neutral-400 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
-                        <Calendar className="w-3 h-3" /> Vencimiento
+                        <Calendar className="w-3 h-3" /> {t("form_expires_label")}
                       </FormLabel>
                       <FormControl>
                         <DateTimePicker
                           value={field.value}
                           onChange={field.onChange}
-                          placeholder="Sin vencimiento"
+                          placeholder={t("form_expires_placeholder")}
                         />
                       </FormControl>
                       <FormMessage />
@@ -262,7 +264,7 @@ export const CreateCouponForm = ({
                   disabled={isSubmitting}
                   className="text-neutral-500 hover:text-white hover:bg-white/5 text-xs font-bold"
                 >
-                  Cancelar
+                  {t("form_btn_cancel")}
                 </Button>
               )}
               <Button
@@ -273,10 +275,10 @@ export const CreateCouponForm = ({
                 {isSubmitting ? (
                   <>
                     <CircleNotch className="mr-2 h-4 w-4 animate-spin" />
-                    Creando...
+                    {t("form_btn_creating")}
                   </>
                 ) : (
-                  "Crear Cupón"
+                  t("form_btn_submit")
                 )}
               </Button>
             </div>

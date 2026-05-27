@@ -12,6 +12,7 @@ import {
   Trash,
 } from "@phosphor-icons/react";
 import { Asset } from "../services/assets.service";
+import { useTranslations } from "next-intl";
 
 export interface AssetMenuState {
   id: string;
@@ -45,17 +46,19 @@ export const AssetActionMenu: React.FC<AssetActionMenuProps> = ({
   onPreview,
   onDelete,
 }) => {
+  const t = useTranslations("marketplace");
+
   if (typeof window === "undefined" || !asset) return null;
 
   const isOpen = !!menuState;
   const align = menuState?.align ?? "top";
 
   const items = [
-    { icon: DownloadSimple, label: "Download Secure", action: () => onDownload?.(asset) },
-    { icon: PencilSimple, label: "Edit Asset", action: () => onEdit(asset) },
-    { icon: ClockCounterClockwise, label: "Manage Releases", action: () => onManageReleases?.(asset) },
-    { icon: Copy, label: "Duplicate", action: () => onDuplicate(asset) },
-    { icon: Eye, label: "Preview", action: () => onPreview?.(asset) },
+    { icon: DownloadSimple, label: t("menu_download_secure"), action: () => onDownload?.(asset) },
+    { icon: PencilSimple, label: t("menu_edit_asset"), action: () => onEdit(asset) },
+    { icon: ClockCounterClockwise, label: t("menu_manage_releases"), action: () => onManageReleases?.(asset) },
+    { icon: Copy, label: t("menu_duplicate"), action: () => onDuplicate(asset) },
+    { icon: Eye, label: t("menu_preview"), action: () => onPreview?.(asset) },
   ];
 
   return createPortal(
@@ -106,7 +109,7 @@ export const AssetActionMenu: React.FC<AssetActionMenuProps> = ({
                 }`}
               >
                 <Trash size={14} weight="duotone" />
-                Archive
+                {t("menu_archive")}
               </button>
             </div>
           </motion.div>

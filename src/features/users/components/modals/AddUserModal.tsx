@@ -7,6 +7,7 @@ import { CircleNotch, Envelope, User, ShieldChevron, Check } from "@phosphor-ico
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 interface AddUserModalProps {
   isOpen: boolean;
@@ -51,6 +52,7 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
   onClose,
   onConfirm,
 }) => {
+  const t = useTranslations("users");
   const { isDark } = useTheme();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -92,7 +94,7 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
           "max-w-112 p-0 overflow-hidden border-0 bg-transparent shadow-none [&>button:last-child]:hidden",
         )}
       >
-        <DialogTitle className="sr-only">Invite User</DialogTitle>
+        <DialogTitle className="sr-only">{t("invite_user")}</DialogTitle>
         <AnimatePresence mode="wait">
           {success ? (
             <motion.div
@@ -115,7 +117,7 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
                   isDark ? "text-white" : "text-gray-900",
                 )}
               >
-                Invitation Sent!
+                {t("invitation_sent")}
               </h2>
               <p
                 className={cn(
@@ -123,7 +125,7 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
                   isDark ? "text-gray-400" : "text-gray-600",
                 )}
               >
-                {formData.email} has been invited to join the team.
+                {t("invitation_sent_desc", { email: formData.email })}
               </p>
             </motion.div>
           ) : (
@@ -147,7 +149,7 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
                       isDark ? "text-white" : "text-gray-900",
                     )}
                   >
-                    Invite Team Member
+                    {t("invite_team_member")}
                   </h2>
                   <p
                     className={cn(
@@ -155,7 +157,7 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
                       isDark ? "text-gray-400" : "text-gray-500",
                     )}
                   >
-                    Send an invitation to join your organization.
+                    {t("invite_team_member_desc")}
                   </p>
                 </div>
                 <div className="absolute top-0 right-0 p-4 opacity-10">
@@ -170,7 +172,7 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
                     <Label
                       className={isDark ? "text-gray-400" : "text-gray-600"}
                     >
-                      First Name
+                      {t("first_name")}
                     </Label>
                     <div className="relative">
                       <User
@@ -201,7 +203,7 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
                     <Label
                       className={isDark ? "text-gray-400" : "text-gray-600"}
                     >
-                      Last Name
+                      {t("last_name")}
                     </Label>
                     <div className="relative">
                       <User
@@ -233,7 +235,7 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
                 {/* Email Field */}
                 <div className="space-y-2">
                   <Label className={isDark ? "text-gray-400" : "text-gray-600"}>
-                    Email Address
+                    {t("email_address")}
                   </Label>
                   <div className="relative">
                     <Envelope
@@ -262,7 +264,7 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
                 {/* Role Selection */}
                 <div className="space-y-3">
                   <Label className={isDark ? "text-gray-400" : "text-gray-600"}>
-                    Access Level
+                    {t("access_level")}
                   </Label>
                   <div className="grid grid-cols-2 gap-3">
                     {roles.map((role) => (
@@ -295,13 +297,13 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
                             }
                           />
                           <span className="text-xs font-bold uppercase tracking-wider">
-                            {role.label}
+                            {t(`role_${role.id}` as keyof typeof t)}
                           </span>
                         </div>
                         <p
                           className={cn("text-[10px] leading-tight opacity-70")}
                         >
-                          {role.description}
+                          {t(`role_${role.id}_desc` as keyof typeof t)}
                         </p>
                       </div>
                     ))}
@@ -317,7 +319,7 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
                     disabled={loading}
                     className="hover:bg-white/10"
                   >
-                    Cancel
+                    {t("cancel")}
                   </Button>
                   <Button
                     type="submit"
@@ -330,12 +332,12 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
                     {loading ? (
                       <>
                         <CircleNotch className="mr-2 h-4 w-4 animate-spin" />
-                        Sending...
+                        {t("sending")}
                       </>
                     ) : (
                       <>
                         <Envelope className="mr-2 h-4 w-4" weight="duotone" />
-                        Send Invitation
+                        {t("send_invitation")}
                       </>
                     )}
                   </Button>

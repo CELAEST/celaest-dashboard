@@ -18,6 +18,7 @@ import {
 } from "@/lib/validation/schemas/settings";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { supabase } from "@/lib/supabase/client";
+import { useTranslations } from "next-intl";
 
 export interface SecurityPasswordProps {
   onPasswordChanged?: () => void;
@@ -26,6 +27,7 @@ export interface SecurityPasswordProps {
 export const SecurityPassword: React.FC<SecurityPasswordProps> = memo(
   ({ onPasswordChanged }) => {
     const { isDark } = useTheme();
+    const t = useTranslations("settings");
 
     const form = useForm<ChangePasswordFormData>({
       resolver: zodResolver(changePasswordSchema),
@@ -46,12 +48,12 @@ export const SecurityPassword: React.FC<SecurityPasswordProps> = memo(
         });
 
         if (error) throw error;
-        toast.success("Password updated successfully");
+        toast.success(t("password_updated_success"));
         form.reset();
         onPasswordChanged?.();
       } catch (error: unknown) {
         const message =
-          error instanceof Error ? error.message : "Failed to update password";
+          error instanceof Error ? error.message : t("password_update_failed");
         toast.error(message);
       }
     };
@@ -64,7 +66,7 @@ export const SecurityPassword: React.FC<SecurityPasswordProps> = memo(
           }`}
         >
           <Key className="w-5 h-5 text-cyan-500" />
-          Update Password
+          {t("update_password")}
         </h3>
 
         <Form {...form}>
@@ -77,7 +79,7 @@ export const SecurityPassword: React.FC<SecurityPasswordProps> = memo(
               name="currentPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Current Password</FormLabel>
+                  <FormLabel>{t("current_password")}</FormLabel>
                   <FormControl>
                     <Input
                       type="password"
@@ -97,7 +99,7 @@ export const SecurityPassword: React.FC<SecurityPasswordProps> = memo(
                 name="newPassword"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>New Password</FormLabel>
+                    <FormLabel>{t("new_password")}</FormLabel>
                     <FormControl>
                       <Input
                         type="password"
@@ -116,7 +118,7 @@ export const SecurityPassword: React.FC<SecurityPasswordProps> = memo(
                 name="confirmPassword"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Confirm New Password</FormLabel>
+                    <FormLabel>{t("confirm_new_password")}</FormLabel>
                     <FormControl>
                       <Input
                         type="password"
@@ -139,7 +141,7 @@ export const SecurityPassword: React.FC<SecurityPasswordProps> = memo(
                   isSubmitting ? "opacity-70 cursor-not-allowed" : ""
                 } bg-cyan-600 hover:bg-cyan-500 text-white`}
               >
-                {isSubmitting ? "Updating..." : "Update Password"}
+                {isSubmitting ? t("updating") : t("update_password")}
               </button>
             </div>
           </form>

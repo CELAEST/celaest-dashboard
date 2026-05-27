@@ -4,6 +4,7 @@ import React from "react";
 import { motion } from "motion/react";
 import { TrendUp } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 
 interface MrrCardProps {
   mrr: number;
@@ -15,6 +16,7 @@ export const MrrCard = React.memo(
   ({ mrr, growth, className }: MrrCardProps) => {
     const { theme } = useTheme();
     const isDark = theme === "dark";
+    const t = useTranslations("billing");
 
     return (
       <motion.div
@@ -45,7 +47,7 @@ export const MrrCard = React.memo(
                   isDark ? "text-gray-400" : "text-gray-500"
                 }`}
               >
-                Monthly Recurring Revenue
+                {t("mrr_title")}
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -55,7 +57,7 @@ export const MrrCard = React.memo(
               <span
                 className={`text-[10px] font-bold uppercase tracking-wider ${isDark ? "text-emerald-500" : "text-emerald-600"}`}
               >
-                Live
+                {t("live")}
               </span>
             </div>
           </div>
@@ -141,7 +143,7 @@ export const MrrCard = React.memo(
               <div
                 className={`text-[9px] font-medium uppercase tracking-wider ${isDark ? "text-gray-500" : "text-gray-400"}`}
               >
-                vs Last Month
+                {t("vs_last_month")}
               </div>
             </div>
 
@@ -158,7 +160,7 @@ export const MrrCard = React.memo(
               <div
                 className={`text-[9px] font-medium uppercase tracking-wider ${isDark ? "text-gray-500" : "text-gray-400"}`}
               >
-                EOM Projection
+                {t("eom_projection")}
               </div>
             </div>
 
@@ -168,7 +170,7 @@ export const MrrCard = React.memo(
                 <span
                   className={`text-[9px] font-bold uppercase tracking-wider ${isDark ? "text-gray-500" : "text-gray-400"}`}
                 >
-                  Goal
+                  {t("goal")}
                 </span>
                 <span
                   className={`text-[9px] font-bold ${isDark ? "text-gray-300" : "text-gray-600"}`}

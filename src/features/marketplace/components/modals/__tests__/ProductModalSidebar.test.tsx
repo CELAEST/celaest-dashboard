@@ -12,6 +12,14 @@ vi.mock("@/features/shared/hooks/useTheme", () => ({
   useTheme: () => ({ theme: "dark" }),
 }));
 
+// Mock GeoPricingProvider hook
+vi.mock("@/features/billing/providers/GeoPricingProvider", () => ({
+  useGeoPricing: () => ({
+    pricing: null,
+    formatPrice: (price: number) => `$${price} USD`,
+  }),
+}));
+
 // Mock formatCurrency
 vi.mock("@/lib/utils", () => ({
   formatCurrency: (price: number, currency: string) => `$${price} ${currency}`,

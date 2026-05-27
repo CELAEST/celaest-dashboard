@@ -2,6 +2,7 @@ import React from "react";
 import { Stack, ArrowCircleRight, Hash, CreditCard } from "@phosphor-icons/react";
 import { motion } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 import { PaymentGateway } from "../../../types";
 import { GatewayDisplay } from "./GatewayDisplay";
 import { GatewayEditForm } from "./GatewayEditForm";
@@ -35,6 +36,7 @@ export const GatewayItem: React.FC<GatewayItemProps> = ({
 }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const t = useTranslations("billing");
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -132,7 +134,7 @@ export const GatewayItem: React.FC<GatewayItemProps> = ({
                         : "bg-amber-100 text-amber-700 border border-amber-200"
                     }`}
                   >
-                    Sandbox
+                    {t("sandbox")}
                   </span>
                 )}
               </div>
@@ -149,7 +151,7 @@ export const GatewayItem: React.FC<GatewayItemProps> = ({
                   : "bg-blue-600 text-white hover:bg-blue-500 shadow-lg shadow-blue-900/20"
               }`}
             >
-              Configure
+              {t("configure")}
             </motion.button>
           )}
         </div>

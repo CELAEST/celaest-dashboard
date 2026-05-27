@@ -27,12 +27,14 @@ import { useApiAuth } from "@/lib/use-api-auth";
 import { useRole } from "@/features/auth/hooks/useAuthorization";
 import { assetsService } from "@/features/assets/services/assets.service";
 import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
+import { useTranslations } from "next-intl";
 
 export const ReleaseManager: React.FC = () => {
   const { theme } = useTheme();
   const { token, orgId } = useApiAuth();
   const { isAdmin } = useRole();
   const isDark = theme === "dark";
+  const t = useTranslations("releases");
 
   const searchParams = useSearchParams();
   const initialView =
@@ -80,8 +82,8 @@ export const ReleaseManager: React.FC = () => {
   return (
     <div className="h-full flex flex-col min-h-0 relative">
       <PageBanner
-        title={effectiveView === "admin" ? "Release Management" : "Update Center"}
-        subtitle={effectiveView === "admin" ? "Governance & Pipeline Control" : "Check for updates and view changelogs."}
+        title={effectiveView === "admin" ? t("release_management") : t("update_center")}
+        subtitle={effectiveView === "admin" ? t("governance_subtitle") : t("update_center_subtitle")}
         actions={
           <div className="flex items-center gap-3">
             {/* Admin Tabs */}
@@ -100,7 +102,7 @@ export const ReleaseManager: React.FC = () => {
                   }`}
                 >
                   <HistoryIcon size={12} />
-                  History
+                  {t("tab_history")}
                 </button>
                 <button
                   onClick={() => setActiveTab("overview")}
@@ -111,7 +113,7 @@ export const ReleaseManager: React.FC = () => {
                   }`}
                 >
                   <SquaresFour size={12} />
-                  Overview
+                  {t("tab_overview")}
                 </button>
 
               </div>
@@ -128,7 +130,7 @@ export const ReleaseManager: React.FC = () => {
                 }`}
               >
                 <Plus size={12} weight="bold" />
-                New Release
+                {t("btn_new_release")}
               </button>
             )}
 
@@ -168,7 +170,7 @@ export const ReleaseManager: React.FC = () => {
                 }`}
               >
                 <User size={12} />
-                Customer
+                {t("view_customer")}
               </button>
               <button
                 onClick={() => setViewMode("admin")}
@@ -179,7 +181,7 @@ export const ReleaseManager: React.FC = () => {
                 }`}
               >
                 <Crown size={12} />
-                Admin
+                {t("view_admin")}
               </button>
             </div>}
           </div>

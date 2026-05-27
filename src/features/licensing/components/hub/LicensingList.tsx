@@ -15,9 +15,10 @@ import {
 import { motion } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useRole } from "@/features/auth/hooks/useAuthorization";
-import { LicenseResponse } from "@/features/licensing/types";
 import { type ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table";
+import { useTranslations } from "next-intl";
+import type { LicenseResponse } from "@/features/licensing/types";
 
 interface LicensingListProps {
   licenses: LicenseResponse[];
@@ -47,6 +48,7 @@ export const LicensingList: React.FC<LicensingListProps> = ({
   const { isSuperAdmin, role } = useRole();
   const showAdminData =
     isSuperAdmin || role === "super_admin" || role === "admin";
+  const t = useTranslations("licensing");
 
 
 
@@ -80,7 +82,7 @@ export const LicensingList: React.FC<LicensingListProps> = ({
     () => [
       {
         id: "producto",
-        header: showAdminData ? "Plan & Key" : "Producto & Plan",
+        header: showAdminData ? t("plan_key") : t("product_plan"),
         cell: ({ row }) => {
           const license = row.original;
           return (
@@ -106,7 +108,7 @@ export const LicensingList: React.FC<LicensingListProps> = ({
                 {!showAdminData ? (
                   <span className="text-[8px] font-black text-cyan-500/60 uppercase tracking-tighter mt-0.5">
                     {license.notes?.split(":")[1]?.trim() ||
-                      "LICENCIA ESTÁNDAR"}
+                      t("standard_license")}
                   </span>
                 ) : (
                   <span className="text-[10px] font-mono text-cyan-500/80 dark:text-cyan-400/60 mt-0.5">
@@ -132,7 +134,7 @@ export const LicensingList: React.FC<LicensingListProps> = ({
       },
       {
         id: "licencia",
-        header: showAdminData ? "Propietario" : "Licencia",
+        header: showAdminData ? t("owner") : t("license"),
         cell: ({ row }) => {
           const license = row.original;
           return showAdminData ? (
@@ -174,7 +176,7 @@ export const LicensingList: React.FC<LicensingListProps> = ({
                 </button>
               </div>
               <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest pl-1">
-                CLAVE DE ACTIVACIÓN
+                {t("activation_key")}
               </span>
             </div>
           );
@@ -182,7 +184,7 @@ export const LicensingList: React.FC<LicensingListProps> = ({
       },
       {
         id: "consumo",
-        header: "Consumo & Uso",
+        header: t("consumption_usage"),
         cell: ({ row }) => {
           const license = row.original;
           return (
@@ -238,7 +240,7 @@ export const LicensingList: React.FC<LicensingListProps> = ({
       },
       {
         id: "contacto",
-        header: showAdminData ? "Contacto" : "Facturación",
+        header: showAdminData ? t("contact") : t("billing"),
         cell: ({ row }) => {
           const license = row.original;
           return showAdminData ? (
@@ -250,7 +252,7 @@ export const LicensingList: React.FC<LicensingListProps> = ({
                 </span>
               </div>
               <span className="text-[9px] text-gray-500/60 font-black tracking-tighter uppercase mt-1">
-                A Cuenta Verificada
+                {t("verified_account")}
               </span>
             </div>
           ) : (
@@ -266,21 +268,21 @@ export const LicensingList: React.FC<LicensingListProps> = ({
                 />
                 <span className={isDark ? "text-gray-200" : "text-gray-800"}>
                   {license.billing_cycle === "lifetime"
-                    ? "Acceso Vitalicio"
+                    ? t("lifetime_access")
                     : license.billing_cycle}
                 </span>
               </div>
               <div className="flex items-center gap-1.5 mt-1.5">
                 <span className="text-[8px] font-black text-gray-500 uppercase tracking-tighter">
                   {license.billing_cycle === "lifetime"
-                    ? "Suscripción"
-                    : "Próx. Recargo"}
+                    ? t("subscription")
+                    : t("next_charge")}
                 </span>
                 <span
                   className={`text-[9px] font-bold ${license.billing_cycle === "lifetime" ? "text-amber-400/60" : "text-gray-400"} font-mono`}
                 >
                   {license.billing_cycle === "lifetime"
-                    ? "PERMANENTE"
+                    ? t("permanent")
                     : formatDate(license.next_billing_date)}
                 </span>
               </div>
@@ -290,7 +292,7 @@ export const LicensingList: React.FC<LicensingListProps> = ({
       },
       {
         id: "estado",
-        header: "Estado",
+        header: t("status"),
         cell: ({ row }) => {
           const license = row.original;
           return (
@@ -304,14 +306,14 @@ export const LicensingList: React.FC<LicensingListProps> = ({
               <div
                 className={`w-1.5 h-1.5 rounded-full ${license.status === "active" ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-rose-500"}`}
               />
-              {license.status}
+              {license.status === "active" ? t("active") : license.status}
             </div>
           );
         },
       },
       {
         id: "vigencia",
-        header: "Vigencia",
+        header: t("validity"),
         cell: ({ row }) => {
           const license = row.original;
           return (
@@ -327,7 +329,7 @@ export const LicensingList: React.FC<LicensingListProps> = ({
                 />
                 <span className={isDark ? "text-gray-200" : "text-gray-800"}>
                   {license.billing_cycle === "lifetime"
-                    ? "Ilimitada"
+                    ? t("unlimited")
                     : formatDate(license.expires_at)}
                 </span>
               </div>
@@ -335,8 +337,8 @@ export const LicensingList: React.FC<LicensingListProps> = ({
                 className={`text-[8px] font-black ${license.billing_cycle === "lifetime" ? "text-cyan-500/40" : "text-gray-500/60"} uppercase tracking-tight mt-1 ml-5`}
               >
                 {license.billing_cycle === "lifetime"
-                  ? "Sin Expiración"
-                  : "Vencimiento"}
+                  ? t("no_expiration")
+                  : t("expiration")}
               </span>
             </div>
           );
@@ -344,7 +346,7 @@ export const LicensingList: React.FC<LicensingListProps> = ({
       },
       {
         id: "acciones",
-        header: () => <div className="text-right">Actions</div>,
+        header: () => <div className="text-right">{t("actions")}</div>,
         cell: () => {
           return (
             <div className="flex items-center justify-end gap-1">
@@ -372,7 +374,7 @@ export const LicensingList: React.FC<LicensingListProps> = ({
         },
       },
     ],
-    [isDark, showAdminData],
+    [isDark, showAdminData, t],
   );
 
   return (
@@ -381,8 +383,8 @@ export const LicensingList: React.FC<LicensingListProps> = ({
         columns={columns}
         data={licenses}
         isLoading={loading}
-        emptyMessage="Sin registros activos"
-        emptySubmessage="You don't have any licenses assigned yet."
+        emptyMessage={t("no_active_records")}
+        emptySubmessage={t("no_licenses_assigned")}
         onRowClick={onSelectLicense}
         totalItems={total}
         hasNextPage={hasNextPage}

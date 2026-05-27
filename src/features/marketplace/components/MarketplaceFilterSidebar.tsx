@@ -13,14 +13,7 @@ import {
 } from "@phosphor-icons/react";
 import { motion, AnimatePresence } from "motion/react";
 import { useCategories } from "@/features/assets/hooks/useCategories";
-
-const PRICE_RANGES = [
-  { id: "all", label: "Todos los precios" },
-  { id: "free", label: "Gratis" },
-  { id: "0-50", label: "$1 - $50" },
-  { id: "50-200", label: "$50 - $200" },
-  { id: "200+", label: "$200+" },
-];
+import { useTranslations } from "next-intl";
 
 interface MarketplaceFilterSidebarProps {
   selectedCategories: string[];
@@ -47,6 +40,15 @@ export function MarketplaceFilterSidebar({
     new Set(),
   );
   const { categories, isLoading: isLoadingCategories } = useCategories(true);
+  const t = useTranslations("marketplace");
+
+  const PRICE_RANGES = [
+    { id: "all", label: t("all_prices") },
+    { id: "free", label: t("free") },
+    { id: "0-50", label: "$1 - $50" },
+    { id: "50-200", label: "$50 - $200" },
+    { id: "200+", label: "$200+" },
+  ];
 
   const toggleSection = (section: string) => {
     setCollapsedSections((prev) => {
@@ -80,13 +82,13 @@ export function MarketplaceFilterSidebar({
           <h2
             className={`text-sm font-black uppercase tracking-wide ${isDark ? "text-white" : "text-gray-900"}`}
           >
-            Catálogo
+            {t("catalog")}
           </h2>
         </div>
         <p
           className={`text-[10px] font-bold uppercase tracking-widest ml-0.5 ${isDark ? "text-gray-500" : "text-gray-400"}`}
         >
-          {totalProducts} soluciones disponibles
+          {t("solutions_available", { count: totalProducts })}
         </p>
       </div>
 
@@ -107,7 +109,7 @@ export function MarketplaceFilterSidebar({
             <span
               className={`text-[10px] font-black uppercase tracking-wider ${isDark ? "text-gray-300" : "text-gray-700"}`}
             >
-              Categorías
+              {t("categories")}
             </span>
             <motion.div
               animate={{
@@ -164,7 +166,7 @@ export function MarketplaceFilterSidebar({
                       <Check size={11} className="shrink-0" strokeWidth={3} />
                     </motion.div>
                   )}
-                  <span className="flex-1 text-left">Todas</span>
+                  <span className="flex-1 text-left">{t("all_categories")}</span>
                 </motion.button>
 
                 {isLoadingCategories ? (
@@ -236,7 +238,7 @@ export function MarketplaceFilterSidebar({
             <span
               className={`text-[11px] font-black uppercase tracking-wider ${isDark ? "text-gray-300" : "text-gray-700"}`}
             >
-              Calificación
+              {t("rating")}
             </span>
             <motion.div
               animate={{ rotate: collapsedSections.has("rating") ? 0 : 180 }}
@@ -277,19 +279,26 @@ export function MarketplaceFilterSidebar({
                     `}
                   >
                     {rating === 0 ? (
-                      <span>Todas</span>
+                      <span>{t("all_ratings")}</span>
                     ) : (
                       <>
                         <div className="flex items-center gap-0.5">
                           {[...Array(5)].map((_, i) => (
                             <Star
                               key={i}
-                              size={9}
-                              className={`${i < rating ? "text-yellow-500 fill-yellow-500" : "text-gray-600"}`}
+                              size={11}
+                              weight={i < rating ? "fill" : "regular"}
+                              className={
+                                i < rating
+                                  ? "text-yellow-500"
+                                  : isDark
+                                    ? "text-gray-600"
+                                    : "text-gray-300"
+                              }
                             />
                           ))}
                         </div>
-                        <span className="text-[10px]">& Arriba</span>
+                        <span className="text-[10px]">{t("and_above")}</span>
                       </>
                     )}
                   </motion.button>
@@ -314,7 +323,7 @@ export function MarketplaceFilterSidebar({
             <span
               className={`text-[11px] font-black uppercase tracking-wider ${isDark ? "text-gray-300" : "text-gray-700"}`}
             >
-              Precio
+              {t("price_filter")}
             </span>
             <motion.div
               animate={{ rotate: collapsedSections.has("price") ? 0 : 180 }}
@@ -373,7 +382,7 @@ export function MarketplaceFilterSidebar({
           <span
             className={`text-[9px] font-bold ${isDark ? "text-emerald-400" : "text-emerald-600"}`}
           >
-            Garantía 30 días
+            {t("guarantee_30")}
           </span>
         </div>
         <div
@@ -383,7 +392,7 @@ export function MarketplaceFilterSidebar({
           <span
             className={`text-[9px] font-bold ${isDark ? "text-amber-400" : "text-amber-600"}`}
           >
-            Soporte Premium
+            {t("premium_support")}
           </span>
         </div>
         <div
@@ -393,7 +402,7 @@ export function MarketplaceFilterSidebar({
           <span
             className={`text-[9px] font-bold ${isDark ? "text-cyan-400" : "text-cyan-600"}`}
           >
-            ROI Garantizado
+            {t("guaranteed_roi")}
           </span>
         </div>
       </div>

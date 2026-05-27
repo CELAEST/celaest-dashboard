@@ -9,6 +9,7 @@ import {
 } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useBilling } from "../hooks/useBilling";
+import { useLocalPlanPrice } from "../hooks/useLocalPlanPrice";
 import type { Subscription } from "../types";
 
 const tierColor = (tier: number, isDark: boolean) => {
@@ -151,6 +152,15 @@ const LicenseItem: React.FC<LicenseItemProps> = ({
   const isMarketplace = sub.metadata?.source === "marketplace_purchase";
   const isSuperseded = sub.status === "superseded";
   const isActive = sub.status === "active" || sub.status === "trial";
+  const planPrice = useLocalPlanPrice(sub.plan);
+  const isYearly = (sub.billing_cycle ?? "monthly") === "yearly";
+  const selectedPrice = isYearly && planPrice.yearly.value > 0
+    ? planPrice.yearly
+    : planPrice.monthly;
+  const periodSuffix = isMarketplace ? "" : isYearly ? "/yr" : "/mo";
+  const priceLabel = selectedPrice.isFree
+    ? isMarketplace ? "Producto" : "Gratis"
+    : `${selectedPrice.formatted}${periodSuffix}`;
 
   const StatusIcon = isEffective
     ? Crown
@@ -235,12 +245,7 @@ const LicenseItem: React.FC<LicenseItemProps> = ({
           <div
             className={`text-xs mt-0.5 ${isDark ? "text-slate-400" : "text-slate-500"}`}
           >
-            {Number(sub.plan?.price_monthly) > 0
-              ? `${sub.plan?.currency === "EUR" ? "€" : "$"}${sub.plan?.price_monthly}${isMarketplace ? "" : "/mo"}`
-              : isMarketplace ? "Producto" : "Gratis"}
-            {sub.plan?.currency && sub.plan.currency !== "USD"
-              ? ` (${sub.plan.currency})`
-              : ""}
+            {priceLabel}
           </div>
         </div>
 

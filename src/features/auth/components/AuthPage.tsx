@@ -11,12 +11,14 @@ import {
   SignupFormValues,
 } from "@/lib/validation/schemas/auth";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import { AuthBackground } from "./layout/AuthBackground";
 import { FloatingThemeToggle } from "./layout/FloatingThemeToggle";
 import { AuthHeader } from "./layout/AuthHeader";
 import { AuthFooter } from "./layout/AuthFooter";
 import { AuthFormContainer } from "./layout/AuthFormContainer";
+import { LocaleSwitcher } from "@/features/shared/components/Header/LocaleSwitcher";
 
 export const AuthPage: React.FC = () => {
   const searchParams = useSearchParams();
@@ -29,21 +31,36 @@ export const AuthPage: React.FC = () => {
     searchParams.get("mode") === "signup" ? "signup" : "signin";
   const [mode, setMode] = useState<"signin" | "signup">(initialMode);
   const [loading, setLoading] = useState(false);
+  const tAuth = useTranslations("auth");
+
+  const getPostAuthRedirect = () => {
+    const explicitRedirect = searchParams.get("redirect");
+    if (explicitRedirect) return explicitRedirect;
+
+    const plan = searchParams.get("plan");
+    const billingCycle = searchParams.get("billing_cycle");
+    if (plan) {
+      const params = new URLSearchParams({ tab: "billing", plan });
+      if (billingCycle) params.set("billing_cycle", billingCycle);
+      return `/?${params.toString()}`;
+    }
+
+    return "/?tab=marketplace";
+  };
 
   // Handlers
   const handleLoginSubmit = async (data: LoginFormValues) => {
     setLoading(true);
     const result = await signIn(data.email, data.password);
     if (!result.success) {
-      toast.error("Error al Iniciar Sesión", {
-        description: result.error?.message || "No se pudo iniciar sesión. Verifique sus credenciales."
+      toast.error(tAuth("login_error_title"), {
+        description: result.error?.message || tAuth("login_error_message")
       });
     } else {
-      toast.success("¡Bienvenido de nuevo!", {
-        description: "Has iniciado sesión exitosamente."
+      toast.success(tAuth("welcome_back_toast"), {
+        description: tAuth("login_success")
       });
-      const redirectTo = searchParams.get("redirect") || "/?tab=marketplace";
-      router.push(redirectTo);
+      router.push(getPostAuthRedirect());
     }
     setLoading(false);
   };
@@ -52,15 +69,14 @@ export const AuthPage: React.FC = () => {
     setLoading(true);
     const result = await signUp(data.email, data.password, data.name);
     if (!result.success) {
-      toast.error("Error de Registro", {
-        description: result.error?.message || "No se pudo crear la cuenta."
+      toast.error(tAuth("signup_error_title"), {
+        description: result.error?.message || tAuth("signup_error_message")
       });
     } else {
-      toast.success("Cuenta Creada", {
-        description: "Tu cuenta ha sido creada exitosamente. ¡Bienvenido!"
+      toast.success(tAuth("account_created"), {
+        description: tAuth("account_created_message")
       });
-      const redirectTo = searchParams.get("redirect") || "/?tab=marketplace";
-      router.push(redirectTo);
+      router.push(getPostAuthRedirect());
     }
     setLoading(false);
   };
@@ -70,7 +86,14 @@ export const AuthPage: React.FC = () => {
   return (
     <div className="min-h-screen w-full overflow-hidden font-sans relative">
       <AuthBackground mode={mode} isDark={isDark} />
-      <FloatingThemeToggle isDark={isDark} toggleTheme={toggleTheme} />
+      
+      <motion.div 
+        layout
+        className={`fixed top-6 z-50 flex items-center gap-3 bg-white/5 backdrop-blur-xl border border-white/10 p-1.5 rounded-full shadow-lg dark:bg-black/20 dark:border-white/10 ${mode === "signin" ? "right-6" : "left-6"}`}
+      >
+        <LocaleSwitcher />
+        <FloatingThemeToggle isDark={isDark} toggleTheme={toggleTheme} />
+      </motion.div>
 
       <div className="w-full h-screen flex items-center relative z-10">
         <motion.div
@@ -99,14 +122,14 @@ export const AuthPage: React.FC = () => {
                   <h1
                     className={`text-3xl font-bold mb-2 ${isDark ? "text-white" : "text-gray-900"}`}
                   >
-                    {mode === "signin" ? "Welcome Back" : "Create Account"}
+                    {mode === "signin" ? tAuth("welcome_back") : tAuth("create_account")}
                   </h1>
                   <p
                     className={`${isDark ? "text-gray-400" : "text-gray-600"}`}
                   >
                     {mode === "signin"
-                      ? "Enter your credentials to access your dashboard"
-                      : "Start your journey with CELAEST today"}
+                      ? tAuth("enter_credentials")
+                      : tAuth("start_journey")}
                   </p>
                 </motion.div>
               </AnimatePresence>

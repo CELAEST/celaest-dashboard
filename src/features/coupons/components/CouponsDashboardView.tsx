@@ -24,13 +24,16 @@ import { es } from "date-fns/locale";
 import { Copy, Check } from "@phosphor-icons/react";
 import { toast } from "sonner";
 import { PageBanner } from "@/components/layout/PageLayout";
+import { useTranslations } from "next-intl";
 
 const CodeCell = ({ code }: { code: string }) => {
   const [copied, setCopied] = useState(false);
+  const t = useTranslations("coupons");
+
   const copyToClipboard = () => {
     navigator.clipboard.writeText(code);
     setCopied(true);
-    toast.success("Código copiado");
+    toast.success(t("toast_copied"));
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -45,7 +48,7 @@ const CodeCell = ({ code }: { code: string }) => {
       <button
         onClick={copyToClipboard}
         className="opacity-0 group-hover/code:opacity-100 p-1.5 rounded-md hover:bg-neutral-800 text-neutral-500 hover:text-blue-400 transition-all"
-        title="Copiar código"
+        title={t("copy_code")}
       >
         {copied ? (
           <Check className="w-3.5 h-3.5" />
@@ -61,6 +64,7 @@ export const CouponsDashboardView = () => {
   const { coupons, totalCoupons, isLoading, deleteCoupon, invalidate, hasNextPage, isFetchingNextPage, fetchNextPage } = useCoupons();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const t = useTranslations("coupons");
 
   const filteredCoupons = useMemo(() => {
     if (!searchQuery) return coupons;
@@ -73,18 +77,18 @@ export const CouponsDashboardView = () => {
     async (code: string) => {
       if (
         confirm(
-          `¿Estás seguro que deseas desactivar el cupón ${code}? No se podrá volver a usar.`,
+          t("deactivate_confirm", { code })
         )
       ) {
         try {
           await deleteCoupon(code);
         } catch (error: unknown) {
           logger.error("Failed to deactivate coupon", error);
-          alert("Error al desactivar el cupón.");
+          alert(t("deactivate_error"));
         }
       }
     },
-    [deleteCoupon],
+    [deleteCoupon, t],
   );
 
   const stats = useMemo(() => {
@@ -126,12 +130,12 @@ export const CouponsDashboardView = () => {
     () => [
       {
         accessorKey: "code",
-        header: "Código",
+        header: t("col_code"),
         cell: ({ row }) => <CodeCell code={row.original.code} />,
       },
       {
         accessorKey: "discount",
-        header: "Descuento",
+        header: t("col_discount"),
         cell: ({ row }: { row: { original: Coupon } }) => {
           const coupon = row.original;
           const isPercentage = coupon.discount_type === "percentage";
@@ -145,7 +149,7 @@ export const CouponsDashboardView = () => {
                   : formatCurrency(coupon.discount_value)}
               </span>
               <span className="text-[10px] text-neutral-600 font-medium uppercase tracking-tighter">
-                {isPercentage ? "Descuento total" : "Monto Fijo"}
+                {isPercentage ? t("discount_total") : t("discount_fixed")}
               </span>
             </div>
           );
@@ -153,7 +157,7 @@ export const CouponsDashboardView = () => {
       },
       {
         accessorKey: "uses",
-        header: "Uso y Redención",
+        header: t("col_usage"),
         cell: ({ row }: { row: { original: Coupon } }) => {
           const coupon = row.original;
           const current = coupon.current_redemptions || 0;
@@ -175,7 +179,7 @@ export const CouponsDashboardView = () => {
                     {current}
                   </span>
                   <span className="text-[9px] text-neutral-500 font-bold uppercase tracking-widest">
-                    Ilimitado
+                    {t("limit_unlimited")}
                   </span>
                 </div>
               </div>
@@ -205,7 +209,7 @@ export const CouponsDashboardView = () => {
       },
       {
         accessorKey: "expires_at",
-        header: "Vencimiento",
+        header: t("col_expires"),
         cell: ({ row }: { row: { original: Coupon } }) => {
           const expiresAt = row.original.expires_at;
           const date =
@@ -221,7 +225,7 @@ export const CouponsDashboardView = () => {
           if (!isValid || !date)
             return (
               <span className="text-[11px] font-bold text-neutral-600 uppercase tracking-widest">
-                Sin Límite
+                {t("expires_no_limit")}
               </span>
             );
 
@@ -249,7 +253,7 @@ export const CouponsDashboardView = () => {
                     isPast ? "text-red-400/80" : "text-neutral-200"
                   }`}
                 >
-                  {isPast ? "Expirado" : distance}
+                  {isPast ? t("expires_expired") : distance}
                 </span>
                 <span className="text-[9px] text-neutral-600 font-bold font-mono">
                   {format(expirationDate, "dd MMM, yyyy • HH:mm", {
@@ -263,7 +267,7 @@ export const CouponsDashboardView = () => {
       },
       {
         accessorKey: "status",
-        header: "Estado",
+        header: t("col_status"),
         cell: ({ row }: { row: { original: Coupon } }) => {
           const isActive = row.original.is_active;
           const expiresAt = row.original.expires_at;
@@ -297,7 +301,7 @@ export const CouponsDashboardView = () => {
                   />
                 )}
                 <span className="text-[10px] font-black uppercase tracking-wider">
-                  {trulyActive ? "Live" : isExpired ? "Expirado" : "Baja"}
+                  {trulyActive ? t("status_live") : isExpired ? t("status_expired") : t("status_inactive")}
                 </span>
               </div>
             </div>
@@ -320,7 +324,7 @@ export const CouponsDashboardView = () => {
                 }}
                 className={`h-8 w-8 rounded-lg hover:bg-red-500/10 transition-colors ${isActive ? "text-neutral-500 hover:text-red-400" : "text-neutral-700 pointer-events-none"}`}
                 disabled={!isActive}
-                title={isActive ? "Desactivar Cupón" : "Desactivado"}
+                title={isActive ? t("action_deactivate") : t("action_deactivated")}
               >
                 <Power className="w-3.5 h-3.5" />
               </Button>
@@ -329,7 +333,7 @@ export const CouponsDashboardView = () => {
         },
       },
     ],
-    [handleDelete],
+    [handleDelete, t],
   );
 
   return (
@@ -341,8 +345,8 @@ export const CouponsDashboardView = () => {
       </div>
 
       <PageBanner
-        title="Cupones"
-        subtitle="Control de promociones y redenciones"
+        title={t("title")}
+        subtitle={t("subtitle")}
         actions={
           <div className="relative flex-1 max-w-md group">
             <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-600 group-focus-within:text-blue-500 transition-colors" />
@@ -351,7 +355,7 @@ export const CouponsDashboardView = () => {
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setSearchQuery(e.target.value)
               }
-              placeholder="Buscar código..."
+              placeholder={t("search_placeholder")}
               className="bg-black/20 border-white/5 focus:border-blue-500/30 w-full h-9 rounded-lg pl-9 text-xs placeholder:text-neutral-700 transition-all"
             />
           </div>
@@ -374,8 +378,8 @@ export const CouponsDashboardView = () => {
                 columns={columns}
                 data={filteredCoupons}
                 isLoading={isLoading}
-                emptyMessage="No se encontraron cupones"
-                emptySubmessage="Ajusta el filtro o crea un nuevo código de descuento."
+                emptyMessage={t("empty_title")}
+                emptySubmessage={t("empty_desc")}
                 totalItems={totalCoupons}
                 hasNextPage={hasNextPage}
                 isFetchingNextPage={isFetchingNextPage}
@@ -393,14 +397,14 @@ export const CouponsDashboardView = () => {
             onClick={() => setIsCreateModalOpen(true)}
           >
             <Plus className="w-4 h-4 stroke-3 group-hover:scale-110 transition-transform" />
-            <span>Generar Cupón</span>
+            <span>{t("btn_generate")}</span>
           </Button>
           {/* STATS STACK - Compact Cards */}
 
           <div className="grid grid-cols-1 gap-3">
             {[
               {
-                label: "Total",
+                label: t("stat_total"),
                 value: stats.total,
                 icon: Tag,
                 color: "text-blue-400",
@@ -408,7 +412,7 @@ export const CouponsDashboardView = () => {
                 border: "border-blue-500/10",
               },
               {
-                label: "Activos",
+                label: t("stat_active"),
                 value: stats.active,
                 icon: Pulse,
                 color: "text-emerald-400",
@@ -416,7 +420,7 @@ export const CouponsDashboardView = () => {
                 border: "border-emerald-500/10",
               },
               {
-                label: "Expirados",
+                label: t("stat_expired"),
                 value: stats.expired,
                 icon: Clock,
                 color: "text-amber-400",
@@ -448,7 +452,7 @@ export const CouponsDashboardView = () => {
             <div className="flex items-center gap-2 mb-4">
               <Lightning className="w-3.5 h-3.5 text-blue-500" />
               <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">
-                Guía Rápida
+                {t("quick_guide")}
               </span>
             </div>
 
@@ -456,23 +460,21 @@ export const CouponsDashboardView = () => {
               <div className="flex items-start gap-3">
                 <div className="w-1.5 h-1.5 rounded-full bg-blue-500/40 mt-1 shrink-0" />
                 <p>
-                  Usa códigos{" "}
-                  <strong className="text-neutral-300">UPPERCASE</strong> para
-                  mayor claridad en marketing.
+                  {t("guide_1_prefix")}
+                  <strong className="text-neutral-300">{t("guide_1_strong")}</strong>
+                  {t("guide_1_suffix")}
                 </p>
               </div>
               <div className="flex items-start gap-3">
                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500/40 mt-1 shrink-0" />
                 <p>
-                  Las restricciones de uso se validan en tiempo real durante el
-                  checkout.
+                  {t("guide_2")}
                 </p>
               </div>
               <div className="flex items-start gap-3">
                 <div className="w-1.5 h-1.5 rounded-full bg-amber-500/40 mt-1 shrink-0" />
                 <p>
-                  Los cupones expirados se archivan automáticamente pero
-                  retienen historial.
+                  {t("guide_3")}
                 </p>
               </div>
             </div>
@@ -482,7 +484,7 @@ export const CouponsDashboardView = () => {
                 <div className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
                   <span className="text-[9px] font-bold text-neutral-400 uppercase">
-                    Motor Sincronizado
+                    {t("sync_engine")}
                   </span>
                 </div>
                 <span className="text-[9px] font-mono text-neutral-600">

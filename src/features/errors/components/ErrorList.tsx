@@ -5,6 +5,7 @@ import {
   ArrowCounterClockwise,
 } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 import {
   ErrorLog,
   ErrorStatus,
@@ -220,38 +221,35 @@ export const ErrorList = React.memo(
   }: ErrorListProps) => {
     const { theme } = useTheme();
     const isDark = theme === "dark";
+    const t = useTranslations("error_monitor");
 
     const emptyStateCards = hasActiveFilters
       ? [
           {
             icon: <FilterLensIcon />,
-            label: "Vista filtrada",
-            title: "Filtros activos limitando el stream",
-            description:
-              "Condiciones de busqueda estan ocultando incidentes fuera del espectro seleccionado. La telemetria continua oculta.",
+            label: t("filtered_view"),
+            title: t("active_filters_limiting"),
+            description: t("search_conditions_hiding"),
           },
           {
             icon: <ResetSyncIcon />,
-            label: "Recuperacion de espectro",
-            title: "Restaurar transmision total",
-            description:
-              "Limpiar parametros de busqueda para restablecer el canal completo de monitoreo en tiempo real.",
+            label: t("spectrum_recovery"),
+            title: t("restore_full_transmission"),
+            description: t("clear_search_params"),
           },
         ]
       : [
           {
             icon: <TechStreamIcon />,
-            label: "Stream en vivo",
-            title: "Señal de eventos activa",
-            description:
-              "El canal de telemetria se encuentra operativo. Recibiendo datos desde todas las fuentes integradas en el hub.",
+            label: t("live_stream"),
+            title: t("active_event_signal"),
+            description: t("telemetry_operative"),
           },
           {
             icon: <SecurityShieldIcon />,
-            label: "Estado del panel",
-            title: "Superficie de ataque contenida",
-            description:
-              "No hay desviaciones en los parametros vitales del sistema. La integridad de las conexiones se mantiene estable.",
+            label: t("panel_status"),
+            title: t("attack_surface_contained"),
+            description: t("no_deviations"),
           },
         ];
 
@@ -289,7 +287,7 @@ export const ErrorList = React.memo(
                   isDark ? "text-gray-500" : "text-gray-500"
                 }`}
               >
-                Interceptando señal
+                {t("intercepting_signal")}
               </span>
             </div>
 
@@ -410,8 +408,8 @@ export const ErrorList = React.memo(
                         }`}
                       >
                         {hasActiveFilters
-                          ? "PARAMETROS SIN COINCIDENCIA"
-                          : "TODO LIMPIO POR AHORA"}
+                          ? t("no_params_match")
+                          : t("all_clean_now")}
                       </h3>
 
                       <p
@@ -420,8 +418,8 @@ export const ErrorList = React.memo(
                         }`}
                       >
                         {hasActiveFilters
-                          ? "Ajuste los parametros de busqueda para restaurar la transmision del canal principal de incidentes."
-                          : "Cero desviaciones detectadas. El monitor continua analizando vectores en tiempo real desde la ultima inicializacion."}
+                          ? t("adjust_params")
+                          : t("clean_signal")}
                       </p>
                     </div>
 
@@ -436,7 +434,7 @@ export const ErrorList = React.memo(
                           }`}
                         >
                           <ArrowCounterClockwise size={16} />
-                          Limpiar y escanear
+                          {t("clear_and_scan")}
                         </button>
                       ) : (
                         <span
@@ -447,7 +445,7 @@ export const ErrorList = React.memo(
                           }`}
                         >
                           <Pulse size={14} className="shrink-0" />
-                          Esperando anomalias
+                          {t("waiting_anomalies")}
                         </span>
                       )}
                     </div>

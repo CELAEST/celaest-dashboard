@@ -16,6 +16,7 @@ import { menuSections } from "./Sidebar/config";
 import { SidebarMenuItem } from "./Sidebar/SidebarMenuItem";
 import { OrgSwitcher } from "./Sidebar/OrgSwitcher";
 import { useOrgStore } from "@/features/shared/stores/useOrgStore";
+import { useTranslations } from "next-intl";
 
 interface SidebarProps {
   activeTab: string;
@@ -36,6 +37,8 @@ export const AppSidebar = React.memo(function AppSidebar({
   const { theme } = useTheme();
   const { signOut } = useAuth();
   const navRef = useRef<HTMLElement>(null);
+  const tSidebar = useTranslations("sidebar");
+  const tAuth = useTranslations("auth");
 
   useEffect(() => {
     if (!isHovered && navRef.current) {
@@ -218,7 +221,7 @@ export const AppSidebar = React.memo(function AppSidebar({
                       isDark ? "text-gray-500/80" : "text-gray-400"
                     }`}
                   >
-                    {section.title}
+                    {tSidebar(section.titleKey as string)}
                   </span>
                 </div>
               </motion.div>
@@ -231,6 +234,7 @@ export const AppSidebar = React.memo(function AppSidebar({
                   isLocked={isGuest && item.id !== "marketplace"}
                   isDark={isDark}
                   onClick={() => handleItemClick(item.id)}
+                  label={tSidebar(item.labelKey as string)}
                 />
               ))}
             </div>
@@ -239,7 +243,7 @@ export const AppSidebar = React.memo(function AppSidebar({
 
         {!isGuest && (
           <div
-            className={`p-4 border-t flex flex-col gap-3 ${
+            className={`${isHovered ? "p-4" : "p-3"} border-t flex flex-col gap-3 ${
               isDark ? "border-white/5" : "border-gray-200"
             }`}
           >
@@ -257,19 +261,21 @@ export const AppSidebar = React.memo(function AppSidebar({
                 <span
                   className={`text-[9px] font-black uppercase tracking-widest ${isDark ? "text-cyan-400/80" : "text-blue-600/80"}`}
                 >
-                  Live Connection
+                  {tSidebar("live_connection")}
                 </span>
                 <span
-                  className={`text-[8px] font-mono truncate max-w-[140px] ${isDark ? "text-gray-600" : "text-gray-400"}`}
+                  className={`text-[8px] font-mono truncate max-w-35 ${isDark ? "text-gray-600" : "text-gray-400"}`}
                 >
-                  ID: {currentOrgId || "N/A"}
+                    ID: {currentOrgId || tSidebar("not_available")}
                 </span>
               </div>
             </motion.div>
 
             <button
               onClick={handleSignOutClick}
-              className={`flex items-center w-full h-10 transition-colors rounded-xl px-3 ${
+              className={`flex items-center w-full h-10 transition-colors rounded-xl ${
+                isHovered ? "px-3" : "justify-center px-0"
+              } ${
                 isDark
                   ? "text-gray-400 hover:text-red-400 hover:bg-red-500/10"
                   : "text-gray-500 hover:text-red-600 hover:bg-red-50"
@@ -277,11 +283,14 @@ export const AppSidebar = React.memo(function AppSidebar({
             >
               <SignOut size={20} />
               <motion.span
-                className="ml-3 whitespace-nowrap font-medium"
+                className="ml-3 whitespace-nowrap font-medium overflow-hidden"
                 initial={false}
-                animate={{ opacity: isHovered ? 1 : 0 }}
+                animate={{
+                  width: isHovered ? "auto" : 0,
+                  opacity: isHovered ? 1 : 0,
+                }}
               >
-                Sign Out
+                {tAuth("sign_out")}
               </motion.span>
             </button>
 
@@ -289,30 +298,31 @@ export const AppSidebar = React.memo(function AppSidebar({
             {process.env.NODE_ENV === "development" && (
               <button
                 onClick={() => {
-                  if (
-                    window.confirm(
-                      "☢️ NUCLEAR RESET: Are you sure you want to clear ALL local storage and session data?",
-                    )
-                  ) {
+                  if (window.confirm(tSidebar("nuclear_reset_confirm") as string)) {
                     localStorage.clear();
                     sessionStorage.clear();
                     window.location.href = "/";
                   }
                 }}
-                className={`flex items-center w-full h-10 transition-colors rounded-xl px-3 ${
+                className={`flex items-center w-full h-10 transition-colors rounded-xl ${
+                  isHovered ? "px-3" : "justify-center px-0"
+                } ${
                   isDark
                     ? "text-orange-400 hover:text-white hover:bg-orange-500"
                     : "text-orange-600 hover:text-white hover:bg-orange-500"
                 }`}
-                title="Nuclear Reset (Dev Only)"
+                title={tSidebar("nuclear_reset_tooltip")}
               >
                 <Bomb size={20} />
                 <motion.span
-                  className="ml-3 whitespace-nowrap font-medium"
+                  className="ml-3 whitespace-nowrap font-medium overflow-hidden"
                   initial={false}
-                  animate={{ opacity: isHovered ? 1 : 0 }}
+                  animate={{
+                    width: isHovered ? "auto" : 0,
+                    opacity: isHovered ? 1 : 0,
+                  }}
                 >
-                  Clear Storage
+                  {tSidebar("clear_storage")}
                 </motion.span>
               </button>
             )}

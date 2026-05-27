@@ -1,6 +1,7 @@
 import React, { memo } from "react";
 import { SignOut, X } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 
 interface SignOutCardProps {
   isDemo?: boolean;
@@ -12,11 +13,13 @@ interface SignOutCardProps {
 export const SignOutCard: React.FC<SignOutCardProps> = memo(
   ({ isDemo, isLoading, onClose, onConfirm }) => {
     const { isDark } = useTheme();
+    const t = useTranslations("auth");
+    const tCommon = useTranslations("common");
 
     return (
       <div
         onClick={(e) => e.stopPropagation()}
-        className={`relative w-full overflow-hidden rounded-[2rem] backdrop-blur-xl border shadow-2xl transition-all duration-300 ${
+        className={`relative w-full overflow-hidden rounded-4xl backdrop-blur-xl border shadow-2xl transition-all duration-300 ${
           isDark
             ? "bg-[#07090d] border-white/10 shadow-cyan-950/30"
             : "bg-white/95 border-gray-200/50"
@@ -65,7 +68,7 @@ export const SignOutCard: React.FC<SignOutCardProps> = memo(
                   : "border-blue-200 bg-blue-50 text-blue-700"
               }`}
             >
-              {isDemo ? "Modo demo" : "Sesion segura"}
+              {isDemo ? t("demo_mode") : t("secure_session")}
             </span>
 
             <div className="mx-auto flex justify-center">
@@ -79,7 +82,7 @@ export const SignOutCard: React.FC<SignOutCardProps> = memo(
                 />
 
                 <div
-                  className={`relative h-[4.5rem] w-[4.5rem] rounded-[1.75rem] bg-linear-to-br flex items-center justify-center shadow-lg ${
+                  className={`relative h-18 w-18 rounded-[1.75rem] bg-linear-to-br flex items-center justify-center shadow-lg ${
                     isDark
                       ? "from-cyan-400 to-blue-400"
                       : "from-blue-600 to-indigo-600"
@@ -96,7 +99,7 @@ export const SignOutCard: React.FC<SignOutCardProps> = memo(
                   isDark ? "text-white" : "text-gray-900"
                 }`}
               >
-                {isDemo ? "Reiniciar demo" : "Cerrar sesion"}
+                {isDemo ? t("reset_demo") : t("sign_out")}
               </h2>
 
               <p
@@ -105,8 +108,8 @@ export const SignOutCard: React.FC<SignOutCardProps> = memo(
                 }`}
               >
                 {isDemo
-                  ? "Esto recargara la pagina y devolvera la demostracion a su estado inicial."
-                  : "Tu sesion actual se cerrara de forma segura y tendras que autenticarte de nuevo para volver al dashboard."}
+                  ? t("reset_demo_desc")
+                  : t("sign_out_desc")}
               </p>
             </div>
           </div>
@@ -121,7 +124,7 @@ export const SignOutCard: React.FC<SignOutCardProps> = memo(
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-transparent"
               }`}
             >
-              Cancelar
+              {tCommon("cancel")}
             </button>
 
             <button
@@ -148,7 +151,7 @@ export const SignOutCard: React.FC<SignOutCardProps> = memo(
                     isLoading ? "opacity-0 invisible" : "opacity-100 visible"
                   }`}
                 >
-                  {isDemo ? "Reiniciar demo" : "Cerrar sesion"}
+                  {isDemo ? t("reset_demo") : t("sign_out")}
                 </span>
 
                 <span
@@ -176,7 +179,7 @@ export const SignOutCard: React.FC<SignOutCardProps> = memo(
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     />
                   </svg>
-                  {isDemo ? "Reiniciando..." : "Cerrando..."}
+                  {isDemo ? t("resetting") : t("signing_out")}
                 </span>
               </div>
             </button>
@@ -193,8 +196,8 @@ export const SignOutCard: React.FC<SignOutCardProps> = memo(
               }`}
             >
               {isDemo
-                ? "La sesion de demostracion se reiniciara localmente."
-                : "Tu sesion se cerrara de forma segura en todos los modulos activos."}
+                ? t("demo_session_desc")
+                : t("secure_session_desc")}
             </p>
           </div>
         </div>

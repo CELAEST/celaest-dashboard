@@ -2,6 +2,7 @@ import React from "react";
 import { motion } from "motion/react";
 import { Terminal, Minus, Square, X, CaretRight } from "@phosphor-icons/react";
 import type { useAnalytics } from "@/features/analytics/hooks/useAnalytics";
+import { useTranslations } from "next-intl";
 
 type AnalyticsData = ReturnType<typeof useAnalytics>;
 
@@ -11,6 +12,7 @@ interface EventLogsProps {
 }
 
 export const EventLogs = React.memo(({ isDark, eventLogs }: EventLogsProps) => {
+  const t = useTranslations("analytics");
 
   return (
     <motion.div
@@ -35,7 +37,7 @@ export const EventLogs = React.memo(({ isDark, eventLogs }: EventLogsProps) => {
       <div className="h-10 bg-[#1a1a1a] flex items-center justify-between px-4 shrink-0 relative z-30 border-b border-white/5">
         <div className="flex items-center gap-2 text-xs font-mono text-gray-400">
           <Terminal className="w-3.5 h-3.5 text-emerald-500" />
-          <span>root@celaest-core:~</span>
+          <span>{t("terminal_prompt")}</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="p-1 hover:bg-white/10 rounded cursor-pointer transition-colors">
@@ -55,9 +57,9 @@ export const EventLogs = React.memo(({ isDark, eventLogs }: EventLogsProps) => {
         <div className="absolute inset-0 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
           {/* Initial Boot Sequence Mock */}
           <div className="text-gray-500 mb-4 opacity-70">
-            <p>Initializing system core...</p>
-            <p>Loading modules: [OK]</p>
-            <p>Establishing secure connection... connected.</p>
+            <p>{t("boot_init_system")}</p>
+            <p>{t("boot_load_modules")}</p>
+            <p>{t("boot_secure_connection")}</p>
             <p className="mb-2">----------------------------------------</p>
           </div>
 
@@ -91,12 +93,12 @@ export const EventLogs = React.memo(({ isDark, eventLogs }: EventLogsProps) => {
                     }`}
                   >
                     {log.type === "error"
-                      ? "[ERR]"
+                      ? t("log_tag_error")
                       : log.type === "warning"
-                        ? "[WARN]"
+                        ? t("log_tag_warning")
                         : log.type === "success"
-                          ? "[OK]"
-                          : "[INFO]"}
+                          ? t("log_tag_success")
+                          : t("log_tag_info")}
                   </span>
                   <span className="text-gray-300">
                     <span className="opacity-50 mr-2 text-[10px] uppercase font-bold tracking-wider">
@@ -125,8 +127,10 @@ export const EventLogs = React.memo(({ isDark, eventLogs }: EventLogsProps) => {
       {/* Footer Status */}
       <div className="h-6 bg-[#0a0a0a] border-t border-white/5 flex items-center justify-between px-3 text-[10px] font-mono text-gray-500 relative z-30">
         <div className="flex items-center gap-3">
-          <span>UTF-8</span>
-          <span>Ln {eventLogs.length + 12}, Col 1</span>
+          <span>{t("utf8")}</span>
+          <span>
+            {t("line_column", { line: eventLogs.length + 12, col: 1 })}
+          </span>
         </div>
         <div className="flex items-center gap-2">
           <div
@@ -137,7 +141,7 @@ export const EventLogs = React.memo(({ isDark, eventLogs }: EventLogsProps) => {
               eventLogs.length > 0 ? "text-emerald-500" : "text-amber-500"
             }
           >
-            {eventLogs.length > 0 ? "Connected" : "Connecting..."}
+            {eventLogs.length > 0 ? t("connected") : t("connecting")}
           </span>
         </div>
       </div>

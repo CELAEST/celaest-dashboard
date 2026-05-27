@@ -3,16 +3,7 @@
 import React, { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
-
-const chartData = [
-  { name: "Mon", sales: 4000 },
-  { name: "Tue", sales: 3000 },
-  { name: "Wed", sales: 9000 },
-  { name: "Thu", sales: 2780 },
-  { name: "Fri", sales: 6890 },
-  { name: "Sat", sales: 2390 },
-  { name: "Sun", sales: 7490 },
-];
+import { useTranslations } from "next-intl";
 
 interface RevenueChartProps {
   data?: { date: string; sales: number }[];
@@ -22,19 +13,34 @@ export const RevenueChart = React.memo(function RevenueChart({ data }: RevenueCh
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  const t = useTranslations("analytics");
+
+  const fallbackData = useMemo(
+    () => [
+      { name: t("weekday_mon"), sales: 4000 },
+      { name: t("weekday_tue"), sales: 3000 },
+      { name: t("weekday_wed"), sales: 9000 },
+      { name: t("weekday_thu"), sales: 2780 },
+      { name: t("weekday_fri"), sales: 6890 },
+      { name: t("weekday_sat"), sales: 2390 },
+      { name: t("weekday_sun"), sales: 7490 },
+    ],
+    [t],
+  );
 
   const displayData = useMemo(() => {
-    if (!data || data.length === 0) return chartData;
-    return data
+    if (!data || data.length === 0) return fallbackData;
+    const normalized = data
       .map((item) => ({
         name: new Date(item.date).toLocaleDateString(undefined, {
           day: "numeric",
           month: "short",
         }),
-        sales: item.sales,
+        sales: Number.isFinite(item.sales) ? item.sales : 0,
       }))
       .reverse();
-  }, [data]);
+    return normalized.length > 0 ? normalized : fallbackData;
+  }, [data, fallbackData]);
 
   const width = 1000;
   const height = 300;
@@ -44,7 +50,10 @@ export const RevenueChart = React.memo(function RevenueChart({ data }: RevenueCh
   const range = max - min || 1;
   const getP = (v: number, i: number) => {
     // Add padding to left (5%) and right (5%)
-    const x = width * 0.05 + (i / (displayData.length - 1)) * (width * 0.9);
+    const x =
+      displayData.length === 1
+        ? width * 0.5
+        : width * 0.05 + (i / (displayData.length - 1)) * (width * 0.9);
     // Add padding to top and bottom
     const y = height * 0.85 - ((v - min) / range) * height * 0.7; 
     return { x, y };
@@ -63,7 +72,7 @@ export const RevenueChart = React.memo(function RevenueChart({ data }: RevenueCh
     dPath += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`;
   }
   
-  const areaD = `${dPath} L ${points[points.length-1].x} ${height * 0.95} L ${points[0].x} ${height * 0.95} Z`;
+  const areaD = `${dPath} L ${points[points.length - 1].x} ${height * 0.95} L ${points[0].x} ${height * 0.95} Z`;
 
   // Calculate generic Y steps
   const ySteps = [min, min + range * 0.33, min + range * 0.66, max].reverse();

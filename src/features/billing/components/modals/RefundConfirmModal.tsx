@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { ArrowCounterClockwise, Warning, X } from "@phosphor-icons/react";
 import { motion } from "motion/react";
 import { BillingModal } from "./shared/BillingModal";
+import { useTranslations } from "next-intl";
 
 interface RefundConfirmModalProps {
   isOpen: boolean;
@@ -15,12 +16,12 @@ interface RefundConfirmModalProps {
 }
 
 const REFUND_REASONS = [
-  "Customer requested",
-  "Duplicate order",
-  "Product not delivered",
-  "Defective product",
-  "Wrong item shipped",
-  "Other",
+  { value: "Customer requested", key: "reason_customer_requested" },
+  { value: "Duplicate order", key: "reason_duplicate_order" },
+  { value: "Product not delivered", key: "reason_product_not_delivered" },
+  { value: "Defective product", key: "reason_defective_product" },
+  { value: "Wrong item shipped", key: "reason_wrong_item" },
+  { value: "Other", key: "reason_other" },
 ] as const;
 
 export const RefundConfirmModal: React.FC<RefundConfirmModalProps> = ({
@@ -31,6 +32,7 @@ export const RefundConfirmModal: React.FC<RefundConfirmModalProps> = ({
   orderAmount,
   isLoading = false,
 }) => {
+  const t = useTranslations("billing");
   const [reason, setReason] = useState("");
   const [customReason, setCustomReason] = useState("");
 
@@ -79,8 +81,8 @@ export const RefundConfirmModal: React.FC<RefundConfirmModalProps> = ({
             <Warning size={22} />
           </div>
           <div>
-            <h2 className="text-xl font-black italic tracking-tighter text-white uppercase">Refund Order</h2>
-            <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40">This action cannot be undone</p>
+            <h2 className="text-xl font-black italic tracking-tighter text-white uppercase">{t("refund_order")}</h2>
+            <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40">{t("refund_undone_warning")}</p>
           </div>
         </div>
 
@@ -95,26 +97,29 @@ export const RefundConfirmModal: React.FC<RefundConfirmModalProps> = ({
       <div className="px-8 py-6 flex-1 min-h-0 overflow-y-auto space-y-5">
         {/* Order summary */}
         <div className="p-4 rounded-xl bg-white/3 border border-white/5 text-sm text-white/70">
-          Order <span className="font-bold text-white">{orderDisplayId}</span> — Full
-          refund of{" "}
-          <span className="font-bold text-teal-400">{orderAmount}</span>
+          {t.rich("refund_summary_full", {
+            orderDisplayId,
+            orderAmount,
+            b: (chunks) => <span className="font-bold text-white">{chunks}</span>,
+            teal: (chunks) => <span className="font-bold text-teal-400">{chunks}</span>,
+          })}
         </div>
 
         {/* Reason selector */}
         <div className="space-y-3">
-          <label className="text-[10px] uppercase font-black tracking-widest text-white/40">Refund Reason</label>
+          <label className="text-[10px] uppercase font-black tracking-widest text-white/40">{t("refund_reason_label")}</label>
           <div className="grid grid-cols-2 gap-2">
             {REFUND_REASONS.map((r) => (
               <button
-                key={r}
-                onClick={() => setReason(r)}
+                key={r.value}
+                onClick={() => setReason(r.value)}
                 className={`px-3 py-2.5 rounded-xl text-xs font-medium transition-all border ${
-                  reason === r
+                  reason === r.value
                     ? "bg-teal-500/15 border-teal-500/40 text-teal-400"
                     : "bg-white/3 border-white/10 text-gray-400 hover:border-white/20 hover:text-gray-300"
                 }`}
               >
-                {r}
+                {t(r.key as keyof typeof t)}
               </button>
             ))}
           </div>
@@ -128,7 +133,7 @@ export const RefundConfirmModal: React.FC<RefundConfirmModalProps> = ({
               <textarea
                 value={customReason}
                 onChange={(e) => setCustomReason(e.target.value)}
-                placeholder="Describe the reason for this refund..."
+                placeholder={t("refund_reason_placeholder")}
                 rows={3}
                 className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-white text-sm focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/20 transition-colors placeholder:text-white/20 resize-none"
               />
@@ -157,7 +162,7 @@ export const RefundConfirmModal: React.FC<RefundConfirmModalProps> = ({
             disabled={isLoading}
             className="flex-1 py-3 rounded-2xl bg-white/5 border border-white/10 text-white/60 text-sm font-semibold hover:bg-white/10 transition-colors"
           >
-            Cancel
+            {t("cancel")}
           </button>
           <button
             onClick={handleConfirm}
@@ -170,7 +175,7 @@ export const RefundConfirmModal: React.FC<RefundConfirmModalProps> = ({
               size={16}
               className={isLoading ? "animate-spin" : ""}
             />
-            {isLoading ? "Processing..." : "Confirm Refund"}
+            {isLoading ? t("processing") : t("confirm_refund")}
           </button>
         </div>
       </div>

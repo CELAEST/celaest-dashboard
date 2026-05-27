@@ -1,6 +1,7 @@
 import React, { memo } from "react";
 import { Shield, Warning } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 
 interface VersionSecurityProps {
   checksum: string;
@@ -12,6 +13,7 @@ export const VersionSecurity: React.FC<VersionSecurityProps> = memo(
   ({ checksum, onChange, onGenerate }) => {
     const { theme } = useTheme();
     const isDark = theme === "dark";
+    const t = useTranslations("releases");
 
     return (
       <div className="space-y-6">
@@ -22,7 +24,7 @@ export const VersionSecurity: React.FC<VersionSecurityProps> = memo(
               isDark ? "text-gray-300" : "text-gray-700"
             }`}
           >
-            File Checksum (SHA-256)
+            {t("security_checksum_title")}
           </label>
           <div className="flex gap-3">
             <input
@@ -30,7 +32,7 @@ export const VersionSecurity: React.FC<VersionSecurityProps> = memo(
               value={checksum}
               onChange={(e) => onChange(e.target.value)}
               readOnly
-              placeholder="Click generate to create checksum..."
+              placeholder={t("security_checksum_placeholder")}
               className={`flex-1 px-4 py-3 rounded-xl border font-mono text-sm transition-colors ${
                 isDark
                   ? "bg-white/5 border-white/10 text-white placeholder-gray-500"
@@ -47,7 +49,7 @@ export const VersionSecurity: React.FC<VersionSecurityProps> = memo(
               }`}
             >
               <Shield size={16} />
-              Generate
+              {t("security_generate_btn")}
             </button>
           </div>
         </div>
@@ -72,15 +74,14 @@ export const VersionSecurity: React.FC<VersionSecurityProps> = memo(
                 isDark ? "text-blue-400" : "text-blue-700"
               }`}
             >
-              Checksum Verification
+              {t("security_verify_title")}
             </p>
             <p
               className={`text-xs ${
                 isDark ? "text-blue-400/80" : "text-blue-600/80"
               }`}
             >
-              Customers can verify file integrity using the SHA-256 checksum.
-              This ensures downloads are not corrupted or tampered with.
+              {t("security_verify_desc")}
             </p>
           </div>
         </div>

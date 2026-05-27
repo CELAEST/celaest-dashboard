@@ -12,6 +12,8 @@ import { ConfirmationStep } from "./purchase-steps/ConfirmationStep";
 import { PaymentStep } from "./purchase-steps/PaymentStep";
 import { ActivationStep } from "./purchase-steps/ActivationStep";
 import { useDashboardRouter } from "@/features/control-center/hooks/useDashboardRouter";
+import { useTranslations } from "next-intl";
+import { useGeoPricing } from "@/features/billing/providers/GeoPricingProvider";
 
 interface PurchaseFlowProps {
   isOpen: boolean;
@@ -34,6 +36,7 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
   initialStep = 1,
   onSuccess,
 }) => {
+  const t = useTranslations("marketplace");
   const { theme } = useTheme();
   const { navigateTo } = useDashboardRouter();
   const {
@@ -48,21 +51,36 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
   } = usePurchaseFlow(onClose, initialStep, onSuccess);
 
   const { activeCoupon } = useMarketplaceCouponStore();
+  const { pricing, formatPrice } = useGeoPricing();
 
-  let finalPrice = product?.base_price ?? 0;
+  // Geo-pricing (NO PPP discount for products, only exchange rate)
+  const isGeoPriced = !!(pricing && pricing.country_code && pricing.country_code !== "US");
+  const basePrice = product?.base_price ?? 0;
+  const localBasePrice = isGeoPriced
+    ? basePrice * (pricing?.exchange_rate ?? 1)
+    : basePrice;
+
+  // Fixed-amount coupons are denominated in USD; scale to local currency.
+  const exchangeRate = pricing?.exchange_rate ?? 1;
+  let finalPrice = localBasePrice;
   if (activeCoupon && product) {
     if (activeCoupon.type === "percentage") {
-      finalPrice = product.base_price * (1 - activeCoupon.value / 100);
+      finalPrice = localBasePrice * (1 - activeCoupon.value / 100);
     } else if (activeCoupon.type === "fixed_amount") {
-      finalPrice = Math.max(0, product.base_price - activeCoupon.value);
+      const localDiscount = isGeoPriced
+        ? activeCoupon.value * exchangeRate
+        : activeCoupon.value;
+      finalPrice = Math.max(0, localBasePrice - localDiscount);
     }
   }
 
+  // Original price for strikethrough — shown in local currency when geo-priced
+  // (we no longer display the USD base price here).
   const formattedOriginalPrice = product
-    ? formatCurrency(product.base_price, product.currency)
+    ? (isGeoPriced ? formatPrice(localBasePrice) : formatCurrency(product.base_price, product.currency))
     : "";
   const formattedFinalPrice = product
-    ? formatCurrency(finalPrice, product.currency)
+    ? (isGeoPriced ? formatPrice(finalPrice) : formatCurrency(finalPrice, product.currency))
     : "";
 
   // Close on Escape key
@@ -75,9 +93,9 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
   }, [isOpen, resetFlow]);
 
   const steps = [
-    { number: 1, title: "Confirmación", icon: <CheckCircle size={20} weight="bold" /> },
-    { number: 2, title: "Pago Seguro", icon: <CreditCard size={20} weight="bold" /> },
-    { number: 3, title: "Activación", icon: <DownloadSimple size={20} weight="bold" /> },
+    { number: 1, title: t("confirmation_step"), icon: <CheckCircle size={20} weight="bold" /> },
+    { number: 2, title: t("secure_payment"), icon: <CreditCard size={20} weight="bold" /> },
+    { number: 3, title: t("activation_step"), icon: <DownloadSimple size={20} weight="bold" /> },
   ];
 
   return (
@@ -125,7 +143,7 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
             </button>
 
             {/* Progress Steps */}
-            <div className={`px-16 sm:px-20 pt-10 pb-8 ${theme === "dark" ? "bg-gradient-to-b from-white/[0.03] to-transparent" : "bg-gradient-to-b from-gray-50/80 to-transparent"}`}>
+            <div className={`px-16 sm:px-20 pt-10 pb-8 ${theme === "dark" ? "bg-linear-to-b from-white/3 to-transparent" : "bg-linear-to-b from-gray-50/80 to-transparent"}`}>
               {/* Row: circle — line — circle — line — circle */}
               <div className="flex items-center justify-center">
                 {steps.map((s, index) => {
@@ -134,7 +152,7 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
                   return (
                     <React.Fragment key={s.number}>
                       {/* Circle */}
-                      <div className="relative flex-shrink-0">
+                      <div className="relative shrink-0">
                         {isActive && (
                           <div className={`absolute inset-0 -m-2 rounded-full ${
                             theme === "dark"
@@ -155,7 +173,7 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
                                     ? "bg-cyan-500 text-black shadow-[0_0_30px_rgba(0,255,255,0.35)]"
                                     : "bg-cyan-500 text-white shadow-xl shadow-cyan-500/30"
                                   : theme === "dark"
-                                    ? "bg-white/[0.08] text-gray-500 ring-1 ring-white/20"
+                                    ? "bg-white/8 text-gray-500 ring-1 ring-white/20"
                                     : "bg-gray-100 text-gray-400 ring-1 ring-gray-300"
                             }
                           `}
@@ -213,7 +231,7 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
             </div>
 
             {/* Divider */}
-            <div className={`h-px ${theme === "dark" ? "bg-white/[0.08]" : "bg-gray-200"}`} />
+            <div className={`h-px ${theme === "dark" ? "bg-white/8" : "bg-gray-200"}`} />
 
             {/* Content */}
             <div className="p-8">

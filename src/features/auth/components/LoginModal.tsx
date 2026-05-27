@@ -6,6 +6,7 @@ import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { useEscapeKey } from "@/features/shared/hooks/useEscapeKey";
 import { X, Lock, ArrowRight, GithubLogo } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "next-intl";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -16,8 +17,9 @@ interface LoginModalProps {
 export const LoginModal: React.FC<LoginModalProps> = ({
   isOpen,
   onClose,
-  message = "Inicia sesion para acceder a esta funcion.",
+  message,
 }) => {
+  const tAuth = useTranslations("auth");
   const { theme } = useTheme();
   const { signInWithGoogle, signInWithGitHub } = useAuth();
   const isDark = theme === "dark";
@@ -109,7 +111,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                         : "border-blue-200 bg-blue-50 text-blue-700"
                     }`}
                   >
-                    Cuenta requerida
+                    {tAuth("account_required")}
                   </span>
 
                   <div
@@ -128,14 +130,14 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                         isDark ? "text-white" : "text-gray-900"
                       }`}
                     >
-                      Inicia sesion para continuar
+                      {tAuth("sign_in_to_continue")}
                     </h3>
                     <p
                       className={`w-full text-sm leading-6 sm:text-base ${
                         isDark ? "text-gray-400" : "text-gray-600"
                       }`}
                     >
-                      {message}
+                      {message || tAuth("sign_in_to_access")}
                     </p>
                   </div>
                 </div>
@@ -172,7 +174,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                         d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                       />
                     </svg>
-                    Continuar con Google
+                    {tAuth("continue_with_google")}
                   </Button>
 
                   <Button
@@ -188,7 +190,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                     }`}
                   >
                     <GithubLogo size={20} />
-                    Continuar con GitHub
+                    {tAuth("continue_with_github")}
                   </Button>
 
                   <div className="relative py-1">
@@ -201,7 +203,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                       <span
                         className={`px-3 ${isDark ? "bg-[#07090d] text-gray-500" : "bg-white text-gray-400"}`}
                       >
-                        O usa email
+                        {tAuth("or_use_email")}
                       </span>
                     </div>
                   </div>
@@ -217,7 +219,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                         : "text-blue-600 hover:bg-blue-50 hover:text-blue-700"
                     }`}
                   >
-                    Iniciar con email
+                    {tAuth("sign_in_with_email")}
                     <ArrowRight size={16} />
                   </Button>
                 </div>

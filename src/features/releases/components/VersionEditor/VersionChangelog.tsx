@@ -1,6 +1,7 @@
 import React, { memo } from "react";
 import { Plus, Trash } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 
 interface VersionChangelogProps {
   changelog: string[];
@@ -13,6 +14,7 @@ export const VersionChangelog: React.FC<VersionChangelogProps> = memo(
   ({ changelog, onChange, onAdd, onRemove }) => {
     const { theme } = useTheme();
     const isDark = theme === "dark";
+    const t = useTranslations("releases");
 
     return (
       <div>
@@ -22,7 +24,7 @@ export const VersionChangelog: React.FC<VersionChangelogProps> = memo(
               isDark ? "text-gray-300" : "text-gray-700"
             }`}
           >
-            Changelog (What&apos;s New)
+            {t("changelog_title")}
           </label>
           <button
             type="button"
@@ -34,7 +36,7 @@ export const VersionChangelog: React.FC<VersionChangelogProps> = memo(
             }`}
           >
             <Plus size={14} />
-            Add Item
+            {t("changelog_add_btn")}
           </button>
         </div>
         <div className="space-y-3">
@@ -44,9 +46,7 @@ export const VersionChangelog: React.FC<VersionChangelogProps> = memo(
                 type="text"
                 value={item}
                 onChange={(e) => onChange(index, e.target.value)}
-                placeholder={`Change #${
-                  index + 1
-                } (e.g., Added multi-currency support)`}
+                placeholder={t("changelog_placeholder", { index: index + 1 })}
                 className={`flex-1 px-4 py-3 rounded-xl border transition-colors ${
                   isDark
                     ? "bg-white/5 border-white/10 text-white placeholder-gray-500 focus:border-cyan-500/30 focus:bg-white/10"

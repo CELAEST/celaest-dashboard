@@ -6,6 +6,7 @@ import { PaymentMethod } from "../../types";
 import { useEditPaymentMethodForm } from "../../hooks/useEditPaymentMethodForm";
 import { CreditCardPreview } from "../ui/CreditCardPreview";
 import { EditPaymentMethodForm } from "../forms/EditPaymentMethodForm";
+import { useTranslations } from "next-intl";
 
 interface EditPaymentMethodModalProps {
   isOpen: boolean;
@@ -31,6 +32,7 @@ const EditPaymentMethodContent = ({
     setFocusedField,
     handleSave,
   } = useEditPaymentMethodForm(method, onClose, onSave);
+  const t = useTranslations("billing");
 
   return (
     <>
@@ -56,8 +58,8 @@ const EditPaymentMethodContent = ({
             <CreditCard size={22} />
           </div>
           <div>
-            <h2 className="text-xl font-black italic tracking-tighter text-white uppercase">Edit Payment Method</h2>
-            <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40">Update {method.type.toUpperCase()} card details</p>
+            <h2 className="text-xl font-black italic tracking-tighter text-white uppercase">{t("edit_payment_method")}</h2>
+            <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40">{t("edit_payment_method_desc", { methodType: method.type.toUpperCase() })}</p>
           </div>
         </div>
 
@@ -110,14 +112,14 @@ const EditPaymentMethodContent = ({
             onClick={onClose}
             className="px-5 py-3 rounded-2xl bg-white/5 border border-white/10 text-white/60 text-sm font-semibold hover:bg-white/10 transition-colors"
           >
-            Cancel
+            {t("cancel")}
           </button>
           <button
             onClick={handleSave}
             className="px-6 py-3 rounded-2xl bg-linear-to-r from-teal-500 to-teal-600 text-white text-sm font-black uppercase tracking-wide shadow-[0_0_20px_rgba(20,184,166,0.3)] hover:shadow-[0_0_30px_rgba(20,184,166,0.5)] transition-all flex items-center gap-2"
           >
             <FloppyDisk size={16} />
-            Save Changes
+            {t("save_changes")}
           </button>
         </div>
       </div>

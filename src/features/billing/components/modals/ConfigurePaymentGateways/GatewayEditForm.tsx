@@ -3,6 +3,7 @@ import { Key, Eye, EyeSlash, Lightning, CheckCircle } from "@phosphor-icons/reac
 import { motion } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { PaymentGateway } from "../../../types";
+import { useTranslations } from "next-intl";
 
 interface GatewayEditFormProps {
   gatewayId: string;
@@ -25,6 +26,7 @@ export const GatewayEditForm: React.FC<GatewayEditFormProps> = ({
 }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const t = useTranslations("billing");
 
   return (
     <motion.div
@@ -40,7 +42,7 @@ export const GatewayEditForm: React.FC<GatewayEditFormProps> = ({
             isDark ? "text-gray-300" : "text-gray-700"
           }`}
         >
-          API Key / Secret
+          {t("api_key_secret")}
         </label>
         <div className="relative">
           <Key
@@ -57,7 +59,7 @@ export const GatewayEditForm: React.FC<GatewayEditFormProps> = ({
                 apiKey: e.target.value,
               })
             }
-            placeholder="Enter API key or secret"
+            placeholder={t("enter_api_key")}
             className={`w-full pl-10 pr-12 py-2.5 rounded-xl font-mono text-sm transition-all duration-300 ${
               isDark
                 ? "bg-black/60 border border-white/10 text-white placeholder-gray-500 focus:border-cyan-500/50"
@@ -88,7 +90,7 @@ export const GatewayEditForm: React.FC<GatewayEditFormProps> = ({
             isDark ? "text-gray-300" : "text-gray-700"
           }`}
         >
-          Webhook URL
+          {t("webhook_url")}
         </label>
         <div className="relative">
           <Lightning
@@ -130,12 +132,12 @@ export const GatewayEditForm: React.FC<GatewayEditFormProps> = ({
               isDark ? "text-white" : "text-gray-900"
             }`}
           >
-            Test Mode
+            {t("test_mode")}
           </div>
           <div
             className={`text-xs ${isDark ? "text-gray-400" : "text-gray-600"}`}
           >
-            Enable test mode for development and testing
+            {t("enable_test_mode")}
           </div>
         </div>
         <button
@@ -179,7 +181,7 @@ export const GatewayEditForm: React.FC<GatewayEditFormProps> = ({
               : "bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gray-200"
           }`}
         >
-          Cancel
+          {t("cancel")}
         </motion.button>
         <motion.button
           whileHover={{ scale: 1.05 }}
@@ -192,7 +194,7 @@ export const GatewayEditForm: React.FC<GatewayEditFormProps> = ({
           }`}
         >
           <CheckCircle className="w-4 h-4" />
-          FloppyDisk Configuration
+          {t("save_configuration")}
         </motion.button>
       </div>
     </motion.div>

@@ -1,6 +1,7 @@
 import React, { memo } from "react";
 import { Calendar, HardDrive, DownloadSimple, Pulse } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 import { Version } from "@/features/releases/types";
 
 
@@ -12,28 +13,29 @@ export const VersionDetailsMetrics: React.FC<VersionDetailsMetricsProps> = memo(
   ({ version }) => {
     const { theme } = useTheme();
     const isDark = theme === "dark";
+    const t = useTranslations("releases");
 
     const metrics = [
       {
-        label: "Released",
+        label: t("metrics_released"),
         value: new Date(version.releaseDate).toLocaleDateString(),
         icon: Calendar,
         color: "text-blue-500",
       },
       {
-        label: "Size",
+        label: t("metrics_size"),
         value: version.fileSize,
         icon: HardDrive,
         color: "text-purple-500",
       },
       {
-        label: "Downloads",
+        label: t("metrics_downloads"),
         value: version.downloads.toLocaleString(),
         icon: DownloadSimple,
         color: "text-emerald-500",
       },
       {
-        label: "Adoption",
+        label: t("metrics_adoption"),
         value: `${version.adoptionRate}%`,
         icon: Pulse,
         color: "text-cyan-500",

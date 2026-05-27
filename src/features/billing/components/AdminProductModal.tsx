@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Package, X, FloppyDisk } from "@phosphor-icons/react";
+import { Package, X, FloppyDisk, YoutubeLogo } from "@phosphor-icons/react";
 import { Switch } from "@/components/ui/switch";
 import { useForm, Controller } from "react-hook-form";
 import {
@@ -13,6 +13,11 @@ import {
   UpdateProductPayload,
 } from "@/features/assets/api/assets.api";
 import { BillingModal } from "./modals/shared/BillingModal";
+import { useTranslations } from "next-intl";
+import {
+  extractYouTubeId,
+  youtubeThumbnail,
+} from "@/features/shared/utils/youtube";
 
 interface AdminProductModalProps {
   isOpen: boolean;
@@ -31,6 +36,9 @@ interface ProductFormData {
   isPublic: boolean;
   isFeatured: boolean;
   shortDescription?: string;
+  // Raw URL pasted by the admin. Backend extracts the 11-char id; an empty
+  // string clears the preview and falls back to the thumbnail image.
+  youtubeUrl?: string;
 }
 
 export const AdminProductModal: React.FC<AdminProductModalProps> = ({
@@ -42,12 +50,14 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
 }) => {
   const queryClient = useQueryClient();
   const isEditing = !!product;
+  const t = useTranslations("billing");
 
   const {
     register,
     handleSubmit,
     reset,
     control,
+    watch,
     formState: { errors },
   } = useForm<ProductFormData>({
     defaultValues: {
@@ -59,6 +69,7 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
       isPublic: true,
       isFeatured: false,
       shortDescription: "",
+      youtubeUrl: "",
     },
   });
 
@@ -73,6 +84,10 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
         isPublic: product.isPublic ?? true,
         isFeatured: product.isFeatured ?? false,
         shortDescription: product.shortDescription || "",
+        // Editing: rehydrate the bare 11-char id as the input value so the
+        // admin sees what is currently stored. The backend will re-extract
+        // on save, so this round-trips cleanly.
+        youtubeUrl: product.youtubeVideoId || "",
       });
     } else if (!product && isOpen) {
       reset({
@@ -84,12 +99,25 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
         isPublic: true,
         isFeatured: false,
         shortDescription: "",
+        youtubeUrl: "",
       });
     }
   }, [product, isOpen, reset]);
 
+  // Live preview: as the admin types, we extract the id and render the
+  // YouTube CDN thumbnail. No network cost beyond the single ~15 KB image.
+  // No `useMemo` here because `watch()` is intentionally non-memoizable
+  // (re-fires on every form change) and the regex is sub-microsecond.
+  const watchedYoutubeUrl = watch("youtubeUrl") ?? "";
+  const previewVideoId = extractYouTubeId(watchedYoutubeUrl);
+  const youtubeError =
+    watchedYoutubeUrl.trim().length > 0 && !previewVideoId;
+
   const saveMutation = useMutation({
     mutationFn: async (data: ProductFormData) => {
+      // youtube_url is always sent (even empty) on update so the backend
+      // can distinguish "clear preview" from "keep current". On create we
+      // only send it when the admin actually typed something.
       if (isEditing && product) {
         const payload: UpdateProductPayload = {
           name: data.name,
@@ -99,6 +127,7 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
           is_public: data.isPublic,
           is_featured: data.isFeatured,
           short_description: data.shortDescription,
+          youtube_url: data.youtubeUrl ?? "",
         };
         return assetsService.updateAsset(token, orgId, product.id, payload);
       } else {
@@ -111,19 +140,18 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
           is_public: data.isPublic,
           is_featured: data.isFeatured,
           short_description: data.shortDescription,
+          ...(data.youtubeUrl ? { youtube_url: data.youtubeUrl } : {}),
         };
         return assetsService.createAsset(token, orgId, payload);
       }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "products"] });
-      toast.success(
-        `Product ${isEditing ? "updated" : "created"} successfully!`,
-      );
+      toast.success(isEditing ? t("product_updated_success") : t("product_created_success"));
       onClose();
     },
     onError: (err: Error) => {
-      toast.error(err?.message || "Failed to save product");
+      toast.error(err?.message || t("failed_to_save_product"));
     },
   });
 
@@ -170,10 +198,10 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
           </div>
           <div>
             <h2 className="text-xl font-black italic tracking-tighter text-white uppercase">
-              {isEditing ? "Edit Product" : "Create Product"}
+              {isEditing ? t("edit_product") : t("create_product")}
             </h2>
             <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40">
-              {isEditing ? "Modify product details" : "Add to global catalog"}
+              {isEditing ? t("modify_product_details") : t("add_to_global_catalog")}
             </p>
           </div>
         </div>
@@ -190,21 +218,21 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
         <div className="px-8 py-6 space-y-5 overflow-y-auto flex-1 min-h-0">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-[10px] uppercase font-black tracking-widest text-white/40">Product Name</label>
+              <label className="text-[10px] uppercase font-black tracking-widest text-white/40">{t("product_name")}</label>
               <input
                 className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-white text-sm focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/20 transition-colors placeholder:text-white/20"
                 placeholder="e.g. Celaest Platform"
-                {...register("name", { required: "Name is required" })}
+                {...register("name", { required: t("name_required") })}
               />
               {errors.name && <span className="text-red-500 text-xs">{errors.name.message}</span>}
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] uppercase font-black tracking-widest text-white/40">URL Slug</label>
+              <label className="text-[10px] uppercase font-black tracking-widest text-white/40">{t("url_slug")}</label>
               <input
                 className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-white text-sm font-mono focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/20 transition-colors placeholder:text-white/20"
                 placeholder="e.g. celaest-platform"
-                {...register("slug", { required: "Slug is required" })}
+                {...register("slug", { required: t("slug_required") })}
                 disabled={isEditing}
               />
             </div>
@@ -212,7 +240,7 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-[10px] uppercase font-black tracking-widest text-white/40">Base Price</label>
+              <label className="text-[10px] uppercase font-black tracking-widest text-white/40">{t("base_price")}</label>
               <div className="relative">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 text-sm">$</span>
                 <input
@@ -220,13 +248,13 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
                   step="0.01"
                   min="0"
                   className="w-full bg-white/5 border border-white/10 rounded-2xl pl-8 pr-5 py-3 text-white text-sm font-mono focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/20 transition-colors placeholder:text-white/20"
-                  {...register("basePrice", { required: "Required" })}
+                  {...register("basePrice", { required: t("required") })}
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] uppercase font-black tracking-widest text-white/40">Type</label>
+              <label className="text-[10px] uppercase font-black tracking-widest text-white/40">{t("type")}</label>
               <input
                 className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-white text-sm font-mono focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/20 transition-colors placeholder:text-white/20"
                 placeholder="software, asset, plugin"
@@ -237,20 +265,64 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
           </div>
 
           <div className="space-y-2">
-            <label className="text-[10px] uppercase font-black tracking-widest text-white/40">Short Description</label>
+            <label className="text-[10px] uppercase font-black tracking-widest text-white/40">{t("short_description")}</label>
             <input
               className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-white text-sm focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/20 transition-colors placeholder:text-white/20"
-              placeholder="Brief description of the product..."
+              placeholder={t("brief_description_placeholder")}
               {...register("shortDescription")}
             />
+          </div>
+
+          {/* YouTube preview video (optional). When empty the marketplace
+              modal falls back to the static thumbnail. Live thumbnail
+              preview validates the URL without any extra request. */}
+          <div className="space-y-2">
+            <label className="flex items-center gap-2 text-[10px] uppercase font-black tracking-widest text-white/40">
+              <YoutubeLogo size={12} weight="fill" className="text-red-500" />
+              {t("youtube_video_label")}
+            </label>
+            <input
+              className={`w-full bg-white/5 border rounded-2xl px-5 py-3 text-white text-sm font-mono focus:outline-none focus:ring-1 transition-colors placeholder:text-white/20 ${
+                youtubeError
+                  ? "border-red-500/50 focus:border-red-500/50 focus:ring-red-500/20"
+                  : "border-white/10 focus:border-teal-500/50 focus:ring-teal-500/20"
+              }`}
+              placeholder="https://www.youtube.com/watch?v=..."
+              autoComplete="off"
+              spellCheck={false}
+              {...register("youtubeUrl")}
+            />
+            {youtubeError ? (
+              <p className="text-[10px] text-red-400/80">
+                {t("youtube_invalid_url")}
+              </p>
+            ) : (
+              <p className="text-[10px] text-white/30">
+                {t("youtube_video_hint")}
+              </p>
+            )}
+            {previewVideoId && (
+              <div className="relative mt-2 aspect-video w-full max-w-xs overflow-hidden rounded-xl border border-white/10 bg-black">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={youtubeThumbnail(previewVideoId)}
+                  alt="YouTube preview"
+                  loading="lazy"
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+                <div className="absolute bottom-1 right-2 rounded-md bg-black/70 px-1.5 py-0.5 text-[9px] font-mono text-white/80">
+                  {previewVideoId}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Toggles */}
           <div className="grid grid-cols-2 gap-4">
             <div className="flex items-center justify-between p-4 rounded-2xl bg-white/2 border border-white/5">
               <div>
-                <p className="text-sm font-bold text-white">Public</p>
-                <p className="text-[10px] font-mono uppercase tracking-[0.15em] text-white/30">Visible on catalog</p>
+                <p className="text-sm font-bold text-white">{t("public")}</p>
+                <p className="text-[10px] font-mono uppercase tracking-[0.15em] text-white/30">{t("visible_on_catalog")}</p>
               </div>
               <Controller
                 control={control}
@@ -263,8 +335,8 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
 
             <div className="flex items-center justify-between p-4 rounded-2xl bg-white/2 border border-white/5">
               <div>
-                <p className="text-sm font-bold text-white">Featured</p>
-                <p className="text-[10px] font-mono uppercase tracking-[0.15em] text-white/30">Highlight in hero</p>
+                <p className="text-sm font-bold text-white">{t("featured")}</p>
+                <p className="text-[10px] font-mono uppercase tracking-[0.15em] text-white/30">{t("highlight_in_hero")}</p>
               </div>
               <Controller
                 control={control}
@@ -298,7 +370,7 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
               disabled={saveMutation.isPending}
               className="flex-1 py-3 rounded-2xl bg-white/5 border border-white/10 text-white/60 text-sm font-semibold hover:bg-white/10 transition-colors"
             >
-              Cancel
+              {t("cancel")}
             </button>
             <button
               type="submit"
@@ -306,7 +378,7 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
               className="flex-1 py-3 rounded-2xl bg-linear-to-r from-teal-500 to-teal-600 text-white text-sm font-black uppercase tracking-wide shadow-[0_0_20px_rgba(20,184,166,0.3)] hover:shadow-[0_0_30px_rgba(20,184,166,0.5)] transition-all flex items-center justify-center gap-2"
             >
               <FloppyDisk size={16} />
-              {saveMutation.isPending ? "Saving..." : "Save Product"}
+              {saveMutation.isPending ? t("saving") : t("save_product")}
             </button>
           </div>
         </div>

@@ -8,6 +8,8 @@ import { useTheme } from "@/features/shared/hooks/useTheme";
 import { MarketplaceProduct } from "../types";
 import { formatCurrency } from "@/lib/utils";
 import { useMarketplaceCouponStore } from "../store";
+import { useTranslations } from "next-intl";
+import { useGeoPricing } from "@/features/billing/providers/GeoPricingProvider";
 
 interface ProductCardPremiumProps {
   product: MarketplaceProduct;
@@ -32,6 +34,8 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
   const { theme } = useTheme();
   const [isHovered, setIsHovered] = React.useState(false);
   const { activeCoupon } = useMarketplaceCouponStore();
+  const t = useTranslations("marketplace");
+  const { pricing, formatPrice } = useGeoPricing();
 
   // Mapping props from MarketplaceProduct
   const {
@@ -55,17 +59,28 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
     "https://images.unsplash.com/photo-1551288049-bebda4e38f71";
   const badge = rating >= 4.5 ? "PREMIUM" : undefined;
 
-  let finalPrice = base_price;
+  // Geo-pricing: resolve localized price for this product (NO PPP discount, only exchange rate)
+  const isGeoPriced = !!(pricing && pricing.country_code && pricing.country_code !== "US");
+  const localBasePrice = isGeoPriced
+    ? base_price * (pricing?.exchange_rate ?? 1)
+    : base_price;
+
+  // Fixed-amount coupons are denominated in USD; scale to local currency.
+  const exchangeRate = pricing?.exchange_rate ?? 1;
+  let finalPrice = localBasePrice;
   if (activeCoupon) {
     if (activeCoupon.type === "percentage") {
-      finalPrice = base_price * (1 - activeCoupon.value / 100);
+      finalPrice = localBasePrice * (1 - activeCoupon.value / 100);
     } else if (activeCoupon.type === "fixed_amount") {
-      finalPrice = Math.max(0, base_price - activeCoupon.value);
+      const localDiscount = isGeoPriced
+        ? activeCoupon.value * exchangeRate
+        : activeCoupon.value;
+      finalPrice = Math.max(0, localBasePrice - localDiscount);
     }
   }
 
-  const priceStr = formatCurrency(base_price, currency);
-  const finalPriceStr = formatCurrency(finalPrice, currency);
+  const localBasePriceStr = isGeoPriced ? formatPrice(localBasePrice) : formatCurrency(base_price, currency);
+  const finalPriceStr = isGeoPriced ? formatPrice(finalPrice) : formatCurrency(finalPrice, currency);
 
   return (
     <motion.div
@@ -123,12 +138,12 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
       {/* Plan tier badge — top right */}
       {(() => {
         const tierMap: Record<number, { label: string; dark: string; light: string }> = {
-          0: { label: "All Plans", dark: "bg-white/[0.06] border-white/[0.08] text-gray-400", light: "bg-gray-50/90 border-gray-200/60 text-gray-500" },
-          1: { label: "Basic+", dark: "bg-emerald-500/10 border-emerald-500/20 text-emerald-400", light: "bg-emerald-50/90 border-emerald-200/60 text-emerald-600" },
-          2: { label: "Pro", dark: "bg-violet-500/10 border-violet-500/20 text-violet-400", light: "bg-violet-50/90 border-violet-200/60 text-violet-600" },
-          3: { label: "Enterprise", dark: "bg-amber-500/10 border-amber-500/20 text-amber-400", light: "bg-amber-50/90 border-amber-200/60 text-amber-700" },
+          0: { label: t("all_plans"), dark: "bg-white/[0.06] border-white/[0.08] text-gray-400", light: "bg-gray-50/90 border-gray-200/60 text-gray-500" },
+          1: { label: t("basic_plus"), dark: "bg-emerald-500/10 border-emerald-500/20 text-emerald-400", light: "bg-emerald-50/90 border-emerald-200/60 text-emerald-600" },
+          2: { label: t("pro"), dark: "bg-violet-500/10 border-violet-500/20 text-violet-400", light: "bg-violet-50/90 border-violet-200/60 text-violet-600" },
+          3: { label: t("enterprise"), dark: "bg-amber-500/10 border-amber-500/20 text-amber-400", light: "bg-amber-50/90 border-amber-200/60 text-amber-700" },
         };
-        const tier = tierMap[product.min_plan_tier] ?? { label: "Private", dark: "bg-red-500/10 border-red-500/20 text-red-400", light: "bg-red-50/90 border-red-200/60 text-red-600" };
+        const tier = tierMap[product.min_plan_tier] ?? { label: t("private"), dark: "bg-red-500/10 border-red-500/20 text-red-400", light: "bg-red-50/90 border-red-200/60 text-red-600" };
         return (
           <div className="absolute top-4 right-4 z-20">
             <div className={`px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest backdrop-blur-md border ${theme === "dark" ? tier.dark : tier.light}`}>
@@ -178,15 +193,14 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
               <Star
                 key={i}
                 size={12}
-                className={`
-                  ${
-                    i < Math.floor(rating)
-                      ? "text-yellow-500 fill-yellow-500"
-                      : theme === "dark"
-                        ? "text-gray-600"
-                        : "text-gray-300"
-                  }
-                `}
+                weight="fill"
+                className={
+                  i < Math.floor(rating)
+                    ? "text-yellow-500"
+                    : theme === "dark"
+                      ? "text-white/15"
+                      : "text-gray-300"
+                }
               />
             ))}
           </div>
@@ -195,7 +209,7 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
               theme === "dark" ? "text-gray-400" : "text-gray-600"
             }`}
           >
-            {rating.toFixed(1)} ({reviews} valoraciones)
+            {rating.toFixed(1)} {t("reviews_count", { count: reviews })}
           </span>
         </div>
 
@@ -220,10 +234,10 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
         {/* Features - Human language */}
         <div className="space-y-2 pt-2 flex-1">
           {displayFeatures.map((feature, index) => (
-            <div key={index} className="flex items-start gap-2">
+            <div key={index} className="flex items-center gap-2">
               <Check
                 size={16}
-                className={`mt-0.5 shrink-0 ${
+                className={`shrink-0 ${
                   theme === "dark" ? "text-cyan-400" : "text-cyan-600"
                 }`}
               />
@@ -247,12 +261,12 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
                   theme === "dark" ? "text-gray-500" : "text-gray-500"
                 }`}
               >
-                Inversión
+                {t("investment")}
               </div>
               <div className="flex items-center gap-2">
                 {activeCoupon && (
                   <span className="text-sm line-through text-gray-500 font-medium">
-                    {priceStr}
+                    {localBasePriceStr}
                   </span>
                 )}
                 <div
@@ -285,7 +299,7 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
               `}
             >
               <Eye size={16} />
-              Ver Detalles
+              {t("view_details")}
             </motion.button>
             <motion.button
               whileHover={!hasAccess && !disabledReason ? { scale: 1.02 } : {}}
@@ -315,12 +329,12 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
                 <><Check size={16} />{disabledReason}</>
               ) : hasAccess ? (
                 effectiveAccess === "plan" ? (
-                  <><Check size={16} />En Plan</>
+                  <><Check size={16} />{t("in_plan")}</>
                 ) : (
-                  <><Check size={16} />Adquirido</>
+                  <><Check size={16} />{t("acquired")}</>
                 )
               ) : (
-                <><ShoppingCart size={16} />Adquirir</>
+                <><ShoppingCart size={16} />{t("acquire")}</>
               )}
             </motion.button>
           </div>

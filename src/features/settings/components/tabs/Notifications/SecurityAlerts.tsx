@@ -1,9 +1,11 @@
 import React, { memo } from "react";
 import { ShieldWarning } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useTranslations } from "next-intl";
 
 export const SecurityAlerts: React.FC = memo(() => {
   const { isDark } = useTheme();
+  const t = useTranslations("settings");
 
   return (
     <div
@@ -21,16 +23,14 @@ export const SecurityAlerts: React.FC = memo(() => {
               isDark ? "text-red-400" : "text-red-700"
             }`}
           >
-            CRITICAL SECURITY ALERTS
+            {t("critical_security_alerts")}
           </p>
           <p
             className={`text-xs mt-1 leading-relaxed ${
               isDark ? "text-red-400/60" : "text-red-600/70"
             }`}
           >
-            These notifications cannot be disabled for your protection. We will
-            always notify you of password changes and account-level security
-            events.
+            {t("security_alerts_desc")}
           </p>
         </div>
       </div>

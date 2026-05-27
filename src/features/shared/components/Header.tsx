@@ -12,6 +12,8 @@ import {
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { NotificationCenter } from "./NotificationCenter";
+import { LocaleSwitcher } from "./Header/LocaleSwitcher";
+import { useTranslations } from "next-intl";
 import { useUIStore } from "@/stores/useUIStore";
 import { useErrorStore } from "@/features/errors/stores/useErrorStore";
 import { UserInfo } from "./Header/UserInfo";
@@ -26,6 +28,8 @@ export const Header = React.memo(function Header({ onShowLogin }: HeaderProps) {
   const { user } = useAuth();
   const { searchQuery, setSearchQuery } = useUIStore();
   const { showErrorControls, errorFilters, setErrorFilters } = useErrorStore();
+  const tHeader = useTranslations("header");
+  const tAuth = useTranslations("auth");
 
   // Static classes resolving synchronously via Tailwind dark: variants
   const headerClassName =
@@ -60,12 +64,12 @@ export const Header = React.memo(function Header({ onShowLogin }: HeaderProps) {
         <input
           type="text"
           placeholder={
-            showErrorControls ? "Funnel errors..." : "Search command or data..."
+            showErrorControls ? tHeader("search_errors") : tHeader("search_placeholder")
           }
           className={inputClassName}
           value={searchQuery || ""}
           onChange={(e) => setSearchQuery(e.target.value)}
-          aria-label="Buscar en el dashboard"
+          aria-label={tHeader("search_dashboard")}
         />
         {!searchQuery && !showErrorControls && (
           <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1 pointer-events-none">
@@ -84,9 +88,9 @@ export const Header = React.memo(function Header({ onShowLogin }: HeaderProps) {
             <HeaderFilterPill
               icon={ShieldWarning}
               options={[
-                { value: "all", label: "Toda Severidad" },
-                { value: "critical", label: "Crítico" },
-                { value: "warning", label: "Advertencia" },
+                { value: "all", label: tHeader("all_severity") },
+                { value: "critical", label: tHeader("critical") },
+                { value: "warning", label: tHeader("warning") },
               ]}
               value={errorFilters.severity}
               onChange={(val) =>
@@ -96,11 +100,11 @@ export const Header = React.memo(function Header({ onShowLogin }: HeaderProps) {
             <HeaderFilterPill
               icon={Pulse}
               options={[
-                { value: "all", label: "Todo Estado" },
-                { value: "failed", label: "Fallido" },
-                { value: "reviewing", label: "En Revisión" },
-                { value: "resolved", label: "Resuelto" },
-                { value: "ignored", label: "Ignorado" },
+                { value: "all", label: tHeader("all_status") },
+                { value: "failed", label: tHeader("failed") },
+                { value: "reviewing", label: tHeader("reviewing") },
+                { value: "resolved", label: tHeader("resolved") },
+                { value: "ignored", label: tHeader("ignored") },
               ]}
               value={errorFilters.status}
               onChange={(val) =>
@@ -118,14 +122,14 @@ export const Header = React.memo(function Header({ onShowLogin }: HeaderProps) {
             onClick={onShowLogin}
             className="px-4 py-2 rounded-full text-sm font-medium transition-all bg-blue-600 text-white hover:bg-blue-700 shadow-md dark:bg-cyan-500/10 dark:text-cyan-400 dark:hover:bg-cyan-500/20 dark:hover:shadow-[0_0_15px_rgba(34,211,238,0.3)] dark:shadow-none"
           >
-            Iniciar Sesión
+            {tAuth("sign_in")}
           </button>
         )}
 
         <button
           onClick={toggleTheme}
           className={themeButtonClassName}
-          aria-label="Toggle theme"
+          aria-label={tHeader("toggle_theme")}
         >
           <div className="relative w-5 h-5">
             <Sun className="w-5 h-5 absolute top-0 left-0 transition-all duration-300 rotate-0 scale-100 dark:-rotate-90 dark:scale-0" />
@@ -133,6 +137,7 @@ export const Header = React.memo(function Header({ onShowLogin }: HeaderProps) {
           </div>
         </button>
 
+        <LocaleSwitcher />
         <NotificationCenter />
       </div>
     </header>

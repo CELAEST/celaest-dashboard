@@ -12,17 +12,6 @@ export interface UsersResponse {
   };
 }
 
-export interface UsersResponse {
-  success: boolean;
-  data: UserData[];
-  meta: {
-    page: number;
-    per_page: number;
-    total: number;
-    total_pages: number;
-  };
-}
-
 export interface CreateUserInput {
   email: string;
   first_name?: string;
@@ -35,6 +24,18 @@ export interface UpdateUserInput {
   last_name?: string;
   role?: string;
   organization_id?: string;
+}
+
+export interface WorkspaceInvitation {
+  id: string;
+  organization_id: string;
+  organization_name: string;
+  email: string;
+  role: string;
+  status: "pending" | "accepted" | "rejected";
+  invited_by: string;
+  created_at: string;
+  responded_at?: string;
 }
 
 export const usersApi = {
@@ -51,6 +52,18 @@ export const usersApi = {
   createUser: async (data: CreateUserInput, token: string, orgId: string): Promise<UserData> => {
     const response = await api.post<UserData>("/api/v1/org/users", data, { token, orgId });
     return response;
+  },
+
+  listWorkspaceInvitations: async (token: string): Promise<{ invitations: WorkspaceInvitation[]; total: number }> => {
+    return api.get<{ invitations: WorkspaceInvitation[]; total: number }>("/api/v1/user/workspace-invitations", { token });
+  },
+
+  acceptWorkspaceInvitation: async (invitationId: string, token: string): Promise<{ invitation: WorkspaceInvitation }> => {
+    return api.post<{ invitation: WorkspaceInvitation }>(`/api/v1/user/workspace-invitations/${invitationId}/accept`, {}, { token });
+  },
+
+  rejectWorkspaceInvitation: async (invitationId: string, token: string): Promise<{ invitation: WorkspaceInvitation }> => {
+    return api.post<{ invitation: WorkspaceInvitation }>(`/api/v1/user/workspace-invitations/${invitationId}/reject`, {}, { token });
   },
 
   updateUser: async (userId: string, data: UpdateUserInput, token: string, orgId: string): Promise<void> => {
