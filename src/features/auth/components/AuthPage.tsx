@@ -33,6 +33,21 @@ export const AuthPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const tAuth = useTranslations("auth");
 
+  const getPostAuthRedirect = () => {
+    const explicitRedirect = searchParams.get("redirect");
+    if (explicitRedirect) return explicitRedirect;
+
+    const plan = searchParams.get("plan");
+    const billingCycle = searchParams.get("billing_cycle");
+    if (plan) {
+      const params = new URLSearchParams({ tab: "billing", plan });
+      if (billingCycle) params.set("billing_cycle", billingCycle);
+      return `/?${params.toString()}`;
+    }
+
+    return "/?tab=marketplace";
+  };
+
   // Handlers
   const handleLoginSubmit = async (data: LoginFormValues) => {
     setLoading(true);
@@ -45,8 +60,7 @@ export const AuthPage: React.FC = () => {
       toast.success(tAuth("welcome_back_toast"), {
         description: tAuth("login_success")
       });
-      const redirectTo = searchParams.get("redirect") || "/?tab=marketplace";
-      router.push(redirectTo);
+      router.push(getPostAuthRedirect());
     }
     setLoading(false);
   };
@@ -62,8 +76,7 @@ export const AuthPage: React.FC = () => {
       toast.success(tAuth("account_created"), {
         description: tAuth("account_created_message")
       });
-      const redirectTo = searchParams.get("redirect") || "/?tab=marketplace";
-      router.push(redirectTo);
+      router.push(getPostAuthRedirect());
     }
     setLoading(false);
   };

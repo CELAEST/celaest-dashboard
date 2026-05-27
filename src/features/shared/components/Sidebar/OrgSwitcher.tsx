@@ -138,42 +138,48 @@ export function OrgSwitcher({ isExpanded }: OrgSwitcherProps) {
           )}
         </div>
 
-        {/* Org name (visible when expanded) */}
-        <motion.div
-          className="flex-1 min-w-0 text-left overflow-hidden"
-          initial={{ width: 0, opacity: 0 }}
-          animate={{
-            width: isExpanded ? "auto" : 0,
-            opacity: isExpanded ? 1 : 0,
-          }}
-          transition={{ duration: 0.2 }}
-        >
-          <p className="text-sm font-semibold truncate">
-            {currentOrg?.name || t("select_workspace")}
-          </p>
-          <p
-            className={`text-[10px] truncate ${isDark ? "text-gray-500" : "text-gray-400"}`}
-          >
-            {currentOrg?.role || t("member")}
-          </p>
-        </motion.div>
+        {/* Org name + chevron only render when expanded.
+            When collapsed they would still claim layout width because of
+            `flex-1` (animated width:0 doesn't override flex-grow), shifting
+            the avatar to the left and breaking the visual symmetry with the
+            menu items below. Conditional render keeps the avatar perfectly
+            centered by the button's justify-center. */}
+        {isExpanded && (
+          <>
+            {/* Org name */}
+            <motion.div
+              className="flex-1 min-w-0 text-left overflow-hidden"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <p className="text-sm font-semibold truncate">
+                {currentOrg?.name || t("select_workspace")}
+              </p>
+              <p
+                className={`text-[10px] truncate ${isDark ? "text-gray-500" : "text-gray-400"}`}
+              >
+                {currentOrg?.role || t("member")}
+              </p>
+            </motion.div>
 
-        {/* Chevron (visible when expanded) */}
-        <motion.div
-          initial={{ width: 0, opacity: 0 }}
-          animate={{
-            width: isExpanded ? "auto" : 0,
-            opacity: isExpanded ? 1 : 0,
-          }}
-          transition={{ duration: 0.2 }}
-        >
-          <CaretDown
-            size={14}
-            className={`transition-transform ${isOpen ? "rotate-180" : ""} ${
-              isDark ? "text-gray-500" : "text-gray-400"
-            }`}
-          />
-        </motion.div>
+            {/* Chevron */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <CaretDown
+                size={14}
+                className={`transition-transform ${isOpen ? "rotate-180" : ""} ${
+                  isDark ? "text-gray-500" : "text-gray-400"
+                }`}
+              />
+            </motion.div>
+          </>
+        )}
       </button>
 
       {/* Dropdown */}

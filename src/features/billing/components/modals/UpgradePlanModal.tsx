@@ -1,5 +1,5 @@
 import { logger } from "@/lib/logger";
-import { useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { X } from "@phosphor-icons/react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
@@ -15,6 +15,7 @@ import { billingApi } from "../../api/billing.api";
 import { ApiError } from "@/lib/api-client";
 import { useTranslations } from "next-intl";
 import type { BillingCycle } from "../../types";
+import { useSearchParams } from "next/navigation";
 
 interface UpgradePlanModalProps {
   isOpen: boolean;
@@ -27,11 +28,15 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
   const { plans, activePlanIds, isLoading: isBillingLoading } = useBilling();
   const { currentOrg } = useOrgStore();
   const { session } = useAuth();
+  const searchParams = useSearchParams();
+  const requestedPlan = searchParams.get("plan");
+  const requestedCycle = searchParams.get("billing_cycle") === "yearly" ? "yearly" : "monthly";
+  const autoCheckoutRef = useRef(false);
   const [isUpgrading, setIsUpgrading] = useState(false);
-  const [billingCycle, setBillingCycle] = useState<BillingCycle>("yearly");
+  const [billingCycle, setBillingCycle] = useState<BillingCycle>(requestedCycle);
   const t = useTranslations("billing");
 
-  const handleUpgrade = async (plan: Plan) => {
+  const handleUpgrade = useCallback(async (plan: Plan) => {
     if (!currentOrg?.id || !session?.accessToken) {
       toast.error(t("org_session_missing"));
       return;
@@ -96,7 +101,7 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
     } finally {
       setIsUpgrading(false);
     }
-  };
+  }, [billingCycle, currentOrg?.id, onClose, session?.accessToken, session?.user.id, t]);
 
   const isRestricted = (() => {
     if (!currentOrg) return false;
@@ -105,21 +110,36 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
     return currentOrg.role !== "owner" && currentOrg.role !== "super_admin" && currentOrg.role !== "admin";
   })();
 
-  // Funnel and sort plans — map color by plan code
-  const planColorMap: Record<string, "blue" | "purple" | "emerald"> = {
-    starter: "blue",
-    pro: "purple",
-    enterprise: "emerald",
-  };
+  const displayPlans = useMemo(
+    () => {
+      const planColorMap: Record<string, "blue" | "purple" | "emerald"> = {
+        starter: "blue",
+        pro: "purple",
+        enterprise: "emerald",
+      };
+      return plans
+        .filter((p: Plan) => p.is_active && p.is_public)
+        .sort((a: Plan, b: Plan) => (a.sort_order || 0) - (b.sort_order || 0))
+        .map((p: Plan) => ({
+          ...p,
+          popular: p.code === "pro",
+          color: planColorMap[p.code] || "blue",
+        }));
+    },
+    [plans],
+  );
 
-  const displayPlans = plans
-    .filter((p: Plan) => p.is_active && p.is_public)
-    .sort((a: Plan, b: Plan) => (a.sort_order || 0) - (b.sort_order || 0))
-    .map((p: Plan) => ({
-      ...p,
-      popular: p.code === "pro",
-      color: planColorMap[p.code] || "blue",
-    }));
+  useEffect(() => {
+    setBillingCycle(requestedCycle);
+  }, [requestedCycle]);
+
+  useEffect(() => {
+    if (!isOpen || !requestedPlan || autoCheckoutRef.current || isBillingLoading || isRestricted) return;
+    const plan = displayPlans.find((p) => p.code === requestedPlan || p.slug === requestedPlan || p.id === requestedPlan);
+    if (!plan) return;
+    autoCheckoutRef.current = true;
+    handleUpgrade(plan);
+  }, [displayPlans, handleUpgrade, isBillingLoading, isOpen, isRestricted, requestedPlan]);
 
   return (
     <BillingModal

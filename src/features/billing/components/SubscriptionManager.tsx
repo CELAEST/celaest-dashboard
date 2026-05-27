@@ -1,4 +1,5 @@
 import React from "react";
+import { useSearchParams } from "next/navigation";
 import { motion } from "motion/react";
 import {
   Lightning,
@@ -89,6 +90,8 @@ const GaugeRing: React.FC<GaugeRingProps> = ({
 export const SubscriptionManager: React.FC = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const searchParams = useSearchParams();
+  const requestedPlan = searchParams.get("plan");
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = React.useState(false);
   const [isManageModalOpen, setIsManageModalOpen] = React.useState(false);
 
@@ -97,6 +100,12 @@ export const SubscriptionManager: React.FC = () => {
   const { currentOrg } = useOrgStore();
   const t = useTranslations("billing");
   const planPrice = useLocalPlanPrice(plan);
+
+  React.useEffect(() => {
+    if (requestedPlan) {
+      setIsUpgradeModalOpen(true);
+    }
+  }, [requestedPlan]);
 
   // Allow billing management if the user is an owner/admin in their org, OR if they
   // are viewing their personal Celaest workspace (slug = "celaest" or "celaest-official").
@@ -139,7 +148,12 @@ export const SubscriptionManager: React.FC = () => {
     );
   }
 
-  const priceDisplay = planPrice.monthly.isFree ? t("free") : planPrice.monthly.formatted;
+  const isYearly = (subscription?.billing_cycle ?? "monthly") === "yearly";
+  const selectedPrice = isYearly && planPrice.yearly.value > 0
+    ? planPrice.yearly
+    : planPrice.monthly;
+  const priceDisplay = selectedPrice.isFree ? t("free") : selectedPrice.formatted;
+  const periodLabel = isYearly ? "/yr" : t("per_month");
 
   return (
     <>
@@ -210,9 +224,9 @@ export const SubscriptionManager: React.FC = () => {
               >
                 {priceDisplay}
               </span>
-              {!planPrice.monthly.isFree && (
+              {!selectedPrice.isFree && (
                 <span className={`text-xs font-medium ${isDark ? "text-slate-500" : "text-slate-400"}`}>
-                  {t("per_month")}
+                  {periodLabel}
                 </span>
               )}
             </div>

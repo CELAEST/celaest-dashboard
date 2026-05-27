@@ -140,7 +140,15 @@ export const assetsService = {
     const dataArray = response && typeof response === 'object' && 'data' in response && Array.isArray((response as Record<string, unknown>).data) 
                       ? (response as Record<string, unknown>).data 
                       : Array.isArray(response) ? response : [];
-    return (dataArray as BackendCustomerAsset[]).map((item) => this.mapBackendAssetToAsset(item));
+    const mapped = (dataArray as BackendCustomerAsset[]).map((item) => this.mapBackendAssetToAsset(item));
+    // Deduplicate by id to prevent React key collisions when the backend
+    // returns the same product via multiple license matches.
+    const seen = new Set<string>();
+    return mapped.filter((a) => {
+      if (seen.has(a.id)) return false;
+      seen.add(a.id);
+      return true;
+    });
   },
 
   // Organization inventory (products owned by org)
