@@ -104,13 +104,19 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
     >
       {/* Visual Header / Image Container - Compact for viewport fit */}
       <div
-        className="relative w-full overflow-hidden"
+        className={`relative w-full overflow-hidden ${onViewDetails ? "cursor-pointer" : ""}`}
         style={{ aspectRatio: "4/3" }}
+        onClick={(e) => {
+          if (onViewDetails) {
+            e.stopPropagation();
+            onViewDetails();
+          }
+        }}
       >
         {/* Animated Background Image */}
         <motion.div
           animate={{
-            scale: isHovered ? 1.1 : 1,
+            scale: isHovered ? 1.15 : 1,
           }}
           transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
           className="absolute inset-0"
@@ -127,13 +133,35 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
         {/* Dynamic Overlays */}
         <div
           className={`absolute inset-0 transition-opacity duration-500 ${
-            isHovered ? "bg-black/20" : "bg-black/40"
+            isHovered ? "bg-black/45" : "bg-black/40"
           }`}
         />
 
         <div
-          className={`absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent`}
+          className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent"
         />
+
+        {/* Centered Play Video Button - Hover effect */}
+        {product.youtube_video_id && (
+          <div
+            className={`absolute inset-0 z-30 flex items-center justify-center transition-all duration-500 ease-[0.22,1,0.36,1] ${
+              isHovered ? "opacity-100 scale-100" : "opacity-0 scale-75 pointer-events-none"
+            }`}
+          >
+            <div
+              className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white/95 hover:bg-white shadow-[0_10px_30px_rgba(0,0,0,0.5),0_0_20px_rgba(255,255,255,0.2)] hover:shadow-[0_15px_40px_rgba(0,0,0,0.6),0_0_25px_rgba(34,211,238,0.4)] flex items-center justify-center transition-all duration-300 transform hover:scale-110 active:scale-95 group/play cursor-pointer"
+            >
+              {/* Custom aligned play triangle */}
+              <svg
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="w-7 h-7 sm:w-8 sm:h-8 text-[#0a192f] translate-x-0.5 transition-transform duration-300 group-hover/play:scale-105"
+              >
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </div>
+          </div>
+        )}
 
         {/* Floating Badges
          * Cuando el producto es BESTSELLER ocultamos la categoría para evitar

@@ -35,6 +35,8 @@ interface LiteYouTubeProps {
   fallbackImage?: string;
   /** Optional extra classes for the outer aspect-ratio wrapper. */
   className?: string;
+  /** Optional flag to autoplay the video immediately. */
+  autoPlay?: boolean;
 }
 
 export const LiteYouTube: React.FC<LiteYouTubeProps> = ({
@@ -42,8 +44,9 @@ export const LiteYouTube: React.FC<LiteYouTubeProps> = ({
   title,
   fallbackImage,
   className = "",
+  autoPlay = false,
 }) => {
-  const [activated, setActivated] = React.useState(false);
+  const [activated, setActivated] = React.useState(autoPlay);
   const [thumbFailed, setThumbFailed] = React.useState(false);
 
   // Warm up the connection to YouTube on hover/focus so the first frame

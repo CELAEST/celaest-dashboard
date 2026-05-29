@@ -201,6 +201,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   videoId={product.youtube_video_id}
                   title={product.name}
                   fallbackImage={product.thumbnail_url || undefined}
+                  autoPlay
                 />
               ) : (
                 <div
