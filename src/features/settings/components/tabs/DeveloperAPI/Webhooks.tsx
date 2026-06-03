@@ -29,8 +29,8 @@ export const Webhooks: React.FC = memo(() => {
   };
 
   return (
-    <div className="settings-glass-card rounded-2xl p-6">
-      <div className="flex items-center justify-between mb-6">
+    <div className="settings-glass-card rounded-2xl p-4 sm:p-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <h3
           className={`text-lg font-bold flex items-center gap-2 ${
             isDark ? "text-white" : "text-gray-900"
@@ -42,7 +42,7 @@ export const Webhooks: React.FC = memo(() => {
         <button
           onClick={handleAddWebhook}
           disabled={isCreating}
-          className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[10px] font-black tracking-widest transition-all ${
+          className={`flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-[10px] font-black tracking-widest transition-all w-full sm:w-auto shrink-0 ${
             isDark
               ? "bg-white/5 text-gray-400 hover:text-white"
               : "bg-gray-100 text-gray-500 hover:bg-gray-200"
@@ -86,36 +86,38 @@ export const Webhooks: React.FC = memo(() => {
           webhooks.map((webhook: Webhook) => (
             <div
               key={webhook.id}
-              className={`p-4 flex items-center justify-between rounded-xl border ${
+              className={`p-3 sm:p-4 rounded-xl border ${
                 isDark
                   ? "bg-black/40 border-white/5"
                   : "bg-white border-gray-100"
               }`}
             >
-              <div>
-                <div className="flex items-center gap-3 mb-1">
-                  <span
-                    className={`w-2 h-2 rounded-full ${webhook.is_active ? "bg-emerald-500" : "bg-gray-400"}`}
-                  />
-                  <span className="font-mono text-xs">{webhook.url}</span>
-                </div>
-                <div className="flex gap-2 text-[10px] text-gray-500 mt-2">
-                  {webhook.events.map((event) => (
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 sm:gap-3 mb-2">
                     <span
-                      key={event}
-                      className="px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-500"
-                    >
-                      {event}
-                    </span>
-                  ))}
+                      className={`w-2 h-2 rounded-full shrink-0 ${webhook.is_active ? "bg-emerald-500" : "bg-gray-400"}`}
+                    />
+                    <span className="font-mono text-xs truncate">{webhook.url}</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 sm:gap-2 text-[10px]">
+                    {webhook.events.map((event) => (
+                      <span
+                        key={event}
+                        className="px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-500"
+                      >
+                        {event}
+                      </span>
+                    ))}
+                  </div>
                 </div>
+                <button
+                  onClick={() => deleteWebhook(webhook.id)}
+                  className="p-2 rounded-lg text-red-500/50 hover:bg-red-500/10 hover:text-red-500 transition-colors shrink-0"
+                >
+                  <Trash size={16} />
+                </button>
               </div>
-              <button
-                onClick={() => deleteWebhook(webhook.id)}
-                className="p-2 rounded-lg text-red-500/50 hover:bg-red-500/10 hover:text-red-500 transition-colors"
-              >
-                <Trash size={16} />
-              </button>
             </div>
           ))}
       </div>

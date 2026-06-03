@@ -11,6 +11,7 @@ interface LicensingHeaderProps {
   collisionsCount: number;
   statusFilter: string;
   onStatusFilterChange: (status: string) => void;
+  isSuperAdmin?: boolean;
 }
 
 const STATUS_OPTIONS = [
@@ -28,6 +29,7 @@ export const LicensingHeader: React.FC<LicensingHeaderProps> = ({
   collisionsCount,
   statusFilter,
   onStatusFilterChange,
+  isSuperAdmin,
 }) => {
   const { isDark } = useTheme();
   const t = useTranslations("licensing");
@@ -35,7 +37,7 @@ export const LicensingHeader: React.FC<LicensingHeaderProps> = ({
   const tabs: { id: "licenses" | "collisions" | "analytics"; label: string }[] = [
     { id: "licenses", label: t("all_licenses_tab") },
     { id: "collisions", label: t("collisions_tab") },
-    { id: "analytics", label: t("analytics_tab") },
+    ...(isSuperAdmin ? [{ id: "analytics" as const, label: t("analytics_tab") }] : []),
   ];
 
 

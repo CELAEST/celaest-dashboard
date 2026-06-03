@@ -24,10 +24,10 @@ export const BrowserNotifications: React.FC = memo(() => {
 
   return (
     <div className="settings-glass-card rounded-2xl p-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-4 text-left">
           <div
-            className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-sm transition-colors ${
+            className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-sm transition-colors shrink-0 ${
               isDark ? "bg-blue-500/10" : "bg-blue-50"
             }`}
           >
@@ -54,7 +54,7 @@ export const BrowserNotifications: React.FC = memo(() => {
         </div>
         <button
           onClick={handleRequestPermission}
-          className="px-6 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-black tracking-widest active:scale-95 transition-all"
+          className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-black tracking-widest active:scale-95 transition-all text-center"
         >
           {t("enable_browser_alerts")}
         </button>

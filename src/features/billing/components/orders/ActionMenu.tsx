@@ -49,7 +49,7 @@ export const ActionMenu = ({
             transition={{ duration: 0.2 }}
             style={{
               position: "fixed",
-              left: position.x - 180,
+              left: Math.max(8, Math.min(position.x - 180, window.innerWidth - 192 - 8)),
               ...(align === "top"
                 ? { top: position.y }
                 : { bottom: position.y }),

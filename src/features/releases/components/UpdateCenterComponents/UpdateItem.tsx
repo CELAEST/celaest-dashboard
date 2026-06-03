@@ -23,13 +23,17 @@ export const UpdateItem: React.FC<UpdateItemProps> = memo(
     return (
       <motion.div
         layout
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: index * 0.1 }}
-        className={`rounded-2xl border overflow-hidden ${
-          isDark
-            ? "bg-linear-to-br from-[#0a0a0a]/80 to-gray-900/50 border-white/10"
-            : "bg-white border-gray-200 shadow-sm"
+        transition={{ delay: index * 0.08, type: "spring", bounce: 0.15 }}
+        className={`rounded-2xl border overflow-hidden transition-shadow duration-300 ${
+          asset.hasUpdate
+            ? isDark
+              ? "bg-[#0a0a0a]/80 border-cyan-500/15 hover:border-cyan-500/25 shadow-sm hover:shadow-cyan-500/5"
+              : "bg-white border-cyan-200/60 hover:border-cyan-300 shadow-sm hover:shadow-md"
+            : isDark
+              ? "bg-[#0a0a0a]/50 border-white/8 hover:border-white/12"
+              : "bg-white border-gray-200 shadow-sm hover:shadow-md"
         }`}
       >
         <UpdateItemHeader asset={asset} />

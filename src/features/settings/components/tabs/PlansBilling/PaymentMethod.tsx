@@ -76,7 +76,7 @@ export const PaymentMethod: React.FC = memo(() => {
           methods.map((method) => (
             <div
               key={method.id}
-              className={`flex items-center justify-between p-4 rounded-xl border transition-all ${
+              className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border transition-all ${
                 isDark
                   ? "bg-black/20 border-white/5"
                   : "bg-gray-50 border-gray-100 shadow-xs"
@@ -84,7 +84,7 @@ export const PaymentMethod: React.FC = memo(() => {
             >
               <div className="flex items-center gap-4">
                 <div
-                  className={`w-12 h-10 rounded-lg flex items-center justify-center ${
+                  className={`w-12 h-10 rounded-lg flex items-center justify-center shrink-0 ${
                     isDark
                       ? "bg-white/10"
                       : "bg-white border border-gray-100 shadow-sm"
@@ -94,13 +94,13 @@ export const PaymentMethod: React.FC = memo(() => {
                 </div>
                 <div>
                   <p
-                    className={`font-bold text-sm ${
+                    className={`font-bold text-sm flex flex-wrap items-center gap-1.5 ${
                       isDark ? "text-white" : "text-gray-900"
                     }`}
                   >
-                    {method.brand?.toUpperCase() || t("card")} **** {method.last4}
+                    <span>{method.brand?.toUpperCase() || t("card")} **** {method.last4}</span>
                     {(method.is_default || method.isDefault) && (
-                      <span className="ml-2 px-1.5 py-0.5 rounded text-[10px] bg-cyan-500/10 text-cyan-500 uppercase font-black">
+                      <span className="px-1.5 py-0.5 rounded text-[10px] bg-cyan-500/10 text-cyan-500 uppercase font-black shrink-0">
                         {t("default")}
                       </span>
                     )}
@@ -113,7 +113,7 @@ export const PaymentMethod: React.FC = memo(() => {
               </div>
               <button
                 onClick={() => toast.info(t("payment_settings_info"))}
-                className={`text-xs font-black tracking-widest transition-colors ${
+                className={`text-xs font-black tracking-widest transition-colors self-end sm:self-auto ${
                   isDark
                     ? "text-gray-400 hover:text-white"
                     : "text-gray-500 hover:text-gray-900"

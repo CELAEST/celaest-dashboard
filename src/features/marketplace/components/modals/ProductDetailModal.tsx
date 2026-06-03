@@ -78,7 +78,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           className={`
-            relative shrink-0 w-6xl min-w-[320px] sm:min-w-6xl max-w-[95vw] max-h-[90vh] overflow-y-auto rounded-3xl border shadow-2xl
+            relative shrink-0 w-full max-w-[95vw] sm:max-w-3xl lg:max-w-6xl max-h-[90vh] overflow-y-auto rounded-3xl border shadow-2xl
             ${
               theme === "dark"
                 ? "bg-black/90 backdrop-blur-xl border-white/10"

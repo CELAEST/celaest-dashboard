@@ -43,7 +43,7 @@ export function SettingsModal({
   if (!mounted || !isOpen) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-100 flex items-end sm:items-center justify-center p-0 sm:p-4">
       {/* Backdrop */}
       <div
         className={`absolute inset-0 backdrop-blur-sm transition-all duration-500 ${
@@ -56,13 +56,18 @@ export function SettingsModal({
       {/* Modal Content */}
       <div
         className={cn(
-          "relative shrink-0 rounded-2xl p-6 w-112 min-w-[320px] sm:min-w-112 max-w-[95vw] max-h-[90vh] overflow-y-auto shadow-2xl transition-all duration-300 animate-in fade-in zoom-in",
+          "relative shrink-0 w-full sm:w-112 max-w-full sm:max-w-[95vw] min-w-[320px] sm:min-w-112 overflow-y-auto shadow-2xl transition-all duration-300 animate-in fade-in",
+          // Mobile layout (< sm)
+          "rounded-t-2xl rounded-b-none border-t border-x border-b-0 p-6 pb-8 max-h-[85vh] slide-in-from-bottom",
+          // Desktop layout (>= sm)
+          "sm:rounded-2xl sm:border sm:p-6 sm:max-h-[90vh] sm:zoom-in sm:slide-in-from-bottom-0",
           isDark
-            ? "bg-[#0a0a0a] border border-white/10 shadow-black/50"
-            : "bg-white border border-gray-200 shadow-gray-400/20",
+            ? "bg-[#0a0a0a] border-white/10 shadow-black/50"
+            : "bg-white border-gray-200 shadow-gray-400/20",
           className
         )}
       >
+        <div className="mx-auto h-1.5 w-12 rounded-full bg-muted-foreground/20 sm:hidden -mt-3 mb-3" />
         <div className="flex items-center justify-between mb-6">
           <h3
             className={`text-xl font-bold tracking-tight ${

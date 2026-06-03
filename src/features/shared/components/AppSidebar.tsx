@@ -17,12 +17,15 @@ import { SidebarMenuItem } from "./Sidebar/SidebarMenuItem";
 import { OrgSwitcher } from "./Sidebar/OrgSwitcher";
 import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 import { useTranslations } from "next-intl";
+import { Drawer, DrawerContent } from "@/components/ui/drawer";
 
 interface SidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   isGuest?: boolean;
   onShowLogin?: () => void;
+  isMobileSidebarOpen?: boolean;
+  setIsMobileSidebarOpen?: (open: boolean) => void;
 }
 
 export const AppSidebar = React.memo(function AppSidebar({
@@ -30,6 +33,8 @@ export const AppSidebar = React.memo(function AppSidebar({
   setActiveTab,
   isGuest,
   onShowLogin,
+  isMobileSidebarOpen,
+  setIsMobileSidebarOpen,
 }: SidebarProps) {
   const router = useRouter(); // Initialize router
   const [isHovered, setIsHovered] = useState(false);
@@ -108,14 +113,15 @@ export const AppSidebar = React.memo(function AppSidebar({
         return;
       }
       setActiveTab(id);
+      setIsMobileSidebarOpen?.(false);
     },
-    [isGuest, onShowLogin, setActiveTab],
+    [isGuest, onShowLogin, setActiveTab, setIsMobileSidebarOpen],
   );
 
   // Clases memoizadas
   const containerClassName = useMemo(
     () =>
-      `h-screen fixed left-0 top-0 z-50 flex flex-col backdrop-blur-2xl border-r transition-colors duration-300 ${
+      `h-screen fixed left-0 top-0 z-50 md:flex hidden flex-col backdrop-blur-2xl border-r transition-colors duration-300 ${
         isDark
           ? "bg-[#020202]/80 border-white/[0.05] shadow-[4px_0_24px_rgba(0,0,0,0.5)]"
           : "bg-white/80 border-gray-200 shadow-xl"
@@ -123,8 +129,210 @@ export const AppSidebar = React.memo(function AppSidebar({
     [isDark],
   );
 
+  const renderSidebarContent = (isExpanded: boolean) => (
+    <>
+      <div className="h-20 flex items-center justify-center relative overflow-hidden px-4 border-b border-transparent dark:border-white/2">
+        <div
+          className={`absolute inset-0 bg-linear-to-r ${
+            isDark
+              ? "from-white/2 to-transparent"
+              : "from-blue-500/5 to-transparent"
+          }`}
+        />
+
+        <motion.div
+          className="relative z-10 flex items-center gap-2 w-full justify-center"
+          initial={false}
+          animate={{
+            x: isExpanded ? -16 : 0,
+            y: isExpanded ? 3 : 0,
+          }}
+          transition={{ duration: 0.3 }}
+        >
+          <motion.div
+            className="shrink-0 flex items-center justify-center"
+            initial={false}
+            animate={{
+              width: isExpanded ? 40 : 56,
+              height: isExpanded ? 40 : 56,
+            }}
+            transition={{ duration: 0.3 }}
+          >
+            <Logo
+              className="w-full h-full"
+              color={isDark ? "#22d3ee" : "#2563eb"}
+            />
+          </motion.div>
+
+          <motion.div
+            className="overflow-hidden"
+            initial={false}
+            animate={{
+              width: isExpanded ? "auto" : 0,
+              opacity: isExpanded ? 1 : 0,
+            }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="flex flex-col shrink-0 leading-none whitespace-nowrap">
+              <span
+                className={`text-xl font-bold tracking-tight ${
+                  isDark
+                    ? "text-white"
+                    : "bg-linear-to-r from-blue-600 via-blue-500 to-indigo-600 bg-clip-text text-transparent"
+                }`}
+              >
+                CELAEST
+              </span>
+              <span
+                className={`text-[10px] font-medium tracking-[0.21em] mt-0.5 ${
+                  isDark ? "text-gray-500" : "text-blue-500/60"
+                }`}
+              >
+                DASHBOARD
+              </span>
+            </div>
+          </motion.div>
+        </motion.div>
+      </div>
+
+      {/* Org Switcher (multi-org dropdown) */}
+      {!isGuest && <OrgSwitcher isExpanded={isExpanded} />}
+
+      <nav
+        ref={isExpanded ? undefined : navRef}
+        className={`flex-1 py-6 flex flex-col px-3 overflow-y-auto no-scrollbar transition-all duration-300 ${
+          isExpanded ? "gap-6" : "gap-4"
+        }`}
+      >
+        {visibleMenuSections.map((section, sidx) => (
+          <div key={sidx} className="flex flex-col gap-1">
+            <motion.div
+              initial={false}
+              animate={{
+                height: isExpanded ? 24 : 0,
+                opacity: isExpanded ? 1 : 0,
+              }}
+              className="overflow-hidden flex flex-col justify-end"
+            >
+              <div className="px-3 pb-2">
+                <span
+                  className={`text-[11px] whitespace-nowrap font-bold tracking-widest uppercase ${
+                    isDark ? "text-gray-500/80" : "text-gray-400"
+                  }`}
+                >
+                  {tSidebar(section.titleKey as string)}
+                </span>
+              </div>
+            </motion.div>
+            {section.items.map((item) => (
+              <SidebarMenuItem
+                key={item.id}
+                item={item}
+                isActive={activeTab === item.id}
+                isHovered={isExpanded}
+                isLocked={isGuest && item.id !== "marketplace"}
+                isDark={isDark}
+                onClick={() => handleItemClick(item.id)}
+                label={tSidebar(item.labelKey as string)}
+              />
+            ))}
+          </div>
+        ))}
+      </nav>
+
+      {!isGuest && (
+        <div
+          className={`${isExpanded ? "p-4" : "p-3"} border-t flex flex-col gap-3 ${
+            isDark ? "border-white/5" : "border-gray-200"
+          }`}
+        >
+          {/* Live Connection Status */}
+          <motion.div
+            className="flex items-center gap-2 px-1"
+            initial={false}
+            animate={{ opacity: isExpanded ? 1 : 0 }}
+          >
+            <div className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+            </div>
+            <div className="flex flex-col">
+              <span
+                className={`text-[9px] font-black uppercase tracking-widest ${isDark ? "text-cyan-400/80" : "text-blue-600/80"}`}
+              >
+                {tSidebar("live_connection")}
+              </span>
+              <span
+                className={`text-[8px] font-mono truncate max-w-35 ${isDark ? "text-gray-600" : "text-gray-400"}`}
+              >
+                ID: {currentOrgId || tSidebar("not_available")}
+              </span>
+            </div>
+          </motion.div>
+
+          <button
+            onClick={handleSignOutClick}
+            className={`flex items-center w-full h-10 transition-colors rounded-xl ${
+              isExpanded ? "px-3" : "justify-center px-0"
+            } ${
+              isDark
+                ? "text-gray-400 hover:text-red-400 hover:bg-red-500/10"
+                : "text-gray-500 hover:text-red-600 hover:bg-red-50"
+            }`}
+          >
+            <SignOut size={20} />
+            <motion.span
+              className="ml-3 whitespace-nowrap font-medium overflow-hidden"
+              initial={false}
+              animate={{
+                width: isExpanded ? "auto" : 0,
+                opacity: isExpanded ? 1 : 0,
+              }}
+            >
+              {tAuth("sign_out")}
+            </motion.span>
+          </button>
+
+          {/* Development Tools */}
+          {process.env.NODE_ENV === "development" && (
+            <button
+              onClick={() => {
+                if (window.confirm(tSidebar("nuclear_reset_confirm") as string)) {
+                  localStorage.clear();
+                  sessionStorage.clear();
+                  window.location.href = "/";
+                }
+              }}
+              className={`flex items-center w-full h-10 transition-colors rounded-xl ${
+                isExpanded ? "px-3" : "justify-center px-0"
+              } ${
+                isDark
+                  ? "text-orange-400 hover:text-white hover:bg-orange-500"
+                  : "text-orange-600 hover:text-white hover:bg-orange-500"
+              }`}
+              title={tSidebar("nuclear_reset_tooltip")}
+            >
+              <Bomb size={20} />
+              <motion.span
+                className="ml-3 whitespace-nowrap font-medium overflow-hidden"
+                initial={false}
+                animate={{
+                  width: isExpanded ? "auto" : 0,
+                  opacity: isExpanded ? 1 : 0,
+                }}
+              >
+                {tSidebar("clear_storage")}
+              </motion.span>
+            </button>
+          )}
+        </div>
+      )}
+    </>
+  );
+
   return (
     <>
+      {/* Desktop Sidebar */}
       <motion.div
         className={containerClassName}
         initial={false}
@@ -133,203 +341,25 @@ export const AppSidebar = React.memo(function AppSidebar({
         onMouseLeave={handleMouseLeave}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
       >
-        <div className="h-20 flex items-center justify-center relative overflow-hidden px-4 border-b border-transparent dark:border-white/2">
-          <div
-            className={`absolute inset-0 bg-linear-to-r ${
-              isDark
-                ? "from-white/2 to-transparent"
-                : "from-blue-500/5 to-transparent"
-            }`}
-          />
+        {renderSidebarContent(isHovered)}
+      </motion.div>
 
-          <motion.div
-            className="relative z-10 flex items-center gap-2 w-full justify-center"
-            initial={false}
-            animate={{
-              x: isHovered ? -16 : 0,
-              y: isHovered ? 3 : 0,
-            }}
-            transition={{ duration: 0.3 }}
-          >
-            <motion.div
-              className="shrink-0 flex items-center justify-center"
-              initial={false}
-              animate={{
-                width: isHovered ? 40 : 56,
-                height: isHovered ? 40 : 56,
-              }}
-              transition={{ duration: 0.3 }}
-            >
-              <Logo
-                className="w-full h-full"
-                color={isDark ? "#22d3ee" : "#2563eb"}
-              />
-            </motion.div>
-
-            <motion.div
-              className="overflow-hidden"
-              initial={false}
-              animate={{
-                width: isHovered ? "auto" : 0,
-                opacity: isHovered ? 1 : 0,
-              }}
-              transition={{ duration: 0.3 }}
-            >
-              <div className="flex flex-col shrink-0 leading-none whitespace-nowrap">
-                <span
-                  className={`text-xl font-bold tracking-tight ${
-                    isDark
-                      ? "text-white"
-                      : "bg-linear-to-r from-blue-600 via-blue-500 to-indigo-600 bg-clip-text text-transparent"
-                  }`}
-                >
-                  CELAEST
-                </span>
-                <span
-                  className={`text-[10px] font-medium tracking-[0.21em] mt-0.5 ${
-                    isDark ? "text-gray-500" : "text-blue-500/60"
-                  }`}
-                >
-                  DASHBOARD
-                </span>
-              </div>
-            </motion.div>
-          </motion.div>
-        </div>
-
-        {/* Org Switcher (multi-org dropdown) */}
-        {!isGuest && <OrgSwitcher isExpanded={isHovered} />}
-
-        <nav
-          ref={navRef}
-          className={`flex-1 py-6 flex flex-col px-3 overflow-y-auto no-scrollbar transition-all duration-300 ${
-            isHovered ? "gap-6" : "gap-4"
+      {/* Mobile Sidebar (Drawer) */}
+      <Drawer
+        open={isMobileSidebarOpen}
+        onOpenChange={setIsMobileSidebarOpen}
+        direction="left"
+      >
+        <DrawerContent
+          className={`fixed inset-y-0 left-0 z-50 flex h-full w-[280px] data-[vaul-drawer-direction=left]:w-[280px] data-[vaul-drawer-direction=left]:max-w-[280px] flex-col border-r p-0 outline-none transition-colors duration-300 ${
+            isDark
+              ? "bg-[#020202]/95 border-white/[0.05] shadow-[4px_0_24px_rgba(0,0,0,0.5)]"
+              : "bg-white border-gray-200 shadow-xl"
           }`}
         >
-          {visibleMenuSections.map((section, sidx) => (
-            <div key={sidx} className="flex flex-col gap-1">
-              <motion.div
-                initial={false}
-                animate={{
-                  height: isHovered ? 24 : 0,
-                  opacity: isHovered ? 1 : 0,
-                }}
-                className="overflow-hidden flex flex-col justify-end"
-              >
-                <div className="px-3 pb-2">
-                  <span
-                    className={`text-[11px] whitespace-nowrap font-bold tracking-widest uppercase ${
-                      isDark ? "text-gray-500/80" : "text-gray-400"
-                    }`}
-                  >
-                    {tSidebar(section.titleKey as string)}
-                  </span>
-                </div>
-              </motion.div>
-              {section.items.map((item) => (
-                <SidebarMenuItem
-                  key={item.id}
-                  item={item}
-                  isActive={activeTab === item.id}
-                  isHovered={isHovered}
-                  isLocked={isGuest && item.id !== "marketplace"}
-                  isDark={isDark}
-                  onClick={() => handleItemClick(item.id)}
-                  label={tSidebar(item.labelKey as string)}
-                />
-              ))}
-            </div>
-          ))}
-        </nav>
-
-        {!isGuest && (
-          <div
-            className={`${isHovered ? "p-4" : "p-3"} border-t flex flex-col gap-3 ${
-              isDark ? "border-white/5" : "border-gray-200"
-            }`}
-          >
-            {/* Live Connection Status */}
-            <motion.div
-              className="flex items-center gap-2 px-1"
-              initial={false}
-              animate={{ opacity: isHovered ? 1 : 0 }}
-            >
-              <div className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
-              </div>
-              <div className="flex flex-col">
-                <span
-                  className={`text-[9px] font-black uppercase tracking-widest ${isDark ? "text-cyan-400/80" : "text-blue-600/80"}`}
-                >
-                  {tSidebar("live_connection")}
-                </span>
-                <span
-                  className={`text-[8px] font-mono truncate max-w-35 ${isDark ? "text-gray-600" : "text-gray-400"}`}
-                >
-                    ID: {currentOrgId || tSidebar("not_available")}
-                </span>
-              </div>
-            </motion.div>
-
-            <button
-              onClick={handleSignOutClick}
-              className={`flex items-center w-full h-10 transition-colors rounded-xl ${
-                isHovered ? "px-3" : "justify-center px-0"
-              } ${
-                isDark
-                  ? "text-gray-400 hover:text-red-400 hover:bg-red-500/10"
-                  : "text-gray-500 hover:text-red-600 hover:bg-red-50"
-              }`}
-            >
-              <SignOut size={20} />
-              <motion.span
-                className="ml-3 whitespace-nowrap font-medium overflow-hidden"
-                initial={false}
-                animate={{
-                  width: isHovered ? "auto" : 0,
-                  opacity: isHovered ? 1 : 0,
-                }}
-              >
-                {tAuth("sign_out")}
-              </motion.span>
-            </button>
-
-            {/* Development Tools */}
-            {process.env.NODE_ENV === "development" && (
-              <button
-                onClick={() => {
-                  if (window.confirm(tSidebar("nuclear_reset_confirm") as string)) {
-                    localStorage.clear();
-                    sessionStorage.clear();
-                    window.location.href = "/";
-                  }
-                }}
-                className={`flex items-center w-full h-10 transition-colors rounded-xl ${
-                  isHovered ? "px-3" : "justify-center px-0"
-                } ${
-                  isDark
-                    ? "text-orange-400 hover:text-white hover:bg-orange-500"
-                    : "text-orange-600 hover:text-white hover:bg-orange-500"
-                }`}
-                title={tSidebar("nuclear_reset_tooltip")}
-              >
-                <Bomb size={20} />
-                <motion.span
-                  className="ml-3 whitespace-nowrap font-medium overflow-hidden"
-                  initial={false}
-                  animate={{
-                    width: isHovered ? "auto" : 0,
-                    opacity: isHovered ? 1 : 0,
-                  }}
-                >
-                  {tSidebar("clear_storage")}
-                </motion.span>
-              </button>
-            )}
-          </div>
-        )}
-      </motion.div>
+          {renderSidebarContent(true)}
+        </DrawerContent>
+      </Drawer>
 
       {/* Sign Out Modal */}
       <SignOutModal

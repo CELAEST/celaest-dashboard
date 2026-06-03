@@ -14,12 +14,14 @@ import { LicensingList } from "./hub/LicensingList";
 import { LicensingCollisions } from "./hub/LicensingCollisions";
 import { TableChrome } from "@/components/layout/TableChrome";
 import { useTranslations } from "next-intl";
+import { useRole } from "@/features/auth/hooks/useAuthorization";
 
 export const LicensingHub: React.FC = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const t = useTranslations("licensing");
+  const { isSuperAdmin } = useRole();
 
   const {
     licenses,
@@ -48,6 +50,8 @@ export const LicensingHub: React.FC = () => {
     fetchNextPage,
   } = useLicensing();
 
+  const effectiveActiveTab = activeTab === "analytics" && !isSuperAdmin ? "licenses" : activeTab;
+
   // Handle License Creation — delegates to real API
   const handleCreateLicense = async (data: LicenseFormData) => {
     const created = await licensingService.create({
@@ -66,28 +70,29 @@ export const LicensingHub: React.FC = () => {
     >
       <LicensingHeader
         onCreateClick={() => setIsCreateModalOpen(true)}
-        activeTab={activeTab}
+        activeTab={effectiveActiveTab}
         onTabChange={setActiveTab}
         collisionsCount={collisions.length}
         statusFilter={statusFilter}
         onStatusFilterChange={setStatusFilter}
+        isSuperAdmin={isSuperAdmin}
       />
 
       <div className="flex-1 overflow-hidden flex flex-col min-h-0">
-          {activeTab === "analytics" && (
+          {effectiveActiveTab === "analytics" && (
             <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
               <LicensingStats analytics={analytics} />
             </div>
           )}
 
-          {activeTab === "collisions" && (
+          {effectiveActiveTab === "collisions" && (
             <LicensingCollisions
               collisions={collisions}
               onRevoke={revokeLicense}
             />
           )}
 
-          {activeTab === "licenses" && (
+          {effectiveActiveTab === "licenses" && (
             <div className="flex-1 min-h-0 px-4 pb-4 overflow-hidden">
               <TableChrome
                 toolbar={

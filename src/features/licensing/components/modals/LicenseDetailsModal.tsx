@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Key } from "@phosphor-icons/react";
+import { Key, Copy } from "@phosphor-icons/react";
 import { BillingModal } from "@/features/billing/components/modals/shared/BillingModal";
 import { ValidationLog } from "@/features/licensing/constants/mock-data";
 import type { LicenseResponse } from "@/features/licensing/types";
@@ -10,6 +10,7 @@ import { LicenseStats } from "./license-details/LicenseStats";
 import { LicenseBindings } from "./license-details/LicenseBindings";
 import { LicenseActivityLog } from "./license-details/LicenseActivityLog";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 
 interface LicenseDetailsModalProps {
   isOpen: boolean;
@@ -38,6 +39,14 @@ export const LicenseDetailsModal = ({
 }: LicenseDetailsModalProps) => {
   const t = useTranslations("licensing");
 
+  const maskLicenseKey = (key?: string) => {
+    if (!key) return "••••-••••-••••";
+    const parts = key.split("-");
+    if (parts.length < 2) return "••••" + key.slice(-4);
+    const lastPart = parts[parts.length - 1];
+    return `${parts[0]}-••••-••••-${lastPart}`;
+  };
+
   if (!license) return null;
 
   return (
@@ -60,15 +69,6 @@ export const LicenseDetailsModal = ({
       <LicenseHeader license={license} onClose={onClose} />
 
       <div className="p-6 overflow-y-auto flex-1 min-h-0 space-y-8">
-        <LicenseActions
-          status={license.status}
-          onStatusChange={onStatusChange}
-          onRevoke={onRevoke}
-          onRenew={onRenew}
-          onConvertTrial={onConvertTrial}
-          onReactivate={onReactivate}
-        />
-
         <LicenseStats
           tier={license.plan?.code}
           maxIpSlots={license.ip_bindings?.length || 0}
@@ -82,6 +82,15 @@ export const LicenseDetailsModal = ({
         />
 
         <LicenseActivityLog logs={logs} />
+
+        <LicenseActions
+          status={license.status}
+          onStatusChange={onStatusChange}
+          onRevoke={onRevoke}
+          onRenew={onRenew}
+          onConvertTrial={onConvertTrial}
+          onReactivate={onReactivate}
+        />
       </div>
 
       {/* Footer */}
@@ -105,12 +114,23 @@ export const LicenseDetailsModal = ({
             <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-amber-500/10 text-amber-400 border border-amber-500/20">
               <Key size={14} />
             </div>
-            <div>
+            <div className="flex flex-col">
               <p className="text-[9px] font-mono uppercase tracking-[0.2em] text-white/30 mb-0.5">{t("license_key")}</p>
-              <p className="text-sm font-mono text-white/60 tracking-wider">
-                {"\u2022\u2022\u2022\u2022\u2022-\u2022\u2022\u2022\u2022\u2022-"}
-                {license.license_key?.substring(license.license_key.length - 4) ?? "XXXX"}
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-mono text-white/60 tracking-wider">
+                  {maskLicenseKey(license.license_key)}
+                </p>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(license.license_key);
+                    toast.success(t("copied_to_clipboard") || "Copiado al portapapeles");
+                  }}
+                  className="text-amber-500 hover:text-amber-400 transition-colors p-1"
+                  title="Copiar clave"
+                >
+                  <Copy size={14} />
+                </button>
+              </div>
             </div>
           </div>
           <div className="text-[9px] font-mono uppercase tracking-[0.15em] text-amber-400/70 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-lg">

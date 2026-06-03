@@ -24,7 +24,7 @@ export const ApiKeys: React.FC<ApiKeysProps> = memo(
     const t = useTranslations("settings");
 
     return (
-      <div className="settings-glass-card rounded-2xl p-6">
+      <div className="settings-glass-card rounded-2xl p-4 sm:p-6">
         <div className="flex items-center gap-4 mb-8">
           <div
             className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-sm transition-colors ${
@@ -59,7 +59,7 @@ export const ApiKeys: React.FC<ApiKeysProps> = memo(
           {apiKeys.map((key) => (
             <div
               key={key.id}
-              className={`p-5 rounded-xl border transition-all hover:border-cyan-500/30 ${
+              className={`p-4 sm:p-5 rounded-xl border transition-all hover:border-cyan-500/30 ${
                 isDark
                   ? "bg-black/20 border-white/5"
                   : "bg-gray-50 border-gray-100"
@@ -79,7 +79,9 @@ export const ApiKeys: React.FC<ApiKeysProps> = memo(
                       isDark ? "text-gray-500" : "text-gray-400"
                     }`}
                   >
-                    {t("created_label", { date: key.created })} • {t("last_used_label", { date: key.lastUsed })}
+                    <span className="hidden sm:inline">{t("created_label", { date: key.created })} • {t("last_used_label", { date: key.lastUsed })}</span>
+                    <span className="sm:hidden block">{t("created_label", { date: key.created })}</span>
+                    <span className="sm:hidden block">{t("last_used_label", { date: key.lastUsed })}</span>
                   </p>
                 </div>
                 <div className="flex gap-1.5">

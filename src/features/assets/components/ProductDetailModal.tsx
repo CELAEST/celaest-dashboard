@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useEscapeKey } from "@/features/shared/hooks/useEscapeKey";
@@ -43,7 +43,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-6">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -224,10 +224,9 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 
           {/* Body */}
           <div className="relative z-10 flex-1 overflow-y-auto">
-            <div className="grid grid-cols-3 gap-0">
-
-              {/* Main column: image + content */}
-              <div className="col-span-2 flex flex-col gap-5 p-6 border-r border-white/8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-0">
+            {/* Main column: image + content */}
+            <div className="col-span-1 lg:col-span-2 flex flex-col gap-5 p-6 border-b lg:border-b-0 lg:border-r border-black/10 dark:border-white/8">
 
                 {/* Image */}
                 <div

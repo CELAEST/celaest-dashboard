@@ -34,6 +34,7 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
   const autoCheckoutRef = useRef(false);
   const [isUpgrading, setIsUpgrading] = useState(false);
   const [billingCycle, setBillingCycle] = useState<BillingCycle>(requestedCycle);
+  const [activeMobilePlanCode, setActiveMobilePlanCode] = useState<string>("pro");
   const t = useTranslations("billing");
 
   const handleUpgrade = useCallback(async (plan: Plan) => {
@@ -136,16 +137,17 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
   useEffect(() => {
     if (!isOpen || !requestedPlan || autoCheckoutRef.current || isBillingLoading || isRestricted) return;
     const plan = displayPlans.find((p) => p.code === requestedPlan || p.slug === requestedPlan || p.id === requestedPlan);
-    if (!plan) return;
-    autoCheckoutRef.current = true;
-    handleUpgrade(plan);
+    if (plan) {
+      autoCheckoutRef.current = true;
+      handleUpgrade(plan);
+    }
   }, [displayPlans, handleUpgrade, isBillingLoading, isOpen, isRestricted, requestedPlan]);
 
   return (
     <BillingModal
       isOpen={isOpen}
       onClose={onClose}
-      className="max-w-[95vw] xl:max-w-7xl bg-transparent! rounded-3xl shadow-none! border-0!"
+      className="max-w-[95vw] md:max-w-[90vw] xl:max-w-7xl bg-transparent! rounded-3xl shadow-none! border-0!"
       showCloseButton={false}
     >
       <div
@@ -175,9 +177,9 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
         )}
 
         {/* Content wrapper with z-index to stay above background */}
-        <div className="relative z-10 flex flex-col w-full h-full">
+        <div className="relative z-10 flex flex-col w-full flex-1 min-h-0">
           {/* Header */}
-          <div className="relative pt-10 pb-4 px-6 lg:px-10 text-center">
+          <div className="relative pt-10 pb-4 px-6 lg:px-10 text-center shrink-0">
             <button
               onClick={onClose}
               className={`absolute right-4 top-4 w-8 h-8 rounded-full flex items-center justify-center transition-colors z-30 ${
@@ -189,64 +191,98 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
               <X className="w-4 h-4" />
             </button>
 
-            <div className="flex flex-row items-center justify-center gap-5 sm:gap-12 lg:gap-16 w-full max-w-4xl mx-auto px-2 sm:px-6">
-              <motion.h2
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className={`text-sm xs:text-base sm:text-2xl lg:text-3xl font-black italic tracking-tight uppercase leading-none ${
-                  isDark ? "text-white" : "text-gray-900"
-                }`}
-              >
-                {t("choose_your_plan")}
-              </motion.h2>
+            <div className="flex flex-col items-center justify-center gap-4 w-full max-w-4xl mx-auto px-2 sm:px-6">
+              <div className="flex flex-row items-center justify-center gap-5 sm:gap-12 lg:gap-16 w-full">
+                <motion.h2
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className={`text-sm xs:text-base sm:text-2xl lg:text-3xl font-black italic tracking-tight uppercase leading-none ${
+                    isDark ? "text-white" : "text-gray-900"
+                  }`}
+                >
+                  {t("choose_your_plan")}
+                </motion.h2>
 
-              <div
-                className={`shrink-0 grid grid-cols-2 rounded-xl p-0.5 sm:p-1 w-[120px] xs:w-[140px] sm:w-[220px] ${
+                <div
+                  className={`shrink-0 grid grid-cols-2 rounded-xl p-0.5 sm:p-1 w-[120px] xs:w-[140px] sm:w-[220px] ${
+                    isDark ? "bg-white/5 border border-white/10" : "bg-gray-100 border border-gray-200"
+                  }`}
+                >
+                  {(["monthly", "yearly"] as BillingCycle[]).map((cycle) => (
+                    <button
+                      key={cycle}
+                      type="button"
+                      onClick={() => setBillingCycle(cycle)}
+                      className={`rounded-lg py-1 sm:py-2 text-[8px] xs:text-[10px] sm:text-xs font-bold uppercase tracking-widest transition-all duration-200 ${
+                        billingCycle === cycle
+                          ? isDark
+                            ? "bg-white text-gray-950 shadow-md"
+                            : "bg-white text-gray-900 shadow-md border border-gray-200/50"
+                          : isDark
+                            ? "text-gray-400 hover:text-white hover:bg-white/5"
+                            : "text-gray-500 hover:text-gray-900 hover:bg-gray-200/50"
+                      }`}
+                    >
+                      {cycle === "monthly" ? t("monthly") : t("yearly")}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Mobile Plan Tab Switcher */}
+              <div className="flex md:hidden items-center justify-center w-full mt-4 shrink-0">
+                <div className={`grid grid-cols-3 rounded-xl p-1 w-full max-w-[280px] ${
                   isDark ? "bg-white/5 border border-white/10" : "bg-gray-100 border border-gray-200"
-                }`}
-              >
-                {(["monthly", "yearly"] as BillingCycle[]).map((cycle) => (
-                  <button
-                    key={cycle}
-                    type="button"
-                    onClick={() => setBillingCycle(cycle)}
-                    className={`rounded-lg py-1 sm:py-2 text-[8px] xs:text-[10px] sm:text-xs font-bold uppercase tracking-widest transition-all duration-200 ${
-                      billingCycle === cycle
-                        ? isDark
-                          ? "bg-white text-gray-950 shadow-md"
-                          : "bg-white text-gray-900 shadow-md border border-gray-200/50"
-                        : isDark
-                          ? "text-gray-400 hover:text-white hover:bg-white/5"
-                          : "text-gray-500 hover:text-gray-900 hover:bg-gray-200/50"
-                    }`}
-                  >
-                    {cycle === "monthly" ? t("monthly") : t("yearly")}
-                  </button>
-                ))}
+                }`}>
+                  {displayPlans.map((plan) => (
+                    <button
+                      key={plan.id}
+                      type="button"
+                      onClick={() => setActiveMobilePlanCode(plan.code)}
+                      className={`rounded-lg py-1.5 text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
+                        activeMobilePlanCode === plan.code
+                          ? isDark
+                            ? "bg-white text-gray-950 shadow-sm"
+                            : "bg-white text-gray-900 shadow-sm border border-gray-200/50"
+                          : isDark
+                            ? "text-gray-400 hover:text-white"
+                            : "text-gray-500 hover:text-gray-900"
+                      }`}
+                    >
+                      {plan.name}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
 
           {/* Plans Grid */}
-          <div className="px-4 sm:px-6 lg:px-8 pb-8 pt-4 sm:pt-5 md:pt-6">
+          <div className="flex-1 overflow-y-auto px-3 sm:px-6 lg:px-8 pb-8 pt-4 sm:pt-5 md:pt-6">
             {isBillingLoading ? (
               <CardGridSkeleton count={3} />
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 lg:gap-6 mx-auto items-stretch max-w-sm md:max-w-none">
+              <div className="flex flex-col md:grid md:grid-cols-3 gap-4 md:gap-5 lg:gap-6 mx-auto items-stretch w-full md:max-w-none">
                 {displayPlans.map((plan, index) => (
-                  <PlanCard
+                  <div
                     key={plan.id}
-                    plan={plan}
-                    index={index}
-                    onClose={onClose}
-                    onSelect={
-                      isRestricted ? undefined : () => handleUpgrade(plan)
-                    }
-                    isLoading={isUpgrading}
-                    activePlanIds={activePlanIds}
-                    isReadOnly={isRestricted}
-                    billingCycle={billingCycle}
-                  />
+                    className={`w-full max-w-md mx-auto md:max-w-none md:block ${
+                      activeMobilePlanCode === plan.code ? "block" : "hidden"
+                    }`}
+                  >
+                    <PlanCard
+                      plan={plan}
+                      index={index}
+                      onClose={onClose}
+                      onSelect={
+                        isRestricted ? undefined : () => handleUpgrade(plan)
+                      }
+                      isLoading={isUpgrading}
+                      activePlanIds={activePlanIds}
+                      isReadOnly={isRestricted}
+                      billingCycle={billingCycle}
+                    />
+                  </div>
                 ))}
               </div>
             )}

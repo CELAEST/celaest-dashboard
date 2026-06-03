@@ -151,7 +151,7 @@ export const PlanCard: React.FC<PlanCardProps> = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.07, type: "spring", bounce: 0.18 }}
       className={[
-        "relative flex flex-col rounded-2xl border transition-all duration-300",
+        "relative flex flex-col w-full rounded-2xl border transition-all duration-300",
         "p-4 sm:p-5 xl:p-6",
         p.border[mode],
         p.bg[mode],

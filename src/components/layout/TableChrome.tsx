@@ -21,13 +21,13 @@ export function TableChrome({ toolbar, children, footer }: TableChromeProps) {
       className={`h-full flex flex-col rounded-2xl border overflow-hidden ${card}`}
     >
       {toolbar && (
-        <div className={`shrink-0 px-4 py-3 border-b ${border}`}>
+        <div className={`shrink-0 px-3 py-2.5 sm:px-4 sm:py-3 border-b ${border}`}>
           {toolbar}
         </div>
       )}
       <div className="flex-1 min-h-0 overflow-auto">{children}</div>
       {footer && (
-        <div className={`shrink-0 px-4 py-3 border-t ${border}`}>
+        <div className={`shrink-0 px-3 py-2.5 sm:px-4 sm:py-3 border-t ${border}`}>
           {footer}
         </div>
       )}

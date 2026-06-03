@@ -31,6 +31,7 @@ import { ValidTabId } from "../config/feature-registry";
 export function DashboardShell() {
   const searchParams = useSearchParams();
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   // Landing Guard
   const isRevokedLanding = searchParams.get("revoked") === "true";
@@ -150,12 +151,17 @@ export function DashboardShell() {
         setActiveTab={handleTabChange}
         isGuest={isGuest}
         onShowLogin={() => setShowLoginModal(true)}
+        isMobileSidebarOpen={isMobileSidebarOpen}
+        setIsMobileSidebarOpen={setIsMobileSidebarOpen}
       />
 
       <ConnectionBanner />
 
-      <div className="pl-[80px] w-full min-w-full relative z-10 transition-all duration-300 h-screen flex flex-col">
-        <Header onShowLogin={() => setShowLoginModal(true)} />
+      <div className="md:pl-[88px] pl-0 w-full min-w-full relative z-10 transition-all duration-300 h-screen flex flex-col">
+        <Header
+          onShowLogin={() => setShowLoginModal(true)}
+          onMenuClick={() => setIsMobileSidebarOpen(true)}
+        />
 
         <main
           aria-label="Contenido principal del dashboard"

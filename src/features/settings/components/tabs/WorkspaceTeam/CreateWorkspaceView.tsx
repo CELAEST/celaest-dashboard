@@ -121,7 +121,7 @@ export function CreateWorkspaceView({ planTier }: { planTier: number }) {
       </div>
 
       {/* Benefits */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         {benefits.map(({ icon: Icon, label, desc }) => (
           <div
             key={label}

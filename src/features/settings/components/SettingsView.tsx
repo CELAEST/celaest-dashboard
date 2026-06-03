@@ -9,6 +9,7 @@ import {
   Globe,
   User,
   CreditCard,
+  CaretLeft,
 } from "@phosphor-icons/react";
 import { AccountProfile } from "./tabs/AccountProfile";
 import { SecurityAccess } from "./tabs/SecurityAccess";
@@ -35,14 +36,28 @@ export function SettingsView() {
     const section = searchParams.get("section") as SettingsTabId;
     return section || "account";
   });
+  const [viewMode, setViewMode] = useState<"list" | "detail">(() => {
+    const section = searchParams.get("section");
+    return section ? "detail" : "list";
+  });
 
   // Sync if section changes via URL
   React.useEffect(() => {
     const section = searchParams.get("section") as SettingsTabId;
     if (section) {
       setActiveTab(section);
+      setViewMode("detail");
     }
   }, [searchParams]);
+
+  const handleTabSelect = useCallback((tabId: SettingsTabId) => {
+    setActiveTab(tabId);
+    setViewMode("detail");
+  }, []);
+
+  const handleBackToList = useCallback(() => {
+    setViewMode("list");
+  }, []);
 
   // Tab configuration
   const tabs = useMemo(
@@ -158,14 +173,14 @@ export function SettingsView() {
     >
       {/* ===== SIDEBAR NAVIGATION ===== */}
       <div
-        className={`w-64 shrink-0 flex flex-col border-r ${
-          isDark ? "border-white/5" : "border-gray-200/50"
-        }`}
+        className={`md:w-64 w-full shrink-0 flex-col border-r ${
+          viewMode === "list" ? "flex" : "hidden md:flex"
+        } ${isDark ? "border-white/5" : "border-gray-200/50"}`}
       >
         {/* Sidebar Header */}
-        <div className="px-6 py-4 border-b ${isDark ? 'border-white/5' : 'border-gray-200/50'}">
+        <div className={`px-4 py-3 sm:px-6 sm:py-4 border-b ${isDark ? 'border-white/5' : 'border-gray-200/50'}`}>
           <h1
-            className={`text-xl font-black italic tracking-tighter uppercase ${isDark ? "text-white" : "text-gray-900"}`}
+            className={`text-lg sm:text-xl font-black italic tracking-tighter uppercase ${isDark ? "text-white" : "text-gray-900"}`}
           >
             {t("configuration")}
           </h1>
@@ -186,9 +201,9 @@ export function SettingsView() {
             return (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => handleTabSelect(tab.id)}
                 className={`
-                  relative w-full px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200
+                  relative w-full px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-xl flex items-center gap-3 transition-all duration-200
                   text-sm font-medium group
                   ${
                     isActive
@@ -221,7 +236,7 @@ export function SettingsView() {
 
         {/* Sidebar Footer */}
         <div
-          className={`px-6 py-4 border-t ${isDark ? "border-white/5" : "border-gray-200/50"}`}
+          className={`px-4 py-3 sm:px-6 sm:py-4 border-t ${isDark ? "border-white/5" : "border-gray-200/50"}`}
         >
           <div
             className={`flex items-center gap-2 px-3 py-2 rounded-lg ${isDark ? "bg-emerald-500/10" : "bg-emerald-50"}`}
@@ -237,16 +252,27 @@ export function SettingsView() {
       </div>
 
       {/* ===== MAIN CONTENT AREA (Edge-to-Edge) ===== */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div
+        className={`flex-1 flex-col min-w-0 overflow-hidden ${
+          viewMode === "detail" ? "flex" : "hidden md:flex"
+        }`}
+      >
         {/* Content Header Bar */}
         <div
-          className={`shrink-0 px-8 py-4 border-b backdrop-blur-md ${
+          className={`shrink-0 px-4 py-3 sm:px-8 sm:py-4 border-b backdrop-blur-md ${
             isDark
               ? "border-white/5 bg-white/2"
               : "border-gray-200/50 bg-white/50"
           }`}
         >
-          <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleBackToList}
+              className="md:hidden p-2 -ml-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 text-gray-500 dark:text-gray-400"
+              aria-label="Back to settings list"
+            >
+              <CaretLeft size={20} weight="bold" />
+            </button>
             <div>
               <h2
                 className={`text-lg font-bold ${isDark ? "text-white" : "text-gray-900"}`}
@@ -279,7 +305,7 @@ export function SettingsView() {
               transition={{ duration: 0.2 }}
               className="h-full w-full"
             >
-              <div className="px-8 py-6">{renderTabContent()}</div>
+              <div className="px-4 py-4 sm:px-8 sm:py-6">{renderTabContent()}</div>
             </motion.div>
           </AnimatePresence>
         </div>

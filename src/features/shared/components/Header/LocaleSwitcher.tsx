@@ -14,6 +14,10 @@ const LOCALE_META: Record<
   en: { label: "EN", nativeName: "English", englishName: "English", flag: "🇺🇸" },
 };
 
+interface LocaleSwitcherProps {
+  align?: "left" | "right";
+}
+
 /**
  * Locale dropdown for the dashboard Header / AuthPage.
  *
@@ -24,7 +28,7 @@ const LOCALE_META: Record<
  * Works in both light and dark mode — the dashboard switches via the
  * `dark:` Tailwind variant on <html>.
  */
-export function LocaleSwitcher() {
+export function LocaleSwitcher({ align = "right" }: LocaleSwitcherProps) {
   const currentLocale = useLocale() as Locale;
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -118,8 +122,9 @@ export function LocaleSwitcher() {
             role="menu"
             aria-label="Selector de idioma"
             className={`
-              absolute right-0 top-full mt-2 z-50
-              min-w-[200px] origin-top-right
+              absolute top-full mt-2 z-50
+              min-w-[200px]
+              ${align === "left" ? "left-0 origin-top-left" : "right-0 origin-top-right"}
               rounded-2xl border overflow-hidden
               shadow-xl shadow-black/10 dark:shadow-black/40
               bg-white border-gray-200/80

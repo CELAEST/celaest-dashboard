@@ -2,31 +2,32 @@
 
 import React from "react";
 import {
-  MagnifyingGlass,
-  Command,
   Sun,
   Moon,
   ShieldWarning,
   Pulse,
+  List,
 } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { NotificationCenter } from "./NotificationCenter";
 import { LocaleSwitcher } from "./Header/LocaleSwitcher";
 import { useTranslations } from "next-intl";
-import { useUIStore } from "@/stores/useUIStore";
 import { useErrorStore } from "@/features/errors/stores/useErrorStore";
 import { UserInfo } from "./Header/UserInfo";
 import { HeaderFilterPill } from "./Header/HeaderFilterPill";
 
 interface HeaderProps {
   onShowLogin?: () => void;
+  onMenuClick?: () => void;
 }
 
-export const Header = React.memo(function Header({ onShowLogin }: HeaderProps) {
+export const Header = React.memo(function Header({
+  onShowLogin,
+  onMenuClick,
+}: HeaderProps) {
   const { toggleTheme, isMounted } = useTheme();
   const { user } = useAuth();
-  const { searchQuery, setSearchQuery } = useUIStore();
   const { showErrorControls, errorFilters, setErrorFilters } = useErrorStore();
   const tHeader = useTranslations("header");
   const tAuth = useTranslations("auth");
@@ -34,9 +35,6 @@ export const Header = React.memo(function Header({ onShowLogin }: HeaderProps) {
   // Static classes resolving synchronously via Tailwind dark: variants
   const headerClassName =
     "h-20 px-4 flex items-center justify-between sticky top-0 z-40 backdrop-blur-md border-b transition-colors duration-300 bg-white/60 border-gray-200 dark:bg-black/40 dark:border-white/5";
-
-  const inputClassName =
-    "w-full border rounded-full h-10 pl-12 pr-12 text-sm focus:outline-none focus:ring-1 transition-all bg-gray-100 border-gray-200 text-gray-900 focus:border-blue-500/50 focus:ring-blue-500/50 placeholder:text-gray-500 dark:bg-black/50 dark:border-white/10 dark:text-white dark:focus:border-cyan-500/50 dark:focus:ring-cyan-500/50 dark:placeholder:text-gray-600";
 
   const themeButtonClassName =
     "p-2 rounded-full transition-all duration-300 text-gray-500 hover:text-blue-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-yellow-400 dark:hover:bg-white/5";
@@ -56,29 +54,17 @@ export const Header = React.memo(function Header({ onShowLogin }: HeaderProps) {
 
   return (
     <header className={headerClassName}>
-      <div className="flex-1 w-full max-w-xl min-w-40 md:min-w-70 relative group mr-4">
-        {/* Search Input stays same, it will drive the global searchQuery state */}
-        <MagnifyingGlass
-          className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors text-gray-400 group-focus-within:text-blue-500 dark:text-gray-500 dark:group-focus-within:text-cyan-400 pointer-events-none"
-        />
-        <input
-          type="text"
-          placeholder={
-            showErrorControls ? tHeader("search_errors") : tHeader("search_placeholder")
-          }
-          className={inputClassName}
-          value={searchQuery || ""}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          aria-label={tHeader("search_dashboard")}
-        />
-        {!searchQuery && !showErrorControls && (
-          <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1 pointer-events-none">
-            <Command className="w-3 h-3 text-gray-400 dark:text-gray-600" />
-            <span className="text-[10px] font-mono text-gray-400 dark:text-gray-600">
-              K
-            </span>
-          </div>
+      <div className="flex items-center gap-1.5">
+        {onMenuClick && (
+          <button
+            onClick={onMenuClick}
+            className="md:hidden p-2 rounded-full transition-all duration-300 text-gray-500 hover:text-blue-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-cyan-400 dark:hover:bg-white/5"
+            aria-label="Open menu"
+          >
+            <List size={22} />
+          </button>
         )}
+        <LocaleSwitcher align="left" />
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
@@ -128,7 +114,7 @@ export const Header = React.memo(function Header({ onShowLogin }: HeaderProps) {
 
         <button
           onClick={toggleTheme}
-          className={themeButtonClassName}
+          className={`${themeButtonClassName} sm:flex hidden`}
           aria-label={tHeader("toggle_theme")}
         >
           <div className="relative w-5 h-5">
@@ -137,7 +123,6 @@ export const Header = React.memo(function Header({ onShowLogin }: HeaderProps) {
           </div>
         </button>
 
-        <LocaleSwitcher />
         <NotificationCenter />
       </div>
     </header>

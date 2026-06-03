@@ -133,10 +133,10 @@ export function WorkspaceBranding({
       }`}
     >
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-3">
           <div
-            className={`p-2 rounded-xl ${
+            className={`p-2 rounded-xl shrink-0 ${
               isDark
                 ? "bg-purple-500/10 text-purple-400"
                 : "bg-purple-100 text-purple-600"
@@ -161,7 +161,7 @@ export function WorkspaceBranding({
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto">
           {!readOnly && (
             <>
               <button
@@ -193,7 +193,7 @@ export function WorkspaceBranding({
             </>
           )}
           {readOnly && (
-            <span className="text-[10px] bg-gray-500/10 text-gray-500 px-2 py-1 rounded uppercase tracking-wider font-black">
+            <span className="text-[10px] bg-gray-500/10 text-gray-500 px-2 py-1 rounded uppercase tracking-wider font-black ml-auto sm:ml-0">
               {t("view_only")}
             </span>
           )}
@@ -240,7 +240,7 @@ export function WorkspaceBranding({
             >
               {t("brand_colors")}
             </label>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {colorFields.map(({ key, label, desc }) => (
                 <div
                   key={key}
@@ -256,7 +256,7 @@ export function WorkspaceBranding({
                       value={branding[key]}
                       onChange={(e) => updateField(key, e.target.value)}
                       disabled={readOnly}
-                      className={`w-8 h-8 rounded-lg border-0 bg-transparent ${readOnly ? "cursor-not-allowed" : "cursor-pointer"}`}
+                      className={`w-8 h-8 rounded-lg border-0 bg-transparent shrink-0 ${readOnly ? "cursor-not-allowed" : "cursor-pointer"}`}
                     />
                     <div>
                       <div
@@ -317,7 +317,7 @@ export function WorkspaceBranding({
           </div>
 
           {/* Logo URLs */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label
                 className={`block text-[10px] font-black uppercase tracking-widest mb-2 ${

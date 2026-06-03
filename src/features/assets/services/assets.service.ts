@@ -82,7 +82,18 @@ export const assetsService = {
     features: ba.product_features || [],
     tags: ba.product_tags || [],
     technicalStack: ba.product_technical_stack || [],
-    requirements: ba.product_requirements ? ba.product_requirements.split("\n").filter(Boolean) : [],
+    requirements: (() => {
+      if (!ba.product_requirements) return [];
+      const req = ba.product_requirements.trim();
+      if (req === "null" || req === "undefined") return [];
+      if (req.startsWith("[") && req.endsWith("]")) {
+        try {
+          const parsed = JSON.parse(req);
+          if (Array.isArray(parsed)) return parsed.map(String).map(s => s.trim()).filter((s) => s && s !== "null" && s !== "undefined");
+        } catch {}
+      }
+      return req.split("\n").map(s => s.trim()).filter((s) => s && s !== "null" && s !== "undefined");
+    })(),
     minPlanTier: ba.product_min_plan_tier || 0,
     thumbnail: ba.product_thumbnail_url || "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&fm=webp",
     accessType: (ba.access_type === "subscription" ? "subscription" : "purchase") as "purchase" | "subscription",

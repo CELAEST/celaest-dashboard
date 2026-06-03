@@ -19,7 +19,7 @@ export const UserInfo: React.FC<UserInfoProps> = memo(({ user }) => {
 
   const containerClassName = useMemo(
     () =>
-      `flex items-center gap-3 px-4 py-2 rounded-full border ${
+      `flex items-center gap-3 p-1 sm:px-4 sm:py-2 rounded-full border ${
         isDark ? "bg-white/5 border-white/10" : "bg-gray-50 border-gray-200"
       }`,
     [isDark],
@@ -38,7 +38,7 @@ export const UserInfo: React.FC<UserInfoProps> = memo(({ user }) => {
       <div className={iconContainerClassName}>
         <RoleIcon role={user.role} />
       </div>
-      <div className="flex flex-col">
+      <div className="flex-col sm:flex hidden">
         <span
           className={`text-sm font-medium ${
             isDark ? "text-white" : "text-gray-900"

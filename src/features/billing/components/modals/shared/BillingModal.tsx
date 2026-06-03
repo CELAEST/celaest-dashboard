@@ -73,7 +73,7 @@ export const BillingModal = React.memo(
             />
 
             {/* Modal Container */}
-            <div className="relative z-10 w-full flex items-center justify-center p-4 pointer-events-none">
+            <div className="relative z-10 w-full flex items-center justify-center p-2 sm:p-4 pointer-events-none">
               <motion.div
                 initial={{ opacity: 0, scale: 0.95, y: 10 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}

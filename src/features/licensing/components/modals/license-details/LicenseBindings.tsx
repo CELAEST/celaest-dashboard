@@ -53,7 +53,7 @@ export const LicenseBindings: React.FC<LicenseBindingsProps> = ({
                 </div>
                 <button
                   onClick={() => onUnbind(binding.ip_address)}
-                  className="opacity-0 group-hover:opacity-100 p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+                  className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
                   title={t("unbind_ip")}
                 >
                   <X size={16} />

@@ -25,6 +25,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { Tray, CircleNotch } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useIsMobile } from "@/components/ui/use-mobile";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -69,6 +70,7 @@ export function DataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const isMobile = useIsMobile();
   const [sorting, setSorting] = useState<SortingState>([]);
   const observerRef = useRef<IntersectionObserver | null>(null);
 
@@ -134,7 +136,47 @@ export function DataTable<TData, TValue>({
   const skeletonBgCls = isDark ? "bg-white/[0.06]" : "bg-gray-200/40";
   const skeletonCellBgCls = isDark ? "bg-white/[0.04]" : "bg-gray-200/30";
 
+  // ─── Mobile Card Classes ───
+  const cardCls = isDark
+    ? "rounded-xl border border-white/[0.07] bg-white/[0.02] p-4 transition-colors duration-150 active:bg-white/[0.05]"
+    : "rounded-xl border border-gray-200/60 bg-white p-4 shadow-sm transition-colors duration-150 active:bg-gray-50";
+
+  const cardLabelCls = isDark
+    ? "text-[10px] font-semibold uppercase tracking-wider text-gray-500"
+    : "text-[10px] font-semibold uppercase tracking-wider text-gray-400";
+
+  const cardValueCls = isDark
+    ? "text-sm text-gray-200"
+    : "text-sm text-gray-700";
+
+  // ─── LOADING STATE ───
   if (isLoading) {
+    // Mobile skeleton: stacked card skeletons
+    if (isMobile) {
+      return (
+        <div className={`${containerCls} border-0 bg-transparent shadow-none`}>
+          <div className="flex flex-col gap-3 p-3">
+            {Array.from({ length: Math.min(skeletonRows, 4) }).map((_, i) => (
+              <div key={i} className={cardCls}>
+                <div className="space-y-3">
+                  {Array.from({ length: Math.min(columns.length, 4) }).map((_, j) => (
+                    <div key={j} className="flex items-center justify-between gap-4">
+                      <Skeleton className={`h-2.5 w-16 rounded-md ${skeletonBgCls}`} />
+                      <Skeleton
+                        className={`h-4 rounded-md ${skeletonCellBgCls}`}
+                        style={{ width: `${40 + ((j * 17 + i * 7) % 35)}%` }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    // Desktop skeleton: classic table skeleton
     return (
       <div className={containerCls}>
         <Table>
@@ -169,6 +211,105 @@ export function DataTable<TData, TValue>({
     );
   }
 
+  // ─── EMPTY STATE (shared) ───
+  const emptyState = (
+    <div className="flex flex-col items-center justify-center text-gray-500 space-y-3 py-16 px-4">
+      <div className={`p-4 rounded-2xl border ${isDark ? "bg-white/[0.03] text-gray-500 border-white/[0.06]" : "bg-gray-50 text-gray-400 border-gray-200"}`}>
+        <Tray className="w-8 h-8" weight="light" />
+      </div>
+      <div className="space-y-1 text-center">
+        <p className={`text-sm font-medium ${isDark ? "text-gray-300" : "text-gray-700"}`}>
+          {emptyMessage}
+        </p>
+        <p className={`text-xs ${isDark ? "text-gray-500" : "text-gray-400"}`}>
+          {emptySubmessage}
+        </p>
+      </div>
+    </div>
+  );
+
+  // ─── INFINITE SCROLL SENTINEL (shared) ───
+  const scrollSentinel = (hasNextPage || isFetchingNextPage) && (
+    <div ref={sentinelRef} className="flex items-center justify-center gap-2.5 py-4">
+      {isFetchingNextPage ? (
+        <>
+          <CircleNotch className={`h-4 w-4 animate-spin ${isDark ? "text-cyan-400" : "text-blue-500"}`} />
+          <span className={`text-xs font-medium ${isDark ? "text-gray-400" : "text-gray-500"}`}>Cargando más...</span>
+        </>
+      ) : (
+        <span className={`text-[10px] ${isDark ? "text-gray-600" : "text-gray-400"}`}>Scroll para más</span>
+      )}
+    </div>
+  );
+
+  // ─── FOOTER (shared) ───
+  const footer = !hideFooter && data.length > 0 && (
+    <div className={`border-t px-4 py-2.5 ${isDark ? "border-white/[0.06] bg-white/[0.01]" : "border-gray-100 bg-gray-50/50"}`}>
+      <p className={`text-[11px] tabular-nums ${isDark ? "text-gray-500" : "text-gray-400"}`}>
+        Showing {data.length} of {displayTotal} entries
+      </p>
+    </div>
+  );
+
+  // ─── MOBILE CARD LAYOUT ───
+  if (isMobile) {
+    const rows = table.getRowModel().rows;
+    const headerGroups = table.getHeaderGroups();
+
+    // Extract header labels for card label:value pairs
+    const headerLabels: string[] = headerGroups[0]?.headers.map(
+      (header: Header<TData, unknown>) => {
+        if (header.isPlaceholder) return "";
+        const rendered = header.column.columnDef.header;
+        if (typeof rendered === "string") return rendered;
+        // For non-string headers, use the column id
+        return header.column.id;
+      }
+    ) ?? [];
+
+    return (
+      <div className={`${containerCls} border-0 bg-transparent shadow-none`}>
+        <div className="overflow-auto" style={{ maxHeight }}>
+          {rows.length ? (
+            <div className="flex flex-col gap-3 p-3">
+              {rows.map((row: Row<TData>) => (
+                <div
+                  key={row.id}
+                  className={`${cardCls} ${onRowClick ? "cursor-pointer" : ""}`}
+                  onClick={() => onRowClick?.(row.original)}
+                >
+                  <div className="space-y-2.5">
+                    {row.getVisibleCells().map((cell: Cell<TData, unknown>, cellIdx) => {
+                      const label = headerLabels[cellIdx] || "";
+                      return (
+                        <div key={cell.id} className={`flex items-start justify-between gap-3 ${cellIdx === 0 ? "" : `pt-2.5 border-t ${isDark ? "border-white/[0.04]" : "border-gray-100"}`}`}>
+                          {label && (
+                            <span className={`${cardLabelCls} shrink-0 pt-0.5`}>
+                              {label}
+                            </span>
+                          )}
+                          <div className={`${cardValueCls} text-right min-w-0`}>
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+
+              {scrollSentinel}
+            </div>
+          ) : (
+            emptyState
+          )}
+        </div>
+        {footer}
+      </div>
+    );
+  }
+
+  // ─── DESKTOP TABLE LAYOUT ───
   return (
     <div className={containerCls}>
       <div className="overflow-auto [&>div]:overflow-visible" style={{ maxHeight }}>
@@ -208,16 +349,7 @@ export function DataTable<TData, TValue>({
                 {(hasNextPage || isFetchingNextPage) && (
                   <TableRow className="border-0 hover:bg-transparent">
                     <TableCell colSpan={columns.length} className="py-4 text-center">
-                      <div ref={sentinelRef} className="flex items-center justify-center gap-2.5">
-                        {isFetchingNextPage ? (
-                          <>
-                            <CircleNotch className={`h-4 w-4 animate-spin ${isDark ? "text-cyan-400" : "text-blue-500"}`} />
-                            <span className={`text-xs font-medium ${isDark ? "text-gray-400" : "text-gray-500"}`}>Cargando más...</span>
-                          </>
-                        ) : (
-                          <span className={`text-[10px] ${isDark ? "text-gray-600" : "text-gray-400"}`}>Scroll para más</span>
-                        )}
-                      </div>
+                      {scrollSentinel}
                     </TableCell>
                   </TableRow>
                 )}
@@ -225,19 +357,7 @@ export function DataTable<TData, TValue>({
             ) : (
               <TableRow className="hover:bg-transparent">
                 <TableCell colSpan={columns.length} className="h-64 text-center">
-                  <div className="flex flex-col items-center justify-center text-gray-500 space-y-3">
-                    <div className={`p-4 rounded-2xl border ${isDark ? "bg-white/[0.03] text-gray-500 border-white/[0.06]" : "bg-gray-50 text-gray-400 border-gray-200"}`}>
-                      <Tray className="w-8 h-8" weight="light" />
-                    </div>
-                    <div className="space-y-1">
-                      <p className={`text-sm font-medium ${isDark ? "text-gray-300" : "text-gray-700"}`}>
-                        {emptyMessage}
-                      </p>
-                      <p className={`text-xs ${isDark ? "text-gray-500" : "text-gray-400"}`}>
-                        {emptySubmessage}
-                      </p>
-                    </div>
-                  </div>
+                  {emptyState}
                 </TableCell>
               </TableRow>
             )}
@@ -246,13 +366,7 @@ export function DataTable<TData, TValue>({
       </div>
 
       {/* Footer count */}
-      {!hideFooter && data.length > 0 && (
-        <div className={`border-t px-4 py-2.5 ${isDark ? "border-white/[0.06] bg-white/[0.01]" : "border-gray-100 bg-gray-50/50"}`}>
-          <p className={`text-[11px] tabular-nums ${isDark ? "text-gray-500" : "text-gray-400"}`}>
-            Showing {data.length} of {displayTotal} entries
-          </p>
-        </div>
-      )}
+      {footer}
     </div>
   );
 }

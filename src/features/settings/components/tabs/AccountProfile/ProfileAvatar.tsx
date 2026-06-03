@@ -27,9 +27,9 @@ export const ProfileAvatar: React.FC<ProfileAvatarProps> = memo(
           {t("profile_picture")}
         </h3>
 
-        <div className="flex items-center gap-6">
+        <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-4 sm:gap-6">
           {/* Avatar */}
-          <div className="relative">
+          <div className="relative shrink-0">
             {avatarUrl ? (
               <Image
                 src={avatarUrl}
@@ -46,7 +46,7 @@ export const ProfileAvatar: React.FC<ProfileAvatarProps> = memo(
           </div>
 
           {/* Upload Controls */}
-          <div>
+          <div className="flex-1">
             <p
               className={`text-sm mb-3 ${
                 isDark ? "text-gray-400" : "text-gray-500"
@@ -54,7 +54,7 @@ export const ProfileAvatar: React.FC<ProfileAvatarProps> = memo(
             >
               {t("upload_avatar_desc")}
             </p>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3">
               <input
                 ref={fileInputRef}
                 type="file"

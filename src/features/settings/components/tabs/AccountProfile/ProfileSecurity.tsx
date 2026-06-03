@@ -56,17 +56,17 @@ export const ProfileSecurity: React.FC<ProfileSecurityProps> = memo(
             >
               {t("primary_email")}
             </label>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
               <input
                 type="email"
                 value={email}
                 disabled
-                className="settings-input flex-1 rounded-lg px-4 py-3 opacity-60"
+                className="settings-input w-full sm:flex-1 rounded-lg px-4 py-3 opacity-60"
               />
               <button
                 onClick={onChangeEmail}
                 disabled={isAuthLoading}
-                className="px-5 py-3 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-medium transition-all shadow-sm hover:shadow-cyan-500/20 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full sm:w-auto px-5 py-3 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-medium transition-all shadow-sm hover:shadow-cyan-500/20 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed text-center"
               >
                 {isAuthLoading ? tCommon("processing") : t("change_email")}
               </button>

@@ -19,6 +19,8 @@ import { type ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table";
 import { useTranslations } from "next-intl";
 import type { LicenseResponse } from "@/features/licensing/types";
+import { useIsMobile } from "@/components/ui/use-mobile";
+import { toast } from "sonner";
 
 interface LicensingListProps {
   licenses: LicenseResponse[];
@@ -46,6 +48,7 @@ export const LicensingList: React.FC<LicensingListProps> = ({
 }) => {
   const { isDark } = useTheme();
   const { isSuperAdmin, role } = useRole();
+  const isMobile = useIsMobile();
   const showAdminData =
     isSuperAdmin || role === "super_admin" || role === "admin";
   const t = useTranslations("licensing");
@@ -376,6 +379,230 @@ export const LicensingList: React.FC<LicensingListProps> = ({
     ],
     [isDark, showAdminData, t],
   );
+
+  if (isMobile && !loading) {
+    return (
+      <div className="flex flex-col gap-4 p-2 w-full">
+        {licenses.length === 0 ? (
+          <div className="flex flex-col items-center justify-center text-gray-500 space-y-3 py-16 px-4">
+            <div className={`p-4 rounded-2xl border ${isDark ? "bg-white/[0.03] border-white/[0.06]" : "bg-gray-50 border-gray-200"}`}>
+              <Monitor className="w-8 h-8" weight="light" />
+            </div>
+            <div className="space-y-1 text-center">
+              <p className={`text-sm font-medium ${isDark ? "text-gray-300" : "text-gray-700"}`}>
+                {t("no_active_records")}
+              </p>
+              <p className={`text-xs ${isDark ? "text-gray-500" : "text-gray-400"}`}>
+                {t("no_licenses_assigned")}
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4 w-full">
+            {licenses.map((license) => {
+              const productName = license.plan?.name || (license.metadata?.product_name as string) || "—";
+              const productCode = license.plan?.code || "STD";
+              const isLicenseActive = license.status === "active";
+              
+              return (
+                <div
+                  key={license.id}
+                  onClick={() => onSelectLicense(license)}
+                  className={`
+                    relative rounded-2xl border p-5 transition-all active:scale-[0.99] cursor-pointer
+                    ${
+                      isDark
+                        ? "bg-[#0a0a0a]/80 border-white/[0.08] shadow-black/40"
+                        : "bg-white border-gray-200/80 shadow-gray-200/50"
+                    }
+                    shadow-md flex flex-col gap-4 w-full
+                  `}
+                >
+                  {/* Header: Plan & Status */}
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`w-10 h-10 rounded-xl flex items-center justify-center p-2.5 ${
+                          isDark
+                            ? "bg-white/5 border border-white/10"
+                            : "bg-blue-50 border border-blue-100"
+                        }`}
+                      >
+                        <Monitor
+                          className={isDark ? "text-cyan-400" : "text-blue-600"}
+                          size={20}
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <span
+                          className={`text-sm font-black tracking-tight ${isDark ? "text-white" : "text-gray-900"}`}
+                        >
+                          {productName}
+                        </span>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <span className="text-[8px] font-black bg-gray-500/10 text-gray-500 px-1.5 py-0.5 rounded uppercase tracking-widest leading-none">
+                            {productCode}
+                          </span>
+                          {!showAdminData && (
+                            <span className={`text-[8px] font-bold ${isDark ? "text-gray-500" : "text-gray-400"}`}>
+                              v1.0.4
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div
+                      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${
+                        isLicenseActive
+                          ? "bg-emerald-500/5 text-emerald-500 border-emerald-500/10"
+                          : "bg-rose-500/5 text-rose-500 border-rose-500/10"
+                      }`}
+                    >
+                      <div
+                        className={`w-1.5 h-1.5 rounded-full ${isLicenseActive ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-rose-500"}`}
+                      />
+                      {isLicenseActive ? t("active") : license.status}
+                    </div>
+                  </div>
+
+                  {/* License Key Section */}
+                  <div className="flex flex-col gap-1.5">
+                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
+                      {showAdminData ? t("owner") : t("license")}
+                    </span>
+                    {showAdminData ? (
+                      <div className="flex items-center gap-3 py-1">
+                        <div
+                          className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+                            isDark
+                              ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
+                              : "bg-blue-100 text-blue-700"
+                          }`}
+                        >
+                          {license.user_name?.[0]?.toUpperCase() || <Users size={14} />}
+                        </div>
+                        <div className="flex flex-col min-w-0">
+                          <span
+                            className={`text-xs font-bold truncate ${isDark ? "text-gray-200" : "text-gray-700"}`}
+                          >
+                            {license.user_name || "N/A"}
+                          </span>
+                          <span className="text-[9px] font-mono text-gray-500 truncate">
+                            ID: {license.organization_id.substring(0, 8)}
+                          </span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between gap-2 px-3 py-2 rounded-xl border border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5">
+                        <span className="text-xs font-mono text-gray-400 tracking-wider">
+                          {maskLicenseKey(license.license_key)}
+                        </span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            copyToClipboard(license.license_key);
+                            toast.success(t("copied_to_clipboard") || "Copiado al portapapeles");
+                          }}
+                          className="text-cyan-500 hover:text-cyan-400 transition-colors p-1"
+                        >
+                          <Copy size={14} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Usage / Metrics Section */}
+                  <div className="flex flex-col gap-3 py-2 border-y border-gray-100 dark:border-white/5">
+                    {/* AI Qty usage bar */}
+                    <div className="flex flex-col gap-1.5">
+                      <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                        <div className="flex items-center gap-1 text-cyan-500">
+                          <Cpu size={12} /> AI Qty
+                        </div>
+                        <span className={isDark ? "text-white" : "text-gray-900"}>
+                          {license.ai_requests_used} /{" "}
+                          {(license.plan?.limits?.max_ai_requests_per_month as number) || 1000}
+                        </span>
+                      </div>
+                      <div
+                        className={`h-2 w-full rounded-full ${isDark ? "bg-white/5" : "bg-gray-100"} overflow-hidden`}
+                      >
+                        <div
+                          className="h-full bg-linear-to-r from-cyan-500 to-blue-500 rounded-full"
+                          style={{
+                            width: `${Math.min(100, (license.ai_requests_used / ((license.plan?.limits?.max_ai_requests_per_month as number) || 1000)) * 100)}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Devices & Storage side-by-side */}
+                    <div className="grid grid-cols-2 gap-4 pt-1">
+                      <div className="flex items-center gap-2">
+                        <div className="p-1.5 rounded-lg bg-purple-500/10">
+                          <Monitor size={14} className="text-purple-400" />
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-[8px] font-bold text-gray-500 uppercase tracking-widest">Dispositivos</span>
+                          <span className={`text-xs font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
+                            {license.active_activations} / {(license.plan?.limits?.max_users as number) || 5}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="p-1.5 rounded-lg bg-emerald-500/10">
+                          <HardDrive size={14} className="text-emerald-400" />
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-[8px] font-bold text-gray-500 uppercase tracking-widest">Almacenamiento</span>
+                          <span className={`text-xs font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
+                            {(license.storage_used_bytes / (1024 * 1024 * 1024)).toFixed(1)} GB
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Expiration & Next billing */}
+                  <div className="flex flex-col gap-1 text-[11px]">
+                    <div className="flex items-center justify-between text-gray-400">
+                      <span>Vigencia</span>
+                      <span className={`font-semibold ${isDark ? "text-gray-200" : "text-gray-800"}`}>
+                        {license.billing_cycle === "lifetime" ? t("unlimited") : formatDate(license.expires_at)}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-gray-500 text-[10px]">
+                      <span>Facturación</span>
+                      <span>
+                        {license.billing_cycle === "lifetime" ? t("lifetime_access") : `Cobro: ${formatDate(license.next_billing_date)}`}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+        
+        {/* Infinite Scroll Sentinel */}
+        {(hasNextPage || isFetchingNextPage) && (
+          <div className="flex items-center justify-center gap-2.5 py-4 w-full">
+            {isFetchingNextPage ? (
+              <div className="w-4 h-4 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <button
+                onClick={onLoadMore}
+                className="text-xs font-bold text-cyan-500 hover:text-cyan-400"
+              >
+                Cargar más
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="w-full">
