@@ -66,6 +66,7 @@ export const AppSidebar = React.memo(function AppSidebar({
           ...section,
           items: section.items.filter((item) => {
             if (isGuest) return true;
+            if (item.superAdminOnly && user?.role !== "super_admin") return false;
             if (!item.scope) return true;
             return user ? hasPermission(item.scope as Permission) : true;
           }),

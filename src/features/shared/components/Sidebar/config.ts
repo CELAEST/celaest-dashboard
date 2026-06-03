@@ -26,6 +26,7 @@ export interface MenuItem {
   icon: React.ElementType;
   labelKey: string;
   scope: string | null;
+  superAdminOnly?: boolean;
 }
 
 export interface MenuSection {
@@ -41,7 +42,7 @@ export const menuSections: MenuSection[] = [
       { id: "marketplace", icon: MarketplaceIcon, labelKey: "marketplace", scope: "marketplace:purchase" },
       { id: "licensing", icon: LicensingIcon, labelKey: "licensing", scope: null },
       { id: "billing", icon: BillingIcon, labelKey: "billing", scope: "billing:read" },
-      { id: "ai", icon: AIConsoleIcon, labelKey: "ai_console", scope: null },
+      { id: "ai", icon: AIConsoleIcon, labelKey: "ai_console", scope: null, superAdminOnly: true },
       { id: "catalog", icon: AssetManagerIcon, labelKey: "asset_manager", scope: null },
       { id: "releases", icon: ReleasesIcon, labelKey: "releases", scope: "releases:read" },
     ],
@@ -49,16 +50,16 @@ export const menuSections: MenuSection[] = [
   {
     titleKey: "insights_ops",
     items: [
-      { id: "analytics", icon: AnalyticsIcon, labelKey: "analytics", scope: "analytics:read" },
-      { id: "roi", icon: ROIIcon, labelKey: "roi_dashboard", scope: "analytics:read" },
+      { id: "analytics", icon: AnalyticsIcon, labelKey: "analytics", scope: "analytics:read", superAdminOnly: true },
+      { id: "roi", icon: ROIIcon, labelKey: "roi_dashboard", scope: "analytics:read", superAdminOnly: true },
       { id: "errors", icon: ErrorMonitorIcon, labelKey: "error_monitor", scope: "analytics:read" },
-      { id: "operations", icon: DevOpsIcon, labelKey: "devops", scope: null },
+      { id: "operations", icon: DevOpsIcon, labelKey: "devops", scope: null, superAdminOnly: true },
     ],
   },
   {
     titleKey: "settings_admin",
     items: [
-      { id: "users", icon: UsersIcon, labelKey: "users_roles", scope: null },
+      { id: "users", icon: UsersIcon, labelKey: "users_roles", scope: null, superAdminOnly: true },
       { id: "coupons", icon: CouponsIcon, labelKey: "coupons", scope: "billing:write" },
       { id: "admin_portal", icon: SuperAdminIcon, labelKey: "super_admin", scope: "users:manage" },
       { id: "settings", icon: SettingsIcon, labelKey: "workspace_settings", scope: null },
