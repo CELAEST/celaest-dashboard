@@ -1,7 +1,7 @@
 "use client";
 
 // Login and Registration page for CELAEST with split screen transition
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { motion, AnimatePresence } from "motion/react";
@@ -31,7 +31,17 @@ export const AuthPage: React.FC = () => {
     searchParams.get("mode") === "signup" ? "signup" : "signin";
   const [mode, setMode] = useState<"signin" | "signup">(initialMode);
   const [loading, setLoading] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const tAuth = useTranslations("auth");
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   const getPostAuthRedirect = () => {
     const explicitRedirect = searchParams.get("redirect");
@@ -89,15 +99,21 @@ export const AuthPage: React.FC = () => {
       
       <motion.div 
         layout
-        className={`fixed top-6 z-50 flex items-center gap-3 bg-white/5 backdrop-blur-xl border border-white/10 p-1.5 rounded-full shadow-lg dark:bg-black/20 dark:border-white/10 ${mode === "signin" ? "right-6" : "left-6"}`}
+        className={`fixed top-6 z-50 flex items-center gap-3 bg-white/5 backdrop-blur-xl border border-white/10 p-1.5 rounded-full shadow-lg dark:bg-black/20 dark:border-white/10 ${
+          isMobile ? "right-6" : mode === "signin" ? "right-6" : "left-6"
+        }`}
       >
-        <LocaleSwitcher align={mode === "signin" ? "right" : "left"} />
+        <LocaleSwitcher align={isMobile ? "right" : mode === "signin" ? "right" : "left"} />
         <FloatingThemeToggle isDark={isDark} toggleTheme={toggleTheme} />
       </motion.div>
 
-      <div className="w-full h-screen flex items-center relative z-10">
+      <div className="w-full h-screen flex items-center justify-center md:justify-start relative z-10">
         <motion.div
-          className={mode === "signin" ? "ml-6 lg:ml-20 xl:ml-32" : "mr-6 lg:mr-20 xl:mr-32 ml-auto"}
+          className={
+            mode === "signin"
+              ? "mx-auto md:mx-0 md:ml-20 xl:ml-32"
+              : "mx-auto md:mx-0 md:mr-20 xl:mr-32 md:ml-auto"
+          }
           style={{ width: "min(460px, calc(100vw - 3rem))" }}
           initial={false}
           animate={{ x: 0 }}

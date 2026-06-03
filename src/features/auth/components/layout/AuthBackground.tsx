@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import Image from "next/image";
 
@@ -13,18 +13,31 @@ export const AuthBackground: React.FC<AuthBackgroundProps> = ({
   mode,
   isDark,
 }) => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  const activeMode = isMobile ? "signin" : mode;
+
   const imageSrc = isDark
-    ? mode === "signin"
+    ? activeMode === "signin"
       ? "/images/auth/loguin30.webp"
       : "/images/auth/loguin40.webp"
-    : mode === "signin"
+    : activeMode === "signin"
       ? "/images/auth/loguin3.webp"
       : "/images/auth/loguin4.webp";
 
   return (
     <AnimatePresence mode="wait">
       <motion.div
-        key={mode}
+        key={isMobile ? "mobile-bg" : mode}
         initial={{ opacity: 0, scale: 1.1 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 1.1 }}
@@ -38,7 +51,7 @@ export const AuthBackground: React.FC<AuthBackgroundProps> = ({
           priority
           className="object-cover transition-all duration-700"
           style={{
-            objectPosition: mode === "signin" ? "70% center" : "30% center",
+            objectPosition: activeMode === "signin" ? "70% center" : "30% center",
           }}
         />
         <div
