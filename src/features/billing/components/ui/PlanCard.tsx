@@ -131,6 +131,12 @@ export const PlanCard: React.FC<PlanCardProps> = ({
   const aiVal = limits?.max_ai_requests_per_month as number | undefined;
   const teamVal = limits?.max_team_members as number | undefined;
   const storageVal = limits?.max_storage_gb as number | undefined;
+  const storageLabel =
+    storageVal === undefined
+      ? ""
+      : storageVal === -1
+        ? t("unlimited")
+        : `${fmtLimit(storageVal, t("unlimited"))}GB`;
 
   const renderFeature = (f: string) => {
     if (!f) return f;
@@ -151,12 +157,12 @@ export const PlanCard: React.FC<PlanCardProps> = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.07, type: "spring", bounce: 0.18 }}
       className={[
-        "relative flex flex-col w-full rounded-2xl border transition-all duration-300",
-        "p-4 sm:p-5 xl:p-6",
+        "relative flex flex-col h-full min-w-0 w-full overflow-visible rounded-2xl border transition-all duration-300",
+        "p-5 sm:p-6 lg:p-5 xl:p-6",
         p.border[mode],
         p.bg[mode],
         isPopular
-          ? "shadow-xl shadow-purple-500/10 ring-1 ring-purple-500/20 z-10 md:scale-[1.02]"
+          ? "shadow-xl shadow-purple-500/10 ring-1 ring-purple-500/20 z-10 lg:scale-[1.02]"
           : "shadow-sm hover:shadow-md",
         isCurrent ? `ring-1 ${p.activeRing[mode]}` : "",
       ].join(" ")}
@@ -164,7 +170,7 @@ export const PlanCard: React.FC<PlanCardProps> = ({
       {/* ── Popular badge ── */}
       {isPopular && (
         <div className="absolute -top-3 inset-x-0 flex justify-center">
-          <span className="inline-flex items-center gap-1.5 bg-linear-to-r from-purple-600 to-violet-600 text-white text-xs font-semibold tracking-wide uppercase px-4 py-1 rounded-full shadow-md shadow-purple-500/30">
+          <span className="inline-flex items-center gap-1.5 whitespace-nowrap bg-linear-to-r from-purple-600 to-violet-600 text-white text-xs font-semibold uppercase px-4 py-1.5 rounded-full shadow-md shadow-purple-500/30">
             <Sparkle className="w-3 h-3" />
             {t("most_popular")}
           </span>
@@ -173,23 +179,23 @@ export const PlanCard: React.FC<PlanCardProps> = ({
 
       {/* ── Plan name ── */}
       <h3
-        className={`text-center text-[10px] sm:text-[11px] xl:text-xs font-semibold tracking-[0.15em] uppercase ${p.title[mode]}`}
+        className={`text-center text-xs font-semibold uppercase ${p.title[mode]}`}
       >
         {plan.name}
       </h3>
 
       {/* ── Price ── */}
-      <div className="flex items-baseline justify-center gap-1 mt-2">
+      <div className="flex items-baseline justify-center gap-1.5 mt-4">
         {isFree ? (
           <span
-            className={`text-2xl sm:text-3xl xl:text-4xl font-extrabold tracking-tight ${isDark ? "text-white" : "text-gray-900"}`}
+            className={`text-3xl sm:text-4xl font-extrabold ${isDark ? "text-white" : "text-gray-900"}`}
           >
             {t("free")}
           </span>
         ) : (
           <>
             <span
-              className={`text-2xl sm:text-3xl xl:text-4xl font-extrabold tracking-tight ${isDark ? "text-white" : "text-gray-900"}`}
+              className={`text-3xl sm:text-4xl font-extrabold ${isDark ? "text-white" : "text-gray-900"}`}
             >
               {selectedPrice.formatted}
             </span>
@@ -204,7 +210,7 @@ export const PlanCard: React.FC<PlanCardProps> = ({
 
       {!isFree && planPrice.yearly.value > 0 ? (
         <p
-          className={`text-center text-[10px] sm:text-xs mt-0.5 ${isDark ? "text-gray-500" : "text-gray-400"}`}
+          className={`text-center text-[11px] sm:text-xs mt-1 ${isDark ? "text-gray-500" : "text-gray-400"}`}
         >
           {billingCycle === "yearly"
             ? `≈ ${planPrice.format(planPrice.yearly.value / 12)}${t("per_mo")}`
@@ -217,7 +223,7 @@ export const PlanCard: React.FC<PlanCardProps> = ({
 
       {/* ── Description ── */}
       <p
-        className={`text-center text-[11px] sm:text-xs xl:text-[13px] mt-1.5 sm:mt-2 leading-snug ${isDark ? "text-gray-400" : "text-gray-500"}`}
+        className={`text-center text-xs xl:text-[13px] mt-3 leading-relaxed min-h-[2.5rem] ${isDark ? "text-gray-400" : "text-gray-500"}`}
       >
         {plan.code && t.has(`desc_${plan.code}` as string) ? t(`desc_${plan.code}` as string) : plan.description}
       </p>
@@ -225,48 +231,48 @@ export const PlanCard: React.FC<PlanCardProps> = ({
       {/* ── Key metrics row ── */}
       {limits && (
         <div
-          className={`flex items-center justify-around py-1.5 sm:py-2 rounded-xl mt-3 ${p.statBg[mode]}`}
+          className={`grid grid-cols-3 gap-0 rounded-2xl mt-5 overflow-hidden ${p.statBg[mode]}`}
         >
           {aiVal !== undefined && (
-            <div className="flex flex-col items-center gap-0.5">
-              <Lightning className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${p.accent[mode]}`} />
+            <div className="flex min-w-0 flex-col items-center justify-center gap-1 px-2 py-3">
+              <Lightning className={`w-4 h-4 ${p.accent[mode]}`} />
               <span
-                className={`text-[11px] sm:text-xs xl:text-[13px] font-bold ${isDark ? "text-white" : "text-gray-900"}`}
+                className={`text-xs sm:text-sm font-bold truncate w-full text-center ${isDark ? "text-white" : "text-gray-900"}`}
               >
                 {fmtLimit(aiVal, t("unlimited"))}
               </span>
               <span
-                className={`text-[8px] sm:text-[9px] xl:text-[10px] ${isDark ? "text-gray-500" : "text-gray-400"}`}
+                className={`text-[10px] truncate w-full text-center ${isDark ? "text-gray-500" : "text-gray-400"}`}
               >
                 {t("ai_req")}
               </span>
             </div>
           )}
           {teamVal !== undefined && (
-            <div className="flex flex-col items-center gap-0.5">
-              <Users className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${p.accent[mode]}`} />
+            <div className="flex min-w-0 flex-col items-center justify-center gap-1 px-2 py-3 border-l border-white/5">
+              <Users className={`w-4 h-4 ${p.accent[mode]}`} />
               <span
-                className={`text-[11px] sm:text-xs xl:text-[13px] font-bold ${isDark ? "text-white" : "text-gray-900"}`}
+                className={`text-xs sm:text-sm font-bold truncate w-full text-center ${isDark ? "text-white" : "text-gray-900"}`}
               >
                 {fmtLimit(teamVal, t("unlimited"))}
               </span>
               <span
-                className={`text-[8px] sm:text-[9px] xl:text-[10px] ${isDark ? "text-gray-500" : "text-gray-400"}`}
+                className={`text-[10px] truncate w-full text-center ${isDark ? "text-gray-500" : "text-gray-400"}`}
               >
                 {t("members")}
               </span>
             </div>
           )}
           {storageVal !== undefined && (
-            <div className="flex flex-col items-center gap-0.5">
-              <HardDrive className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${p.accent[mode]}`} />
+            <div className="flex min-w-0 flex-col items-center justify-center gap-1 px-2 py-3 border-l border-white/5">
+              <HardDrive className={`w-4 h-4 ${p.accent[mode]}`} />
               <span
-                className={`text-[11px] sm:text-xs xl:text-[13px] font-bold ${isDark ? "text-white" : "text-gray-900"}`}
+                className={`text-xs sm:text-sm font-bold truncate w-full text-center ${isDark ? "text-white" : "text-gray-900"}`}
               >
-                {storageVal === -1 ? "\u221E" : `${storageVal}GB`}
+                {storageLabel}
               </span>
               <span
-                className={`text-[8px] sm:text-[9px] xl:text-[10px] ${isDark ? "text-gray-500" : "text-gray-400"}`}
+                className={`text-[10px] truncate w-full text-center ${isDark ? "text-gray-500" : "text-gray-400"}`}
               >
                 {t("storage")}
               </span>
@@ -277,17 +283,17 @@ export const PlanCard: React.FC<PlanCardProps> = ({
 
       {/* ── Divider ── */}
       <div
-        className={`h-px mt-3 mb-3 ${isDark ? "bg-white/6" : "bg-gray-100"}`}
+        className={`h-px mt-4 mb-4 ${isDark ? "bg-white/6" : "bg-gray-100"}`}
       />
 
       {/* ── Features — 2 columns ── */}
-      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 xl:grid-cols-2 gap-x-2 gap-y-2 mb-4">
+      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-x-4 gap-y-2.5 mb-5">
         <div className="space-y-2 min-w-0">
           {col1.map((f, i) => (
             <div key={i} className="flex items-start gap-2 w-full">
               <Check className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${p.check}`} weight="bold" />
               <span
-                className={`flex-1 min-w-0 text-[10.5px] sm:text-[11px] xl:text-[12px] leading-snug ${isDark ? "text-gray-300" : "text-gray-600"}`}
+                className={`flex-1 min-w-0 text-[12px] leading-snug ${isDark ? "text-gray-300" : "text-gray-600"}`}
               >
                 {renderFeature(f)}
               </span>
@@ -299,7 +305,7 @@ export const PlanCard: React.FC<PlanCardProps> = ({
             <div key={i} className="flex items-start gap-2 w-full">
               <Check className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${p.check}`} weight="bold" />
               <span
-                className={`flex-1 min-w-0 text-[10.5px] sm:text-[11px] xl:text-[12px] leading-snug ${isDark ? "text-gray-300" : "text-gray-600"}`}
+                className={`flex-1 min-w-0 text-[12px] leading-snug ${isDark ? "text-gray-300" : "text-gray-600"}`}
               >
                 {renderFeature(f)}
               </span>
@@ -319,7 +325,7 @@ export const PlanCard: React.FC<PlanCardProps> = ({
         onClick={handleSelect}
         disabled={isCurrent || isLoading || isReadOnly}
         className={[
-          "w-full py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-300",
+          "w-full mt-auto py-3 rounded-xl text-sm font-semibold transition-all duration-300",
           isCurrent
             ? `relative overflow-hidden cursor-default border ${p.activeBtn[mode]}`
             : isReadOnly

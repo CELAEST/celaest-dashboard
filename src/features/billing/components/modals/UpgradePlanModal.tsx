@@ -147,11 +147,11 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
     <BillingModal
       isOpen={isOpen}
       onClose={onClose}
-      className="max-w-[95vw] md:max-w-[90vw] xl:max-w-7xl bg-transparent! rounded-3xl shadow-none! border-0!"
+      className="w-[min(96vw,1280px)] max-w-none bg-transparent! rounded-3xl shadow-none! border-0!"
       showCloseButton={false}
     >
       <div
-        className={`relative w-full rounded-3xl overflow-hidden flex flex-col ${
+        className={`relative w-full max-h-[94vh] rounded-3xl overflow-hidden flex flex-col ${
           isDark
             ? "bg-[#080a0e] border border-white/10 shadow-2xl"
             : "bg-white border border-gray-200 shadow-2xl"
@@ -179,7 +179,7 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
         {/* Content wrapper with z-index to stay above background */}
         <div className="relative z-10 flex flex-col w-full flex-1 min-h-0">
           {/* Header */}
-          <div className="relative pt-10 pb-4 px-6 lg:px-10 text-center shrink-0">
+          <div className="relative pt-10 pb-4 px-4 sm:px-6 lg:px-10 text-center shrink-0">
             <button
               onClick={onClose}
               className={`absolute right-4 top-4 w-8 h-8 rounded-full flex items-center justify-center transition-colors z-30 ${
@@ -192,11 +192,11 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
             </button>
 
             <div className="flex flex-col items-center justify-center gap-4 w-full max-w-4xl mx-auto px-2 sm:px-6">
-              <div className="flex flex-row items-center justify-center gap-5 sm:gap-12 lg:gap-16 w-full">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-10 lg:gap-16 w-full">
                 <motion.h2
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className={`text-sm xs:text-base sm:text-2xl lg:text-3xl font-black italic tracking-tight uppercase leading-none ${
+                  className={`text-xl sm:text-2xl lg:text-3xl font-black italic tracking-tight uppercase leading-none ${
                     isDark ? "text-white" : "text-gray-900"
                   }`}
                 >
@@ -204,7 +204,7 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
                 </motion.h2>
 
                 <div
-                  className={`shrink-0 grid grid-cols-2 rounded-xl p-0.5 sm:p-1 w-[120px] xs:w-[140px] sm:w-[220px] ${
+                  className={`shrink-0 grid grid-cols-2 rounded-xl p-1 w-full max-w-[220px] ${
                     isDark ? "bg-white/5 border border-white/10" : "bg-gray-100 border border-gray-200"
                   }`}
                 >
@@ -213,7 +213,7 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
                       key={cycle}
                       type="button"
                       onClick={() => setBillingCycle(cycle)}
-                      className={`rounded-lg py-1 sm:py-2 text-[8px] xs:text-[10px] sm:text-xs font-bold uppercase tracking-widest transition-all duration-200 ${
+                      className={`rounded-lg py-2 text-[11px] sm:text-xs font-bold uppercase tracking-widest transition-all duration-200 ${
                         billingCycle === cycle
                           ? isDark
                             ? "bg-white text-gray-950 shadow-md"
@@ -230,8 +230,8 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
               </div>
 
               {/* Mobile Plan Tab Switcher */}
-              <div className="flex md:hidden items-center justify-center w-full mt-4 shrink-0">
-                <div className={`grid grid-cols-3 rounded-xl p-1 w-full max-w-[280px] ${
+              <div className="flex lg:hidden items-center justify-center w-full mt-4 shrink-0">
+                <div className={`grid grid-cols-3 rounded-xl p-1 w-full max-w-[320px] ${
                   isDark ? "bg-white/5 border border-white/10" : "bg-gray-100 border border-gray-200"
                 }`}>
                   {displayPlans.map((plan) => (
@@ -239,7 +239,7 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
                       key={plan.id}
                       type="button"
                       onClick={() => setActiveMobilePlanCode(plan.code)}
-                      className={`rounded-lg py-1.5 text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
+                      className={`rounded-lg py-2 text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
                         activeMobilePlanCode === plan.code
                           ? isDark
                             ? "bg-white text-gray-950 shadow-sm"
@@ -258,17 +258,15 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
           </div>
 
           {/* Plans Grid */}
-          <div className="flex-1 overflow-y-auto px-3 sm:px-6 lg:px-8 pb-8 pt-4 sm:pt-5 md:pt-6">
+          <div className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 lg:px-8 pb-6 sm:pb-8 pt-4 sm:pt-5 lg:pt-6">
             {isBillingLoading ? (
               <CardGridSkeleton count={3} />
             ) : (
-              <div className="flex flex-col md:grid md:grid-cols-3 gap-4 md:gap-5 lg:gap-6 mx-auto items-stretch w-full md:max-w-none">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-5 lg:gap-6 mx-auto place-items-center lg:items-stretch w-full">
                 {displayPlans.map((plan, index) => (
                   <div
                     key={plan.id}
-                    className={`w-full max-w-md mx-auto md:max-w-none md:block ${
-                      activeMobilePlanCode === plan.code ? "block" : "hidden"
-                    }`}
+                    className={`${activeMobilePlanCode === plan.code ? "block" : "hidden"} lg:block w-[min(100%,25rem)] lg:w-full lg:max-w-none`}
                   >
                     <PlanCard
                       plan={plan}
