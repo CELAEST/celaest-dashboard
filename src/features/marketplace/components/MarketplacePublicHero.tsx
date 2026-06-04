@@ -2,111 +2,150 @@
 
 import React from "react";
 import { motion } from "motion/react";
-import { CaretDown } from "@phosphor-icons/react";
-import { TrustBadges } from "@/features/marketplace/components/TrustBadges";
-import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
-import { useTheme } from "@/features/shared/hooks/useTheme";
+import Image from "next/image";
+import { ArrowUpRight } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
 
 export const MarketplacePublicHero: React.FC = () => {
   const t = useTranslations("marketplace");
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
 
   const handleScrollToCatalog = () => {
     const catalog = document.getElementById("marketplace-catalog");
-    if (catalog) {
-      catalog.scrollIntoView({ behavior: "smooth" });
-    }
+    catalog?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const handleIntegrationsGlow = (
+    event: React.MouseEvent<HTMLDivElement>,
+  ) => {
+    const bounds = event.currentTarget.getBoundingClientRect();
+    const x = ((event.clientX - bounds.left) / bounds.width) * 100;
+    event.currentTarget.style.setProperty("--glow-x", `${x}%`);
+  };
+
+  const integrations = [
+    {
+      label: "WhatsApp",
+      logo: "/images/integrations/whatsapp.svg",
+      name: "WhatsApp",
+    },
+    {
+      label: "Google Sheets",
+      logo: "/images/integrations/google-sheets.svg",
+      name: "Google Sheets",
+    },
+    {
+      label: "HubSpot CRM",
+      logo: "/images/integrations/hubspot.svg",
+      name: "HubSpot CRM",
+    },
+    {
+      label: "Gmail",
+      logo: "/images/integrations/gmail.svg",
+      name: "Gmail",
+    },
+    {
+      label: "API",
+      logo: "/images/integrations/api.svg",
+      name: "",
+    },
+    {
+      label: "Webhooks",
+      logo: "/images/integrations/webhooks.svg",
+      name: "",
+    },
+  ];
+
   return (
-    <div className="relative p-4 md:p-8 pb-0">
-      <div className="relative w-full overflow-hidden rounded-2xl md:rounded-3xl shadow-2xl bg-zinc-950">
-        {/* Responsive Background - Replaces the legacy image for better Mobile UX */}
-        <div className="absolute inset-0 z-0">
-          {/* Base Desktop Image (Optional, hidden on mobile for cleaner UX) */}
-          <div className="hidden md:block absolute inset-0 opacity-40">
-            <ImageWithFallback
-              src={`/images/marketplace_hero_${isDark ? "dark" : "light"}_v7.webp`}
-              fill
-              priority
-              className="object-cover object-[center_right]"
-              alt="Hero Background"
-            />
+    <>
+      <section className="relative min-h-[469px] overflow-hidden bg-black px-5 text-white sm:min-h-[526px] sm:px-8 lg:min-h-[469px] lg:px-10">
+        <div className="absolute inset-0 bg-black" />
+        <Image
+          src="/images/marketplace-automation-hero-panorama-2026-06-04-v3.png"
+          fill
+          priority
+          sizes="100vw"
+          className="-translate-x-4 scale-[1.16] object-contain object-center transform-gpu sm:-translate-x-5 sm:scale-[1.18] lg:-translate-x-7 lg:scale-[1.2]"
+          alt={t("hero_visual_alt")}
+        />
+        <div className="absolute inset-y-0 left-0 w-full bg-linear-to-r from-black/82 via-black/42 to-transparent lg:w-[58%]" />
+        <div className="absolute inset-y-0 left-0 w-20 bg-linear-to-r from-black to-transparent" />
+        <div className="absolute inset-y-0 right-0 w-48 bg-linear-to-l from-black via-black/70 to-transparent sm:w-56 lg:w-72" />
+        <div className="absolute inset-x-0 bottom-0 h-32 bg-linear-to-b from-transparent via-black/35 to-black" />
+
+        <div className="relative z-10 mx-auto max-w-7xl">
+          <div className="flex min-h-[469px] items-center py-8 sm:min-h-[526px] lg:min-h-[469px]">
+            <motion.div
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.45 }}
+              className="max-w-[34rem]"
+            >
+              <h1 className="text-[2.15rem] font-black leading-[1.05] text-white sm:text-5xl lg:text-[3.2rem]">
+                {t("hero_headline")}
+                <span className="mt-1 block">
+                  {t("hero_line_prefix")}{" "}
+                  <span className="text-blue-500">{t("hero_line_accent")}</span>{" "}
+                  {t("hero_line_suffix")}
+                </span>
+              </h1>
+
+              <p className="mt-5 max-w-[28rem] text-sm leading-6 text-gray-400 sm:text-base">
+                {t("hero_subtitle")}
+              </p>
+
+              <button
+                onClick={handleScrollToCatalog}
+                className="mt-7 inline-flex h-12 items-center justify-center gap-3 rounded-xl bg-blue-600 px-5 text-sm font-semibold text-white shadow-lg shadow-blue-600/25 transition-colors hover:bg-blue-500"
+              >
+                {t("hero_primary_cta")}
+                <ArrowUpRight className="h-4 w-4" weight="bold" />
+              </button>
+            </motion.div>
           </div>
-
-          {/* Elegant Gradients & Mesh for Mobile & Desktop */}
-          <div className={`absolute inset-0 ${isDark ? "bg-[#050505]/80" : "bg-white/90"}`} />
-          
-          {/* Animated Glow Blobs */}
-          <div className="absolute -top-[30%] -right-[10%] w-[70%] h-[70%] rounded-full bg-cyan-500/20 blur-[100px] md:blur-[120px]" />
-          <div className="absolute -bottom-[20%] left-[10%] w-[50%] h-[50%] rounded-full bg-blue-600/20 blur-[80px] md:blur-[120px]" />
-          
-          {/* Subtle Grid Pattern for Tech Feel */}
-          <div 
-            className="absolute inset-0 opacity-[0.03] md:opacity-[0.05]"
-            style={{ 
-              backgroundImage: isDark 
-                ? "linear-gradient(rgba(255, 255, 255, 1) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 1) 1px, transparent 1px)"
-                : "linear-gradient(rgba(0, 0, 0, 1) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, 1) 1px, transparent 1px)",
-              backgroundSize: "32px 32px"
-            }} 
-          />
-          
-          {/* Reading Gradient Overlay */}
-          <div className={`absolute inset-0 ${isDark ? "bg-linear-to-r from-black/80 via-black/40 to-transparent" : "bg-linear-to-r from-white/90 via-white/50 to-transparent"}`} />
         </div>
+      </section>
 
-        <div className="relative z-20 flex flex-col justify-center px-6 md:px-12 py-12 md:py-20 lg:py-24 w-full min-h-[300px] md:min-h-[400px]">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
-            className="w-full max-w-[800px]"
+      <section className="-mt-6 bg-black px-5 pb-8 text-white sm:-mt-7 sm:px-8 lg:-mt-8 lg:px-10">
+        <div className="mx-auto max-w-7xl">
+          <div
+            onMouseMove={handleIntegrationsGlow}
+            onMouseLeave={(event) =>
+              event.currentTarget.style.setProperty("--glow-x", "50%")
+            }
+            className="group relative overflow-hidden rounded-[1.85rem] border border-blue-400/18 bg-[#050b14]/82 px-5 py-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-sm transition-shadow duration-200 hover:shadow-[0_0_44px_rgba(37,99,235,0.13),inset_0_1px_0_rgba(255,255,255,0.08)]"
+            style={{ "--glow-x": "50%" } as React.CSSProperties}
           >
-            <h1
-              className={`text-2xl sm:text-3xl md:text-5xl font-bold mb-3 md:mb-4 leading-tight ${
-                isDark ? "text-white" : "text-gray-900"
-              }`}
-            >
-              {t("enterprise_technology")}
-              <br />
-              <span className={isDark ? "text-cyan-400" : "text-cyan-600"}>
-                {t("celestial_innovation")}
-              </span>
-            </h1>
-            <p
-              className={`text-sm md:text-lg mb-4 md:mb-6 w-full max-w-[600px] shrink-0 leading-relaxed ${
-                isDark ? "text-gray-300" : "text-gray-700"
-              }`}
-            >
-              {t("hero_subtitle")}
-            </p>
-            <TrustBadges />
-          </motion.div>
-        </div>
-      </div>
+            <div className="pointer-events-none absolute inset-x-10 top-0 h-px bg-linear-to-r from-transparent via-blue-400 to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-65" />
+            <div className="pointer-events-none absolute inset-x-10 bottom-0 h-px bg-linear-to-r from-transparent via-blue-500 to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-55" />
+            <div className="pointer-events-none absolute left-[var(--glow-x)] top-0 h-8 w-36 -translate-x-1/2 rounded-full bg-blue-500/38 opacity-0 blur-2xl transition-[left,opacity] duration-150 ease-out group-hover:opacity-100" />
+            <div className="pointer-events-none absolute bottom-0 left-[var(--glow-x)] h-8 w-36 -translate-x-1/2 rounded-full bg-blue-600/38 opacity-0 blur-2xl transition-[left,opacity] duration-150 ease-out group-hover:opacity-100" />
 
-      {/* Scroll indicator */}
-      <motion.button
-        onClick={handleScrollToCatalog}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1 }}
-        className={`
-            mx-auto mt-6 flex flex-col items-center gap-1 text-sm transition-colors
-            ${isDark ? "text-gray-500 hover:text-cyan-400" : "text-gray-400 hover:text-cyan-600"}
-          `}
-      >
-        <span>{t("explore_catalog")}</span>
-        <motion.div
-          animate={{ y: [0, 5, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-        >
-          <CaretDown size={20} />
-        </motion.div>
-      </motion.button>
-    </div>
+            <div className="relative grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
+              {integrations.map(({ label, logo, name }, index) => (
+                <div
+                  key={label}
+                  className="group relative flex h-11 items-center justify-center gap-3 px-3"
+                >
+                  {index > 0 ? (
+                    <span className="absolute left-0 hidden h-7 w-px bg-white/12 lg:block" />
+                  ) : null}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={logo}
+                  alt={label}
+                  className={`${name ? "h-5 max-w-24" : "h-6 max-w-32"} w-auto brightness-0 invert opacity-90 transition-opacity group-hover:opacity-100`}
+                />
+                  {name ? (
+                    <span className="whitespace-nowrap text-sm font-semibold tracking-wide text-gray-200/90 transition-colors group-hover:text-white">
+                      {name}
+                    </span>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
   );
 };
