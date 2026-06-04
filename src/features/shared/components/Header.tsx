@@ -1,12 +1,14 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import {
   Sun,
   Moon,
   ShieldWarning,
   Pulse,
   List,
+  ArrowUpRight,
 } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
@@ -64,7 +66,6 @@ export const Header = React.memo(function Header({
             <List size={22} />
           </button>
         )}
-        <LocaleSwitcher align="left" />
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
@@ -104,13 +105,25 @@ export const Header = React.memo(function Header({
         {user ? (
           <UserInfo user={user} />
         ) : (
-          <button
-            onClick={onShowLogin}
-            className="px-4 py-2 rounded-full text-sm font-medium transition-all bg-blue-600 text-white hover:bg-blue-700 shadow-md dark:bg-cyan-500/10 dark:text-cyan-400 dark:hover:bg-cyan-500/20 dark:hover:shadow-[0_0_15px_rgba(34,211,238,0.3)] dark:shadow-none"
-          >
-            {tAuth("sign_in")}
-          </button>
+          <div className="flex items-center gap-3 sm:gap-4">
+            <button
+              onClick={onShowLogin}
+              className="text-xs font-semibold text-gray-600 transition-colors hover:text-gray-950 dark:text-gray-400 dark:hover:text-white sm:text-sm"
+            >
+              {tAuth("sign_in")}
+            </button>
+            <div className="h-6 w-px bg-gray-300 dark:bg-white/25" />
+            <Link
+              href="/?mode=signup"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 text-xs font-semibold text-white shadow-md shadow-blue-600/20 transition-colors hover:bg-blue-500 sm:text-sm"
+            >
+              {tAuth("sign_up")}
+              <ArrowUpRight className="h-3.5 w-3.5" weight="bold" />
+            </Link>
+          </div>
         )}
+
+        <LocaleSwitcher align="right" />
 
         <button
           onClick={toggleTheme}

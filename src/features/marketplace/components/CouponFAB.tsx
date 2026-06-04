@@ -10,7 +10,11 @@ import { useLocalProductPrice } from "@/features/billing/hooks/useLocalProductPr
 import { motion, AnimatePresence } from "motion/react";
 import { useTranslations } from "next-intl";
 
-export function CouponFAB() {
+interface CouponFABProps {
+  onRequireLogin?: () => void;
+}
+
+export function CouponFAB({ onRequireLogin }: CouponFABProps = {}) {
   const { activeCoupon, setCoupon, clearCoupon } = useMarketplaceCouponStore();
   const { token, orgId } = useApiAuth();
   const t = useTranslations("marketplace");
@@ -23,6 +27,16 @@ export function CouponFAB() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const searchParams = useSearchParams();
+  const requiresLogin = !token || !orgId;
+
+  const requestLoginOrRun = (action: () => void) => {
+    if (requiresLogin && onRequireLogin) {
+      onRequireLogin();
+      return;
+    }
+
+    action();
+  };
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -268,7 +282,7 @@ export function CouponFAB() {
           <motion.button
             layout
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            onClick={() => setIsOpen(!isOpen)}
+            onClick={() => requestLoginOrRun(() => setIsOpen(!isOpen))}
             className={`relative flex items-center justify-start h-12 rounded-full shadow-lg backdrop-blur-xl border transition-all duration-500 ease-out hover:scale-[1.02] active:scale-95 w-12 group-hover:w-[165px] pl-[13px] overflow-hidden group/btn hover:shadow-[0_0_30px_-5px]
               ${
                 activeCoupon
@@ -296,7 +310,7 @@ export function CouponFAB() {
           <motion.button
             layout
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            onClick={() => setIsPlansOpen(true)}
+            onClick={() => requestLoginOrRun(() => setIsPlansOpen(true))}
             className="relative flex items-center justify-start h-12 rounded-full shadow-lg backdrop-blur-xl border transition-all duration-500 ease-out hover:scale-[1.02] active:scale-95 bg-linear-to-tr from-purple-500/20 to-fuchsia-500/20 border-purple-500/30 text-purple-300 hover:border-purple-400/50 hover:shadow-[0_0_30px_-5px] hover:shadow-purple-500/30 w-12 group-hover:w-[135px] pl-[13px] overflow-hidden group/btn"
           >
             {/* Shimmer Overlay */}

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { forwardRef } from "react";
-import { MagnifyingGlass, Funnel } from "@phosphor-icons/react";
+import { MagnifyingGlass } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useMarketplaceProducts } from "../hooks/useMarketplaceProducts";
 import { useTranslations } from "next-intl";
@@ -61,19 +61,6 @@ export const MarketplaceSearch = React.memo(
                 }
               `}
             />
-            <button
-              className={`
-                hidden md:flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all
-                ${
-                  isDark
-                    ? "bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10"
-                    : "bg-gray-100 hover:bg-gray-200 text-gray-700"
-                }
-              `}
-            >
-              <Funnel size={16} />
-              {t("filters")}
-            </button>
             <button
               onClick={handleSearchClick}
               className={`

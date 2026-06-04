@@ -1,6 +1,5 @@
 import React, { useCallback, useState } from "react";
 import { MarketplacePublicHero } from "./MarketplacePublicHero";
-import { MarketplaceSearch } from "./MarketplaceSearch";
 import { ProductCardCompact } from "./ProductCardCompact";
 import { VideoDemoSection } from "./VideoDemoSection";
 import { ProductSkeleton } from "./ProductSkeleton";
@@ -51,16 +50,12 @@ export function MarketplacePublicView() {
   const handlePurchaseAction = (product?: MarketplaceProduct) => {
     if (product) {
       sessionStorage.setItem("pending_purchase_modal_id", product.id);
-      // También persistimos el intent rico (con tab "overview") para que el
-      // dashboard reabra el modal en la misma posición.
+      // Persistimos el intent rico para que el dashboard reabra el modal.
       setAuthIntent({ productId: product.id, tab: "overview" });
     }
-    // En público, adquirir redirige a login
     setShowLoginModal(true);
   };
 
-  // Disparado por componentes hijos (p. ej. el form de reseñas dentro del
-  // ProductDetailModal). Persiste el intent + abre el login global.
   const handleRequestLogin = useCallback((intent: MarketplaceAuthIntent) => {
     setAuthIntent(intent);
     // Mantenemos el sessionStorage legacy para no romper otros flujos.
@@ -70,104 +65,102 @@ export function MarketplacePublicView() {
 
   return (
     <AuthPromptProvider onRequestLogin={handleRequestLogin}>
-    <div className="flex flex-col min-h-screen">
-      {/* Hero Section */}
-      <MarketplacePublicHero />
+      <div className="flex flex-col min-h-screen">
+        <MarketplacePublicHero />
 
-      {/* MagnifyingGlass Section - Restored Original Position */}
-      <MarketplaceSearch />
-
-      {/* Products Section */}
-      <div className="px-6 pb-4" id="marketplace-catalog">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 px-4 md:px-8">
-          <div>
-            <h2
-              className={`text-2xl md:text-3xl font-bold mb-1 md:mb-2 ${
-                isDark ? "text-white" : "text-gray-900"
+        <div
+          className="bg-black px-5 pb-4 pt-7 sm:px-8 lg:px-10"
+          id="marketplace-catalog"
+        >
+          <div className="mx-auto mb-5 flex max-w-7xl items-start justify-between gap-4">
+            <div>
+              <h2
+                className={`text-xl font-black sm:text-2xl ${
+                  isDark ? "text-white" : "text-gray-950"
+                }`}
+              >
+                {t("available_solutions")}
+              </h2>
+              <p
+                className={`mt-1 text-xs sm:text-sm ${
+                  isDark ? "text-gray-400" : "text-gray-600"
+                }`}
+              >
+                {t("every_product_includes")}
+              </p>
+            </div>
+            <div
+              className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold ${
+                isDark
+                  ? "border border-blue-500/25 bg-blue-500/10 text-cyan-300"
+                  : "border border-blue-200 bg-blue-50 text-blue-700"
               }`}
             >
-              {t("available_solutions")}
-            </h2>
-            <p
-              className={`text-xs md:text-sm ${
-                isDark ? "text-gray-400" : "text-gray-600"
-              }`}
-            >
-              {t("every_product_includes")}
-            </p>
+              {t("products_count", { count: products.length })}
+            </div>
           </div>
-          <div
-            className={`text-xs px-3 py-1.5 rounded-full inline-flex self-start ${
-              isDark
-                ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20"
-                : "bg-cyan-50 text-cyan-700 border border-cyan-200"
-            }`}
-          >
-            {t("products_count", { count: products.length })}
-          </div>
+
+          <AnimatePresence mode="wait">
+            {isLoading ? (
+              <div className="mx-auto grid max-w-7xl grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+                {[...Array(6)].map((_, i) => (
+                  <ProductSkeleton key={i} />
+                ))}
+              </div>
+            ) : products.length === 0 ? (
+              <div className="mx-auto max-w-7xl rounded-3xl border border-dashed border-white/10 bg-white/5 py-20 text-center">
+                <Storefront className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                <h3 className="text-lg font-medium text-gray-500">
+                  {t("no_products_found")}
+                </h3>
+                <button
+                  onClick={reset}
+                  className="text-cyan-500 mt-2 hover:underline"
+                >
+                  {t("clear_filters")}
+                </button>
+              </div>
+            ) : (
+              <div className="mx-auto grid max-w-7xl grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+                {products.map((product) => (
+                  <ProductCardCompact
+                    key={product.id}
+                    product={product}
+                    onSelect={() => handlePurchaseAction(product)}
+                    onViewDetails={() => handleViewDetails(product)}
+                    accessLevel="none"
+                  />
+                ))}
+              </div>
+            )}
+          </AnimatePresence>
         </div>
 
-        <AnimatePresence mode="wait">
-          {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-6 px-4 md:px-8">
-              {[...Array(6)].map((_, i) => (
-                <ProductSkeleton key={i} />
-              ))}
-            </div>
-          ) : products.length === 0 ? (
-            <div className="text-center py-20 bg-white/5 rounded-3xl border border-dashed border-white/10 mx-8">
-              <Storefront className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium text-gray-500">
-                {t("no_products_found")}
-              </h3>
-              <button
-                onClick={reset}
-                className="text-cyan-500 mt-2 hover:underline"
-              >
-                {t("clear_filters")}
-              </button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-6 px-4 md:px-8">
-              {products.map((product) => (
-                <ProductCardCompact
-                  key={product.id}
-                  product={product}
-                  onSelect={() => handlePurchaseAction(product)}
-                  onViewDetails={() => handleViewDetails(product)}
-                  accessLevel="none"
-                />
-              ))}
-            </div>
-          )}
-        </AnimatePresence>
-      </div>
+        {/* Video Demo Section (Includes Testimonials & TrustBadges) */}
+        <VideoDemoSection />
 
-      {/* Video Demo Section (Includes Testimonials & TrustBadges) */}
-      <VideoDemoSection />
-
-      {/* Modals */}
-      <LoginModal
-        isOpen={showLoginModal}
-        onClose={() => setShowLoginModal(false)}
-        message={t("login_to_acquire")}
-      />
-
-      {detailProduct && (
-        <ProductDetailModal
-          initialProduct={detailProduct}
-          onClose={() => setDetailProduct(null)}
-          onPurchase={() => {
-            // Logic for purchase inside modal -> Force Login
-            handlePurchaseAction(detailProduct);
-            setDetailProduct(null);
-          }}
+        {/* Modals */}
+        <LoginModal
+          isOpen={showLoginModal}
+          onClose={() => setShowLoginModal(false)}
+          message={t("login_to_acquire")}
         />
-      )}
 
-      {/* Floating Action Button for Coupons */}
-      <CouponFAB />
-    </div>
+        {detailProduct && (
+          <ProductDetailModal
+            initialProduct={detailProduct}
+            onClose={() => setDetailProduct(null)}
+            onPurchase={() => {
+              // Logic for purchase inside modal -> Force Login
+              handlePurchaseAction(detailProduct);
+              setDetailProduct(null);
+            }}
+          />
+        )}
+
+        {/* Floating Action Button for Coupons */}
+        <CouponFAB onRequireLogin={() => setShowLoginModal(true)} />
+      </div>
     </AuthPromptProvider>
   );
 }
