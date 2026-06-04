@@ -422,29 +422,30 @@ export const LicensingList: React.FC<LicensingListProps> = ({
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3">
                       <div
-                        className={`w-10 h-10 rounded-xl flex items-center justify-center p-2.5 ${
+                        className={`w-10 h-10 rounded-[14px] flex items-center justify-center p-2.5 ${
                           isDark
-                            ? "bg-white/5 border border-white/10"
-                            : "bg-blue-50 border border-blue-100"
+                            ? "bg-white/[0.03] border border-white/[0.05] shadow-inner"
+                            : "bg-blue-50/50 border border-blue-100/50"
                         }`}
                       >
                         <Monitor
-                          className={isDark ? "text-cyan-400" : "text-blue-600"}
-                          size={20}
+                          className={isDark ? "text-cyan-400/80" : "text-blue-600"}
+                          size={18}
+                          weight="duotone"
                         />
                       </div>
                       <div className="flex flex-col">
                         <span
-                          className={`text-sm font-black tracking-tight ${isDark ? "text-white" : "text-gray-900"}`}
+                          className={`text-[13px] font-bold tracking-tight leading-tight ${isDark ? "text-white" : "text-gray-900"}`}
                         >
                           {productName}
                         </span>
-                        <div className="flex items-center gap-1.5 mt-0.5">
-                          <span className="text-[8px] font-black bg-gray-500/10 text-gray-500 px-1.5 py-0.5 rounded uppercase tracking-widest leading-none">
+                        <div className="flex items-center gap-1.5 mt-1">
+                          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider leading-none ${isDark ? "bg-white/10 text-gray-400" : "bg-gray-100 text-gray-500"}`}>
                             {productCode}
                           </span>
                           {!showAdminData && (
-                            <span className={`text-[8px] font-bold ${isDark ? "text-gray-500" : "text-gray-400"}`}>
+                            <span className={`text-[9px] font-medium ${isDark ? "text-gray-500" : "text-gray-400"}`}>
                               v1.0.4
                             </span>
                           )}
@@ -453,49 +454,49 @@ export const LicensingList: React.FC<LicensingListProps> = ({
                     </div>
 
                     <div
-                      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${
+                      className={`shrink-0 inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[9px] font-bold uppercase tracking-wider border ${
                         isLicenseActive
-                          ? "bg-emerald-500/5 text-emerald-500 border-emerald-500/10"
-                          : "bg-rose-500/5 text-rose-500 border-rose-500/10"
+                          ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                          : "bg-rose-500/10 text-rose-400 border-rose-500/20"
                       }`}
                     >
                       <div
-                        className={`w-1.5 h-1.5 rounded-full ${isLicenseActive ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-rose-500"}`}
+                        className={`w-1.5 h-1.5 rounded-full ${isLicenseActive ? "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]" : "bg-rose-400"}`}
                       />
                       {isLicenseActive ? t("active") : license.status}
                     </div>
                   </div>
 
                   {/* License Key Section */}
-                  <div className="flex flex-col gap-1.5">
-                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
+                  <div className="flex flex-col gap-1.5 mt-1">
+                    <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-widest pl-1">
                       {showAdminData ? t("owner") : t("license")}
                     </span>
                     {showAdminData ? (
-                      <div className="flex items-center gap-3 py-1">
+                      <div className="flex items-center gap-3 py-1 px-1">
                         <div
-                          className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+                          className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
                             isDark
                               ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
                               : "bg-blue-100 text-blue-700"
                           }`}
                         >
-                          {license.user_name?.[0]?.toUpperCase() || <Users size={14} />}
+                          {license.user_name?.[0]?.toUpperCase() || <Users size={12} />}
                         </div>
                         <div className="flex flex-col min-w-0">
                           <span
-                            className={`text-xs font-bold truncate ${isDark ? "text-gray-200" : "text-gray-700"}`}
+                            className={`text-xs font-semibold truncate ${isDark ? "text-gray-200" : "text-gray-700"}`}
                           >
                             {license.user_name || "N/A"}
                           </span>
-                          <span className="text-[9px] font-mono text-gray-500 truncate">
+                          <span className="text-[9px] font-mono text-gray-500 truncate mt-0.5">
                             ID: {license.organization_id.substring(0, 8)}
                           </span>
                         </div>
                       </div>
                     ) : (
-                      <div className="flex items-center justify-between gap-2 px-3 py-2 rounded-xl border border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5">
-                        <span className="text-xs font-mono text-gray-400 tracking-wider">
+                      <div className={`flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl border ${isDark ? "border-white/[0.05] bg-white/[0.02]" : "border-gray-100 bg-gray-50"}`}>
+                        <span className="text-xs font-mono text-gray-400 tracking-widest">
                           {maskLicenseKey(license.license_key)}
                         </span>
                         <button
@@ -504,32 +505,31 @@ export const LicensingList: React.FC<LicensingListProps> = ({
                             copyToClipboard(license.license_key);
                             toast.success(t("copied_to_clipboard") || "Copiado al portapapeles");
                           }}
-                          className="text-cyan-500 hover:text-cyan-400 transition-colors p-1"
+                          className={`${isDark ? "text-cyan-500/70 hover:text-cyan-400" : "text-cyan-600"} transition-colors p-1`}
                         >
-                          <Copy size={14} />
+                          <Copy size={16} weight="duotone" />
                         </button>
                       </div>
                     )}
                   </div>
 
                   {/* Usage / Metrics Section */}
-                  <div className="flex flex-col gap-3 py-2 border-y border-gray-100 dark:border-white/5">
+                  <div className="flex flex-col gap-4 py-4 mt-1 border-t border-b border-gray-100 dark:border-white/[0.05]">
                     {/* AI Qty usage bar */}
-                    <div className="flex flex-col gap-1.5">
-                      <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider text-gray-400">
-                        <div className="flex items-center gap-1 text-cyan-500">
-                          <Cpu size={12} /> AI Qty
+                    <div className="flex flex-col gap-2">
+                      <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider text-gray-500">
+                        <div className="flex items-center gap-1.5 text-cyan-500/90">
+                          <Cpu size={14} weight="duotone" /> <span>AI QTY</span>
                         </div>
-                        <span className={isDark ? "text-white" : "text-gray-900"}>
-                          {license.ai_requests_used} /{" "}
-                          {(license.plan?.limits?.max_ai_requests_per_month as number) || 1000}
+                        <span className={`font-mono ${isDark ? "text-gray-300" : "text-gray-700"}`}>
+                          {license.ai_requests_used} <span className="text-gray-500">/ {(license.plan?.limits?.max_ai_requests_per_month as number) || 1000}</span>
                         </span>
                       </div>
                       <div
-                        className={`h-2 w-full rounded-full ${isDark ? "bg-white/5" : "bg-gray-100"} overflow-hidden`}
+                        className={`h-1.5 w-full rounded-full ${isDark ? "bg-white/10" : "bg-gray-200"} overflow-hidden`}
                       >
                         <div
-                          className="h-full bg-linear-to-r from-cyan-500 to-blue-500 rounded-full"
+                          className="h-full bg-linear-to-r from-cyan-400 to-blue-500 rounded-full"
                           style={{
                             width: `${Math.min(100, (license.ai_requests_used / ((license.plan?.limits?.max_ai_requests_per_month as number) || 1000)) * 100)}%`,
                           }}
@@ -538,26 +538,26 @@ export const LicensingList: React.FC<LicensingListProps> = ({
                     </div>
 
                     {/* Devices & Storage side-by-side */}
-                    <div className="grid grid-cols-2 gap-4 pt-1">
-                      <div className="flex items-center gap-2">
-                        <div className="p-1.5 rounded-lg bg-purple-500/10">
-                          <Monitor size={14} className="text-purple-400" />
+                    <div className="grid grid-cols-2 gap-4 mt-2">
+                      <div className="flex items-center gap-2.5">
+                        <div className={`p-1.5 rounded-lg ${isDark ? "bg-purple-500/10" : "bg-purple-50"}`}>
+                          <Monitor size={14} className={isDark ? "text-purple-400" : "text-purple-600"} weight="duotone" />
                         </div>
                         <div className="flex flex-col">
-                          <span className="text-[8px] font-bold text-gray-500 uppercase tracking-widest">Dispositivos</span>
-                          <span className={`text-xs font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
-                            {license.active_activations} / {(license.plan?.limits?.max_users as number) || 5}
+                          <span className="text-[9px] font-semibold text-gray-500 uppercase tracking-wider">Dispositivos</span>
+                          <span className={`text-[11px] font-mono mt-0.5 ${isDark ? "text-gray-300" : "text-gray-700"}`}>
+                            {license.active_activations} <span className="text-gray-500">/ {(license.plan?.limits?.max_users as number) || 5}</span>
                           </span>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <div className="p-1.5 rounded-lg bg-emerald-500/10">
-                          <HardDrive size={14} className="text-emerald-400" />
+                      <div className="flex items-center gap-2.5">
+                        <div className={`p-1.5 rounded-lg ${isDark ? "bg-emerald-500/10" : "bg-emerald-50"}`}>
+                          <HardDrive size={14} className={isDark ? "text-emerald-400" : "text-emerald-600"} weight="duotone" />
                         </div>
                         <div className="flex flex-col">
-                          <span className="text-[8px] font-bold text-gray-500 uppercase tracking-widest">Almacenamiento</span>
-                          <span className={`text-xs font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
-                            {(license.storage_used_bytes / (1024 * 1024 * 1024)).toFixed(1)} GB
+                          <span className="text-[9px] font-semibold text-gray-500 uppercase tracking-wider">Storage</span>
+                          <span className={`text-[11px] font-mono mt-0.5 ${isDark ? "text-gray-300" : "text-gray-700"}`}>
+                            {(license.storage_used_bytes / (1024 * 1024 * 1024)).toFixed(1)} <span className="text-gray-500">GB</span>
                           </span>
                         </div>
                       </div>
@@ -565,16 +565,16 @@ export const LicensingList: React.FC<LicensingListProps> = ({
                   </div>
 
                   {/* Expiration & Next billing */}
-                  <div className="flex flex-col gap-1 text-[11px]">
-                    <div className="flex items-center justify-between text-gray-400">
-                      <span>Vigencia</span>
-                      <span className={`font-semibold ${isDark ? "text-gray-200" : "text-gray-800"}`}>
+                  <div className="flex flex-col gap-2 text-[11px] pt-1 pb-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-500">Vigencia</span>
+                      <span className={`font-medium ${isDark ? "text-gray-300" : "text-gray-700"}`}>
                         {license.billing_cycle === "lifetime" ? t("unlimited") : formatDate(license.expires_at)}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between text-gray-500 text-[10px]">
-                      <span>Facturación</span>
-                      <span>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-500">Facturación</span>
+                      <span className={`font-medium ${isDark ? "text-gray-400" : "text-gray-600"}`}>
                         {license.billing_cycle === "lifetime" ? t("lifetime_access") : `Cobro: ${formatDate(license.next_billing_date)}`}
                       </span>
                     </div>

@@ -21,23 +21,44 @@ export const MarketplacePublicHero: React.FC = () => {
   };
 
   return (
-    <div className="relative p-8 pb-0">
-      <div className="relative w-full aspect-32/9 overflow-hidden rounded-3xl shadow-2xl">
-        <div
-          className={`absolute inset-0 z-10 ${
-            isDark
-              ? "bg-linear-to-r from-black via-black/40 to-transparent"
-              : "bg-linear-to-r from-white via-white/70 to-transparent"
-          }`}
-        />
-        <ImageWithFallback
-          src={`/images/marketplace_hero_${isDark ? "dark" : "light"}_v7.webp`}
-          fill
-          priority
-          className="object-cover"
-          alt="Hero Background"
-        />
-        <div className="absolute inset-0 flex flex-col justify-center px-12 z-20 w-full">
+    <div className="relative p-4 md:p-8 pb-0">
+      <div className="relative w-full overflow-hidden rounded-2xl md:rounded-3xl shadow-2xl bg-zinc-950">
+        {/* Responsive Background - Replaces the legacy image for better Mobile UX */}
+        <div className="absolute inset-0 z-0">
+          {/* Base Desktop Image (Optional, hidden on mobile for cleaner UX) */}
+          <div className="hidden md:block absolute inset-0 opacity-40">
+            <ImageWithFallback
+              src={`/images/marketplace_hero_${isDark ? "dark" : "light"}_v7.webp`}
+              fill
+              priority
+              className="object-cover object-[center_right]"
+              alt="Hero Background"
+            />
+          </div>
+
+          {/* Elegant Gradients & Mesh for Mobile & Desktop */}
+          <div className={`absolute inset-0 ${isDark ? "bg-[#050505]/80" : "bg-white/90"}`} />
+          
+          {/* Animated Glow Blobs */}
+          <div className="absolute -top-[30%] -right-[10%] w-[70%] h-[70%] rounded-full bg-cyan-500/20 blur-[100px] md:blur-[120px]" />
+          <div className="absolute -bottom-[20%] left-[10%] w-[50%] h-[50%] rounded-full bg-blue-600/20 blur-[80px] md:blur-[120px]" />
+          
+          {/* Subtle Grid Pattern for Tech Feel */}
+          <div 
+            className="absolute inset-0 opacity-[0.03] md:opacity-[0.05]"
+            style={{ 
+              backgroundImage: isDark 
+                ? "linear-gradient(rgba(255, 255, 255, 1) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 1) 1px, transparent 1px)"
+                : "linear-gradient(rgba(0, 0, 0, 1) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, 1) 1px, transparent 1px)",
+              backgroundSize: "32px 32px"
+            }} 
+          />
+          
+          {/* Reading Gradient Overlay */}
+          <div className={`absolute inset-0 ${isDark ? "bg-linear-to-r from-black/80 via-black/40 to-transparent" : "bg-linear-to-r from-white/90 via-white/50 to-transparent"}`} />
+        </div>
+
+        <div className="relative z-20 flex flex-col justify-center px-6 md:px-12 py-12 md:py-20 lg:py-24 w-full min-h-[300px] md:min-h-[400px]">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -45,7 +66,7 @@ export const MarketplacePublicHero: React.FC = () => {
             className="w-full max-w-[800px]"
           >
             <h1
-              className={`text-4xl md:text-5xl font-bold mb-4 leading-tight ${
+              className={`text-2xl sm:text-3xl md:text-5xl font-bold mb-3 md:mb-4 leading-tight ${
                 isDark ? "text-white" : "text-gray-900"
               }`}
             >
@@ -56,7 +77,7 @@ export const MarketplacePublicHero: React.FC = () => {
               </span>
             </h1>
             <p
-              className={`text-base md:text-lg mb-6 w-full max-w-[600px] shrink-0 leading-relaxed ${
+              className={`text-sm md:text-lg mb-4 md:mb-6 w-full max-w-[600px] shrink-0 leading-relaxed ${
                 isDark ? "text-gray-300" : "text-gray-700"
               }`}
             >

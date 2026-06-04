@@ -46,11 +46,11 @@ export const LicensingHeader: React.FC<LicensingHeaderProps> = ({
     <PageBanner
       title={t("licensing_hub")}
       subtitle={t("licensing_hub_subtitle")}
-      actions={
-        <div className="flex items-center gap-3">
+      titleAside={
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 -mb-1 w-full flex-nowrap pr-4">
           {/* Tabs */}
           <div
-            className={`flex items-center p-0.5 rounded-lg ${
+            className={`flex shrink-0 items-center p-0.5 rounded-lg ${
               isDark ? "bg-white/5 border border-white/5" : "bg-gray-100 border border-gray-200"
             }`}
           >
@@ -58,7 +58,7 @@ export const LicensingHeader: React.FC<LicensingHeaderProps> = ({
               <button
                 key={tab.id}
                 onClick={() => onTabChange(tab.id)}
-                className={`px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 transition-all ${
+                className={`px-3 py-1 rounded-md text-[10px] sm:text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 transition-all whitespace-nowrap ${
                   activeTab === tab.id
                     ? isDark
                       ? "bg-amber-500/15 text-amber-400"
@@ -83,7 +83,7 @@ export const LicensingHeader: React.FC<LicensingHeaderProps> = ({
             <select
               value={statusFilter}
               onChange={(e) => onStatusFilterChange(e.target.value)}
-              className={`px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest border transition-colors outline-none appearance-none cursor-pointer ${
+              className={`shrink-0 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest border transition-colors outline-none cursor-pointer ${
                 isDark
                   ? "bg-white/5 border-white/5 text-gray-400 hover:text-white"
                   : "bg-gray-100 border-gray-200 text-gray-500 hover:text-gray-700"
@@ -100,14 +100,14 @@ export const LicensingHeader: React.FC<LicensingHeaderProps> = ({
           {/* Button */}
           <button
             onClick={onCreateClick}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${
+            className={`shrink-0 flex items-center gap-1.5 px-3 py-1 mb-[2px] rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${
               isDark
                 ? "bg-cyan-500/15 text-cyan-400 border border-cyan-500/20 hover:bg-cyan-500/25"
                 : "bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
             }`}
           >
             <Plus size={11} weight="bold" />
-            {t("generate_key")}
+            <span className="whitespace-nowrap">{t("generate_key")}</span>
           </button>
         </div>
       }

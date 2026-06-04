@@ -74,7 +74,11 @@ const ErrorMonitoring: React.FC = () => {
       <PageBanner
         title={t("error_monitor_title")}
         subtitle={t("error_monitor_subtitle")}
-        titleAside={tabSwitcher}
+        titleAside={
+          <div className="flex justify-start overflow-x-auto w-full max-w-full pb-1 -mb-1 no-scrollbar">
+            {tabSwitcher}
+          </div>
+        }
       />
 
       {/* Content Area - Maximized */}

@@ -96,14 +96,14 @@ export const LicensingHub: React.FC = () => {
             <div className="flex-1 min-h-0 px-4 pb-4 overflow-hidden">
               <TableChrome
                 toolbar={
-                  <div className="flex items-center justify-between w-full">
-                    <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-between w-full px-1">
+                    <div className="flex items-center gap-2 shrink-0">
                       <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                      <span className={`text-xs font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>
+                      <span className={`text-sm sm:text-xs font-bold sm:font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>
                         {t("all_licenses")}
                       </span>
                     </div>
-                    <span className={`text-[11px] tabular-nums ${isDark ? "text-gray-500" : "text-gray-400"}`}>
+                    <span className={`text-[10px] sm:text-[11px] font-medium tabular-nums text-right ${isDark ? "text-gray-500" : "text-gray-400"} max-w-[130px] truncate`}>
                       {licenses.length > 0 ? t("showing_entries", { current: licenses.length, total }) : ""}
                     </span>
                   </div>

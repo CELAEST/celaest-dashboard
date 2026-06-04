@@ -118,12 +118,14 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             className={`
-              fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50
-              w-[90%] max-w-2xl rounded-3xl overflow-hidden
+              fixed sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 z-50
+              flex flex-col
+              inset-0 sm:inset-auto w-full sm:w-[90%] sm:max-w-2xl
+              h-[100dvh] sm:h-auto rounded-none sm:rounded-3xl overflow-hidden
               ${
                 theme === "dark"
-                  ? "bg-[#0a0a0a] border border-white/10"
-                  : "bg-white border border-gray-200 shadow-2xl"
+                  ? "bg-[#0a0a0a] border-0 sm:border border-white/10"
+                  : "bg-white border-0 sm:border border-gray-200 shadow-2xl"
               }
             `}
           >
@@ -131,7 +133,7 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
             <button
               onClick={resetFlow}
               className={`
-                absolute top-4 right-4 z-10 w-10 h-10 rounded-full flex items-center justify-center transition-colors
+                absolute top-4 right-4 z-20 w-10 h-10 rounded-full flex items-center justify-center transition-colors
                 ${
                   theme === "dark"
                     ? "bg-white/5 hover:bg-white/10 text-white"
@@ -143,7 +145,7 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
             </button>
 
             {/* Progress Steps */}
-            <div className={`px-16 sm:px-20 pt-10 pb-8 ${theme === "dark" ? "bg-linear-to-b from-white/3 to-transparent" : "bg-linear-to-b from-gray-50/80 to-transparent"}`}>
+            <div className={`shrink-0 px-6 sm:px-20 pt-20 sm:pt-14 pb-6 sm:pb-8 ${theme === "dark" ? "bg-linear-to-b from-white/3 to-transparent" : "bg-linear-to-b from-gray-50/80 to-transparent"}`}>
               {/* Row: circle — line — circle — line — circle */}
               <div className="flex items-center justify-center">
                 {steps.map((s, index) => {
@@ -206,7 +208,7 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
                   return (
                     <span
                       key={`label-${s.number}`}
-                      className={`text-xs font-semibold transition-colors duration-300 ${
+                      className={`text-[10px] sm:text-xs font-semibold px-1 transition-colors duration-300 ${
                         index === 0 ? "text-left" : index === steps.length - 1 ? "text-right" : "text-center"
                       } ${
                         isCompleted
@@ -231,10 +233,10 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
             </div>
 
             {/* Divider */}
-            <div className={`h-px ${theme === "dark" ? "bg-white/8" : "bg-gray-200"}`} />
+            <div className={`shrink-0 h-px ${theme === "dark" ? "bg-white/8" : "bg-gray-200"}`} />
 
             {/* Content */}
-            <div className="p-8">
+            <div className="flex-1 overflow-y-auto p-6 sm:p-8 pb-32 sm:pb-8">
               {step === 1 && product && (
                 <ConfirmationStep
                   product={{ title: product.title, image: product.image }}

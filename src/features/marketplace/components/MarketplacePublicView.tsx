@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from "react";
 import { MarketplacePublicHero } from "./MarketplacePublicHero";
 import { MarketplaceSearch } from "./MarketplaceSearch";
-import { ProductCardPremium } from "./ProductCardPremium";
+import { ProductCardCompact } from "./ProductCardCompact";
 import { VideoDemoSection } from "./VideoDemoSection";
 import { ProductSkeleton } from "./ProductSkeleton";
 import { CouponFAB } from "./CouponFAB";
@@ -79,17 +79,17 @@ export function MarketplacePublicView() {
 
       {/* Products Section */}
       <div className="px-6 pb-4" id="marketplace-catalog">
-        <div className="flex items-center justify-between mb-8 px-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 px-4 md:px-8">
           <div>
             <h2
-              className={`text-3xl font-bold mb-2 ${
+              className={`text-2xl md:text-3xl font-bold mb-1 md:mb-2 ${
                 isDark ? "text-white" : "text-gray-900"
               }`}
             >
               {t("available_solutions")}
             </h2>
             <p
-              className={`text-sm ${
+              className={`text-xs md:text-sm ${
                 isDark ? "text-gray-400" : "text-gray-600"
               }`}
             >
@@ -97,7 +97,7 @@ export function MarketplacePublicView() {
             </p>
           </div>
           <div
-            className={`text-xs px-3 py-1.5 rounded-full ${
+            className={`text-xs px-3 py-1.5 rounded-full inline-flex self-start ${
               isDark
                 ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20"
                 : "bg-cyan-50 text-cyan-700 border border-cyan-200"
@@ -109,7 +109,7 @@ export function MarketplacePublicView() {
 
         <AnimatePresence mode="wait">
           {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 px-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-6 px-4 md:px-8">
               {[...Array(6)].map((_, i) => (
                 <ProductSkeleton key={i} />
               ))}
@@ -128,13 +128,14 @@ export function MarketplacePublicView() {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 px-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-6 px-4 md:px-8">
               {products.map((product) => (
-                <ProductCardPremium
+                <ProductCardCompact
                   key={product.id}
                   product={product}
                   onSelect={() => handlePurchaseAction(product)}
                   onViewDetails={() => handleViewDetails(product)}
+                  accessLevel="none"
                 />
               ))}
             </div>
