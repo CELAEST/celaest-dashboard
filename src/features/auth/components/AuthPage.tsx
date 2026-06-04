@@ -1,7 +1,7 @@
 "use client";
 
 // Login and Registration page for CELAEST with split screen transition
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { motion, AnimatePresence } from "motion/react";
@@ -14,7 +14,6 @@ import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
 import { AuthBackground } from "./layout/AuthBackground";
-import { FloatingThemeToggle } from "./layout/FloatingThemeToggle";
 import { AuthHeader } from "./layout/AuthHeader";
 import { AuthFooter } from "./layout/AuthFooter";
 import { AuthFormContainer } from "./layout/AuthFormContainer";
@@ -24,24 +23,14 @@ export const AuthPage: React.FC = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { signIn, signUp } = useAuth();
-  const { theme, toggleTheme } = useTheme();
+  const { theme } = useTheme();
   const isDark = theme === "dark";
 
   const initialMode =
     searchParams.get("mode") === "signup" ? "signup" : "signin";
   const [mode, setMode] = useState<"signin" | "signup">(initialMode);
   const [loading, setLoading] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
   const tAuth = useTranslations("auth");
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
 
   const getPostAuthRedirect = () => {
     const explicitRedirect = searchParams.get("redirect");
@@ -96,16 +85,6 @@ export const AuthPage: React.FC = () => {
   return (
     <div className="min-h-screen w-full overflow-hidden font-sans relative">
       <AuthBackground mode={mode} isDark={isDark} />
-      
-      <motion.div 
-        layout
-        className={`fixed top-6 z-50 flex items-center gap-3 bg-white/5 backdrop-blur-xl border border-white/10 p-1.5 rounded-full shadow-lg dark:bg-black/20 dark:border-white/10 ${
-          isMobile ? "right-6" : mode === "signin" ? "right-6" : "left-6"
-        }`}
-      >
-        <LocaleSwitcher align={isMobile ? "right" : mode === "signin" ? "right" : "left"} />
-        <FloatingThemeToggle isDark={isDark} toggleTheme={toggleTheme} />
-      </motion.div>
 
       <div className="w-full h-screen flex items-center justify-center md:justify-start relative z-10">
         <motion.div
@@ -120,9 +99,19 @@ export const AuthPage: React.FC = () => {
           transition={{ duration: 0.6, ease: [0.43, 0.13, 0.23, 0.96] }}
         >
           <motion.div
-            className={`backdrop-blur-2xl rounded-3xl p-8 lg:p-10 shadow-2xl border ${isDark ? "bg-black/40 border-white/10" : "bg-white/90 border-white/20"}`}
+            className={`relative backdrop-blur-2xl rounded-3xl p-8 lg:p-10 shadow-2xl border ${isDark ? "bg-black/40 border-white/10" : "bg-white/90 border-white/20"}`}
             layout="size"
           >
+            <div
+              className={`absolute right-8 top-8 z-20 rounded-full border p-1 backdrop-blur-xl lg:right-10 lg:top-10 ${
+                isDark
+                  ? "border-white/10 bg-black/25"
+                  : "border-gray-200/80 bg-white/70"
+              }`}
+            >
+              <LocaleSwitcher align="right" />
+            </div>
+
             <div className="w-full">
               <AuthHeader isDark={isDark} />
 
