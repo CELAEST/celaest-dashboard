@@ -465,3 +465,17 @@ html {
 .animate-card-entrance {
   animation: card-fade-in-up 250ms ease-out forwards;
 }
+
+@keyframes sheen-slide {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(50%);
+  }
+}
+
+.animate-sheen {
+  animation: sheen-slide 4s linear infinite;
+  will-change: transform;
+}

@@ -207,13 +207,10 @@ export const AppSidebar = React.memo(function AppSidebar({
       >
         {visibleMenuSections.map((section, sidx) => (
           <div key={sidx} className="flex flex-col gap-1">
-            <motion.div
-              initial={false}
-              animate={{
-                height: isExpanded ? 24 : 0,
-                opacity: isExpanded ? 1 : 0,
-              }}
-              className="overflow-hidden flex flex-col justify-end"
+            <div
+              className={`overflow-hidden flex flex-col justify-end transition-all duration-200 ${
+                isExpanded ? "h-6 opacity-100" : "h-0 opacity-0 pointer-events-none"
+              }`}
             >
               <div className="px-3 pb-2">
                 <span
@@ -224,7 +221,7 @@ export const AppSidebar = React.memo(function AppSidebar({
                   {tSidebar(section.titleKey as string)}
                 </span>
               </div>
-            </motion.div>
+            </div>
             {section.items.map((item) => (
               <SidebarMenuItem
                 key={item.id}
@@ -248,10 +245,10 @@ export const AppSidebar = React.memo(function AppSidebar({
           }`}
         >
           {/* Live Connection Status */}
-          <motion.div
-            className="flex items-center gap-2 px-1"
-            initial={false}
-            animate={{ opacity: isExpanded ? 1 : 0 }}
+          <div
+            className={`flex items-center gap-2 px-1 transition-opacity duration-200 ${
+              isExpanded ? "opacity-100" : "opacity-0 pointer-events-none"
+            }`}
           >
             <div className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
@@ -269,7 +266,7 @@ export const AppSidebar = React.memo(function AppSidebar({
                 ID: {currentOrgId || tSidebar("not_available")}
               </span>
             </div>
-          </motion.div>
+          </div>
 
           <button
             onClick={handleSignOutClick}
@@ -282,16 +279,13 @@ export const AppSidebar = React.memo(function AppSidebar({
             }`}
           >
             <SignOut size={20} />
-            <motion.span
-              className="ml-3 whitespace-nowrap font-medium overflow-hidden"
-              initial={false}
-              animate={{
-                width: isExpanded ? "auto" : 0,
-                opacity: isExpanded ? 1 : 0,
-              }}
+            <span
+              className={`ml-3 whitespace-nowrap font-medium overflow-hidden transition-all duration-200 ${
+                isExpanded ? "w-auto opacity-100" : "w-0 opacity-0 pointer-events-none"
+              }`}
             >
               {tAuth("sign_out")}
-            </motion.span>
+            </span>
           </button>
 
           {/* Development Tools */}
@@ -314,16 +308,13 @@ export const AppSidebar = React.memo(function AppSidebar({
               title={tSidebar("nuclear_reset_tooltip")}
             >
               <Bomb size={20} />
-              <motion.span
-                className="ml-3 whitespace-nowrap font-medium overflow-hidden"
-                initial={false}
-                animate={{
-                  width: isExpanded ? "auto" : 0,
-                  opacity: isExpanded ? 1 : 0,
-                }}
+              <span
+                className={`ml-3 whitespace-nowrap font-medium overflow-hidden transition-all duration-200 ${
+                  isExpanded ? "w-auto opacity-100" : "w-0 opacity-0 pointer-events-none"
+                }`}
               >
                 {tSidebar("clear_storage")}
-              </motion.span>
+              </span>
             </button>
           )}
         </div>
@@ -331,7 +322,7 @@ export const AppSidebar = React.memo(function AppSidebar({
 
       {isGuest && isExpanded && (
         <div
-          className="p-4 border-t flex flex-col gap-3.5 border-gray-200 dark:border-white/5 bg-gray-50/50 dark:bg-white/[0.01]"
+          className="p-4 border-t flex flex-col gap-3.5 border-gray-200 dark:border-white/5 bg-gray-50/50 dark:bg-white/1"
         >
           <div className="flex items-center gap-2.5 px-1">
             <div className="w-8 h-8 rounded-full bg-blue-600/10 flex items-center justify-center text-blue-600 dark:text-cyan-400">
@@ -394,7 +385,7 @@ export const AppSidebar = React.memo(function AppSidebar({
         <DrawerContent
           className={`fixed inset-y-0 left-0 z-50 flex h-full w-[280px] data-[vaul-drawer-direction=left]:w-[280px] data-[vaul-drawer-direction=left]:max-w-[280px] flex-col border-r p-0 outline-none transition-colors duration-300 ${
             isDark
-              ? "bg-[#020202]/95 border-white/[0.05] shadow-[4px_0_24px_rgba(0,0,0,0.5)]"
+              ? "bg-[#020202]/95 border-white/5 shadow-[4px_0_24px_rgba(0,0,0,0.5)]"
               : "bg-white border-gray-200 shadow-xl"
           }`}
         >

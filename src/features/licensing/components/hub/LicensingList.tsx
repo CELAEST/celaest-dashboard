@@ -385,7 +385,7 @@ export const LicensingList: React.FC<LicensingListProps> = ({
       <div className="flex flex-col gap-4 p-2 w-full">
         {licenses.length === 0 ? (
           <div className="flex flex-col items-center justify-center text-gray-500 space-y-3 py-16 px-4">
-            <div className={`p-4 rounded-2xl border ${isDark ? "bg-white/[0.03] border-white/[0.06]" : "bg-gray-50 border-gray-200"}`}>
+            <div className={`p-4 rounded-2xl border ${isDark ? "bg-white/3 border-white/6" : "bg-gray-50 border-gray-200"}`}>
               <Monitor className="w-8 h-8" weight="light" />
             </div>
             <div className="space-y-1 text-center">
@@ -412,7 +412,7 @@ export const LicensingList: React.FC<LicensingListProps> = ({
                     relative rounded-2xl border p-5 transition-all active:scale-[0.99] cursor-pointer
                     ${
                       isDark
-                        ? "bg-[#0a0a0a]/80 border-white/[0.08] shadow-black/40"
+                        ? "bg-[#0a0a0a]/80 border-white/8 shadow-black/40"
                         : "bg-white border-gray-200/80 shadow-gray-200/50"
                     }
                     shadow-md flex flex-col gap-4 w-full
@@ -424,7 +424,7 @@ export const LicensingList: React.FC<LicensingListProps> = ({
                       <div
                         className={`w-10 h-10 rounded-[14px] flex items-center justify-center p-2.5 ${
                           isDark
-                            ? "bg-white/[0.03] border border-white/[0.05] shadow-inner"
+                            ? "bg-white/3 border border-white/5 shadow-inner"
                             : "bg-blue-50/50 border border-blue-100/50"
                         }`}
                       >
@@ -495,7 +495,7 @@ export const LicensingList: React.FC<LicensingListProps> = ({
                         </div>
                       </div>
                     ) : (
-                      <div className={`flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl border ${isDark ? "border-white/[0.05] bg-white/[0.02]" : "border-gray-100 bg-gray-50"}`}>
+                      <div className={`flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl border ${isDark ? "border-white/5 bg-white/2" : "border-gray-100 bg-gray-50"}`}>
                         <span className="text-xs font-mono text-gray-400 tracking-widest">
                           {maskLicenseKey(license.license_key)}
                         </span>
@@ -514,7 +514,7 @@ export const LicensingList: React.FC<LicensingListProps> = ({
                   </div>
 
                   {/* Usage / Metrics Section */}
-                  <div className="flex flex-col gap-4 py-4 mt-1 border-t border-b border-gray-100 dark:border-white/[0.05]">
+                  <div className="flex flex-col gap-4 py-4 mt-1 border-t border-b border-gray-100 dark:border-white/5">
                     {/* AI Qty usage bar */}
                     <div className="flex flex-col gap-2">
                       <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider text-gray-500">

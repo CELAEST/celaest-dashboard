@@ -1,5 +1,4 @@
 import React, { useMemo } from "react";
-import { motion } from "motion/react";
 import { Shield } from "@phosphor-icons/react";
 import { MenuItem } from "./config";
 
@@ -47,25 +46,20 @@ export const SidebarMenuItem = React.memo(
         aria-current={isActive ? "page" : undefined}
       >
         {isActive && !isLocked && (
-          <motion.div
-            layoutId="activeTabBackground"
-            className={`absolute inset-0 rounded-lg -z-10 overflow-hidden ${
+          <div
+            className={`absolute inset-0 rounded-lg -z-10 overflow-hidden transition-all duration-300 ${
               isDark 
                 ? "bg-zinc-800/40 border border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]" 
                 : "bg-white border border-black/6 shadow-sm"
             }`}
-            initial={false}
-            transition={{ type: "spring", bounce: 0.15, duration: 0.4 }}
           >
-            {/* Premium Animated Sheen (Glass Reflection) */}
+            {/* Premium Animated Sheen (Glass Reflection) - High Performance CSS Native */}
             {isDark && (
-              <motion.div 
-                className="absolute inset-0 bg-linear-to-r from-transparent via-white/4 to-transparent w-[200%]"
-                animate={{ x: ["-100%", "50%"] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+              <div 
+                className="absolute inset-0 bg-linear-to-r from-transparent via-white/4 to-transparent w-[200%] animate-sheen"
               />
             )}
-          </motion.div>
+          </div>
         )}
 
         <div className="min-w-[48px] flex items-center justify-center relative z-10">
@@ -97,15 +91,14 @@ export const SidebarMenuItem = React.memo(
           )}
         </div>
 
-        <motion.span
-          className="whitespace-nowrap shrink-0 font-medium tracking-wide text-[16px] flex items-center gap-2 z-10"
-          initial={{ opacity: 0, x: -5 }}
-          animate={{ opacity: isHovered ? 1 : 0, x: isHovered ? 0 : -5 }}
-          transition={{ duration: 0.2 }}
+        <span
+          className={`whitespace-nowrap shrink-0 font-medium tracking-wide text-[16px] flex items-center gap-2 z-10 transition-all duration-200 ${
+            isHovered ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-1.5 pointer-events-none"
+          }`}
         >
           {label}
           {isLocked && <span className="opacity-50 text-[10px]">🔒</span>}
-        </motion.span>
+        </span>
       </button>
     );
   },

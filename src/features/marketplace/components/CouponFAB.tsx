@@ -5,7 +5,12 @@ import { couponsService } from "@/features/coupons/services/coupons.service";
 import { useApiAuth } from "@/lib/use-api-auth";
 import { Tag, X, CheckCircle, CircleNotch, Lightning } from "@phosphor-icons/react";
 import { settingsApi } from "@/features/settings/api/settings.api";
-import { UpgradePlanModal } from "@/features/billing/components/modals/UpgradePlanModal";
+import dynamic from "next/dynamic";
+
+const UpgradePlanModal = dynamic(
+  () => import("@/features/billing/components/modals/UpgradePlanModal").then((mod) => mod.UpgradePlanModal),
+  { ssr: false }
+);
 import { useLocalProductPrice } from "@/features/billing/hooks/useLocalProductPrice";
 import { motion, AnimatePresence } from "motion/react";
 import { useTranslations } from "next-intl";

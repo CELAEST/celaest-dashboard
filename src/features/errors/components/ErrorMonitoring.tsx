@@ -1,6 +1,6 @@
 import React from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Pulse, SquaresFour } from "@phosphor-icons/react";
+import { Pulse, SquaresFour, ShieldWarning } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useTranslations } from "next-intl";
 import { useErrorMonitoring } from "@/features/errors/hooks/useErrorMonitoring";
@@ -8,11 +8,15 @@ import { ErrorStats } from "./ErrorStats";
 import { ErrorList } from "./ErrorList";
 import { ErrorAnalytics } from "./ErrorAnalytics";
 import { PageBanner } from "@/components/layout/PageLayout";
+import { HeaderFilterPill } from "@/features/shared/components/Header/HeaderFilterPill";
+import { useErrorStore } from "../stores/useErrorStore";
 
 const ErrorMonitoring: React.FC = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const t = useTranslations("error_monitor");
+  const tHeader = useTranslations("header");
+  const { errorFilters, setErrorFilters } = useErrorStore();
   const [activeTab, setActiveTab] = React.useState<"overview" | "logs">("logs");
 
   const {
@@ -90,13 +94,13 @@ const ErrorMonitoring: React.FC = () => {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
-              className="h-full flex flex-col gap-4 overflow-hidden"
+              className="h-full flex flex-col gap-4 overflow-y-auto md:overflow-hidden custom-scrollbar"
             >
               {/* Top Row: Core 4 Stats */}
               <ErrorStats stats={stats} />
 
               {/* Symmetric Analytics Row */}
-              <div className="flex-1 min-h-0 overflow-hidden">
+              <div className="hidden md:block flex-1 min-h-0 overflow-hidden">
                 <ErrorAnalytics data={platformDistribution} />
               </div>
             </motion.div>
@@ -106,10 +110,40 @@ const ErrorMonitoring: React.FC = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="h-full"
+              className="h-full flex flex-col gap-3"
             >
+              {/* Mobile Filter Controls */}
+              <div className="flex md:hidden items-center gap-2 overflow-x-auto pb-1 -mb-1 no-scrollbar shrink-0">
+                <HeaderFilterPill
+                  icon={ShieldWarning}
+                  options={[
+                    { value: "all", label: tHeader("all_severity") },
+                    { value: "critical", label: tHeader("critical") },
+                    { value: "warning", label: tHeader("warning") },
+                  ]}
+                  value={errorFilters.severity}
+                  onChange={(val) =>
+                    setErrorFilters({ ...errorFilters, severity: val })
+                  }
+                />
+                <HeaderFilterPill
+                  icon={Pulse}
+                  options={[
+                    { value: "all", label: tHeader("all_status") },
+                    { value: "failed", label: tHeader("failed") },
+                    { value: "reviewing", label: tHeader("reviewing") },
+                    { value: "resolved", label: tHeader("resolved") },
+                    { value: "ignored", label: tHeader("ignored") },
+                  ]}
+                  value={errorFilters.status}
+                  onChange={(val) =>
+                    setErrorFilters({ ...errorFilters, status: val })
+                  }
+                />
+              </div>
+
               {/* Error Logs List - 100% Height gain from removed local filters */}
-              <div className="h-full overflow-hidden rounded-2xl border border-gray-200 dark:border-white/10 bg-white/50 dark:bg-black/20 backdrop-blur-sm">
+              <div className="flex-1 min-h-0 overflow-hidden rounded-2xl border border-gray-200 dark:border-white/10 bg-white/50 dark:bg-black/20 backdrop-blur-sm">
                 <ErrorList
                   errors={filteredErrors}
                   isLoading={isLoading}

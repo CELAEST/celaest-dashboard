@@ -132,7 +132,7 @@ export function LocaleSwitcher({ align = "right" }: LocaleSwitcherProps) {
             `}
           >
             {/* Decorative top accent — subtle */}
-            <div className="h-px w-full bg-gradient-to-r from-transparent via-blue-500/30 to-transparent dark:via-cyan-400/30" />
+            <div className="h-px w-full bg-linear-to-r from-transparent via-blue-500/30 to-transparent dark:via-cyan-400/30" />
 
             <div className="py-1.5">
               <p className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500">

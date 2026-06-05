@@ -18,6 +18,7 @@ export function useCategories(isPublic = false) {
   const categoriesQuery = useQuery({
     queryKey: QUERY_KEYS.assets.categories(isPublic ? undefined : orgId),
     queryFn: () => assetsService.getCategories(token, isPublic ? undefined : orgId),
+    enabled: isPublic || (!!token && !!orgId),
     staleTime: 10 * 60 * 1000,
   });
 

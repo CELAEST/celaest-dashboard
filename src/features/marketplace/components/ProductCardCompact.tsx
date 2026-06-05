@@ -51,13 +51,17 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
 
   const image = imageUrl || null;
 
-  // Features reales o fallback si están vacíos
-  const displayFeatures =
-    product.features && product.features.length > 0
-      ? product.features
-      : product.tags && product.tags.length > 0
-        ? product.tags
-        : ["Instant Delivery", "Secure Payment", "24/7 Support"];
+  // Features reales o fallback si están vacíos (con conversión segura a array)
+  let displayFeatures: string[] = ["Instant Delivery", "Secure Payment", "24/7 Support"];
+  if (Array.isArray(product.features) && product.features.length > 0) {
+    displayFeatures = product.features.map(String);
+  } else if (typeof product.features === "string" && (product.features as string).trim()) {
+    displayFeatures = (product.features as string).split(",").map(s => s.trim());
+  } else if (Array.isArray(product.tags) && product.tags.length > 0) {
+    displayFeatures = product.tags.map(String);
+  } else if (typeof product.tags === "string" && (product.tags as string).trim()) {
+    displayFeatures = (product.tags as string).split(",").map(s => s.trim());
+  }
 
   // Geo-pricing: resolve localized price for this product (NO PPP discount, only exchange rate)
   const isGeoPriced = !!(pricing && pricing.country_code && pricing.country_code !== "US");
@@ -135,7 +139,7 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
             className="absolute inset-0 z-30 flex items-center justify-center transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] opacity-100 scale-100 md:opacity-0 md:scale-75 md:pointer-events-none md:group-hover:opacity-100 md:group-hover:scale-100 md:group-hover:pointer-events-auto"
           >
             <div
-              className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white/90 md:bg-white/95 hover:bg-white shadow-[0_10px_30px_rgba(0,0,0,0.5),0_0_20px_rgba(255,255,255,0.2)] md:hover:shadow-[0_15px_40px_rgba(0,0,0,0.6),0_0_25px_rgba(34,211,238,0.4)] flex items-center justify-center transition-all duration-300 transform md:hover:scale-110 md:active:scale-95 group/play cursor-pointer bg-white/70 backdrop-blur-sm md:bg-white/95"
+              className="w-14 h-14 sm:w-16 sm:h-16 rounded-full hover:bg-white shadow-[0_10px_30px_rgba(0,0,0,0.5),0_0_20px_rgba(255,255,255,0.2)] md:hover:shadow-[0_15px_40px_rgba(0,0,0,0.6),0_0_25px_rgba(34,211,238,0.4)] flex items-center justify-center transition-all duration-300 transform md:hover:scale-110 md:active:scale-95 group/play cursor-pointer bg-white/70 backdrop-blur-sm md:bg-white/95"
             >
               {/* Custom aligned play triangle */}
               <svg
@@ -194,25 +198,36 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
           );
         })()}
 
-        {/* Price Tag - Compact */}
+        {/* Price Tag or Access Badge - Compact */}
         <div className="absolute bottom-3 left-3 z-20">
-          <div className="flex flex-col">
-            <span className="text-white/60 text-[8px] font-bold uppercase tracking-widest mb-0.5">
-              {tCommon("price")}
-            </span>
-            <div className="flex flex-col items-start leading-[1.1]">
-              {activeCoupon && (
-                <span className="text-white/60 text-xs font-medium line-through">
-                  {formattedLocalBase}
-                </span>
-              )}
-              <span
-                className={`text-xl font-black tracking-tight drop-shadow-2xl ${activeCoupon ? "text-emerald-400" : "text-white"}`}
-              >
-                {formattedFinalPrice}
+          {hasAccess ? (
+            <div className="flex flex-col">
+              <span className="text-white/60 text-[8px] font-bold uppercase tracking-widest mb-0.5">
+                {tCommon("status")}
+              </span>
+              <span className="text-sm font-black tracking-widest uppercase text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]">
+                {effectiveAccess === "plan" ? t("plan_badge") : t("owned_badge")}
               </span>
             </div>
-          </div>
+          ) : (
+            <div className="flex flex-col">
+              <span className="text-white/60 text-[8px] font-bold uppercase tracking-widest mb-0.5">
+                {tCommon("price")}
+              </span>
+              <div className="flex flex-col items-start leading-[1.1]">
+                {activeCoupon && (
+                  <span className="text-white/60 text-xs font-medium line-through">
+                    {formattedLocalBase}
+                  </span>
+                )}
+                <span
+                  className={`text-xl font-black tracking-tight drop-shadow-2xl ${activeCoupon ? "text-emerald-400" : "text-white"}`}
+                >
+                  {formattedFinalPrice}
+                </span>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Floating Quick Action */}
@@ -290,64 +305,64 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
         </div>
 
         {/* Action Center - Spacier and larger buttons */}
-        <div className="pt-4 mt-auto grid grid-cols-2 gap-3.5">
-          <button
-            onClick={onViewDetails}
-            className={`py-3 rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-widest flex items-center justify-center gap-1.5 border-2 transition-all duration-200 hover:-translate-y-1 hover:scale-[1.02] active:scale-[0.98] ${
-              isDark
-                ? "bg-white/5 border-white/5 text-gray-300 hover:bg-white/10 hover:border-white/10 hover:text-white"
-                : "bg-gray-50 border-gray-100 text-gray-600 hover:bg-gray-100 hover:border-gray-200 hover:text-gray-900"
-            }`}
-          >
-            <Eye size={15} strokeWidth={3} />
-            {tCommon("explore")}
-          </button>
-
-          <button
-            onClick={!hasAccess && !disabledReason ? onSelect : undefined}
-            title={disabledReason}
-            className={`py-3 rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all duration-200 ${
-              !hasAccess && !disabledReason ? "hover:-translate-y-1 hover:scale-[1.02] active:scale-[0.98]" : ""
-            } ${
-              disabledReason
-                ? "bg-gray-200 text-gray-400 border border-gray-300 cursor-not-allowed dark:bg-zinc-800 dark:text-gray-500 dark:border-zinc-700"
-                : hasAccess
-                  ? effectiveAccess === "plan"
-                    ? isDark
-                      ? "bg-violet-500/10 text-violet-400 border border-violet-500/20 cursor-default"
-                      : "bg-violet-50 text-violet-600 border border-violet-200 cursor-default"
-                    : isDark
-                      ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 cursor-default"
-                      : "bg-emerald-50 text-emerald-600 border border-emerald-200 cursor-default"
+        <div className="pt-4 mt-auto">
+          {hasAccess ? (
+            <button
+              onClick={onViewDetails}
+              className={`w-full py-3 rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-widest flex items-center justify-center gap-1.5 border-2 transition-all duration-200 hover:-translate-y-1 hover:scale-[1.02] active:scale-[0.98] ${
+                effectiveAccess === "plan"
+                  ? isDark
+                    ? "bg-violet-500/10 border-violet-500/20 text-violet-400 hover:bg-violet-500/20"
+                    : "bg-violet-50 border-violet-200 text-violet-600 hover:bg-violet-100"
                   : isDark
-                    ? "bg-cyan-500 text-black hover:bg-cyan-400 shadow-xl shadow-cyan-500/20"
-                    : "bg-gray-900 text-white hover:bg-gray-800 shadow-xl shadow-gray-900/20"
-            }`}
-          >
-            {disabledReason ? (
-              <>
-                <Check size={15} strokeWidth={3} />
-                {disabledReason}
-              </>
-            ) : hasAccess ? (
-              effectiveAccess === "plan" ? (
-                <>
-                  <Check size={15} strokeWidth={3} />
-                  {t("in_plan")}
-                </>
-              ) : (
-                <>
-                  <Check size={15} strokeWidth={3} />
-                  {t("acquired")}
-                </>
-              )
-            ) : (
-              <>
-                <ShoppingCart size={15} strokeWidth={3} />
-                {t("acquire")}
-              </>
-            )}
-          </button>
+                    ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20"
+                    : "bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-100"
+              }`}
+            >
+              {t("view_details")}
+              <ArrowRight size={15} strokeWidth={3} />
+            </button>
+          ) : (
+            <div className="grid grid-cols-2 gap-3.5">
+              <button
+                onClick={onViewDetails}
+                className={`py-3 rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-widest flex items-center justify-center gap-1.5 border-2 transition-all duration-200 hover:-translate-y-1 hover:scale-[1.02] active:scale-[0.98] ${
+                  isDark
+                    ? "bg-white/5 border-white/5 text-gray-300 hover:bg-white/10 hover:border-white/10 hover:text-white"
+                    : "bg-gray-50 border-gray-100 text-gray-600 hover:bg-gray-100 hover:border-gray-200 hover:text-gray-900"
+                }`}
+              >
+                <Eye size={15} strokeWidth={3} />
+                {tCommon("explore")}
+              </button>
+
+              <button
+                onClick={!disabledReason ? onSelect : undefined}
+                title={disabledReason}
+                className={`py-3 rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all duration-200 ${
+                  !disabledReason ? "hover:-translate-y-1 hover:scale-[1.02] active:scale-[0.98]" : ""
+                } ${
+                  disabledReason
+                    ? "bg-gray-200 text-gray-400 border border-gray-300 cursor-not-allowed dark:bg-zinc-800 dark:text-gray-500 dark:border-zinc-700"
+                    : isDark
+                      ? "bg-cyan-500 text-black hover:bg-cyan-400 shadow-xl shadow-cyan-500/20"
+                      : "bg-gray-900 text-white hover:bg-gray-800 shadow-xl shadow-gray-900/20"
+                }`}
+              >
+                {disabledReason ? (
+                  <>
+                    <Check size={15} strokeWidth={3} />
+                    {disabledReason}
+                  </>
+                ) : (
+                  <>
+                    <ShoppingCart size={15} strokeWidth={3} />
+                    {t("acquire")}
+                  </>
+                )}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

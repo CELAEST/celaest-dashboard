@@ -36,14 +36,14 @@ export const BillingPortal: React.FC = () => {
   const router = useRouter();
   const { refresh } = useBilling();
   const { session } = useAuth();
-  const { isAdmin } = useRole();
+  const { isSuperAdmin } = useRole();
   const t = useTranslations("billing");
 
   const [viewMode, setViewMode] = useState<"customer" | "admin">("customer");
   const [activeTab, setActiveTab] = useState<BillingTab>("overview");
   const [activeAdminTab, setActiveAdminTab] = useState<AdminTab>("overview");
 
-  const effectiveView = isAdmin ? viewMode : "customer";
+  const effectiveView = isSuperAdmin ? viewMode : "customer";
 
   // Guard: run the Stripe redirect handler exactly once per navigation.
   // session?.accessToken stays in deps so we can wait for it to be available
@@ -122,20 +122,18 @@ export const BillingPortal: React.FC = () => {
       });
       router.replace(`/?tab=billing`, { scroll: false });
     }
-  }, [searchParams, router, refresh, session?.accessToken, t]);
-
-  const billingTabs =
+  }, [searchParams, router, refresh, session?.accessToken, t]);  const billingTabs =
     effectiveView === "customer" ? (
       <div
-        className={`flex items-center p-0.5 rounded-lg ${
+        className={`flex items-center p-0.5 rounded-xl flex-grow sm:flex-grow-0 ${
           isDark
-            ? "bg-white/5 border border-white/5"
+            ? "bg-white/5 border border-white/10"
             : "bg-gray-100 border border-gray-200"
         }`}
       >
         <button
           onClick={() => setActiveTab("overview")}
-          className={`px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 transition-all ${
+          className={`flex-grow sm:flex-initial px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
             activeTab === "overview"
               ? isDark
                 ? "bg-cyan-500/15 text-cyan-400"
@@ -150,7 +148,7 @@ export const BillingPortal: React.FC = () => {
         </button>
         <button
           onClick={() => setActiveTab("invoices")}
-          className={`px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 transition-all ${
+          className={`flex-grow sm:flex-initial px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
             activeTab === "invoices"
               ? isDark
                 ? "bg-amber-500/15 text-amber-400"
@@ -166,15 +164,15 @@ export const BillingPortal: React.FC = () => {
       </div>
     ) : (
       <div
-        className={`flex items-center p-0.5 rounded-lg ${
+        className={`flex items-center p-0.5 rounded-xl flex-grow sm:flex-grow-0 ${
           isDark
-            ? "bg-white/5 border border-white/5"
+            ? "bg-white/5 border border-white/10"
             : "bg-gray-100 border border-gray-200"
         }`}
       >
         <button
           onClick={() => setActiveAdminTab("overview")}
-          className={`px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 transition-all ${
+          className={`flex-grow sm:flex-initial px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
             activeAdminTab === "overview"
               ? isDark
                 ? "bg-purple-500/15 text-purple-400"
@@ -189,7 +187,7 @@ export const BillingPortal: React.FC = () => {
         </button>
         <button
           onClick={() => setActiveAdminTab("catalog")}
-          className={`px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 transition-all ${
+          className={`flex-grow sm:flex-initial px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
             activeAdminTab === "catalog"
               ? isDark
                 ? "bg-cyan-500/15 text-cyan-400"
@@ -204,7 +202,7 @@ export const BillingPortal: React.FC = () => {
         </button>
         <button
           onClick={() => setActiveAdminTab("controls")}
-          className={`px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 transition-all ${
+          className={`flex-grow sm:flex-initial px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
             activeAdminTab === "controls"
               ? isDark
                 ? "bg-amber-500/15 text-amber-400"
@@ -222,9 +220,6 @@ export const BillingPortal: React.FC = () => {
 
   const headerActions = (
     <div className="flex items-center gap-2">
-      {/* Tabs */}
-      {billingTabs}
-
       <div
         className={`hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded-lg border ${
           isDark
@@ -245,45 +240,47 @@ export const BillingPortal: React.FC = () => {
         </span>
       </div>
 
-        {isAdmin && <div
-          className={`inline-flex p-0.5 rounded-lg border shadow-sm ${
+      {isSuperAdmin && (
+        <div
+          className={`inline-flex p-0.5 rounded-xl border shadow-sm shrink-0 ${
             isDark
-              ? "bg-black/40 border-white/10 backdrop-blur-md"
+              ? "bg-black/40 border-white/10"
               : "bg-white border-gray-200"
           }`}
         >
           <button
             onClick={() => setViewMode("customer")}
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[9px] font-black uppercase tracking-[0.18em] transition-all duration-300 ${
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-[0.18em] transition-all duration-300 cursor-pointer ${
               effectiveView === "customer"
                 ? isDark
-                  ? "bg-cyan-500 text-white shadow-lg shadow-cyan-500/25"
-                  : "bg-blue-600 text-white shadow-lg shadow-blue-500/25"
+                  ? "bg-cyan-500 text-black shadow-md shadow-cyan-500/25"
+                  : "bg-blue-600 text-white shadow-md shadow-blue-500/25"
                 : isDark
-                  ? "text-gray-400 hover:text-white hover:bg-white/5"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                  ? "text-gray-400 hover:text-white"
+                  : "text-gray-600 hover:text-gray-900"
             }`}
           >
             <User size={13} />
-            {t("customer_view")}
+            <span className="hidden sm:inline whitespace-nowrap">{t("customer_view")}</span>
           </button>
           <button
             onClick={() => setViewMode("admin")}
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[9px] font-black uppercase tracking-[0.18em] transition-all duration-300 ${
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-[0.18em] transition-all duration-300 cursor-pointer ${
               effectiveView === "admin"
                 ? isDark
-                  ? "bg-purple-500 text-white shadow-lg shadow-purple-500/25"
+                  ? "bg-purple-500 text-black shadow-md shadow-purple-500/25"
                   : "bg-purple-600 text-white shadow-lg shadow-purple-500/25"
                 : isDark
-                  ? "text-gray-400 hover:text-white hover:bg-white/5"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                  ? "text-gray-400 hover:text-white"
+                  : "text-gray-600 hover:text-gray-900"
             }`}
           >
             <Crown size={13} />
-            {t("admin_view")}
+            <span className="hidden sm:inline whitespace-nowrap">{t("admin_view")}</span>
           </button>
-        </div>}
-      </div>
+        </div>
+      )}
+    </div>
   );
 
   return (
@@ -291,6 +288,11 @@ export const BillingPortal: React.FC = () => {
       <PageBanner
         title={effectiveView === "admin" ? t("financial_center") : t("billing_portal")}
         subtitle={effectiveView === "admin" ? t("master_repository") : t("subscription_management")}
+        titleAside={
+          <div className="flex items-center gap-2.5 w-full flex-nowrap">
+            {billingTabs}
+          </div>
+        }
         actions={headerActions}
       />
 

@@ -188,7 +188,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
               <div className="lg:col-span-2 space-y-6">
                 {/* Product preview */}
                 {product.youtube_video_id ? (
-                  <div className="w-full rounded-[16px] sm:rounded-2xl overflow-hidden bg-black aspect-video ring-1 ring-white/5">
+                  <div className="w-full rounded-card sm:rounded-2xl overflow-hidden bg-black aspect-video ring-1 ring-white/5">
                     <LiteYouTube
                       videoId={product.youtube_video_id}
                       title={product.name}
@@ -198,7 +198,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   </div>
                 ) : (
                   <div
-                    className={`relative aspect-video rounded-[16px] sm:rounded-2xl overflow-hidden bg-[#111] dark:bg-[#111] ring-1 ring-white/5 ${loading ? "animate-pulse" : ""}`}
+                    className={`relative aspect-video rounded-card sm:rounded-2xl overflow-hidden bg-[#111] dark:bg-[#111] ring-1 ring-white/5 ${loading ? "animate-pulse" : ""}`}
                   >
                   <ImageWithFallback
                     src={product.thumbnail_url || ""}

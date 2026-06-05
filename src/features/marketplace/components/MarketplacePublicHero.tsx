@@ -60,7 +60,7 @@ export const MarketplacePublicHero: React.FC = () => {
       <section className="relative min-h-[580px] sm:min-h-[526px] lg:min-h-[469px] overflow-hidden bg-black px-4 text-white sm:px-6 lg:px-8">
         <div className="absolute inset-0 bg-black" />
         <Image
-          src="/images/marketplace-automation-hero-panorama-2026-06-04-v3.png"
+          src="/images/marketplace-automation-hero-panorama.webp"
           fill
           priority
           sizes="100vw"
@@ -72,13 +72,13 @@ export const MarketplacePublicHero: React.FC = () => {
         <div className="absolute inset-y-0 right-0 w-48 bg-linear-to-l from-black via-black/70 to-transparent sm:w-56 lg:w-72" />
         <div className="absolute inset-x-0 bottom-0 h-32 bg-linear-to-b from-transparent via-black/35 to-black" />
 
-        <div className="relative z-10 mx-auto max-w-[98rem]">
+        <div className="relative z-10 mx-auto max-w-392">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-8 py-8 sm:py-0 min-h-[580px] sm:min-h-[526px] lg:min-h-[469px]">
             <motion.div
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45 }}
-              className="max-w-[32rem] sm:max-w-[34rem] w-full text-left"
+              className="max-w-128 sm:max-w-136 w-full text-left"
             >
               <h1 className="text-[2rem] font-black leading-[1.05] text-white sm:text-5xl lg:text-[3.2rem]">
                 {t("hero_headline")}
@@ -89,7 +89,7 @@ export const MarketplacePublicHero: React.FC = () => {
                 </span>
               </h1>
 
-              <p className="mt-5 max-w-[27rem] text-sm leading-6 text-gray-300 sm:max-w-[28rem] sm:text-base sm:text-gray-400">
+              <p className="mt-5 max-w-108 text-sm leading-6 text-gray-300 sm:max-w-112 sm:text-base sm:text-gray-400">
                 {t("hero_subtitle")}
               </p>
 
@@ -107,10 +107,10 @@ export const MarketplacePublicHero: React.FC = () => {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="w-full max-w-[22rem] sm:hidden block mx-auto mt-5"
+              className="w-full max-w-88 sm:hidden block mx-auto mt-5"
             >
               <Image
-                src="/images/marketplace-automation-hero-mobile-centered.png"
+                src="/images/marketplace-automation-hero-mobile-centered.webp"
                 width={860}
                 height={599}
                 priority
@@ -123,7 +123,7 @@ export const MarketplacePublicHero: React.FC = () => {
       </section>
 
       <section className="mt-8 sm:-mt-7 lg:-mt-8 bg-black px-4 pb-8 text-white sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-[98rem]">
+        <div className="mx-auto max-w-392">
           <div
             onMouseMove={handleIntegrationsGlow}
             onMouseLeave={(event) =>
@@ -134,14 +134,14 @@ export const MarketplacePublicHero: React.FC = () => {
           >
             <div className="pointer-events-none absolute inset-x-10 top-0 h-px bg-linear-to-r from-transparent via-blue-400 to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-65" />
             <div className="pointer-events-none absolute inset-x-10 bottom-0 h-px bg-linear-to-r from-transparent via-blue-500 to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-55" />
-            <div className="pointer-events-none absolute left-[var(--glow-x)] top-0 h-8 w-36 -translate-x-1/2 rounded-full bg-blue-500/38 opacity-0 blur-2xl transition-[left,opacity] duration-150 ease-out group-hover:opacity-100" />
-            <div className="pointer-events-none absolute bottom-0 left-[var(--glow-x)] h-8 w-36 -translate-x-1/2 rounded-full bg-blue-600/38 opacity-0 blur-2xl transition-[left,opacity] duration-150 ease-out group-hover:opacity-100" />
+            <div className="pointer-events-none absolute left-(--glow-x) top-0 h-8 w-36 -translate-x-1/2 rounded-full bg-blue-500/38 opacity-0 blur-2xl transition-[left,opacity] duration-150 ease-out group-hover:opacity-100" />
+            <div className="pointer-events-none absolute bottom-0 left-(--glow-x) h-8 w-36 -translate-x-1/2 rounded-full bg-blue-600/38 opacity-0 blur-2xl transition-[left,opacity] duration-150 ease-out group-hover:opacity-100" />
 
             <div className="relative grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-6 lg:gap-0">
               {integrations.map(({ label, logo, name }, index) => (
                 <div
                   key={label}
-                  className="group relative flex h-12 items-center justify-center gap-2.5 rounded-xl border border-white/[0.04] bg-white/[0.02] px-3 transition-all duration-300 hover:bg-white/[0.06] hover:border-white/10 lg:h-11 lg:rounded-none lg:border-0 lg:bg-transparent lg:hover:bg-transparent lg:px-3"
+                  className="group relative flex h-12 items-center justify-center gap-2.5 rounded-xl border border-white/4 bg-white/2 px-3 transition-all duration-300 hover:bg-white/6 hover:border-white/10 lg:h-11 lg:rounded-none lg:border-0 lg:bg-transparent lg:hover:bg-transparent lg:px-3"
                 >
                   {index > 0 ? (
                     <span className="absolute left-0 hidden h-7 w-px bg-white/12 lg:block" />

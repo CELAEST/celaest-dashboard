@@ -28,7 +28,7 @@ const getFeatureComponent = (
 ) => {
   if (!featureCache.has(id)) {
     const Component = dynamic(loadFn, {
-      loading: () => <FeatureSkeletonView type={skeletonType} />,
+      loading: () => null,
       ssr: ssr !== false,
     });
     featureCache.set(id, Component);

@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { DownloadSimple, Clock, Warning, CheckCircle, ArrowRight, Package } from "@phosphor-icons/react";
+import { DownloadSimple, Clock, CheckCircle, ArrowRight, Package } from "@phosphor-icons/react";
 import { CustomerAsset } from "../../../types";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useTranslations } from "next-intl";
@@ -110,7 +110,7 @@ export const UpdateItemHeader: React.FC<UpdateItemHeaderProps> = memo(
         {/* Version comparison strip */}
         <div
           className={`flex items-center gap-2 sm:gap-3 rounded-xl p-2.5 sm:p-3 ${
-            isDark ? "bg-white/[0.03] border border-white/5" : "bg-gray-50 border border-gray-100"
+            isDark ? "bg-white/3 border border-white/5" : "bg-gray-50 border border-gray-100"
           }`}
         >
           <div className="flex items-center gap-2 min-w-0">

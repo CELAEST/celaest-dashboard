@@ -8,7 +8,8 @@ import { toast } from "sonner";
 import { logger } from "@/lib/logger";
 import { ProductDetailModal } from "./ProductDetailModal";
 import { Asset } from "../services/assets.service";
-import { MarketplaceCard } from "./MarketplaceCard";
+import { ProductCardCompact } from "@/features/marketplace/components/ProductCardCompact";
+import { MarketplaceProduct } from "@/features/marketplace/types";
 import { useAssets } from "../hooks/useAssets";
 import { useCategories } from "../hooks/useCategories";
 import { useTranslations } from "next-intl";
@@ -168,15 +169,41 @@ export const AssetCustomerCatalog: React.FC<
         <div className="absolute inset-0 overflow-y-auto pr-2 pb-20 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             <AnimatePresence mode="popLayout">
-              {filteredAssets.map((product, index) => (
-                <MarketplaceCard
-                  key={product.id}
-                  product={product}
-                  isDark={isDark}
-                  index={index}
-                  onViewDetails={(p) => setSelectedProduct(p)}
-                />
-              ))}
+              {filteredAssets.map((product) => {
+                const mappedProduct: MarketplaceProduct = {
+                  id: product.productId || product.id,
+                  organization_id: product.organizationId || "",
+                  slug: product.slug,
+                  name: product.name,
+                  short_description: product.shortDescription || "",
+                  description: product.description || "",
+                  base_price: product.price || 0,
+                  currency: "USD",
+                  category_id: product.categoryId || "",
+                  category_name: product.categoryName || product.category || "",
+                  rating_avg: product.rating || 0,
+                  rating_count: product.reviews || 0,
+                  thumbnail_url: product.thumbnail || "",
+                  youtube_video_id: product.youtubeVideoId,
+                  images: product.thumbnail ? [product.thumbnail] : [],
+                  tags: product.tags || [],
+                  features: product.features || [],
+                  technical_stack: product.technicalStack || [],
+                  seller_name: "",
+                  version: product.version || "1.0.0",
+                  min_plan_tier: product.minPlanTier || 0,
+                  created_at: product.createdAt || new Date().toISOString(),
+                };
+                return (
+                  <ProductCardCompact
+                    key={product.id}
+                    product={mappedProduct}
+                    onSelect={() => setSelectedProduct(product)}
+                    onViewDetails={() => setSelectedProduct(product)}
+                    accessLevel={product.accessType === "subscription" ? "plan" : "owned"}
+                  />
+                );
+              })}
             </AnimatePresence>
           </div>
 

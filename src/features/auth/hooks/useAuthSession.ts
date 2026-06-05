@@ -122,7 +122,10 @@ export function useAuthSession() {
 
     const initializeAuth = async () => {
       try {
-        setLoading(true);
+        const currentAuth = useAuthStore.getState();
+        if (!currentAuth.isAuthenticated) {
+          setLoading(true);
+        }
         const { data: userData, error: userError } = await supabase.auth.getUser();
         if (userError || !userData.user) {
           syncSession(null);

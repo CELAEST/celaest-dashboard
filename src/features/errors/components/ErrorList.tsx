@@ -346,7 +346,7 @@ export const ErrorList = React.memo(
           className="h-full w-full min-w-0 p-4 md:p-5"
         >
           <div
-            className={`relative h-full w-full overflow-hidden rounded-3xl border p-4 md:p-6 transition-all duration-300 ${
+            className={`relative h-full w-full overflow-y-auto md:overflow-hidden custom-scrollbar rounded-3xl border p-4 md:p-6 transition-all duration-300 ${
               isDark ? "bg-[#0a0a0a]/60 border-white/10" : "bg-gray-50/80 border-gray-200"
             }`}
           >
@@ -362,9 +362,9 @@ export const ErrorList = React.memo(
               }`}
             />
 
-            <div className="relative mx-auto flex h-full w-full max-w-5xl items-center justify-center">
+            <div className="relative mx-auto flex min-h-full w-full max-w-5xl items-center justify-center py-6 md:py-0">
               <div
-                className={`w-full min-w-0 overflow-hidden rounded-3xl border p-6 sm:p-8 md:p-10 ${emptyStateSurfaceClass}`}
+                className={`w-full min-w-0 overflow-visible lg:overflow-hidden rounded-3xl border p-6 sm:p-8 md:p-10 ${emptyStateSurfaceClass}`}
               >
                 <div className="grid gap-6 lg:grid-cols-[1fr_minmax(18rem,22rem)] xl:grid-cols-[1fr_max(22rem,320px)] items-center">
                   <div className="min-w-0 text-center lg:text-left">

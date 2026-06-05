@@ -2,7 +2,6 @@ import React, { useCallback, useState, useEffect } from "react";
 import { MarketplacePublicHero } from "./MarketplacePublicHero";
 import { ProductCardCompact } from "./ProductCardCompact";
 import { ProductSkeleton } from "./ProductSkeleton";
-import { CouponFAB } from "./CouponFAB";
 import { useMarketplaceProducts } from "../hooks/useMarketplaceProducts";
 import { MarketplaceProduct } from "../types";
 import { Storefront } from "@phosphor-icons/react";
@@ -11,6 +10,11 @@ import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useTranslations } from "next-intl";
 import { AuthPromptProvider } from "../context/AuthPromptContext";
 import { setAuthIntent, MarketplaceAuthIntent } from "../utils/authIntent";
+
+const CouponFAB = dynamic(
+  () => import("./CouponFAB").then((m) => m.CouponFAB),
+  { loading: () => null }
+);
 
 const VideoDemoSection = dynamic(
   () => import("./VideoDemoSection").then((m) => m.VideoDemoSection),
@@ -91,7 +95,7 @@ export function MarketplacePublicView() {
           className="bg-black px-4 pb-4 pt-7 sm:px-6 lg:px-8"
           id="marketplace-catalog"
         >
-          <div className="mx-auto mb-5 flex max-w-[98rem] items-start justify-between gap-4">
+          <div className="mx-auto mb-5 flex max-w-392 items-start justify-between gap-4">
             <div>
               <h2
                 className={`text-xl font-black sm:text-2xl ${
@@ -120,13 +124,13 @@ export function MarketplacePublicView() {
           </div>
 
           {isLoading ? (
-            <div className="mx-auto grid max-w-[98rem] grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="mx-auto grid max-w-392 grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
               {[...Array(6)].map((_, i) => (
                 <ProductSkeleton key={i} />
               ))}
             </div>
           ) : products.length === 0 ? (
-            <div className="mx-auto max-w-[98rem] rounded-3xl border border-dashed border-white/10 bg-white/5 py-20 text-center">
+            <div className="mx-auto max-w-392 rounded-3xl border border-dashed border-white/10 bg-white/5 py-20 text-center">
               <Storefront className="mx-auto h-12 w-12 text-gray-400 mb-4" />
               <h3 className="text-lg font-medium text-gray-500">
                 {t("no_products_found")}
@@ -139,7 +143,7 @@ export function MarketplacePublicView() {
               </button>
             </div>
           ) : (
-            <div className="mx-auto grid max-w-[98rem] grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="mx-auto grid max-w-392 grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
               {products.map((product) => (
                 <ProductCardCompact
                   key={product.id}

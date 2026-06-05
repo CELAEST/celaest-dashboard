@@ -72,7 +72,7 @@ export const Header = React.memo(function Header({
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
         {/* Feature Specific: Error Monitoring Controls */}
         {showErrorControls && (
-          <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-4 duration-500">
+          <div className="hidden md:flex items-center gap-2 animate-in fade-in slide-in-from-right-4 duration-500">
             <HeaderFilterPill
               icon={ShieldWarning}
               options={[

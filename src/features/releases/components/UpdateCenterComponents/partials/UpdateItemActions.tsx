@@ -18,7 +18,7 @@ export const UpdateItemActions: React.FC<UpdateItemActionsProps> = memo(
     return (
       <div
         className={`px-4 sm:px-5 py-3 sm:py-4 border-t flex items-center gap-2 sm:gap-3 ${
-          isDark ? "border-white/5 bg-white/[0.02]" : "border-gray-100 bg-gray-50/50"
+          isDark ? "border-white/5 bg-white/2" : "border-gray-100 bg-gray-50/50"
         }`}
       >
         {asset.hasUpdate ? (
