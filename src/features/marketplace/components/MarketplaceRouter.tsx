@@ -1,9 +1,18 @@
 "use client";
 
 import React from "react";
-import { MarketplaceDashboardView } from "./MarketplaceDashboardView";
-import { MarketplacePublicView } from "./MarketplacePublicView";
+import dynamic from "next/dynamic";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
+
+const MarketplaceDashboardView = dynamic(
+  () => import("./MarketplaceDashboardView").then((m) => m.MarketplaceDashboardView),
+  { ssr: false }
+);
+
+const MarketplacePublicView = dynamic(
+  () => import("./MarketplacePublicView").then((m) => m.MarketplacePublicView),
+  { ssr: true }
+);
 
 /**
  * Smart Marketplace Router

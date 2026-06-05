@@ -16,13 +16,13 @@ export const useAccessControl = (feature: FeatureConfig): AccessResult => {
   const { user, isLoading } = useAuth();
   const isGuest = !isLoading && !user;
 
-  if (isLoading) {
-    return { granted: false, reason: "loading" };
-  }
-
-  // Public features are always accessible
+  // Public features are always accessible immediately, even during auth loading
   if (feature.access === "public") {
     return { granted: true };
+  }
+
+  if (isLoading) {
+    return { granted: false, reason: "loading" };
   }
 
   // Guest check
