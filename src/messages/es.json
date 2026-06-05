@@ -144,7 +144,9 @@
     "not_available": "N/D",
     "nuclear_reset_title": "Reinicio NUCLEAR (Solo Dev)",
     "nuclear_reset_confirm": "☢️ REINICIO NUCLEAR: ¿Estás seguro de que quieres limpiar TODO el localStorage y sessionStorage?",
-    "nuclear_reset_tooltip": "Reinicio Nuclear (Solo Dev)"
+    "nuclear_reset_tooltip": "Reinicio Nuclear (Solo Dev)",
+    "guest": "Invitado",
+    "guest_subtitle": "Acceso limitado"
     },
   "header": {
     "search_placeholder": "Buscar comando o dato...",

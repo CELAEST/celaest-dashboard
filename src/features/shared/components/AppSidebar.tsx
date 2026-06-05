@@ -3,7 +3,8 @@
 import React, { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { motion } from "motion/react";
-import { SignOut, Bomb } from "@phosphor-icons/react";
+import { SignOut, Bomb, ArrowUpRight, User } from "@phosphor-icons/react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
@@ -325,6 +326,46 @@ export const AppSidebar = React.memo(function AppSidebar({
               </motion.span>
             </button>
           )}
+        </div>
+      )}
+
+      {isGuest && isExpanded && (
+        <div
+          className="p-4 border-t flex flex-col gap-3.5 border-gray-200 dark:border-white/5 bg-gray-50/50 dark:bg-white/[0.01]"
+        >
+          <div className="flex items-center gap-2.5 px-1">
+            <div className="w-8 h-8 rounded-full bg-blue-600/10 flex items-center justify-center text-blue-600 dark:text-cyan-400">
+              <User size={16} weight="bold" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[11px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">
+                {tSidebar("guest")}
+              </span>
+              <span className="text-[10px] text-gray-400 dark:text-gray-500 font-medium">
+                {tSidebar("guest_subtitle")}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <button
+              onClick={() => {
+                onShowLogin?.();
+                setIsMobileSidebarOpen?.(false);
+              }}
+              className="w-full text-center py-2.5 text-xs font-bold text-gray-700 hover:text-gray-950 dark:text-gray-300 dark:hover:text-white border border-gray-300 dark:border-white/10 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 transition-colors cursor-pointer"
+            >
+              {tAuth("sign_in")}
+            </button>
+            <Link
+              href="/?mode=signup"
+              onClick={() => setIsMobileSidebarOpen?.(false)}
+              className="w-full text-center py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl shadow-md shadow-blue-600/20 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+            >
+              {tAuth("sign_up")}
+              <ArrowUpRight className="h-3.5 w-3.5" weight="bold" />
+            </Link>
+          </div>
         </div>
       )}
     </>

@@ -105,7 +105,7 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
       {/* Visual Header / Image Container - Compact for viewport fit */}
       <div
         className={`relative w-full overflow-hidden ${onViewDetails ? "cursor-pointer" : ""}`}
-        style={{ aspectRatio: "4/3" }}
+        style={{ aspectRatio: "16/11" }}
         onClick={(e) => {
           if (onViewDetails) {
             e.stopPropagation();
@@ -242,17 +242,17 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
         </motion.div>
       </div>
 
-      {/* Content Section - Compact for viewport fit */}
-      <div className="p-4 flex-1 flex flex-col space-y-3">
+      {/* Content Section - More spacious for premium feel */}
+      <div className="flex flex-1 flex-col space-y-4 p-5 sm:p-6 lg:p-7">
         {/* Header: Title & Info */}
-        <div className="space-y-2">
+        <div className="space-y-2.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5">
               <div className="flex items-center">
                 {[...Array(5)].map((_, i) => (
                   <Star
                     key={i}
-                    size={11}
+                    size={13}
                     weight="fill"
                     className={
                       i < Math.floor(rating)
@@ -265,7 +265,7 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
                 ))}
               </div>
               <span
-                className={`text-[9px] font-black uppercase tracking-widest ${isDark ? "text-gray-500" : "text-gray-400"}`}
+                className={`text-[11px] sm:text-xs font-black uppercase tracking-widest ${isDark ? "text-gray-500" : "text-gray-400"}`}
               >
                 {reviews} {tCommon("reviews")}
               </span>
@@ -273,7 +273,7 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
           </div>
 
           <h3
-            className={`text-lg font-black leading-[1.1] tracking-tighter line-clamp-2 ${
+            className={`text-xl font-black leading-[1.15] tracking-tight line-clamp-2 lg:text-[1.35rem] ${
               isDark ? "text-white" : "text-gray-900"
             }`}
           >
@@ -281,24 +281,24 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
           </h3>
         </div>
 
-        {/* Description - Compact */}
+        {/* Description - More readable */}
         <p
-          className={`text-xs leading-relaxed line-clamp-2 ${
+            className={`text-xs sm:text-sm leading-relaxed line-clamp-2 lg:text-[0.925rem] ${
             isDark ? "text-gray-400" : "text-gray-600"
           }`}
         >
           {description}
         </p>
 
-        {/* Professional Feature Set - Compact */}
-        <div className="grid grid-cols-2 gap-2 py-1">
+        {/* Professional Feature Set - Spaced out */}
+        <div className="grid grid-cols-2 gap-2.5 py-1">
           {displayFeatures.slice(0, 4).map((feature, index) => (
-            <div key={index} className="flex items-center gap-1.5">
-              <div className="w-4 h-4 rounded-full bg-cyan-500/10 flex items-center justify-center shrink-0">
-                <Check size={10} className="text-cyan-500" strokeWidth={3} />
+            <div key={index} className="flex items-center gap-2">
+              <div className="w-4.5 h-4.5 rounded-full bg-cyan-500/10 flex items-center justify-center shrink-0">
+                <Check size={12} className="text-cyan-500" strokeWidth={3} />
               </div>
               <span
-                className={`text-[10px] font-bold leading-snug line-clamp-1 ${isDark ? "text-gray-400" : "text-gray-500"}`}
+                className={`text-[11px] sm:text-xs font-bold leading-snug line-clamp-1 ${isDark ? "text-gray-400" : "text-gray-500"}`}
               >
                 {feature}
               </span>
@@ -306,19 +306,19 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
           ))}
         </div>
 
-        {/* Action Center - Compact buttons */}
-        <div className="pt-3 mt-auto grid grid-cols-2 gap-3">
+        {/* Action Center - Spacier and larger buttons */}
+        <div className="pt-4 mt-auto grid grid-cols-2 gap-3.5">
           <motion.button
             whileHover={{ y: -4, scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={onViewDetails}
-            className={`py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-1.5 border-2 transition-all ${
+            className={`py-3 rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-widest flex items-center justify-center gap-1.5 border-2 transition-all ${
               isDark
                 ? "bg-white/5 border-white/5 text-gray-300 hover:bg-white/10 hover:border-white/10 hover:text-white"
                 : "bg-gray-50 border-gray-100 text-gray-600 hover:bg-gray-100 hover:border-gray-200 hover:text-gray-900"
             }`}
           >
-            <Eye size={14} strokeWidth={3} />
+            <Eye size={15} strokeWidth={3} />
             {tCommon("explore")}
           </motion.button>
 
@@ -329,7 +329,7 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
             whileTap={!hasAccess && !disabledReason ? { scale: 0.98 } : {}}
             onClick={!hasAccess && !disabledReason ? onSelect : undefined}
             title={disabledReason}
-            className={`py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all ${
+            className={`py-3 rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all ${
               disabledReason
                 ? "bg-gray-200 text-gray-400 border border-gray-300 cursor-not-allowed dark:bg-zinc-800 dark:text-gray-500 dark:border-zinc-700"
                 : hasAccess
@@ -347,24 +347,24 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
           >
             {disabledReason ? (
               <>
-                <Check size={14} strokeWidth={3} />
+                <Check size={15} strokeWidth={3} />
                 {disabledReason}
               </>
             ) : hasAccess ? (
               effectiveAccess === "plan" ? (
                 <>
-                  <Check size={14} strokeWidth={3} />
+                  <Check size={15} strokeWidth={3} />
                   {t("in_plan")}
                 </>
               ) : (
                 <>
-                  <Check size={14} strokeWidth={3} />
+                  <Check size={15} strokeWidth={3} />
                   {t("acquired")}
                 </>
               )
             ) : (
               <>
-                <ShoppingCart size={14} strokeWidth={3} />
+                <ShoppingCart size={15} strokeWidth={3} />
                 {t("acquire")}
               </>
             )}

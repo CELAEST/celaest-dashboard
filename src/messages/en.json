@@ -144,7 +144,9 @@
     "not_available": "N/A",
     "nuclear_reset_title": "Nuclear Reset (Dev Only)",
     "nuclear_reset_confirm": "☢️ NUCLEAR RESET: Are you sure you want to clear ALL local storage and session data?",
-    "nuclear_reset_tooltip": "Nuclear Reset (Dev Only)"
+    "nuclear_reset_tooltip": "Nuclear Reset (Dev Only)",
+    "guest": "Guest",
+    "guest_subtitle": "Limited Access"
   },
   "header": {
     "search_placeholder": "Search command or data...",

@@ -9,6 +9,7 @@ import {
   Pulse,
   List,
   ArrowUpRight,
+  User,
 } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
@@ -105,22 +106,34 @@ export const Header = React.memo(function Header({
         {user ? (
           <UserInfo user={user} />
         ) : (
-          <div className="flex items-center gap-3 sm:gap-4">
+          <>
+            {/* Desktop auth buttons */}
+            <div className="hidden sm:flex items-center gap-3 sm:gap-4">
+              <button
+                onClick={onShowLogin}
+                className="text-xs font-semibold text-gray-600 transition-colors hover:text-gray-950 dark:text-gray-400 dark:hover:text-white sm:text-sm cursor-pointer"
+              >
+                {tAuth("sign_in")}
+              </button>
+              <div className="h-6 w-px bg-gray-300 dark:bg-white/25" />
+              <Link
+                href="/?mode=signup"
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 text-xs font-semibold text-white shadow-md shadow-blue-600/20 transition-colors hover:bg-blue-500 sm:text-sm"
+              >
+                {tAuth("sign_up")}
+                <ArrowUpRight className="h-3.5 w-3.5" weight="bold" />
+              </Link>
+            </div>
+
+            {/* Mobile compact login icon */}
             <button
               onClick={onShowLogin}
-              className="text-xs font-semibold text-gray-600 transition-colors hover:text-gray-950 dark:text-gray-400 dark:hover:text-white sm:text-sm"
+              className="flex sm:hidden p-2 rounded-full transition-all duration-300 text-gray-500 hover:text-blue-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-cyan-400 dark:hover:bg-white/5 cursor-pointer"
+              aria-label={tAuth("sign_in")}
             >
-              {tAuth("sign_in")}
+              <User size={20} />
             </button>
-            <div className="h-6 w-px bg-gray-300 dark:bg-white/25" />
-            <Link
-              href="/?mode=signup"
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 text-xs font-semibold text-white shadow-md shadow-blue-600/20 transition-colors hover:bg-blue-500 sm:text-sm"
-            >
-              {tAuth("sign_up")}
-              <ArrowUpRight className="h-3.5 w-3.5" weight="bold" />
-            </Link>
-          </div>
+          </>
         )}
 
         <LocaleSwitcher align="right" />

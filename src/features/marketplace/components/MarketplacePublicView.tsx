@@ -69,10 +69,10 @@ export function MarketplacePublicView() {
         <MarketplacePublicHero />
 
         <div
-          className="bg-black px-5 pb-4 pt-7 sm:px-8 lg:px-10"
+          className="bg-black px-4 pb-4 pt-7 sm:px-6 lg:px-8"
           id="marketplace-catalog"
         >
-          <div className="mx-auto mb-5 flex max-w-7xl items-start justify-between gap-4">
+          <div className="mx-auto mb-5 flex max-w-[98rem] items-start justify-between gap-4">
             <div>
               <h2
                 className={`text-xl font-black sm:text-2xl ${
@@ -102,13 +102,13 @@ export function MarketplacePublicView() {
 
           <AnimatePresence mode="wait">
             {isLoading ? (
-              <div className="mx-auto grid max-w-7xl grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+              <div className="mx-auto grid max-w-[98rem] grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
                 {[...Array(6)].map((_, i) => (
                   <ProductSkeleton key={i} />
                 ))}
               </div>
             ) : products.length === 0 ? (
-              <div className="mx-auto max-w-7xl rounded-3xl border border-dashed border-white/10 bg-white/5 py-20 text-center">
+              <div className="mx-auto max-w-[98rem] rounded-3xl border border-dashed border-white/10 bg-white/5 py-20 text-center">
                 <Storefront className="mx-auto h-12 w-12 text-gray-400 mb-4" />
                 <h3 className="text-lg font-medium text-gray-500">
                   {t("no_products_found")}
@@ -121,7 +121,7 @@ export function MarketplacePublicView() {
                 </button>
               </div>
             ) : (
-              <div className="mx-auto grid max-w-7xl grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+              <div className="mx-auto grid max-w-[98rem] grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
                 {products.map((product) => (
                   <ProductCardCompact
                     key={product.id}
