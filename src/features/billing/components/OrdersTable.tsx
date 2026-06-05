@@ -19,6 +19,7 @@ import { useApiAuth } from "@/lib/use-api-auth";
 import { toast } from "sonner";
 import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 import { useTranslations } from "next-intl";
+import { useIsMobile } from "@/components/ui/use-mobile";
 import {
   DotsThree,
   Warning,
@@ -27,6 +28,11 @@ import {
   CreditCard,
   Money,
   Package,
+  Eye,
+  DownloadSimple,
+  PencilSimple,
+  Archive,
+  Trash,
 } from "@phosphor-icons/react";
 
 interface OrdersTableProps {
@@ -36,6 +42,7 @@ interface OrdersTableProps {
 export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: OrdersTableProps) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const isMobile = useIsMobile();
   const {
     orders,
     totalOrders,
@@ -47,6 +54,7 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
     handleOpenMenu,
     handleCloseMenu,
     handleMenuAction,
+    handleAction,
     detailsModalOpen,
     setDetailsModalOpen,
     deleteModalOpen,
@@ -250,24 +258,14 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
         cell: ({ row }) => {
           const order = row.original;
           const name = order.userName || "N/A";
-          const initials = name.split(/[\s._-]/).filter(Boolean).slice(0, 2).map(s => s[0]?.toUpperCase() ?? '').join('');
           return (
-            <div className="flex items-center gap-2.5">
-              <div className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                isDark
-                  ? "bg-linear-to-br from-cyan-500/20 to-blue-500/20 text-cyan-300 ring-1 ring-inset ring-cyan-500/10"
-                  : "bg-linear-to-br from-blue-50 to-indigo-50 text-blue-600 ring-1 ring-inset ring-blue-200/60"
-              }`}>
-                {initials}
-              </div>
-              <div>
-                <span className={`text-xs font-medium block ${isDark ? "text-gray-200" : "text-gray-700"}`}>
-                  {name}
-                </span>
-                <span className={`text-[10px] ${isDark ? "text-gray-600" : "text-gray-400"}`}>
-                  {order.date}
-                </span>
-              </div>
+            <div>
+              <span className={`text-xs font-medium block ${isDark ? "text-gray-200" : "text-gray-700"}`}>
+                {name}
+              </span>
+              <span className={`text-[10px] ${isDark ? "text-gray-600" : "text-gray-400"}`}>
+                {order.date}
+              </span>
             </div>
           );
         },
@@ -294,24 +292,14 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
         cell: ({ row }) => {
           const order = row.original;
           const name = order.customer;
-          const initials = name.split(/[\s._-]/).filter(Boolean).slice(0, 2).map(s => s[0]?.toUpperCase() ?? '').join('');
           return (
-            <div className="flex items-center gap-2.5">
-              <div className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                isDark
-                  ? "bg-linear-to-br from-violet-500/20 to-purple-500/20 text-violet-300 ring-1 ring-inset ring-violet-500/10"
-                  : "bg-linear-to-br from-violet-50 to-purple-50 text-violet-600 ring-1 ring-inset ring-violet-200/60"
-              }`}>
-                {initials}
-              </div>
-              <div>
-                <span className={`text-xs font-medium block ${isDark ? "text-gray-200" : "text-gray-700"}`}>
-                  {name}
-                </span>
-                <span className={`text-[10px] ${isDark ? "text-gray-600" : "text-gray-400"}`}>
-                  {order.date}
-                </span>
-              </div>
+            <div>
+              <span className={`text-xs font-medium block ${isDark ? "text-gray-200" : "text-gray-700"}`}>
+                {name}
+              </span>
+              <span className={`text-[10px] ${isDark ? "text-gray-600" : "text-gray-400"}`}>
+                {order.date}
+              </span>
             </div>
           );
         },
@@ -378,6 +366,95 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
         header: "",
         cell: ({ row }) => {
           const order = row.original;
+          
+          if (isMobile) {
+            return (
+              <div className="flex flex-wrap gap-2 justify-center sm:justify-end w-full pt-1">
+                {/* View Details Button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAction("view", order);
+                  }}
+                  className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all duration-150 active:scale-95 ${
+                    isDark
+                      ? "bg-white/5 hover:bg-white/10 text-white border border-white/5 hover:border-white/10"
+                      : "bg-gray-100 hover:bg-gray-200 text-gray-800 border border-gray-200"
+                  }`}
+                >
+                  <Eye size={12} weight="bold" />
+                  <span>{tBilling("view_details")}</span>
+                </button>
+
+                {/* Download Invoice Button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAction("download", order);
+                  }}
+                  className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all duration-150 active:scale-95 ${
+                    isDark
+                      ? "bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/20"
+                      : "bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200/60"
+                  }`}
+                >
+                  <DownloadSimple size={12} weight="bold" />
+                  <span>{tBilling("download_invoice")}</span>
+                </button>
+
+                {/* SuperAdmin Actions */}
+                {isSuperAdmin && (
+                  <>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAction("edit", order);
+                      }}
+                      className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all duration-150 active:scale-95 ${
+                        isDark
+                          ? "bg-white/5 hover:bg-white/10 text-gray-300 border border-white/5"
+                          : "bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200"
+                      }`}
+                    >
+                      <PencilSimple size={12} weight="bold" />
+                      <span>{tBilling("edit_order")}</span>
+                    </button>
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAction("archive", order);
+                      }}
+                      className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all duration-150 active:scale-95 ${
+                        isDark
+                          ? "bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20"
+                          : "bg-amber-50 hover:bg-amber-100 text-amber-600 border border-amber-200"
+                      }`}
+                    >
+                      <Archive size={12} weight="bold" />
+                      <span>{tBilling("archive")}</span>
+                    </button>
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAction("delete", order);
+                      }}
+                      className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all duration-150 active:scale-95 ${
+                        isDark
+                          ? "bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20"
+                          : "bg-red-50 hover:bg-red-100 text-red-600 border border-red-200"
+                      }`}
+                    >
+                      <Trash size={12} weight="bold" />
+                      <span>{tBilling("delete")}</span>
+                    </button>
+                  </>
+                )}
+              </div>
+            );
+          }
+
           return (
             <div className="text-right">
               <button
@@ -398,7 +475,7 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
         },
       },
     ],
-    [isDark, getStatusColor, getStatusIcon, handleOpenMenu, t],
+    [isDark, getStatusColor, getStatusIcon, handleOpenMenu, handleAction, isMobile, isSuperAdmin, t, tBilling],
   );
 
   const columns = useMemo(() => {

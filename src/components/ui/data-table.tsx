@@ -288,7 +288,7 @@ export function DataTable<TData, TValue>({
                               {label}
                             </span>
                           )}
-                          <div className={`${cardValueCls} text-right min-w-0`}>
+                          <div className={`${cardValueCls} ${label ? "text-right min-w-0" : "w-full"}`}>
                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                           </div>
                         </div>

@@ -232,6 +232,36 @@ export const useOrders = () => {
     refundMutation.mutate({ orderId: selectedOrder.id, reason });
   }, [selectedOrder, refundMutation]);
 
+  const handleAction = useCallback(
+    (action: string, order: Order) => {
+      switch (action) {
+        case "view":
+          setSelectedOrder(order);
+          setDetailsMode("view");
+          setDetailsModalOpen(true);
+          break;
+        case "edit":
+          setSelectedOrder(order);
+          setDetailsMode("edit");
+          setDetailsModalOpen(true);
+          break;
+        case "delete":
+          setSelectedOrder(order);
+          setDeleteModalOpen(true);
+          break;
+        case "download":
+          setDownloadingOrderId(order.id);
+          break;
+        case "archive":
+          toast("Order archived", {
+            description: `${order.id} has been moved to archive.`,
+          });
+          break;
+      }
+    },
+    []
+  );
+
   return {
     orders,
     totalOrders,
@@ -242,6 +272,7 @@ export const useOrders = () => {
     handleOpenMenu,
     handleCloseMenu,
     handleMenuAction,
+    handleAction,
     detailsModalOpen,
     setDetailsModalOpen,
     deleteModalOpen,
