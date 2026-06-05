@@ -50,6 +50,7 @@ export const RevenueKpiIcon = ({
     <motion.line 
       x1="3" y1="20" x2="21" y2="20" 
       strokeWidth="1.5" strokeLinecap="round"
+      initial={{ opacity: 0.3 }}
       animate={{ opacity: isHovered ? 1 : 0.3 }}
     />
   </svg>

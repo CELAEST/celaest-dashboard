@@ -31,7 +31,7 @@ export const ImageWithFallback = React.memo(function ImageWithFallback({
   priority = false,
   sizes,
   style,
-  quality = 85,
+  quality = 75,
   placeholder,
   blurDataURL,
 }: ImageWithFallbackProps) {

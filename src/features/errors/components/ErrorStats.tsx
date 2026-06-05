@@ -92,19 +92,19 @@ const UsersAffectedVisual = () => (
       />
       
       {/* Disrupted node 1 */}
-      <motion.g animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.5, repeat: Infinity, ease: "linear", delay: 0 }}>
+      <motion.g initial={{ opacity: 0.3 }} animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.5, repeat: Infinity, ease: "linear", delay: 0 }}>
         <circle cx="25" cy="40" r="4" fill="#c4b5fd" />
         <line x1="50" y1="50" x2="25" y2="40" stroke="#8b5cf6" strokeWidth="1" strokeDasharray="2 2" />
       </motion.g>
 
       {/* Disrupted node 2 */}
-      <motion.g animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.2, repeat: Infinity, ease: "linear", delay: 0.5 }}>
+      <motion.g initial={{ opacity: 0.3 }} animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.2, repeat: Infinity, ease: "linear", delay: 0.5 }}>
         <circle cx="65" cy="75" r="4" fill="#c4b5fd" />
         <line x1="50" y1="50" x2="65" y2="75" stroke="#8b5cf6" strokeWidth="1" strokeDasharray="2 2" />
       </motion.g>
 
       {/* Disrupted node 3 */}
-      <motion.g animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.8, repeat: Infinity, ease: "linear", delay: 0.8 }}>
+      <motion.g initial={{ opacity: 0.3 }} animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.8, repeat: Infinity, ease: "linear", delay: 0.8 }}>
         <circle cx="75" cy="25" r="4" fill="#c4b5fd" />
         <line x1="50" y1="50" x2="75" y2="25" stroke="#8b5cf6" strokeWidth="1" strokeDasharray="2 2" />
       </motion.g>
