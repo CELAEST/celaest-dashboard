@@ -144,13 +144,14 @@ export function MarketplacePublicView() {
             </div>
           ) : (
             <div className="mx-auto grid max-w-392 grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
-              {products.map((product) => (
+              {products.map((product, index) => (
                 <ProductCardCompact
                   key={product.id}
                   product={product}
                   onSelect={() => handlePurchaseAction(product)}
                   onViewDetails={() => handleViewDetails(product)}
                   accessLevel="none"
+                  priority={index < 3}
                 />
               ))}
             </div>

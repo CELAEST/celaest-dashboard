@@ -169,7 +169,7 @@ export const AssetCustomerCatalog: React.FC<
         <div className="absolute inset-0 overflow-y-auto pr-2 pb-20 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             <AnimatePresence mode="popLayout">
-              {filteredAssets.map((product) => {
+              {filteredAssets.map((product, index) => {
                 const mappedProduct: MarketplaceProduct = {
                   id: product.productId || product.id,
                   organization_id: product.organizationId || "",
@@ -201,6 +201,7 @@ export const AssetCustomerCatalog: React.FC<
                     onSelect={() => setSelectedProduct(product)}
                     onViewDetails={() => setSelectedProduct(product)}
                     accessLevel={product.accessType === "subscription" ? "plan" : "owned"}
+                    priority={index < 3}
                   />
                 );
               })}

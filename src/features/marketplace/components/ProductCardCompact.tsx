@@ -17,6 +17,7 @@ interface ProductCardCompactProps {
   isOwned?: boolean;
   accessLevel?: "owned" | "plan" | "none";
   disabledReason?: string;
+  priority?: boolean;
 }
 
 export const ProductCardCompact = React.memo(function ProductCardCompact({
@@ -26,6 +27,7 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
   isOwned = false,
   accessLevel,
   disabledReason,
+  priority = false,
 }: ProductCardCompactProps) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
@@ -119,6 +121,7 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
             src={image}
             alt={title}
             fill
+            priority={priority}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="object-cover"
           />

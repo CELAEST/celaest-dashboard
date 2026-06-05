@@ -509,7 +509,7 @@ export function MarketplaceDashboardView() {
                 animate={{ opacity: 1 }}
                 className="grid w-full grid-cols-1 gap-6 px-5 pt-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3"
               >
-                {visibleProducts.map((product) => {
+                {visibleProducts.map((product, index) => {
                   const access = checkAccess(product);
                   return (
                     <ProductCardCompact
@@ -519,6 +519,7 @@ export function MarketplaceDashboardView() {
                       onViewDetails={() => setDetailProduct(product)}
                       accessLevel={access}
                       disabledReason={getDisabledReason(product, access)}
+                      priority={index < 3}
                     />
                   );
                 })}
