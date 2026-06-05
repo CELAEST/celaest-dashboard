@@ -37,7 +37,7 @@ export const Header = React.memo(function Header({
 
   // Static classes resolving synchronously via Tailwind dark: variants
   const headerClassName =
-    "h-20 px-4 flex items-center justify-between sticky top-0 z-40 backdrop-blur-md border-b transition-colors duration-300 bg-white/60 border-gray-200 dark:bg-black/40 dark:border-white/5";
+    "h-20 px-4 flex items-center justify-between sticky top-0 z-40 md:backdrop-blur-md border-b transition-colors duration-300 bg-white dark:bg-black md:bg-white/60 md:dark:bg-black/40 border-gray-200 dark:border-white/5";
 
   const themeButtonClassName =
     "p-2 rounded-full transition-all duration-300 text-gray-500 hover:text-blue-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-yellow-400 dark:hover:bg-white/5";
@@ -45,7 +45,7 @@ export const Header = React.memo(function Header({
   // Prevent hydration mismatch for icons/theme-dependent UI
   if (!isMounted) {
     return (
-      <header className="h-20 px-8 flex items-center justify-between sticky top-0 z-40 border-b bg-white/60 dark:bg-black/40 border-gray-200 dark:border-white/5 backdrop-blur-md">
+      <header className="h-20 px-8 flex items-center justify-between sticky top-0 z-40 border-b bg-white dark:bg-black md:bg-white/60 md:dark:bg-black/40 border-gray-200 dark:border-white/5 md:backdrop-blur-md">
         <div className="w-64 h-10 bg-gray-100 dark:bg-white/5 rounded-full animate-pulse" />
         <div className="flex gap-4">
           <div className="w-20 h-10 bg-gray-100 dark:bg-white/5 rounded-full animate-pulse" />

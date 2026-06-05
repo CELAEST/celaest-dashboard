@@ -1,18 +1,21 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { MarketplacePublicHero } from "./MarketplacePublicHero";
 import { ProductCardCompact } from "./ProductCardCompact";
-import { VideoDemoSection } from "./VideoDemoSection";
 import { ProductSkeleton } from "./ProductSkeleton";
 import { CouponFAB } from "./CouponFAB";
 import { useMarketplaceProducts } from "../hooks/useMarketplaceProducts";
 import { MarketplaceProduct } from "../types";
 import { Storefront } from "@phosphor-icons/react";
-import { AnimatePresence } from "motion/react";
 import dynamic from "next/dynamic";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useTranslations } from "next-intl";
 import { AuthPromptProvider } from "../context/AuthPromptContext";
 import { setAuthIntent, MarketplaceAuthIntent } from "../utils/authIntent";
+
+const VideoDemoSection = dynamic(
+  () => import("./VideoDemoSection").then((m) => m.VideoDemoSection),
+  { loading: () => null }
+);
 
 const LoginModal = dynamic(
   () =>
@@ -42,6 +45,22 @@ export function MarketplacePublicView() {
 
   // Data from Storefront
   const { products, loading: isLoading, reset } = useMarketplaceProducts();
+
+  // Prefetch heavy modal chunks when application is idle
+  useEffect(() => {
+    const prefetchModals = () => {
+      import("@/features/auth/components/LoginModal");
+      import("./modals/ProductDetailModal");
+    };
+
+    if (typeof window !== "undefined") {
+      if ("requestIdleCallback" in window) {
+        window.requestIdleCallback(() => prefetchModals());
+      } else {
+        setTimeout(prefetchModals, 2000);
+      }
+    }
+  }, []);
 
   const handleViewDetails = (product: MarketplaceProduct) => {
     setDetailProduct(product);
@@ -100,40 +119,38 @@ export function MarketplacePublicView() {
             </div>
           </div>
 
-          <AnimatePresence mode="wait">
-            {isLoading ? (
-              <div className="mx-auto grid max-w-[98rem] grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
-                {[...Array(6)].map((_, i) => (
-                  <ProductSkeleton key={i} />
-                ))}
-              </div>
-            ) : products.length === 0 ? (
-              <div className="mx-auto max-w-[98rem] rounded-3xl border border-dashed border-white/10 bg-white/5 py-20 text-center">
-                <Storefront className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium text-gray-500">
-                  {t("no_products_found")}
-                </h3>
-                <button
-                  onClick={reset}
-                  className="text-cyan-500 mt-2 hover:underline"
-                >
-                  {t("clear_filters")}
-                </button>
-              </div>
-            ) : (
-              <div className="mx-auto grid max-w-[98rem] grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
-                {products.map((product) => (
-                  <ProductCardCompact
-                    key={product.id}
-                    product={product}
-                    onSelect={() => handlePurchaseAction(product)}
-                    onViewDetails={() => handleViewDetails(product)}
-                    accessLevel="none"
-                  />
-                ))}
-              </div>
-            )}
-          </AnimatePresence>
+          {isLoading ? (
+            <div className="mx-auto grid max-w-[98rem] grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+              {[...Array(6)].map((_, i) => (
+                <ProductSkeleton key={i} />
+              ))}
+            </div>
+          ) : products.length === 0 ? (
+            <div className="mx-auto max-w-[98rem] rounded-3xl border border-dashed border-white/10 bg-white/5 py-20 text-center">
+              <Storefront className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+              <h3 className="text-lg font-medium text-gray-500">
+                {t("no_products_found")}
+              </h3>
+              <button
+                onClick={reset}
+                className="text-cyan-500 mt-2 hover:underline"
+              >
+                {t("clear_filters")}
+              </button>
+            </div>
+          ) : (
+            <div className="mx-auto grid max-w-[98rem] grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+              {products.map((product) => (
+                <ProductCardCompact
+                  key={product.id}
+                  product={product}
+                  onSelect={() => handlePurchaseAction(product)}
+                  onViewDetails={() => handleViewDetails(product)}
+                  accessLevel="none"
+                />
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Video Demo Section (Includes Testimonials & TrustBadges) */}

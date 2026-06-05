@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { motion } from "motion/react";
 import { Check, ShoppingCart, Star, Eye, Lightning, ArrowRight } from "@phosphor-icons/react";
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
 import { useTheme } from "@/features/shared/hooks/useTheme";
@@ -30,7 +29,6 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
 }: ProductCardCompactProps) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
-  const [isHovered, setIsHovered] = React.useState(false);
   const { activeCoupon } = useMarketplaceCouponStore();
   const t = useTranslations("marketplace");
   const tCommon = useTranslations("common");
@@ -88,13 +86,9 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
   const badge = rating >= 4.5 ? "BESTSELLER" : undefined;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 15 }}
-      animate={{ opacity: 1, y: 0 }}
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
+    <div
       className={`
-        group relative rounded-4xl overflow-hidden transition-all duration-700 flex flex-col h-full snap-start
+        group relative rounded-4xl overflow-hidden transition-all duration-700 flex flex-col h-full snap-start animate-card-entrance
         ${
           isDark
             ? "bg-[#0c0c0c] border border-white/5 hover:border-cyan-500/20 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)]"
@@ -114,12 +108,8 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
         }}
       >
         {/* Animated Background Image */}
-        <motion.div
-          animate={{
-            scale: isHovered ? 1.15 : 1,
-          }}
-          transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-          className="absolute inset-0"
+        <div
+          className="absolute inset-0 transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-115"
         >
           <ImageWithFallback
             src={image}
@@ -128,13 +118,11 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="object-cover"
           />
-        </motion.div>
+        </div>
 
         {/* Dynamic Overlays */}
         <div
-          className={`absolute inset-0 transition-opacity duration-500 ${
-            isHovered ? "bg-black/45" : "bg-black/40"
-          }`}
+          className="absolute inset-0 transition-opacity duration-500 bg-black/40 group-hover:bg-black/45"
         />
 
         <div
@@ -144,14 +132,10 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
         {/* Centered Play Video Button - Visible on mobile/touch, Hover effect on desktop */}
         {product.youtube_video_id && (
           <div
-            className={`absolute inset-0 z-30 flex items-center justify-center transition-all duration-500 ease-[0.22,1,0.36,1] ${
-              isHovered ? "opacity-100 scale-100" : "opacity-100 scale-75 md:opacity-0 pointer-events-none md:pointer-events-auto"
-            }`}
+            className="absolute inset-0 z-30 flex items-center justify-center transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] opacity-100 scale-100 md:opacity-0 md:scale-75 md:pointer-events-none md:group-hover:opacity-100 md:group-hover:scale-100 md:group-hover:pointer-events-auto"
           >
             <div
-              className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white/90 md:bg-white/95 hover:bg-white shadow-[0_10px_30px_rgba(0,0,0,0.5),0_0_20px_rgba(255,255,255,0.2)] md:hover:shadow-[0_15px_40px_rgba(0,0,0,0.6),0_0_25px_rgba(34,211,238,0.4)] flex items-center justify-center transition-all duration-300 transform md:hover:scale-110 md:active:scale-95 group/play cursor-pointer
-                ${!isHovered ? "backdrop-blur-sm bg-white/70" : ""}
-              `}
+              className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white/90 md:bg-white/95 hover:bg-white shadow-[0_10px_30px_rgba(0,0,0,0.5),0_0_20px_rgba(255,255,255,0.2)] md:hover:shadow-[0_15px_40px_rgba(0,0,0,0.6),0_0_25px_rgba(34,211,238,0.4)] flex items-center justify-center transition-all duration-300 transform md:hover:scale-110 md:active:scale-95 group/play cursor-pointer bg-white/70 backdrop-blur-sm md:bg-white/95"
             >
               {/* Custom aligned play triangle */}
               <svg
@@ -232,14 +216,13 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
         </div>
 
         {/* Floating Quick Action */}
-        <motion.div
-          animate={{ x: isHovered ? 0 : 20, opacity: isHovered ? 1 : 0 }}
-          className="absolute bottom-3 right-3 z-20"
+        <div
+          className="absolute bottom-3 right-3 z-20 transition-all duration-300 transform translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100"
         >
           <div className="w-9 h-9 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center text-white">
             <ArrowRight size={16} />
           </div>
-        </motion.div>
+        </div>
       </div>
 
       {/* Content Section - More spacious for premium feel */}
@@ -308,11 +291,9 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
 
         {/* Action Center - Spacier and larger buttons */}
         <div className="pt-4 mt-auto grid grid-cols-2 gap-3.5">
-          <motion.button
-            whileHover={{ y: -4, scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+          <button
             onClick={onViewDetails}
-            className={`py-3 rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-widest flex items-center justify-center gap-1.5 border-2 transition-all ${
+            className={`py-3 rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-widest flex items-center justify-center gap-1.5 border-2 transition-all duration-200 hover:-translate-y-1 hover:scale-[1.02] active:scale-[0.98] ${
               isDark
                 ? "bg-white/5 border-white/5 text-gray-300 hover:bg-white/10 hover:border-white/10 hover:text-white"
                 : "bg-gray-50 border-gray-100 text-gray-600 hover:bg-gray-100 hover:border-gray-200 hover:text-gray-900"
@@ -320,16 +301,14 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
           >
             <Eye size={15} strokeWidth={3} />
             {tCommon("explore")}
-          </motion.button>
+          </button>
 
-          <motion.button
-            whileHover={
-              !hasAccess && !disabledReason ? { y: -4, scale: 1.02 } : {}
-            }
-            whileTap={!hasAccess && !disabledReason ? { scale: 0.98 } : {}}
+          <button
             onClick={!hasAccess && !disabledReason ? onSelect : undefined}
             title={disabledReason}
-            className={`py-3 rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all ${
+            className={`py-3 rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all duration-200 ${
+              !hasAccess && !disabledReason ? "hover:-translate-y-1 hover:scale-[1.02] active:scale-[0.98]" : ""
+            } ${
               disabledReason
                 ? "bg-gray-200 text-gray-400 border border-gray-300 cursor-not-allowed dark:bg-zinc-800 dark:text-gray-500 dark:border-zinc-700"
                 : hasAccess
@@ -368,9 +347,9 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
                 {t("acquire")}
               </>
             )}
-          </motion.button>
+          </button>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 });

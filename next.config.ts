@@ -64,7 +64,7 @@ const nextConfig: NextConfig = {
 
   // Optimización de paquetes para mejor rendimiento
   experimental: {
-    optimizePackageImports: ['lucide-react', 'recharts', 'motion'],
+    optimizePackageImports: ['lucide-react', 'recharts', 'motion', '@phosphor-icons/react'],
   },
 
   // Configuración de TypeScript para build

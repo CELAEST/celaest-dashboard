@@ -8,7 +8,6 @@ import {
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 
 import { useOrgStore } from "@/features/shared/stores/useOrgStore";
-import { motion } from "motion/react";
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
 import { useSearchParams } from "next/navigation";
 import { logger } from "@/lib/logger";
@@ -123,27 +122,15 @@ export function DashboardShell() {
         {/* El gradiente radial solo es visible en Dark Mode */}
         <div className="absolute inset-0 hidden dark:block bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-white/3 via-transparent to-transparent z-10" />
 
-        <motion.div
-          className="absolute inset-0 z-0 will-change-transform"
-          animate={{
-            scale: [1, 1.1, 1],
-            rotate: [0, 1, 0],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            repeatType: "reverse",
-            ease: "linear",
-          }}
-        >
+        <div className="absolute inset-0 z-0 animate-bg-glow">
           <ImageWithFallback
             src="https://images.unsplash.com/photo-1647356161576-4e80c6619a0e?crop=entropy&cs=tinysrgb&fit=max&fm=webp&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMGRhcmslMjBibHVlJTIwbmV1cmFsJTIwbmV0d29yayUyMGNvbnN0ZWxsYXRpb24lMjBiYWNrZ3JvdW5kfGVufDF8fHx8MTc2ODU3Njg3OHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
             className="w-full h-full object-cover transition-opacity duration-500 opacity-10 mix-blend-normal dark:mix-blend-screen dark:opacity-40"
             alt="background"
           />
-        </motion.div>
-        {/* Subtle grid overlay */}
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] z-20 mix-blend-overlay opacity-5 dark:opacity-20" />
+        </div>
+        {/* Subtle grid overlay - hidden on mobile for rendering performance */}
+        <div className="absolute inset-0 hidden md:block bg-[url('https://grainy-gradients.vercel.app/noise.svg')] z-20 mix-blend-overlay opacity-5 dark:opacity-20" />
       </div>
 
       <AppSidebar

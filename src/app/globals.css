@@ -396,3 +396,72 @@ html {
 .settings-tab-button {
   flex-shrink: 0;
 }
+
+/* ============================================
+   Optimized Performance Animations (CSS Native)
+   ============================================ */
+
+@keyframes bg-glow-rotate {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.08) rotate(0.5deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.animate-bg-glow {
+  will-change: transform;
+}
+
+@media (min-width: 768px) {
+  .animate-bg-glow {
+    animation: bg-glow-rotate 25s ease-in-out infinite;
+  }
+}
+
+@keyframes modal-backdrop-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-content-zoom-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-modal-backdrop {
+  animation: modal-backdrop-fade-in 140ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-modal-content {
+  animation: modal-content-zoom-in 180ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes card-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-card-entrance {
+  animation: card-fade-in-up 250ms ease-out forwards;
+}

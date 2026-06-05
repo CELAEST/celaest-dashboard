@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { motion, AnimatePresence } from "motion/react";
 import { X, Star, Calendar } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useEscapeKey } from "@/features/shared/hooks/useEscapeKey";
@@ -61,32 +60,25 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   if (!mounted || !product) return null;
 
   return createPortal(
-    <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-hidden">
-        {/* Backdrop */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={onClose}
-          className="absolute inset-0 bg-black/60 backdrop-blur-md"
-        />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-hidden">
+      {/* Backdrop */}
+      <div
+        onClick={onClose}
+        className="absolute inset-0 bg-black/60 backdrop-blur-md animate-modal-backdrop"
+      />
 
-        {/* Modal */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className={`
-            relative shrink-0 flex flex-col w-full max-h-[95dvh] sm:max-h-[90dvh] sm:max-w-3xl lg:max-w-6xl
-            rounded-[24px] sm:rounded-[32px] border sm:shadow-2xl overflow-hidden
-            ${
-              theme === "dark"
-                ? "bg-[#050505] sm:bg-[#050505]/95 border-white/10"
-                : "bg-white border-gray-200"
-            }
-          `}
-        >
+      {/* Modal */}
+      <div
+        className={`
+          relative shrink-0 flex flex-col w-full max-h-[95dvh] sm:max-h-[90dvh] sm:max-w-3xl lg:max-w-6xl
+          rounded-[24px] sm:rounded-[32px] border sm:shadow-2xl overflow-hidden animate-modal-content
+          ${
+            theme === "dark"
+              ? "bg-[#050505] sm:bg-[#050505]/95 border-white/10"
+              : "bg-white border-gray-200"
+          }
+        `}
+      >
           {/* Header */}
           <div
             className={`
@@ -251,9 +243,8 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
             </div>
           </div>
           </div>
-        </motion.div>
-      </div>
-    </AnimatePresence>,
+        </div>
+      </div>,
     document.body
   );
 };

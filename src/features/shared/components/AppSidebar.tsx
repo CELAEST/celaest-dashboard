@@ -122,7 +122,7 @@ export const AppSidebar = React.memo(function AppSidebar({
   // Clases memoizadas
   const containerClassName = useMemo(
     () =>
-      `h-screen fixed left-0 top-0 z-50 md:flex hidden flex-col backdrop-blur-2xl border-r transition-colors duration-300 ${
+      `h-screen fixed left-0 top-0 z-50 md:flex hidden flex-col md:backdrop-blur-2xl border-r transition-colors duration-300 ${
         isDark
           ? "bg-[#020202]/80 border-white/[0.05] shadow-[4px_0_24px_rgba(0,0,0,0.5)]"
           : "bg-white/80 border-gray-200 shadow-xl"

@@ -1,8 +1,5 @@
-"use client";
-
 import React, { useState } from "react";
 import { createPortal } from "react-dom";
-import { motion, AnimatePresence } from "motion/react";
 import { SignOutCard } from "./SignOutCard";
 
 interface SignOutModalProps {
@@ -57,46 +54,35 @@ export const SignOutModal: React.FC<SignOutModalProps> = ({
     };
   }, [isOpen, mounted]);
 
-  if (!mounted) {
+  if (!mounted || !isOpen) {
     return null;
   }
 
   return createPortal(
-    <AnimatePresence>
-      {isOpen && (
-        <div
-          className="fixed inset-0 z-120 flex items-center justify-center p-4 sm:p-6"
-          role="dialog"
-          aria-modal="true"
-        >
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={!isLoading ? onClose : undefined}
-            className="absolute inset-0 bg-black/65 backdrop-blur-md"
-          />
+    <div
+      className="fixed inset-0 z-120 flex items-center justify-center p-4 sm:p-6"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        onClick={!isLoading ? onClose : undefined}
+        className="absolute inset-0 bg-black/65 backdrop-blur-md animate-modal-backdrop"
+      />
 
-          <div className="relative z-10 flex w-full items-center justify-center pointer-events-none">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.96, y: 16 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.96, y: 16 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              onClick={(event) => event.stopPropagation()}
-              className="pointer-events-auto relative shrink-0 w-136 min-w-80 sm:min-w-136 max-w-[90vw]"
-            >
-              <SignOutCard
-                onClose={onClose}
-                onConfirm={handleSignOut}
-                isLoading={isLoading}
-                isDemo={isDemo}
-              />
-            </motion.div>
-          </div>
+      <div className="relative z-10 flex w-full items-center justify-center pointer-events-none">
+        <div
+          onClick={(event) => event.stopPropagation()}
+          className="pointer-events-auto relative shrink-0 w-136 min-w-80 sm:min-w-136 max-w-[90vw] animate-modal-content"
+        >
+          <SignOutCard
+            onClose={onClose}
+            onConfirm={handleSignOut}
+            isLoading={isLoading}
+            isDemo={isDemo}
+          />
         </div>
-      )}
-    </AnimatePresence>
+      </div>
+    </div>
     ,
     document.body,
   );
