@@ -40,7 +40,7 @@ export const Header = React.memo(function Header({
     "h-20 px-4 flex items-center justify-between sticky top-0 z-40 md:backdrop-blur-md border-b transition-colors duration-300 bg-white dark:bg-black md:bg-white/60 md:dark:bg-black/40 border-gray-200 dark:border-white/5";
 
   const themeButtonClassName =
-    "p-2 rounded-full transition-all duration-300 text-gray-500 hover:text-blue-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-yellow-400 dark:hover:bg-white/5";
+    "transition-all duration-300 text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-yellow-400 cursor-pointer";
 
   // Prevent hydration mismatch for icons/theme-dependent UI
   if (!isMounted) {
@@ -69,7 +69,7 @@ export const Header = React.memo(function Header({
         )}
       </div>
 
-      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+      <div className="flex items-center gap-5 sm:gap-6 shrink-0">
         {/* Feature Specific: Error Monitoring Controls */}
         {showErrorControls && (
           <div className="hidden md:flex items-center gap-2 animate-in fade-in slide-in-from-right-4 duration-500">
@@ -109,12 +109,12 @@ export const Header = React.memo(function Header({
           <>
             {/* Desktop auth buttons */}
             <div className="hidden sm:flex items-center gap-3 sm:gap-4">
-              <button
-                onClick={onShowLogin}
+              <Link
+                href="/?mode=signin"
                 className="text-xs font-semibold text-gray-600 transition-colors hover:text-gray-950 dark:text-gray-400 dark:hover:text-white sm:text-sm cursor-pointer"
               >
                 {tAuth("sign_in")}
-              </button>
+              </Link>
               <div className="h-6 w-px bg-gray-300 dark:bg-white/25" />
               <Link
                 href="/?mode=signup"
@@ -126,13 +126,13 @@ export const Header = React.memo(function Header({
             </div>
 
             {/* Mobile compact login icon */}
-            <button
-              onClick={onShowLogin}
-              className="flex sm:hidden p-2 rounded-full transition-all duration-300 text-gray-500 hover:text-blue-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-cyan-400 dark:hover:bg-white/5 cursor-pointer"
+            <Link
+              href="/?mode=signin"
+              className="flex sm:hidden transition-colors duration-300 text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-cyan-400 cursor-pointer"
               aria-label={tAuth("sign_in")}
             >
               <User size={20} />
-            </button>
+            </Link>
           </>
         )}
 
@@ -140,7 +140,7 @@ export const Header = React.memo(function Header({
 
         <button
           onClick={toggleTheme}
-          className={`${themeButtonClassName} sm:flex hidden`}
+          className={`${themeButtonClassName} sm:flex hidden items-center justify-center`}
           aria-label={tHeader("toggle_theme")}
         >
           <div className="relative w-5 h-5">

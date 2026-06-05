@@ -122,11 +122,11 @@ export const NotificationCenter = React.memo(function NotificationCenter() {
 
   const bellButtonClassName = useMemo(
     () =>
-      `relative p-2 rounded-full transition-all duration-300
+      `relative flex items-center justify-center transition-all duration-300 cursor-pointer
       ${
         isDark
-          ? "text-gray-300 hover:text-white hover:bg-white/10"
-          : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
+          ? "text-gray-400 hover:text-cyan-400"
+          : "text-gray-500 hover:text-blue-600"
       }`,
     [isDark],
   );

@@ -82,11 +82,10 @@ export function LocaleSwitcher({ align = "right" }: LocaleSwitcherProps) {
         onClick={() => setIsOpen((v) => !v)}
         disabled={isPending}
         className={`
-          group flex items-center gap-2 px-3 py-2.5 rounded-full
+          group flex items-center gap-1.5 px-3 h-10 rounded-full -mx-3
           transition-all duration-200
-          text-gray-700 hover:bg-gray-100
-          dark:text-gray-200 dark:hover:bg-white/10
-          ${isPending ? "opacity-70 cursor-wait" : ""}
+          hover:bg-gray-100 dark:hover:bg-white/10
+          ${isPending ? "opacity-70 cursor-wait" : "cursor-pointer"}
           ${isOpen ? "bg-gray-100 dark:bg-white/10" : ""}
         `}
         aria-haspopup="menu"
@@ -101,12 +100,14 @@ export function LocaleSwitcher({ align = "right" }: LocaleSwitcherProps) {
             className="w-4 h-4 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-colors"
           />
         )}
-        <span className="text-xs font-bold tracking-widest">{meta.label}</span>
+        <span className="text-xs font-bold tracking-widest text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
+          {meta.label}
+        </span>
         <CaretDown
           weight="bold"
           className={`
-            w-3 h-3 text-gray-400 dark:text-gray-500
-            transition-transform duration-200
+            w-3 h-3 text-gray-400 dark:text-gray-500 group-hover:text-gray-900 dark:group-hover:text-white
+            transition-all duration-200
             ${isOpen ? "rotate-180" : ""}
           `}
         />

@@ -102,13 +102,7 @@ export const AuthPage: React.FC = () => {
             className={`relative backdrop-blur-2xl rounded-3xl p-8 lg:p-10 shadow-2xl border ${isDark ? "bg-black/40 border-white/10" : "bg-white/90 border-white/20"}`}
             layout="size"
           >
-            <div
-              className={`absolute right-8 top-8 z-20 rounded-full border p-1 backdrop-blur-xl lg:right-10 lg:top-10 ${
-                isDark
-                  ? "border-white/10 bg-black/25"
-                  : "border-gray-200/80 bg-white/70"
-              }`}
-            >
+            <div className="absolute right-8 top-[46px] z-20 lg:right-10 lg:top-[54px]">
               <LocaleSwitcher align="right" />
             </div>
 
