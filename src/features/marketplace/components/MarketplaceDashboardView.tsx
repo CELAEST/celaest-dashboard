@@ -4,7 +4,6 @@ import React, { useRef, useState, useEffect } from "react";
 import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import dynamic from "next/dynamic";
 import { MarketplaceFilterSidebar } from "./MarketplaceFilterSidebar";
-import { MarketplacePublicHero } from "./MarketplacePublicHero";
 import { ProductCardCompact } from "./ProductCardCompact";
 import { ProductSkeleton } from "./ProductSkeleton";
 import { useMarketplaceProducts } from "../hooks/useMarketplaceProducts";
@@ -463,42 +462,12 @@ export function MarketplaceDashboardView() {
           ref={contentScrollRef}
           className="flex-1 overflow-y-auto custom-scrollbar bg-black"
         >
-          <MarketplacePublicHero />
-
-          <div
-            className="mx-auto mb-6 mt-8 flex max-w-7xl items-start justify-between gap-4 px-5"
-            id="marketplace-catalog"
-          >
-            <div>
-              <h2
-                className={`text-xl font-black sm:text-2xl ${
-                  isDark ? "text-white" : "text-gray-950"
-                }`}
-              >
-                {tMarketplace("available_solutions")}
-              </h2>
-              <p
-                className={`mt-1 text-xs sm:text-sm ${
-                  isDark ? "text-gray-400" : "text-gray-600"
-                }`}
-              >
-                {tMarketplace("every_product_includes")}
-              </p>
-            </div>
-            <div
-              className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold ${
-                isDark
-                  ? "border border-cyan-500/25 bg-cyan-500/10 text-cyan-300"
-                  : "border border-cyan-200 bg-cyan-50 text-cyan-700"
-              }`}
-            >
-              {tMarketplace("products_count", { count: products.length })}
-            </div>
-          </div>
-
           <AnimatePresence mode="wait">
             {isLoading ? (
-              <div className="grid grid-cols-1 gap-6 px-5 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3">
+              <div
+                id="marketplace-catalog"
+                className="grid grid-cols-1 gap-6 px-5 pt-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3"
+              >
                 {[...Array(12)].map((_, i) => (
                   <ProductSkeleton key={i} />
                 ))}
@@ -535,9 +504,10 @@ export function MarketplaceDashboardView() {
               </motion.div>
             ) : (
               <motion.div
+                id="marketplace-catalog"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="grid w-full grid-cols-1 gap-6 px-5 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3"
+                className="grid w-full grid-cols-1 gap-6 px-5 pt-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3"
               >
                 {visibleProducts.map((product) => {
                   const access = checkAccess(product);
