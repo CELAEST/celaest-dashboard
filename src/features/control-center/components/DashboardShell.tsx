@@ -85,6 +85,13 @@ export function DashboardShell() {
 
   const { user, isLoading } = useAuth();
 
+  // Redirect guest users to "marketplace" if they try to access any protected tab
+  useEffect(() => {
+    if (!isLoading && !user && activeTab !== "marketplace") {
+      navigateTo("marketplace");
+    }
+  }, [user, isLoading, activeTab, navigateTo]);
+
   const isGuest = !isLoading && !user;
   const authMode = searchParams.get("mode");
   const showAuthPage =
