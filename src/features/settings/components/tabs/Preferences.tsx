@@ -56,7 +56,9 @@ export function Preferences() {
       />
 
       {/* Interface Theme */}
-      <ThemeSettings currentTheme={currentTheme} onThemeChange={setTheme} />
+      {process.env.NODE_ENV !== "production" && (
+        <ThemeSettings currentTheme={currentTheme} onThemeChange={setTheme} />
+      )}
 
       {/* Save Button */}
       <div className="flex justify-end pb-8">

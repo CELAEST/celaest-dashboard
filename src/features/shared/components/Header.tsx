@@ -138,16 +138,18 @@ export const Header = React.memo(function Header({
 
         <LocaleSwitcher align="right" />
 
-        <button
-          onClick={toggleTheme}
-          className={`${themeButtonClassName} sm:flex hidden items-center justify-center`}
-          aria-label={tHeader("toggle_theme")}
-        >
-          <div className="relative w-5 h-5">
-            <Sun className="w-5 h-5 absolute top-0 left-0 transition-all duration-300 rotate-0 scale-100 dark:-rotate-90 dark:scale-0" />
-            <Moon className="w-5 h-5 absolute top-0 left-0 transition-all duration-300 rotate-90 scale-0 dark:rotate-0 dark:scale-100" />
-          </div>
-        </button>
+        {process.env.NODE_ENV !== "production" && (
+          <button
+            onClick={toggleTheme}
+            className={`${themeButtonClassName} sm:flex hidden items-center justify-center`}
+            aria-label={tHeader("toggle_theme")}
+          >
+            <div className="relative w-5 h-5">
+              <Sun className="w-5 h-5 absolute top-0 left-0 transition-all duration-300 rotate-0 scale-100 dark:-rotate-90 dark:scale-0" />
+              <Moon className="w-5 h-5 absolute top-0 left-0 transition-all duration-300 rotate-90 scale-0 dark:rotate-0 dark:scale-100" />
+            </div>
+          </button>
+        )}
 
         <NotificationCenter />
       </div>

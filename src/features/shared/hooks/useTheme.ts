@@ -12,9 +12,12 @@ export const useTheme = () => {
   const setTheme = useUIStore((state) => state.setTheme);
   const isMounted = useUIStore((state) => state.isMounted);
 
+  const isProduction = process.env.NODE_ENV === "production";
+
   // Determinar si estamos en modo oscuro
   // Nota: Esto se basa en el estado de Zustand, sincronizado por ThemeSync
   const isDark = useMemo(() => {
+    if (isProduction) return false;
     if (!isMounted) return false;
     if (theme === "system") {
       if (typeof window !== "undefined") {
@@ -23,10 +26,11 @@ export const useTheme = () => {
       return false;
     }
     return theme === "dark";
-  }, [theme, isMounted]);
+  }, [theme, isMounted, isProduction]);
 
   // Determinar el tema resuelto (claro u oscuro real)
   const resolvedTheme = useMemo(() => {
+    if (isProduction) return "light";
     if (!isMounted) return undefined;
     if (theme === "system") {
       if (typeof window !== "undefined") {
@@ -35,9 +39,10 @@ export const useTheme = () => {
       return "light";
     }
     return theme;
-  }, [theme, isMounted]);
+  }, [theme, isMounted, isProduction]);
 
   const toggleTheme = useCallback(() => {
+    if (isProduction) return;
     if (theme === "system") {
       // Si el sistema es oscuro, pasar explicitamente a claro. Viceversa.
       const systemIsDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -45,14 +50,14 @@ export const useTheme = () => {
     } else {
       setTheme(theme === "dark" ? "light" : "dark");
     }
-  }, [theme, setTheme]);
+  }, [theme, setTheme, isProduction]);
 
   return {
-    theme,
-    resolvedTheme,
+    theme: isProduction ? "light" : theme,
+    resolvedTheme: isProduction ? "light" : resolvedTheme,
     setTheme,
     toggleTheme,
-    isDark,
+    isDark: isProduction ? false : isDark,
     isMounted,
   };
 };

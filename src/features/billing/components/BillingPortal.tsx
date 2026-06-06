@@ -125,7 +125,7 @@ export const BillingPortal: React.FC = () => {
   }, [searchParams, router, refresh, session?.accessToken, t]);  const billingTabs =
     effectiveView === "customer" ? (
       <div
-        className={`flex items-center p-0.5 rounded-xl flex-grow sm:flex-grow-0 ${
+        className={`flex items-center p-0.5 rounded-xl grow sm:grow-0 ${
           isDark
             ? "bg-white/5 border border-white/10"
             : "bg-gray-100 border border-gray-200"
@@ -133,7 +133,7 @@ export const BillingPortal: React.FC = () => {
       >
         <button
           onClick={() => setActiveTab("overview")}
-          className={`flex-grow sm:flex-initial px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+          className={`grow sm:flex-initial px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
             activeTab === "overview"
               ? isDark
                 ? "bg-cyan-500/15 text-cyan-400"
@@ -148,7 +148,7 @@ export const BillingPortal: React.FC = () => {
         </button>
         <button
           onClick={() => setActiveTab("invoices")}
-          className={`flex-grow sm:flex-initial px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+          className={`grow sm:flex-initial px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
             activeTab === "invoices"
               ? isDark
                 ? "bg-amber-500/15 text-amber-400"
@@ -164,7 +164,7 @@ export const BillingPortal: React.FC = () => {
       </div>
     ) : (
       <div
-        className={`flex items-center p-0.5 rounded-xl flex-grow sm:flex-grow-0 ${
+        className={`flex items-center p-0.5 rounded-xl grow sm:grow-0 ${
           isDark
             ? "bg-white/5 border border-white/10"
             : "bg-gray-100 border border-gray-200"
@@ -172,7 +172,7 @@ export const BillingPortal: React.FC = () => {
       >
         <button
           onClick={() => setActiveAdminTab("overview")}
-          className={`flex-grow sm:flex-initial px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+          className={`grow sm:flex-initial px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
             activeAdminTab === "overview"
               ? isDark
                 ? "bg-purple-500/15 text-purple-400"
@@ -187,7 +187,7 @@ export const BillingPortal: React.FC = () => {
         </button>
         <button
           onClick={() => setActiveAdminTab("catalog")}
-          className={`flex-grow sm:flex-initial px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+          className={`grow sm:flex-initial px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
             activeAdminTab === "catalog"
               ? isDark
                 ? "bg-cyan-500/15 text-cyan-400"
@@ -202,7 +202,7 @@ export const BillingPortal: React.FC = () => {
         </button>
         <button
           onClick={() => setActiveAdminTab("controls")}
-          className={`flex-grow sm:flex-initial px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+          className={`grow sm:flex-initial px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
             activeAdminTab === "controls"
               ? isDark
                 ? "bg-amber-500/15 text-amber-400"

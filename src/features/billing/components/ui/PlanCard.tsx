@@ -223,7 +223,7 @@ export const PlanCard: React.FC<PlanCardProps> = ({
 
       {/* ── Description ── */}
       <p
-        className={`text-center text-xs xl:text-[13px] mt-3 leading-relaxed min-h-[2.5rem] ${isDark ? "text-gray-400" : "text-gray-500"}`}
+        className={`text-center text-xs xl:text-[13px] mt-3 leading-relaxed min-h-10 ${isDark ? "text-gray-400" : "text-gray-500"}`}
       >
         {plan.code && t.has(`desc_${plan.code}` as string) ? t(`desc_${plan.code}` as string) : plan.description}
       </p>

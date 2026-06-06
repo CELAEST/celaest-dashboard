@@ -214,7 +214,7 @@ export function DataTable<TData, TValue>({
   // ─── EMPTY STATE (shared) ───
   const emptyState = (
     <div className="flex flex-col items-center justify-center text-gray-500 space-y-3 py-16 px-4">
-      <div className={`p-4 rounded-2xl border ${isDark ? "bg-white/[0.03] text-gray-500 border-white/[0.06]" : "bg-gray-50 text-gray-400 border-gray-200"}`}>
+      <div className={`p-4 rounded-2xl border ${isDark ? "bg-white/3 text-gray-500 border-white/6" : "bg-gray-50 text-gray-400 border-gray-200"}`}>
         <Tray className="w-8 h-8" weight="light" />
       </div>
       <div className="space-y-1 text-center">
@@ -244,7 +244,7 @@ export function DataTable<TData, TValue>({
 
   // ─── FOOTER (shared) ───
   const footer = !hideFooter && data.length > 0 && (
-    <div className={`border-t px-4 py-2.5 ${isDark ? "border-white/[0.06] bg-white/[0.01]" : "border-gray-100 bg-gray-50/50"}`}>
+    <div className={`border-t px-4 py-2.5 ${isDark ? "border-white/6 bg-white/1" : "border-gray-100 bg-gray-50/50"}`}>
       <p className={`text-[11px] tabular-nums ${isDark ? "text-gray-500" : "text-gray-400"}`}>
         Showing {data.length} of {displayTotal} entries
       </p>
@@ -282,7 +282,7 @@ export function DataTable<TData, TValue>({
                     {row.getVisibleCells().map((cell: Cell<TData, unknown>, cellIdx) => {
                       const label = headerLabels[cellIdx] || "";
                       return (
-                        <div key={cell.id} className={`flex items-start justify-between gap-3 ${cellIdx === 0 ? "" : `pt-2.5 border-t ${isDark ? "border-white/[0.04]" : "border-gray-100"}`}`}>
+                        <div key={cell.id} className={`flex items-start justify-between gap-3 ${cellIdx === 0 ? "" : `pt-2.5 border-t ${isDark ? "border-white/4" : "border-gray-100"}`}`}>
                           {label && (
                             <span className={`${cardLabelCls} shrink-0 pt-0.5`}>
                               {label}
