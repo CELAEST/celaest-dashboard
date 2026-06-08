@@ -139,7 +139,7 @@ export function MarketplaceFilterSidebar({
                   whileHover={{ x: 3, scale: 1.01 }}
                   whileTap={{ scale: 0.97 }}
                   className={`
-                    w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-bold transition-all duration-200
+                    w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all duration-200
                     ${
                       selectedCategories.includes("all") ||
                       selectedCategories.length === 0
@@ -152,6 +152,7 @@ export function MarketplaceFilterSidebar({
                     }
                   `}
                 >
+                  <span className="text-left">{t("all_categories")}</span>
                   {(selectedCategories.includes("all") ||
                     selectedCategories.length === 0) && (
                     <motion.div
@@ -166,7 +167,6 @@ export function MarketplaceFilterSidebar({
                       <Check size={11} className="shrink-0" strokeWidth={3} />
                     </motion.div>
                   )}
-                  <span className="flex-1 text-left">{t("all_categories")}</span>
                 </motion.button>
 
                 {isLoadingCategories ? (
@@ -184,7 +184,7 @@ export function MarketplaceFilterSidebar({
                         whileHover={{ x: 3, scale: 1.01 }}
                         whileTap={{ scale: 0.97 }}
                         className={`
-                          w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-bold transition-all duration-200
+                          w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all duration-200
                           ${
                             isSelected
                               ? isDark
@@ -196,6 +196,7 @@ export function MarketplaceFilterSidebar({
                           }
                         `}
                       >
+                        <span className="text-left">{cat.name}</span>
                         {isSelected && (
                           <motion.div
                             initial={{ scale: 0, rotate: -180 }}
@@ -213,7 +214,6 @@ export function MarketplaceFilterSidebar({
                             />
                           </motion.div>
                         )}
-                        <span className="flex-1 text-left">{cat.name}</span>
                       </motion.button>
                     );
                   })
@@ -259,50 +259,66 @@ export function MarketplaceFilterSidebar({
                 exit={{ height: 0, opacity: 0 }}
                 className="space-y-0.5 mt-1 overflow-hidden"
               >
-                {[5, 4, 3, 0].map((rating) => (
-                  <motion.button
-                    key={rating}
-                    onClick={() => onRatingChange(rating)}
-                    whileHover={{ x: 3, scale: 1.01 }}
-                    whileTap={{ scale: 0.97 }}
-                    className={`
-                      w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-bold transition-all duration-200
-                      ${
-                        selectedRating === rating
-                          ? isDark
-                            ? "bg-amber-500/10 border border-amber-500/30 text-amber-400 shadow-lg shadow-amber-500/5"
-                            : "bg-amber-50 border border-amber-200 text-amber-700 shadow-sm"
-                          : isDark
-                            ? "text-gray-400 hover:bg-white/5 hover:text-white border border-transparent hover:border-white/10"
-                            : "text-gray-600 hover:bg-gray-50 border border-transparent hover:border-gray-200"
-                      }
-                    `}
-                  >
-                    {rating === 0 ? (
-                      <span>{t("all_ratings")}</span>
-                    ) : (
-                      <>
-                        <div className="flex items-center gap-0.5">
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              size={11}
-                              weight={i < rating ? "fill" : "regular"}
-                              className={
-                                i < rating
-                                  ? "text-yellow-500"
-                                  : isDark
-                                    ? "text-gray-600"
-                                    : "text-gray-300"
-                              }
-                            />
-                          ))}
+                {[5, 4, 3, 0].map((rating) => {
+                  const isSelected = selectedRating === rating;
+                  return (
+                    <motion.button
+                      key={rating}
+                      onClick={() => onRatingChange(rating)}
+                      whileHover={{ x: 3, scale: 1.01 }}
+                      whileTap={{ scale: 0.97 }}
+                      className={`
+                        w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all duration-200
+                        ${
+                          isSelected
+                            ? isDark
+                              ? "bg-amber-500/10 border border-amber-500/30 text-amber-400 shadow-lg shadow-amber-500/5"
+                              : "bg-amber-50 border border-amber-200 text-amber-700 shadow-sm"
+                            : isDark
+                              ? "text-gray-400 hover:bg-white/5 hover:text-white border border-transparent hover:border-white/10"
+                              : "text-gray-600 hover:bg-gray-50 border border-transparent hover:border-gray-200"
+                        }
+                      `}
+                    >
+                      {rating === 0 ? (
+                        <span className="text-left">{t("all_ratings")}</span>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-0.5">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                size={11}
+                                weight={i < rating ? "fill" : "regular"}
+                                className={
+                                  i < rating
+                                    ? "text-yellow-500"
+                                    : isDark
+                                      ? "text-gray-600"
+                                      : "text-gray-300"
+                                }
+                              />
+                            ))}
+                          </div>
+                          <span className="text-[10px] text-gray-500">{t("and_above")}</span>
                         </div>
-                        <span className="text-[10px]">{t("and_above")}</span>
-                      </>
-                    )}
-                  </motion.button>
-                ))}
+                      )}
+                      {isSelected && (
+                        <motion.div
+                          initial={{ scale: 0, rotate: -180 }}
+                          animate={{ scale: 1, rotate: 0 }}
+                          transition={{
+                            type: "spring",
+                            stiffness: 500,
+                            damping: 30,
+                          }}
+                        >
+                          <Check size={11} className="shrink-0" strokeWidth={3} />
+                        </motion.div>
+                      )}
+                    </motion.button>
+                  );
+                })}
               </motion.div>
             )}
           </AnimatePresence>
@@ -344,27 +360,47 @@ export function MarketplaceFilterSidebar({
                 exit={{ height: 0, opacity: 0 }}
                 className="space-y-0.5 mt-1 overflow-hidden"
               >
-                {PRICE_RANGES.map((price) => (
-                  <button
-                    key={price.id}
-                    onClick={() => onPriceRangeChange(price.id)}
-                    className={`
-                      w-full flex items-center gap-2 px-3 py-2 rounded-lg text-[11px] transition-all
-                      ${
-                        priceRange === price.id
-                          ? isDark
-                            ? "bg-emerald-500/10 border border-emerald-500/30 text-emerald-400"
-                            : "bg-emerald-50 border border-emerald-200 text-emerald-700"
-                          : isDark
-                            ? "text-gray-400 hover:bg-white/5 hover:text-white border border-transparent"
-                            : "text-gray-600 hover:bg-gray-50 border border-transparent"
-                      }
-                    `}
-                  >
-                    <CurrencyDollar size={10} className="shrink-0" />
-                    <span>{price.label}</span>
-                  </button>
-                ))}
+                {PRICE_RANGES.map((price) => {
+                  const isSelected = priceRange === price.id;
+                  return (
+                    <motion.button
+                      key={price.id}
+                      onClick={() => onPriceRangeChange(price.id)}
+                      whileHover={{ x: 3, scale: 1.01 }}
+                      whileTap={{ scale: 0.97 }}
+                      className={`
+                        w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all duration-200
+                        ${
+                          isSelected
+                            ? isDark
+                              ? "bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 shadow-lg shadow-emerald-500/5"
+                              : "bg-emerald-50 border border-emerald-200 text-emerald-700 shadow-sm"
+                            : isDark
+                              ? "text-gray-400 hover:bg-white/5 hover:text-white border border-transparent hover:border-white/10"
+                              : "text-gray-600 hover:bg-gray-50 border border-transparent hover:border-gray-200"
+                        }
+                      `}
+                    >
+                      <div className="flex items-center gap-2">
+                        <CurrencyDollar size={12} className="shrink-0" />
+                        <span>{price.label}</span>
+                      </div>
+                      {isSelected && (
+                        <motion.div
+                          initial={{ scale: 0, rotate: -180 }}
+                          animate={{ scale: 1, rotate: 0 }}
+                          transition={{
+                            type: "spring",
+                            stiffness: 500,
+                            damping: 30,
+                          }}
+                        >
+                          <Check size={11} className="shrink-0" strokeWidth={3} />
+                        </motion.div>
+                      )}
+                    </motion.button>
+                  );
+                })}
               </motion.div>
             )}
           </AnimatePresence>
