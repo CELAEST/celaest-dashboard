@@ -9,6 +9,8 @@ export interface Organization {
   role?: string;
   is_default?: boolean;
   is_system_default?: boolean;
+  logo_url?: string;
+  primary_color?: string;
 }
 
 interface OrgState {
@@ -103,8 +105,11 @@ export const useOrgStore = create<OrgState>()(
             }
           }
 
-          // If no org selected or current one is missing/blacklisted, pick default
-          if (!activeOrg || !list.some((o) => o.id === activeOrg.id)) {
+          // If active org exists in the fetched list, update its details in the store to pick up name/logo/styling changes
+          const updatedActiveOrg = activeOrg ? list.find((o) => o.id === activeOrg.id) : null;
+          if (updatedActiveOrg) {
+            set({ currentOrg: updatedActiveOrg });
+          } else {
             const defaultOrg = list.find((o) => o.is_default) ?? list[0];
             set({ currentOrg: defaultOrg ?? null });
           }

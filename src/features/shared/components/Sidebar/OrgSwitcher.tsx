@@ -125,13 +125,33 @@ export function OrgSwitcher({ isExpanded }: OrgSwitcherProps) {
       >
         {/* Org avatar */}
         <div
-          className={`shrink-0 w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold ${
-            isDark
-              ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30"
-              : "bg-blue-100 text-blue-700 border border-blue-200"
+          className={`shrink-0 w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold overflow-hidden ${
+            !currentOrg?.primary_color
+              ? isDark
+                ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30"
+                : "bg-blue-100 text-blue-700 border border-blue-200"
+              : "border"
           }`}
+          style={
+            currentOrg?.primary_color
+              ? {
+                  backgroundColor: `${currentOrg.primary_color}20`,
+                  color: currentOrg.primary_color,
+                  borderColor: `${currentOrg.primary_color}30`,
+                }
+              : undefined
+          }
         >
-          {currentOrg ? (
+          {currentOrg?.logo_url ? (
+            <img
+              src={currentOrg.logo_url}
+              alt={currentOrg.name}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).style.display = "none";
+              }}
+            />
+          ) : currentOrg ? (
             getOrgInitials(currentOrg.name)
           ) : (
             <Buildings size={16} />
@@ -212,17 +232,38 @@ export function OrgSwitcher({ isExpanded }: OrgSwitcherProps) {
                   }`}
                 >
                   <div
-                    className={`shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold ${
-                      currentOrg?.id === org.id
-                        ? isDark
-                          ? "bg-cyan-500/20 text-cyan-400"
-                          : "bg-blue-100 text-blue-700"
-                        : isDark
-                          ? "bg-white/10 text-gray-400"
-                          : "bg-gray-100 text-gray-500"
+                    className={`shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold overflow-hidden ${
+                      !org.primary_color
+                        ? currentOrg?.id === org.id
+                          ? isDark
+                            ? "bg-cyan-500/20 text-cyan-400"
+                            : "bg-blue-100 text-blue-700"
+                          : isDark
+                            ? "bg-white/10 text-gray-400"
+                            : "bg-gray-100 text-gray-500"
+                        : ""
                     }`}
+                    style={
+                      org.primary_color
+                        ? {
+                            backgroundColor: `${org.primary_color}20`,
+                            color: org.primary_color,
+                          }
+                        : undefined
+                    }
                   >
-                    {getOrgInitials(org.name)}
+                    {org.logo_url ? (
+                      <img
+                        src={org.logo_url}
+                        alt={org.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      getOrgInitials(org.name)
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{org.name}</p>
