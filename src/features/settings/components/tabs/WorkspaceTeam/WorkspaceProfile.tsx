@@ -35,6 +35,7 @@ export const WorkspaceProfile: React.FC<WorkspaceProfileProps> = memo(
     const { session } = useAuthStore();
     const t = useTranslations("settings");
     const [isFetchingSettings, setIsFetchingSettings] = useState(false);
+    const colorPickerRef = React.useRef<HTMLInputElement>(null);
 
     const form = useForm<WorkspaceProfileFormData>({
       resolver: zodResolver(workspaceProfileSchema),
@@ -303,15 +304,31 @@ export const WorkspaceProfile: React.FC<WorkspaceProfileProps> = memo(
                     <FormItem>
                       <FormLabel>{t("primary_action_color")}</FormLabel>
                       <div className="flex gap-4 items-start">
-                        <div
-                          className={`w-12 h-12 rounded-xl border shrink-0 flex items-center justify-center shadow-inner ${isDark ? "border-white/10" : "border-gray-200"}`}
+                        <input
+                          type="color"
+                          ref={colorPickerRef}
+                          value={field.value || "#0ea5e9"}
+                          onChange={(e) => field.onChange(e.target.value)}
+                          disabled={readOnly}
+                          className="sr-only hidden"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!readOnly) colorPickerRef.current?.click();
+                          }}
+                          disabled={readOnly}
+                          className={`w-12 h-12 rounded-xl border shrink-0 flex items-center justify-center shadow-inner transition-all hover:scale-105 active:scale-95 cursor-pointer ${
+                            isDark ? "border-white/10" : "border-gray-200"
+                          } ${readOnly ? "cursor-not-allowed opacity-50" : ""}`}
                           style={{ backgroundColor: currentPrimaryColor }}
+                          title={t("choose_color")}
                         >
                           <Palette
                             size={20}
                             className="text-white mix-blend-difference opacity-70"
                           />
-                        </div>
+                        </button>
                         <div className="flex-1">
                           <FormControl>
                             <Input

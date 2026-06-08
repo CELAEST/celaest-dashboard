@@ -1171,6 +1171,7 @@
     "brand_identity": "Brand Identity",
     "brand_logo_url": "Brand Logo URL",
     "primary_action_color": "Primary Action Color (Hex)",
+    "choose_color": "Choose color",
     "update_password": "Update Password",
     "current_password": "Current Password",
     "new_password": "New Password",
