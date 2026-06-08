@@ -30,7 +30,7 @@ export const settingsApi = {
   },
 
   updateOrganization: async (orgId: string, data: { name: string; slug: string }, token: string): Promise<void> => {
-    await api.put(`/api/v1/user/organizations/${orgId}`, data, { token });
+    await api.put(`/api/v1/org/organizations/${orgId}`, data, { token, orgId });
   },
 
   getPreferences: async (token: string): Promise<PreferencesResponse> => {

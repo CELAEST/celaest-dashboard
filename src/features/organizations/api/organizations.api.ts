@@ -38,7 +38,7 @@ export const organizationsApi = {
     api.get<Organization[]>("/api/v1/org/organizations", { token, schema: organizationListSchema }),
   
   get: (token: string, id: string) => 
-    api.get<Organization>(`/api/v1/org/organizations/${id}`, { token }),
+    api.get<Organization>(`/api/v1/org/organizations/${id}`, { token, orgId: id }),
     
   getCurrent: (token: string) => 
     api.get<Organization>("/api/v1/org/organizations/current", { token }),
@@ -50,10 +50,10 @@ export const organizationsApi = {
     api.post<Organization>("/api/v1/org/organizations", data, { token }),
     
   update: (token: string, id: string, data: UpdateOrganizationInput) => 
-    api.put<Organization>(`/api/v1/org/organizations/${id}`, data, { token }),
+    api.put<Organization>(`/api/v1/org/organizations/${id}`, data, { token, orgId: id }),
     
   delete: (token: string, id: string) => 
-    api.delete(`/api/v1/org/organizations/${id}`, { token }),
+    api.delete(`/api/v1/org/organizations/${id}`, { token, orgId: id }),
 
   // Member Management
   listMembers: (token: string, orgId: string) => 
