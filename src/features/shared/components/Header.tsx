@@ -26,7 +26,6 @@ interface HeaderProps {
 }
 
 export const Header = React.memo(function Header({
-  onShowLogin,
   onMenuClick,
 }: HeaderProps) {
   const { toggleTheme, isMounted } = useTheme();

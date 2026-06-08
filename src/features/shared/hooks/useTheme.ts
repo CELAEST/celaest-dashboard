@@ -17,7 +17,7 @@ export const useTheme = () => {
   // Determinar si estamos en modo oscuro
   // Nota: Esto se basa en el estado de Zustand, sincronizado por ThemeSync
   const isDark = useMemo(() => {
-    if (isProduction) return false;
+    if (isProduction) return true;
     if (!isMounted) return false;
     if (theme === "system") {
       if (typeof window !== "undefined") {
@@ -30,7 +30,7 @@ export const useTheme = () => {
 
   // Determinar el tema resuelto (claro u oscuro real)
   const resolvedTheme = useMemo(() => {
-    if (isProduction) return "light";
+    if (isProduction) return "dark";
     if (!isMounted) return undefined;
     if (theme === "system") {
       if (typeof window !== "undefined") {
@@ -53,11 +53,11 @@ export const useTheme = () => {
   }, [theme, setTheme, isProduction]);
 
   return {
-    theme: isProduction ? "light" : theme,
-    resolvedTheme: isProduction ? "light" : resolvedTheme,
+    theme: isProduction ? "dark" : theme,
+    resolvedTheme: isProduction ? "dark" : resolvedTheme,
     setTheme,
     toggleTheme,
-    isDark: isProduction ? false : isDark,
+    isDark: isProduction ? true : isDark,
     isMounted,
   };
 };

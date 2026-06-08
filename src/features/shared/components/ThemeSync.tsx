@@ -20,7 +20,7 @@ export const ThemeSync = () => {
       root.classList.remove("light", "dark");
 
       if (process.env.NODE_ENV === "production") {
-        root.classList.add("light");
+        root.classList.add("dark");
         return;
       }
 
