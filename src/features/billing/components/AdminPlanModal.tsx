@@ -19,12 +19,18 @@ interface AdminPlanModalProps {
 interface PlanFormData {
   name: string;
   code: string;
+  description: string;
   priceMonthly: number;
   priceYearly: number;
   currency: string;
   sortOrder: number;
   isPublic: boolean;
   isActive: boolean;
+  tier: number;
+  maxAiRequests: number;
+  maxTeamMembers: number;
+  maxStorageGb: number;
+  featuresString: string;
 }
 
 export const AdminPlanModal: React.FC<AdminPlanModalProps> = ({
@@ -47,12 +53,18 @@ export const AdminPlanModal: React.FC<AdminPlanModalProps> = ({
     defaultValues: {
       name: "",
       code: "",
+      description: "",
       priceMonthly: 0,
       priceYearly: 0,
       currency: "usd",
       sortOrder: 0,
       isPublic: true,
       isActive: true,
+      tier: 1,
+      maxAiRequests: -1,
+      maxTeamMembers: -1,
+      maxStorageGb: -1,
+      featuresString: "",
     },
   });
 
@@ -61,23 +73,35 @@ export const AdminPlanModal: React.FC<AdminPlanModalProps> = ({
       reset({
         name: plan.name,
         code: plan.code,
+        description: plan.description || "",
         priceMonthly: plan.price_monthly || 0,
         priceYearly: plan.price_yearly || 0,
         currency: plan.currency || "usd",
         sortOrder: plan.sort_order || 0,
         isPublic: plan.is_public ?? true,
         isActive: plan.is_active ?? true,
+        tier: plan.tier || 1,
+        maxAiRequests: (plan.limits?.max_ai_requests_per_month as number) ?? -1,
+        maxTeamMembers: (plan.limits?.max_team_members as number) ?? -1,
+        maxStorageGb: (plan.limits?.max_storage_gb as number) ?? -1,
+        featuresString: (plan.features || []).join("\n"),
       });
     } else if (!plan && isOpen) {
       reset({
         name: "",
         code: "",
+        description: "",
         priceMonthly: 0,
         priceYearly: 0,
         currency: "usd",
         sortOrder: 0,
         isPublic: true,
         isActive: true,
+        tier: 1,
+        maxAiRequests: -1,
+        maxTeamMembers: -1,
+        maxStorageGb: -1,
+        featuresString: "",
       });
     }
   }, [plan, isOpen, reset]);
@@ -87,12 +111,23 @@ export const AdminPlanModal: React.FC<AdminPlanModalProps> = ({
       const payload = {
         name: data.name,
         code: data.code,
+        description: data.description || "",
         price_monthly: Number(data.priceMonthly),
         price_yearly: Number(data.priceYearly),
         currency: data.currency,
         sort_order: Number(data.sortOrder),
         is_public: data.isPublic,
         is_active: data.isActive,
+        tier: Number(data.tier),
+        limits: {
+          max_ai_requests_per_month: Number(data.maxAiRequests),
+          max_team_members: Number(data.maxTeamMembers),
+          max_storage_gb: Number(data.maxStorageGb),
+        },
+        features: data.featuresString
+          .split("\n")
+          .map((f) => f.trim())
+          .filter((f) => f.length > 0),
       };
 
       if (isEditing) {
@@ -194,6 +229,16 @@ export const AdminPlanModal: React.FC<AdminPlanModalProps> = ({
             </div>
           </div>
 
+          <div className="space-y-2">
+            <label className="text-[10px] uppercase font-black tracking-widest text-white/40">Descripción</label>
+            <textarea
+              rows={2}
+              className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-white text-sm focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/20 transition-colors placeholder:text-white/20 resize-none"
+              placeholder="e.g. Plan para equipos en crecimiento con mayores requerimientos"
+              {...register("description")}
+            />
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-[10px] uppercase font-black tracking-widest text-white/40">{t("monthly_price")}</label>
@@ -224,7 +269,18 @@ export const AdminPlanModal: React.FC<AdminPlanModalProps> = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <label className="text-[10px] uppercase font-black tracking-widest text-white/40">Nivel (Tier)</label>
+              <select
+                className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-white text-sm focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/20 transition-colors [&>option]:bg-zinc-950"
+                {...register("tier")}
+              >
+                <option value={1}>1 - Starter</option>
+                <option value={2}>2 - Pro</option>
+                <option value={3}>3 - Enterprise</option>
+              </select>
+            </div>
             <div className="space-y-2">
               <label className="text-[10px] uppercase font-black tracking-widest text-white/40">{t("sort_order")}</label>
               <input
@@ -241,6 +297,46 @@ export const AdminPlanModal: React.FC<AdminPlanModalProps> = ({
                 {...register("currency")}
               />
             </div>
+          </div>
+
+          <div className="pt-2 border-t border-white/5">
+            <h3 className="text-[10px] uppercase font-black tracking-widest text-teal-400 mb-3">Límites del Plan</h3>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <label className="text-[10px] uppercase font-black tracking-widest text-white/40">Sol. IA (-1 = Ilimitado)</label>
+                <input
+                  type="number"
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-white text-sm font-mono focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/20 transition-colors placeholder:text-white/20"
+                  {...register("maxAiRequests")}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] uppercase font-black tracking-widest text-white/40">Miembros (-1 = Ilimitado)</label>
+                <input
+                  type="number"
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-white text-sm font-mono focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/20 transition-colors placeholder:text-white/20"
+                  {...register("maxTeamMembers")}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] uppercase font-black tracking-widest text-white/40">Gigas (-1 = Ilimitado)</label>
+                <input
+                  type="number"
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-white text-sm font-mono focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/20 transition-colors placeholder:text-white/20"
+                  {...register("maxStorageGb")}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-2 border-t border-white/5 pt-4">
+            <label className="text-[10px] uppercase font-black tracking-widest text-white/40">Características (Una por línea)</label>
+            <textarea
+              rows={4}
+              className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-white text-sm focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/20 transition-colors placeholder:text-white/20"
+              placeholder="e.g.&#10;100 solicitudes de IA/mes&#10;1 modelo de IA&#10;Hasta 3 productos"
+              {...register("featuresString")}
+            />
           </div>
 
           {/* Toggle: Public */}
