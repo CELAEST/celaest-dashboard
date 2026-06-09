@@ -24,7 +24,6 @@ const getFeatureComponent = (
   id: string,
   loadFn: () => Promise<{ default: React.ComponentType }>,
   ssr: boolean,
-  skeletonType: FeatureSkeletonType,
 ) => {
   if (!featureCache.has(id)) {
     const Component = dynamic(loadFn, {
@@ -61,9 +60,8 @@ export const FeatureLoader: React.FC<FeatureLoaderProps> = ({
         featureConfig.id,
         featureConfig.load,
         featureConfig.ssr ?? true,
-        featureConfig.skeleton ?? "table",
       ),
-    [featureConfig.id, featureConfig.load, featureConfig.ssr, featureConfig.skeleton],
+    [featureConfig.id, featureConfig.load, featureConfig.ssr],
   );
 
   // Check Permissions

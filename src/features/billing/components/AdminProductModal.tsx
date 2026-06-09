@@ -108,6 +108,7 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
   // YouTube CDN thumbnail. No network cost beyond the single ~15 KB image.
   // No `useMemo` here because `watch()` is intentionally non-memoizable
   // (re-fires on every form change) and the regex is sub-microsecond.
+  // eslint-disable-next-line react-hooks/incompatible-library
   const watchedYoutubeUrl = watch("youtubeUrl") ?? "";
   const previewVideoId = extractYouTubeId(watchedYoutubeUrl);
   const youtubeError =

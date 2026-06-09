@@ -143,6 +143,7 @@ export function OrgSwitcher({ isExpanded }: OrgSwitcherProps) {
           }
         >
           {currentOrg?.logo_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={currentOrg.logo_url}
               alt={currentOrg.name}
@@ -253,6 +254,7 @@ export function OrgSwitcher({ isExpanded }: OrgSwitcherProps) {
                     }
                   >
                     {org.logo_url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={org.logo_url}
                         alt={org.name}
