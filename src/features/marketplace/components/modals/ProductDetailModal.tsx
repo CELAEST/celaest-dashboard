@@ -183,9 +183,9 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           </div>
 
           <div className="flex-1 overflow-y-auto scroll-smooth">
-            <div className="flex flex-col lg:grid lg:grid-cols-3 gap-6 p-4 sm:p-6 pb-8">
-              {/* Main Content */}
-              <div className="lg:col-span-2 space-y-6">
+            <div className="flex flex-col lg:grid lg:grid-cols-3 lg:items-start gap-6 p-4 sm:p-6 pb-8">
+              {/* Left Column (Image/Video + Tabs on Desktop) */}
+              <div className="lg:col-span-2 flex flex-col gap-6">
                 {/* Product preview */}
                 {product.youtube_video_id ? (
                   <div className="w-full rounded-card sm:rounded-2xl overflow-hidden bg-black aspect-video ring-1 ring-white/5">
@@ -200,17 +200,27 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   <div
                     className={`relative aspect-video rounded-card sm:rounded-2xl overflow-hidden bg-[#111] dark:bg-[#111] ring-1 ring-white/5 ${loading ? "animate-pulse" : ""}`}
                   >
-                  <ImageWithFallback
-                    src={product.thumbnail_url || ""}
-                    alt={product.name}
-                    fill
-                    className={`object-cover transition-opacity duration-300 ${loading ? "opacity-50" : "opacity-100"}`}
+                    <ImageWithFallback
+                      src={product.thumbnail_url || ""}
+                      alt={product.name}
+                      fill
+                      className={`object-cover transition-opacity duration-300 ${loading ? "opacity-50" : "opacity-100"}`}
+                    />
+                  </div>
+                )}
+
+                {/* Tabs/Description (Desktop) */}
+                <div className="hidden lg:block w-full">
+                  <ProductModalTabs
+                    product={product}
+                    activeTab={activeTab}
+                    setActiveTab={setActiveTab}
                   />
                 </div>
-              )}
+              </div>
 
-              {/* Sidebar structurally grouped for mobile under video */}
-              <div className="lg:hidden w-full pt-2 pb-2">
+              {/* Right Column (Sidebar on Desktop & Mobile, plus Tabs on Mobile) */}
+              <div className="lg:col-span-1 flex flex-col gap-6">
                 <ProductModalSidebar
                   product={product}
                   onPurchase={onPurchase}
@@ -219,29 +229,17 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   onDownload={onDownload}
                   onViewLicense={onViewLicense}
                 />
-              </div>
 
-              <div className="w-full">
-                <ProductModalTabs
-                  product={product}
-                  activeTab={activeTab}
-                  setActiveTab={setActiveTab}
-                />
+                {/* Tabs/Description (Mobile) */}
+                <div className="lg:hidden w-full">
+                  <ProductModalTabs
+                    product={product}
+                    activeTab={activeTab}
+                    setActiveTab={setActiveTab}
+                  />
+                </div>
               </div>
             </div>
-
-            {/* Sidebar (Desktop) */}
-            <div className="hidden lg:block lg:col-span-1">
-              <ProductModalSidebar
-                product={product}
-                onPurchase={onPurchase}
-                isOwned={isOwned}
-                accessLevel={accessLevel}
-                onDownload={onDownload}
-                onViewLicense={onViewLicense}
-              />
-            </div>
-          </div>
           </div>
         </div>
       </div>,

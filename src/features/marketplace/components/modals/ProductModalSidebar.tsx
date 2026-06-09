@@ -72,7 +72,7 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
     : formatCurrency(finalPrice, product.currency);
 
   return (
-    <div className="sticky top-24 space-y-4">
+    <div className="lg:sticky lg:top-6 space-y-4">
       {/* Price Card / Ownership Card */}
       <div
         className={`
