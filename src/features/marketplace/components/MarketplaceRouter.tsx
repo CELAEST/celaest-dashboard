@@ -6,26 +6,12 @@ import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 
 const MarketplaceDashboardView = dynamic(
   () => import("./MarketplaceDashboardView").then((m) => m.MarketplaceDashboardView),
-  {
-    loading: () => (
-      <div className="min-h-[50vh] flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin" />
-      </div>
-    ),
-    ssr: false,
-  }
+  { ssr: false }
 );
 
 const MarketplacePublicView = dynamic(
   () => import("./MarketplacePublicView").then((m) => m.MarketplacePublicView),
-  {
-    loading: () => (
-      <div className="min-h-[50vh] flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin" />
-      </div>
-    ),
-    ssr: false,
-  }
+  { ssr: false }
 );
 
 /**
@@ -61,31 +47,19 @@ function checkAuthSignals(): boolean {
  * Smart Marketplace Router
  *
  * Automatically renders the appropriate Marketplace version based on auth state:
- * - NOT authenticated (Guest) → MarketplacePublicView (Public/Marketing with full scroll)
- * - Authenticated → MarketplaceDashboardView (Operational with zero-scroll)
- *
- * Guarantees zero flash of MarketplacePublicView during login, OAuth redirects,
- * or authenticated reloads.
+ * - Authenticated OR Auth in progress → MarketplaceDashboardView (renders natural ProductSkeleton)
+ * - NOT authenticated (Guest) → MarketplacePublicView
  */
 export function MarketplaceRouter() {
-  const { isAuthenticated, isLoading } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const hasAuthSignal = checkAuthSignals();
 
-  // If already confirmed authenticated, render internal store immediately
-  if (isAuthenticated) {
+  // Si está autenticado o hay sesión/OAuth en curso, renderiza directamente la tienda interna.
+  // MarketplaceDashboardView ya renderiza directamente su propio ProductSkeleton integrado.
+  if (isAuthenticated || hasAuthSignal) {
     return <MarketplaceDashboardView />;
   }
 
-  // If there are signals that a session exists or OAuth is in-flight, but auth is still loading,
-  // do NOT prematurely render MarketplacePublicView (avoids external store flash).
-  if (isLoading || hasAuthSignal) {
-    return (
-      <div className="min-h-[50vh] flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  // Pure unauthenticated guest: render public external store
+  // Visitante no autenticado (guest)
   return <MarketplacePublicView />;
 }

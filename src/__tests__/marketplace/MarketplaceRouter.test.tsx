@@ -53,7 +53,7 @@ describe("MarketplaceRouter Anti-Flash", () => {
     expect(screen.queryByTestId("internal-store")).toBeNull();
   });
 
-  it("renders loading spinner and DOES NOT render external store when OAuth code is in URL", () => {
+  it("renders internal store directly and DOES NOT render external store when OAuth code is in URL", async () => {
     window.location = new URL("http://localhost:3000/?code=oauth-auth-code-123") as unknown as Location;
 
     mockUseAuthStore.mockReturnValue({
@@ -61,16 +61,14 @@ describe("MarketplaceRouter Anti-Flash", () => {
       isLoading: true,
     });
 
-    const { container } = render(<MarketplaceRouter />);
+    render(<MarketplaceRouter />);
 
-    // Must NOT render external store (prevents the glitch)
+    // Must directly render internal store (which handles its own ProductSkeleton)
+    expect(await screen.findByTestId("internal-store")).toBeDefined();
     expect(screen.queryByTestId("external-store")).toBeNull();
-    expect(screen.queryByTestId("internal-store")).toBeNull();
-    // Must render the spinner
-    expect(container.querySelector(".animate-spin")).not.toBeNull();
   });
 
-  it("renders loading spinner and DOES NOT render external store when localStorage has saved auth and store is loading", () => {
+  it("renders internal store directly and DOES NOT render external store when localStorage has saved auth", async () => {
     localStorage.setItem(
       "celaest-auth-storage",
       JSON.stringify({ state: { isAuthenticated: true, user: { id: "123" } } })
@@ -81,11 +79,10 @@ describe("MarketplaceRouter Anti-Flash", () => {
       isLoading: true,
     });
 
-    const { container } = render(<MarketplaceRouter />);
+    render(<MarketplaceRouter />);
 
-    // Must NOT render external store
+    // Must directly render internal store without external store flicker
+    expect(await screen.findByTestId("internal-store")).toBeDefined();
     expect(screen.queryByTestId("external-store")).toBeNull();
-    expect(screen.queryByTestId("internal-store")).toBeNull();
-    expect(container.querySelector(".animate-spin")).not.toBeNull();
   });
 });
