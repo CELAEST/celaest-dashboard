@@ -4,7 +4,7 @@ import { logger } from "@/lib/logger";
 import { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { SupabaseClient } from "@supabase/supabase-js";
-import { AuthActions, AuthResult, AuthSession } from "../lib/types";
+import { AuthActions, AuthResult, AuthSession, AuthUser } from "../lib/types";
 
 import { getAuthErrorMessage } from "../lib/errors";
 import { mapSupabaseUser } from "../lib/mappers";
@@ -25,9 +25,40 @@ export function useAuthActions(
 
         if (response.access_token && supabase) {
           // Sincronizar el cliente de Supabase con el token recibido del backend
-          await supabase.auth.setSession({
+          const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
             access_token: response.access_token,
             refresh_token: response.refresh_token,
+          });
+
+          if (sessionError) {
+            return {
+              success: false,
+              error: { code: "UNKNOWN_ERROR", message: getAuthErrorMessage(sessionError) },
+            };
+          }
+
+          // Sincronizar inmediatamente el store para evitar parpadeos de renderizado
+          const userObj: AuthUser = sessionData?.session?.user
+            ? mapSupabaseUser(sessionData.session.user)
+            : {
+                id: response.user?.id || "user",
+                email: response.user?.email || email.trim().toLowerCase(),
+                name: response.user?.name || email.split("@")[0],
+                avatarUrl: response.user?.avatar_url,
+                role: "client",
+                permissions: [],
+                emailVerified: true,
+                createdAt: new Date().toISOString(),
+              };
+
+          useAuthStore.getState().setAuth({
+            user: userObj,
+            session: {
+              user: userObj,
+              accessToken: response.access_token,
+              refreshToken: response.refresh_token,
+              expiresAt: Math.floor(Date.now() / 1000) + (response.expires_in || 3600),
+            },
           });
 
           return { success: true };
@@ -89,6 +120,18 @@ export function useAuthActions(
         }
 
         if (data.user) {
+          if (data.session) {
+            const mappedUser = mapSupabaseUser(data.user);
+            useAuthStore.getState().setAuth({
+              user: mappedUser,
+              session: {
+                user: mappedUser,
+                accessToken: data.session.access_token,
+                refreshToken: data.session.refresh_token,
+                expiresAt: data.session.expires_at || 0,
+              },
+            });
+          }
           return { success: true };
         }
 

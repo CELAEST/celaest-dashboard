@@ -149,9 +149,14 @@ export function useAuthSession() {
           return;
         }
 
+        // Fast-path: Sincronizar inmediatamente con currentSession para eliminar latencia en la UI
+        if (currentSession.user) {
+          syncSession(currentSession);
+        }
+
         void supabase.auth.getUser().then(({ data, error }) => {
           if (error || !data.user) {
-            syncSession(null);
+            if (!currentSession.user) syncSession(null);
             return;
           }
           syncSession(buildVerifiedSession(currentSession, data.user));

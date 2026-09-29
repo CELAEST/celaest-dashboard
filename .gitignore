@@ -72,3 +72,4 @@ compile_errors*.txt
 deleted.txt
 login_res.json
 eslint.json
+.serena/

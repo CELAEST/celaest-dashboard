@@ -54,7 +54,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureConfig> = {
         }),
       ),
     access: "public",
-    ssr: true,
+    ssr: false,
     skeleton: "none",
   },
   licensing: {
