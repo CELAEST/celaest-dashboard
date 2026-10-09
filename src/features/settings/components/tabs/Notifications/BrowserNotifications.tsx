@@ -27,25 +27,21 @@ export const BrowserNotifications: React.FC = memo(() => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4 text-left">
           <div
-            className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-sm transition-colors shrink-0 ${
-              isDark ? "bg-blue-500/10" : "bg-blue-50"
+            className={`w-10 h-10 rounded-xl flex items-center justify-center border transition-colors shrink-0 ${
+              isDark ? "bg-white/[0.04] border-white/10 text-white/70" : "bg-gray-100 border-gray-200 text-gray-700"
             }`}
           >
-            <Globe
-              className={`w-6 h-6 ${
-                isDark ? "text-blue-400" : "text-blue-600"
-              }`}
-            />
+            <Globe className="w-5 h-5" />
           </div>
           <div>
             <p
-              className={`font-bold ${isDark ? "text-white" : "text-gray-900"}`}
+              className={`font-bold font-jakarta text-sm ${isDark ? "text-white" : "text-gray-900"}`}
             >
               {t("browser_notifications")}
             </p>
             <p
-              className={`text-sm ${
-                isDark ? "text-gray-500" : "text-gray-400"
+              className={`text-xs mt-0.5 ${
+                isDark ? "text-white/50" : "text-gray-500"
               }`}
             >
               {t("browser_notifications_desc")}
@@ -54,7 +50,7 @@ export const BrowserNotifications: React.FC = memo(() => {
         </div>
         <button
           onClick={handleRequestPermission}
-          className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-black tracking-widest active:scale-95 transition-all text-center"
+          className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-white text-zinc-900 font-jakarta text-xs font-semibold hover:bg-neutral-200 active:scale-[0.98] transition-all shadow-md cursor-pointer text-center"
         >
           {t("enable_browser_alerts")}
         </button>

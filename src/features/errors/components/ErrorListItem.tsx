@@ -4,7 +4,6 @@ import {
   Clock,
   Code,
   Monitor,
-  TrendDown,
   CaretDown,
   CaretUp,
 } from "@phosphor-icons/react";
@@ -39,46 +38,49 @@ export const ErrorListItem = React.memo(
 
     return (
       <motion.li
-        initial={{ opacity: 0, y: 15 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.98 }}
-        transition={{ delay: index * 0.03 }}
-        className={`group backdrop-blur-xl border rounded-xl overflow-hidden list-none transition-all duration-300 ${
-          isDark
-            ? "bg-[#0a0a0a]/60 border-white/5 hover:border-white/10"
-            : "bg-white border-gray-200 shadow-sm hover:shadow-md"
-        } ${isExpanded ? "ring-2 ring-cyan-500/30" : ""}`}
+        transition={{ delay: Math.min(index * 0.02, 0.2) }}
+        className={`rounded-xl border transition-all duration-200 overflow-hidden list-none ${
+          isExpanded
+            ? isDark
+              ? "bg-[#080c14] border-white/15 ring-1 ring-white/10 shadow-lg"
+              : "bg-white border-gray-300 ring-1 ring-gray-200 shadow-md"
+            : isDark
+              ? "bg-[#080c14]/70 border-white/6 hover:border-white/12"
+              : "bg-white border-gray-200 hover:border-gray-300 shadow-xs"
+        }`}
       >
         <button
-          className={`w-full text-left p-5 cursor-pointer transition-colors outline-none ${
-            isExpanded ? (isDark ? "bg-white/2" : "bg-gray-50/50") : ""
+          type="button"
+          className={`w-full text-left p-4 sm:p-5 cursor-pointer transition-colors outline-none flex items-start justify-between gap-4 ${
+            isExpanded ? (isDark ? "bg-white/[0.02]" : "bg-gray-50/40") : ""
           }`}
           onClick={() => toggleErrorExpansion(error.id)}
           aria-expanded={isExpanded}
           aria-controls={`error-details-${error.id}`}
         >
-          <div className="flex items-start justify-between gap-6">
+          <div className="flex items-start gap-3.5 min-w-0">
             {/* Left: Severity Indicator Line */}
             <div
-              className={`w-1.5 h-12 rounded-full shrink-0 ${
+              className={`w-1.5 h-11 rounded-full shrink-0 ${
                 error.severity === "critical"
-                  ? "bg-red-500 shadow-[0_0_12px_rgba(239,68,68,0.5)]"
+                  ? "bg-red-500/80"
                   : error.severity === "warning"
-                    ? "bg-orange-500"
-                    : error.severity === "info"
-                      ? "bg-blue-500"
-                      : "bg-gray-500"
+                    ? isDark ? "bg-white/40" : "bg-amber-500"
+                    : isDark ? "bg-white/20" : "bg-gray-300"
               }`}
             />
 
-            <div className="flex-1 min-w-0">
+            <div className="space-y-1.5 min-w-0">
               {/* Metadata Header */}
-              <div className="flex items-center flex-wrap gap-3 mb-2.5">
+              <div className="flex items-center gap-2 flex-wrap">
                 <span
-                  className={`font-mono text-[10px] font-black px-2 py-0.5 rounded-md ${
+                  className={`font-mono text-[10px] font-bold px-2 py-0.5 rounded border ${
                     isDark
-                      ? "bg-white/5 text-cyan-400 border border-white/10"
-                      : "bg-blue-50 text-blue-600 border border-blue-100"
+                      ? "border-white/10 bg-white/[0.04] text-white/80"
+                      : "border-gray-200 bg-gray-100 text-gray-800"
                   }`}
                 >
                   {error.errorCode}
@@ -89,71 +91,80 @@ export const ErrorListItem = React.memo(
                   isDark={isDark}
                 />
                 <span
-                  className={`flex items-center gap-1.5 text-[11px] font-bold ${isDark ? "text-gray-500" : "text-gray-400"}`}
+                  className={`flex items-center gap-1 text-[11px] font-mono ${
+                    isDark ? "text-white/40" : "text-gray-400"
+                  }`}
                 >
-                  <Clock size={12} />
+                  <Clock size={11} />
                   {error.timestamp}
                 </span>
               </div>
 
-              {/* Main Message */}
+              {/* Main Error Message */}
               <p
-                className={`text-lg font-bold mb-3 leading-tight ${
-                  isDark
-                    ? "text-white group-hover:text-cyan-50"
-                    : "text-gray-900 group-hover:text-blue-900"
+                className={`text-sm sm:text-base font-bold tracking-tight leading-snug ${
+                  isDark ? "text-white" : "text-gray-900"
                 }`}
               >
                 {error.message}
               </p>
 
               {/* Footer Metadata */}
-              <div className="flex items-center gap-6 text-[11px] font-medium opacity-60 group-hover:opacity-100 transition-opacity">
+              <div
+                className={`flex items-center gap-4 text-xs font-mono flex-wrap pt-0.5 ${
+                  isDark ? "text-white/40" : "text-gray-500"
+                }`}
+              >
                 <span
-                  className={`flex items-center gap-1.5 ${isDark ? "text-gray-400" : "text-gray-600"}`}
+                  className={`flex items-center gap-1.5 ${
+                    isDark ? "text-white/60" : "text-gray-700"
+                  }`}
                 >
-                  <Code
-                    size={13}
-                    className={isDark ? "text-cyan-500" : "text-blue-500"}
-                  />
+                  <Code size={12} />
                   {error.template}
                 </span>
                 <span
-                  className={`flex items-center gap-1.5 ${isDark ? "text-gray-400" : "text-gray-600"}`}
+                  className={`flex items-center gap-1.5 ${
+                    isDark ? "text-white/60" : "text-gray-700"
+                  }`}
                 >
-                  <Monitor
-                    size={13}
-                    className={isDark ? "text-purple-500" : "text-purple-600"}
-                  />
+                  <Monitor size={12} />
                   {error.environment.os}
                 </span>
                 {error.userEmail && (
-                  <span
-                    className={`flex items-center gap-1.5 ${isDark ? "text-cyan-400 font-bold" : "text-blue-600 font-bold"}`}
-                  >
-                    <span className="opacity-50 min-w-9">User:</span>
-                    {error.userEmail}
+                  <span>
+                    Usuario:{" "}
+                    <strong
+                      className={`font-semibold ${
+                        isDark ? "text-white/70" : "text-gray-800"
+                      }`}
+                    >
+                      {error.userEmail}
+                    </strong>
                   </span>
                 )}
-                {isAdmin && error.affectedUsers > 20 && (
-                  <span className="flex items-center gap-1.5 font-bold text-red-500 bg-red-500/10 px-2 py-0.5 rounded-full">
-                    <TrendDown size={12} />
-                    {error.affectedUsers} users
+                {isAdmin && error.affectedUsers > 1 && (
+                  <span
+                    className={`px-2 py-0.5 rounded text-[10px] font-mono border ${
+                      isDark
+                        ? "bg-white/[0.04] text-white/60 border-white/6"
+                        : "bg-gray-100 text-gray-700 border-gray-200"
+                    }`}
+                  >
+                    {error.affectedUsers} cuentas
                   </span>
                 )}
               </div>
             </div>
+          </div>
 
-            {/* Expand Icon */}
-            <div
-              className={`p-2.5 rounded-lg transition-all duration-300 self-center ${
-                isDark
-                  ? "bg-white/5 text-gray-400 group-hover:bg-cyan-500/20 group-hover:text-cyan-400"
-                  : "bg-gray-100 text-gray-600 group-hover:bg-blue-100 group-hover:text-blue-600"
-              }`}
-            >
-              {isExpanded ? <CaretUp size={20} /> : <CaretDown size={20} />}
-            </div>
+          {/* Expand Icon */}
+          <div
+            className={`shrink-0 p-1.5 rounded transition-colors self-start mt-1 ${
+              isDark ? "bg-white/5 text-white/60" : "bg-gray-100 text-gray-600"
+            }`}
+          >
+            {isExpanded ? <CaretUp size={15} /> : <CaretDown size={15} />}
           </div>
         </button>
 
@@ -164,8 +175,8 @@ export const ErrorListItem = React.memo(
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className={`border-t overflow-hidden ${isDark ? "border-white/5" : "border-gray-200"}`}
+              transition={{ duration: 0.25 }}
+              className="overflow-hidden"
             >
               <ErrorDetails
                 error={error}
@@ -182,3 +193,4 @@ export const ErrorListItem = React.memo(
 );
 
 ErrorListItem.displayName = "ErrorListItem";
+

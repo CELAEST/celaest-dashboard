@@ -12,15 +12,12 @@ import { LicensingHeader } from "./hub/LicensingHeader";
 import { LicensingStats } from "./hub/LicensingStats";
 import { LicensingList } from "./hub/LicensingList";
 import { LicensingCollisions } from "./hub/LicensingCollisions";
-import { TableChrome } from "@/components/layout/TableChrome";
-import { useTranslations } from "next-intl";
 import { useRole } from "@/features/auth/hooks/useAuthorization";
 
 export const LicensingHub: React.FC = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const t = useTranslations("licensing");
   const { isSuperAdmin } = useRole();
 
   const {
@@ -66,7 +63,7 @@ export const LicensingHub: React.FC = () => {
 
   return (
     <div
-      className={`h-full w-full flex flex-col min-h-0 ${isDark ? "bg-[#0a0a0a]" : "bg-gray-50"}`}
+      className={`h-full w-full flex flex-col min-h-0 ${isDark ? "bg-transparent" : "bg-gray-50"}`}
     >
       <LicensingHeader
         onCreateClick={() => setIsCreateModalOpen(true)}
@@ -76,6 +73,8 @@ export const LicensingHub: React.FC = () => {
         statusFilter={statusFilter}
         onStatusFilterChange={setStatusFilter}
         isSuperAdmin={isSuperAdmin}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
       />
 
       <div className="flex-1 overflow-hidden flex flex-col min-h-0">
@@ -93,36 +92,20 @@ export const LicensingHub: React.FC = () => {
           )}
 
           {effectiveActiveTab === "licenses" && (
-            <div className="flex-1 min-h-0 px-4 pb-4 overflow-hidden">
-              <TableChrome
-                toolbar={
-                  <div className="flex items-center justify-between w-full px-1">
-                    <div className="flex items-center gap-2 shrink-0">
-                      <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                      <span className={`text-sm sm:text-xs font-bold sm:font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>
-                        {t("all_licenses")}
-                      </span>
-                    </div>
-                    <span className={`text-[10px] sm:text-[11px] font-medium tabular-nums text-right ${isDark ? "text-gray-500" : "text-gray-400"} max-w-[130px] truncate`}>
-                      {licenses.length > 0 ? t("showing_entries", { current: licenses.length, total }) : ""}
-                    </span>
-                  </div>
-                }
-              >
-                <LicensingList
-                  licenses={licenses}
-                  loading={loading}
-                  searchQuery={searchQuery}
-                  setSearchQuery={setSearchQuery}
-                  statusFilter={statusFilter}
-                  setStatusFilter={setStatusFilter}
-                  total={total}
-                  onSelectLicense={selectLicense}
-                  hasNextPage={hasNextPage}
-                  isFetchingNextPage={isFetchingNextPage}
-                  onLoadMore={fetchNextPage}
-                />
-              </TableChrome>
+            <div className="flex-1 min-h-0 px-4 sm:px-6 pt-4 sm:pt-5 pb-4 sm:pb-6 overflow-hidden flex flex-col">
+              <LicensingList
+                licenses={licenses}
+                loading={loading}
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                statusFilter={statusFilter}
+                setStatusFilter={setStatusFilter}
+                total={total}
+                onSelectLicense={selectLicense}
+                hasNextPage={hasNextPage}
+                isFetchingNextPage={isFetchingNextPage}
+                onLoadMore={fetchNextPage}
+              />
             </div>
           )}
 

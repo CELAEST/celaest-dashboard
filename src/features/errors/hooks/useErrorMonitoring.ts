@@ -186,7 +186,8 @@ export const useErrorMonitoring = () => {
       const matchesSearch =
         error.message.toLowerCase().includes(searchQuery.toLowerCase()) ||
         error.errorCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        error.template.toLowerCase().includes(searchQuery.toLowerCase());
+        error.template.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (error.userEmail?.toLowerCase() || "").includes(searchQuery.toLowerCase());
       return matchesSeverity && matchesStatus && matchesSearch;
     });
   }, [errors, errorFilters, searchQuery]);

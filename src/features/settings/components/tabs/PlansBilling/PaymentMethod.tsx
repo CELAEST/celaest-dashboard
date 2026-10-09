@@ -42,7 +42,7 @@ export const PaymentMethod: React.FC = memo(() => {
   if (isLoading) {
     return (
       <div className="settings-glass-card rounded-2xl p-6 flex justify-center py-8">
-        <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-cyan-500"></div>
+        <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-white/80"></div>
       </div>
     );
   }
@@ -51,61 +51,69 @@ export const PaymentMethod: React.FC = memo(() => {
     <div className="settings-glass-card rounded-2xl p-6">
       <div className="flex items-center justify-between mb-6">
         <h3
-          className={`text-base font-bold flex items-center gap-2 ${
+          className={`text-base font-bold font-jakarta flex items-center gap-2 ${
             isDark ? "text-white" : "text-gray-900"
           }`}
         >
-          <CreditCard className="w-4 h-4 text-purple-500" />
+          <CreditCard className={`w-4 h-4 ${isDark ? "text-white/70" : "text-gray-700"}`} />
           {t("payment_method")}
         </h3>
         <button
+          type="button"
           onClick={() => toast.info(t("stripe_checkout_info"))}
-          className={`flex items-center gap-1 text-xs font-black tracking-widest transition-colors text-cyan-500 hover:text-cyan-400`}
+          className={`flex items-center gap-1 text-[11px] font-mono uppercase tracking-wider transition-colors cursor-pointer ${
+            isDark ? "text-white/80 hover:text-white" : "text-gray-700 hover:text-gray-900"
+          }`}
         >
-          <Plus size={14} />
+          <Plus size={14} weight="bold" />
           {t("add_new")}
         </button>
       </div>
 
-      <div className="space-y-3">
+      <div>
         {methods.length === 0 ? (
-          <p className="text-sm text-gray-500 py-4 italic text-center">
+          <p className={`text-xs py-4 text-center ${isDark ? "text-white/40" : "text-gray-500"}`}>
             {t("no_payment_methods")}
           </p>
         ) : (
-          methods.map((method) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {methods.map((method) => (
             <div
               key={method.id}
               className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border transition-all ${
                 isDark
-                  ? "bg-black/20 border-white/5"
+                  ? "bg-white/[0.02] border-white/[0.05] hover:border-white/[0.12]"
                   : "bg-gray-50 border-gray-100 shadow-xs"
-              } ${method.is_default || method.isDefault ? "border-cyan-500/50 ring-1 ring-cyan-500/20" : ""}`}
+              } ${method.is_default || method.isDefault ? isDark ? "border-white/20 ring-1 ring-white/10" : "border-gray-900" : ""}`}
             >
               <div className="flex items-center gap-4">
                 <div
                   className={`w-12 h-10 rounded-lg flex items-center justify-center shrink-0 ${
                     isDark
-                      ? "bg-white/10"
-                      : "bg-white border border-gray-100 shadow-sm"
+                      ? "bg-white/[0.04] border border-white/10"
+                      : "bg-white border border-gray-100 shadow-xs"
                   }`}
                 >
-                  <CreditCard className="w-6 h-6 text-gray-400" />
+                  <CreditCard className="w-5 h-5 text-white/50" />
                 </div>
                 <div>
                   <p
-                    className={`font-bold text-sm flex flex-wrap items-center gap-1.5 ${
+                    className={`font-bold text-sm flex flex-wrap items-center gap-2 ${
                       isDark ? "text-white" : "text-gray-900"
                     }`}
                   >
-                    <span>{method.brand?.toUpperCase() || t("card")} **** {method.last4}</span>
+                    <span className="font-mono">{method.brand?.toUpperCase() || t("card")} **** {method.last4}</span>
                     {(method.is_default || method.isDefault) && (
-                      <span className="px-1.5 py-0.5 rounded text-[10px] bg-cyan-500/10 text-cyan-500 uppercase font-black shrink-0">
+                      <span className={`px-1.5 py-0.2 rounded text-[9px] font-mono uppercase tracking-wider border ${
+                        isDark
+                          ? "bg-white/[0.08] text-white border-white/15"
+                          : "bg-gray-900 text-white border-gray-900"
+                      }`}>
                         {t("default")}
                       </span>
                     )}
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className={`text-xs font-mono mt-0.5 ${isDark ? "text-white/40" : "text-gray-500"}`}>
                     {t("expires")} {method.expiry_month || method.expiryMonth}/
                     {method.expiry_year || method.expiryYear}
                   </p>
@@ -121,8 +129,9 @@ export const PaymentMethod: React.FC = memo(() => {
               >
                 {t("edit")}
               </button>
-            </div>
-          ))
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </div>

@@ -25,24 +25,24 @@ export const OrderDetailsSidebar: React.FC<OrderDetailsSidebarProps> = ({
 
   return (
     <div
-      className={`rounded-2xl p-6 space-y-6 ${
+      className={`rounded-2xl p-5 space-y-5 border transition-colors ${
         isDark
-          ? "bg-white/5 border border-white/5"
-          : "bg-gray-50 border border-gray-100"
+          ? "bg-[#09090b] border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+          : "bg-gray-50 border-gray-200"
       }`}
     >
       {/* Price Card */}
-      <div className="text-center pb-6 border-b border-gray-500/10">
+      <div className={`text-center pb-5 border-b ${isDark ? "border-white/6" : "border-gray-200"}`}>
         <div
-          className={`text-sm font-medium mb-1 ${
-            isDark ? "text-gray-400" : "text-gray-500"
+          className={`text-[10px] font-mono font-semibold uppercase tracking-[0.16em] mb-1 ${
+            isDark ? "text-white/40" : "text-gray-500"
           }`}
         >
           {t("total_paid")}
         </div>
         {mode === "view" ? (
           <div
-            className={`text-4xl font-bold tracking-tight ${
+            className={`text-3xl font-mono font-bold tracking-tight tabular-nums ${
               isDark ? "text-white" : "text-gray-900"
             }`}
           >
@@ -50,12 +50,12 @@ export const OrderDetailsSidebar: React.FC<OrderDetailsSidebarProps> = ({
           </div>
         ) : (
           <div className="flex justify-center items-center">
-            <span className="text-2xl mr-1 text-gray-500">$</span>
+            <span className="text-xl mr-1 text-gray-500">$</span>
             <input
               type="number"
-              className={`w-32 bg-transparent text-center text-3xl font-bold outline-none border-b border-dashed ${
+              className={`w-28 bg-transparent text-center text-2xl font-mono font-bold outline-none border-b border-dashed ${
                 isDark
-                  ? "text-white border-gray-700"
+                  ? "text-white border-white/20"
                   : "text-gray-900 border-gray-300"
               }`}
               value={formData.amount.replace("$", "").replace(",", "")}
@@ -66,30 +66,27 @@ export const OrderDetailsSidebar: React.FC<OrderDetailsSidebarProps> = ({
       </div>
 
       {/* Customer Info */}
-      <div className="space-y-4">
+      <div className="space-y-3.5">
         <div className="flex items-center gap-3">
           <div
-            className={`p-2 rounded-lg ${
-              isDark ? "bg-white/5" : "bg-white shadow-sm"
+            className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
+              isDark ? "bg-white/[0.04] border border-white/8 text-white/50" : "bg-white border border-gray-200 text-gray-500"
             }`}
           >
-            <User
-              size={16}
-              className={isDark ? "text-gray-400" : "text-gray-500"}
-            />
+            <User size={13} />
           </div>
-          <div>
+          <div className="min-w-0 flex-1">
             <div
-              className={`text-xs font-bold uppercase ${
-                isDark ? "text-gray-500" : "text-gray-400"
+              className={`text-[10px] font-mono uppercase tracking-[0.14em] ${
+                isDark ? "text-white/40" : "text-gray-400"
               }`}
             >
               {tCommon("customer")}
             </div>
             {mode === "view" ? (
               <div
-                className={`font-semibold ${
-                  isDark ? "text-white" : "text-gray-900"
+                className={`text-xs font-medium truncate mt-0.5 ${
+                  isDark ? "text-zinc-200" : "text-gray-900"
                 }`}
               >
                 {formData.customer}
@@ -99,9 +96,9 @@ export const OrderDetailsSidebar: React.FC<OrderDetailsSidebarProps> = ({
                 type="text"
                 value={formData.customer}
                 onChange={(e) => updateField("customer", e.target.value)}
-                className={`w-full mt-1 bg-transparent border-b outline-none text-sm ${
+                className={`w-full mt-0.5 bg-transparent border-b outline-none text-xs ${
                   isDark
-                    ? "border-gray-700 text-white"
+                    ? "border-white/20 text-white"
                     : "border-gray-300 text-gray-900"
                 }`}
               />
@@ -111,26 +108,23 @@ export const OrderDetailsSidebar: React.FC<OrderDetailsSidebarProps> = ({
 
         <div className="flex items-center gap-3">
           <div
-            className={`p-2 rounded-lg ${
-              isDark ? "bg-white/5" : "bg-white shadow-sm"
+            className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
+              isDark ? "bg-white/[0.04] border border-white/8 text-white/50" : "bg-white border border-gray-200 text-gray-500"
             }`}
           >
-            <CreditCard
-              size={16}
-              className={isDark ? "text-gray-400" : "text-gray-500"}
-            />
+            <CreditCard size={13} />
           </div>
-          <div>
+          <div className="min-w-0 flex-1">
             <div
-              className={`text-xs font-bold uppercase ${
-                isDark ? "text-gray-500" : "text-gray-400"
+              className={`text-[10px] font-mono uppercase tracking-[0.14em] ${
+                isDark ? "text-white/40" : "text-gray-400"
               }`}
             >
               {t("method")}
             </div>
             <div
-              className={`text-sm capitalize ${
-                isDark ? "text-gray-300" : "text-gray-600"
+              className={`text-xs font-mono capitalize mt-0.5 ${
+                isDark ? "text-zinc-300" : "text-gray-600"
               }`}
             >
               {formData.paymentProvider || "Stripe"}{" "}
@@ -141,26 +135,23 @@ export const OrderDetailsSidebar: React.FC<OrderDetailsSidebarProps> = ({
 
         <div className="flex items-center gap-3">
           <div
-            className={`p-2 rounded-lg ${
-              isDark ? "bg-white/5" : "bg-white shadow-sm"
+            className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
+              isDark ? "bg-white/[0.04] border border-white/8 text-white/50" : "bg-white border border-gray-200 text-gray-500"
             }`}
           >
-            <Key
-              size={16}
-              className={isDark ? "text-gray-400" : "text-gray-500"}
-            />
+            <Key size={13} />
           </div>
-          <div>
+          <div className="min-w-0 flex-1">
             <div
-              className={`text-xs font-bold uppercase ${
-                isDark ? "text-gray-500" : "text-gray-400"
+              className={`text-[10px] font-mono uppercase tracking-[0.14em] ${
+                isDark ? "text-white/40" : "text-gray-400"
               }`}
             >
               {t("license_key")}
             </div>
             <div
-              className={`text-sm font-mono truncate w-32 ${
-                isDark ? "text-gray-300" : "text-gray-600"
+              className={`text-xs font-mono truncate mt-0.5 ${
+                isDark ? "text-zinc-300" : "text-gray-600"
               }`}
               title={formData.licenseKey || "N/A"}
             >
@@ -171,26 +162,23 @@ export const OrderDetailsSidebar: React.FC<OrderDetailsSidebarProps> = ({
 
         <div className="flex items-center gap-3">
           <div
-            className={`p-2 rounded-lg ${
-              isDark ? "bg-white/5" : "bg-white shadow-sm"
+            className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
+              isDark ? "bg-white/[0.04] border border-white/8 text-white/50" : "bg-white border border-gray-200 text-gray-500"
             }`}
           >
-            <Envelope
-              size={16}
-              className={isDark ? "text-gray-400" : "text-gray-500"}
-            />
+            <Envelope size={13} />
           </div>
-          <div>
+          <div className="min-w-0 flex-1">
             <div
-              className={`text-xs font-bold uppercase ${
-                isDark ? "text-gray-500" : "text-gray-400"
+              className={`text-[10px] font-mono uppercase tracking-[0.14em] ${
+                isDark ? "text-white/40" : "text-gray-400"
               }`}
             >
               {t("delivery_email")}
             </div>
             <div
-              className={`text-sm truncate w-48 ${
-                isDark ? "text-gray-300" : "text-gray-600"
+              className={`text-xs font-mono truncate mt-0.5 ${
+                isDark ? "text-white/60" : "text-gray-600"
               }`}
             >
               {formData.userEmail || "N/A"}
@@ -199,7 +187,7 @@ export const OrderDetailsSidebar: React.FC<OrderDetailsSidebarProps> = ({
         </div>
       </div>
 
-      <div className="pt-4">
+      <div className="pt-2">
         <button
           onClick={() => {
             if (onDownload) {
@@ -210,14 +198,14 @@ export const OrderDetailsSidebar: React.FC<OrderDetailsSidebarProps> = ({
               });
             }
           }}
-          className={`w-full py-2.5 rounded-xl text-sm font-semibold border flex items-center justify-center gap-2 transition-colors ${
+          className={`w-full h-9 rounded-xl border text-xs font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer ${
             isDark
-              ? "border-white/10 hover:bg-white/5 text-gray-300"
-              : "border-gray-200 hover:bg-gray-50 text-gray-600"
+              ? "border-white/10 bg-white/[0.04] hover:bg-white/[0.08] text-zinc-200"
+              : "border-gray-200 bg-white hover:bg-gray-50 text-gray-700"
           }`}
         >
-          <FileText size={16} />
-          {t("download_invoice")}
+          <FileText size={14} className={isDark ? "text-white/60" : "text-gray-500"} />
+          <span>{t("download_invoice")}</span>
         </button>
       </div>
     </div>

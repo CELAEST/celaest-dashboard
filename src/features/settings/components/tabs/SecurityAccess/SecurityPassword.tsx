@@ -61,39 +61,39 @@ export const SecurityPassword: React.FC<SecurityPasswordProps> = memo(
     return (
       <div className="settings-glass-card rounded-2xl p-6">
         <h3
-          className={`text-lg font-bold mb-6 flex items-center gap-2 ${
+          className={`text-base font-bold font-jakarta mb-6 flex items-center gap-2 ${
             isDark ? "text-white" : "text-gray-900"
           }`}
         >
-          <Key className="w-5 h-5 text-cyan-500" />
+          <Key className={`w-5 h-5 ${isDark ? "text-white/80" : "text-gray-700"}`} />
           {t("update_password")}
         </h3>
 
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4 w-full lg:w-3/4 xl:w-2/3"
+            className="space-y-4 w-full"
           >
-            <FormField
-              control={form.control}
-              name="currentPassword"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("current_password")}</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="••••••••••••"
-                      className="font-mono h-11 rounded-xl"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <FormField
+                control={form.control}
+                name="currentPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("current_password")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        placeholder="••••••••••••"
+                        className="font-mono h-11 rounded-xl"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="newPassword"
@@ -137,9 +137,7 @@ export const SecurityPassword: React.FC<SecurityPasswordProps> = memo(
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-sm active:scale-95 flex items-center gap-2 ${
-                  isSubmitting ? "opacity-70 cursor-not-allowed" : ""
-                } bg-cyan-600 hover:bg-cyan-500 text-white`}
+                className="px-6 py-2.5 rounded-xl text-xs font-semibold bg-white text-black hover:bg-neutral-200 active:scale-[0.98] transition-all cursor-pointer shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 font-jakarta"
               >
                 {isSubmitting ? t("updating") : t("update_password")}
               </button>

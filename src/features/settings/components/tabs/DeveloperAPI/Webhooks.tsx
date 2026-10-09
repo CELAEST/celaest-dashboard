@@ -42,10 +42,10 @@ export const Webhooks: React.FC = memo(() => {
         <button
           onClick={handleAddWebhook}
           disabled={isCreating}
-          className={`flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-[10px] font-black tracking-widest transition-all w-full sm:w-auto shrink-0 ${
+          className={`flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all w-full sm:w-auto shrink-0 cursor-pointer ${
             isDark
-              ? "bg-white/5 text-gray-400 hover:text-white"
-              : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+              ? "bg-white/[0.04] text-white/80 hover:text-white hover:bg-white/[0.08] border border-white/8"
+              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
           }`}
         >
           {isCreating ? (
@@ -57,10 +57,10 @@ export const Webhooks: React.FC = memo(() => {
         </button>
       </div>
 
-      <div className="space-y-3">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 sm:gap-4">
         {isLoading && (
           <div className="py-8 flex justify-center">
-            <CircleNotch className="w-6 h-6 animate-spin text-cyan-500" />
+            <CircleNotch className="w-6 h-6 animate-spin text-white/80" />
           </div>
         )}
 
@@ -68,7 +68,7 @@ export const Webhooks: React.FC = memo(() => {
           <div
             className={`flex flex-col items-center justify-center py-12 px-6 rounded-2xl border border-dashed transition-colors ${
               isDark
-                ? "bg-black/20 border-white/5 text-gray-500"
+                ? "bg-white/[0.02] border-white/10 text-white/40"
                 : "bg-gray-50 border-gray-200 text-gray-400"
             }`}
           >
@@ -86,25 +86,39 @@ export const Webhooks: React.FC = memo(() => {
           webhooks.map((webhook: Webhook) => (
             <div
               key={webhook.id}
-              className={`p-3 sm:p-4 rounded-xl border ${
+              className={`p-3.5 sm:p-4 rounded-xl border transition-colors ${
                 isDark
-                  ? "bg-black/40 border-white/5"
-                  : "bg-white border-gray-100"
+                  ? "bg-white/[0.02] border-white/[0.05] hover:border-white/[0.12]"
+                  : "bg-white border-gray-200"
               }`}
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 sm:gap-3 mb-2">
                     <span
-                      className={`w-2 h-2 rounded-full shrink-0 ${webhook.is_active ? "bg-emerald-500" : "bg-gray-400"}`}
-                    />
+                      className={`text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded border ${
+                        webhook.is_active
+                          ? isDark
+                            ? "bg-white/[0.08] text-white border-white/10"
+                            : "bg-gray-900 text-white border-gray-900"
+                          : isDark
+                            ? "bg-white/[0.03] text-white/40 border-white/[0.06]"
+                            : "bg-gray-100 text-gray-500 border-gray-200"
+                      }`}
+                    >
+                      {webhook.is_active ? "Activo" : "Pausado"}
+                    </span>
                     <span className="font-mono text-xs truncate">{webhook.url}</span>
                   </div>
                   <div className="flex flex-wrap gap-1.5 sm:gap-2 text-[10px]">
                     {webhook.events.map((event) => (
                       <span
                         key={event}
-                        className="px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-500"
+                        className={`px-2 py-0.5 rounded font-mono text-[10px] border ${
+                          isDark
+                            ? "bg-white/[0.04] text-white/70 border-white/[0.06]"
+                            : "bg-gray-100 text-gray-700 border-gray-200"
+                        }`}
                       >
                         {event}
                       </span>
@@ -112,8 +126,9 @@ export const Webhooks: React.FC = memo(() => {
                   </div>
                 </div>
                 <button
+                  type="button"
                   onClick={() => deleteWebhook(webhook.id)}
-                  className="p-2 rounded-lg text-red-500/50 hover:bg-red-500/10 hover:text-red-500 transition-colors shrink-0"
+                  className="p-2 rounded-lg text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-colors shrink-0 cursor-pointer"
                 >
                   <Trash size={16} />
                 </button>

@@ -1,8 +1,6 @@
 import React from "react";
 import { motion } from "motion/react";
-import { CircleNotch, CheckCircle } from "@phosphor-icons/react";
-import { useTheme } from "@/features/shared/hooks/useTheme";
-import { Progress } from "@/components/ui/progress";
+import { CircleNotch } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
 
 interface ActivationStepProps {
@@ -21,81 +19,88 @@ export const ActivationStep: React.FC<ActivationStepProps> = ({
   onGoToAssets,
 }) => {
   const t = useTranslations("marketplace");
-  const { theme } = useTheme();
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      className="space-y-6 text-center py-6"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.2 }}
+      className="py-6 sm:py-8 space-y-6 text-center"
     >
       {purchaseComplete ? (
         <>
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", duration: 0.6 }}
-          >
-            <CheckCircle
-              className={`mx-auto ${theme === "dark" ? "text-green-400" : "text-green-600"}`}
-              size={64}
-            />
-          </motion.div>
-          <div>
-            <h2
-              className={`text-2xl font-bold mb-2 ${theme === "dark" ? "text-white" : "text-gray-900"}`}
+          {/* Icono Circular de Confirmación (Basado en la referencia aprobada) */}
+          <div className="relative flex items-center justify-center pt-2">
+            <svg
+              width="54"
+              height="54"
+              viewBox="0 0 54 54"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="text-emerald-400 relative z-10"
             >
+              <circle cx="27" cy="27" r="23" stroke="currentColor" strokeWidth="3" />
+              <path
+                d="M17 27.5L24 34.5L37.5 20"
+                stroke="currentColor"
+                strokeWidth="3.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+
+          {/* Titular y Descripción Equilibrados */}
+          <div className="space-y-2 text-center">
+            <span className="text-[10px] font-mono uppercase tracking-[0.2em] block font-medium text-white/40">
+              {t("activation_step")}
+            </span>
+            <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
               {t("completed_exclamation")}
             </h2>
-            <p
-              className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}
-            >
-              {t("asset_ready")}
+            <p className="text-xs sm:text-sm text-white/60 leading-relaxed max-w-[420px] mx-auto">
+              Tu suscripción ha sido dada de alta exitosamente y el servicio ya se encuentra disponible en tu entorno de trabajo.
             </p>
           </div>
-          <div
-            className={`p-4 rounded-xl ${theme === "dark" ? "bg-green-500/10 border border-green-500/20" : "bg-green-50 border border-green-200"}`}
-          >
-            <p
-              className={`text-sm ${theme === "dark" ? "text-green-400" : "text-green-700"}`}
+
+          {/* Botón de Cierre Proporcionado (Platino Monocromático Puro) */}
+          <div className="pt-2 space-y-2.5">
+            <button
+              type="button"
+              onClick={onGoToAssets || onReset}
+              className="w-full py-3.5 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer shadow-md bg-white hover:bg-neutral-200 text-black active:scale-[0.99]"
             >
+              {t("go_to_my_assets")}
+            </button>
+
+            <p className="text-[10px] font-mono text-white/30 text-center">
               {t("access_details_sent")}
             </p>
           </div>
-          <button
-            onClick={onGoToAssets || onReset}
-            className={`
-              w-full py-3 rounded-xl font-medium transition-all
-              ${
-                theme === "dark"
-                  ? "bg-cyan-500 text-black hover:bg-cyan-400"
-                  : "bg-gray-900 text-white hover:bg-gray-800"
-              }
-            `}
-          >
-            {t("go_to_my_assets")}
-          </button>
         </>
       ) : (
-        <>
+        /* Configurando activo (Spinner fino) */
+        <div className="w-full py-8 text-center space-y-4">
           <CircleNotch
-            className={`mx-auto animate-spin ${theme === "dark" ? "text-cyan-400" : "text-cyan-600"}`}
             size={48}
+            className="mx-auto animate-spin text-white"
+            weight="bold"
           />
-          <div>
-            <h2
-              className={`text-2xl font-bold mb-2 ${theme === "dark" ? "text-white" : "text-gray-900"}`}
-            >
+          <div className="space-y-1">
+            <h2 className="text-xl font-bold text-white tracking-tight">
               {t("configuring_asset")}
             </h2>
-            <p
-              className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}
-            >
+            <p className="text-xs text-white/40 font-mono">
               {statusMessage || t("take_a_few_seconds")}
             </p>
           </div>
-          <Progress value={progress} className="w-64 mx-auto" />
-        </>
+          <div className="w-48 h-1 mx-auto bg-white/[0.08] rounded-full overflow-hidden">
+            <div
+              className="h-full bg-white transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        </div>
       )}
     </motion.div>
   );

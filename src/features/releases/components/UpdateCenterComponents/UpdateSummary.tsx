@@ -5,10 +5,11 @@ import { useTranslations } from "next-intl";
 
 interface UpdateSummaryProps {
   updateCount: number;
+  onDownloadAll?: () => void;
 }
 
 export const UpdateSummary: React.FC<UpdateSummaryProps> = memo(
-  ({ updateCount }) => {
+  ({ updateCount, onDownloadAll }) => {
     const { theme } = useTheme();
     const isDark = theme === "dark";
     const t = useTranslations("releases");
@@ -16,92 +17,88 @@ export const UpdateSummary: React.FC<UpdateSummaryProps> = memo(
 
     return (
       <div
-        className={`relative rounded-2xl border overflow-hidden ${
-          hasUpdates
-            ? isDark
-              ? "bg-linear-to-br from-cyan-500/8 via-transparent to-purple-500/8 border-cyan-500/20"
-              : "bg-linear-to-br from-cyan-50 via-white to-purple-50 border-cyan-200"
-            : isDark
-              ? "bg-linear-to-br from-emerald-500/5 via-transparent to-transparent border-emerald-500/15"
-              : "bg-linear-to-br from-emerald-50 via-white to-white border-emerald-200"
+        className={`relative rounded-xl border backdrop-blur-xl overflow-hidden transition-colors ${
+          isDark
+            ? "bg-[#080c14]/80 border-white/8"
+            : "bg-white border-gray-200/80 shadow-xs"
         }`}
       >
-        {/* Subtle grid pattern */}
-        {isDark && (
-          <div
-            className="absolute inset-0 opacity-[0.03] pointer-events-none"
-            style={{
-              backgroundImage: `radial-gradient(circle, currentColor 1px, transparent 1px)`,
-              backgroundSize: "24px 24px",
-            }}
-          />
-        )}
-
-        <div className="relative p-4 sm:p-5 flex items-center gap-4">
-          {/* Icon */}
-          <div
-            className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${
-              hasUpdates
-                ? isDark
-                  ? "bg-cyan-500/10 border border-cyan-500/20"
-                  : "bg-cyan-100 border border-cyan-200"
-                : isDark
-                  ? "bg-emerald-500/10 border border-emerald-500/20"
-                  : "bg-emerald-100 border border-emerald-200"
-            }`}
-          >
-            {hasUpdates ? (
-              <ArrowsClockwise
-                size={20}
-                weight="bold"
-                className={`${isDark ? "text-cyan-400" : "text-cyan-600"} ${hasUpdates ? "animate-spin" : ""}`}
-                style={{ animationDuration: "3s" }}
-              />
-            ) : (
-              <CheckCircle
-                size={20}
-                weight="fill"
-                className={isDark ? "text-emerald-400" : "text-emerald-600"}
-              />
-            )}
-          </div>
-
-          {/* Text */}
-          <div className="flex-1 min-w-0">
-            <h2
-              className={`text-sm sm:text-base font-bold ${
-                isDark ? "text-white" : "text-gray-900"
+        <div className="relative p-4 sm:p-5 flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-3.5 min-w-0">
+            {/* Icon */}
+            <div
+              className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 border transition-colors ${
+                hasUpdates
+                  ? isDark
+                    ? "bg-white/[0.05] border-white/10 text-white"
+                    : "bg-gray-100 border-gray-200 text-gray-900"
+                  : isDark
+                    ? "bg-white/[0.03] border-white/8 text-white/70"
+                    : "bg-gray-100 border-gray-200 text-gray-700"
               }`}
             >
-              {hasUpdates
-                ? updateCount === 1
-                  ? t("update_summary_title_single", { count: updateCount })
-                  : t("update_summary_title_plural", { count: updateCount })
-                : t("update_summary_desc")}
-            </h2>
-            {hasUpdates && (
-              <p
-                className={`text-xs mt-0.5 ${
-                  isDark ? "text-gray-400" : "text-gray-500"
+              {hasUpdates ? (
+                <ArrowsClockwise
+                  size={18}
+                  weight="bold"
+                  className={isDark ? "text-white" : "text-gray-900"}
+                />
+              ) : (
+                <CheckCircle
+                  size={18}
+                  weight="bold"
+                  className={isDark ? "text-white/70" : "text-gray-700"}
+                />
+              )}
+            </div>
+
+            {/* Text */}
+            <div className="min-w-0">
+              <h2
+                className={`text-sm sm:text-base font-semibold tracking-tight ${
+                  isDark ? "text-zinc-100" : "text-gray-900"
                 }`}
               >
-                {t("update_summary_desc")}
-              </p>
-            )}
+                {hasUpdates
+                  ? updateCount === 1
+                    ? t("update_summary_title_single", { count: updateCount })
+                    : t("update_summary_title_plural", { count: updateCount })
+                  : t("update_summary_desc")}
+              </h2>
+              {hasUpdates && (
+                <p
+                  className={`text-[11px] font-mono tracking-wider uppercase mt-0.5 ${
+                    isDark ? "text-white/40" : "text-gray-400"
+                  }`}
+                >
+                  {t("update_summary_desc")}
+                </p>
+              )}
+            </div>
           </div>
 
-          {/* Badge */}
+          {/* Actions & Badge */}
           {hasUpdates && (
-            <div className="shrink-0">
+            <div className="flex items-center gap-2.5">
+              {onDownloadAll && (
+                <button
+                  type="button"
+                  onClick={onDownloadAll}
+                  className="px-3 py-1.5 rounded-lg text-xs font-mono font-semibold uppercase tracking-wider bg-white text-black hover:bg-zinc-200 transition-colors shadow-xs cursor-pointer flex items-center gap-1.5"
+                >
+                  <ArrowsClockwise size={13} weight="bold" />
+                  <span>Actualizar Todo</span>
+                </button>
+              )}
               <span
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ${
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-mono font-semibold uppercase tracking-wider border ${
                   isDark
-                    ? "bg-cyan-500/15 text-cyan-400 border border-cyan-500/25"
-                    : "bg-cyan-100 text-cyan-700 border border-cyan-200"
+                    ? "bg-white/10 text-white border-white/15 shadow-xs"
+                    : "bg-gray-900 text-white border-gray-800 shadow-xs"
                 }`}
               >
                 <Sparkle size={12} weight="fill" />
-                {updateCount}
+                <span>{updateCount}</span>
               </span>
             </div>
           )}

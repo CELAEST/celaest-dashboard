@@ -24,30 +24,39 @@ export const ProductModalTabs: React.FC<ProductModalTabsProps> = ({
 
   const tabs = [
     { id: "overview" as const, label: t("overview") },
-    { id: "features" as const, label: t("features") },
-    { id: "reviews" as const, label: t("reviews") },
+    {
+      id: "features" as const,
+      label: `${t("features")}${product.features && product.features.length > 0 ? ` (${product.features.length})` : ""}`,
+    },
+    {
+      id: "reviews" as const,
+      label: `${t("reviews")}${product.rating_count ? ` (${product.rating_count})` : ""}`,
+    },
   ];
 
   return (
     <div>
       <div
-        className={`flex gap-1 p-1 rounded-xl ${
-          theme === "dark" ? "bg-white/5" : "bg-gray-100"
+        className={`flex items-center gap-1 p-1 rounded-xl border ${
+          theme === "dark"
+            ? "bg-[#0D0D11] border-white/[0.06]"
+            : "bg-gray-100 border-gray-200"
         }`}
       >
         {tabs.map((tab) => (
           <button
             key={tab.id}
+            type="button"
             onClick={() => setActiveTab(tab.id)}
             className={`
-              flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all
+              flex-1 py-2.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer
               ${
                 activeTab === tab.id
                   ? theme === "dark"
-                    ? "bg-white/10 text-white"
+                    ? "bg-white text-black shadow-md shadow-black/40"
                     : "bg-white text-gray-900 shadow-sm"
                   : theme === "dark"
-                    ? "text-gray-400 hover:text-white"
+                    ? "text-white/50 hover:text-white"
                     : "text-gray-600 hover:text-gray-900"
               }
             `}

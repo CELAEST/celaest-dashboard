@@ -135,26 +135,28 @@ export const WorkspaceProfile: React.FC<WorkspaceProfileProps> = memo(
         <div className="flex justify-between items-start mb-6">
           <div>
             <h3
-              className={`text-lg font-bold flex items-center gap-2 ${
+              className={`text-base font-bold font-jakarta flex items-center gap-2 ${
                 isDark ? "text-white" : "text-gray-900"
               }`}
             >
-              <Globe className="w-5 h-5 text-cyan-500" />
+              <Globe className={`w-5 h-5 ${isDark ? "text-white/80" : "text-gray-700"}`} />
               {t("workspace_profile")}
               {readOnly && (
-                <span className="text-[10px] bg-gray-500/10 text-gray-500 px-2 py-0.5 rounded uppercase tracking-wider font-black">
+                <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full uppercase tracking-wider font-semibold border ${
+                  isDark ? "bg-white/[0.04] text-white/60 border-white/8" : "bg-gray-100 text-gray-700 border-gray-200"
+                }`}>
                   {t("view_only")}
                 </span>
               )}
             </h3>
             <p
-              className={`text-sm mt-1 ${isDark ? "text-gray-400" : "text-gray-500"}`}
+              className={`text-xs font-mono mt-1 ${isDark ? "text-white/40" : "text-gray-500"}`}
             >
               {t("workspace_profile_desc")}
             </p>
           </div>
           {isFetchingSettings && (
-            <CircleNotch className="w-5 h-5 animate-spin text-cyan-500" />
+            <CircleNotch className="w-5 h-5 animate-spin text-white/80" />
           )}
         </div>
 
@@ -216,8 +218,8 @@ export const WorkspaceProfile: React.FC<WorkspaceProfileProps> = memo(
                               ? "border-red-500/50 focus:ring-red-500/30 bg-red-500/5"
                               : "border-red-400 focus:ring-red-500/30 bg-red-50"
                             : isDark
-                              ? "border-white/10 bg-white/5 text-white placeholder:text-gray-500 focus:ring-cyan-500/50 focus:border-cyan-500/50"
-                              : "border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 focus:ring-blue-500/50 focus:border-blue-500/50"
+                              ? "border-white/10 bg-white/5 text-white placeholder:text-gray-500 focus:ring-white/20 focus:border-white/40"
+                              : "border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 focus:ring-gray-300 focus:border-gray-400"
                         }
                       `}
                         placeholder="slug"
@@ -352,11 +354,11 @@ export const WorkspaceProfile: React.FC<WorkspaceProfileProps> = memo(
                 <button
                   type="submit"
                   disabled={isSubmitting || isFetchingSettings}
-                  className="px-6 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-bold transition-all shadow-sm active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  className="px-6 py-2.5 rounded-xl text-xs font-semibold bg-white text-black hover:bg-neutral-200 active:scale-[0.98] transition-all cursor-pointer shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 font-jakarta"
                 >
                   {isSubmitting ? (
                     <>
-                      <CircleNotch size={16} className="animate-spin" /> {t("saving")}
+                      <CircleNotch size={14} className="animate-spin" /> {t("saving")}
                     </>
                   ) : (
                     t("save_configuration")

@@ -5,10 +5,7 @@ import {
   ShieldCheck,
   LockSimple,
   ArrowSquareOut,
-  CreditCard,
 } from "@phosphor-icons/react";
-import { useTheme } from "@/features/shared/hooks/useTheme";
-import { Progress } from "@/components/ui/progress";
 import { useTranslations } from "next-intl";
 
 interface PaymentStepProps {
@@ -16,6 +13,7 @@ interface PaymentStepProps {
   isProcessing: boolean;
   progress: number;
   onPurchase: () => void;
+  onBack?: () => void;
 }
 
 export const PaymentStep: React.FC<PaymentStepProps> = ({
@@ -23,147 +21,94 @@ export const PaymentStep: React.FC<PaymentStepProps> = ({
   isProcessing,
   progress,
   onPurchase,
+  onBack,
 }) => {
   const t = useTranslations("marketplace");
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      className="space-y-6"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.2 }}
+      className="py-2 space-y-6 text-center"
     >
       {isProcessing ? (
-        /* ── Processing state ── */
-        <div className="py-10 text-center space-y-5">
-          <div className="relative mx-auto w-16 h-16">
+        /* ── Processing State (Model 01 Lingua Standard) ── */
+        <div className="w-full py-8 text-center space-y-4">
+          <div className="relative mx-auto w-14 h-14 flex items-center justify-center">
             <CircleNotch
-              className={`w-16 h-16 animate-spin ${isDark ? "text-cyan-400" : "text-cyan-600"}`}
+              size={52}
+              className="animate-spin text-white"
               weight="bold"
             />
-            <LockSimple
-              className={`absolute inset-0 m-auto ${isDark ? "text-cyan-300" : "text-cyan-700"}`}
-              size={24}
-              weight="bold"
-            />
+            <LockSimple size={20} className="absolute text-white/80" weight="bold" />
           </div>
-          <div className="space-y-1.5">
-            <p className={`text-base font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>
+          <div className="space-y-1">
+            <p className="text-sm font-semibold text-white">
               {t("processing_secure_payment")}
             </p>
-            <p className={`text-sm ${isDark ? "text-gray-500" : "text-gray-500"}`}>
-              {t("connecting_to_stripe")}
+            <p className="text-xs text-white/40 font-mono">
+              Generando sesión cifrada ({progress}%)
             </p>
           </div>
-          <div className="w-56 mx-auto">
-            <Progress
-              value={progress}
-              className={`${isDark ? "bg-white/10" : "bg-gray-200"} h-1.5 rounded-full`}
+          <div className="w-48 h-1 mx-auto bg-white/[0.08] rounded-full overflow-hidden">
+            <div
+              className="h-full bg-white transition-all duration-300"
+              style={{ width: `${progress}%` }}
             />
           </div>
         </div>
       ) : (
-        /* ── Redirect to Stripe state ── */
+        /* ── Redirect to Stripe State (Cero Icono Gigante - Máxima Limpieza) ── */
         <>
-          <div className="text-center space-y-2">
-            <h2 className={`text-2xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
+          <div className="space-y-1.5 text-center pt-2">
+            <span className="text-[10px] font-mono uppercase tracking-[0.2em] block font-medium text-white/40">
               {t("secure_payment")}
-            </h2>
-            <p className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>
+            </span>
+            <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
               {t("redirecting_to_stripe")}
+            </h2>
+            <p className="text-xs text-white/50 leading-relaxed max-w-[420px] mx-auto">
+              Te transferiremos a la pasarela cifrada de Stripe para completar la transacción de forma segura sin almacenar datos sensibles.
             </p>
           </div>
 
-          {/* Stripe visual card */}
-          <div className={`relative overflow-hidden rounded-2xl p-6 ${
-            isDark
-              ? "bg-linear-to-br from-[#1a1a2e] to-[#16213e] border border-white/8"
-              : "bg-linear-to-br from-gray-50 to-gray-100 border border-gray-200"
-          }`}>
-            {/* Decorative glow */}
-            <div className={`absolute -top-10 -right-10 w-32 h-32 rounded-full blur-3xl ${
-              isDark ? "bg-cyan-500/10" : "bg-cyan-400/10"
-            }`} />
-            <div className={`absolute -bottom-10 -left-10 w-24 h-24 rounded-full blur-2xl ${
-              isDark ? "bg-violet-500/10" : "bg-violet-400/10"
-            }`} />
+          {/* Importe Puro */}
+          <div className="py-2">
+            <span className="text-3xl font-bold font-mono tracking-tight text-white block">
+              {finalPrice}
+            </span>
+            <span className="text-xs text-white/40 font-mono block mt-1">
+              Facturación periódica mensual de suscripción
+            </span>
+          </div>
 
-            <div className="relative space-y-5">
-              {/* Header row */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${
-                    isDark ? "bg-white/8" : "bg-white shadow-sm"
-                  }`}>
-                    <CreditCard size={18} weight="duotone" className={isDark ? "text-cyan-400" : "text-cyan-600"} />
-                  </div>
-                  <span className={`text-sm font-medium ${isDark ? "text-gray-300" : "text-gray-700"}`}>
-                    Stripe Checkout
-                  </span>
-                </div>
-                <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                  isDark
-                    ? "bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20"
-                    : "bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200"
-                }`}>
-                  <ShieldCheck size={12} weight="fill" />
-                  {t("ssl_encryption")}
-                </div>
-              </div>
+          {/* Botón de Salto Directo a Stripe (Platino Monocromático Puro) */}
+          <div className="space-y-2.5 pt-1">
+            <button
+              type="button"
+              onClick={onPurchase}
+              className="w-full py-3.5 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md bg-white hover:bg-neutral-200 text-black active:scale-[0.99]"
+            >
+              <span>{t("pay_with_stripe")} ({finalPrice})</span>
+              <ArrowSquareOut size={16} weight="bold" />
+            </button>
 
-              {/* Amount */}
-              <div className="text-center py-3">
-                <p className={`text-xs font-medium uppercase tracking-wider mb-1.5 ${isDark ? "text-gray-500" : "text-gray-400"}`}>
-                  {t("total_to_pay")}
-                </p>
-                <p className={`text-4xl font-bold tracking-tight ${isDark ? "text-white" : "text-gray-900"}`}>
-                  {finalPrice}
-                </p>
-              </div>
-
-              {/* Trust badges */}
-              <div className={`flex items-center justify-center gap-4 pt-2 border-t ${
-                isDark ? "border-white/6" : "border-gray-200"
-              }`}>
-                {["Visa", "Mastercard", "Amex"].map((brand) => (
-                  <span
-                    key={brand}
-                    className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-md ${
-                      isDark
-                        ? "bg-white/5 text-gray-500"
-                        : "bg-gray-100 text-gray-400"
-                    }`}
-                  >
-                    {brand}
-                  </span>
-                ))}
-              </div>
+            <div className="flex items-center justify-center gap-2 text-[10px] font-mono text-white/30 text-center">
+              <ShieldCheck size={13} />
+              <span>Visa • Mastercard • Amex • Apple Pay • TLS 1.3</span>
             </div>
-          </div>
 
-          {/* Security note */}
-          <div className="flex items-center justify-center gap-2">
-            <LockSimple size={14} weight="bold" className={isDark ? "text-emerald-500" : "text-emerald-600"} />
-            <p className={`text-xs ${isDark ? "text-gray-500" : "text-gray-500"}`}>
-              {t("end_to_end_encryption")}
-            </p>
+            {onBack && (
+              <button
+                type="button"
+                onClick={onBack}
+                className="w-full py-1 text-xs text-white/40 hover:text-white transition-colors cursor-pointer text-center"
+              >
+                ← Volver al resumen
+              </button>
+            )}
           </div>
-
-          {/* CTA button */}
-          <button
-            onClick={onPurchase}
-            className={`
-              w-full py-3.5 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 text-[15px]
-              ${isDark
-                ? "bg-cyan-500 text-black hover:bg-cyan-400 shadow-[0_0_24px_rgba(0,255,255,0.25)]"
-                : "bg-gray-900 text-white hover:bg-gray-800 shadow-lg"
-              }
-            `}
-          >
-            {t("pay_with_stripe")} {finalPrice}
-            <ArrowSquareOut size={18} weight="bold" />
-          </button>
         </>
       )}
     </motion.div>

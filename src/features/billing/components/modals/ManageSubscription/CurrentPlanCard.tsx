@@ -1,5 +1,5 @@
 import React from "react";
-import { CheckCircle } from "@phosphor-icons/react";
+import { Check } from "@phosphor-icons/react";
 import { motion } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 
@@ -18,61 +18,64 @@ export const CurrentPlanCard: React.FC<CurrentPlanCardProps> = ({
 }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const isActive = status.toLowerCase() === "active" || status.toLowerCase() === "trial";
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.1 }}
-      className={`rounded-2xl p-5 ${
+      transition={{ duration: 0.3 }}
+      className={`rounded-2xl p-5 border transition-colors ${
         isDark
-          ? "bg-linear-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 shadow-lg shadow-cyan-500/5"
-          : "bg-linear-to-br from-blue-500/5 to-indigo-500/5 border border-blue-500/20 shadow-lg"
+          ? "bg-white/[0.02] border-white/8 backdrop-blur-xl hover:border-white/12"
+          : "bg-white border-gray-200 shadow-xs hover:border-gray-300"
       }`}
     >
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-start justify-between mb-4">
         <div>
           <div
-            className={`text-xs font-semibold tracking-wider mb-1 ${
-              isDark ? "text-cyan-300" : "text-blue-700"
+            className={`text-[10px] font-mono uppercase tracking-[0.18em] mb-1 ${
+              isDark ? "text-white/40" : "text-gray-500"
             }`}
           >
             CURRENT PLAN
           </div>
           <div
-            className={`text-2xl font-bold ${
-              isDark ? "text-white" : "text-gray-900"
+            className={`text-lg sm:text-xl font-semibold tracking-tight ${
+              isDark ? "text-zinc-100" : "text-gray-900"
             }`}
           >
             {plan}
           </div>
         </div>
-        <motion.div
-          animate={{ scale: [1, 1.05, 1] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className={`px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-1 ${
-            isDark
-              ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400"
-              : "bg-emerald-500/10 border border-emerald-500/20 text-emerald-600"
+        <div
+          className={`px-2.5 py-1 rounded-md text-[10px] font-mono uppercase tracking-wider border flex items-center gap-1.5 shrink-0 ${
+            isActive
+              ? isDark
+                ? "bg-white/[0.08] text-white border-white/10 shadow-xs font-semibold"
+                : "bg-gray-900 text-white font-semibold"
+              : isDark
+                ? "bg-white/[0.03] text-white/50 border-white/[0.05]"
+                : "bg-gray-100 text-gray-600 border-gray-200"
           }`}
         >
-          <CheckCircle className="w-3 h-3" />
-          {status.toUpperCase()}
-        </motion.div>
+          {isActive && <Check size={11} strokeWidth={3} className="text-white/80" />}
+          <span>{status.toUpperCase()}</span>
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-4 pt-3 border-t border-white/6">
         <div>
           <div
-            className={`text-xs font-semibold mb-1 ${
-              isDark ? "text-gray-400" : "text-gray-500"
+            className={`text-[10px] font-mono uppercase tracking-wider mb-1 ${
+              isDark ? "text-white/40" : "text-gray-500"
             }`}
           >
             BILLING CYCLE
           </div>
           <div
-            className={`text-base font-bold ${
-              isDark ? "text-white" : "text-gray-900"
+            className={`text-sm font-mono font-medium ${
+              isDark ? "text-zinc-200" : "text-gray-900"
             }`}
           >
             {billingCycle}
@@ -80,15 +83,15 @@ export const CurrentPlanCard: React.FC<CurrentPlanCardProps> = ({
         </div>
         <div>
           <div
-            className={`text-xs font-semibold mb-1 ${
-              isDark ? "text-gray-400" : "text-gray-500"
+            className={`text-[10px] font-mono uppercase tracking-wider mb-1 ${
+              isDark ? "text-white/40" : "text-gray-500"
             }`}
           >
             PRICE
           </div>
           <div
-            className={`text-base font-bold ${
-              isDark ? "text-cyan-400" : "text-blue-600"
+            className={`text-base font-mono font-bold tracking-tight ${
+              isDark ? "text-zinc-100" : "text-gray-900"
             }`}
           >
             {price}/mo

@@ -102,13 +102,15 @@ export const useManageSubscription = (subscription: Subscription | null, plan: P
     setShowPauseConfirm(false);
   };
 
-  const nextBillingDate = subscription?.current_period_end 
-    ? new Date(subscription.current_period_end).toLocaleDateString() 
-    : "N/A";
-    
-  const activeSince = subscription?.created_at 
-    ? new Date(subscription.created_at).toLocaleDateString() 
-    : "N/A";
+  const formatDate = (dateStr?: string | null) => {
+    if (!dateStr) return "N/A";
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime()) || date.getFullYear() < 2000) return "N/A";
+    return date.toLocaleDateString();
+  };
+
+  const nextBillingDate = formatDate(subscription?.current_period_end);
+  const activeSince = formatDate(subscription?.created_at);
 
   const subscriptionDetails = {
     plan: plan?.name || "No Plan",

@@ -24,6 +24,9 @@ import {
   DotsThree,
   Warning,
   CheckCircle,
+  Check,
+  X,
+  ArrowCounterClockwise,
   Clock,
   CreditCard,
   Money,
@@ -39,7 +42,7 @@ interface OrdersTableProps {
   hideFooter?: boolean;
 }
 
-export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: OrdersTableProps) {
+export const OrdersTable = React.memo(function OrdersTable({ hideFooter = true }: OrdersTableProps) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const isMobile = useIsMobile();
@@ -145,27 +148,31 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
         switch (s) {
           case "completed":
           case "active":
-            return "text-emerald-400 bg-emerald-500/10 ring-emerald-500/20";
+            return "bg-white/[0.08] text-white border border-white/10 shadow-xs font-semibold";
           case "processing":
-            return "text-cyan-400 bg-cyan-500/10 ring-cyan-500/20";
+            return "bg-white/[0.04] text-white/70 border border-white/[0.06] font-medium";
           case "cancelled":
           case "failed":
-            return "text-red-400 bg-red-500/10 ring-red-500/20";
+            return "bg-red-500/10 text-red-300 border border-red-500/20 font-medium";
+          case "refunded":
+            return "bg-white/[0.04] text-white/60 border border-white/[0.06] font-medium";
           default: // pending
-            return "text-amber-400 bg-amber-500/10 ring-amber-500/20";
+            return "bg-white/[0.03] text-white/50 border border-white/[0.05] font-medium";
         }
       } else {
         switch (s) {
           case "completed":
           case "active":
-            return "text-emerald-600 bg-emerald-50 ring-emerald-200";
+            return "bg-gray-900 text-white font-semibold shadow-xs";
           case "processing":
-            return "text-blue-600 bg-blue-50 ring-blue-200";
+            return "bg-gray-100 text-gray-700 font-medium";
           case "cancelled":
           case "failed":
-            return "text-red-600 bg-red-50 ring-red-200";
+            return "bg-red-50 text-red-700 border border-red-200 font-medium";
+          case "refunded":
+            return "bg-gray-100 text-gray-600 font-medium";
           default: // pending
-            return "text-amber-600 bg-amber-50 ring-amber-200";
+            return "bg-amber-50 text-amber-700 border border-amber-200 font-medium";
         }
       }
     },
@@ -177,20 +184,21 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
     switch (s) {
       case "completed":
       case "active":
-        return <CheckCircle size={11} weight="fill" className="mr-1" />;
+        return <Check size={10} strokeWidth={3} className="mr-1 text-white/80" />;
       case "processing":
         return (
           <Clock
-            size={11}
-            weight="bold"
-            className="mr-1 animate-[spin_3s_linear_infinite] will-change-transform"
+            size={10}
+            className="mr-1 animate-[spin_3s_linear_infinite] will-change-transform text-white/60"
           />
         );
       case "cancelled":
       case "failed":
-        return <Warning size={11} weight="fill" className="mr-1" />;
+        return <X size={10} strokeWidth={3} className="mr-1 text-red-400" />;
+      case "refunded":
+        return <ArrowCounterClockwise size={10} className="mr-1 text-white/60" />;
       default:
-        return <Clock size={11} weight="bold" className="mr-1" />;
+        return <Clock size={10} className="mr-1 text-white/40" />;
     }
   }, []);
 
@@ -208,13 +216,13 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
             <div>
               <span
                 className={`text-xs font-mono font-semibold tracking-tight block ${
-                  isDark ? "text-cyan-400" : "text-blue-600"
+                  isDark ? "text-zinc-100" : "text-gray-900"
                 }`}
               >
                 {mainRef}
               </span>
               {hash && (
-                <span className={`text-[10px] font-mono ${isDark ? "text-gray-600" : "text-gray-400"}`}>
+                <span className={`text-[10px] font-mono ${isDark ? "text-white/40" : "text-gray-400"}`}>
                   {hash}
                 </span>
               )}
@@ -230,20 +238,20 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
           return (
             <div className="flex items-center gap-2.5">
               <div className={`shrink-0 w-7 h-7 rounded-lg flex items-center justify-center ${
-                isDark ? "bg-white/6 border border-white/6" : "bg-gray-100 border border-gray-200/60"
+                isDark ? "bg-white/[0.04] border border-white/8" : "bg-gray-100 border border-gray-200/60"
               }`}>
-                <Package size={14} weight="duotone" className={isDark ? "text-cyan-400" : "text-blue-500"} />
+                <Package size={14} className={isDark ? "text-white/60" : "text-gray-600"} />
               </div>
               <div className="min-w-0 max-w-[180px]">
                 <span
-                  className={`text-xs font-semibold truncate block ${
-                    isDark ? "text-white" : "text-gray-900"
+                  className={`text-xs font-medium truncate block ${
+                    isDark ? "text-zinc-200" : "text-gray-900"
                   }`}
                 >
                   {order.product}
                 </span>
                 {order.itemType && (
-                  <span className={`text-[10px] capitalize ${isDark ? "text-gray-500" : "text-gray-400"}`}>
+                  <span className={`text-[10px] font-mono uppercase tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>
                     {order.itemType}
                   </span>
                 )}
@@ -260,10 +268,10 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
           const name = order.userName || "N/A";
           return (
             <div>
-              <span className={`text-xs font-medium block ${isDark ? "text-gray-200" : "text-gray-700"}`}>
+              <span className={`text-xs font-medium block ${isDark ? "text-zinc-200" : "text-gray-700"}`}>
                 {name}
               </span>
-              <span className={`text-[10px] ${isDark ? "text-gray-600" : "text-gray-400"}`}>
+              <span className={`text-[10px] font-mono ${isDark ? "text-white/40" : "text-gray-400"}`}>
                 {order.date}
               </span>
             </div>
@@ -278,7 +286,7 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
           return (
             <span
               className={`font-mono text-[11px] ${
-                isDark ? "text-cyan-400/60" : "text-blue-500/60"
+                isDark ? "text-white/40" : "text-gray-500"
               }`}
             >
               {order.userEmail}
@@ -294,10 +302,10 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
           const name = order.customer;
           return (
             <div>
-              <span className={`text-xs font-medium block ${isDark ? "text-gray-200" : "text-gray-700"}`}>
+              <span className={`text-xs font-medium block ${isDark ? "text-zinc-200" : "text-gray-700"}`}>
                 {name}
               </span>
-              <span className={`text-[10px] ${isDark ? "text-gray-600" : "text-gray-400"}`}>
+              <span className={`text-[10px] font-mono ${isDark ? "text-white/40" : "text-gray-400"}`}>
                 {order.date}
               </span>
             </div>
@@ -311,16 +319,16 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
           const order = row.original;
           return (
             <div
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium ${
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-mono ${
                 isDark
-                  ? "bg-white/4 text-gray-300 ring-1 ring-inset ring-white/6"
-                  : "bg-gray-50 text-gray-600 ring-1 ring-inset ring-gray-200/60"
+                  ? "bg-white/[0.03] text-white/70 border border-white/[0.06]"
+                  : "bg-gray-50 text-gray-600 border border-gray-200/60"
               }`}
             >
               {order.paymentMethod === "credit_card" || order.paymentMethod === "card" ? (
-                <CreditCard size={13} weight="fill" className={isDark ? "text-gray-500" : "text-gray-400"} />
+                <CreditCard size={12} className={isDark ? "text-white/40" : "text-gray-400"} />
               ) : (
-                <Money size={13} weight="fill" className={isDark ? "text-gray-500" : "text-gray-400"} />
+                <Money size={12} className={isDark ? "text-white/40" : "text-gray-400"} />
               )}
               <span className="capitalize">
                 {order.paymentProvider || order.paymentMethod || "Stripe"}
@@ -336,7 +344,7 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
           const order = row.original;
           return (
             <span
-              className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wide ring-1 ring-inset ${getStatusColor(
+              className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-mono uppercase tracking-wider ${getStatusColor(
                 order.status,
               )}`}
             >
@@ -355,7 +363,7 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
           const number = order.amount.replace(/[^\d.,]/g, '');
           return (
             <div className="text-right text-xs font-mono tabular-nums">
-              <span className={isDark ? "text-gray-500" : "text-gray-400"}>{currency}</span>
+              <span className={isDark ? "text-white/40" : "text-gray-400"}>{currency} </span>
               <span className={`font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{number}</span>
             </div>
           );
@@ -378,7 +386,7 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
                   }}
                   className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all duration-150 active:scale-95 ${
                     isDark
-                      ? "bg-white/5 hover:bg-white/10 text-white border border-white/5 hover:border-white/10"
+                      ? "bg-white/5 hover:bg-white/10 text-white border border-white/8 hover:border-white/15"
                       : "bg-gray-100 hover:bg-gray-200 text-gray-800 border border-gray-200"
                   }`}
                 >
@@ -394,8 +402,8 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
                   }}
                   className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all duration-150 active:scale-95 ${
                     isDark
-                      ? "bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/20"
-                      : "bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200/60"
+                      ? "bg-white/5 hover:bg-white/10 text-white/90 border border-white/8"
+                      : "bg-gray-100 hover:bg-gray-200 text-gray-800 border border-gray-200"
                   }`}
                 >
                   <DownloadSimple size={12} weight="bold" />
@@ -412,7 +420,7 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
                       }}
                       className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all duration-150 active:scale-95 ${
                         isDark
-                          ? "bg-white/5 hover:bg-white/10 text-gray-300 border border-white/5"
+                          ? "bg-white/5 hover:bg-white/10 text-gray-300 border border-white/8"
                           : "bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200"
                       }`}
                     >
@@ -427,8 +435,8 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter }: Order
                       }}
                       className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all duration-150 active:scale-95 ${
                         isDark
-                          ? "bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20"
-                          : "bg-amber-50 hover:bg-amber-100 text-amber-600 border border-amber-200"
+                          ? "bg-white/5 hover:bg-white/10 text-white/70 border border-white/8"
+                          : "bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200"
                       }`}
                     >
                       <Archive size={12} weight="bold" />

@@ -3,7 +3,6 @@
 import React from "react";
 import {
   ShoppingCart,
-  Shield,
   CheckCircle,
   DownloadSimple,
   Key,
@@ -71,164 +70,198 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
     ? formatPrice(finalPrice)
     : formatCurrency(finalPrice, product.currency);
 
+  const getPlanTextColor = (tier?: number) => {
+    switch (tier) {
+      case 1:
+        return "text-sky-400";
+      case 2:
+        return "text-violet-400";
+      case 3:
+        return "text-amber-400";
+      default:
+        return theme === "dark" ? "text-[#A1A1AA]" : "text-gray-500";
+    }
+  };
+
+  const getPlanLabel = (tier?: number) => {
+    switch (tier) {
+      case 1:
+        return t("tier_basic");
+      case 2:
+        return "Plan Pro";
+      case 3:
+        return t("tier_enterprise");
+      default:
+        return t("all_plans");
+    }
+  };
+
+  const planColorClass = getPlanTextColor(product.min_plan_tier);
+  const planLabel = getPlanLabel(product.min_plan_tier);
+
   return (
     <div className="lg:sticky lg:top-6 space-y-4">
       {/* Price Card / Ownership Card */}
       <div
         className={`
-          p-6 rounded-2xl border
+          p-5 sm:p-6 rounded-2xl border relative overflow-hidden shadow-xl flex flex-col gap-4
           ${
-            hasAccess
-              ? isPlan
-                ? theme === "dark"
-                  ? "bg-linear-to-br from-violet-900/20 to-purple-900/20 border-violet-500/20"
-                  : "bg-linear-to-br from-violet-50 to-purple-50 border-violet-200"
-                : theme === "dark"
-                  ? "bg-linear-to-br from-emerald-900/20 to-green-900/20 border-emerald-500/20"
-                  : "bg-linear-to-br from-emerald-50 to-green-50 border-emerald-200"
-              : theme === "dark"
-                ? "bg-linear-to-br from-blue-900/20 to-indigo-900/20 border-blue-500/20"
-                : "bg-linear-to-br from-blue-50 to-indigo-50 border-blue-200"
+            theme === "dark"
+              ? "bg-[#0D0D11] border-white/[0.08]"
+              : "bg-white border-gray-200"
           }
         `}
       >
+        {/* Subtle accent highlight in dark mode */}
+        {theme === "dark" && (
+          <div className="absolute top-0 inset-x-0 h-px bg-linear-to-r from-transparent via-white/10 to-transparent" />
+        )}
+
         {hasAccess ? (
           /* Owned / Plan State */
           <>
-            <div className="flex items-center gap-2 mb-4">
-              {isPlan ? (
-                <Sparkle
-                  className={`size-6 ${theme === "dark" ? "text-violet-400" : "text-violet-600"}`}
-                />
-              ) : (
-                <CheckCircle
-                  className={`size-6 ${theme === "dark" ? "text-emerald-400" : "text-emerald-600"}`}
-                />
+            {isPlan ? (
+              <div className="flex items-center gap-2 text-violet-400">
+                <Sparkle weight="fill" className="size-5 shrink-0" />
+                <span className="text-xs font-bold uppercase tracking-wider font-mono">
+                  {t("included_in_plan")}
+                </span>
+              </div>
+            ) : (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-emerald-400">
+                  <CheckCircle weight="fill" className="size-5 shrink-0" />
+                  <span className="text-xs font-bold uppercase tracking-wider font-mono">
+                    {t("acquired")}
+                  </span>
+                </div>
+                <span className="text-[10px] font-mono text-white/50 tracking-wider uppercase">
+                  Licencia Activa
+                </span>
+              </div>
+            )}
+
+            {isPlan && (
+              <p className={`text-xs leading-relaxed font-sans ${theme === "dark" ? "text-white/60" : "text-gray-600"}`}>
+                Este módulo está habilitado sin costo adicional en tu suscripción corporativa activa.
+              </p>
+            )}
+
+            <div className="flex flex-col gap-2 pt-1">
+              {!!product.version && (
+                <button
+                  type="button"
+                  onClick={onDownload}
+                  className="w-full py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 active:scale-[0.99] transition-all cursor-pointer shadow-md bg-white hover:bg-neutral-200 text-black"
+                >
+                  <DownloadSimple weight="bold" className="size-4" />
+                  <span>
+                    {t("download")}{" "}
+                    {product.version.startsWith("v")
+                      ? product.version
+                      : `v${product.version}`}
+                  </span>
+                </button>
               )}
-              <span
-                className={`
-                  text-xl font-bold
-                  ${
-                    isPlan
-                      ? theme === "dark"
-                        ? "text-violet-400"
-                        : "text-violet-700"
-                      : theme === "dark"
-                        ? "text-emerald-400"
-                        : "text-emerald-700"
-                  }
-                `}
-              >
-                {isPlan ? t("included_in_plan") : t("acquired")}
-              </span>
+
+              {!isPlan && effectiveAccess === "owned" && (
+                <button
+                  type="button"
+                  onClick={() => onViewLicense?.()}
+                  className={`
+                    w-full py-2.5 rounded-xl text-xs font-medium flex items-center justify-center gap-2 transition-all cursor-pointer
+                    ${
+                      theme === "dark"
+                        ? "bg-[#141418] hover:bg-[#1C1C22] text-white/80 border border-white/[0.08]"
+                        : "bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200"
+                    }
+                  `}
+                >
+                  <Key className="size-3.5" />
+                  <span>{t("view_license")}</span>
+                </button>
+              )}
             </div>
-            {!!product.version && (
-              <button
-                onClick={onDownload}
-                className={`
-                  w-full h-12 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-all mb-3
-                  ${
-                    isPlan
-                      ? theme === "dark"
-                        ? "bg-linear-to-r from-violet-400 to-purple-400 text-black hover:shadow-lg hover:scale-[1.02]"
-                        : "bg-linear-to-r from-violet-600 to-purple-600 text-white hover:shadow-lg hover:scale-[1.02]"
-                      : theme === "dark"
-                        ? "bg-linear-to-r from-emerald-400 to-green-400 text-black hover:shadow-lg hover:scale-[1.02]"
-                        : "bg-linear-to-r from-emerald-600 to-green-600 text-white hover:shadow-lg hover:scale-[1.02]"
-                  }
-                `}
-              >
-                <DownloadSimple className="size-5" />
-                {t("download")}
-              </button>
-            )}
-            {!isPlan && effectiveAccess === "owned" && (
-              <button
-                onClick={() => onViewLicense?.()}
-                className={`
-                  w-full h-10 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-all
-                  ${
-                    theme === "dark"
-                      ? "bg-white/10 border border-white/20 text-white hover:bg-white/20"
-                      : "bg-gray-100 border border-gray-200 text-gray-700 hover:bg-gray-200"
-                  }
-                `}
-              >
-                <Key className="size-4" />
-                {t("view_license")}
-              </button>
-            )}
           </>
         ) : (
           /* Not Owned State */
           <>
-            <div className="mb-4">
-              <div className="flex flex-col gap-1 items-start">
-                {activeCoupon && (
-                  <span className="text-sm line-through text-gray-400 font-medium">
+            {/* ── AQUÍ Y ÚNICAMENTE AQUÍ SE MUESTRA PLAN PRO (1 SOLA VEZ EN TODO EL MODAL, SOLO COLOR DE TEXTO) ── */}
+            <div className="flex items-center justify-between">
+              <span className={`text-[10px] font-mono uppercase tracking-[0.18em] ${theme === "dark" ? "text-white/40" : "text-gray-500"}`}>
+                Licencia Comercial
+              </span>
+              <span className={`text-[10px] font-mono tracking-wider uppercase font-semibold ${planColorClass}`}>
+                {planLabel}
+              </span>
+            </div>
+
+            <div className="flex flex-col">
+              {activeCoupon && (
+                <div className="flex items-center gap-2 mb-0.5">
+                  <span className={`text-xs line-through font-mono ${theme === "dark" ? "text-white/30" : "text-gray-400"}`}>
                     {formattedOriginalPrice}
                   </span>
-                )}
-                <span
-                  className={`
-                    text-4xl font-bold bg-linear-to-r bg-clip-text text-transparent
-                    ${
-                      activeCoupon
-                        ? "from-emerald-400 to-green-500"
-                        : theme === "dark"
-                          ? "from-cyan-400 to-blue-400"
-                          : "from-blue-600 to-indigo-600"
-                    }
-                  `}
-                >
+                  {/* Floating text - Sin Cajas, Sin Bordes */}
+                  <span className="text-[10px] font-mono tracking-wider uppercase font-semibold text-emerald-400">
+                    {t("coupon_applied")} {activeCoupon.type === "percentage" ? `(-${activeCoupon.value}%)` : ""}
+                  </span>
+                </div>
+              )}
+
+              <div className="flex items-baseline gap-1.5">
+                <span className={`text-3xl sm:text-4xl font-extrabold tracking-tight font-sans ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
                   {formattedFinalPrice}
                 </span>
-                {activeCoupon && (
-                  <span className="text-xs font-semibold text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-full uppercase tracking-wider mt-1">
-                    {t("coupon_applied")}
-                  </span>
-                )}
+                <span className={`text-xs ${theme === "dark" ? "text-white/40" : "text-gray-500"}`}>
+                  {product.currency}
+                </span>
               </div>
             </div>
+
+            {/* Primary Action Button (Platino Monocromático Puro) */}
             <button
+              type="button"
               onClick={onPurchase}
-              className={`
-                w-full h-12 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-all mb-3
-                ${
-                  theme === "dark"
-                    ? "bg-linear-to-r from-cyan-400 to-blue-400 text-black hover:shadow-lg hover:scale-[1.02]"
-                    : "bg-linear-to-r from-blue-600 to-indigo-600 text-white hover:shadow-lg hover:scale-[1.02]"
-                }
-              `}
+              className="w-full py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 active:scale-[0.99] transition-all cursor-pointer shadow-md bg-white hover:bg-neutral-200 text-black"
             >
-              <ShoppingCart className="size-5" />
-              {t("buy_now")}
+              <ShoppingCart weight="bold" className="size-4" />
+              <span>{t("buy_now")}</span>
             </button>
           </>
         )}
       </div>
 
-      {/* Info Card */}
+      {/* Info Card (Sin Repetir Plan Pro - Reemplazado por Licenciamiento Comercial) */}
       <div
         className={`
-          p-6 rounded-2xl border
-          ${theme === "dark" ? "bg-white/5 border-white/10" : "bg-white border-gray-200"}
+          p-4 sm:p-5 rounded-2xl border flex flex-col gap-3
+          ${
+            theme === "dark"
+              ? "bg-[#0D0D11] border-white/[0.06]"
+              : "bg-white border-gray-200"
+          }
         `}
       >
-        <h4
-          className={`font-semibold mb-4 ${
-            theme === "dark" ? "text-white" : "text-gray-900"
+        <span
+          className={`text-[10px] font-mono uppercase tracking-[0.18em] font-semibold ${
+            theme === "dark" ? "text-white/40" : "text-gray-500"
           }`}
         >
           {t("product_info")}
-        </h4>
-        <div className="space-y-3 text-sm">
+        </span>
+        <div className="space-y-2.5 text-xs">
           {[
             {
               label: t("author"),
               value: product.seller_name || t("anonymous"),
+              isMono: false,
             },
-            { label: t("category"), value: product.category_name || t("general") },
+            {
+              label: t("category"),
+              value: product.category_name || t("general"),
+              isMono: false,
+            },
             {
               label: t("version"),
               value: product.version
@@ -236,35 +269,29 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
                   ? product.version
                   : `v${product.version}`
                 : "N/A",
+              isMono: true,
             },
             {
               label: t("published"),
               value: new Date(product.created_at).toLocaleDateString(),
+              isMono: true,
             },
             {
-              label: t("min_plan"),
-              value:
-                product.min_plan_tier === 0
-                  ? t("all_plans")
-                  : product.min_plan_tier === 1
-                    ? t("basic")
-                    : product.min_plan_tier === 2
-                      ? t("pro")
-                      : product.min_plan_tier === 3
-                        ? t("enterprise")
-                        : t("private"),
+              label: "Licenciamiento",
+              value: "Comercial Perpetua",
+              isMono: true,
             },
           ].map((item) => (
-            <div key={item.label} className="flex justify-between">
+            <div key={item.label} className="flex justify-between items-center">
               <span
-                className={theme === "dark" ? "text-gray-400" : "text-gray-600"}
+                className={theme === "dark" ? "text-white/50" : "text-gray-500"}
               >
                 {item.label}
               </span>
               <span
                 className={`font-medium ${
-                  theme === "dark" ? "text-white" : "text-gray-900"
-                }`}
+                  item.isMono ? "font-mono" : ""
+                } ${theme === "dark" ? "text-white" : "text-gray-900"}`}
               >
                 {item.value}
               </span>
@@ -273,76 +300,10 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
         </div>
       </div>
 
-      {/* Guarantee Badge */}
-      <div
-        className={`
-          p-4 rounded-2xl border
-          ${
-            theme === "dark"
-              ? "bg-emerald-500/10 border-emerald-500/20"
-              : "bg-emerald-50 border-emerald-200"
-          }
-        `}
-      >
-        <div className="flex items-start gap-3">
-          <Shield
-            className={`size-6 shrink-0 ${
-              theme === "dark" ? "text-emerald-400" : "text-emerald-600"
-            }`}
-          />
-          <div>
-            <h4
-              className={`font-semibold text-sm mb-1 ${
-                theme === "dark" ? "text-emerald-400" : "text-emerald-900"
-              }`}
-            >
-              {t("guarantee_title")}
-            </h4>
-            <p
-              className={`text-xs ${
-                theme === "dark" ? "text-emerald-400/80" : "text-emerald-700"
-              }`}
-            >
-              {t("guarantee_desc")}
-            </p>
-          </div>
-        </div>
+      {/* Micro-Footer Notice */}
+      <div className={`text-[10px] text-center font-mono ${theme === "dark" ? "text-white/30" : "text-gray-400"}`}>
+        Entrega digital inmediata • Soporte directo del autor
       </div>
-
-      {/* Tags Section */}
-      {product.tags && product.tags.length > 0 && (
-        <div
-          className={`
-            p-6 rounded-2xl border
-            ${theme === "dark" ? "bg-white/5 border-white/10" : "bg-white border-gray-200"}
-          `}
-        >
-          <h4
-            className={`font-semibold mb-4 ${
-              theme === "dark" ? "text-white" : "text-gray-900"
-            }`}
-          >
-            {t("categories_and_tags")}
-          </h4>
-          <div className="flex flex-wrap gap-2">
-            {product.tags.map((tag, i) => (
-              <span
-                key={`${tag}-${i}`}
-                className={`
-                  px-2.5 py-1 rounded-lg text-xs font-bold border transform transition-all hover:scale-105 cursor-default
-                  ${
-                    theme === "dark"
-                      ? "bg-cyan-500/10 border-cyan-500/20 text-cyan-400"
-                      : "bg-cyan-50 border-cyan-200 text-cyan-700"
-                  }
-                `}
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 };

@@ -48,12 +48,11 @@ export const VersionControl: React.FC<VersionControlProps> = ({ createRef }) => 
         toolbar={
           <div className="flex items-center justify-between w-full">
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
               <span className={`text-xs font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>
                 All Versions
               </span>
             </div>
-            <span className={`text-[11px] tabular-nums ${isDark ? "text-gray-500" : "text-gray-400"}`}>
+            <span className={`text-[11px] font-mono tabular-nums ${isDark ? "text-white/40" : "text-gray-500"}`}>
               {totalVersions != null ? `Showing ${versions.length} of ${totalVersions} versions` : ""}
             </span>
           </div>

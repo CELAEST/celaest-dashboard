@@ -102,35 +102,43 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({
                   key={role.id}
                   type="button"
                   onClick={() => form.setValue("role", role.id)}
-                  className={`p-4 rounded-xl border text-left transition-all ${
+                  className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer font-mono ${
                     inviteRole === role.id
-                      ? "bg-cyan-500/10 border-cyan-500 shadow-sm"
+                      ? isDark
+                        ? "bg-zinc-800/40 border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] text-zinc-100 font-semibold"
+                        : "bg-white border-black/6 shadow-sm"
                       : isDark
-                        ? "bg-black/40 border-white/5 hover:border-white/10"
-                        : "bg-white border-gray-200 hover:border-gray-300"
+                        ? "bg-white/[0.02] border-white/[0.05] hover:border-white/[0.12]"
+                        : "bg-gray-50 border-gray-200 hover:border-gray-300"
                   }`}
                 >
                   <div className="flex items-center gap-2 mb-1">
                     <Shield
                       className={`w-4 h-4 ${
                         inviteRole === role.id
-                          ? "text-cyan-500"
-                          : "text-gray-500"
+                          ? isDark
+                            ? "text-zinc-100"
+                            : "text-gray-900"
+                          : isDark
+                            ? "text-white/40"
+                            : "text-gray-400"
                       }`}
                     />
                     <span
-                      className={`text-sm font-bold ${
+                      className={`text-xs font-bold ${
                         inviteRole === role.id
                           ? isDark
-                            ? "text-white"
+                            ? "text-zinc-100"
                             : "text-gray-900"
-                          : "text-gray-500"
+                          : isDark
+                            ? "text-white/40"
+                            : "text-gray-500"
                       }`}
                     >
                       {role.label}
                     </span>
                   </div>
-                  <p className="text-[10px] text-gray-500">{role.desc}</p>
+                  <p className={`text-[10px] ${isDark ? "text-white/40" : "text-gray-500"}`}>{role.desc}</p>
                 </button>
               ))}
             </div>
@@ -140,9 +148,9 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className={`flex-1 px-4 py-3 rounded-xl border text-sm font-bold transition-all ${
+              className={`flex-1 px-4 py-2.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
                 isDark
-                  ? "border-white/10 text-gray-300 hover:bg-white/5"
+                  ? "border-white/8 bg-white/[0.04] text-white/70 hover:text-white hover:bg-white/[0.08]"
                   : "border-gray-200 text-gray-600 hover:bg-gray-50"
               }`}
             >
@@ -151,7 +159,7 @@ export const InviteMemberModal: React.FC<InviteMemberModalProps> = ({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 px-4 py-3 rounded-xl bg-linear-to-r from-cyan-600 to-blue-600 text-white font-black shadow-lg shadow-cyan-500/20 active:scale-95 transition-all disabled:opacity-50"
+              className="flex-1 px-4 py-2.5 rounded-xl bg-white text-black font-semibold uppercase tracking-wider text-xs shadow-md hover:bg-neutral-200 transition-all cursor-pointer disabled:opacity-50 font-jakarta"
             >
               {isSubmitting ? tCommon("sending") : t("send_invitation")}
             </button>

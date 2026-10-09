@@ -77,35 +77,41 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({ review }) => {
 
   return (
     <div
-      className={`rounded-xl border p-4 backdrop-blur-sm transition-colors ${
+      className={`rounded-xl border p-4 transition-colors ${
         isDark
-          ? "border-white/10 bg-white/5 hover:border-white/20"
+          ? "border-white/[0.06] bg-[#0D0D11] hover:border-white/10"
           : "border-gray-200 bg-white hover:border-gray-300"
       }`}
     >
       <div className="mb-3 flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-linear-to-br from-blue-500 to-purple-600 text-sm font-bold text-white">
+          <div
+            className={`flex h-9 w-9 items-center justify-center rounded-xl text-xs font-mono font-bold ${
+              isDark
+                ? "bg-[#141418] border border-white/[0.08] text-white/90"
+                : "bg-gray-100 border border-gray-200 text-gray-800"
+            }`}
+          >
             {initial}
           </div>
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <span
-                className={`font-medium ${
+                className={`font-medium text-xs ${
                   isDark ? "text-white" : "text-gray-900"
                 }`}
               >
                 {review.user_name}
               </span>
               {review.is_verified_purchase && (
-                <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-500 dark:text-emerald-400">
+                <span className="flex items-center gap-1 text-[10px] font-mono tracking-wider uppercase font-medium text-emerald-400">
                   <CheckCircle className="h-3 w-3" weight="fill" />
                   {t("verified_purchase")}
                 </span>
               )}
             </div>
             <span
-              className={`text-xs ${
+              className={`text-[11px] font-mono ${
                 isDark ? "text-white/40" : "text-gray-400"
               }`}
             >

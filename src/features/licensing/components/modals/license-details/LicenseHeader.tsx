@@ -1,5 +1,5 @@
-﻿import React from "react";
-import { X, Key, User, Envelope } from "@phosphor-icons/react";
+import React from "react";
+import { X, Key, User, Envelope, Check, Clock } from "@phosphor-icons/react";
 import { useRole } from "@/features/auth/hooks/useAuthorization";
 import type { LicenseResponse } from "@/features/licensing/types";
 
@@ -8,67 +8,67 @@ interface LicenseHeaderProps {
   onClose: () => void;
 }
 
-const STATUS_STYLES: Record<string, string> = {
-  active: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-  expired: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
-  trial: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-  revoked: "bg-red-500/10 text-red-400 border-red-500/20",
-};
-
 export const LicenseHeader: React.FC<LicenseHeaderProps> = ({
   license,
   onClose,
 }) => {
   const { isSuperAdmin } = useRole();
-  const statusStyle = STATUS_STYLES[license.status] ?? "bg-gray-500/10 text-gray-400 border-gray-500/20";
+
+  const renderStatus = (status: string) => {
+    if (status === "active") {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-mono uppercase tracking-wider bg-white/[0.08] text-white border border-white/10 font-semibold shadow-xs">
+          <Check size={10} strokeWidth={3} className="text-white/80" />
+          {status}
+        </span>
+      );
+    }
+    if (status === "revoked") {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-mono uppercase tracking-wider bg-red-500/10 text-red-300 border border-red-500/20 font-medium">
+          <X size={10} strokeWidth={3} className="text-red-400" />
+          {status}
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-mono uppercase tracking-wider bg-white/[0.04] text-white/60 border border-white/[0.06] font-medium">
+        <Clock size={10} className="text-white/40" />
+        {status}
+      </span>
+    );
+  };
 
   return (
-    <div className="relative px-8 py-6 border-b border-white/8 flex items-start justify-between overflow-hidden shrink-0">
-      {/* Gradient wash */}
-      <div className="absolute inset-0 bg-linear-to-r from-amber-500/10 via-amber-600/8 to-transparent" />
-      {/* Grid dots */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px)",
-          backgroundSize: "20px 20px",
-          pointerEvents: "none",
-        }}
-      />
-      {/* Bottom accent line */}
-      <div className="absolute bottom-0 left-0 h-px w-2/5 bg-linear-to-r from-amber-500/50 to-transparent" />
-
-      <div className="relative z-10 flex items-start gap-4">
-        <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 bg-[#111] text-amber-400 border border-white/10 shadow-lg shadow-amber-500/10 mt-0.5">
-          <Key size={22} />
+    <div className="relative px-6 py-4.5 border-b border-white/8 flex items-start justify-between shrink-0 bg-white/[0.015]">
+      <div className="relative z-10 flex items-start gap-3.5">
+        <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-white/[0.04] text-white/70 border border-white/8 mt-0.5">
+          <Key size={16} />
         </div>
         <div>
-          <div className="flex items-center gap-3 mb-1">
-            <h2 className="text-xl font-black italic tracking-tighter text-white uppercase">
+          <div className="flex items-center gap-2.5 mb-1 flex-wrap">
+            <h2 className="text-sm sm:text-base font-semibold tracking-tight text-zinc-100">
               {license.plan?.name ||
                 (license.metadata?.product_name as string) ||
                 license.license_key.substring(0, 16)}
             </h2>
-            <span className={`px-2 py-0.5 rounded text-[10px] font-black border uppercase tracking-wider ${statusStyle}`}>
-              {license.status}
-            </span>
+            {renderStatus(license.status)}
           </div>
-          <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40">
+          <p className="text-[10px] font-mono uppercase tracking-wider text-white/40">
             {license.id}
           </p>
 
           {isSuperAdmin && (license.user_name || license.user_email) && (
-            <div className="flex flex-wrap gap-4 mt-3">
+            <div className="flex flex-wrap gap-4 mt-2.5">
               {license.user_name && (
-                <div className="flex items-center gap-1.5 text-white/50 text-xs">
-                  <User size={12} className="text-purple-400" />
+                <div className="flex items-center gap-1.5 text-white/60 text-xs font-mono">
+                  <User size={12} className="text-white/40" />
                   {license.user_name}
                 </div>
               )}
               {license.user_email && (
-                <div className="flex items-center gap-1.5 text-white/50 text-xs">
-                  <Envelope size={12} className="text-purple-400" />
+                <div className="flex items-center gap-1.5 text-white/60 text-xs font-mono">
+                  <Envelope size={12} className="text-white/40" />
                   {license.user_email}
                 </div>
               )}
@@ -79,10 +79,11 @@ export const LicenseHeader: React.FC<LicenseHeaderProps> = ({
 
       <div className="relative z-10">
         <button
+          type="button"
           onClick={onClose}
-          className="p-2 rounded-full transition-colors text-gray-400 hover:text-white hover:bg-white/10"
+          className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
         >
-          <X size={22} />
+          <X size={16} />
         </button>
       </div>
     </div>

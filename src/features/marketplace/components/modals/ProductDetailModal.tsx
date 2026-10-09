@@ -70,177 +70,172 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
       {/* Modal */}
       <div
         className={`
-          relative shrink-0 flex flex-col w-full max-h-[95dvh] sm:max-h-[90dvh] sm:max-w-3xl lg:max-w-6xl
-          rounded-[24px] sm:rounded-[32px] border sm:shadow-2xl overflow-hidden animate-modal-content
+          relative shrink-0 flex flex-col w-full max-h-[92dvh] sm:max-w-4xl lg:max-w-6xl
+          rounded-3xl border shadow-[0_32px_96px_-12px_rgba(0,0,0,0.95)] overflow-hidden animate-modal-content
           ${
             theme === "dark"
-              ? "bg-[#050505] sm:bg-[#050505]/95 border-white/10"
+              ? "bg-[#09090B] border-white/[0.08]"
               : "bg-white border-gray-200"
           }
         `}
       >
-          {/* Header */}
-          <div
-            className={`
-            shrink-0 flex items-start justify-between border-b p-4 sm:p-6
+        {/* Tokyo Corner Accents (Dark Mode) */}
+        {theme === "dark" && (
+          <>
+            <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-white/20 rounded-tl-sm pointer-events-none z-30" />
+            <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-white/20 rounded-tr-sm pointer-events-none z-30" />
+            <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-white/20 rounded-bl-sm pointer-events-none z-30" />
+            <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-white/20 rounded-br-sm pointer-events-none z-30" />
+          </>
+        )}
+
+        {/* ── HEADER ULTRA-LIMPIO (PLAN PRO RETIRADO PARA EVITAR REDUNDANCIA) ── */}
+        <div
+          className={`
+            shrink-0 px-6 sm:px-8 py-4.5 border-b flex items-center justify-between
             ${
               theme === "dark"
-                ? "bg-transparent border-white/10"
-                : "bg-transparent border-gray-200"
+                ? "bg-[#0D0D11] border-white/[0.06]"
+                : "bg-gray-50/80 border-gray-200"
             }
           `}
-          >
-            <div className="flex-1 pr-4">
-              <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mb-2">
-                <span
-                  className={`
-                  px-2.5 py-0.5 md:px-3 md:py-1 rounded-lg text-[10px] md:text-xs font-bold border
-                  ${
-                    theme === "dark"
-                      ? "bg-blue-500/10 border-blue-500/30 text-blue-400"
-                      : "bg-blue-50 border-blue-200 text-blue-700"
-                  }
-                `}
-                >
-                  {product.category_name || t("general")}
-                </span>
+        >
+          <div className="flex flex-col gap-1.5 pr-4 min-w-0">
+            {/* Floating Micro-Typography Tags (Sin Cajas, Sin Bordes) */}
+            <div className="flex flex-wrap items-center gap-2">
+              <span className={`text-[10px] font-mono tracking-[0.18em] uppercase ${theme === "dark" ? "text-white/40" : "text-gray-500"}`}>
+                {product.category_name || t("general")}
+              </span>
 
-                {/* Secondary Tags in Header */}
-                {(product.tags || []).slice(0, 2).map((tag, i) => (
-                  <span
-                    key={`${tag}-${i}`}
-                    className={`
-                      px-1.5 py-0.5 md:px-2 md:py-0.5 rounded-md text-[9px] md:text-[10px] font-medium border uppercase tracking-wider
-                      ${
-                        theme === "dark"
-                          ? "bg-white/5 border-white/10 text-gray-400"
-                          : "bg-gray-50 border-gray-200 text-gray-500"
-                      }
-                    `}
-                  >
-                    {tag}
+              {!!product.version && (
+                <>
+                  <span className={theme === "dark" ? "text-white/20" : "text-gray-300"}>•</span>
+                  <span className={`text-[10px] font-mono tracking-wider ${theme === "dark" ? "text-white/40" : "text-gray-500"}`}>
+                    {product.version.startsWith("v") ? product.version : `v${product.version}`}
                   </span>
-                ))}
+                </>
+              )}
 
-                {product.rating_avg >= 4.5 && (
-                  <span
-                    className={`
-                    px-2.5 py-0.5 md:px-3 md:py-1 rounded-lg text-[10px] md:text-xs font-bold border-0
-                    ${
-                      theme === "dark"
-                        ? "bg-linear-to-r from-cyan-400 to-blue-400 text-black"
-                        : "bg-linear-to-r from-blue-600 to-indigo-600 text-white"
-                    }
-                  `}
-                  >
+              {product.rating_avg >= 4.5 && (
+                <>
+                  <span className={theme === "dark" ? "text-white/20" : "text-gray-300"}>•</span>
+                  <span className={`text-[10px] font-mono tracking-wider uppercase font-medium ${theme === "dark" ? "text-amber-400/90" : "text-amber-600"}`}>
                     {t("popular")}
                   </span>
-                )}
-              </div>
-              <h2
-                className={`text-xl md:text-2xl font-bold mb-1.5 md:mb-2 line-clamp-2 md:line-clamp-none ${
-                  theme === "dark" ? "text-white" : "text-gray-900"
-                }`}
-              >
-                {product.name}
-              </h2>
-              <div
-                className={`flex flex-wrap items-center gap-2 md:gap-4 text-xs md:text-sm ${
-                  theme === "dark" ? "text-gray-400" : "text-gray-600"
-                }`}
-              >
-                <div className="flex items-center gap-1">
-                  <Star className="size-3.5 md:size-4 fill-yellow-400 text-yellow-400" />
-                  <span className="font-medium">
-                    {product.rating_avg > 0
-                      ? product.rating_avg.toFixed(1)
-                      : "N/A"}
-                  </span>
-                  <span>({product.rating_count} {t("reviews_count")})</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Calendar className="size-3.5 md:size-4" />
-                  <span>
-                    {t("published")}{" "}
-                    {new Date(product.created_at).toLocaleDateString()}
-                  </span>
-                </div>
-              </div>
+                </>
+              )}
             </div>
+
+            <h2
+              className={`text-lg sm:text-xl font-extrabold tracking-tight truncate ${
+                theme === "dark" ? "text-white" : "text-gray-900"
+              }`}
+            >
+              {product.name}
+            </h2>
+          </div>
+
+          <div className="flex items-center gap-3 shrink-0">
+            <div className={`hidden sm:flex items-center gap-2 text-xs font-mono ${theme === "dark" ? "text-white/50" : "text-gray-500"}`}>
+              <span className="flex items-center gap-1 text-amber-400">
+                <Star size={13} weight="fill" />
+                <strong className={theme === "dark" ? "text-white" : "text-gray-900"}>
+                  {product.rating_avg > 0 ? product.rating_avg.toFixed(1) : "N/A"}
+                </strong>
+              </span>
+              <span>({product.rating_count} {t("reviews_count")})</span>
+            </div>
+
             <button
+              type="button"
               onClick={onClose}
+              aria-label="Cerrar modal"
               className={`
-                p-2 rounded-xl transition-colors shrink-0
+                w-9 h-9 rounded-xl flex items-center justify-center transition-all cursor-pointer
                 ${
                   theme === "dark"
-                    ? "bg-white/5 hover:bg-white/10 text-gray-300"
-                    : "bg-gray-100 hover:bg-gray-200 text-gray-600"
+                    ? "bg-white/[0.04] hover:bg-white/[0.1] text-white/60 hover:text-white border border-white/[0.08]"
+                    : "bg-gray-100 hover:bg-gray-200 text-gray-600 border border-gray-200"
                 }
               `}
             >
-              <X className="size-5 md:size-6" />
+              <X size={18} weight="bold" />
             </button>
           </div>
+        </div>
 
-          <div className="flex-1 overflow-y-auto scroll-smooth">
-            <div className="flex flex-col lg:grid lg:grid-cols-3 lg:items-start gap-6 p-4 sm:p-6 pb-8">
-              {/* Left Column (Image/Video + Tabs on Desktop) */}
-              <div className="lg:col-span-2 flex flex-col gap-6">
-                {/* Product preview */}
-                {product.youtube_video_id ? (
-                  <div className="w-full rounded-card sm:rounded-2xl overflow-hidden bg-black aspect-video ring-1 ring-white/5">
-                    <LiteYouTube
-                      videoId={product.youtube_video_id}
-                      title={product.name}
-                      fallbackImage={product.thumbnail_url || undefined}
-                      autoPlay
-                    />
-                  </div>
-                ) : (
-                  <div
-                    className={`relative aspect-video rounded-card sm:rounded-2xl overflow-hidden bg-[#111] dark:bg-[#111] ring-1 ring-white/5 ${loading ? "animate-pulse" : ""}`}
-                  >
-                    <ImageWithFallback
-                      src={product.thumbnail_url || ""}
-                      alt={product.name}
-                      fill
-                      className={`object-cover transition-opacity duration-300 ${loading ? "opacity-50" : "opacity-100"}`}
-                    />
-                  </div>
-                )}
-
-                {/* Tabs/Description (Desktop) */}
-                <div className="hidden lg:block w-full">
-                  <ProductModalTabs
-                    product={product}
-                    activeTab={activeTab}
-                    setActiveTab={setActiveTab}
-                  />
-                </div>
-              </div>
-
-              {/* Right Column (Sidebar on Desktop & Mobile, plus Tabs on Mobile) */}
-              <div className="lg:col-span-1 flex flex-col gap-6">
-                <ProductModalSidebar
-                  product={product}
-                  onPurchase={onPurchase}
-                  isOwned={isOwned}
-                  accessLevel={accessLevel}
-                  onDownload={onDownload}
-                  onViewLicense={onViewLicense}
+        {/* ── CUERPO SPLIT PANORÁMICO (64% / 36%) ── */}
+        <div className="flex-1 overflow-y-auto no-scrollbar grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-white/[0.06]">
+          {/* Canvas Izquierdo (64%) */}
+          <div
+            className={`
+              lg:col-span-8 p-6 sm:p-8 flex flex-col gap-6
+              ${theme === "dark" ? "bg-[#09090B]" : "bg-white"}
+            `}
+          >
+            {/* Media Display Cinema 16:9 */}
+            {product.youtube_video_id ? (
+              <div className="w-full rounded-2xl overflow-hidden bg-black aspect-video border border-white/[0.08] shadow-2xl">
+                <LiteYouTube
+                  videoId={product.youtube_video_id}
+                  title={product.name}
+                  fallbackImage={product.thumbnail_url || undefined}
+                  autoPlay
                 />
-
-                {/* Tabs/Description (Mobile) */}
-                <div className="lg:hidden w-full">
-                  <ProductModalTabs
-                    product={product}
-                    activeTab={activeTab}
-                    setActiveTab={setActiveTab}
-                  />
-                </div>
               </div>
+            ) : (
+              <div
+                className={`relative aspect-video rounded-2xl overflow-hidden bg-black border border-white/[0.08] shadow-2xl ${
+                  loading ? "animate-pulse" : ""
+                }`}
+              >
+                <ImageWithFallback
+                  src={product.thumbnail_url || ""}
+                  alt={product.name}
+                  fill
+                  className={`object-cover transition-opacity duration-300 ${
+                    loading ? "opacity-50" : "opacity-100"
+                  }`}
+                />
+              </div>
+            )}
+
+            {/* Tabs / Description (Desktop) */}
+            <div className="hidden lg:block w-full">
+              <ProductModalTabs
+                product={product}
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+              />
             </div>
           </div>
+
+          {/* Right Column / Command Deck (36%) */}
+          <div
+            className={`
+              lg:col-span-4 p-6 sm:p-7 flex flex-col gap-6
+              ${theme === "dark" ? "bg-[#060608]" : "bg-gray-50/50"}
+            `}
+          >
+            <ProductModalSidebar
+              product={product}
+              onPurchase={onPurchase}
+              isOwned={isOwned}
+              accessLevel={accessLevel}
+              onDownload={onDownload}
+              onViewLicense={onViewLicense}
+            />
+
+            {/* Tabs / Description (Mobile) */}
+            <div className="lg:hidden w-full pt-4 border-t border-white/[0.06]">
+              <ProductModalTabs
+                product={product}
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+              />
+            </div>
+          </div>
+        </div>
         </div>
       </div>,
     document.body

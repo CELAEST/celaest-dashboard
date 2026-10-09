@@ -16,33 +16,39 @@ export const CurrentPlan: React.FC<CurrentPlanProps> = memo(
     const { isDark } = useTheme();
     const t = useTranslations("settings");
 
+    const getPlanColor = (name: string) => {
+      const lower = name.toLowerCase();
+      if (lower.includes("enterprise")) return "text-amber-400";
+      if (lower.includes("pro")) return "text-violet-400";
+      if (lower.includes("starter") || lower.includes("basic")) return "text-sky-400";
+      return isDark ? "text-white" : "text-gray-900";
+    };
+
     return (
       <div className="settings-glass-card rounded-2xl p-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-6">
           <div className="flex items-center gap-4">
             <div
-              className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-sm ${
-                isDark ? "bg-cyan-500/10" : "bg-cyan-50"
+              className={`w-10 h-10 rounded-xl flex items-center justify-center border transition-colors ${
+                isDark ? "bg-white/[0.04] border-white/10 text-white/70" : "bg-gray-100 border-gray-200 text-gray-700"
               }`}
             >
-              <Lightning
-                className={`w-6 h-6 ${
-                  isDark ? "text-cyan-400" : "text-cyan-600"
-                }`}
-              />
+              <Lightning className="w-5 h-5" />
             </div>
             <div>
               <h3
-                className={`text-lg font-bold ${
+                className={`text-base font-bold font-jakarta tracking-tight ${
                   isDark ? "text-white" : "text-gray-900"
                 }`}
               >
                 {t("current_plan")}{" "}
-                <span className="text-cyan-500">{currentPlanName}</span>
+                <span className={`font-mono font-bold ${getPlanColor(currentPlanName)}`}>
+                  {currentPlanName}
+                </span>
               </h3>
               <p
-                className={`text-sm ${
-                  isDark ? "text-gray-500" : "text-gray-400"
+                className={`text-xs mt-0.5 font-mono ${
+                  isDark ? "text-white/40" : "text-gray-400"
                 }`}
               >
                 {t("next_billing_date", { date: nextBillingDate })}
@@ -51,17 +57,19 @@ export const CurrentPlan: React.FC<CurrentPlanProps> = memo(
           </div>
 
           <div
-            className={`p-1 rounded-xl flex items-center shadow-sm transition-colors ${
-              isDark ? "bg-white/5" : "bg-gray-100"
+            className={`p-1 rounded-xl flex items-center border ${
+              isDark ? "bg-white/[0.03] border-white/8" : "bg-gray-100 border-gray-200"
             }`}
           >
             <button
               onClick={() => onCycleChange("monthly")}
-              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 billingCycle === "monthly"
-                  ? "bg-white text-gray-900 shadow-sm"
+                  ? isDark
+                    ? "bg-white/10 text-white shadow-xs"
+                    : "bg-white text-gray-900 shadow-xs"
                   : isDark
-                    ? "text-gray-400 hover:text-white"
+                    ? "text-white/40 hover:text-white"
                     : "text-gray-500 hover:text-gray-900"
               }`}
             >
@@ -69,16 +77,18 @@ export const CurrentPlan: React.FC<CurrentPlanProps> = memo(
             </button>
             <button
               onClick={() => onCycleChange("yearly")}
-              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
                 billingCycle === "yearly"
-                  ? "bg-white text-gray-900 shadow-sm"
+                  ? isDark
+                    ? "bg-white/10 text-white shadow-xs"
+                    : "bg-white text-gray-900 shadow-xs"
                   : isDark
-                    ? "text-gray-400 hover:text-white"
+                    ? "text-white/40 hover:text-white"
                     : "text-gray-500 hover:text-gray-900"
               }`}
             >
               {t("annually")}
-              <span className="px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 text-[10px] font-black">
+              <span className="px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold border border-emerald-500/20">
                 -20%
               </span>
             </button>

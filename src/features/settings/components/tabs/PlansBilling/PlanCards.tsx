@@ -69,61 +69,75 @@ export const PlanCards: React.FC<PlanCardsProps> = memo(({ plans, billingCycle }
     }
   };
 
+  const getTierColor = (name: string) => {
+    const lower = name.toLowerCase();
+    if (lower.includes("enterprise")) return "text-amber-400";
+    if (lower.includes("pro")) return "text-violet-400";
+    if (lower.includes("starter") || lower.includes("basic")) return "text-sky-400";
+    return isDark ? "text-white" : "text-gray-900";
+  };
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
       {plans.map((plan) => (
         <div
           key={plan.name}
-          className={`relative p-6 rounded-2xl border transition-all hover:scale-[1.02] ${
+          className={`relative p-5 sm:p-6 rounded-2xl border transition-colors ${
             plan.current
-              ? "border-cyan-500 bg-cyan-500/5 shadow-xl shadow-cyan-500/10"
+              ? isDark
+                ? "border-white/20 bg-white/[0.04] shadow-xl shadow-black/40"
+                : "border-gray-900 bg-gray-50 shadow-md"
               : isDark
-                ? "border-white/5 bg-white/5 hover:border-white/10"
-                : "border-gray-100 bg-gray-50 hover:border-gray-200"
+                ? "border-white/[0.06] bg-[#09090b]/80 backdrop-blur-xl hover:border-white/10"
+                : "border-gray-200 bg-white hover:border-gray-300"
           }`}
         >
           {plan.popular && (
-            <span className="absolute -top-3 left-6 px-3 py-1 rounded-full bg-cyan-600 text-white text-[10px] font-black tracking-widest">
+            <span className={`absolute -top-2.5 left-5 px-2.5 py-0.5 rounded border text-[9px] font-mono uppercase tracking-[0.18em] ${
+              isDark
+                ? "bg-white/[0.08] text-white border-white/15 backdrop-blur-md"
+                : "bg-gray-900 text-white border-gray-900"
+            }`}>
               {t("popular")}
             </span>
           )}
           <h4
-            className={`font-bold text-base mb-1 ${
-              isDark ? "text-white" : "text-gray-900"
-            }`}
+            className={`font-bold font-jakarta text-base mb-1 ${getTierColor(plan.name)}`}
           >
             {plan.name}
           </h4>
-          <div className="flex items-baseline gap-1 mb-4">
+          <div className="flex items-baseline gap-1 mb-3">
             <span
-              className={`text-2xl font-black ${
+              className={`text-2xl font-black font-jetbrains tracking-tight ${
                 isDark ? "text-white" : "text-gray-900"
               }`}
             >
               {plan.price}
             </span>
             {plan.price !== "0" && plan.price !== "Custom" && (
-              <span className="text-xs text-gray-500">{t("per_month")}</span>
+              <span className={`text-xs font-mono ${isDark ? "text-white/40" : "text-gray-500"}`}>
+                {t("per_month")}
+              </span>
             )}
           </div>
           <p
             className={`text-xs mb-6 min-h-[32px] ${
-              isDark ? "text-gray-500" : "text-gray-400"
+              isDark ? "text-white/50" : "text-gray-500"
             }`}
           >
             {plan.desc}
           </p>
-          <ul className="space-y-3 mb-8">
+          <ul className="space-y-2.5 mb-6">
             {plan.features.map((feature) => (
               <li key={feature} className="flex items-center gap-2">
                 <Check
-                  className={`w-3.5 h-3.5 ${
-                    plan.current ? "text-cyan-500" : "text-gray-500"
+                  className={`w-3.5 h-3.5 shrink-0 ${
+                    plan.current ? "text-white" : isDark ? "text-white/40" : "text-gray-400"
                   }`}
                 />
                 <span
                   className={`text-xs ${
-                    isDark ? "text-gray-400" : "text-gray-600"
+                    isDark ? "text-white/70" : "text-gray-700"
                   }`}
                 >
                   {feature}
@@ -132,11 +146,16 @@ export const PlanCards: React.FC<PlanCardsProps> = memo(({ plans, billingCycle }
             ))}
           </ul>
           <button
+            type="button"
             onClick={() => handleUpgrade(plan)}
-            className={`w-full py-2.5 rounded-xl text-xs font-black transition-all ${
+            className={`w-full py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               plan.current
-                ? "bg-transparent border border-cyan-500/30 text-cyan-500 cursor-default"
-                : "bg-cyan-600 hover:bg-cyan-500 text-white shadow-lg shadow-cyan-500/20 active:scale-95"
+                ? isDark
+                  ? "bg-white/[0.04] border border-white/10 text-white/50 cursor-default font-mono uppercase tracking-wider text-[11px]"
+                  : "bg-gray-100 border border-gray-200 text-gray-400 cursor-default font-mono uppercase tracking-wider text-[11px]"
+                : isDark
+                  ? "bg-white text-black hover:bg-neutral-200 shadow-xs active:scale-[0.99]"
+                  : "bg-gray-900 text-white hover:bg-gray-800 shadow-xs active:scale-[0.99]"
             }`}
           >
             {plan.current ? t("current_plan_btn") : t("upgrade")}

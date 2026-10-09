@@ -365,14 +365,13 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
                 toolbar={
                   <div className="flex items-center justify-between w-full">
                     <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse" />
                       <span
-                        className={`text-xs font-semibold ${isDark ? "text-white" : "text-gray-900"}`}
+                        className={`text-xs font-semibold ${isDark ? "text-zinc-100" : "text-gray-900"}`}
                       >
                         {t("all_assets_title")}
                       </span>
                     </div>
-                    <span className={`text-[11px] tabular-nums ${isDark ? "text-gray-500" : "text-gray-400"}`}>
+                    <span className={`text-[11px] font-mono tabular-nums ${isDark ? "text-white/40" : "text-gray-400"}`}>
                       {inventoryTotal != null ? t("showing_entries_of", { current: inventory.length, total: inventoryTotal }) : ""}
                     </span>
                   </div>
@@ -380,15 +379,7 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
               >
                 {isInventoryLoading ? (
                   <div className="flex items-center justify-center h-64">
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{
-                        duration: 1,
-                        repeat: Infinity,
-                        ease: "linear",
-                      }}
-                      className="w-8 h-8 border-2 border-cyan-500 border-t-transparent rounded-full"
-                    />
+                    <div className="w-7 h-7 border-2 border-white/20 border-t-white rounded-full animate-spin" />
                   </div>
                 ) : (
                   <AssetTable

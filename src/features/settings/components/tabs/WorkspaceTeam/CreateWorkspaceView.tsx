@@ -100,21 +100,21 @@ export function CreateWorkspaceView({ planTier }: { planTier: number }) {
       {/* Header */}
       <div className="text-center mb-8">
         <div
-          className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4 ${
+          className={`inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-4 border ${
             isDark
-              ? "bg-linear-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-500/30"
-              : "bg-linear-to-br from-cyan-50 to-blue-50 border border-cyan-200"
+              ? "bg-white/[0.04] border-white/8 text-white"
+              : "bg-gray-100 border-gray-200 text-gray-800"
           }`}
         >
-          <Buildings className="w-8 h-8 text-cyan-500" />
+          <Buildings className="w-7 h-7" />
         </div>
         <h3
-          className={`text-2xl font-bold mb-2 ${isDark ? "text-white" : "text-gray-900"}`}
+          className={`text-xl font-bold font-jakarta mb-2 ${isDark ? "text-white" : "text-gray-900"}`}
         >
           {t("create_workspace")}
         </h3>
         <p
-          className={`text-sm max-w-112 mx-auto ${isDark ? "text-gray-400" : "text-gray-500"}`}
+          className={`text-xs font-mono max-w-112 mx-auto ${isDark ? "text-white/40" : "text-gray-500"}`}
         >
           {t("create_workspace_desc")}
         </p>
@@ -125,22 +125,22 @@ export function CreateWorkspaceView({ planTier }: { planTier: number }) {
         {benefits.map(({ icon: Icon, label, desc }) => (
           <div
             key={label}
-            className={`rounded-xl p-4 text-center ${
+            className={`rounded-xl p-4 text-center border ${
               isDark
-                ? "bg-white/5 border border-white/10"
-                : "bg-gray-50 border border-gray-200"
+                ? "bg-white/[0.02] border-white/[0.05]"
+                : "bg-gray-50 border-gray-200"
             }`}
           >
             <Icon
-              className={`w-5 h-5 mx-auto mb-2 ${isDark ? "text-cyan-400" : "text-cyan-600"}`}
+              className={`w-5 h-5 mx-auto mb-2 ${isDark ? "text-white/80" : "text-gray-700"}`}
             />
             <p
-              className={`text-sm font-medium ${isDark ? "text-white" : "text-gray-900"}`}
+              className={`text-xs font-bold font-mono ${isDark ? "text-zinc-100" : "text-gray-900"}`}
             >
               {label}
             </p>
             <p
-              className={`text-xs mt-1 ${isDark ? "text-gray-500" : "text-gray-400"}`}
+              className={`text-[11px] font-mono mt-1 ${isDark ? "text-white/40" : "text-gray-400"}`}
             >
               {desc}
             </p>
@@ -151,67 +151,69 @@ export function CreateWorkspaceView({ planTier }: { planTier: number }) {
       {canCreate ? (
         /* -- Create Form (Pro/Enterprise) -- */
         <div className="space-y-4">
-          <div>
-            <label
-              className={`block text-sm font-medium mb-1.5 ${isDark ? "text-gray-300" : "text-gray-700"}`}
-            >
-              {t("workspace_name_label")}
-            </label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => handleSlugify(e.target.value)}
-              placeholder={t("workspace_name_placeholder")}
-              className={`w-full px-4 py-2.5 rounded-xl border text-sm transition-colors ${
-                isDark
-                  ? "bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-cyan-500"
-                  : "bg-white border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-cyan-500"
-              } focus:outline-none focus:ring-1 focus:ring-cyan-500/30`}
-            />
-          </div>
-
-          <div>
-            <label
-              className={`block text-sm font-medium mb-1.5 ${isDark ? "text-gray-300" : "text-gray-700"}`}
-            >
-              {t("workspace_slug_label")}
-            </label>
-            <div className="flex items-center gap-2">
-              <span
-                className={`text-sm ${isDark ? "text-gray-500" : "text-gray-400"}`}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label
+                className={`block text-xs font-mono uppercase tracking-wider mb-1.5 ${isDark ? "text-zinc-400" : "text-zinc-600"}`}
               >
-                celaest.com/
-              </span>
+                {t("workspace_name_label")}
+              </label>
               <input
                 type="text"
-                value={slug}
-                onChange={(e) =>
-                  setSlug(
-                    e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""),
-                  )
-                }
-                placeholder={t("workspace_slug_placeholder")}
-                className={`flex-1 px-4 py-2.5 rounded-xl border text-sm transition-colors ${
+                value={name}
+                onChange={(e) => handleSlugify(e.target.value)}
+                placeholder={t("workspace_name_placeholder")}
+                className={`w-full px-4 py-2.5 rounded-xl border text-sm transition-colors ${
                   isDark
-                    ? "bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-cyan-500"
-                    : "bg-white border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-cyan-500"
-                } focus:outline-none focus:ring-1 focus:ring-cyan-500/30`}
+                    ? "bg-white/[0.03] border-white/8 text-zinc-100 placeholder:text-zinc-500 focus:border-white/20"
+                    : "bg-white border-zinc-200 text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-400"
+                } focus:outline-none`}
               />
+            </div>
+
+            <div>
+              <label
+                className={`block text-xs font-mono uppercase tracking-wider mb-1.5 ${isDark ? "text-zinc-400" : "text-zinc-600"}`}
+              >
+                {t("workspace_slug_label")}
+              </label>
+              <div className="flex items-center gap-2">
+                <span
+                  className={`text-xs font-mono ${isDark ? "text-zinc-500" : "text-zinc-400"}`}
+                >
+                  celaest.com/
+                </span>
+                <input
+                  type="text"
+                  value={slug}
+                  onChange={(e) =>
+                    setSlug(
+                      e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""),
+                    )
+                  }
+                  placeholder={t("workspace_slug_placeholder")}
+                  className={`flex-1 px-4 py-2.5 rounded-xl border text-sm transition-colors ${
+                    isDark
+                      ? "bg-white/[0.03] border-white/8 text-white placeholder:text-zinc-600 focus:border-white/30"
+                      : "bg-white border-zinc-200 text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-400"
+                  } focus:outline-none`}
+                />
+              </div>
             </div>
           </div>
 
           <button
             onClick={handleCreate}
             disabled={isCreating || !name.trim() || !slug.trim()}
-            className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-200 ${
+            className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-jakarta text-xs font-semibold uppercase tracking-wider transition-all duration-200 ${
               isCreating || !name.trim() || !slug.trim()
-                ? "opacity-50 cursor-not-allowed bg-cyan-800 text-cyan-300"
-                : "flex items-center gap-3 px-6 py-4 bg-linear-to-r from-cyan-500 to-blue-600 text-white font-bold rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-cyan-500/25 disabled:opacity-50 disabled:pointer-events-none group"
+                ? "opacity-40 cursor-not-allowed bg-white/5 text-zinc-500 border border-white/5"
+                : "bg-white text-black hover:bg-neutral-200 active:scale-[0.98] shadow-md cursor-pointer"
             }`}
           >
             {isCreating ? (
               <>
-                <CircleNotch className="w-4 h-4 animate-spin" />
+                <CircleNotch className="w-4 h-4 animate-spin text-black" />
                 {t("creating_workspace")}
               </>
             ) : (
@@ -226,28 +228,28 @@ export function CreateWorkspaceView({ planTier }: { planTier: number }) {
       ) : (
         /* -- Upsell (Starter) -- */
         <div
-          className={`rounded-xl p-6 text-center ${
+          className={`rounded-2xl p-6 text-center border ${
             isDark
-              ? "bg-linear-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/20"
-              : "bg-linear-to-br from-amber-50 to-orange-50 border border-amber-200"
+              ? "bg-white/[0.02] border-white/[0.05]"
+              : "bg-amber-50/50 border-amber-200"
           }`}
         >
           <Sparkle
             className={`w-6 h-6 mx-auto mb-3 ${isDark ? "text-amber-400" : "text-amber-600"}`}
           />
           <p
-            className={`font-semibold mb-1 ${isDark ? "text-white" : "text-gray-900"}`}
+            className={`font-semibold mb-1 ${isDark ? "text-white" : "text-zinc-900"}`}
           >
             {t("upgrade_to_pro")}
           </p>
           <p
-            className={`text-sm mb-4 ${isDark ? "text-gray-400" : "text-gray-500"}`}
+            className={`text-sm mb-4 ${isDark ? "text-zinc-400" : "text-zinc-600"}`}
           >
             {t("workspace_plan_info")}
           </p>
           <button
             onClick={() => setShowUpgradeModal(true)}
-            className="mt-6 mx-auto flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-200 bg-linear-to-r from-cyan-600 to-blue-700 text-white hover:scale-[1.02] shadow-lg shadow-cyan-500/25 cursor-pointer"
+            className="mt-4 mx-auto flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl font-jakarta text-xs font-semibold uppercase tracking-wider transition-all duration-200 bg-white text-black hover:bg-neutral-200 shadow-md cursor-pointer"
           >
             <Crown className="w-4 h-4" />
             {t("upgrade_plan")}

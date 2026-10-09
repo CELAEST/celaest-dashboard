@@ -19,11 +19,11 @@ export const ProfileAvatar: React.FC<ProfileAvatarProps> = memo(
     return (
       <div className="settings-glass-card rounded-2xl p-6">
         <h3
-          className={`text-lg font-bold mb-4 flex items-center gap-2 ${
+          className={`text-base font-bold font-jakarta mb-4 flex items-center gap-2 ${
             isDark ? "text-white" : "text-gray-900"
           }`}
         >
-          <User className="w-5 h-5 text-cyan-500" />
+          <User className={`w-5 h-5 ${isDark ? "text-white/70" : "text-gray-700"}`} />
           {t("profile_picture")}
         </h3>
 
@@ -36,11 +36,19 @@ export const ProfileAvatar: React.FC<ProfileAvatarProps> = memo(
                 alt="Avatar"
                 width={64}
                 height={64}
-                className="rounded-full object-cover ring-2 ring-cyan-500/20"
+                className={`rounded-full object-cover ring-2 ${
+                  isDark ? "ring-white/10" : "ring-gray-200"
+                }`}
               />
             ) : (
-              <div className="w-16 h-16 rounded-full bg-linear-to-br from-cyan-500 to-blue-500 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-                <User className="w-8 h-8 text-white" />
+              <div
+                className={`w-16 h-16 rounded-full flex items-center justify-center border shadow-xs ${
+                  isDark
+                    ? "bg-white/[0.04] border-white/8 text-white/70"
+                    : "bg-gray-100 border-gray-300 text-gray-700"
+                }`}
+              >
+                <User className="w-8 h-8" />
               </div>
             )}
           </div>
@@ -48,8 +56,8 @@ export const ProfileAvatar: React.FC<ProfileAvatarProps> = memo(
           {/* Upload Controls */}
           <div className="flex-1">
             <p
-              className={`text-sm mb-3 ${
-                isDark ? "text-gray-400" : "text-gray-500"
+              className={`text-xs mb-3 ${
+                isDark ? "text-white/50" : "text-gray-500"
               }`}
             >
               {t("upload_avatar_desc")}
@@ -63,19 +71,25 @@ export const ProfileAvatar: React.FC<ProfileAvatarProps> = memo(
                 className="hidden"
               />
               <button
+                type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-medium transition-all shadow-sm hover:shadow-cyan-500/20"
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs ${
+                  isDark
+                    ? "bg-white text-black hover:bg-neutral-200"
+                    : "bg-gray-900 text-white hover:bg-gray-800"
+                }`}
               >
-                <UploadSimple className="w-4 h-4" />
+                <UploadSimple className="w-4 h-4" weight="bold" />
                 {t("upload_photo")}
               </button>
               {avatarUrl && (
                 <button
+                  type="button"
                   onClick={onRemove}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-medium transition-all cursor-pointer ${
                     isDark
-                      ? "border-white/10 text-gray-300 hover:bg-white/5"
-                      : "border-gray-200 text-gray-600 hover:bg-gray-50"
+                      ? "border-white/10 bg-white/[0.04] text-white/70 hover:bg-white/[0.08] hover:text-white"
+                      : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   }`}
                 >
                   <Trash className="w-4 h-4" />

@@ -1,5 +1,6 @@
 import React from "react";
-import { DeviceMobile, Terminal, Lightbulb } from "@phosphor-icons/react";
+import { Terminal, Lightbulb, Copy, CheckCircle } from "@phosphor-icons/react";
+import { toast } from "sonner";
 import {
   ErrorLog,
   ErrorStatus,
@@ -14,172 +15,164 @@ interface ErrorDetailsProps {
 
 export const ErrorDetails = React.memo(
   ({ error, isDark, isAdmin, onStatusUpdate }: ErrorDetailsProps) => {
+    const handleCopyStack = () => {
+      if (!error.stackTrace) return;
+      navigator.clipboard.writeText(error.stackTrace);
+      toast.success("Stack trace copiado al portapapeles", {
+        description: `${error.errorCode} • ${error.template}`,
+      });
+    };
+
     return (
-      <div className="p-6 space-y-6">
+      <div className={`p-5 space-y-5 border-t ${isDark ? "border-white/6 bg-black/40" : "border-gray-200 bg-gray-50/50"}`}>
         {/* Environment Section */}
-        <section>
-          <h4
-            className={`text-sm font-semibold mb-3 flex items-center gap-2 ${isDark ? "text-white" : "text-gray-900"}`}
-          >
-            <DeviceMobile size={14} />
-            Entorno del Cliente
-          </h4>
-          <div
-            className={`p-4 rounded-xl ${isDark ? "bg-white/5" : "bg-gray-50 border border-gray-100"}`}
-          >
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-sm">
+        <div>
+          <span className={`text-[10px] font-mono uppercase tracking-[0.18em] block mb-2 ${isDark ? "text-white/40" : "text-gray-500"}`}>
+            Entorno de Cliente & Versiones
+          </span>
+          <div className={`grid grid-cols-1 sm:grid-cols-3 gap-3 p-3.5 rounded-xl text-xs font-mono border ${
+            isDark ? "bg-white/[0.02] border-white/6" : "bg-white border-gray-200"
+          }`}>
+            <div>
+              <span className={`block text-[9px] uppercase tracking-wider mb-0.5 ${isDark ? "text-white/40" : "text-gray-400"}`}>
+                Sistema Operativo
+              </span>
+              <span className={`font-medium ${isDark ? "text-white" : "text-gray-900"}`}>
+                {error.environment.os}
+              </span>
+            </div>
+            {error.environment.excelVersion && (
               <div>
-                <span
-                  className={`block text-xs mb-1 ${isDark ? "text-gray-500" : "text-gray-500"}`}
-                >
-                  Sistema Operativo
+                <span className={`block text-[9px] uppercase tracking-wider mb-0.5 ${isDark ? "text-white/40" : "text-gray-400"}`}>
+                  Versión de Excel
                 </span>
-                <span
-                  className={`font-medium ${isDark ? "text-gray-300" : "text-gray-700"}`}
-                >
-                  {error.environment.os}
+                <span className={`font-medium ${isDark ? "text-white" : "text-gray-900"}`}>
+                  {error.environment.excelVersion}
                 </span>
               </div>
-              {error.environment.excelVersion && (
-                <div>
-                  <span
-                    className={`block text-xs mb-1 ${isDark ? "text-gray-500" : "text-gray-500"}`}
-                  >
-                    Versión de Excel
-                  </span>
-                  <span
-                    className={`font-medium ${isDark ? "text-gray-300" : "text-gray-700"}`}
-                  >
-                    {error.environment.excelVersion}
-                  </span>
-                </div>
-              )}
-              <div>
-                <span
-                  className={`block text-xs mb-1 ${isDark ? "text-gray-500" : "text-gray-500"}`}
-                >
-                  Plataforma
-                </span>
-                <span
-                  className={`font-medium ${isDark ? "text-gray-300" : "text-gray-700"}`}
-                >
-                  {error.environment.platform}
-                </span>
-              </div>
+            )}
+            <div>
+              <span className={`block text-[9px] uppercase tracking-wider mb-0.5 ${isDark ? "text-white/40" : "text-gray-400"}`}>
+                Plataforma
+              </span>
+              <span className={`font-medium ${isDark ? "text-white" : "text-gray-900"}`}>
+                {error.environment.platform}
+              </span>
             </div>
           </div>
-        </section>
+        </div>
 
-        {/* Stack Trace (Admin Only) */}
-        {isAdmin && error.stackTrace && (
-          <section>
-            <h4
-              className={`text-sm font-semibold mb-3 flex items-center gap-2 ${isDark ? "text-white" : "text-gray-900"}`}
-            >
-              <Terminal size={14} />
-              Stack Trace
-            </h4>
+        {/* Stack Trace (Admin Only or when present) */}
+        {error.stackTrace && (
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <span className={`text-[10px] font-mono uppercase tracking-[0.18em] flex items-center gap-1.5 ${isDark ? "text-white/40" : "text-gray-500"}`}>
+                <Terminal size={12} />
+                Stack Trace de Fallo
+              </span>
+              <button
+                type="button"
+                onClick={handleCopyStack}
+                className={`px-2.5 py-1 rounded text-[10px] font-mono transition-all cursor-pointer flex items-center gap-1.5 border ${
+                  isDark
+                    ? "bg-white/[0.05] border-white/10 text-white/70 hover:text-white hover:bg-white/[0.08]"
+                    : "bg-gray-100 border-gray-300 text-gray-700 hover:text-gray-900 hover:bg-gray-200"
+                }`}
+              >
+                <Copy size={11} />
+                <span>Copiar Traza</span>
+              </button>
+            </div>
             <div
-              className={`p-4 rounded-xl font-mono text-xs overflow-x-auto ${
+              className={`p-3.5 rounded-xl font-mono text-xs overflow-x-auto leading-relaxed border ${
                 isDark
-                  ? "bg-black/40 text-cyan-400 border border-white/5"
-                  : "bg-gray-900 text-cyan-300 shadow-inner"
+                  ? "bg-black/70 text-white/80 border-white/8"
+                  : "bg-gray-900 text-gray-200 border-gray-800 shadow-inner"
               }`}
             >
-              <pre className="whitespace-pre-wrap leading-relaxed">
-                {error.stackTrace}
-              </pre>
+              <pre className="whitespace-pre-wrap">{error.stackTrace}</pre>
             </div>
-          </section>
+          </div>
         )}
 
         {/* Suggestion Section */}
         {error.suggestion && (
-          <section
-            className={`p-5 rounded-2xl border ${
-              isDark
-                ? "bg-cyan-500/5 border-cyan-500/10"
-                : "bg-blue-50 border-blue-100 shadow-sm"
-            }`}
-          >
-            <h4
-              className={`text-sm font-bold mb-3 flex items-center gap-2 ${isDark ? "text-cyan-400" : "text-blue-600"}`}
-            >
-              <Lightbulb size={16} />
-              Sugerencia de Solución
-            </h4>
-            <p
-              className={`text-sm leading-relaxed ${isDark ? "text-gray-300" : "text-gray-700"}`}
-            >
+          <div className={`p-3.5 rounded-xl border space-y-1 ${
+            isDark
+              ? "bg-white/[0.02] border-white/8"
+              : "bg-white border-gray-200"
+          }`}>
+            <span className={`text-[10px] font-mono uppercase tracking-[0.18em] flex items-center gap-1.5 font-bold ${
+              isDark ? "text-white/60" : "text-gray-600"
+            }`}>
+              <Lightbulb size={13} />
+              Recomendación de Solución IA
+            </span>
+            <p className={`text-xs leading-relaxed font-mono ${isDark ? "text-white/70" : "text-gray-700"}`}>
               {error.suggestion}
             </p>
-          </section>
+          </div>
         )}
+
         {/* Client Success Banner */}
         {!isAdmin && (
           <div
-            className={`p-4 rounded-lg flex items-center gap-2 ${
+            className={`p-3.5 rounded-xl flex items-center gap-2.5 border text-xs font-mono ${
               isDark
-                ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400"
-                : "bg-emerald-50 border border-emerald-100 text-emerald-700"
+                ? "bg-white/[0.02] border-white/6 text-white/70"
+                : "bg-gray-50 border-gray-200 text-gray-700"
             }`}
           >
-            <div
-              className={`p-1 rounded-full ${isDark ? "bg-emerald-500/20" : "bg-emerald-100"}`}
-            >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M20 6L9 17l-5-5" />
-              </svg>
-            </div>
-            <p className="text-sm font-medium">
-              Este error ha sido reportado automáticamente a nuestro equipo
-              técnico. No es necesario que reportes nada adicional.
+            <CheckCircle size={16} className={isDark ? "text-white/60" : "text-gray-600"} />
+            <p className="font-medium">
+              Este incidente ha sido reportado automáticamente a la central de telemetría de CELAEST.
             </p>
           </div>
         )}
 
         {/* Admin Actions */}
         {isAdmin && (
-          <div className="flex gap-3 pt-2">
-            <button
-              onClick={() => onStatusUpdate("reviewing")}
-              className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
-                isDark
-                  ? "border-orange-500/30 text-orange-400 hover:bg-orange-500/10"
-                  : "border-orange-200 text-orange-600 hover:bg-orange-50"
-              }`}
-            >
-              Marcar En Revisión
-            </button>
-            <button
-              onClick={() => onStatusUpdate("resolved")}
-              className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
-                isDark
-                  ? "border-green-500/30 text-green-400 hover:bg-green-500/10"
-                  : "border-green-200 text-green-600 hover:bg-green-50"
-              }`}
-            >
-              Marcar Resuelto
-            </button>
-            <button
-              onClick={() => onStatusUpdate("ignored")}
-              className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
-                isDark
-                  ? "border-white/10 text-gray-400 hover:bg-white/5"
-                  : "border-gray-200 text-gray-600 hover:bg-gray-50"
-              }`}
-            >
-              Ignorar
-            </button>
+          <div className={`flex items-center justify-between pt-3 border-t flex-wrap gap-2 ${
+            isDark ? "border-white/6" : "border-gray-200"
+          }`}>
+            <span className={`text-xs font-mono ${isDark ? "text-white/40" : "text-gray-500"}`}>
+              Transición de estado:
+            </span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => onStatusUpdate("reviewing")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-mono font-medium tracking-wider border transition-all cursor-pointer ${
+                  isDark
+                    ? "border-white/10 bg-white/[0.05] text-white/80 hover:bg-white/[0.1]"
+                    : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50 shadow-xs"
+                }`}
+              >
+                En Revisión
+              </button>
+              <button
+                type="button"
+                onClick={() => onStatusUpdate("resolved")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-mono font-semibold tracking-wider transition-all cursor-pointer ${
+                  isDark
+                    ? "bg-white text-black hover:bg-zinc-200 shadow-xs"
+                    : "bg-gray-900 text-white hover:bg-black shadow-xs"
+                }`}
+              >
+                Marcar Resuelto
+              </button>
+              <button
+                type="button"
+                onClick={() => onStatusUpdate("ignored")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-mono font-medium tracking-wider border transition-all cursor-pointer ${
+                  isDark
+                    ? "border-white/6 text-white/50 hover:text-white"
+                    : "border-gray-200 text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                Ignorar
+              </button>
+            </div>
           </div>
         )}
       </div>

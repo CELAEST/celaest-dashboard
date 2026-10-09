@@ -115,32 +115,21 @@ export function OrgSwitcher({ isExpanded }: OrgSwitcherProps) {
       {/* Trigger button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full flex items-center rounded-xl transition-colors ${
+        className={`w-full flex items-center rounded-xl transition-colors duration-200 ${
           isExpanded ? "gap-3 p-2" : "h-12 justify-center p-0"
         } ${
           isDark
-            ? "hover:bg-white/5 text-white"
-            : "hover:bg-gray-100 text-gray-900"
+            ? `text-zinc-100 ${isOpen ? "bg-white/[0.04]" : "hover:bg-white/[0.04]"}`
+            : `text-zinc-900 ${isOpen ? "bg-zinc-100" : "hover:bg-zinc-100"}`
         }`}
       >
         {/* Org avatar */}
         <div
-          className={`shrink-0 w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold overflow-hidden ${
-            !currentOrg?.primary_color
-              ? isDark
-                ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30"
-                : "bg-blue-100 text-blue-700 border border-blue-200"
-              : "border"
+          className={`shrink-0 w-9 h-9 rounded-xl flex items-center justify-center text-xs font-mono font-bold overflow-hidden transition-colors ${
+            isDark
+              ? "bg-white/[0.05] border border-white/8 text-zinc-100 shadow-xs"
+              : "bg-zinc-100 border border-zinc-200 text-zinc-800 shadow-xs"
           }`}
-          style={
-            currentOrg?.primary_color
-              ? {
-                  backgroundColor: `${currentOrg.primary_color}20`,
-                  color: currentOrg.primary_color,
-                  borderColor: `${currentOrg.primary_color}30`,
-                }
-              : undefined
-          }
         >
           {currentOrg?.logo_url ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -159,12 +148,7 @@ export function OrgSwitcher({ isExpanded }: OrgSwitcherProps) {
           )}
         </div>
 
-        {/* Org name + chevron only render when expanded.
-            When collapsed they would still claim layout width because of
-            `flex-1` (animated width:0 doesn't override flex-grow), shifting
-            the avatar to the left and breaking the visual symmetry with the
-            menu items below. Conditional render keeps the avatar perfectly
-            centered by the button's justify-center. */}
+        {/* Org name + chevron only render when expanded */}
         {isExpanded && (
           <>
             {/* Org name */}
@@ -175,11 +159,17 @@ export function OrgSwitcher({ isExpanded }: OrgSwitcherProps) {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
             >
-              <p className="text-sm font-semibold truncate">
+              <p
+                className={`text-sm font-semibold truncate ${
+                  isDark ? "text-zinc-100" : "text-zinc-900"
+                }`}
+              >
                 {currentOrg?.name || t("select_workspace")}
               </p>
               <p
-                className={`text-[10px] truncate ${isDark ? "text-gray-500" : "text-gray-400"}`}
+                className={`text-[10px] font-mono uppercase tracking-wider truncate ${
+                  isDark ? "text-zinc-500" : "text-zinc-400"
+                }`}
               >
                 {currentOrg?.role || t("member")}
               </p>
@@ -194,8 +184,9 @@ export function OrgSwitcher({ isExpanded }: OrgSwitcherProps) {
             >
               <CaretDown
                 size={14}
-                className={`transition-transform ${isOpen ? "rotate-180" : ""} ${
-                  isDark ? "text-gray-500" : "text-gray-400"
+                weight="bold"
+                className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""} ${
+                  isDark ? "text-zinc-400" : "text-zinc-500"
                 }`}
               />
             </motion.div>
@@ -211,83 +202,91 @@ export function OrgSwitcher({ isExpanded }: OrgSwitcherProps) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -4, scale: 0.95 }}
             transition={{ duration: 0.15 }}
-            className={`absolute left-3 right-3 top-full mt-1 rounded-xl border shadow-xl z-100 overflow-hidden ${
+            className={`absolute left-3 right-3 top-full mt-2 rounded-2xl border shadow-2xl z-100 overflow-hidden backdrop-blur-2xl ${
               isDark
-                ? "bg-gray-900 border-white/10 shadow-black/40"
-                : "bg-white border-gray-200 shadow-gray-200/60"
+                ? "bg-[#09090b]/95 border-white/8 shadow-2xl shadow-black/90"
+                : "bg-white/95 border-zinc-200 shadow-xl shadow-zinc-900/10"
             }`}
           >
-            <div className="p-1.5 max-h-64 overflow-y-auto">
-              {visibleOrgs.map((org: Organization) => (
-                <button
-                  key={org.id}
-                  onClick={() => handleSelect(org)}
-                  className={`w-full flex items-center gap-3 rounded-lg p-2.5 transition-colors text-left ${
-                    currentOrg?.id === org.id
-                      ? isDark
-                        ? "bg-cyan-500/10 text-cyan-400"
-                        : "bg-blue-50 text-blue-700"
-                      : isDark
-                        ? "text-gray-300 hover:bg-white/5"
-                        : "text-gray-700 hover:bg-gray-50"
-                  }`}
-                >
-                  <div
-                    className={`shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold overflow-hidden ${
-                      !org.primary_color
-                        ? currentOrg?.id === org.id
-                          ? isDark
-                            ? "bg-cyan-500/20 text-cyan-400"
-                            : "bg-blue-100 text-blue-700"
-                          : isDark
-                            ? "bg-white/10 text-gray-400"
-                            : "bg-gray-100 text-gray-500"
-                        : ""
+            <div className="p-1.5 max-h-64 overflow-y-auto space-y-1">
+              {visibleOrgs.map((org: Organization) => {
+                const isSelected = currentOrg?.id === org.id;
+                return (
+                  <button
+                    key={org.id}
+                    onClick={() => handleSelect(org)}
+                    className={`w-full flex items-center gap-3 rounded-xl p-2.5 transition-colors text-left ${
+                      isSelected
+                        ? isDark
+                          ? "bg-zinc-800/40 border border-white/8 text-zinc-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+                          : "bg-zinc-100 border border-zinc-200/80 text-zinc-900"
+                        : isDark
+                          ? "border border-transparent text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.03]"
+                          : "border border-transparent text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50"
                     }`}
-                    style={
-                      org.primary_color
-                        ? {
-                            backgroundColor: `${org.primary_color}20`,
-                            color: org.primary_color,
-                          }
-                        : undefined
-                    }
                   >
-                    {org.logo_url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={org.logo_url}
-                        alt={org.name}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          (e.currentTarget as HTMLImageElement).style.display = "none";
-                        }}
-                      />
-                    ) : (
-                      getOrgInitials(org.name)
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{org.name}</p>
-                    <p
-                      className={`text-[10px] ${isDark ? "text-gray-500" : "text-gray-400"}`}
+                    <div
+                      className={`shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-mono font-bold overflow-hidden transition-colors ${
+                        isSelected
+                          ? isDark
+                            ? "bg-white/[0.08] border border-white/15 text-white"
+                            : "bg-zinc-200/80 border border-zinc-300 text-zinc-900"
+                          : isDark
+                            ? "bg-white/[0.03] border border-white/6 text-zinc-400"
+                            : "bg-zinc-100 border border-zinc-200 text-zinc-500"
+                      }`}
                     >
-                      {org.role || t("member")}
-                    </p>
-                  </div>
-                  {currentOrg?.id === org.id && (
-                    <Check
-                      size={14}
-                      className={isDark ? "text-cyan-400" : "text-blue-600"}
-                    />
-                  )}
-                </button>
-              ))}
+                      {org.logo_url ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={org.logo_url}
+                          alt={org.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.currentTarget as HTMLImageElement).style.display = "none";
+                          }}
+                        />
+                      ) : (
+                        getOrgInitials(org.name)
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p
+                        className={`text-sm font-medium truncate ${
+                          isSelected
+                            ? isDark
+                              ? "text-zinc-100 font-semibold"
+                              : "text-zinc-900 font-semibold"
+                            : isDark
+                              ? "text-zinc-300"
+                              : "text-zinc-700"
+                        }`}
+                      >
+                        {org.name}
+                      </p>
+                      <p
+                        className={`text-[10px] font-mono uppercase tracking-wider ${
+                          isDark ? "text-zinc-500" : "text-zinc-400"
+                        }`}
+                      >
+                        {org.role || t("member")}
+                      </p>
+                    </div>
+                    {isSelected && (
+                      <Check
+                        size={14}
+                        weight="bold"
+                        className={isDark ? "text-zinc-100 shrink-0" : "text-zinc-900 shrink-0"}
+                      />
+                    )}
+                  </button>
+                );
+              })}
             </div>
 
             {/* Create workspace link */}
             <div
-              className={`border-t p-1.5 ${isDark ? "border-white/10" : "border-gray-100"}`}
+              className={`border-t p-1.5 mt-1 ${isDark ? "border-white/6" : "border-zinc-200/80"}`}
             >
               <button
                 onClick={(e) => {
@@ -305,13 +304,13 @@ export function OrgSwitcher({ isExpanded }: OrgSwitcherProps) {
                   }
                   setIsOpen(false);
                 }}
-                className={`w-full flex items-center gap-2 rounded-lg p-2.5 text-sm transition-colors ${
+                className={`w-full flex items-center gap-2.5 rounded-xl p-2.5 text-xs font-mono font-medium transition-colors ${
                   isDark
-                    ? "text-gray-400 hover:text-cyan-400 hover:bg-white/5"
-                    : "text-gray-500 hover:text-blue-600 hover:bg-gray-50"
+                    ? "text-zinc-400 hover:text-zinc-100 hover:bg-white/[0.04]"
+                    : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100"
                 }`}
               >
-                <Plus size={14} />
+                <Plus size={14} weight="bold" />
                 <span>{t("create_workspace")}</span>
               </button>
             </div>

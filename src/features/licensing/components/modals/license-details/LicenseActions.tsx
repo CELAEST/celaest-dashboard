@@ -46,9 +46,6 @@ export const LicenseActions: React.FC<LicenseActionsProps> = ({
       setIsConfirmingRevoke(true);
       return;
     }
-    // Use dedicated revoke endpoint (POST /revoke) which handles
-    // customer_assets cleanup and emits the correct event.
-    // Falls back to generic status change if onRevoke is not provided.
     if (onRevoke) {
       onRevoke();
     } else {
@@ -58,51 +55,46 @@ export const LicenseActions: React.FC<LicenseActionsProps> = ({
   };
 
   const actions = [
-    { id: "active", icon: ShieldCheck, label: t("activate"), color: "emerald" },
-    { id: "expired", icon: Clock, label: t("expire"), color: "orange" },
+    { id: "active", icon: ShieldCheck, label: t("activate") },
+    { id: "expired", icon: Clock, label: t("expire") },
   ];
 
   if (!isAdmin) {
     return (
-      <div className="space-y-4">
-        <div className="flex items-center justify-between mb-2">
-          <h4
-            className={`text-[10px] font-black uppercase tracking-[0.2em] ${isDark ? "text-gray-500" : "text-gray-400"}`}
-          >
-            {t("license_management")}
-          </h4>
-        </div>
+      <div className="space-y-3">
+        <h4
+          className={`text-[10px] font-mono uppercase tracking-[0.16em] mb-2.5 ${
+            isDark ? "text-white/40" : "text-gray-500"
+          }`}
+        >
+          {t("license_management")}
+        </h4>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {status === "trial" && (
             <button
+              type="button"
               onClick={() => setIsUpgradeModalOpen(true)}
-              className={`group relative overflow-hidden flex items-center gap-4 p-5 rounded-2xl border transition-all duration-500 ${
+              className={`flex items-center gap-3.5 p-4 rounded-xl border transition-colors cursor-pointer text-left ${
                 isDark
-                  ? "bg-linear-to-br from-purple-900/40 to-black/40 border-purple-500/30 text-purple-100 hover:border-purple-400/60 hover:shadow-[0_0_30px_rgba(168,85,247,0.3)] hover:-translate-y-1"
-                  : "bg-linear-to-br from-purple-50 to-white border-purple-200 text-purple-900 hover:border-purple-400 hover:shadow-xl hover:-translate-y-1"
+                  ? "bg-white/[0.03] border-white/8 text-zinc-200 hover:bg-white/[0.06] hover:border-white/15"
+                  : "bg-white border-gray-200 text-gray-900 hover:border-gray-300 hover:shadow-xs"
               }`}
             >
-              <div className="absolute inset-0 bg-linear-to-r from-purple-500/0 via-purple-500/10 to-purple-500/0 -translate-x-full group-hover:animate-[shimmer_2s_infinite]" />
               <div
-                className={`p-3 rounded-xl transition-transform duration-500 group-hover:scale-110 ${
+                className={`p-2.5 rounded-lg shrink-0 border ${
                   isDark
-                    ? "bg-purple-500/20 text-purple-400"
-                    : "bg-purple-100 text-purple-600"
+                    ? "bg-white/[0.05] text-white/80 border-white/8"
+                    : "bg-gray-100 text-gray-700 border-gray-200"
                 }`}
               >
-                <Lightning
-                  size={24}
-                  className={
-                    isDark ? "drop-shadow-[0_0_8px_rgba(168,85,247,0.8)]" : ""
-                  }
-                />
+                <Lightning size={20} />
               </div>
-              <div className="flex flex-col items-start flex-1 text-left relative z-10">
-                <span className="text-sm font-black uppercase tracking-wider">
+              <div className="flex flex-col items-start min-w-0">
+                <span className="text-xs font-semibold tracking-tight">
                   {t("upgrade_to_premium")}
                 </span>
-                <span className="text-xs opacity-70 font-medium mt-1">
+                <span className="text-[10px] font-mono text-white/40 mt-0.5 truncate">
                   {t("unlock_all_features")}
                 </span>
               </div>
@@ -111,56 +103,60 @@ export const LicenseActions: React.FC<LicenseActionsProps> = ({
 
           {["expired", "suspended", "cancelled"].includes(status) && (
             <button
+              type="button"
               onClick={() => setIsUpgradeModalOpen(true)}
-              className={`group flex items-center gap-4 p-5 rounded-2xl border transition-all duration-300 ${
+              className={`flex items-center gap-3.5 p-4 rounded-xl border transition-colors cursor-pointer text-left ${
                 isDark
-                  ? "bg-blue-500/10 border-blue-500/30 text-blue-100 hover:bg-blue-500/20 hover:border-blue-500/50 hover:shadow-[0_0_30px_rgba(59,130,246,0.2)] hover:-translate-y-1"
-                  : "bg-blue-50 border-blue-200 text-blue-900 hover:bg-blue-100 hover:border-blue-300 hover:shadow-xl hover:-translate-y-1"
+                  ? "bg-white/[0.03] border-white/8 text-zinc-200 hover:bg-white/[0.06] hover:border-white/15"
+                  : "bg-white border-gray-200 text-gray-900 hover:border-gray-300 hover:shadow-xs"
               }`}
             >
               <div
-                className={`p-3 rounded-xl group-hover:rotate-180 transition-transform duration-700 ${
+                className={`p-2.5 rounded-lg shrink-0 border ${
                   isDark
-                    ? "bg-blue-500/20 text-blue-400"
-                    : "bg-blue-100 text-blue-600"
+                    ? "bg-white/[0.05] text-white/80 border-white/8"
+                    : "bg-gray-100 text-gray-700 border-gray-200"
                 }`}
               >
-                <ArrowClockwise size={24} />
+                <ArrowClockwise size={20} />
               </div>
-              <div className="flex flex-col items-start flex-1 text-left">
-                <span className="text-sm font-black uppercase tracking-wider">
+              <div className="flex flex-col items-start min-w-0">
+                <span className="text-xs font-semibold tracking-tight">
                   {t("renew_subscription")}
                 </span>
-                <span className="text-xs opacity-70 font-medium mt-1">
+                <span className="text-[10px] font-mono text-white/40 mt-0.5 truncate">
                   {t("ensure_uninterrupted_access")}
                 </span>
               </div>
             </button>
           )}
 
-          {/* Fallback View */}
+          {/* Refined Obsidian Luxury Status Card */}
           {!["trial", "expired", "suspended", "cancelled"].includes(status) && (
             <div
-              className={`col-span-1 md:col-span-2 p-5 rounded-2xl border flex flex-col items-center justify-center gap-3 py-8 ${
+              className={`col-span-1 md:col-span-2 p-5 rounded-xl border flex flex-col items-center justify-center gap-2 py-6 ${
                 isDark
-                  ? "bg-white/5 border-white/10 text-gray-400"
-                  : "bg-gray-50 border-gray-200 text-gray-500"
+                  ? "bg-white/[0.02] border-white/8 text-zinc-200"
+                  : "bg-gray-50 border-gray-200 text-gray-700"
               }`}
             >
               <ShieldCheck
-                size={32}
+                size={24}
                 className={
                   status === "active"
                     ? isDark
-                      ? "text-emerald-400"
-                      : "text-emerald-600"
-                    : "opacity-30"
+                      ? "text-white/80"
+                      : "text-gray-900"
+                    : "text-white/30"
                 }
               />
-              <span className="text-sm font-medium tracking-wide">
+              <span className="text-xs font-medium tracking-tight">
                 {status === "active"
                   ? t("license_active")
                   : t("license_status", { status })}
+              </span>
+              <span className="text-[10px] font-mono uppercase tracking-wider text-white/40">
+                CELAEST Security Verified
               </span>
             </div>
           )}
@@ -177,47 +173,46 @@ export const LicenseActions: React.FC<LicenseActionsProps> = ({
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between mb-2">
-        <h4
-          className={`text-[10px] font-black uppercase tracking-[0.2em] ${isDark ? "text-gray-500" : "text-gray-400"}`}
-        >
-          {t("administrative_controls")}
-        </h4>
-      </div>
+    <div className="space-y-3">
+      <h4
+        className={`text-[10px] font-mono uppercase tracking-[0.16em] mb-2.5 ${
+          isDark ? "text-white/40" : "text-gray-500"
+        }`}
+      >
+        {t("administrative_controls")}
+      </h4>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         {actions.map((action) => (
           <button
             key={action.id}
+            type="button"
             onClick={() => onStatusChange(action.id)}
             disabled={status === action.id}
-            className={`group flex items-center gap-3 p-4 rounded-2xl border transition-all duration-300 ${
+            className={`flex items-center gap-3 p-3.5 rounded-xl border transition-colors ${
               status === action.id
                 ? isDark
-                  ? "bg-white/5 border-white/10 text-white opacity-50 cursor-not-allowed"
+                  ? "bg-white/[0.01] border-white/5 text-white/30 cursor-not-allowed"
                   : "bg-gray-50 border-gray-100 text-gray-400 cursor-not-allowed"
                 : isDark
-                  ? "bg-black/40 border-white/5 text-gray-400 hover:border-white/20 hover:text-white"
-                  : "bg-white border-gray-100 text-gray-600 hover:border-gray-300 hover:shadow-sm"
+                  ? "bg-white/[0.02] border-white/8 text-zinc-300 hover:bg-white/[0.05] hover:border-white/15 cursor-pointer"
+                  : "bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:shadow-xs cursor-pointer"
             }`}
           >
             <div
-              className={`p-2 rounded-xl transition-colors ${
+              className={`p-2 rounded-lg shrink-0 border ${
                 status === action.id
-                  ? "bg-gray-500/10"
-                  : action.color === "emerald"
-                    ? "bg-emerald-500/10 text-emerald-500"
-                    : "bg-orange-500/10 text-orange-500"
+                  ? "bg-white/[0.02] border-white/5 text-white/30"
+                  : "bg-white/[0.04] border-white/8 text-white/70"
               }`}
             >
-              <action.icon size={18} />
+              <action.icon size={16} />
             </div>
-            <div className="flex flex-col items-start">
-              <span className="text-xs font-bold uppercase tracking-wider">
+            <div className="flex flex-col items-start min-w-0">
+              <span className="text-xs font-semibold tracking-tight">
                 {action.label}
               </span>
-              <span className="text-[10px] opacity-50 font-medium">
+              <span className="text-[10px] font-mono text-white/40 truncate">
                 {t("set_status_to", { status: action.id })}
               </span>
             </div>
@@ -226,21 +221,22 @@ export const LicenseActions: React.FC<LicenseActionsProps> = ({
 
         {status === "trial" && onConvertTrial && (
           <button
+            type="button"
             onClick={onConvertTrial}
-            className={`group flex items-center gap-3 p-4 rounded-2xl border transition-all duration-300 ${
+            className={`flex items-center gap-3 p-3.5 rounded-xl border transition-colors cursor-pointer ${
               isDark
-                ? "bg-purple-500/5 border-purple-500/20 text-purple-400 hover:bg-purple-500/10 hover:border-purple-500/40 hover:shadow-[0_0_15px_rgba(168,85,247,0.15)]"
-                : "bg-purple-50 border-purple-100 text-purple-600 hover:bg-purple-100 hover:border-purple-200"
+                ? "bg-white/[0.02] border-white/8 text-zinc-300 hover:bg-white/[0.05] hover:border-white/15"
+                : "bg-white border-gray-200 text-gray-700 hover:border-gray-300"
             }`}
           >
-            <div className="p-2 rounded-xl bg-purple-500/10 text-purple-500">
-              <Lightning size={18} />
+            <div className="p-2 rounded-lg bg-white/[0.04] border border-white/8 text-white/70 shrink-0">
+              <Lightning size={16} />
             </div>
-            <div className="flex flex-col items-start">
-              <span className="text-xs font-bold uppercase tracking-wider">
+            <div className="flex flex-col items-start min-w-0">
+              <span className="text-xs font-semibold tracking-tight">
                 {t("upgrade_trial")}
               </span>
-              <span className="text-[10px] opacity-50 font-medium">
+              <span className="text-[10px] font-mono text-white/40 truncate">
                 {t("convert_to_paid")}
               </span>
             </div>
@@ -249,21 +245,22 @@ export const LicenseActions: React.FC<LicenseActionsProps> = ({
 
         {status !== "revoked" && onRenew && (
           <button
+            type="button"
             onClick={onRenew}
-            className={`group flex items-center gap-3 p-4 rounded-2xl border transition-all duration-300 ${
+            className={`flex items-center gap-3 p-3.5 rounded-xl border transition-colors cursor-pointer ${
               isDark
-                ? "bg-blue-500/5 border-blue-500/20 text-blue-400 hover:bg-blue-500/10 hover:border-blue-500/40"
-                : "bg-blue-50 border-blue-100 text-blue-600 hover:bg-blue-100 hover:border-blue-200"
+                ? "bg-white/[0.02] border-white/8 text-zinc-300 hover:bg-white/[0.05] hover:border-white/15"
+                : "bg-white border-gray-200 text-gray-700 hover:border-gray-300"
             }`}
           >
-            <div className="p-2 rounded-xl bg-blue-500/10 text-blue-500">
-              <ArrowClockwise size={18} />
+            <div className="p-2 rounded-lg bg-white/[0.04] border border-white/8 text-white/70 shrink-0">
+              <ArrowClockwise size={16} />
             </div>
-            <div className="flex flex-col items-start">
-              <span className="text-xs font-bold uppercase tracking-wider">
+            <div className="flex flex-col items-start min-w-0">
+              <span className="text-xs font-semibold tracking-tight">
                 {t("force_renew")}
               </span>
-              <span className="text-[10px] opacity-50 font-medium">
+              <span className="text-[10px] font-mono text-white/40 truncate">
                 {t("extend_billing_cycle")}
               </span>
             </div>
@@ -272,21 +269,22 @@ export const LicenseActions: React.FC<LicenseActionsProps> = ({
 
         {status === "suspended" && onReactivate && (
           <button
+            type="button"
             onClick={onReactivate}
-            className={`group flex items-center gap-3 p-4 rounded-2xl border transition-all duration-300 ${
+            className={`flex items-center gap-3 p-3.5 rounded-xl border transition-colors cursor-pointer ${
               isDark
-                ? "bg-emerald-500/5 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/10 hover:border-emerald-500/40"
-                : "bg-emerald-50 border-emerald-100 text-emerald-600 hover:bg-emerald-100 hover:border-emerald-200"
+                ? "bg-white/[0.02] border-white/8 text-zinc-300 hover:bg-white/[0.05] hover:border-white/15"
+                : "bg-white border-gray-200 text-gray-700 hover:border-gray-300"
             }`}
           >
-            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-500">
-              <Play size={18} />
+            <div className="p-2 rounded-lg bg-white/[0.04] border border-white/8 text-white/70 shrink-0">
+              <Play size={16} />
             </div>
-            <div className="flex flex-col items-start">
-              <span className="text-xs font-bold uppercase tracking-wider">
+            <div className="flex flex-col items-start min-w-0">
+              <span className="text-xs font-semibold tracking-tight">
                 {t("reactivate")}
               </span>
-              <span className="text-[10px] opacity-50 font-medium">
+              <span className="text-[10px] font-mono text-white/40 truncate">
                 {t("lift_suspension")}
               </span>
             </div>
@@ -304,24 +302,24 @@ export const LicenseActions: React.FC<LicenseActionsProps> = ({
                 exit={{ opacity: 0, scale: 0.95 }}
                 onClick={handleRevoke}
                 disabled={status === "revoked"}
-                className={`w-full group flex items-center gap-3 p-4 rounded-2xl border transition-all duration-300 ${
+                className={`w-full flex items-center gap-3 p-3.5 rounded-xl border transition-colors ${
                   status === "revoked"
                     ? isDark
-                      ? "bg-rose-500/5 border-rose-500/10 text-rose-500/50 cursor-not-allowed"
-                      : "bg-rose-50 border-rose-100 text-rose-300 cursor-not-allowed"
+                      ? "bg-red-500/5 border-red-500/10 text-red-500/40 cursor-not-allowed"
+                      : "bg-red-50 border-red-100 text-red-300 cursor-not-allowed"
                     : isDark
-                      ? "bg-rose-500/5 border-rose-500/20 text-rose-500 hover:bg-rose-500/10 hover:border-rose-500/40 hover:shadow-[0_0_20px_rgba(244,63,94,0.1)]"
-                      : "bg-rose-50 border-rose-100 text-rose-600 hover:bg-rose-100 hover:border-rose-200"
+                      ? "bg-red-500/5 border-red-500/20 text-red-300 hover:bg-red-500/10 hover:border-red-500/30 cursor-pointer"
+                      : "bg-red-50 border-red-200 text-red-600 hover:bg-red-100 cursor-pointer"
                 }`}
               >
-                <div className="p-2 rounded-xl bg-rose-500/10">
-                  <Prohibit size={18} />
+                <div className="p-2 rounded-lg bg-red-500/10 text-red-400 shrink-0">
+                  <Prohibit size={16} />
                 </div>
-                <div className="flex flex-col items-start">
-                  <span className="text-xs font-black uppercase tracking-wider">
+                <div className="flex flex-col items-start min-w-0">
+                  <span className="text-xs font-semibold tracking-tight">
                     {t("revoke_key")}
                   </span>
-                  <span className="text-[10px] opacity-60 font-medium">
+                  <span className="text-[10px] font-mono text-red-400/70 truncate">
                     {t("deauthorize_access")}
                   </span>
                 </div>
@@ -332,39 +330,40 @@ export const LicenseActions: React.FC<LicenseActionsProps> = ({
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                className={`w-full flex items-center justify-between p-3 rounded-2xl border ${
+                className={`w-full flex items-center justify-between p-3 rounded-xl border ${
                   isDark
-                    ? "bg-rose-500/10 border-rose-500/30"
-                    : "bg-rose-50 border-rose-200"
+                    ? "bg-red-500/10 border-red-500/30"
+                    : "bg-red-50 border-red-200"
                 }`}
               >
-                <div className="flex items-center gap-3 pl-1">
-                  <Warning
-                    size={18}
-                    className="text-rose-500 animate-pulse"
-                  />
+                <div className="flex items-center gap-2 pl-1">
+                  <Warning size={15} className="text-red-400" />
                   <span
-                    className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-rose-200" : "text-rose-700"}`}
+                    className={`text-[10px] font-mono uppercase tracking-wider font-semibold ${
+                      isDark ? "text-red-300" : "text-red-700"
+                    }`}
                   >
                     {t("are_you_sure")}
                   </span>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-1.5">
                   <button
+                    type="button"
                     onClick={() => setIsConfirmingRevoke(false)}
-                    className={`p-2 rounded-xl transition-colors ${
+                    className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                       isDark
                         ? "hover:bg-white/10 text-white/60"
                         : "hover:bg-white text-gray-400"
                     }`}
                   >
-                    <X size={16} />
+                    <X size={14} />
                   </button>
                   <button
+                    type="button"
                     onClick={handleRevoke}
-                    className="p-2 rounded-xl bg-rose-500 text-white shadow-lg shadow-rose-500/30 hover:bg-rose-600 transition-all active:scale-90"
+                    className="p-1.5 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors cursor-pointer"
                   >
-                    <Check size={16} />
+                    <Check size={14} />
                   </button>
                 </div>
               </motion.div>

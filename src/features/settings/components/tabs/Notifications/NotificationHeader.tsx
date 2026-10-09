@@ -12,24 +12,22 @@ export const NotificationHeader: React.FC = memo(() => {
     <div className="flex items-center justify-between mb-8">
       <div className="flex items-center gap-4">
         <div
-          className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-sm transition-colors ${
-            isDark ? "bg-cyan-500/10" : "bg-cyan-50"
+          className={`w-10 h-10 rounded-xl flex items-center justify-center border transition-colors ${
+            isDark ? "bg-white/[0.04] border-white/10 text-white/70" : "bg-gray-100 border-gray-200 text-gray-700"
           }`}
         >
-          <Bell
-            className={`w-6 h-6 ${isDark ? "text-cyan-400" : "text-cyan-600"}`}
-          />
+          <Bell className="w-5 h-5" />
         </div>
         <div>
           <h3
-            className={`text-lg font-bold ${
+            className={`text-base font-bold font-jakarta tracking-tight ${
               isDark ? "text-white" : "text-gray-900"
             }`}
           >
             {t("notification_preferences")}
           </h3>
           <p
-            className={`text-sm ${isDark ? "text-gray-500" : "text-gray-400"}`}
+            className={`text-xs ${isDark ? "text-white/50" : "text-gray-500"}`}
           >
             {t("notification_preferences_desc")}
           </p>
@@ -41,10 +39,10 @@ export const NotificationHeader: React.FC = memo(() => {
             description: t("all_muted_desc"),
           })
         }
-        className={`px-4 py-2 rounded-xl text-xs font-black tracking-widest transition-all ${
+        className={`px-3 py-1.5 rounded-lg text-[10px] font-mono uppercase tracking-wider font-bold transition-all ${
           isDark
-            ? "bg-white/5 text-gray-400 hover:text-white"
-            : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+            ? "bg-white/5 text-zinc-400 hover:text-white border border-white/5"
+            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
         }`}
       >
         {t("mute_all")}

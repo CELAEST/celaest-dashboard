@@ -48,25 +48,9 @@ export function ManageSubscriptionModal({
     <BillingModal
       isOpen={isOpen}
       onClose={onClose}
-      className="max-w-3xl max-h-[85vh]"
+      className="max-w-3xl max-h-[85vh] bg-[#09090b]/95 border-white/10 backdrop-blur-2xl"
       showCloseButton={false}
     >
-      {/* Top accent line */}
-      <div className="absolute inset-x-0 top-0 h-px z-20 bg-linear-to-r from-transparent via-teal-500/70 to-transparent" />
-      {/* Corner glow */}
-      <div
-        style={{
-          position: "absolute",
-          top: 0,
-          right: 0,
-          width: "22rem",
-          height: "22rem",
-          background: "radial-gradient(circle at top right, rgba(20,184,166,0.06), transparent 70%)",
-          pointerEvents: "none",
-          zIndex: 0,
-        }}
-      />
-
       <ManageSubscriptionHeader onClose={onClose} />
 
       <div

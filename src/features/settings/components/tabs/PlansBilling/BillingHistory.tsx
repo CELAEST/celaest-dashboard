@@ -41,7 +41,7 @@ export const BillingHistory: React.FC = memo(() => {
   if (isLoading) {
     return (
       <div className="settings-glass-card rounded-2xl p-6 flex justify-center py-12">
-        <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-cyan-500"></div>
+        <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-white/80"></div>
       </div>
     );
   }
@@ -50,18 +50,18 @@ export const BillingHistory: React.FC = memo(() => {
     <div className="settings-glass-card rounded-2xl p-6">
       <div className="flex items-center justify-between mb-6">
         <h3
-          className={`text-base font-bold flex items-center gap-2 ${
+          className={`text-base font-bold font-jakarta flex items-center gap-2 ${
             isDark ? "text-white" : "text-gray-900"
           }`}
         >
-          <Receipt className="w-4 h-4 text-emerald-500" />
+          <Receipt className="w-4 h-4 text-emerald-400" />
           {t("billing_history")}
         </h3>
         <button
-          className={`flex items-center gap-1.5 text-xs font-black tracking-widest transition-colors ${
+          className={`flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-wider font-semibold transition-colors cursor-pointer ${
             isDark
-              ? "text-gray-400 hover:text-white"
-              : "text-gray-500 hover:text-gray-900"
+              ? "text-white/60 hover:text-white"
+              : "text-gray-600 hover:text-gray-900"
           }`}
         >
           {t("view_all")}
@@ -71,7 +71,7 @@ export const BillingHistory: React.FC = memo(() => {
 
       <div className="space-y-1">
         {invoices.length === 0 ? (
-          <p className="text-sm text-gray-500 py-4 italic text-center">
+          <p className={`text-xs py-6 font-mono text-center ${isDark ? "text-white/40" : "text-gray-400"}`}>
             {t("no_invoices")}
           </p>
         ) : (
@@ -79,27 +79,27 @@ export const BillingHistory: React.FC = memo(() => {
             <div
               key={invoice.id}
               className={`flex items-center justify-between py-4 border-b last:border-0 transition-colors ${
-                isDark ? "border-white/5" : "border-gray-100"
+                isDark ? "border-white/[0.06]" : "border-gray-100"
               }`}
             >
               <div>
                 <p
-                  className={`text-sm font-bold ${
-                    isDark ? "text-gray-300" : "text-gray-700"
+                  className={`text-sm font-bold font-mono ${
+                    isDark ? "text-zinc-100" : "text-gray-800"
                   }`}
                 >
                   {t("invoice")} {invoice.invoice_number}
                 </p>
-                <p className="text-xs text-gray-500 mt-0.5 font-mono">
+                <p className={`text-xs mt-0.5 font-mono ${isDark ? "text-white/40" : "text-gray-500"}`}>
                   {new Date(invoice.created_at).toLocaleDateString()} • $
                   {invoice.total} • {invoice.status.toUpperCase()}
                 </p>
               </div>
               <button
-                className={`p-2 rounded-lg transition-colors ${
+                className={`p-2 rounded-lg transition-colors cursor-pointer ${
                   isDark
-                    ? "hover:bg-white/5 text-gray-500"
-                    : "hover:bg-gray-100 text-gray-400"
+                    ? "hover:bg-white/[0.06] text-white/50 hover:text-white"
+                    : "hover:bg-gray-100 text-gray-500"
                 }`}
                 onClick={() =>
                   invoice.pdf_url && window.open(invoice.pdf_url, "_blank")

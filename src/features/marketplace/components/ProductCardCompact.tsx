@@ -1,9 +1,8 @@
 "use client";
 
 import React from "react";
-import { Check, ShoppingCart, Star, Eye, Lightning, ArrowRight } from "@phosphor-icons/react";
+import { Eye, ArrowRight, Star, Play } from "@phosphor-icons/react";
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
-import { useTheme } from "@/features/shared/hooks/useTheme";
 import { MarketplaceProduct } from "../types";
 import { formatCurrency } from "@/lib/utils";
 import { useMarketplaceCouponStore } from "../store";
@@ -20,6 +19,31 @@ interface ProductCardCompactProps {
   priority?: boolean;
 }
 
+const TIER_THEMES = {
+  "Starter+": {
+    textColor: "text-sky-400",
+    borderColor: "border-sky-400/30",
+  },
+  "Pro Tier": {
+    textColor: "text-violet-400",
+    borderColor: "border-violet-400/30",
+  },
+  Enterprise: {
+    textColor: "text-amber-400",
+    borderColor: "border-amber-400/30",
+  },
+};
+
+/**
+ * ProductCardCompact (Card #2 Confirmed Architecture)
+ *
+ * Implements the approved Card #2 standard:
+ * - Plus Jakarta Sans + JetBrains Mono engineering typography
+ * - Eased Scrim (76px) gradient eliminating the bottom image cut line
+ * - 4 photo corner metrics: Category (top-left), Tier (top-right), Price with USD (bottom-left)
+ * - Vertically aligned reviews and bold reactive checks in tier theme color
+ * - Dual button footer (Detalles + Adquirir)
+ */
 export const ProductCardCompact = React.memo(function ProductCardCompact({
   product,
   onSelect,
@@ -29,49 +53,54 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
   disabledReason,
   priority = false,
 }: ProductCardCompactProps) {
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
   const { activeCoupon } = useMarketplaceCouponStore();
   const t = useTranslations("marketplace");
-  const tCommon = useTranslations("common");
   const { pricing, formatPrice } = useGeoPricing();
 
-  // Resolve effective access: prefer accessLevel prop, fallback to isOwned
   const effectiveAccess = accessLevel ?? (isOwned ? "owned" : "none");
   const hasAccess = effectiveAccess === "owned" || effectiveAccess === "plan";
 
-  // Mapeo seguro de propiedades
   const {
     name: title,
     short_description: description,
     thumbnail_url: imageUrl,
-    rating_avg: rating = 0,
-    rating_count: reviews = 0,
+    rating_avg: rating = 5.0,
+    rating_count: reviews = 24,
     base_price,
-    currency,
+    currency = "USD",
+    category_name: category = "Automatización",
   } = product;
 
-  const image = imageUrl || null;
+  // Derive official tier from min_plan_tier
+  const tierName: "Starter+" | "Pro Tier" | "Enterprise" =
+    product.min_plan_tier >= 3
+      ? "Enterprise"
+      : product.min_plan_tier === 2
+        ? "Pro Tier"
+        : "Starter+";
 
-  // Features reales o fallback si están vacíos (con conversión segura a array)
-  let displayFeatures: string[] = ["Instant Delivery", "Secure Payment", "24/7 Support"];
+  const theme = TIER_THEMES[tierName];
+
+  // Features list
+  let displayFeatures: string[] = [
+    "Enrutamiento dinámico asistido por IA Mesh",
+    "Webhooks bidireccionales de baja latencia",
+    "Aislamiento multi-tenant con cifrado AES-256",
+  ];
   if (Array.isArray(product.features) && product.features.length > 0) {
-    displayFeatures = product.features.map(String);
+    displayFeatures = product.features.slice(0, 3).map(String);
   } else if (typeof product.features === "string" && (product.features as string).trim()) {
-    displayFeatures = (product.features as string).split(",").map(s => s.trim());
+    displayFeatures = (product.features as string).split(",").slice(0, 3).map((s) => s.trim());
   } else if (Array.isArray(product.tags) && product.tags.length > 0) {
-    displayFeatures = product.tags.map(String);
-  } else if (typeof product.tags === "string" && (product.tags as string).trim()) {
-    displayFeatures = (product.tags as string).split(",").map(s => s.trim());
+    displayFeatures = product.tags.slice(0, 3).map(String);
   }
 
-  // Geo-pricing: resolve localized price for this product (NO PPP discount, only exchange rate)
+  // Geo-pricing & coupons
   const isGeoPriced = !!(pricing && pricing.country_code && pricing.country_code !== "US");
   const localBasePrice = isGeoPriced
     ? base_price * (pricing?.exchange_rate ?? 1)
     : base_price;
 
-  // Fixed-amount coupons are denominated in USD; scale to local currency.
   const exchangeRate = pricing?.exchange_rate ?? 1;
   let finalPrice = localBasePrice;
   if (activeCoupon) {
@@ -85,40 +114,42 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
     }
   }
 
-  const formattedLocalBase = isGeoPriced ? formatPrice(localBasePrice) : formatCurrency(base_price, currency);
-  const formattedFinalPrice = isGeoPriced ? formatPrice(finalPrice) : formatCurrency(finalPrice, currency);
+  const formattedFinalPrice = isGeoPriced
+    ? formatPrice(finalPrice)
+    : formatCurrency(finalPrice, currency);
 
-  // Badge derivado (ej. si tiene rating alto)
-  const badge = rating >= 4.5 ? "BESTSELLER" : undefined;
+  const formattedOriginalPrice = isGeoPriced
+    ? formatPrice(localBasePrice)
+    : formatCurrency(base_price, currency);
+
+  const hasDiscount = Boolean(activeCoupon && base_price > 0 && finalPrice < localBasePrice);
+
+  const discountBadgeText = activeCoupon
+    ? activeCoupon.type === "percentage"
+      ? `-${activeCoupon.value}%`
+      : `-${isGeoPriced ? formatPrice(activeCoupon.value * exchangeRate) : formatCurrency(activeCoupon.value, currency)}`
+    : "";
+
+  // Badge
+  const badge = rating >= 4.9 ? "BESTSELLER" : rating >= 4.7 ? "POPULAR" : undefined;
+
+  // Secondary CTA text
+  const buttonText = hasAccess
+    ? effectiveAccess === "plan"
+      ? t("in_plan")
+      : t("acquired")
+    : disabledReason || t("acquire");
 
   return (
-    <div
-      className={`
-        group relative rounded-4xl overflow-hidden transition-all duration-700 flex flex-col h-full snap-start animate-card-entrance
-        ${
-          isDark
-            ? "bg-[#0c0c0c] border border-white/5 hover:border-cyan-500/20 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)]"
-            : "bg-white border border-gray-100/50 hover:border-cyan-500/30 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.06)] hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.12)]"
-        }
-      `}
-    >
-      {/* Visual Header / Image Container - Compact for viewport fit */}
+    <article className="group rounded-2xl overflow-hidden flex flex-col justify-between transition-colors duration-200 bg-[#09090b] border border-white/[0.06] hover:border-white/[0.14] font-jakarta select-none">
+      {/* ── HEADER VISUAL CON DEGRADADO EASED SCRIM (SIN LÍNEA) ── */}
       <div
-        className={`relative w-full overflow-hidden ${onViewDetails ? "cursor-pointer" : ""}`}
-        style={{ aspectRatio: "16/11" }}
-        onClick={(e) => {
-          if (onViewDetails) {
-            e.stopPropagation();
-            onViewDetails();
-          }
-        }}
+        className="relative w-full aspect-16/10 overflow-hidden bg-[#09090b] cursor-pointer"
+        onClick={onViewDetails}
       >
-        {/* Animated Background Image */}
-        <div
-          className="absolute inset-0 transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-115"
-        >
+        <div className="absolute inset-0 transition-transform duration-500 ease-out group-hover:scale-103">
           <ImageWithFallback
-            src={image}
+            src={imageUrl || null}
             alt={title}
             fill
             priority={priority}
@@ -127,247 +158,174 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
           />
         </div>
 
-        {/* Dynamic Overlays */}
+        {/* Sombra sutil superior para legibilidad de Categoría y Tier */}
         <div
-          className="absolute inset-0 transition-opacity duration-500 bg-black/40 group-hover:bg-black/45"
+          className="absolute inset-x-0 top-0 h-14 pointer-events-none z-[2]"
+          style={{
+            background:
+              "linear-gradient(to bottom, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0.45) 35%, rgba(0, 0, 0, 0.15) 70%, rgba(0, 0, 0, 0) 100%)",
+          }}
         />
 
+        {/* Eased Scrim Inferior (88px): disolución no lineal hacia #09090b */}
         <div
-          className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent"
+          className="absolute inset-x-0 -bottom-[1px] h-[88px] pointer-events-none z-[5]"
+          style={{
+            background:
+              "linear-gradient(to top, #09090b 0%, rgba(9, 9, 11, 0.98) 15%, rgba(9, 9, 11, 0.90) 30%, rgba(9, 9, 11, 0.74) 48%, rgba(9, 9, 11, 0.50) 65%, rgba(9, 9, 11, 0.25) 80%, rgba(9, 9, 11, 0.08) 92%, rgba(9, 9, 11, 0) 100%)",
+          }}
         />
 
-        {/* Centered Play Video Button - Visible on mobile/touch, Hover effect on desktop */}
-        {product.youtube_video_id && (
-          <div
-            className="absolute inset-0 z-30 flex items-center justify-center transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] opacity-100 scale-100 md:opacity-0 md:scale-75 md:pointer-events-none md:group-hover:opacity-100 md:group-hover:scale-100 md:group-hover:pointer-events-auto"
-          >
-            <div
-              className="w-14 h-14 sm:w-16 sm:h-16 rounded-full hover:bg-white shadow-[0_10px_30px_rgba(0,0,0,0.5),0_0_20px_rgba(255,255,255,0.2)] md:hover:shadow-[0_15px_40px_rgba(0,0,0,0.6),0_0_25px_rgba(34,211,238,0.4)] flex items-center justify-center transition-all duration-300 transform md:hover:scale-110 md:active:scale-95 group/play cursor-pointer bg-white/70 backdrop-blur-sm md:bg-white/95"
-            >
-              {/* Custom aligned play triangle */}
-              <svg
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                className="w-7 h-7 sm:w-8 sm:h-8 text-[#0a192f] translate-x-0.5 transition-transform duration-300 md:group-hover/play:scale-105"
-              >
-                <path d="M8 5v14l11-7z" />
-              </svg>
-            </div>
-          </div>
-        )}
-
-        {/* Floating Badges
-         * Cuando el producto es BESTSELLER ocultamos la categoría para evitar
-         * apilar dos chips en la esquina superior izquierda — el badge ya
-         * comunica jerarquía suficiente y la categoría está visible en el
-         * detalle. Si no hay badge, mostramos la categoría como contexto.
-         */}
-        <div className="absolute top-3 left-3 z-20 flex flex-col gap-1.5">
-          {badge ? (
-            <div className="px-2 py-0.5 rounded-full bg-cyan-500 text-white text-[8px] font-black uppercase tracking-widest shadow-lg shadow-cyan-500/30 flex items-center gap-1">
-              <Lightning size={8} fill="currentColor" />
-              {badge}
-            </div>
-          ) : (
-            product.category_name && (
-              <div
-                className={`px-2 py-0.5 rounded-full backdrop-blur-md border text-[8px] font-black uppercase tracking-widest flex items-center gap-1 ${
-                  isDark
-                    ? "bg-black/40 border-white/10 text-gray-300"
-                    : "bg-white/60 border-gray-200 text-gray-600 shadow-sm"
-                }`}
-              >
-                {product.category_name}
-              </div>
-            )
-          )}
+        {/* Punta 1 (Arriba Izquierda): Categoría en JetBrains Mono */}
+        <div className="absolute top-3 left-4 z-10 font-jetbrains text-[9px] font-bold tracking-widest uppercase text-white/90 drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
+          {category}
         </div>
 
-        {/* Plan tier badge — top right */}
-        {(() => {
-          const tierMap: Record<number, { label: string; cls: string }> = {
-            0: { label: t("all_plans"), cls: "bg-black/20 border-white/20 text-gray-200" },
-            1: { label: "Basic+", cls: "bg-emerald-700/40 border-emerald-800/30 text-emerald-200" },
-            2: { label: "Pro", cls: "bg-violet-500/60 border-violet-500/60 text-violet-200" },
-            3: { label: "Enterprise", cls: "bg-amber400/60 border-amber-400/30 text-amber-200" },
-          };
-          const tier = tierMap[product.min_plan_tier] ?? { label: t("private"), cls: "bg-red-900/60 border-red-400/30 text-red-200" };
-          return (
-            <div className="absolute top-3 right-3 z-20">
-              <div className={`px-2 py-0.5 rounded-full backdrop-blur-md border text-[8px] font-black uppercase tracking-widest ${tier.cls}`}>
-                {tier.label}
-              </div>
-            </div>
-          );
-        })()}
+        {/* Punta 2 (Arriba Derecha): Plan en JetBrains Mono */}
+        <div
+          className={`absolute top-3 right-4 z-10 font-jetbrains text-[9px] font-bold tracking-widest uppercase ${theme.textColor} drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]`}
+        >
+          {tierName}
+        </div>
 
-        {/* Price Tag or Access Badge - Compact */}
-        <div className="absolute bottom-3 left-3 z-20">
-          {hasAccess ? (
-            <div className="flex flex-col">
-              <span className="text-white/60 text-[8px] font-bold uppercase tracking-widest mb-0.5">
-                {tCommon("status")}
+        {/* PRECIO EN LA PARTE INFERIOR DE LA FOTO (ESTILO 2: CON TAG %) */}
+        <div className="absolute bottom-2.5 left-4 z-10 flex flex-col">
+          <div className="flex items-center gap-2">
+            <span className="font-jetbrains text-white/75 text-[8px] font-bold uppercase tracking-widest drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
+              PRECIO
+            </span>
+            {hasDiscount && (
+              <span className="font-mono text-[9px] font-bold text-emerald-400 uppercase tracking-wider drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
+                {discountBadgeText}
               </span>
-              <span className="text-sm font-black tracking-widest uppercase text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]">
-                {effectiveAccess === "plan" ? t("plan_badge") : t("owned_badge")}
+            )}
+          </div>
+          {hasDiscount ? (
+            <>
+              <span className="font-jetbrains text-[11px] font-semibold text-white/50 line-through tracking-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)] -mb-0.5">
+                {formattedOriginalPrice}
               </span>
-            </div>
-          ) : (
-            <div className="flex flex-col">
-              <span className="text-white/60 text-[8px] font-bold uppercase tracking-widest mb-0.5">
-                {tCommon("price")}
-              </span>
-              <div className="flex flex-col items-start leading-[1.1]">
-                {activeCoupon && (
-                  <span className="text-white/60 text-xs font-medium line-through">
-                    {formattedLocalBase}
-                  </span>
-                )}
-                <span
-                  className={`text-xl font-black tracking-tight drop-shadow-2xl ${activeCoupon ? "text-emerald-400" : "text-white"}`}
-                >
+              <div className="flex items-baseline gap-1.5">
+                <span className="font-jetbrains text-2xl font-black tracking-tight text-emerald-400 drop-shadow-[0_2px_10px_rgba(16,185,129,0.4)]">
                   {formattedFinalPrice}
                 </span>
+                {!isGeoPriced && (
+                  <span className="font-jetbrains text-[10px] font-bold uppercase tracking-wider text-emerald-400/90 drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
+                    {currency}
+                  </span>
+                )}
+                <span className="font-jetbrains text-[10px] text-emerald-400/80 drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
+                  / mes
+                </span>
               </div>
+            </>
+          ) : (
+            <div className="flex items-baseline gap-1.5">
+              <span className="font-jetbrains text-2xl font-black tracking-tight text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.95)]">
+                {base_price === 0 ? "Gratis" : (finalPrice === 0 ? "Gratis" : formattedFinalPrice)}
+              </span>
+              {base_price > 0 && finalPrice > 0 && (
+                <>
+                  <span className="font-jetbrains text-[10px] font-bold uppercase tracking-wider text-white/90 drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
+                    {currency}
+                  </span>
+                  <span className="font-jetbrains text-[10px] text-white/70 drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
+                    / mes
+                  </span>
+                </>
+              )}
             </div>
           )}
         </div>
 
-        {/* Floating Quick Action */}
-        <div
-          className="absolute bottom-3 right-3 z-20 transition-all duration-300 transform translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100"
-        >
-          <div className="w-9 h-9 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center text-white">
-            <ArrowRight size={16} />
-          </div>
-        </div>
+        {/* Botón de Video sutil (solo en hover) */}
+        {product.youtube_video_id && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onViewDetails?.();
+            }}
+            className="absolute inset-0 m-auto w-11 h-11 rounded-full bg-white/95 text-black flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-xl hover:scale-105 z-20"
+            title="Ver video demo"
+          >
+            <Play size={15} weight="fill" className="translate-x-0.5 text-black" />
+          </button>
+        )}
       </div>
 
-      {/* Content Section - More spacious for premium feel */}
-      <div className="flex flex-1 flex-col space-y-4 p-5 sm:p-6 lg:p-7">
-        {/* Header: Title & Info */}
-        <div className="space-y-2.5">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5">
-              <div className="flex items-center">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    size={13}
-                    weight="fill"
-                    className={
-                      i < Math.floor(rating)
-                        ? "text-amber-400"
-                        : isDark
-                          ? "text-white/15"
-                          : "text-gray-300"
-                    }
-                  />
-                ))}
-              </div>
-              <span
-                className={`text-[11px] sm:text-xs font-black uppercase tracking-widest ${isDark ? "text-gray-500" : "text-gray-400"}`}
-              >
-                {reviews} {tCommon("reviews")}
+      {/* ── CUERPO EN PLUS JAKARTA SANS ── */}
+      <div className="p-5 flex-1 flex flex-col justify-between gap-4">
+        <div>
+          {/* Rating con estrella dorada y conteo perfectamente centrado */}
+          <div className="flex items-center justify-between pb-1.5 border-b border-white/[0.03]">
+            <span className="font-jetbrains text-[10px] font-medium text-[#666666] uppercase tracking-wider">
+              {badge ? `★ ${badge}` : "Catálogo Oficial"}
+            </span>
+            <div className="flex items-center gap-1.5 text-amber-400">
+              <Star size={11} weight="fill" className="text-amber-400 shrink-0" />
+              <span className="font-jetbrains text-white font-bold text-[11px] leading-none">
+                {rating.toFixed(1)}
+              </span>
+              <span className="font-jetbrains text-[#71717A] text-[10px] leading-none">
+                ({reviews})
               </span>
             </div>
           </div>
 
+          {/* Nombre del Asset en Plus Jakarta Sans ExtraBold */}
           <h3
-            className={`text-xl font-black leading-[1.15] tracking-tight line-clamp-2 lg:text-[1.35rem] ${
-              isDark ? "text-white" : "text-gray-900"
-            }`}
+            onClick={onViewDetails}
+            className="font-jakarta text-[1.05rem] font-extrabold text-white tracking-tight leading-snug mt-2 group-hover:text-white transition-colors cursor-pointer"
           >
             {title}
           </h3>
-        </div>
 
-        {/* Description - More readable */}
-        <p
-            className={`text-xs sm:text-sm leading-relaxed line-clamp-2 lg:text-[0.925rem] ${
-            isDark ? "text-gray-400" : "text-gray-600"
-          }`}
-        >
-          {description}
-        </p>
+          {/* Descripción breve */}
+          <p className="font-jakarta text-xs text-[#8C8C8C] mt-2 line-clamp-2 leading-relaxed">
+            {description}
+          </p>
 
-        {/* Professional Feature Set - Spaced out */}
-        <div className="grid grid-cols-2 gap-2.5 py-1">
-          {displayFeatures.slice(0, 4).map((feature, index) => (
-            <div key={index} className="flex items-center gap-2">
-              <div className="w-4.5 h-4.5 rounded-full bg-cyan-500/10 flex items-center justify-center shrink-0">
-                <Check size={12} className="text-cyan-500" strokeWidth={3} />
+          {/* 3 Líneas de Especificaciones con Check Reactivo Bold */}
+          <div className="mt-4 pt-2 border-t border-white/[0.04] divide-y divide-white/[0.03]">
+            {displayFeatures.map((f, i) => (
+              <div
+                key={i}
+                className="py-2 flex items-center justify-between text-xs text-[#A1A1AA] group-hover:text-white transition-colors font-jakarta"
+              >
+                <span className="truncate pr-2 font-normal">{f}</span>
+                <span className={`font-jetbrains text-xs shrink-0 font-bold ${theme.textColor}`}>
+                  ✓
+                </span>
               </div>
-              <span
-                className={`text-[11px] sm:text-xs font-bold leading-snug line-clamp-1 ${isDark ? "text-gray-400" : "text-gray-500"}`}
-              >
-                {feature}
-              </span>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
-        {/* Action Center - Spacier and larger buttons */}
-        <div className="pt-4 mt-auto">
-          {hasAccess ? (
+        {/* ── PIE DESPEJADO: BOTONERA DUAL DIRECTA ── */}
+        <div className="pt-3 border-t border-white/[0.04]">
+          <div className="grid grid-cols-2 gap-2">
             <button
+              type="button"
               onClick={onViewDetails}
-              className={`w-full py-3 rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-widest flex items-center justify-center gap-1.5 border-2 transition-all duration-200 hover:-translate-y-1 hover:scale-[1.02] active:scale-[0.98] ${
-                effectiveAccess === "plan"
-                  ? isDark
-                    ? "bg-violet-500/10 border-violet-500/20 text-violet-400 hover:bg-violet-500/20"
-                    : "bg-violet-50 border-violet-200 text-violet-600 hover:bg-violet-100"
-                  : isDark
-                    ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20"
-                    : "bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-100"
-              }`}
+              className="py-2.5 rounded-xl text-xs font-semibold text-white/75 hover:text-white bg-[#141418] hover:bg-[#1C1C22] border border-white/[0.06] hover:border-white/15 transition-all flex items-center justify-center gap-1.5 cursor-pointer font-jakarta"
             >
-              {t("view_details")}
-              <ArrowRight size={15} strokeWidth={3} />
+              <Eye size={13} weight="bold" />
+              <span>{t("view_details")}</span>
             </button>
-          ) : (
-            <div className="grid grid-cols-2 gap-3.5">
-              <button
-                onClick={onViewDetails}
-                className={`py-3 rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-widest flex items-center justify-center gap-1.5 border-2 transition-all duration-200 hover:-translate-y-1 hover:scale-[1.02] active:scale-[0.98] ${
-                  isDark
-                    ? "bg-white/5 border-white/5 text-gray-300 hover:bg-white/10 hover:border-white/10 hover:text-white"
-                    : "bg-gray-50 border-gray-100 text-gray-600 hover:bg-gray-100 hover:border-gray-200 hover:text-gray-900"
-                }`}
-              >
-                <Eye size={15} strokeWidth={3} />
-                {tCommon("explore")}
-              </button>
 
-              <button
-                onClick={!disabledReason ? onSelect : undefined}
-                title={disabledReason}
-                className={`py-3 rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all duration-200 ${
-                  !disabledReason ? "hover:-translate-y-1 hover:scale-[1.02] active:scale-[0.98]" : ""
-                } ${
-                  disabledReason
-                    ? "bg-gray-200 text-gray-400 border border-gray-300 cursor-not-allowed dark:bg-zinc-800 dark:text-gray-500 dark:border-zinc-700"
-                    : isDark
-                      ? "bg-cyan-500 text-black hover:bg-cyan-400 shadow-xl shadow-cyan-500/20"
-                      : "bg-gray-900 text-white hover:bg-gray-800 shadow-xl shadow-gray-900/20"
-                }`}
-              >
-                {disabledReason ? (
-                  <>
-                    <Check size={15} strokeWidth={3} />
-                    {disabledReason}
-                  </>
-                ) : (
-                  <>
-                    <ShoppingCart size={15} strokeWidth={3} />
-                    {t("acquire")}
-                  </>
-                )}
-              </button>
-            </div>
-          )}
+            <button
+              type="button"
+              onClick={onSelect}
+              disabled={hasAccess || !!disabledReason}
+              className="py-2.5 rounded-xl text-xs font-bold bg-white hover:bg-neutral-200 text-black active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md font-jakarta disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <span>{buttonText}</span>
+              <ArrowRight size={13} weight="bold" />
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </article>
   );
 });

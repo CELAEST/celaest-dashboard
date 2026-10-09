@@ -109,8 +109,8 @@ export function SettingsSelect({
               ? "bg-white/8 border-white/5 text-gray-600 cursor-not-allowed opacity-50"
               : "bg-gray-50 border-gray-100 text-gray-400 cursor-not-allowed opacity-50"
             : isDark
-              ? "bg-white/8 border-white/13 text-white hover:border-cyan-500/30 focus:border-cyan-500/30 focus:bg-white/12"
-              : "bg-white border-gray-200 text-gray-900 hover:border-gray-300 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50"
+              ? "bg-white/[0.03] border-white/8 text-white hover:border-white/20 focus:border-white/30"
+              : "bg-white border-gray-200 text-gray-900 hover:border-gray-300 focus:border-gray-400"
         }`}
         aria-expanded={isOpen}
         aria-haspopup="listbox"
@@ -119,8 +119,8 @@ export function SettingsSelect({
           className={`font-medium transition-colors ${
             selectedOption
               ? isDark
-                ? "text-white group-hover:text-cyan-100"
-                : "text-gray-900 group-hover:text-gray-700"
+                ? "text-zinc-100"
+                : "text-gray-900"
               : "text-gray-500"
           }`}
         >
@@ -128,7 +128,7 @@ export function SettingsSelect({
         </span>
         <CaretDown
           className={`w-4 h-4 transition-transform duration-300 ${
-            isOpen ? "rotate-180 text-cyan-500" : "text-gray-500"
+            isOpen ? "rotate-180 text-white" : "text-gray-500"
           }`}
         />
       </button>
@@ -142,8 +142,8 @@ export function SettingsSelect({
             transition={{ duration: 0.15, ease: "easeOut" }}
             className={`absolute z-50 w-full mt-2 rounded-xl border overflow-hidden shadow-2xl max-h-60 overflow-y-auto backdrop-blur-xl ${
               isDark
-                ? "bg-[#0d1014]/95 border-white/13 shadow-black/80"
-                : "bg-white/95 border-blue-100 shadow-blue-900/10"
+                ? "bg-[#09090b]/95 border-white/10 shadow-black/80"
+                : "bg-white/95 border-gray-200 shadow-gray-900/10"
             }`}
             role="listbox"
           >
@@ -157,11 +157,11 @@ export function SettingsSelect({
                   className={`w-full px-3 py-2.5 rounded-lg text-left transition-all flex items-center justify-between group outline-none ${
                     option.value === value
                       ? isDark
-                        ? "bg-cyan-500/10 text-cyan-400 font-semibold"
-                        : "bg-blue-50 text-blue-600 font-semibold"
+                        ? "bg-white/10 text-white font-semibold"
+                        : "bg-gray-100 text-gray-900 font-semibold"
                       : focusedIndex === index
                         ? isDark
-                          ? "bg-white/8 text-white"
+                          ? "bg-white/5 text-white"
                           : "bg-gray-50 text-gray-900"
                         : isDark
                           ? "text-gray-400"
@@ -183,7 +183,7 @@ export function SettingsSelect({
                     >
                       <Check
                         className={`w-4 h-4 ${
-                          isDark ? "text-cyan-400" : "text-blue-500"
+                          isDark ? "text-zinc-100" : "text-gray-900"
                         }`}
                       />
                     </motion.div>

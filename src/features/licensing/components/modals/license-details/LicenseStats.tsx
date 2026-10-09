@@ -26,40 +26,54 @@ export const LicenseStats: React.FC<LicenseStatsProps> = ({
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
       <div
-        className={`p-4 rounded-xl border ${isDark ? "bg-white/5 border-white/10" : "bg-gray-50 border-gray-100"}`}
+        className={`p-3.5 rounded-xl border ${
+          isDark
+            ? "bg-white/[0.02] border-white/8"
+            : "bg-gray-50 border-gray-100"
+        }`}
       >
-        <div className="text-gray-500 text-xs mb-1">{t("usage_level")}</div>
-        <div
-          className={`font-bold capitalize flex items-center gap-2 ${isDark ? "text-purple-400" : "text-purple-600"}`}
-        >
-          <Stack size={16} /> {tier || t("standard")}
+        <div className="text-[10px] font-mono uppercase tracking-[0.14em] text-white/40 mb-1">
+          {t("usage_level")}
+        </div>
+        <div className="flex items-center gap-2 text-xs font-medium text-zinc-200 capitalize">
+          <Stack size={14} className="text-white/60" /> {tier || t("standard")}
         </div>
       </div>
 
       <div
-        className={`p-4 rounded-xl border ${isDark ? "bg-white/5 border-white/10" : "bg-gray-50 border-gray-100"}`}
+        className={`p-3.5 rounded-xl border ${
+          isDark
+            ? "bg-white/[0.02] border-white/8"
+            : "bg-gray-50 border-gray-100"
+        }`}
       >
-        <div className="text-gray-500 text-xs mb-1">{t("active_ips")}</div>
-        <div
-          className={`font-bold flex items-center gap-2 ${isDark ? "text-amber-400" : "text-amber-600"}`}
-        >
-          <HardDrives size={16} /> {maxIpSlots}
+        <div className="text-[10px] font-mono uppercase tracking-[0.14em] text-white/40 mb-1">
+          {t("active_ips")}
+        </div>
+        <div className="flex items-center gap-2 text-xs font-mono font-medium text-zinc-200">
+          <HardDrives size={14} className="text-white/60" /> {maxIpSlots}
         </div>
       </div>
 
       <div
-        className={`p-4 rounded-xl border ${isDark ? "bg-white/5 border-white/10" : "bg-gray-50 border-gray-100"}`}
+        className={`p-3.5 rounded-xl border ${
+          isDark
+            ? "bg-white/[0.02] border-white/8"
+            : "bg-gray-50 border-gray-100"
+        }`}
       >
-        <div className="text-gray-500 text-xs mb-1">{t("validity_period")}</div>
-        <div
-          className={`text-xs font-semibold flex flex-col gap-1 ${isDark ? "text-blue-400" : "text-blue-600"}`}
-        >
-          <div className="flex items-center gap-1.5 line-clamp-1">
-            <Clock size={14} /> {formatDate(startsAt)}
+        <div className="text-[10px] font-mono uppercase tracking-[0.14em] text-white/40 mb-1">
+          {t("validity_period")}
+        </div>
+        <div className="flex flex-col gap-0.5">
+          <div className="flex items-center gap-1.5 text-xs font-mono text-zinc-200 truncate">
+            <Clock size={13} className="text-white/40" /> {formatDate(startsAt)}
           </div>
-          <div className="line-clamp-1">{t("until", { date: formatDate(expiresAt) })}</div>
+          <div className="text-[10px] font-mono text-white/40 truncate">
+            {t("until", { date: formatDate(expiresAt) })}
+          </div>
         </div>
       </div>
     </div>

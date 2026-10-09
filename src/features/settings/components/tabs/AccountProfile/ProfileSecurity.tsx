@@ -38,11 +38,11 @@ export const ProfileSecurity: React.FC<ProfileSecurityProps> = memo(
     return (
       <div className="settings-glass-card rounded-2xl p-6">
         <h3
-          className={`text-lg font-bold mb-6 flex items-center gap-2 ${
+          className={`text-base font-bold font-jakarta mb-6 flex items-center gap-2 ${
             isDark ? "text-white" : "text-gray-900"
           }`}
         >
-          <Envelope className="w-5 h-5 text-cyan-500" />
+          <Envelope className={`w-5 h-5 ${isDark ? "text-white/70" : "text-gray-700"}`} />
           {t("email_auth")}
         </h3>
 
@@ -50,8 +50,8 @@ export const ProfileSecurity: React.FC<ProfileSecurityProps> = memo(
           {/* Primary Email */}
           <div>
             <label
-              className={`text-xs uppercase tracking-wider mb-2 block font-bold ${
-                isDark ? "text-gray-500" : "text-gray-400"
+              className={`text-xs uppercase tracking-wider mb-2 block font-bold font-mono ${
+                isDark ? "text-white/40" : "text-gray-400"
               }`}
             >
               {t("primary_email")}
@@ -61,12 +61,17 @@ export const ProfileSecurity: React.FC<ProfileSecurityProps> = memo(
                 type="email"
                 value={email}
                 disabled
-                className="settings-input w-full sm:flex-1 rounded-lg px-4 py-3 opacity-60"
+                className="settings-input w-full sm:flex-1 rounded-xl px-4 py-2.5 opacity-60 text-xs font-mono"
               />
               <button
+                type="button"
                 onClick={onChangeEmail}
                 disabled={isAuthLoading}
-                className="w-full sm:w-auto px-5 py-3 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-medium transition-all shadow-sm hover:shadow-cyan-500/20 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed text-center"
+                className={`w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed ${
+                  isDark
+                    ? "bg-white text-black hover:bg-neutral-200"
+                    : "bg-gray-900 text-white hover:bg-gray-800"
+                }`}
               >
                 {isAuthLoading ? tCommon("processing") : t("change_email")}
               </button>
@@ -76,18 +81,18 @@ export const ProfileSecurity: React.FC<ProfileSecurityProps> = memo(
           {/* Connected Accounts */}
           <div>
             <label
-              className={`text-xs uppercase tracking-wider mb-3 block font-bold ${
-                isDark ? "text-gray-500" : "text-gray-400"
+              className={`text-[10px] uppercase tracking-wider mb-3 block font-mono font-bold ${
+                isDark ? "text-white/40" : "text-gray-400"
               }`}
             >
               {t("connected_accounts")}
             </label>
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
               {/* Google */}
               <div
-                className={`flex items-center justify-between p-4 rounded-xl border transition-colors ${
+                className={`flex items-center justify-between p-4 rounded-xl border transition-all ${
                   isDark
-                    ? "bg-black/20 border-white/5"
+                    ? "bg-white/[0.02] border-white/[0.05] hover:border-white/[0.12]"
                     : "bg-gray-50 border-gray-100"
                 }`}
               >
@@ -118,15 +123,15 @@ export const ProfileSecurity: React.FC<ProfileSecurityProps> = memo(
                   </div>
                   <div>
                     <p
-                      className={`font-medium text-sm ${
-                        isDark ? "text-white" : "text-gray-900"
+                      className={`font-semibold text-sm ${
+                        isDark ? "text-zinc-100" : "text-gray-900"
                       }`}
                     >
                       Google
                     </p>
                     <p
-                      className={`text-xs ${
-                        isDark ? "text-gray-500" : "text-gray-400"
+                      className={`text-xs font-mono ${
+                        isDark ? "text-white/40" : "text-gray-400"
                       }`}
                     >
                       {getIdentityEmail("google")}
@@ -136,12 +141,12 @@ export const ProfileSecurity: React.FC<ProfileSecurityProps> = memo(
                 <button
                   onClick={() => onToggleAccount("google")}
                   disabled={isAuthLoading}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer border disabled:opacity-50 disabled:cursor-not-allowed ${
                     connectedAccounts.google
-                      ? "text-red-500 hover:bg-red-500/10 border border-red-500/20"
+                      ? "text-red-400 hover:bg-red-500/20 bg-red-500/10 border-red-500/20"
                       : isDark
-                        ? "text-gray-300 border border-white/10 hover:bg-white/5"
-                        : "text-gray-600 border border-gray-200 hover:bg-gray-100"
+                        ? "text-white/80 border-white/8 bg-white/[0.04] hover:bg-white/[0.08] hover:text-white"
+                        : "text-gray-600 border-gray-200 hover:bg-gray-100"
                   }`}
                 >
                   {isAuthLoading
@@ -154,9 +159,9 @@ export const ProfileSecurity: React.FC<ProfileSecurityProps> = memo(
 
               {/* GitHub */}
               <div
-                className={`flex items-center justify-between p-4 rounded-xl border transition-colors ${
+                className={`flex items-center justify-between p-4 rounded-xl border transition-all ${
                   isDark
-                    ? "bg-black/20 border-white/5"
+                    ? "bg-white/[0.02] border-white/[0.05] hover:border-white/[0.12]"
                     : "bg-gray-50 border-gray-100"
                 }`}
               >
@@ -170,15 +175,15 @@ export const ProfileSecurity: React.FC<ProfileSecurityProps> = memo(
                   </div>
                   <div>
                     <p
-                      className={`font-medium text-sm ${
-                        isDark ? "text-white" : "text-gray-900"
+                      className={`font-semibold text-sm ${
+                        isDark ? "text-zinc-100" : "text-gray-900"
                       }`}
                     >
                       GitHub
                     </p>
                     <p
-                      className={`text-xs ${
-                        isDark ? "text-gray-500" : "text-gray-400"
+                      className={`text-xs font-mono ${
+                        isDark ? "text-white/40" : "text-gray-400"
                       }`}
                     >
                       {getIdentityEmail("github")}
@@ -188,12 +193,12 @@ export const ProfileSecurity: React.FC<ProfileSecurityProps> = memo(
                 <button
                   onClick={() => onToggleAccount("github")}
                   disabled={isAuthLoading}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer border disabled:opacity-50 disabled:cursor-not-allowed ${
                     connectedAccounts.github
-                      ? "text-red-500 hover:bg-red-500/10 border border-red-500/20"
+                      ? "text-red-400 hover:bg-red-500/20 bg-red-500/10 border-red-500/20"
                       : isDark
-                        ? "text-gray-300 border border-white/10 hover:bg-white/5"
-                        : "text-gray-600 border border-gray-200 hover:bg-gray-100"
+                        ? "text-white/80 border-white/8 bg-white/[0.04] hover:bg-white/[0.08] hover:text-white"
+                        : "text-gray-600 border-gray-200 hover:bg-gray-100"
                   }`}
                 >
                   {isAuthLoading
@@ -207,15 +212,29 @@ export const ProfileSecurity: React.FC<ProfileSecurityProps> = memo(
           </div>
 
           {/* OAuth Info */}
-          <div className="flex items-start gap-3 p-4 rounded-xl bg-linear-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/20">
-            <Warning className="w-5 h-5 text-cyan-500 shrink-0 mt-0.5" />
+          <div
+            className={`flex items-start gap-3 p-4 rounded-xl border ${
+              isDark
+                ? "bg-white/[0.02] border-white/[0.06]"
+                : "bg-gray-50 border-gray-200"
+            }`}
+          >
+            <Warning
+              className={`w-4 h-4 shrink-0 mt-0.5 ${
+                isDark ? "text-white/60" : "text-gray-600"
+              }`}
+            />
             <div>
-              <p className="text-sm text-cyan-600 dark:text-cyan-400 font-bold mb-1">
+              <p
+                className={`text-xs font-bold mb-1 ${
+                  isDark ? "text-white" : "text-gray-900"
+                }`}
+              >
                 {t("sign_in_oauth")}
               </p>
               <p
                 className={`text-xs ${
-                  isDark ? "text-gray-400" : "text-gray-500"
+                  isDark ? "text-white/50" : "text-gray-500"
                 }`}
               >
                 {t("oauth_description")}

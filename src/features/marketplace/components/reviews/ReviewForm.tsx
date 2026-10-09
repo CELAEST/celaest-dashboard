@@ -220,17 +220,17 @@ const ReviewSummary: React.FC<ReviewSummaryProps> = ({
 
   return (
     <div
-      className={`flex items-center justify-between gap-3 rounded-xl border px-4 py-3 ${
+      className={`flex items-center justify-between gap-3 rounded-2xl border px-4 py-3.5 ${
         isDark
-          ? "border-white/10 bg-white/[0.04]"
+          ? "border-white/[0.06] bg-[#0D0D11]"
           : "border-gray-200 bg-gray-50"
       }`}
     >
       <div className="flex min-w-0 items-center gap-3">
         <div
-          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
+          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-xs font-mono font-bold ${
             isDark
-              ? "bg-blue-500/15 text-blue-300"
+              ? "bg-[#141418] border border-white/[0.08] text-white/90"
               : "bg-blue-50 text-blue-600"
           }`}
           aria-hidden
@@ -239,7 +239,7 @@ const ReviewSummary: React.FC<ReviewSummaryProps> = ({
         </div>
         <div className="min-w-0">
           <div
-            className={`text-sm font-medium ${
+            className={`text-xs font-mono font-semibold uppercase tracking-wider ${
               isDark ? "text-white" : "text-gray-900"
             }`}
           >
@@ -279,7 +279,11 @@ const ReviewSummary: React.FC<ReviewSummaryProps> = ({
         <button
           type="button"
           onClick={onEdit}
-          className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-blue-500"
+          className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+            isDark
+              ? "bg-[#141418] hover:bg-[#1C1C22] text-white/90 border border-white/[0.08]"
+              : "bg-blue-600 text-white hover:bg-blue-500"
+          }`}
         >
           <PencilSimple className="h-3.5 w-3.5" />
           {t("edit_review")}
@@ -377,24 +381,24 @@ const ReviewFormInner: React.FC<ReviewFormInnerProps> = ({
   return (
     <form
       onSubmit={handleSubmit}
-      className={`rounded-xl border p-4 ${
-        isDark ? "border-white/10 bg-white/5" : "border-gray-200 bg-gray-50"
+      className={`rounded-2xl border p-5 ${
+        isDark ? "border-white/[0.06] bg-[#0D0D11]" : "border-gray-200 bg-gray-50"
       }`}
     >
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <h4
-            className={`font-medium ${
-              isDark ? "text-white" : "text-gray-900"
+            className={`font-mono text-xs uppercase tracking-wider font-semibold ${
+              isDark ? "text-white/80" : "text-gray-900"
             }`}
           >
             {isEditing ? t("your_review") : t("write_a_review")}
           </h4>
           {isEditing && (
             <span
-              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider ${
+              className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-mono tracking-wider uppercase font-medium ${
                 isDark
-                  ? "bg-blue-500/15 text-blue-300"
+                  ? "bg-white/10 text-white/80"
                   : "bg-blue-50 text-blue-700"
               }`}
             >
@@ -423,8 +427,8 @@ const ReviewFormInner: React.FC<ReviewFormInnerProps> = ({
 
       <div className="mb-4">
         <label
-          className={`mb-2 block text-sm ${
-            isDark ? "text-white/60" : "text-gray-600"
+          className={`mb-2 block text-xs font-mono uppercase tracking-wider ${
+            isDark ? "text-white/50" : "text-gray-600"
           }`}
         >
           {t("your_rating")}
@@ -438,8 +442,8 @@ const ReviewFormInner: React.FC<ReviewFormInnerProps> = ({
 
       <div className="mb-2">
         <label
-          className={`mb-2 block text-sm ${
-            isDark ? "text-white/60" : "text-gray-600"
+          className={`mb-2 block text-xs font-mono uppercase tracking-wider ${
+            isDark ? "text-white/50" : "text-gray-600"
           }`}
         >
           {t("your_comment_optional")}
@@ -448,17 +452,17 @@ const ReviewFormInner: React.FC<ReviewFormInnerProps> = ({
           value={comment}
           onChange={(e) => setComment(e.target.value.slice(0, MAX_COMMENT))}
           placeholder={t("tell_us_experience_placeholder")}
-          rows={4}
+          rows={3}
           disabled={isBusy}
-          className={`w-full resize-none rounded-lg border px-3 py-2 text-sm transition-colors focus:outline-none focus:ring-1 disabled:cursor-not-allowed disabled:opacity-50 ${
+          className={`w-full resize-none rounded-xl border px-3.5 py-2.5 text-xs transition-colors focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 ${
             isDark
-              ? "border-white/10 bg-white/5 text-white placeholder:text-white/30 focus:border-blue-500/50 focus:ring-blue-500/50"
-              : "border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 focus:border-blue-400 focus:ring-blue-400"
+              ? "border-white/[0.06] bg-[#141418] text-white placeholder:text-white/30 focus:border-white/25"
+              : "border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 focus:border-blue-400"
           }`}
         />
         <div
-          className={`mt-1 text-right text-xs ${
-            remaining < 200 ? "text-amber-500" : isDark ? "text-white/40" : "text-gray-400"
+          className={`mt-1 text-right text-[10px] font-mono ${
+            remaining < 200 ? "text-amber-500" : isDark ? "text-white/30" : "text-gray-400"
           }`}
         >
           {t("chars_remaining", { remaining: comment.length })}
@@ -466,23 +470,27 @@ const ReviewFormInner: React.FC<ReviewFormInnerProps> = ({
       </div>
 
       {localError && (
-        <p className="mb-3 text-sm text-red-400">{localError}</p>
+        <p className="mb-3 text-xs text-red-400 font-mono">{localError}</p>
       )}
 
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2 pt-1">
         <button
           type="submit"
           disabled={rating === 0 || isBusy}
-          className="flex flex-1 min-w-[160px] items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+          className={`flex flex-1 min-w-[160px] items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition-all disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer shadow-md ${
+            isDark
+              ? "bg-white hover:bg-neutral-200 text-black active:scale-95"
+              : "bg-blue-600 text-white hover:bg-blue-500 shadow-blue-500/20"
+          }`}
         >
           {submitting || updating ? (
             <>
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+              <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-black/30 border-t-black" />
               {isEditing ? t("saving") : t("sending")}
             </>
           ) : (
             <>
-              <PaperPlaneTilt className="h-4 w-4" />
+              <PaperPlaneTilt className="h-3.5 w-3.5" weight="bold" />
               {isEditing ? t("save_changes") : t("submit_review")}
             </>
           )}

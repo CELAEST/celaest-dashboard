@@ -39,11 +39,11 @@ export const LocalizationSettings: React.FC<LocalizationSettingsProps> = memo(
     return (
       <div className="settings-glass-card rounded-2xl p-6">
         <h3
-          className={`text-lg font-bold mb-6 flex items-center gap-2 ${
+          className={`text-base font-bold font-jakarta mb-6 flex items-center gap-2 ${
             isDark ? "text-white" : "text-gray-900"
           }`}
         >
-          <Globe className="w-5 h-5 text-cyan-500" />
+          <Globe className={`w-5 h-5 ${isDark ? "text-white/80" : "text-gray-700"}`} />
           {t("localization")}
         </h3>
 
@@ -51,8 +51,8 @@ export const LocalizationSettings: React.FC<LocalizationSettingsProps> = memo(
           {/* Timezone */}
           <div>
             <label
-              className={`text-xs uppercase tracking-wider mb-2 block font-bold ${
-                isDark ? "text-gray-500" : "text-gray-400"
+              className={`text-[10px] font-mono uppercase tracking-wider mb-2 block ${
+                isDark ? "text-white/40" : "text-gray-400"
               }`}
             >
               {t("user_timezone")}
@@ -63,8 +63,8 @@ export const LocalizationSettings: React.FC<LocalizationSettingsProps> = memo(
               onChange={onTimezoneChange}
             />
             <p
-              className={`text-xs mt-2 ${
-                isDark ? "text-gray-500" : "text-gray-400"
+              className={`text-xs mt-2 font-mono ${
+                isDark ? "text-white/40" : "text-gray-400"
               }`}
             >
               {t("timezone_desc")}
@@ -75,8 +75,8 @@ export const LocalizationSettings: React.FC<LocalizationSettingsProps> = memo(
             {/* Date Format */}
             <div>
               <label
-                className={`text-xs uppercase tracking-wider mb-3 block font-bold ${
-                  isDark ? "text-gray-500" : "text-gray-400"
+                className={`text-[10px] font-mono uppercase tracking-wider mb-3 block ${
+                  isDark ? "text-white/40" : "text-gray-400"
                 }`}
               >
                 {t("date_format")}
@@ -85,22 +85,25 @@ export const LocalizationSettings: React.FC<LocalizationSettingsProps> = memo(
                 {dateFormats.map((format) => (
                   <button
                     key={format.value}
+                    type="button"
                     onClick={() => onDateFormatChange(format.value)}
-                    className={`w-full flex items-center justify-between p-4 rounded-xl border transition-all ${
+                    className={`w-full flex items-center justify-between p-3.5 rounded-xl border transition-all cursor-pointer font-mono ${
                       dateFormat === format.value
-                        ? "bg-cyan-500/10 border-cyan-500 text-cyan-500"
+                        ? isDark
+                          ? "bg-zinc-800/40 border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] text-zinc-100 font-semibold"
+                          : "bg-white border-black/6 text-gray-900 shadow-sm font-semibold"
                         : isDark
-                          ? "bg-black/20 border-white/5 hover:bg-white/5 text-gray-500"
+                          ? "bg-white/[0.02] border-white/[0.05] hover:border-white/[0.12] text-zinc-400 hover:text-zinc-200"
                           : "bg-gray-50 border-gray-100 hover:bg-gray-100 text-gray-600"
                     }`}
                   >
                     <div className="text-left">
-                      <p className="text-sm font-bold">{format.label}</p>
-                      <p className="text-[10px] opacity-60 tracking-tight">
+                      <p className="text-xs font-semibold">{format.label}</p>
+                      <p className="text-[10px] opacity-60 tracking-tight mt-0.5">
                         {format.desc}
                       </p>
                     </div>
-                    {dateFormat === format.value && <Check size={16} />}
+                    {dateFormat === format.value && <Check size={14} weight="bold" className={isDark ? "text-zinc-100" : "text-gray-900"} />}
                   </button>
                 ))}
               </div>
@@ -109,8 +112,8 @@ export const LocalizationSettings: React.FC<LocalizationSettingsProps> = memo(
             {/* Time Format */}
             <div>
               <label
-                className={`text-xs uppercase tracking-wider mb-3 block font-bold ${
-                  isDark ? "text-gray-500" : "text-gray-400"
+                className={`text-[10px] font-mono uppercase tracking-wider mb-3 block ${
+                  isDark ? "text-white/40" : "text-gray-400"
                 }`}
               >
                 {t("time_format")}
@@ -119,22 +122,25 @@ export const LocalizationSettings: React.FC<LocalizationSettingsProps> = memo(
                 {timeFormats.map((format) => (
                   <button
                     key={format.value}
+                    type="button"
                     onClick={() => onTimeFormatChange(format.value)}
-                    className={`w-full flex items-center justify-between p-4 rounded-xl border transition-all ${
+                    className={`w-full flex items-center justify-between p-3.5 rounded-xl border transition-all cursor-pointer font-mono ${
                       timeFormat === format.value
-                        ? "bg-cyan-500/10 border-cyan-500 text-cyan-500"
+                        ? isDark
+                          ? "bg-zinc-800/40 border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] text-zinc-100 font-semibold"
+                          : "bg-white border-black/6 text-gray-900 shadow-sm font-semibold"
                         : isDark
-                          ? "bg-black/20 border-white/5 hover:bg-white/5 text-gray-500"
+                          ? "bg-white/[0.02] border-white/[0.05] hover:border-white/[0.12] text-zinc-400 hover:text-zinc-200"
                           : "bg-gray-50 border-gray-100 hover:bg-gray-100 text-gray-600"
                     }`}
                   >
                     <div className="text-left">
-                      <p className="text-sm font-bold">{format.label}</p>
-                      <p className="text-[10px] opacity-60 tracking-tight">
+                      <p className="text-xs font-semibold">{format.label}</p>
+                      <p className="text-[10px] opacity-60 tracking-tight mt-0.5">
                         {format.desc}
                       </p>
                     </div>
-                    {timeFormat === format.value && <Check size={16} />}
+                    {timeFormat === format.value && <Check size={14} weight="bold" className={isDark ? "text-zinc-100" : "text-gray-900"} />}
                   </button>
                 ))}
               </div>

@@ -1,4 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Syne:wght@600;700;800&display=swap');
 @import "tailwindcss";
+
+.font-jakarta { font-family: 'Plus Jakarta Sans', sans-serif; }
+.font-space { font-family: 'Space Grotesk', sans-serif; }
+.font-outfit { font-family: 'Outfit', sans-serif; }
+.font-jetbrains { font-family: 'JetBrains Mono', monospace; }
+.font-syne { font-family: 'Syne', sans-serif; }
 
 @custom-variant dark (&:is(.dark *));
 
@@ -89,11 +96,11 @@
 
 @theme inline {
   /* ── Spatial Design Tokens ─────────────────────── */
-  --spacing-xs: 4px;
-  --spacing-sm: 8px;
-  --spacing-md: 16px;
-  --spacing-lg: 24px;
-  --spacing-xl: 32px;
+  --spatial-xs: 4px;
+  --spatial-sm: 8px;
+  --spatial-md: 16px;
+  --spatial-lg: 24px;
+  --spatial-xl: 32px;
 
   --content-max: 1440px;
   --sidebar-collapsed: 80px;
@@ -224,12 +231,16 @@ html {
 }
 
 /* Custom Scrollbar - Subtle & Theme-Aware */
-.no-scrollbar::-webkit-scrollbar {
+.no-scrollbar::-webkit-scrollbar,
+.scrollbar-none::-webkit-scrollbar,
+.scrollbar-hide::-webkit-scrollbar {
   display: none !important;
   width: 0 !important;
   height: 0 !important;
 }
-.no-scrollbar {
+.no-scrollbar,
+.scrollbar-none,
+.scrollbar-hide {
   -ms-overflow-style: none !important;
   scrollbar-width: none !important;
 }
@@ -276,66 +287,75 @@ html {
    Settings Module - Custom Styles
    ============================================ */
 
-/* Glassmorphism Card */
+/* Tokyo Surface Card (#2 Standard) */
 .settings-glass-card {
   background: white;
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   position: relative;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 .dark .settings-glass-card {
-  background: #0a0a0a;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(9, 9, 11, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow: none;
 }
 
-/* Right border accent glow */
-.settings-glass-card::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 3px;
-  height: 100%;
-  background: linear-gradient(180deg, #22d3ee 0%, #3b82f6 100%);
-  border-radius: 0 12px 12px 0;
-  opacity: 0.6;
+.dark .settings-glass-card:hover {
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
-/* Cards without the accent line */
+/* Remove legacy gradient border glow */
+.settings-glass-card::after {
+  display: none;
+}
+
+/* Cards without extra decor */
 .settings-glass-card-plain {
   background: white;
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
-  transition: all 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 1rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s ease;
 }
 
 .dark .settings-glass-card-plain {
-  background: #0a0a0a;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(9, 9, 11, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow: none;
 }
 
-/* Input styling */
+/* Input styling - Tokyo Precision */
 .settings-input {
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   color: #1e293b;
+  border-radius: 0.75rem;
   transition: all 0.2s ease;
 }
 
 .dark .settings-input {
   background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #FAFAFA;
 }
 
 .settings-input:focus {
-  border-color: #22d3ee;
+  border-color: rgba(0, 0, 0, 0.4);
   outline: none;
-  box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.15);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2);
+}
+
+.dark .settings-input:focus {
+  border-color: rgba(255, 255, 255, 0.3);
+  outline: none;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
 .settings-input::placeholder {
@@ -349,22 +369,23 @@ html {
 /* Disabled input */
 .settings-input:disabled {
   cursor: not-allowed;
-  opacity: 0.6;
+  opacity: 0.5;
 }
 
-/* Toggle Switch */
+/* Toggle Switch - Pure Luminance */
 .settings-toggle-switch {
   position: relative;
   width: 44px;
   height: 24px;
   border-radius: 9999px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   flex-shrink: 0;
 }
 
 .dark .settings-toggle-switch {
   background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 :not(.dark) .settings-toggle-switch {
@@ -372,20 +393,28 @@ html {
 }
 
 .settings-toggle-switch.active {
-  background: linear-gradient(135deg, #22d3ee 0%, #3b82f6 100%);
-  box-shadow: 0 4px 15px rgba(34, 211, 238, 0.25);
+  background: #18181b;
+}
+
+.dark .settings-toggle-switch.active {
+  background: #FAFAFA;
+  box-shadow: 0 2px 10px rgba(255, 255, 255, 0.15);
 }
 
 .settings-toggle-thumb {
   position: absolute;
   top: 2px;
   left: 2px;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   background: white;
   border-radius: 9999px;
-  transition: transform 0.3s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.dark .settings-toggle-switch.active .settings-toggle-thumb {
+  background: #09090B;
 }
 
 .settings-toggle-switch.active .settings-toggle-thumb {
@@ -478,4 +507,20 @@ html {
 .animate-sheen {
   animation: sheen-slide 4s linear infinite;
   will-change: transform;
+}
+
+/* Custom Scrollbar Utility */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
 }

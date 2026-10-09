@@ -62,7 +62,7 @@ export function SettingsModal({
           // Desktop layout (>= sm)
           "sm:rounded-2xl sm:border sm:p-6 sm:max-h-[90vh] sm:zoom-in sm:slide-in-from-bottom-0",
           isDark
-            ? "bg-[#0a0a0a] border-white/10 shadow-black/50"
+            ? "bg-[#09090b] border-white/10 shadow-2xl shadow-black/90"
             : "bg-white border-gray-200 shadow-gray-400/20",
           className
         )}

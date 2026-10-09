@@ -18,38 +18,49 @@ export const LicenseActivityLog: React.FC<LicenseActivityLogProps> = ({
   return (
     <div>
       <h3
-        className={`text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2 ${isDark ? "text-gray-400" : "text-gray-500"}`}
+        className={`text-[10px] font-mono uppercase tracking-[0.16em] mb-3 flex items-center gap-2 ${
+          isDark ? "text-white/40" : "text-gray-500"
+        }`}
       >
-        <Clock size={16} /> {t("recent_pulse")}
+        <Clock size={13} className={isDark ? "text-white/40" : "text-gray-400"} />
+        <span>{t("recent_pulse")}</span>
       </h3>
       <div
-        className={`relative pl-4 space-y-6 border-l ${isDark ? "border-white/10" : "border-gray-200"}`}
+        className={`relative pl-4 space-y-4 border-l ${
+          isDark ? "border-white/8" : "border-gray-200"
+        }`}
       >
         {logs.slice(0, 5).map((log, i) => (
-          <div key={i} className="relative pl-6">
+          <div key={i} className="relative pl-4">
             <div
-              className={`absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full border-2 ${
+              className={`absolute -left-[21px] top-1.5 w-2 h-2 rounded-full border ${
                 log.success
                   ? isDark
-                    ? "bg-green-500 border-black"
-                    : "bg-green-500 border-white"
+                    ? "bg-white/80 border-[#09090b]"
+                    : "bg-gray-800 border-white"
                   : isDark
-                    ? "bg-red-500 border-black"
+                    ? "bg-red-400 border-[#09090b]"
                     : "bg-red-500 border-white"
               }`}
             />
             <div
-              className={`text-sm font-medium ${isDark ? "text-white" : "text-gray-900"}`}
+              className={`text-xs font-medium ${
+                isDark ? "text-zinc-200" : "text-gray-900"
+              }`}
             >
               {log.success ? t("license_validated") : t("validation_failed")}
             </div>
-            <div className="text-xs text-gray-500 mt-0.5 flex items-center gap-2">
-              <span className="font-mono">{log.ip}</span> •{" "}
-              {new Date(log.timestamp).toLocaleString()}
+            <div
+              className={`text-[10px] font-mono mt-0.5 flex items-center gap-2 ${
+                isDark ? "text-white/40" : "text-gray-500"
+              }`}
+            >
+              <span>{log.ip}</span> •{" "}
+              <span>{new Date(log.timestamp).toLocaleString()}</span>
             </div>
             {!log.success && (
-              <div className="mt-1.5 text-xs text-red-500 flex items-center gap-1">
-                <Warning size={12} /> {log.reason}
+              <div className="mt-1 text-[10px] font-mono text-red-400 flex items-center gap-1">
+                <Warning size={11} /> {log.reason}
               </div>
             )}
           </div>

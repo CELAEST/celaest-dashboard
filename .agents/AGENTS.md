@@ -4,10 +4,17 @@
 
 ---
 
-## 1. Non-Negotiable Aesthetics & Component Decomposition
-1. **Hyper-Premium Enterprise UI**: Strictly follow bespoke SVGs, glassmorphism, and Apple SF Symbols standards.
-2. **Zero Monoliths**: Every panel/card decomposed into atomic sub-components.
-3. **i18n & Clean State**: No hardcoded UI strings; all data fetched through TanStack Query with user-isolated cache keys.
+## 1. Non-Negotiable Aesthetics & Enterprise Luxury UI (Lingua Standard)
+1. **Zero-AI-Slop Manifesto**: Strictly avoid generic AI aesthetics.
+   - **No vibrant/neon colors**: No saturated cyans or generic crypto gradients. Deep obsidian palette (`#040811`, `#080c14`, `#0b101b`) with pure luminance contrast (`text-white`, `text-white/80`, `text-white/50`, `text-white/20`).
+   - **No AI status dots ("bolitas")**: Never use colored radio circles or dot indicators for selection. Use clean typographic hierarchy and subtle background luminance (`bg-white/[0.05]`).
+   - **No border clutter**: Eradicate `border border-white/10` or colored borders around every element. Achieve elevation with deep glassmorphism (`backdrop-blur-2xl`) and diffused ambient shadows.
+   - **Floating micro-typography**: Metadata, tags, and categories must be floating clean typography (`text-[10px] font-mono tracking-[0.18em] uppercase text-white/40`), never colored pill boxes.
+   - **No aggressive hover jumps**: Avoid `hover:-translate-y-1 hover:scale-[1.02]`. Use smooth luminance shifts (`transition-colors duration-200`).
+2. **Zero Feature Modification**: Never add or remove business logic or features when refactoring UI. All filters, search debounce, pagination, purchase flow, and modal states must remain 100% functionally identical.
+3. **UI / Styling Fast-Track**: When working on visual design, CSS, Tailwind, spacing, or UI components, **NEVER** run heavy builds (`npm run build`) or unit test suites (`vitest`). Iterate in hot-reload mode via Next.js HMR.
+4. **Zero Monoliths**: Every panel/card decomposed into atomic sub-components.
+5. **i18n & Clean State**: No hardcoded UI strings; all data fetched through TanStack Query with user-isolated cache keys.
 
 ---
 

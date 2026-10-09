@@ -6,11 +6,6 @@ import { CreditCard, DotsThreeVertical, Check, PencilSimple, Trash } from "@phos
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { PaymentMethod } from "../../types";
-import {
-  getCardGradient,
-  getCardIconBg,
-  getCardIconColor,
-} from "../../utils/styles";
 
 interface PaymentMethodItemProps {
   method: PaymentMethod;
@@ -36,42 +31,45 @@ export const PaymentMethodItem = React.memo(
     return (
       <motion.div
         layout
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.9 }}
-        className={`group relative rounded-xl p-4 transition-all duration-300 hover:scale-[1.02] cursor-pointer border payment-method-row ${
+        exit={{ opacity: 0, scale: 0.95 }}
+        className={`group relative rounded-xl p-3.5 border transition-colors duration-150 payment-method-row ${
           activeMenu === method.id
             ? "z-30 overflow-visible"
             : "z-10 overflow-hidden"
-        } ${getCardGradient(method.type, isDark)}`}
+        } ${
+          isDark
+            ? "bg-white/[0.02] border-white/6 hover:border-white/12 hover:bg-white/[0.035]"
+            : "bg-white border-gray-200/80 hover:border-gray-300 shadow-xs"
+        }`}
       >
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 min-w-0">
             <div
-              className={`w-12 h-12 rounded-lg flex items-center justify-center ${getCardIconBg(
-                method.type,
-                isDark,
-              )}`}
+              className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 border transition-colors ${
+                isDark
+                  ? "bg-white/[0.04] border-white/8 text-white/70"
+                  : "bg-gray-100 border-gray-200 text-gray-700"
+              }`}
             >
-              <CreditCard
-                className={`w-6 h-6 ${getCardIconColor(method.type)}`}
-              />
+              <CreditCard className="w-5 h-5" />
             </div>
-            <div>
+            <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <span
-                  className={`font-semibold ${
-                    isDark ? "text-white" : "text-gray-900"
+                  className={`text-xs font-semibold uppercase tracking-wider font-mono ${
+                    isDark ? "text-zinc-100" : "text-gray-900"
                   }`}
                 >
-                  {method.type.toUpperCase()}
+                  {method.type}
                 </span>
                 {method.isDefault && (
                   <span
-                    className={`px-2 py-0.5 rounded text-xs font-bold ${
+                    className={`px-1.5 py-0.5 rounded text-[9px] font-mono uppercase tracking-widest font-bold ${
                       isDark
-                        ? "bg-emerald-500/10 text-emerald-400"
-                        : "bg-emerald-500/10 text-emerald-600"
+                        ? "bg-white/[0.08] text-white border border-white/10 shadow-xs"
+                        : "bg-gray-900 text-white"
                     }`}
                   >
                     Default
@@ -79,87 +77,87 @@ export const PaymentMethodItem = React.memo(
                 )}
               </div>
               <div
-                className={`text-sm font-mono ${
-                  isDark ? "text-gray-400" : "text-gray-600"
+                className={`text-xs font-mono mt-0.5 tracking-wider ${
+                  isDark ? "text-zinc-300" : "text-gray-700"
                 }`}
               >
                 •••• •••• •••• {method.last4}
               </div>
               <div
-                className={`text-xs ${
-                  isDark ? "text-gray-500" : "text-gray-400"
+                className={`text-[10px] font-mono mt-0.5 ${
+                  isDark ? "text-white/40" : "text-gray-400"
                 }`}
               >
-                Expires {method.expiryMonth}/{method.expiryYear}
+                Exp: {method.expiryMonth}/{method.expiryYear}
               </div>
             </div>
           </div>
 
           {/* Actions Menu (Radix UI) */}
-          <div className="relative">
+          <div className="relative shrink-0">
             <DropdownMenu.Root
               onOpenChange={(open) => setActiveMenu(open ? method.id : null)}
             >
               <DropdownMenu.Trigger asChild>
                 <button
                   onClick={(e) => e.stopPropagation()}
-                  className={`opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-lg outline-none ${
+                  className={`opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg outline-none cursor-pointer ${
                     isDark
-                      ? "hover:bg-white/10 text-gray-400"
-                      : "hover:bg-gray-100 text-gray-600"
+                      ? "text-white/40 hover:text-white hover:bg-white/10"
+                      : "text-gray-400 hover:text-gray-900 hover:bg-gray-100"
                   }`}
                 >
-                  <DotsThreeVertical className="w-5 h-5" />
+                  <DotsThreeVertical className="w-4 h-4" />
                 </button>
               </DropdownMenu.Trigger>
 
               <DropdownMenu.Portal>
                 <DropdownMenu.Content
                   align="end"
-                  sideOffset={8}
-                  className={`w-52 rounded-xl border shadow-2xl overflow-hidden z-99999 animate-in fade-in zoom-in duration-200 ${
+                  sideOffset={6}
+                  className={`w-44 rounded-xl border p-1 z-99999 animate-in fade-in zoom-in-95 duration-150 ${
                     isDark
-                      ? "bg-gray-900 border-white/10"
-                      : "bg-white border-gray-200"
+                      ? "bg-[#09090b] border-white/10 text-zinc-200 shadow-2xl"
+                      : "bg-white border-gray-200 text-gray-800 shadow-xl"
                   }`}
                   onClick={(e) => e.stopPropagation()}
                 >
                   {!method.isDefault && (
                     <DropdownMenu.Item
                       onClick={() => onSetDefault(method.id)}
-                      className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors cursor-pointer outline-none ${
+                      className={`flex items-center gap-2 px-2.5 py-1.5 text-xs font-mono rounded-lg transition-colors cursor-pointer outline-none ${
                         isDark
-                          ? "text-gray-300 hover:bg-white/5 focus:bg-white/5"
-                          : "text-gray-700 hover:bg-gray-50 focus:bg-gray-50"
+                          ? "text-zinc-200 hover:bg-white/10 focus:bg-white/10"
+                          : "text-gray-700 hover:bg-gray-100 focus:bg-gray-100"
                       }`}
                     >
-                      <Check size={16} />
+                      <Check size={13} />
                       Set as Default
                     </DropdownMenu.Item>
                   )}
                   <DropdownMenu.Item
                     onClick={() => onEdit(method)}
-                    className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors cursor-pointer outline-none ${
+                    className={`flex items-center gap-2 px-2.5 py-1.5 text-xs font-mono rounded-lg transition-colors cursor-pointer outline-none ${
                       isDark
-                        ? "text-gray-300 hover:bg-white/5 focus:bg-white/5"
-                        : "text-gray-700 hover:bg-gray-50 focus:bg-gray-50"
+                        ? "text-zinc-200 hover:bg-white/10 focus:bg-white/10"
+                        : "text-gray-700 hover:bg-gray-100 focus:bg-gray-100"
                     }`}
                   >
-                    <PencilSimple size={16} />
-                    PencilSimple Details
+                    <PencilSimple size={13} />
+                    Edit Details
                   </DropdownMenu.Item>
                   <DropdownMenu.Separator
-                    className={`h-px ${isDark ? "bg-white/5" : "bg-gray-100"}`}
+                    className={`my-1 h-px ${isDark ? "bg-white/6" : "bg-gray-100"}`}
                   />
                   <DropdownMenu.Item
                     onClick={() => onDelete(method.id)}
-                    className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors cursor-pointer outline-none font-medium ${
+                    className={`flex items-center gap-2 px-2.5 py-1.5 text-xs font-mono rounded-lg transition-colors cursor-pointer outline-none font-medium ${
                       isDark
                         ? "text-red-400 hover:bg-red-500/10 focus:bg-red-500/10"
                         : "text-red-600 hover:bg-red-50 focus:bg-red-50"
                     }`}
                   >
-                    <Trash size={16} />
+                    <Trash size={13} />
                     Delete
                   </DropdownMenu.Item>
                 </DropdownMenu.Content>

@@ -50,6 +50,8 @@ interface DataTableProps<TData, TValue> {
   hideFooter?: boolean;
   /** Override the default body cell className (default: px-4 py-3 text-sm) */
   bodyCellClassName?: string;
+  /** Override the default container className */
+  containerClassName?: string;
 }
 
 export function DataTable<TData, TValue>({
@@ -67,6 +69,7 @@ export function DataTable<TData, TValue>({
   onLoadMore,
   hideFooter = false,
   bodyCellClassName,
+  containerClassName,
 }: DataTableProps<TData, TValue>) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
@@ -112,26 +115,26 @@ export function DataTable<TData, TValue>({
   const displayTotal = totalItems ?? data.length;
 
   // Theme-aware class helpers
-  const containerCls = isDark
-    ? "rounded-xl border border-white/[0.07] bg-white/[0.03] backdrop-blur-xl overflow-hidden"
-    : "rounded-xl border border-gray-200/60 bg-white/80 backdrop-blur-xl shadow-sm overflow-hidden";
+  const containerCls = containerClassName ?? (isDark
+    ? "rounded-2xl border border-white/8 bg-[#09090b] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] overflow-hidden"
+    : "rounded-xl border border-gray-200/60 bg-white/80 backdrop-blur-xl shadow-sm overflow-hidden");
 
   const headerRowCls = isDark
-    ? "border-white/[0.06] hover:bg-transparent"
+    ? "border-b border-white/6 bg-white/[0.015] hover:bg-transparent"
     : "border-gray-100 hover:bg-transparent";
 
   const headerCellCls = isDark
-    ? "px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-gray-500"
+    ? "px-4 py-3 text-[10px] font-mono font-semibold uppercase tracking-[0.14em] text-white/40"
     : "px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-gray-400";
 
   const bodyCellCls = bodyCellClassName ??
-    (isDark ? "px-4 py-3 text-sm text-gray-300" : "px-4 py-3 text-sm text-gray-600");
+    (isDark ? "px-4 py-3 text-xs text-zinc-300" : "px-4 py-3 text-sm text-gray-600");
 
-  const rowBorderCls = isDark ? "border-white/[0.04]" : "border-gray-100/80";
+  const rowBorderCls = isDark ? "border-b border-white/[0.04]" : "border-gray-100/80";
 
   const rowHoverCls = onRowClick
-    ? isDark ? "cursor-pointer hover:bg-white/[0.03]" : "cursor-pointer hover:bg-gray-50/60"
-    : isDark ? "hover:bg-white/[0.02]" : "hover:bg-gray-50/40";
+    ? isDark ? "cursor-pointer hover:bg-zinc-800/40 transition-colors duration-150" : "cursor-pointer hover:bg-gray-50/60"
+    : isDark ? "hover:bg-zinc-800/40 transition-colors duration-150" : "hover:bg-gray-50/40";
 
   const skeletonBgCls = isDark ? "bg-white/[0.06]" : "bg-gray-200/40";
   const skeletonCellBgCls = isDark ? "bg-white/[0.04]" : "bg-gray-200/30";
@@ -314,7 +317,7 @@ export function DataTable<TData, TValue>({
     <div className={containerCls}>
       <div className="overflow-auto [&>div]:overflow-visible" style={{ maxHeight }}>
         <Table>
-          <TableHeader className={`sticky top-0 z-10 ${isDark ? "bg-[#0d0d0d]" : "bg-gray-50"}`}>
+          <TableHeader className={`sticky top-0 z-10 ${isDark ? "bg-[#09090b]" : "bg-gray-50"}`}>
             {table.getHeaderGroups().map((headerGroup: HeaderGroup<TData>) => (
               <TableRow key={headerGroup.id} className={headerRowCls}>
                 {headerGroup.headers.map((header: Header<TData, unknown>) => (

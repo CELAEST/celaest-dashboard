@@ -201,6 +201,7 @@ export function MarketplaceDashboardView() {
   // doesn't expose a min_rating field. We persist the selection in local
   // state and filter the rendered list before mapping.
   const [selectedRating, setSelectedRating] = useState<number>(0);
+  const [selectedTier, setSelectedTier] = useState<string>("all");
 
   const handleRatingChange = (rating: number) => {
     setSelectedRating(rating);
@@ -274,6 +275,8 @@ export function MarketplaceDashboardView() {
 
   const clearFilters = () => {
     reset();
+    setSelectedTier("all");
+    setSelectedRating(0);
   };
 
   useEffect(() => {
@@ -457,47 +460,55 @@ export function MarketplaceDashboardView() {
           />
         </div>
 
-        {/* Product Grid - Natural Scroll */}
+        {/* Product Grid - Natural Scroll (Obsidian Base) */}
         <div
           ref={contentScrollRef}
-          className="flex-1 overflow-y-auto custom-scrollbar bg-black"
+          className="flex-1 overflow-y-auto no-scrollbar bg-[#020204]"
         >
           <AnimatePresence mode="wait">
             {isLoading ? (
               <div
                 id="marketplace-catalog"
-                className="grid grid-cols-1 gap-6 px-5 pt-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3"
+                className="grid grid-cols-1 gap-6 p-5 sm:p-6 lg:p-7 md:grid-cols-2 xl:grid-cols-3"
               >
-                {[...Array(12)].map((_, i) => (
+                {[...Array(6)].map((_, i) => (
                   <ProductSkeleton key={i} />
                 ))}
               </div>
             ) : (() => {
-              // Client-side rating filter: rating === 0 means "all"; otherwise
-              // we keep products whose average rating is at least the picked
-              // tier so the grid mirrors what the sidebar says.
-              const visibleProducts =
-                selectedRating > 0
-                  ? products.filter((p) => (p.rating_avg ?? 0) >= selectedRating)
-                  : products;
+              // Client-side rating and tier filtering
+              const visibleProducts = products.filter((p) => {
+                if (selectedRating > 0 && (p.rating_avg ?? 0) < selectedRating) {
+                  return false;
+                }
+                if (selectedTier !== "all") {
+                  const tierName =
+                    p.min_plan_tier >= 3
+                      ? "Enterprise"
+                      : p.min_plan_tier === 2
+                        ? "Pro Tier"
+                        : "Starter+";
+                  if (tierName !== selectedTier) return false;
+                }
+                return true;
+              });
+
               return visibleProducts.length === 0 ? (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="flex flex-col items-center justify-center h-full w-full"
+                className="flex flex-col items-center justify-center h-full w-full p-12 text-center"
               >
                 <Storefront
                   size={48}
-                  className={isDark ? "text-gray-700" : "text-gray-300"}
+                  className="text-white/20 mb-3"
                 />
-                <p
-                  className={`mt-4 text-sm ${isDark ? "text-gray-500" : "text-gray-400"}`}
-                >
+                <p className="text-sm font-bold text-white tracking-tight">
                   {tMarketplace("no_products_found")}
                 </p>
                 <button
                   onClick={clearFilters}
-                  className={`mt-2 text-xs ${isDark ? "text-cyan-400" : "text-cyan-600"}`}
+                  className="mt-3 px-4 py-2 rounded-xl text-xs font-semibold bg-white text-black hover:bg-white/90 transition-all cursor-pointer"
                 >
                   {tMarketplace("clear_filters")}
                 </button>
@@ -507,7 +518,7 @@ export function MarketplaceDashboardView() {
                 id="marketplace-catalog"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="grid w-full grid-cols-1 gap-6 px-5 pt-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3"
+                className="grid w-full grid-cols-1 gap-6 p-5 sm:p-6 lg:p-7 md:grid-cols-2 xl:grid-cols-3"
               >
                 {visibleProducts.map((product, index) => {
                   const access = checkAccess(product);

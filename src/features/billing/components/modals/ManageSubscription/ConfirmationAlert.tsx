@@ -31,73 +31,70 @@ export const ConfirmationAlert: React.FC<ConfirmationAlertProps> = ({
     <AnimatePresence mode="wait">
       {isVisible && (
         <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 10 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 10 }}
-          className={`rounded-2xl p-6 ring-2 ${
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 8 }}
+          transition={{ duration: 0.2 }}
+          className={`rounded-2xl p-5 border ${
             type === "danger"
               ? isDark
-                ? "ring-red-500/20 bg-red-500/10 border border-red-500/30 shadow-2xl shadow-red-500/10"
-                : "ring-red-500/20 bg-red-50/50 border border-red-200 shadow-xl"
+                ? "bg-red-500/[0.05] border-red-500/20"
+                : "bg-red-50/70 border-red-200"
               : isDark
-                ? "ring-orange-500/20 bg-orange-500/10 border border-orange-500/30 shadow-2xl shadow-orange-500/10"
-                : "ring-orange-500/20 bg-orange-50/50 border border-orange-200 shadow-xl"
+                ? "bg-amber-500/[0.05] border-amber-500/20"
+                : "bg-amber-50/70 border-amber-200"
           }`}
         >
-          <div className="flex items-start gap-4 mb-6">
+          <div className="flex items-start gap-3.5 mb-5">
             <div
-              className={`p-3 rounded-xl ${
-                type === "danger" ? "bg-red-500/20" : "bg-orange-500/20"
+              className={`p-2 rounded-xl shrink-0 ${
+                type === "danger"
+                  ? isDark
+                    ? "bg-red-500/15 text-red-400"
+                    : "bg-red-100 text-red-600"
+                  : isDark
+                    ? "bg-amber-500/15 text-amber-400"
+                    : "bg-amber-100 text-amber-600"
               }`}
             >
-              <Warning
-                className={`w-6 h-6 ${
-                  type === "danger" ? "text-red-500" : "text-orange-500"
-                }`}
-              />
+              <Warning className="w-5 h-5" />
             </div>
             <div>
               <div
-                className={`text-lg font-black mb-2 ${
-                  isDark ? "text-white" : "text-gray-900"
+                className={`text-sm font-semibold tracking-tight mb-1 ${
+                  isDark ? "text-zinc-100" : "text-gray-900"
                 }`}
               >
                 {title}
               </div>
               <div
                 className={`text-xs leading-relaxed ${
-                  isDark ? "text-gray-300" : "text-gray-700"
+                  isDark ? "text-zinc-400" : "text-gray-600"
                 }`}
               >
                 {message}
               </div>
             </div>
           </div>
-          <div className="flex gap-3 justify-end">
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+          <div className="flex gap-2.5 justify-end">
+            <button
+              type="button"
               onClick={onCancel}
-              className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 ${
-                isDark
-                  ? "bg-white/5 border border-white/10 text-white hover:bg-white/10"
-                  : "bg-gray-100 border border-gray-200 text-gray-900 hover:bg-gray-200"
-              }`}
+              className="px-4 py-2 rounded-xl text-xs font-mono font-medium text-white/70 hover:text-white bg-white/[0.03] border border-white/10 hover:bg-white/[0.06] transition-colors cursor-pointer"
             >
               {cancelText}
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+            </button>
+            <button
+              type="button"
               onClick={onConfirm}
-              className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 shadow-xl ${
+              className={`px-4 py-2 rounded-xl text-xs font-mono font-semibold uppercase tracking-wider transition-colors cursor-pointer shadow-xs ${
                 type === "danger"
-                  ? "bg-red-600 text-white hover:bg-red-500 shadow-red-600/20"
-                  : "bg-orange-600 text-white hover:bg-orange-500 shadow-orange-600/20"
+                  ? "bg-red-500 text-white hover:bg-red-600"
+                  : "bg-amber-400 text-black hover:bg-amber-300"
               }`}
             >
               {confirmText}
-            </motion.button>
+            </button>
           </div>
         </motion.div>
       )}

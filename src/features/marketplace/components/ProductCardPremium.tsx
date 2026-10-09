@@ -320,8 +320,8 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
                           ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 cursor-default"
                           : "bg-emerald-50 text-emerald-600 border border-emerald-200 cursor-default"
                       : theme === "dark"
-                        ? "bg-cyan-500 text-black hover:bg-cyan-400 shadow-[0_0_20px_rgba(0,255,255,0.3)]"
-                        : "bg-gray-900 text-white hover:bg-gray-800 shadow-xl"
+                        ? "bg-white text-black hover:bg-neutral-200 shadow-md font-bold"
+                        : "bg-blue-600 text-white hover:bg-blue-700 shadow-xl"
                 }
               `}
             >

@@ -110,16 +110,16 @@ export const EmailChangeModal: React.FC<EmailChangeModalProps> = ({
           <div
             className={`flex items-start gap-3 p-4 rounded-xl border ${
               isDark
-                ? "bg-cyan-500/10 border-cyan-500/20"
-                : "bg-cyan-50 border-cyan-100"
+                ? "bg-white/[0.02] border-white/[0.06]"
+                : "bg-gray-50 border-gray-200"
             }`}
           >
-            <Warning className="w-4 h-4 text-cyan-500 shrink-0 mt-0.5" />
+            <Warning className={`w-4 h-4 shrink-0 mt-0.5 ${isDark ? "text-white/60" : "text-gray-600"}`} />
             <p
-              className={`text-xs ${isDark ? "text-gray-400" : "text-gray-600"}`}
+              className={`text-xs ${isDark ? "text-white/60" : "text-gray-600"}`}
             >
               {t("verification_info")}{" "}
-              <strong className="text-cyan-500 font-bold">
+              <strong className={`font-mono font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
                 {newEmail || t("verification_info_default")}
               </strong>
               {t("verification_info_end")}
@@ -130,10 +130,10 @@ export const EmailChangeModal: React.FC<EmailChangeModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className={`flex-1 px-4 py-3 rounded-xl border text-sm font-medium transition-colors ${
+              className={`flex-1 px-4 py-2.5 rounded-xl border text-xs font-medium transition-all cursor-pointer ${
                 isDark
-                  ? "border-white/10 text-gray-300 hover:bg-white/5"
-                  : "border-gray-200 text-gray-600 hover:bg-gray-50"
+                  ? "border-white/10 bg-white/[0.04] text-white/70 hover:bg-white/[0.08] hover:text-white"
+                  : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:text-gray-900"
               }`}
             >
               {tCommon("cancel")}
@@ -141,7 +141,11 @@ export const EmailChangeModal: React.FC<EmailChangeModalProps> = ({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 px-4 py-3 rounded-xl bg-linear-to-r from-cyan-600 to-blue-600 text-white font-bold hover:shadow-lg hover:shadow-cyan-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className={`flex-1 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
+                isDark
+                  ? "bg-white text-black hover:bg-neutral-200"
+                  : "bg-gray-900 text-white hover:bg-gray-800"
+              }`}
             >
               {isSubmitting ? tCommon("sending") : t("send_verification")}
             </button>

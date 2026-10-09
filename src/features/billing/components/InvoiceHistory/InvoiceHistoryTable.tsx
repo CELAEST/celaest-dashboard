@@ -2,12 +2,13 @@ import React, { useMemo, useState, useEffect, useRef } from "react";
 import { Invoice } from "../../types";
 import { type ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table";
-import { motion } from "motion/react";
 import {
   DownloadSimple,
-  FileText,
+  Receipt,
   CreditCard,
-  CheckCircle,
+  Check,
+  Clock,
+  X,
   DotsThreeVertical,
   ShieldWarning,
   CheckSquare,
@@ -37,6 +38,7 @@ interface InvoiceHistoryTableProps {
   hasNextPage?: boolean;
   isFetchingNextPage?: boolean;
   onLoadMore?: () => void;
+  hideFooter?: boolean;
 }
 
 // Custom Cell component for the Actions column to maintain local state
@@ -69,8 +71,9 @@ const DownloadActionCell: React.FC<{
       previousDownloadingIdRef.current === actionId &&
       downloadingId === null
     ) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setIsSuccess(true);
+      const timer = setTimeout(() => setIsSuccess(true), 0);
+      previousDownloadingIdRef.current = downloadingId;
+      return () => clearTimeout(timer);
     }
 
     previousDownloadingIdRef.current = downloadingId;
@@ -86,67 +89,56 @@ const DownloadActionCell: React.FC<{
 
   return (
     <div className="flex justify-center items-center gap-2">
-      <motion.button
+      <button
         onClick={() => actionId && onDownload(actionId)}
         disabled={!actionId || downloadingId === actionId || isSuccess}
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.95 }}
         className={`
-          relative flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-medium uppercase tracking-wider border overflow-hidden
+          relative flex items-center justify-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-mono font-medium uppercase tracking-wider border overflow-hidden cursor-pointer transition-colors duration-150
           ${
             isSuccess
               ? isDark
-                ? "border-emerald-500/50 text-emerald-400 bg-emerald-500/10"
-                : "border-emerald-500 text-emerald-600 bg-emerald-50"
+                ? "border-white/20 text-white bg-white/10"
+                : "border-gray-900 text-gray-900 bg-gray-100"
               : isDark
-                ? "border-white/10 text-gray-400 hover:text-white hover:border-white/30 hover:bg-white/5"
-                : "border-gray-200 text-gray-500 hover:text-gray-900 hover:border-gray-400 hover:bg-gray-50"
+                ? "border-white/10 bg-white/[0.02] text-white/60 hover:text-white hover:bg-white/5 hover:border-white/20"
+                : "border-gray-200 bg-white text-gray-600 hover:text-gray-900 hover:border-gray-300 hover:bg-gray-50"
           }
-          transition-colors duration-300
         `}
       >
         {downloadingId === actionId ? (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex items-center gap-1.5"
-          >
-            <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
-          </motion.div>
-        ) : isSuccess ? (
-          <motion.div
-            initial={{ scale: 0.5, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="flex items-center gap-1.5"
-          >
-            <CheckCircle size={14} strokeWidth={2.5} />
-            <span>{t("done")}</span>
-          </motion.div>
-        ) : (
           <div className="flex items-center gap-1.5">
-            <DownloadSimple size={14} strokeWidth={2} />
+            <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : isSuccess ? (
+          <div className="flex items-center gap-1">
+            <Check size={12} strokeWidth={2.5} />
+            <span>{t("done")}</span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-1">
+            <DownloadSimple size={12} strokeWidth={2} />
             <span>{t("pdf")}</span>
           </div>
         )}
-      </motion.button>
+      </button>
 
       {/* Admin Actions Dropdown */}
       {(onVoid || onPay) && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
-              className={`p-1.5 rounded-md transition-colors ${
+              className={`p-1 rounded-md transition-colors cursor-pointer ${
                 isDark
-                  ? "text-gray-400 hover:text-white hover:bg-white/10"
-                  : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
+                  ? "text-white/40 hover:text-white hover:bg-white/10"
+                  : "text-gray-400 hover:text-gray-900 hover:bg-gray-100"
               }`}
             >
-              <DotsThreeVertical size={16} />
+              <DotsThreeVertical size={14} />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="end"
-            className={isDark ? "bg-[#111] border-white/10" : ""}
+            className={isDark ? "bg-[#09090b] border-white/10 text-zinc-200 shadow-2xl rounded-xl p-1" : ""}
           >
             {actionId &&
               onPay &&
@@ -155,9 +147,9 @@ const DownloadActionCell: React.FC<{
                 <DropdownMenuItem
                   onClick={() => onPay(actionId)}
                   disabled={isLoadingAction}
-                  className={`gap-2 font-medium cursor-pointer ${isDark ? "text-emerald-400 focus:bg-emerald-500/10" : "text-emerald-600 focus:bg-emerald-50"}`}
+                  className={`gap-2 font-mono text-xs cursor-pointer ${isDark ? "text-zinc-200 focus:bg-white/10 focus:text-white" : "text-gray-700 focus:bg-gray-100"}`}
                 >
-                  <CheckSquare size={14} /> {t("force_mark_paid")}
+                  <CheckSquare size={13} /> {t("force_mark_paid")}
                 </DropdownMenuItem>
               )}
             {actionId &&
@@ -167,15 +159,15 @@ const DownloadActionCell: React.FC<{
                 <DropdownMenuItem
                   onClick={() => onVoid(actionId)}
                   disabled={isLoadingAction}
-                  className={`gap-2 font-medium cursor-pointer ${isDark ? "text-red-400 focus:bg-red-500/10 focus:text-red-300" : "text-red-600 focus:bg-red-50 focus:text-red-700"}`}
+                  className={`gap-2 font-mono text-xs cursor-pointer ${isDark ? "text-red-400 focus:bg-red-500/10 focus:text-red-300" : "text-red-600 focus:bg-red-50 focus:text-red-700"}`}
                 >
-                  <ShieldWarning size={14} /> {t("void_invoice")}
+                  <ShieldWarning size={13} /> {t("void_invoice")}
                 </DropdownMenuItem>
               )}
             {(!actionId || invoice.status === "paid" || invoice.status === "void") && (
               <DropdownMenuItem
                 disabled
-                className="text-gray-500 text-xs italic"
+                className="text-white/40 text-[11px] font-mono italic"
               >
                 {actionId
                   ? t("no_admin_actions")
@@ -202,6 +194,7 @@ export const InvoiceHistoryTable: React.FC<InvoiceHistoryTableProps> = ({
   hasNextPage,
   isFetchingNextPage,
   onLoadMore,
+  hideFooter = true,
 }) => {
   const t = useTranslations("billing");
 
@@ -213,25 +206,23 @@ export const InvoiceHistoryTable: React.FC<InvoiceHistoryTableProps> = ({
         cell: ({ row }) => {
           const invoice = row.original;
           return (
-            <div className="flex items-center gap-3 py-2">
+            <div className="flex items-center gap-2.5 py-1">
               <div
                 className={`
-                  w-9 h-9 rounded-lg flex items-center justify-center shrink-0 transition-all duration-300
+                  w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border transition-colors
                   ${
                     isDark
-                      ? "bg-white/5 text-gray-400 group-hover:bg-cyan-500/10 group-hover:text-cyan-400"
-                      : "bg-gray-100 text-gray-500 group-hover:bg-blue-50 group-hover:text-blue-600"
+                      ? "bg-white/[0.04] border-white/8 text-white/60"
+                      : "bg-gray-100 border-gray-200 text-gray-600"
                   }
                 `}
               >
-                <FileText size={16} strokeWidth={1.5} />
+                <Receipt size={14} />
               </div>
-              <div className="flex flex-col">
+              <div className="flex flex-col min-w-0">
                 <span
-                  className={`font-mono text-sm font-semibold tracking-tight transition-colors ${
-                    isDark
-                      ? "text-gray-200 group-hover:text-white"
-                      : "text-gray-900 group-hover:text-blue-700"
+                  className={`font-mono text-xs font-semibold tracking-tight ${
+                    isDark ? "text-zinc-100" : "text-gray-900"
                   }`}
                 >
                   {invoice.invoice_number}
@@ -249,7 +240,7 @@ export const InvoiceHistoryTable: React.FC<InvoiceHistoryTableProps> = ({
           return (
             <div className="flex flex-col gap-0.5">
               <span
-                className={`text-sm font-medium ${isDark ? "text-gray-300" : "text-gray-700"}`}
+                className={`text-xs font-medium ${isDark ? "text-zinc-200" : "text-gray-700"}`}
               >
                 {new Date(invoice.created_at).toLocaleDateString(undefined, {
                   year: "numeric",
@@ -258,7 +249,7 @@ export const InvoiceHistoryTable: React.FC<InvoiceHistoryTableProps> = ({
                 })}
               </span>
               <span
-                className={`text-[10px] ${isDark ? "text-gray-600" : "text-gray-400"}`}
+                className={`text-[10px] font-mono ${isDark ? "text-white/40" : "text-gray-400"}`}
               >
                 {new Date(invoice.created_at).toLocaleTimeString(undefined, {
                   hour: "2-digit",
@@ -277,15 +268,15 @@ export const InvoiceHistoryTable: React.FC<InvoiceHistoryTableProps> = ({
           const customerName = invoice.billing_name || invoice.customer_name || "";
 
           return (
-            <div className="flex flex-col gap-0.5">
+            <div className="flex flex-col gap-0.5 min-w-0 max-w-[200px]">
               <span
-                className={`text-sm font-medium ${isDark ? "text-gray-200" : "text-gray-900"}`}
+                className={`text-xs font-medium truncate ${isDark ? "text-zinc-200" : "text-gray-900"}`}
               >
                 {invoice.item_name || "Invoice"}
               </span>
               {customerName && (
                 <span
-                  className={`text-[10px] ${isDark ? "text-gray-500" : "text-gray-500"}`}
+                  className={`text-[10px] font-mono truncate ${isDark ? "text-white/40" : "text-gray-400"}`}
                 >
                   {customerName}
                 </span>
@@ -301,16 +292,18 @@ export const InvoiceHistoryTable: React.FC<InvoiceHistoryTableProps> = ({
           const invoice = row.original;
           const last4 = getInvoiceReferenceSuffix(invoice);
           return (
-            <div className="flex items-center gap-2">
+            <div
+              className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-mono border ${
+                isDark
+                  ? "bg-white/[0.03] text-white/70 border-white/[0.06]"
+                  : "bg-gray-50 text-gray-600 border-gray-200/60"
+              }`}
+            >
               <CreditCard
-                size={14}
-                className={isDark ? "text-gray-500" : "text-gray-400"}
+                size={12}
+                className={isDark ? "text-white/40" : "text-gray-400"}
               />
-              <span
-                className={`text-xs ${isDark ? "text-gray-400" : "text-gray-600"}`}
-              >
-                •••• {last4}
-              </span>
+              <span>•••• {last4}</span>
             </div>
           );
         },
@@ -322,8 +315,8 @@ export const InvoiceHistoryTable: React.FC<InvoiceHistoryTableProps> = ({
           const invoice = row.original;
           return (
             <div
-              className={`text-right text-sm font-bold font-mono ${
-                isDark ? "text-white" : "text-gray-900"
+              className={`text-right text-xs font-bold font-mono tabular-nums ${
+                isDark ? "text-zinc-100" : "text-gray-900"
               }`}
             >
               {invoice.currency === "EUR" ? "€" : "$"}
@@ -337,30 +330,70 @@ export const InvoiceHistoryTable: React.FC<InvoiceHistoryTableProps> = ({
         header: () => <div className="text-center">{t("status")}</div>,
         cell: ({ row }) => {
           const invoice = row.original;
+          const s = (invoice.status || "").toLowerCase();
+
+          const getStatusStyle = () => {
+            if (isDark) {
+              switch (s) {
+                case "paid":
+                  return "bg-white/[0.08] text-white border border-white/10 shadow-xs font-semibold";
+                case "pending":
+                case "issued":
+                  return "bg-white/[0.03] text-white/50 border border-white/[0.05] font-medium";
+                case "processing":
+                  return "bg-white/[0.04] text-white/70 border border-white/[0.06] font-medium";
+                case "void":
+                case "cancelled":
+                case "failed":
+                  return "bg-red-500/10 text-red-300 border border-red-500/20 font-medium";
+                default:
+                  return "bg-white/[0.03] text-white/50 border border-white/[0.05] font-medium";
+              }
+            } else {
+              switch (s) {
+                case "paid":
+                  return "bg-gray-900 text-white font-semibold shadow-xs";
+                case "pending":
+                case "issued":
+                  return "bg-amber-50 text-amber-700 border border-amber-200 font-medium";
+                case "processing":
+                  return "bg-gray-100 text-gray-700 font-medium";
+                case "void":
+                case "cancelled":
+                case "failed":
+                  return "bg-red-50 text-red-700 border border-red-200 font-medium";
+                default:
+                  return "bg-gray-100 text-gray-600 font-medium";
+              }
+            }
+          };
+
+          const getStatusIcon = () => {
+            switch (s) {
+              case "paid":
+                return <Check size={10} strokeWidth={3} className="mr-1 text-white/80" />;
+              case "processing":
+                return (
+                  <Clock
+                    size={10}
+                    className="mr-1 animate-[spin_3s_linear_infinite] will-change-transform text-white/60"
+                  />
+                );
+              case "void":
+              case "cancelled":
+              case "failed":
+                return <X size={10} strokeWidth={3} className="mr-1 text-red-400" />;
+              default:
+                return <Clock size={10} className="mr-1 text-white/40" />;
+            }
+          };
+
           return (
             <div className="flex justify-center">
               <span
-                className={`
-                  inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider
-                  ${
-                    invoice.status === "paid"
-                      ? isDark
-                        ? "bg-emerald-500/10 text-emerald-400"
-                        : "bg-emerald-50 text-emerald-700"
-                      : invoice.status === "void"
-                        ? isDark
-                          ? "bg-red-500/10 text-red-400 line-through"
-                          : "bg-red-50 text-red-600 line-through"
-                        : invoice.status === "cancelled"
-                          ? isDark
-                            ? "bg-gray-500/10 text-gray-400"
-                            : "bg-gray-100 text-gray-500"
-                          : isDark
-                            ? "bg-amber-500/10 text-amber-400"
-                            : "bg-amber-50 text-amber-700"
-                  }
-                `}
+                className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-mono uppercase tracking-wider ${getStatusStyle()}`}
               >
+                {getStatusIcon()}
                 {invoice.status === "void" ? t("void") : invoice.status}
               </span>
             </div>
@@ -391,7 +424,7 @@ export const InvoiceHistoryTable: React.FC<InvoiceHistoryTableProps> = ({
   );
 
   return (
-    <div className="w-full relative">
+    <div className="w-full relative flex-1 min-h-0 flex flex-col">
       <DataTable
         columns={columns}
         data={invoices}
@@ -402,6 +435,7 @@ export const InvoiceHistoryTable: React.FC<InvoiceHistoryTableProps> = ({
         hasNextPage={hasNextPage}
         isFetchingNextPage={isFetchingNextPage}
         onLoadMore={onLoadMore}
+        hideFooter={hideFooter}
       />
     </div>
   );

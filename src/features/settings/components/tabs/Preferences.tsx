@@ -35,7 +35,7 @@ export function Preferences() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white/80"></div>
       </div>
     );
   }
@@ -65,7 +65,7 @@ export function Preferences() {
         <button
           onClick={handleSave}
           disabled={isSaving}
-          className="px-8 py-3 rounded-xl bg-linear-to-r from-cyan-600 to-blue-600 text-white font-bold hover:shadow-lg hover:shadow-cyan-500/30 transition-all active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
+          className="px-6 py-2.5 rounded-xl text-xs font-semibold bg-white text-black hover:bg-neutral-200 active:scale-[0.98] transition-all cursor-pointer shadow-md disabled:opacity-50 disabled:cursor-not-allowed font-jakarta"
         >
           {isSaving ? t("saving") : t("save_preferences")}
         </button>

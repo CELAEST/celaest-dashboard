@@ -6,25 +6,12 @@ import {
   ShieldSlash,
   Crown,
   Warning,
+  Check,
 } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useBilling } from "../hooks/useBilling";
 import { useLocalPlanPrice } from "../hooks/useLocalPlanPrice";
 import type { Subscription } from "../types";
-
-const tierColor = (tier: number, isDark: boolean) => {
-  if (tier >= 3)
-    return isDark
-      ? "from-amber-500/20 to-yellow-500/10 border-amber-500/30"
-      : "from-amber-50 to-yellow-50 border-amber-300";
-  if (tier === 2)
-    return isDark
-      ? "from-violet-500/20 to-purple-500/10 border-violet-500/30"
-      : "from-violet-50 to-purple-50 border-violet-300";
-  return isDark
-    ? "from-slate-500/20 to-gray-500/10 border-slate-500/30"
-    : "from-slate-50 to-gray-50 border-slate-300";
-};
 
 export const LicensesList: React.FC = () => {
   const { theme } = useTheme();
@@ -34,15 +21,17 @@ export const LicensesList: React.FC = () => {
   if (isLoading) {
     return (
       <div
-        className={`w-full h-full rounded-3xl animate-pulse ${isDark ? "bg-slate-800/50" : "bg-slate-100"}`}
+        className={`w-full h-full rounded-2xl animate-pulse ${
+          isDark ? "bg-white/[0.02] border border-white/6" : "bg-gray-100 border border-gray-200"
+        }`}
       />
     );
   }
 
   if (error) {
     return (
-      <div className="w-full h-full flex items-center justify-center text-red-500">
-        <Warning className="w-6 h-6 mr-2" />
+      <div className="w-full h-full flex items-center justify-center text-red-400 font-mono text-xs">
+        <Warning className="w-4 h-4 mr-2" />
         Error al cargar licencias
       </div>
     );
@@ -51,17 +40,19 @@ export const LicensesList: React.FC = () => {
   if (!allSubscriptions || allSubscriptions.length === 0) {
     return (
       <div
-        className={`w-full rounded-3xl p-6 flex flex-col items-center justify-center h-full ${
+        className={`w-full rounded-2xl p-6 flex flex-col items-center justify-center h-full border ${
           isDark
-            ? "bg-slate-800/30 border border-slate-700/50"
-            : "bg-slate-50 border border-slate-200"
+            ? "bg-[#09090b]/80 border-white/6 backdrop-blur-xl"
+            : "bg-white border-gray-200 shadow-sm"
         }`}
       >
         <Shield
-          className={`w-12 h-12 mb-3 ${isDark ? "text-slate-600" : "text-slate-300"}`}
+          className={`w-10 h-10 mb-2 ${isDark ? "text-white/20" : "text-gray-300"}`}
         />
         <p
-          className={`text-sm font-medium ${isDark ? "text-slate-400" : "text-slate-500"}`}
+          className={`text-xs font-mono uppercase tracking-wider ${
+            isDark ? "text-white/40" : "text-gray-500"
+          }`}
         >
           No hay licencias registradas
         </p>
@@ -73,41 +64,48 @@ export const LicensesList: React.FC = () => {
 
   return (
     <div
-      className={`relative w-full rounded-2xl transition-all duration-500 hover:shadow-2xl flex flex-col h-full overflow-hidden ${
+      className={`relative w-full rounded-2xl transition-all duration-200 border p-4 sm:p-5 flex flex-col h-full min-h-0 overflow-hidden ${
         isDark
-          ? "bg-linear-to-br from-cyan-900/40 via-blue-900/20 to-indigo-900/40 backdrop-blur-2xl border border-cyan-500/20"
-          : "bg-linear-to-br from-blue-50 to-indigo-50 border border-blue-200 shadow-xl"
+          ? "bg-[#09090b]/80 border-white/6 backdrop-blur-xl hover:border-white/10"
+          : "bg-white border-gray-200 shadow-sm hover:border-gray-300"
       }`}
     >
-      {/* Animated Background Pattern */}
-      <div className="absolute inset-0 opacity-20 pointer-events-none">
-        <div
-          className={`absolute inset-0 ${isDark ? "bg-cyan-500/10" : "bg-blue-400/5"}`}
-          style={{
-            backgroundImage: `radial-gradient(circle at 2px 2px, ${isDark ? "rgba(6,182,212,0.15)" : "rgba(59,130,246,0.15)"} 1px, transparent 0)`,
-            backgroundSize: "24px 24px",
-          }}
-        />
-      </div>
-
-      {/* Shine Effect Overlay */}
-      <div className="absolute inset-0 bg-linear-to-tr from-white/5 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
-
-      <div className="relative p-4 flex flex-col h-full min-h-0">
+      <div className="relative flex flex-col h-full min-h-0">
         {/* Header */}
-        <div className="flex items-center justify-between mb-3 shrink-0">
-          <h3
-            className={`text-lg font-bold tracking-tight ${
-              isDark ? "text-white" : "text-slate-900"
-            }`}
-          >
-            Licencias
-          </h3>
+        <div className="flex items-center justify-between mb-4 shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div
+              className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border transition-colors ${
+                isDark
+                  ? "bg-white/[0.04] border-white/8 text-white/60"
+                  : "bg-gray-100 border-gray-200 text-gray-600"
+              }`}
+            >
+              <Shield size={14} />
+            </div>
+            <div>
+              <h3
+                className={`text-sm sm:text-base font-semibold tracking-tight ${
+                  isDark ? "text-zinc-100" : "text-gray-900"
+                }`}
+              >
+                Licencias
+              </h3>
+              <p
+                className={`text-[10px] sm:text-[11px] font-mono tracking-wider uppercase ${
+                  isDark ? "text-white/40" : "text-gray-400"
+                }`}
+              >
+                Inventario activo de licencias
+              </p>
+            </div>
+          </div>
+
           <span
-            className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
+            className={`text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-md border ${
               isDark
-                ? "bg-cyan-500/10 border border-cyan-500/20 text-cyan-300"
-                : "bg-blue-50 border border-blue-200 text-blue-600"
+                ? "bg-white/[0.04] border-white/8 text-white/60"
+                : "bg-gray-100 border-gray-200 text-gray-600"
             }`}
           >
             {allSubscriptions.length}{" "}
@@ -116,7 +114,7 @@ export const LicensesList: React.FC = () => {
         </div>
 
         {/* List */}
-        <div className="flex-1 min-h-0 overflow-y-auto space-y-2 pr-1">
+        <div className="flex-1 min-h-0 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
           {allSubscriptions.map((sub, index) => (
             <LicenseItem
               key={sub.id}
@@ -172,22 +170,24 @@ const LicenseItem: React.FC<LicenseItemProps> = ({
     <motion.div
       initial={{ opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: index * 0.08 }}
-      className={`relative rounded-xl p-3 border transition-all duration-300 bg-linear-to-r ${
+      transition={{ delay: index * 0.05 }}
+      className={`relative rounded-xl p-3 border transition-colors duration-150 ${
         isEffective
           ? isDark
-            ? "from-cyan-500/15 to-blue-500/10 border-cyan-500/30 shadow-lg shadow-cyan-500/10"
-            : "from-blue-50 to-indigo-50 border-blue-300 shadow-md shadow-blue-200/50"
-          : tierColor(tier, isDark)
-      } ${isSuperseded ? "opacity-60" : ""}`}
+            ? "bg-white/[0.04] border-white/15 shadow-sm"
+            : "bg-gray-50 border-gray-300 shadow-xs"
+          : isDark
+            ? "bg-white/[0.02] border-white/6 hover:border-white/10"
+            : "bg-white border-gray-200 hover:border-gray-300"
+      } ${isSuperseded ? "opacity-40" : ""}`}
     >
       {/* Effective badge */}
       {isEffective && (
         <div
-          className={`absolute -top-2 right-3 px-2.5 py-0.5 rounded-full text-[10px] font-black tracking-wider ${
+          className={`absolute -top-2 right-3 px-2 py-0.2 rounded-full text-[9px] font-mono font-bold tracking-wider uppercase ${
             isDark
-              ? "bg-cyan-500 text-white shadow-lg shadow-cyan-500/30"
-              : "bg-blue-600 text-white shadow-md shadow-blue-400/30"
+              ? "bg-white text-black shadow-xs"
+              : "bg-gray-900 text-white shadow-xs"
           }`}
         >
           EN USO
@@ -197,18 +197,14 @@ const LicenseItem: React.FC<LicenseItemProps> = ({
       <div className="flex items-center gap-3">
         {/* Icon */}
         <div
-          className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+          className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border transition-colors ${
             isEffective
               ? isDark
-                ? "bg-cyan-500/20 text-cyan-400"
-                : "bg-blue-100 text-blue-600"
-              : isSuperseded
-                ? isDark
-                  ? "bg-slate-700/50 text-slate-500"
-                  : "bg-slate-100 text-slate-400"
-                : isDark
-                  ? "bg-slate-700/50 text-slate-300"
-                  : "bg-slate-100 text-slate-600"
+                ? "bg-white/[0.08] border-white/12 text-white"
+                : "bg-gray-900 text-white"
+              : isDark
+                ? "bg-white/[0.04] border-white/8 text-white/60"
+                : "bg-gray-100 border-gray-200 text-gray-600"
           }`}
         >
           <StatusIcon className="w-4 h-4" />
@@ -218,24 +214,18 @@ const LicenseItem: React.FC<LicenseItemProps> = ({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span
-              className={`text-sm font-bold truncate ${
-                isEffective
-                  ? isDark
-                    ? "text-cyan-200"
-                    : "text-blue-800"
-                  : isDark
-                    ? "text-slate-200"
-                    : "text-slate-800"
+              className={`text-xs font-semibold truncate ${
+                isDark ? "text-zinc-100" : "text-gray-900"
               }`}
             >
               {planName}
             </span>
             {tier > 0 && (
               <span
-                className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                className={`text-[9px] font-mono font-semibold uppercase tracking-wider px-1.5 py-0.2 rounded border ${
                   isDark
-                    ? "bg-slate-700/60 text-slate-400"
-                    : "bg-slate-100 text-slate-500"
+                    ? "bg-white/[0.04] border-white/8 text-white/50"
+                    : "bg-gray-100 border-gray-200 text-gray-500"
                 }`}
               >
                 Tier {tier}
@@ -243,7 +233,9 @@ const LicenseItem: React.FC<LicenseItemProps> = ({
             )}
           </div>
           <div
-            className={`text-xs mt-0.5 ${isDark ? "text-slate-400" : "text-slate-500"}`}
+            className={`text-[11px] font-mono mt-0.5 ${
+              isDark ? "text-white/50" : "text-gray-500"
+            }`}
           >
             {priceLabel}
           </div>
@@ -251,29 +243,30 @@ const LicenseItem: React.FC<LicenseItemProps> = ({
 
         {/* Status badge */}
         <div
-          className={`px-2.5 py-1 rounded-lg text-[11px] font-bold tracking-wide shrink-0 ${
-            isEffective
+          className={`px-2 py-0.5 rounded-md text-[10px] font-mono uppercase tracking-wider shrink-0 border ${
+            isEffective || isActive
               ? isDark
-                ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20"
-                : "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                ? "bg-white/[0.08] text-white border-white/10 font-semibold shadow-xs"
+                : "bg-gray-900 text-white font-semibold"
               : isSuperseded
                 ? isDark
-                  ? "bg-slate-700/40 text-slate-500 border border-slate-600/20"
-                  : "bg-slate-100 text-slate-400 border border-slate-200"
-                : isActive
-                  ? isDark
-                    ? "bg-blue-500/15 text-blue-400 border border-blue-500/20"
-                    : "bg-blue-50 text-blue-600 border border-blue-200"
-                  : isDark
-                    ? "bg-red-500/10 text-red-400 border border-red-500/20"
-                    : "bg-red-50 text-red-600 border border-red-200"
+                  ? "bg-white/[0.02] text-white/30 border-white/5"
+                  : "bg-gray-100 text-gray-400 border-gray-200"
+                : isDark
+                  ? "bg-red-500/10 text-red-400 border-red-500/20"
+                  : "bg-red-50 text-red-600 border-red-200"
           }`}
         >
-          {isSuperseded
-            ? "REEMPLAZADA"
-            : isActive
-              ? sub.status.toUpperCase()
-              : sub.status.toUpperCase()}
+          {isEffective || isActive ? (
+            <span className="flex items-center gap-1">
+              <Check size={10} strokeWidth={3} className="text-white/80" />
+              <span>{sub.status.toUpperCase()}</span>
+            </span>
+          ) : isSuperseded ? (
+            "REEMPLAZADA"
+          ) : (
+            sub.status.toUpperCase()
+          )}
         </div>
       </div>
     </motion.div>

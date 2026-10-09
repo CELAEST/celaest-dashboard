@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
-import { Plus, Shield } from "@phosphor-icons/react";
+import { AnimatePresence } from "motion/react";
+import { Plus, Shield, CreditCard } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { AddPaymentMethodModal } from "./modals/AddPaymentMethodModal";
 import { EditPaymentMethodModal } from "./modals/EditPaymentMethodModal";
@@ -62,82 +62,79 @@ export const PaymentMethodsCard: React.FC = () => {
   return (
     <>
       <div
-        className={`relative w-full rounded-2xl transition-all duration-500 hover:shadow-2xl flex flex-col h-full overflow-hidden ${
+        className={`relative w-full rounded-2xl transition-all duration-200 border p-4 sm:p-5 flex flex-col h-full min-h-0 overflow-hidden ${
           isDark
-            ? "bg-linear-to-br from-cyan-900/40 via-blue-900/20 to-indigo-900/40 backdrop-blur-2xl border border-cyan-500/20"
-            : "bg-linear-to-br from-blue-50 to-indigo-50 border border-blue-200 shadow-xl"
+            ? "bg-[#09090b]/80 border-white/6 backdrop-blur-xl hover:border-white/10"
+            : "bg-white border-gray-200 shadow-sm hover:border-gray-300"
         }`}
       >
-        {/* Animated Background Pattern */}
-        <div className="absolute inset-0 opacity-20 pointer-events-none">
-          <div
-            className={`absolute inset-0 ${
-              isDark ? "bg-cyan-500/10" : "bg-blue-400/5"
-            }`}
-            style={{
-              backgroundImage: `radial-gradient(circle at 2px 2px, ${
-                isDark ? "rgba(6,182,212,0.15)" : "rgba(59,130,246,0.15)"
-              } 1px, transparent 0)`,
-              backgroundSize: "24px 24px",
-            }}
-          />
-        </div>
-
-        {/* Shine Effect Overlay */}
-        <div className="absolute inset-0 bg-linear-to-tr from-white/5 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
-
-        <div className="relative p-4 flex flex-col h-full">
+        <div className="relative flex flex-col h-full min-h-0">
           {/* Header */}
           <div className="flex items-center justify-between mb-4 shrink-0">
-            <div>
-              <h3
-                className={`text-lg font-bold tracking-tight ${
-                  isDark ? "text-white" : "text-gray-900"
+            <div className="flex items-center gap-2.5">
+              <div
+                className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border transition-colors ${
+                  isDark
+                    ? "bg-white/[0.04] border-white/8 text-white/60"
+                    : "bg-gray-100 border-gray-200 text-gray-600"
                 }`}
               >
-                {t("payment_methods")}
-              </h3>
-              <p
-                className={`text-xs mt-1 ${
-                  isDark ? "text-cyan-200/50" : "text-blue-600/70"
-                }`}
-              >
-                {t("secure_billing_management")}
-              </p>
+                <CreditCard size={14} />
+              </div>
+              <div>
+                <h3
+                  className={`text-sm sm:text-base font-semibold tracking-tight ${
+                    isDark ? "text-zinc-100" : "text-gray-900"
+                  }`}
+                >
+                  {t("payment_methods")}
+                </h3>
+                <p
+                  className={`text-[10px] sm:text-[11px] font-mono tracking-wider uppercase ${
+                    isDark ? "text-white/40" : "text-gray-400"
+                  }`}
+                >
+                  {t("secure_billing_management")}
+                </p>
+              </div>
             </div>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+
+            <button
               onClick={() => setIsAddCardOpen(true)}
-              className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 shadow-sm ${
+              className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
                 isDark
-                  ? "bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 hover:bg-cyan-500/20 shadow-cyan-900/20"
-                  : "bg-blue-100 border border-blue-200 text-blue-600 hover:bg-blue-200"
+                  ? "border-white/10 bg-white/[0.03] text-white/70 hover:text-white hover:bg-white/10 hover:border-white/20"
+                  : "border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100"
               }`}
+              title={t("add_payment_method")}
             >
-              <Plus className="w-5 h-5" />
-            </motion.button>
+              <Plus size={14} />
+            </button>
           </div>
 
           {/* Payment Cards - Scrollable Section */}
-          <div className="flex-1 overflow-y-auto pr-2 -mr-2 space-y-4 mb-4 custom-scrollbar">
+          <div className="flex-1 overflow-y-auto pr-1 space-y-2.5 mb-3 custom-scrollbar min-h-0">
             {isLoading ? (
-              <div className="space-y-4">
+              <div className="space-y-2.5">
                 {[1, 2].map((i) => (
                   <div
                     key={i}
-                    className={`h-24 rounded-2xl animate-pulse ${isDark ? "bg-white/5" : "bg-slate-200/50"}`}
+                    className={`h-20 rounded-xl animate-pulse ${
+                      isDark ? "bg-white/[0.02] border border-white/6" : "bg-gray-100"
+                    }`}
                   />
                 ))}
               </div>
             ) : error ? (
               <div className="h-full flex flex-col items-center justify-center text-center p-4">
-                <p className="text-red-400 text-sm font-medium">{error}</p>
+                <p className="text-red-400 text-xs font-mono">{error}</p>
               </div>
             ) : methods.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-center p-4 opacity-50">
+              <div className="h-full flex flex-col items-center justify-center text-center p-4">
                 <p
-                  className={`text-sm ${isDark ? "text-slate-400" : "text-slate-500"}`}
+                  className={`text-xs font-mono ${
+                    isDark ? "text-white/40" : "text-gray-400"
+                  }`}
                 >
                   {t("no_payment_methods")}
                 </p>
@@ -161,28 +158,18 @@ export const PaymentMethodsCard: React.FC = () => {
 
           {/* Security Notice */}
           <div
-            className={`mt-3 p-2.5 rounded-lg flex items-start gap-2 ${
-              isDark
-                ? "bg-blue-500/5 border border-blue-500/20"
-                : "bg-blue-500/5 border border-blue-500/20"
+            className={`mt-auto pt-3 border-t flex items-center gap-2.5 ${
+              isDark ? "border-white/6 text-white/40" : "border-gray-200 text-gray-500"
             }`}
           >
-            <Shield className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
-            <div>
-              <div
-                className={`text-xs font-semibold mb-1 ${
-                  isDark ? "text-blue-400" : "text-blue-600"
-                }`}
-              >
+            <Shield size={14} className={isDark ? "text-white/50" : "text-gray-400"} />
+            <div className="flex-1 min-w-0">
+              <span className={`text-[10px] font-mono uppercase tracking-wider block font-semibold ${isDark ? "text-zinc-300" : "text-gray-700"}`}>
                 {t("bank_level_security")}
-              </div>
-              <div
-                className={`text-xs ${
-                  isDark ? "text-gray-400" : "text-gray-600"
-                }`}
-              >
+              </span>
+              <span className="text-[10px] font-mono text-white/40 block truncate">
                 {t("bank_level_security_desc")}
-              </div>
+              </span>
             </div>
           </div>
         </div>

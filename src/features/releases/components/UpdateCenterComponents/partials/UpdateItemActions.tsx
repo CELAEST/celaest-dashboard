@@ -17,29 +17,27 @@ export const UpdateItemActions: React.FC<UpdateItemActionsProps> = memo(
 
     return (
       <div
-        className={`px-4 sm:px-5 py-3 sm:py-4 border-t flex items-center gap-2 sm:gap-3 ${
-          isDark ? "border-white/5 bg-white/2" : "border-gray-100 bg-gray-50/50"
+        className={`px-4 sm:px-5 py-3 border-t flex items-center gap-2.5 ${
+          isDark
+            ? "border-white/6 bg-white/[0.01]"
+            : "border-gray-100 bg-gray-50/50"
         }`}
       >
         {asset.hasUpdate ? (
           <>
             <button
               onClick={onDownload}
-              className={`flex-1 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 ${
-                isDark
-                  ? "bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 border border-cyan-500/20 active:scale-[0.98]"
-                  : "bg-blue-600 text-white hover:bg-blue-700 shadow-sm active:scale-[0.98]"
-              }`}
+              className="flex-1 py-2 px-4 rounded-lg font-mono font-semibold text-xs tracking-wider uppercase transition-colors flex items-center justify-center gap-2 bg-white text-black hover:bg-zinc-200 shadow-xs cursor-pointer"
             >
-              <DownloadSimple size={16} weight="bold" />
-              {t("action_download_update")}
+              <DownloadSimple size={14} weight="bold" />
+              <span>{t("action_download_update")}</span>
             </button>
             <button
               onClick={onSkip}
-              className={`px-4 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition-all shrink-0 ${
+              className={`px-3.5 py-2 rounded-lg font-mono text-xs tracking-wider uppercase transition-colors shrink-0 cursor-pointer border ${
                 isDark
-                  ? "bg-white/5 text-gray-400 hover:bg-white/10 border border-white/8 hover:text-gray-200"
-                  : "bg-white text-gray-600 hover:bg-gray-100 border border-gray-200"
+                  ? "bg-white/[0.03] hover:bg-white/[0.06] text-white/60 hover:text-white border-white/8"
+                  : "bg-white text-gray-600 hover:bg-gray-100 border-gray-200"
               }`}
             >
               {t("action_skip")}
@@ -48,25 +46,25 @@ export const UpdateItemActions: React.FC<UpdateItemActionsProps> = memo(
         ) : (
           <>
             <div
-              className={`flex-1 py-2.5 rounded-xl font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 ${
+              className={`flex-1 py-2 rounded-lg font-mono text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 border ${
                 isDark
-                  ? "bg-emerald-500/8 text-emerald-400/80 border border-emerald-500/15"
-                  : "bg-emerald-50 text-emerald-600 border border-emerald-200"
+                  ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                  : "bg-emerald-50 text-emerald-700 border-emerald-200"
               }`}
             >
-              <CheckCircle size={16} weight="fill" />
-              {t("action_up_to_date")}
+              <CheckCircle size={14} weight="bold" />
+              <span>{t("action_up_to_date")}</span>
             </div>
             <button
               onClick={onDownload}
-              className={`px-4 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition-all flex items-center gap-2 shrink-0 ${
+              className={`px-3.5 py-2 rounded-lg font-mono text-xs tracking-wider uppercase transition-colors flex items-center gap-1.5 shrink-0 cursor-pointer border ${
                 isDark
-                  ? "bg-white/5 text-gray-400 hover:bg-white/10 border border-white/8 hover:text-gray-200"
-                  : "bg-white text-gray-600 hover:bg-gray-100 border border-gray-200"
+                  ? "bg-white/[0.03] hover:bg-white/[0.06] text-white/60 hover:text-white border-white/8"
+                  : "bg-white text-gray-600 hover:bg-gray-100 border-gray-200"
               }`}
             >
-              <ArrowClockwise size={14} />
-              {t("action_redownload")}
+              <ArrowClockwise size={13} />
+              <span>{t("action_redownload")}</span>
             </button>
           </>
         )}

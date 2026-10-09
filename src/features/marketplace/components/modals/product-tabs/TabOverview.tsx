@@ -15,78 +15,56 @@ export const TabOverview: React.FC<TabOverviewProps> = React.memo(
     const { theme } = useTheme();
 
     return (
-      <div className="space-y-6">
-        <div>
+      <div className="flex flex-col gap-6">
+        {/* Descripción */}
+        <div className="flex flex-col gap-2">
           <h3
-            className={`text-lg font-semibold mb-3 ${
-              theme === "dark" ? "text-white" : "text-gray-900"
+            className={`text-xs font-mono uppercase tracking-[0.18em] ${
+              theme === "dark" ? "text-white/40" : "text-gray-500"
             }`}
           >
             {t("description")}
           </h3>
           <p
-            className={`leading-relaxed ${
-              theme === "dark" ? "text-gray-400" : "text-gray-600"
+            className={`text-xs sm:text-sm leading-relaxed font-sans ${
+              theme === "dark" ? "text-white/80" : "text-gray-700"
             }`}
           >
             {description}
           </p>
         </div>
 
-        <div>
-          <h3
-            className={`text-lg font-semibold mb-3 ${
-              theme === "dark" ? "text-white" : "text-gray-900"
-            }`}
-          >
-            {t("technology_stack")}
-          </h3>
-          <div className="flex flex-wrap gap-2">
-            {(stack || []).map((tech, i) => (
-              <span
-                key={`${tech}-${i}`}
-                className={`
-                flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border
-                ${
-                  theme === "dark"
-                    ? "bg-purple-500/10 border-purple-500/20 text-purple-400"
-                    : "bg-purple-50 border-purple-200 text-purple-700"
-                }
-              `}
-              >
-                <Code className="size-3" />
-                {tech}
-              </span>
-            ))}
+        {/* Stack Tecnológico */}
+        {stack && stack.length > 0 && (
+          <div className="flex flex-col gap-2.5 pt-2 border-t border-white/[0.06]">
+            <h3
+              className={`text-xs font-mono uppercase tracking-[0.18em] flex items-center gap-1.5 ${
+                theme === "dark" ? "text-white/40" : "text-gray-500"
+              }`}
+            >
+              <Code size={14} />
+              {t("technology_stack")}
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {stack.map((tech, i) => (
+                <span
+                  key={`${tech}-${i}`}
+                  className={`
+                    px-3 py-1.5 rounded-lg text-xs font-mono border transition-colors
+                    ${
+                      theme === "dark"
+                        ? "bg-[#141418] border-white/[0.06] text-[#A1A1AA] hover:border-white/15"
+                        : "bg-gray-100 border-gray-200 text-gray-800"
+                    }
+                  `}
+                >
+                  {tech}
+                </span>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
-        <div>
-          <h3
-            className={`text-lg font-semibold mb-3 ${
-              theme === "dark" ? "text-white" : "text-gray-900"
-            }`}
-          >
-            {t("tags")}
-          </h3>
-          <div className="flex flex-wrap gap-2">
-            {(tags || []).map((tag, i) => (
-              <span
-                key={`${tag}-${i}`}
-                className={`
-                px-3 py-1.5 rounded-lg text-xs font-medium border
-                ${
-                  theme === "dark"
-                    ? "bg-white/5 border-white/10 text-gray-300"
-                    : "bg-gray-100 border-gray-200 text-gray-700"
-                }
-              `}
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        </div>
       </div>
     );
   },

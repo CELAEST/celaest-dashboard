@@ -38,16 +38,16 @@ export const TeamMembers: React.FC<TeamMembersProps> = memo(
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 sm:mb-8">
           <div>
             <h3
-              className={`text-lg font-bold flex items-center gap-2 ${
+              className={`text-base font-bold font-jakarta flex items-center gap-2 ${
                 isDark ? "text-white" : "text-gray-900"
               }`}
             >
-              <Users className="w-5 h-5 text-cyan-500" />
+              <Users className={`w-5 h-5 ${isDark ? "text-white/80" : "text-gray-700"}`} />
               {t("team_members")}
             </h3>
             <p
-              className={`text-sm mt-1 ${
-                isDark ? "text-gray-500" : "text-gray-400"
+              className={`text-xs font-mono mt-1 ${
+                isDark ? "text-white/40" : "text-gray-400"
               }`}
             >
               {t("team_members_desc")}
@@ -55,30 +55,28 @@ export const TeamMembers: React.FC<TeamMembersProps> = memo(
           </div>
           <button
             onClick={onInviteClick}
-            className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-bold transition-all shadow-sm active:scale-95 w-full sm:w-auto shrink-0"
+            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white text-black hover:bg-neutral-200 text-xs font-semibold uppercase tracking-wider transition-all shadow-md cursor-pointer w-full sm:w-auto shrink-0 font-jakarta"
           >
-            <UserPlus size={16} />
+            <UserPlus size={14} weight="bold" />
             {t("invite_member")}
           </button>
         </div>
 
-        <div className="space-y-3 sm:space-y-4">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 sm:gap-4">
           {members.map((member) => (
             <div
               key={member.id}
               className={`p-3 sm:p-4 rounded-xl border transition-all ${
                 isDark
-                  ? "bg-black/20 border-white/5"
+                  ? "bg-white/[0.02] border-white/[0.05] hover:border-white/[0.12]"
                   : "bg-gray-50 border-gray-100"
               }`}
             >
               {/* Mobile: stacked layout / Desktop: horizontal row */}
               <div className="flex items-center gap-3 sm:gap-4">
                 <div
-                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-white shadow-sm shrink-0 text-sm ${
-                    member.role === "owner"
-                      ? "bg-linear-to-br from-cyan-500 to-blue-500"
-                      : "bg-gray-500"
+                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center font-bold font-mono text-white shadow-sm shrink-0 text-sm border ${
+                    isDark ? "bg-white/[0.04] border-white/8 text-white" : "bg-gray-700 text-white border-transparent"
                   }`}
                 >
                   {member.name[0]?.toUpperCase()}
@@ -86,21 +84,21 @@ export const TeamMembers: React.FC<TeamMembersProps> = memo(
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <p
-                      className={`font-bold text-sm truncate ${
-                        isDark ? "text-white" : "text-gray-900"
+                      className={`font-semibold text-sm truncate font-mono ${
+                        isDark ? "text-zinc-100" : "text-gray-900"
                       }`}
                     >
                       {member.name}
                     </p>
                     {member.status === "pending" && (
-                      <span className="px-1.5 py-0.5 rounded text-[10px] font-black bg-amber-500/10 text-amber-500 border border-amber-500/20 shrink-0">
+                      <span className="px-2 py-0.5 rounded-full text-[9px] font-mono uppercase bg-amber-500/10 text-amber-300 border border-amber-500/20 shrink-0">
                         {t("pending_badge")}
                       </span>
                     )}
                   </div>
                   <p
-                    className={`text-xs truncate ${
-                      isDark ? "text-gray-500" : "text-gray-400"
+                    className={`text-xs truncate font-mono ${
+                      isDark ? "text-white/40" : "text-gray-400"
                     }`}
                   >
                     {member.email}
@@ -111,12 +109,10 @@ export const TeamMembers: React.FC<TeamMembersProps> = memo(
                 <div className="hidden sm:flex items-center gap-3 shrink-0">
                   {member.role === "owner" || readOnly ? (
                     <div
-                      className={`px-2.5 py-1 rounded-lg text-[10px] font-black tracking-widest uppercase border transition-all ${
-                        member.role === "owner"
-                          ? "bg-cyan-500/10 text-cyan-500 border-cyan-500/20"
-                          : isDark
-                            ? "bg-gray-800 text-gray-500 border-white/5"
-                            : "bg-gray-200 text-gray-500 border-gray-100"
+                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono tracking-wider uppercase border transition-all ${
+                        isDark
+                          ? "bg-white/[0.04] text-white/70 border-white/8"
+                          : "bg-gray-200 text-gray-700 border-gray-200"
                       }`}
                     >
                       {member.role}
@@ -127,12 +123,10 @@ export const TeamMembers: React.FC<TeamMembersProps> = memo(
                       onChange={(e) =>
                         onUpdateRole && onUpdateRole(member.id, e.target.value)
                       }
-                      className={`px-2.5 py-1 rounded-lg text-[10px] font-black tracking-widest uppercase border transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-cyan-500/50 ${
-                        member.role === "admin"
-                          ? "bg-purple-500/10 text-purple-500 border-purple-500/20"
-                          : isDark
-                            ? "bg-gray-800 text-gray-500 border-white/5"
-                            : "bg-gray-200 text-gray-500 border-gray-100"
+                      className={`px-2.5 py-1 rounded-lg text-[10px] font-mono tracking-wider uppercase border transition-all cursor-pointer focus:outline-none ${
+                        isDark
+                          ? "bg-white/[0.04] text-white border-white/10"
+                          : "bg-white text-gray-800 border-gray-200"
                       }`}
                     >
                       <option value="admin">{t("role_admin")}</option>
@@ -144,13 +138,13 @@ export const TeamMembers: React.FC<TeamMembersProps> = memo(
                   {member.role !== "owner" && !readOnly && (
                     <button
                       onClick={() => onRemoveMember && onRemoveMember(member.id)}
-                      className={`p-2 rounded-lg transition-colors ${
+                      className={`p-2 rounded-lg transition-colors cursor-pointer ${
                         isDark
-                          ? "text-gray-600 hover:text-red-400 hover:bg-red-500/10"
+                          ? "text-white/40 hover:text-red-400 hover:bg-red-500/10"
                           : "text-gray-400 hover:text-red-600 hover:bg-red-50"
                       }`}
                     >
-                      <Trash size={16} />
+                      <Trash size={15} />
                     </button>
                   )}
                 </div>
@@ -160,12 +154,10 @@ export const TeamMembers: React.FC<TeamMembersProps> = memo(
               <div className="flex sm:hidden items-center justify-between mt-3 pt-3 border-t border-dashed border-white/5 dark:border-white/5">
                 {member.role === "owner" || readOnly ? (
                   <div
-                    className={`px-2.5 py-1 rounded-lg text-[10px] font-black tracking-widest uppercase border ${
-                      member.role === "owner"
-                        ? "bg-cyan-500/10 text-cyan-500 border-cyan-500/20"
-                        : isDark
-                          ? "bg-gray-800 text-gray-500 border-white/5"
-                          : "bg-gray-200 text-gray-500 border-gray-100"
+                    className={`px-2 py-0.5 rounded text-[10px] font-mono tracking-wider uppercase border ${
+                      isDark
+                        ? "bg-white/[0.04] text-white/70 border-white/8"
+                        : "bg-gray-200 text-gray-700 border-gray-200"
                     }`}
                   >
                     {member.role}
@@ -176,12 +168,10 @@ export const TeamMembers: React.FC<TeamMembersProps> = memo(
                     onChange={(e) =>
                       onUpdateRole && onUpdateRole(member.id, e.target.value)
                     }
-                    className={`px-2.5 py-1.5 rounded-lg text-[10px] font-black tracking-widest uppercase border cursor-pointer focus:outline-none focus:ring-1 focus:ring-cyan-500/50 ${
-                      member.role === "admin"
-                        ? "bg-purple-500/10 text-purple-500 border-purple-500/20"
-                        : isDark
-                          ? "bg-gray-800 text-gray-500 border-white/5"
-                          : "bg-gray-200 text-gray-500 border-gray-100"
+                    className={`px-2.5 py-1.5 rounded-lg text-[10px] font-mono tracking-wider uppercase border cursor-pointer focus:outline-none ${
+                      isDark
+                        ? "bg-white/[0.04] text-white border-white/10"
+                        : "bg-white text-gray-800 border-gray-200"
                     }`}
                   >
                     <option value="admin">{t("role_admin")}</option>

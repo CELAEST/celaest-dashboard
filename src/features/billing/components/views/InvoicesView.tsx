@@ -1,4 +1,4 @@
-import React from "react";
+import { useState, useRef } from "react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { InvoiceHistoryTable } from "../InvoiceHistory/InvoiceHistoryTable";
 import { useInvoicesQuery } from "../../hooks/useInvoicesQuery";
@@ -9,8 +9,6 @@ import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 import { billingApi } from "../../api/billing.api";
 import { toast } from "sonner";
 import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
-import { TableChrome } from "@/components/layout/TableChrome";
-import { useState, useRef } from "react";
 import { AestheticInvoiceTemplate } from "../InvoiceHistory/AestheticInvoiceTemplate";
 import * as htmlToImage from "html-to-image";
 import jsPDF from "jspdf";
@@ -112,44 +110,29 @@ export const InvoicesView = () => {
 
   if (isLoading) {
     return (
-      <div className="flex-1 min-h-0 px-4 pb-4">
+      <div className="flex-1 min-h-0 px-4 sm:px-6 pt-4 sm:pt-5 pb-4 sm:pb-6 overflow-hidden flex flex-col">
         <TableSkeleton rows={6} columns={5} />
       </div>
     );
   }
 
   return (
-    <div className="flex-1 min-h-0 px-4 pb-4 overflow-hidden">
-      <TableChrome
-        toolbar={
-          <div className="flex items-center justify-between w-full">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-              <span className={`text-xs font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>
-                {t("all_invoices")}
-              </span>
-            </div>
-            <span className={`text-[11px] tabular-nums ${isDark ? "text-gray-500" : "text-gray-400"}`}>
-              {invoices.length > 0 ? t("showing_invoices", { current: invoices.length, total: totalInvoices }) : ""}
-            </span>
-          </div>
-        }
-      >
-        <InvoiceHistoryTable
-          invoices={invoices}
-          isDark={isDark}
-          downloadingId={downloadingId}
-          onDownload={handleDownload}
-          onVoid={isAdminOrHigher ? (id) => voidMutation.mutate(id) : undefined}
-          onPay={isAdminOrHigher ? (id) => payMutation.mutate(id) : undefined}
-          isLoadingAction={voidMutation.isPending || payMutation.isPending}
-          isLoading={isLoading}
-          totalItems={totalInvoices}
-          hasNextPage={hasNextPage}
-          isFetchingNextPage={isFetchingNextPage}
-          onLoadMore={fetchNextPage}
-        />
-      </TableChrome>
+    <div className="flex-1 min-h-0 px-4 sm:px-6 pt-4 sm:pt-5 pb-4 sm:pb-6 overflow-hidden flex flex-col">
+      <InvoiceHistoryTable
+        invoices={invoices}
+        isDark={isDark}
+        downloadingId={downloadingId}
+        onDownload={handleDownload}
+        onVoid={isAdminOrHigher ? (id) => voidMutation.mutate(id) : undefined}
+        onPay={isAdminOrHigher ? (id) => payMutation.mutate(id) : undefined}
+        isLoadingAction={voidMutation.isPending || payMutation.isPending}
+        isLoading={isLoading}
+        totalItems={totalInvoices}
+        hasNextPage={hasNextPage}
+        isFetchingNextPage={isFetchingNextPage}
+        onLoadMore={fetchNextPage}
+        hideFooter
+      />
       
       {/* Hidden container for PDF generation */}
       <div className="fixed top-0 left-[-10000px] pointer-events-none z-[-1]">

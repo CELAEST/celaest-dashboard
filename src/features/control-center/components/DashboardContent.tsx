@@ -16,10 +16,8 @@ import { useTranslations } from "next-intl";
 // Layout primitives
 import {
   PageLayout,
-  PageBanner,
   PageContent,
 } from "@/components/layout/PageLayout";
-import { TableChrome } from "@/components/layout/TableChrome";
 
 // Static imports
 import { OrdersTable } from "@/features/billing/components/OrdersTable";
@@ -104,81 +102,103 @@ const SuperAdminDashboard = ({
 
   return (
     <PageLayout>
-      {/* Header */}
-      <PageBanner
-        title={t("command_center")}
-        subtitle={
-          orgId
-            ? `SYS ${orgId.split("-")[0].toUpperCase()} · ${
-                loading
-                  ? t("connecting")
-                  : health?.status === "healthy"
-                    ? t("system_healthy")
-                    : error
-                      ? t("offline")
-                      : t("connecting")
-              }`
-            : t("system_overview")
-        }
-        actions={
-          <div className="flex items-center gap-3">
-            {/* Tab Controls — inline with title */}
-            <div
-              className={`flex items-center p-0.5 rounded-lg ${isDark ? "bg-white/5 border border-white/5" : "bg-gray-100 border border-gray-200"}`}
-            >
-              <button
-                onClick={() => setActiveTab("metrics")}
-                className={`px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 transition-all duration-200 ${
-                  activeTab === "metrics"
-                    ? isDark
-                      ? "bg-blue-500/15 text-blue-400"
-                      : "bg-white text-blue-600 shadow-sm"
-                    : isDark
-                      ? "text-gray-500 hover:text-gray-300"
-                      : "text-gray-500 hover:text-gray-700"
-                }`}
-              >
-                <SquaresFour size={12} />
-                {t("overview")}
-              </button>
-              <button
-                onClick={() => setActiveTab("feed")}
-                className={`px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 transition-all duration-200 ${
-                  activeTab === "feed"
-                    ? isDark
-                      ? "bg-blue-500/15 text-blue-400"
-                      : "bg-white text-blue-600 shadow-sm"
-                    : isDark
-                      ? "text-gray-500 hover:text-gray-300"
-                      : "text-gray-500 hover:text-gray-700"
-                }`}
-              >
-                <List size={12} />
-                {t("orders")}
-              </button>
-            </div>
+      {/* Sleek luxury header — space-saving, pure contrast */}
+      <header
+        className={`shrink-0 px-4 sm:px-6 py-3.5 flex items-center justify-between border-b backdrop-blur-xl transition-colors duration-200 ${
+          isDark ? "bg-[#09090b]/80 border-white/6" : "bg-white/80 border-gray-200/80"
+        }`}
+      >
+        <div className="flex items-center gap-3 min-w-0">
+          <h1
+            className={`text-sm sm:text-base font-semibold tracking-tight ${
+              isDark ? "text-zinc-100" : "text-gray-900"
+            }`}
+          >
+            {activeTab === "feed" ? t("my_orders") : t("command_center")}
+          </h1>
+          <span
+            className={`text-[10px] sm:text-[11px] font-mono tracking-wider uppercase border-l pl-3 ${
+              isDark ? "border-white/10 text-white/40" : "border-gray-200 text-gray-400"
+            }`}
+          >
+            {activeTab === "feed"
+              ? t("order_history")
+              : orgId
+                ? `SYS ${orgId.split("-")[0].toUpperCase()} · ${
+                    loading
+                      ? t("connecting")
+                      : health?.status === "healthy"
+                        ? t("system_healthy")
+                        : error
+                          ? t("offline")
+                          : t("connecting")
+                  }`
+                : t("system_overview")}
+          </span>
+        </div>
 
-            <div
-              className={`px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 ${isDark ? "bg-black/40 border border-white/10 text-gray-400" : "bg-white border border-gray-200 text-gray-600"}`}
-            >
-              <Shield className="w-3 h-3 text-emerald-500" />
-              <span>{tCommon("secure")}</span>
-            </div>
+        {/* Tab Controls & Diagnostics */}
+        <div className="flex items-center gap-2.5">
+          <div
+            className={`flex items-center p-0.5 rounded-lg ${
+              isDark ? "bg-white/5 border border-white/6" : "bg-gray-100 border border-gray-200"
+            }`}
+          >
             <button
-              onClick={handleRunDiagnostics}
-              disabled={loading || isRefreshing}
-              className={`px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 transition-all duration-200 ease-out border ${
-                isDark
-                  ? "bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border-blue-500/30"
-                  : "bg-white hover:bg-gray-50 text-blue-600 border-gray-200 shadow-sm"
-              } disabled:opacity-50`}
+              onClick={() => setActiveTab("metrics")}
+              className={`px-2.5 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider flex items-center gap-1.5 transition-colors ${
+                activeTab === "metrics"
+                  ? isDark
+                    ? "bg-white/10 text-white shadow-xs"
+                    : "bg-white text-gray-900 shadow-xs"
+                  : isDark
+                    ? "text-white/40 hover:text-white"
+                    : "text-gray-500 hover:text-gray-900"
+              }`}
             >
-              <Terminal size={12} />
-              {loading || isRefreshing ? tCommon("loading") : t("run_diagnostics")}
+              <SquaresFour size={12} />
+              {t("overview")}
+            </button>
+            <button
+              onClick={() => setActiveTab("feed")}
+              className={`px-2.5 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider flex items-center gap-1.5 transition-colors ${
+                activeTab === "feed"
+                  ? isDark
+                    ? "bg-white/10 text-white shadow-xs"
+                    : "bg-white text-gray-900 shadow-xs"
+                  : isDark
+                    ? "text-white/40 hover:text-white"
+                    : "text-gray-500 hover:text-gray-900"
+              }`}
+            >
+              <List size={12} />
+              {t("orders")}
             </button>
           </div>
-        }
-      />
+
+          <div
+            className={`hidden sm:flex px-2.5 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider items-center gap-1.5 ${
+              isDark ? "bg-white/3 border border-white/6 text-white/50" : "bg-white border border-gray-200 text-gray-600"
+            }`}
+          >
+            <Shield className="w-3 h-3 text-emerald-400" />
+            <span>{tCommon("secure")}</span>
+          </div>
+
+          <button
+            onClick={handleRunDiagnostics}
+            disabled={loading || isRefreshing}
+            className={`px-2.5 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider flex items-center gap-1.5 transition-colors border ${
+              isDark
+                ? "bg-white/5 hover:bg-white/10 text-white/80 border-white/8 hover:text-white"
+                : "bg-white hover:bg-gray-50 text-gray-700 border-gray-200 shadow-xs"
+            } disabled:opacity-50`}
+          >
+            <Terminal size={12} />
+            {loading || isRefreshing ? tCommon("loading") : t("run_diagnostics")}
+          </button>
+        </div>
+      </header>
 
       {/* Main Content */}
       <PageContent>
@@ -312,31 +332,9 @@ const SuperAdminDashboard = ({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
-              className="h-full"
+              className="h-full flex flex-col min-h-0"
             >
-              <TableChrome
-                toolbar={
-                  <div className="flex items-center justify-between w-full">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                      <span
-                        className={`text-xs font-semibold ${isDark ? "text-white" : "text-gray-900"}`}
-                      >
-                        {t("all_orders")}
-                      </span>
-                    </div>
-                    <span
-                      className={`text-[11px] tabular-nums ${isDark ? "text-gray-500" : "text-gray-400"}`}
-                    >
-                      {dashboard?.total_orders != null
-                        ? tCommon("showing_entries", { count: dashboard.total_orders })
-                        : ""}
-                    </span>
-                  </div>
-                }
-              >
-                <OrdersTable hideFooter />
-              </TableChrome>
+              <OrdersTable hideFooter />
             </motion.div>
           )}
         </AnimatePresence>
@@ -356,36 +354,35 @@ const ClientDashboard = ({
   const t = useTranslations("dashboard");
   return (
     <PageLayout>
-      <PageBanner
-        title={orgId ? t("my_orders") : t("welcome")}
-        subtitle={
-          orgId
-            ? t("order_history")
-            : t("activate_account")
-        }
-      />
+      {/* Sleek luxury header — space-saving, pure contrast */}
+      <header
+        className={`shrink-0 px-4 sm:px-6 py-3.5 flex items-center justify-between border-b backdrop-blur-xl transition-colors duration-200 ${
+          isDark ? "bg-[#09090b]/80 border-white/6" : "bg-white/80 border-gray-200/80"
+        }`}
+      >
+        <div className="flex items-center gap-3 min-w-0">
+          <h1
+            className={`text-sm sm:text-base font-semibold tracking-tight ${
+              isDark ? "text-zinc-100" : "text-gray-900"
+            }`}
+          >
+            {orgId ? t("my_orders") : t("welcome")}
+          </h1>
+          <span
+            className={`text-[10px] sm:text-[11px] font-mono tracking-wider uppercase border-l pl-3 ${
+              isDark ? "border-white/10 text-white/40" : "border-gray-200 text-gray-400"
+            }`}
+          >
+            {orgId ? t("order_history") : t("activate_account")}
+          </span>
+        </div>
+      </header>
+
+      {/* Main Content — SOLO LA TABLA */}
       <PageContent>
-        <TableChrome
-          toolbar={
-            <div className="flex items-center justify-between w-full">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                <span
-                  className={`text-xs font-semibold ${isDark ? "text-white" : "text-gray-900"}`}
-                >
-                  {t("order_history")}
-                </span>
-              </div>
-              <span
-                className={`text-[11px] tabular-nums ${isDark ? "text-gray-500" : "text-gray-400"}`}
-              >
-                {t("your_purchases")}
-              </span>
-            </div>
-          }
-        >
+        <div className="flex-1 min-h-0 flex flex-col">
           <OrdersTable hideFooter />
-        </TableChrome>
+        </div>
       </PageContent>
     </PageLayout>
   );

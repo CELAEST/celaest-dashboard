@@ -9,16 +9,11 @@ export const SettingsHeader: React.FC = memo(() => {
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-4">
         <div
-          className={`p-3 rounded-2xl ${
-            isDark
-              ? "bg-linear-to-br from-cyan-500/20 to-purple-500/20 border border-white/5"
-              : "bg-linear-to-br from-cyan-100 to-purple-100 border border-gray-200"
+          className={`w-10 h-10 rounded-xl flex items-center justify-center border transition-colors ${
+            isDark ? "bg-white/[0.04] border-white/10 text-white/70" : "bg-gray-100 border-gray-200 text-gray-700"
           }`}
         >
-          <Gear
-            size={24}
-            className={isDark ? "text-cyan-400" : "text-cyan-600"}
-          />
+          <Gear size={20} />
         </div>
         <div>
           <h1
@@ -41,7 +36,7 @@ export const SettingsHeader: React.FC = memo(() => {
       <div
         className={`flex items-center gap-3 border px-4 py-2.5 rounded-xl transition-all duration-300 ${
           isDark
-            ? "bg-black/40 border-white/10 shadow-lg shadow-black/20"
+            ? "bg-[#09090b]/80 border-white/6 backdrop-blur-xl"
             : "bg-white border-gray-200 shadow-sm"
         }`}
       >

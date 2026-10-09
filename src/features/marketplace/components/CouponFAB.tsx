@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { useMarketplaceCouponStore } from "../store";
@@ -26,6 +28,8 @@ export function CouponFAB({ onRequireLogin }: CouponFABProps = {}) {
 
   const [isOpen, setIsOpen] = useState(false);
   const [isPlansOpen, setIsPlansOpen] = useState(false);
+  const [isPlanHovered, setIsPlanHovered] = useState(false);
+  const [isCouponHovered, setIsCouponHovered] = useState(false);
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -129,9 +133,6 @@ export function CouponFAB({ onRequireLogin }: CouponFABProps = {}) {
     setLoading(true);
     setError(null);
     try {
-      // Usar token y orgId asumiendo un rol de usuario validando su propio cupón
-      // Si el usuario no está logueado, esto requeriría un endpoint público.
-      // Por ahora el dashboard requiere login, así que usar los tokens actuales funciona.
       const result = await couponsService.validateCoupon(
         code.trim(),
         token,
@@ -170,11 +171,6 @@ export function CouponFAB({ onRequireLogin }: CouponFABProps = {}) {
     }
   };
 
-  // Coupon `value` for fixed_amount is denominated in USD on the backend.
-  // Show it in the user's local currency (e.g. "$83.000 COP off") so the
-  // displayed savings match what they'll actually be discounted at checkout
-  // — the same conversion (USD × exchange_rate) we apply on product cards
-  // and the purchase flow.
   const { format: formatLocalPrice, isGeoPriced } = useLocalProductPrice();
   const currentSavingsText = activeCoupon
     ? activeCoupon.type === "percentage"
@@ -188,143 +184,227 @@ export function CouponFAB({ onRequireLogin }: CouponFABProps = {}) {
 
   return (
     <>
-      <div ref={containerRef} className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3 group">
-        {/* Popover Bubble for Coupons */}
+      <div ref={containerRef} className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2.5">
+        {/* Popover Bubble for Coupons (Obsidian Enterprise Standard) */}
         <AnimatePresence>
           {isOpen && (
             <motion.div
               layout
-              initial={{ opacity: 0, y: 10, scale: 0.95 }}
+              initial={{ opacity: 0, y: 10, scale: 0.96 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.15 } }}
-              transition={{ type: "spring", stiffness: 300, damping: 25 }}
-              className="mb-2 w-72 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden origin-bottom-right"
+              exit={{ opacity: 0, scale: 0.96, transition: { duration: 0.15 } }}
+              transition={{ type: "spring", stiffness: 350, damping: 28 }}
+              className="mb-1 w-84 bg-[#09090B] border border-white/[0.08] rounded-2xl shadow-[0_24px_60px_rgba(0,0,0,0.95)] overflow-hidden origin-bottom-right font-jakarta relative"
             >
-              <div className="p-4 border-b border-white/10 flex justify-between items-center bg-white/5">
-              <h3 className="text-sm font-medium text-white flex items-center gap-2">
-                <Tag className="w-4 h-4 text-cyan-400" />
-                {t("apply_coupon")}
-              </h3>
-              <button
-                onClick={() => setIsOpen(false)}
-                className="text-gray-400 hover:text-white transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
+              {/* 4 Tokyo architectural corner ticks */}
+              <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-white/20 pointer-events-none" />
+              <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-white/20 pointer-events-none" />
+              <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-white/20 pointer-events-none" />
+              <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-white/20 pointer-events-none" />
+
+              {/* Header */}
+              <div className="px-4 py-3.5 border-b border-white/[0.06] flex items-center justify-between bg-white/[0.015]">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-[#141418] border border-white/[0.06] flex items-center justify-center">
+                    <Tag className="w-3.5 h-3.5 text-emerald-400" weight="bold" />
+                  </div>
+                  <div>
+                    <span className="block text-[9px] font-mono uppercase tracking-[0.18em] text-white/40 leading-none mb-1">
+                      MÓDULO DE PROMOCIÓN
+                    </span>
+                    <h3 className="text-xs font-bold text-white tracking-tight leading-none">
+                      {t("apply_coupon")}
+                    </h3>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsOpen(false)}
+                  className="w-6 h-6 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-white/50 hover:text-white transition-colors flex items-center justify-center cursor-pointer"
+                  aria-label="Cerrar"
+                >
+                  <X className="w-3.5 h-3.5" weight="bold" />
+                </button>
+              </div>
+
+              <div className="p-4 flex flex-col gap-3">
+                {activeCoupon ? (
+                  <div className="flex flex-col gap-3">
+                    {/* Tarjeta Limpia de Cupón Activo (Zero Bolitas, Zero Redundancia) */}
+                    <div className="p-4 rounded-xl bg-[#0D0D11] border border-white/[0.06] flex items-center justify-between">
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-[10px] font-mono uppercase tracking-[0.18em] text-white/40">
+                          {t("active_code")}
+                        </span>
+                        <span className="text-sm font-bold font-mono tracking-widest text-white">
+                          {activeCoupon.code}
+                        </span>
+                      </div>
+                      <div className="text-right flex flex-col items-end gap-0.5">
+                        <span className="text-[10px] font-mono uppercase tracking-[0.18em] text-white/40">
+                          {t("discount")}
+                        </span>
+                        <span className="text-sm font-bold font-mono text-emerald-400">
+                          {activeCoupon.type === "percentage" ? `-${activeCoupon.value}%` : `-${currentSavingsText}`}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Botón de Remoción Minimalista */}
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        clearCoupon();
+                        if (token) {
+                          await settingsApi.updatePreferences(
+                            { marketplace_active_coupon: null },
+                            token,
+                          );
+                        }
+                        setIsOpen(false);
+                      }}
+                      className="w-full py-2.5 rounded-xl bg-[#141418] hover:bg-[#1A1A20] border border-white/[0.06] hover:border-red-500/25 text-white/60 hover:text-red-400 text-xs font-mono uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer font-jakarta"
+                    >
+                      <X size={12} weight="bold" />
+                      <span>{t("remove_coupon")}</span>
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] font-mono uppercase tracking-[0.16em] text-white/50">
+                        {t("coupon_code")}
+                      </label>
+                      <input
+                        type="text"
+                        value={code}
+                        onChange={(e) => setCode(e.target.value.toUpperCase())}
+                        placeholder={t("coupon_placeholder")}
+                        className="w-full bg-[#0D0D11] border border-white/[0.08] focus:border-white/25 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-white/25 focus:outline-none uppercase font-mono tracking-wider transition-colors"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            void handleApply();
+                          }
+                        }}
+                      />
+                      {error && (
+                        <p className="text-[11px] text-red-400 mt-0.5 font-jakarta flex items-center gap-1">
+                          {error}
+                        </p>
+                      )}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => void handleApply()}
+                      disabled={!code.trim() || loading}
+                      className="w-full py-2.5 bg-white hover:bg-neutral-200 text-black text-xs font-bold uppercase tracking-wider rounded-xl disabled:opacity-40 disabled:cursor-not-allowed transition-all flex justify-center items-center h-9 shadow-md cursor-pointer font-jakarta active:scale-[0.99]"
+                    >
+                      {loading ? (
+                        <CircleNotch className="w-4 h-4 animate-spin text-black" />
+                      ) : (
+                        t("apply_code")
+                      )}
+                    </button>
+                  </>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ── BOTONES FLOTANTES APILADOS (COLAPSADOS 44px CON ÍCONO 100% CENTRADO) ── */}
+        <div className="flex flex-col items-end gap-2.5">
+          {/* 1. Botón Superior: Planes & Upgrade */}
+          <motion.button
+            layout
+            transition={{ type: "spring", stiffness: 350, damping: 28 }}
+            onMouseEnter={() => setIsPlanHovered(true)}
+            onMouseLeave={() => setIsPlanHovered(false)}
+            onClick={() => requestLoginOrRun(() => setIsPlansOpen(true))}
+            className={`h-11 rounded-full bg-[#0B0B0F]/95 backdrop-blur-2xl border border-white/[0.12] hover:border-amber-400/40 shadow-[0_12px_36px_rgba(0,0,0,0.8)] flex items-center overflow-hidden transition-all duration-300 cursor-pointer ${
+              isPlanHovered
+                ? "w-auto pr-4 pl-0 bg-[#0E0E14]"
+                : "w-11 justify-center p-0"
+            }`}
+          >
+            {/* Contenedor Rígido de Ícono 100% Centrado (44px × 44px) */}
+            <div className="w-11 h-11 flex items-center justify-center shrink-0">
+              <Lightning size={18} weight="fill" className="text-amber-400" />
             </div>
 
-            <div className="p-4 flex flex-col gap-3">
-              {activeCoupon ? (
-                <div className="flex flex-col items-center justify-center p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl gap-2">
-                  <CheckCircle className="w-8 h-8 text-emerald-400" />
-                  <p className="text-emerald-300 font-medium text-sm text-center">
-                    {t("active_code")}:{" "}
-                    <span className="text-white font-bold">
-                      {activeCoupon.code}
-                    </span>
-                  </p>
-                  <div className="mt-2 text-xs text-emerald-400/80 bg-emerald-500/10 px-3 py-1 rounded-full">
-                    {t("discount")}: {currentSavingsText || ""}
-                  </div>
-                  <button
-                    onClick={async () => {
+            {isPlanHovered && (
+              <motion.span
+                initial={{ opacity: 0, x: 4 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="text-xs font-semibold text-white whitespace-nowrap pr-1 -ml-1"
+              >
+                {t("view_plans")}
+              </motion.span>
+            )}
+          </motion.button>
+
+          {/* 2. Botón Inferior: Canjear Cupón */}
+          <motion.button
+            layout
+            transition={{ type: "spring", stiffness: 350, damping: 28 }}
+            onMouseEnter={() => setIsCouponHovered(true)}
+            onMouseLeave={() => setIsCouponHovered(false)}
+            onClick={() => requestLoginOrRun(() => setIsOpen(!isOpen))}
+            className={`h-11 rounded-full bg-[#0B0B0F]/95 backdrop-blur-2xl border shadow-[0_12px_36px_rgba(0,0,0,0.8)] flex items-center overflow-hidden transition-all duration-300 cursor-pointer ${
+              activeCoupon
+                ? "border-emerald-400/30 text-white bg-[#0B0B0F]/95 hover:border-emerald-400/50"
+                : "border-white/[0.12] hover:border-white/30 text-white"
+            } ${
+              isCouponHovered || isOpen
+                ? "w-auto pr-4 pl-0 bg-[#0E0E14]"
+                : "w-11 justify-center p-0"
+            }`}
+          >
+            {/* Contenedor Rígido de Ícono 100% Centrado (44px × 44px) */}
+            <div className="w-11 h-11 flex items-center justify-center shrink-0">
+              <Tag
+                size={18}
+                weight="bold"
+                className={activeCoupon ? "text-emerald-400" : "text-white/80"}
+              />
+            </div>
+
+            {(isCouponHovered || isOpen) && (
+              <motion.div
+                initial={{ opacity: 0, x: 4 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="flex items-center gap-2 whitespace-nowrap pr-2 -ml-1"
+              >
+                <span className="text-xs font-mono font-bold text-white tracking-wider">
+                  {activeCoupon ? activeCoupon.code : t("have_coupon")}
+                </span>
+                {activeCoupon && (
+                  <span className="text-[10px] font-mono font-semibold text-emerald-400">
+                    {activeCoupon.type === "percentage" ? `-${activeCoupon.value}%` : ""}
+                  </span>
+                )}
+                {activeCoupon && (
+                  <span
+                    onClick={(e) => {
+                      e.stopPropagation();
                       clearCoupon();
                       if (token) {
-                        await settingsApi.updatePreferences(
+                        void settingsApi.updatePreferences(
                           { marketplace_active_coupon: null },
                           token,
                         );
                       }
                       setIsOpen(false);
                     }}
-                    className="mt-3 text-xs text-red-400 hover:text-red-300 underline"
+                    className="hover:text-red-400 p-0.5 transition-colors ml-0.5 text-white/40 hover:text-red-400 cursor-pointer"
+                    title={t("remove_coupon")}
                   >
-                    {t("remove_coupon")}
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <div className="flex flex-col gap-1">
-                    <label className="text-xs text-gray-400">{t("coupon_code")}</label>
-                    <input
-                      type="text"
-                      value={code}
-                      onChange={(e) => setCode(e.target.value.toUpperCase())}
-                      placeholder={t("coupon_placeholder")}
-                      className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-cyan-500/50 uppercase"
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          void handleApply();
-                        }
-                      }}
-                    />
-                    {error && (
-                      <p className="text-xs text-red-400 mt-1">{error}</p>
-                    )}
-                  </div>
-
-                  <button
-                    onClick={() => void handleApply()}
-                    disabled={!code.trim() || loading}
-                    className="w-full py-2 bg-linear-to-r from-cyan-500 to-blue-500 text-white text-sm font-medium rounded-lg hover:from-cyan-400 hover:to-blue-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex justify-center items-center h-9"
-                  >
-                    {loading ? (
-                      <CircleNotch className="w-4 h-4 animate-spin" />
-                    ) : (
-                      t("apply_code")
-                    )}
-                  </button>
-                </>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-        {/* FAB Stack Content */}
-        <div className={`flex items-end gap-3 ${isOpen ? "flex-col" : "flex-col-reverse"}`}>
-          {/* Coupons Action Button (Top) */}
-          <motion.button
-            layout
-            transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            onClick={() => requestLoginOrRun(() => setIsOpen(!isOpen))}
-            className={`relative flex items-center justify-start h-12 rounded-full shadow-lg backdrop-blur-xl border transition-all duration-500 ease-out hover:scale-[1.02] active:scale-95 w-12 group-hover:w-[165px] pl-[13px] overflow-hidden group/btn hover:shadow-[0_0_30px_-5px]
-              ${
-                activeCoupon
-                  ? "bg-linear-to-r from-emerald-500/20 to-teal-500/20 border-emerald-500/40 text-emerald-300 hover:shadow-emerald-500/30"
-                  : "bg-linear-to-tr from-cyan-500/20 to-blue-500/20 border-cyan-500/30 text-cyan-300 hover:shadow-cyan-500/30 hover:border-cyan-400/50"
-              }
-            `}
-          >
-            {/* Shimmer Overlay */}
-            <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 ease-in-out" />
-
-            <Tag
-              className={`relative z-10 w-5 h-5 shrink-0 transition-transform duration-300 group-hover/btn:scale-110 ${
-                activeCoupon
-                  ? "text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]"
-                  : "text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]"
-              }`}
-            />
-            <span className="relative z-10 font-bold text-sm whitespace-nowrap overflow-hidden max-w-0 opacity-0 group-hover:max-w-[200px] group-hover:opacity-100 group-hover:ml-3 transition-all duration-500 pointer-events-none">
-              {activeCoupon ? currentSavingsText : t("have_coupon")}
-            </span>
-          </motion.button>
-
-          {/* Plans Action Button */}
-          <motion.button
-            layout
-            transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            onClick={() => requestLoginOrRun(() => setIsPlansOpen(true))}
-            className="relative flex items-center justify-start h-12 rounded-full shadow-lg backdrop-blur-xl border transition-all duration-500 ease-out hover:scale-[1.02] active:scale-95 bg-linear-to-tr from-purple-500/20 to-fuchsia-500/20 border-purple-500/30 text-purple-300 hover:border-purple-400/50 hover:shadow-[0_0_30px_-5px] hover:shadow-purple-500/30 w-12 group-hover:w-[135px] pl-[13px] overflow-hidden group/btn"
-          >
-            {/* Shimmer Overlay */}
-            <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 ease-in-out" />
-
-            <Lightning className="relative z-10 w-5 h-5 shrink-0 text-purple-400 drop-shadow-[0_0_8px_rgba(192,132,252,0.5)] transition-transform duration-300 group-hover/btn:scale-110" />
-            <span className="relative z-10 font-bold text-sm whitespace-nowrap overflow-hidden max-w-0 opacity-0 group-hover:max-w-[200px] group-hover:opacity-100 group-hover:ml-3 transition-all duration-500 pointer-events-none">
-              {t("view_plans")}
-            </span>
+                    <X size={12} weight="bold" />
+                  </span>
+                )}
+              </motion.div>
+            )}
           </motion.button>
         </div>
       </div>

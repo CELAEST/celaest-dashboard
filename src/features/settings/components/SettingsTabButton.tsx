@@ -28,10 +28,12 @@ export function SettingsTabButton({
       onClick={onClick}
       className={`settings-tab-button flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all whitespace-nowrap ${
         isActive
-          ? "bg-cyan-500 text-white shadow-lg shadow-cyan-500/20 active:scale-95"
+          ? isDark
+            ? "bg-zinc-800/40 text-zinc-100 border border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] font-semibold"
+            : "bg-white text-gray-900 border border-black/6 shadow-xs font-semibold"
           : isDark
-            ? "text-gray-400 hover:text-white hover:bg-white/5 active:bg-white/10"
-            : "text-gray-500 hover:text-gray-900 hover:bg-gray-100 active:bg-gray-200"
+            ? "border border-transparent text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40 hover:border-white/8"
+            : "border border-transparent text-zinc-500 hover:text-zinc-900 hover:bg-white hover:border-black/6"
       }`}
     >
       <Icon

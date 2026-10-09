@@ -14,52 +14,36 @@ export const UpdateItemHeader: React.FC<UpdateItemHeaderProps> = memo(
     const t = useTranslations("releases");
 
     return (
-      <div
-        className={`p-4 sm:p-5 ${
-          asset.hasUpdate ? (isDark ? "bg-cyan-500/5" : "bg-cyan-50/30") : ""
-        }`}
-      >
+      <div className="p-4 sm:p-5">
         {/* Top row: Icon + Name + Badge */}
         <div className="flex items-start gap-3 mb-3">
           {/* Product icon */}
           <div
-            className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-              asset.hasUpdate
-                ? isDark
-                  ? "bg-cyan-500/10 border border-cyan-500/20"
-                  : "bg-cyan-100 border border-cyan-200"
-                : isDark
-                  ? "bg-emerald-500/10 border border-emerald-500/20"
-                  : "bg-emerald-100 border border-emerald-200"
+            className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 border transition-colors ${
+              isDark
+                ? "bg-white/[0.04] border-white/8 text-white/80"
+                : "bg-gray-100 border-gray-200 text-gray-700"
             }`}
           >
-            <Package
-              size={18}
-              weight="duotone"
-              className={
-                asset.hasUpdate
-                  ? isDark ? "text-cyan-400" : "text-cyan-600"
-                  : isDark ? "text-emerald-400" : "text-emerald-600"
-              }
-            />
+            <Package size={17} weight="duotone" />
           </div>
 
           {/* Name + status */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <h3
-                className={`text-sm sm:text-base font-bold truncate ${
-                  isDark ? "text-white" : "text-gray-900"
+                className={`text-sm sm:text-base font-semibold tracking-tight truncate ${
+                  isDark ? "text-zinc-100" : "text-gray-900"
                 }`}
               >
                 {asset.name}
               </h3>
               {asset.hasUpdate ? (
                 <span
-                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap ${
+                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono font-semibold uppercase tracking-wider whitespace-nowrap border ${
                     isDark
-                      ? "bg-cyan-500/15 text-cyan-400 border border-cyan-500/25"
-                      : "bg-cyan-100 text-cyan-700 border border-cyan-200"
+                      ? "bg-white/10 text-white border-white/15 shadow-xs"
+                      : "bg-gray-900 text-white border-gray-800 shadow-xs"
                   }`}
                 >
                   <DownloadSimple size={10} weight="bold" />
@@ -67,10 +51,10 @@ export const UpdateItemHeader: React.FC<UpdateItemHeaderProps> = memo(
                 </span>
               ) : (
                 <span
-                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap ${
+                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono uppercase tracking-wider whitespace-nowrap border ${
                     isDark
-                      ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/25"
-                      : "bg-emerald-100 text-emerald-700 border border-emerald-200"
+                      ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                      : "bg-emerald-50 text-emerald-700 border-emerald-200"
                   }`}
                 >
                   <CheckCircle size={10} weight="bold" />
@@ -84,9 +68,13 @@ export const UpdateItemHeader: React.FC<UpdateItemHeaderProps> = memo(
               <div className="flex items-center gap-1.5">
                 <Clock
                   size={12}
-                  className={isDark ? "text-gray-600" : "text-gray-400"}
+                  className={isDark ? "text-white/30" : "text-gray-400"}
                 />
-                <span className={`text-[11px] ${isDark ? "text-gray-500" : "text-gray-500"}`}>
+                <span
+                  className={`text-[10px] font-mono uppercase tracking-wider ${
+                    isDark ? "text-white/40" : "text-gray-500"
+                  }`}
+                >
                   {t("label_purchased")}{" "}
                   {new Date(asset.purchaseDate).toLocaleDateString("en-US", {
                     month: "short",
@@ -94,38 +82,44 @@ export const UpdateItemHeader: React.FC<UpdateItemHeaderProps> = memo(
                   })}
                 </span>
               </div>
-              {asset.compatibility && asset.compatibility !== "null" && asset.compatibility !== "undefined" && (
-                <span
-                  className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${
-                    isDark ? "bg-white/5 text-gray-400" : "bg-gray-100 text-gray-500"
-                  }`}
-                >
-                  {asset.compatibility}
-                </span>
-              )}
+              {asset.compatibility &&
+                asset.compatibility !== "null" &&
+                asset.compatibility !== "undefined" && (
+                  <span
+                    className={`text-[10px] font-mono tracking-wider px-1.5 py-0.5 rounded border ${
+                      isDark
+                        ? "bg-white/[0.02] border-white/6 text-white/40"
+                        : "bg-gray-100 border-gray-200 text-gray-500"
+                    }`}
+                  >
+                    {asset.compatibility}
+                  </span>
+                )}
             </div>
           </div>
         </div>
 
         {/* Version comparison strip */}
         <div
-          className={`flex items-center gap-2 sm:gap-3 rounded-xl p-2.5 sm:p-3 ${
-            isDark ? "bg-white/3 border border-white/5" : "bg-gray-50 border border-gray-100"
+          className={`flex items-center gap-2 sm:gap-3 rounded-lg p-2.5 sm:p-3 border ${
+            isDark
+              ? "bg-white/[0.02] border-white/6"
+              : "bg-gray-50 border-gray-200"
           }`}
         >
           <div className="flex items-center gap-2 min-w-0">
             <span
-              className={`text-[10px] font-bold uppercase tracking-wider shrink-0 ${
-                isDark ? "text-gray-500" : "text-gray-400"
+              className={`text-[10px] font-mono uppercase tracking-wider shrink-0 ${
+                isDark ? "text-white/40" : "text-gray-400"
               }`}
             >
               {t("label_installed")}
             </span>
             <span
-              className={`text-xs font-mono font-bold px-2 py-0.5 rounded-md ${
+              className={`text-xs font-mono font-medium px-2 py-0.5 rounded-md border ${
                 isDark
-                  ? "bg-white/8 text-gray-300 border border-white/5"
-                  : "bg-white text-gray-700 border border-gray-200"
+                  ? "bg-white/[0.04] text-white/70 border-white/8"
+                  : "bg-white text-gray-700 border-gray-200"
               }`}
             >
               v{asset.currentVersion}
@@ -135,22 +129,24 @@ export const UpdateItemHeader: React.FC<UpdateItemHeaderProps> = memo(
           {asset.hasUpdate && (
             <>
               <ArrowRight
-                size={14}
-                className={`shrink-0 ${isDark ? "text-cyan-500/60" : "text-cyan-500"}`}
+                size={13}
+                className={`shrink-0 ${
+                  isDark ? "text-white/30" : "text-gray-400"
+                }`}
               />
               <div className="flex items-center gap-2 min-w-0">
                 <span
-                  className={`text-[10px] font-bold uppercase tracking-wider shrink-0 ${
-                    isDark ? "text-gray-500" : "text-gray-400"
+                  className={`text-[10px] font-mono uppercase tracking-wider shrink-0 ${
+                    isDark ? "text-white/40" : "text-gray-400"
                   }`}
                 >
                   {t("label_latest")}
                 </span>
                 <span
-                  className={`text-xs font-mono font-bold px-2 py-0.5 rounded-md ${
+                  className={`text-xs font-mono font-semibold px-2 py-0.5 rounded-md border ${
                     isDark
-                      ? "bg-cyan-500/15 text-cyan-400 border border-cyan-500/25"
-                      : "bg-cyan-50 text-cyan-700 border border-cyan-200"
+                      ? "bg-white/10 text-white border-white/15"
+                      : "bg-gray-900 text-white border-gray-800"
                   }`}
                 >
                   v{asset.latestVersion}

@@ -1,7 +1,6 @@
 import { logger } from "@/lib/logger";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { X } from "@phosphor-icons/react";
-import { motion } from "motion/react";
 import { toast } from "sonner";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { BillingModal } from "./shared/BillingModal";
@@ -151,142 +150,117 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
       showCloseButton={false}
     >
       <div
-        className={`relative w-full max-h-[94vh] rounded-3xl overflow-hidden flex flex-col ${
+        className={`relative w-full max-h-[94vh] rounded-3xl overflow-hidden flex flex-col font-sans ${
           isDark
-            ? "bg-[#080a0e] border border-white/10 shadow-2xl"
+            ? "bg-[#09090C] border border-white/[0.08] shadow-[0_32px_96px_-12px_rgba(0,0,0,0.95)]"
             : "bg-white border border-gray-200 shadow-2xl"
         }`}
         onClick={(e) => e.stopPropagation()}
       >
-        {isDark && (
-          <div className="absolute inset-0 z-0 pointer-events-none mix-blend-screen opacity-50">
-            {/* Grid background */}
-            <div
-              className="absolute inset-0 opacity-20"
-              style={{
-                backgroundImage: `linear-gradient(to right, rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,1) 1px, transparent 1px)`,
-                backgroundSize: "32px 32px",
-                maskImage: "radial-gradient(ellipse 80% 80% at 50% 0%, black 20%, transparent 100%)",
-                WebkitMaskImage: "radial-gradient(ellipse 80% 80% at 50% 0%, black 20%, transparent 100%)",
-              }}
-            />
-            {/* Subtle glow orbs */}
-            <div className="absolute top-[-10%] left-1/4 w-125 h-100 bg-cyan-500/20 rounded-full blur-[120px]" />
-            <div className="absolute bottom-[-10%] right-1/4 w-100 h-75 bg-purple-500/15 rounded-full blur-[100px]" />
-          </div>
-        )}
+        {/* Tokyo Corner Accents */}
+        <div className="absolute top-0 left-0 w-3.5 h-3.5 border-t-2 border-l-2 border-white/20 rounded-tl-sm pointer-events-none z-20" />
+        <div className="absolute top-0 right-0 w-3.5 h-3.5 border-t-2 border-r-2 border-white/20 rounded-tr-sm pointer-events-none z-20" />
+        <div className="absolute bottom-0 left-0 w-3.5 h-3.5 border-b-2 border-l-2 border-white/20 rounded-bl-sm pointer-events-none z-20" />
+        <div className="absolute bottom-0 right-0 w-3.5 h-3.5 border-b-2 border-r-2 border-white/20 rounded-br-sm pointer-events-none z-20" />
 
-        {/* Content wrapper with z-index to stay above background */}
-        <div className="relative z-10 flex flex-col w-full flex-1 min-h-0">
-          {/* Header */}
-          <div className="relative pt-10 pb-4 px-4 sm:px-6 lg:px-10 text-center shrink-0">
-            <button
-              onClick={onClose}
-              className={`absolute right-4 top-4 w-8 h-8 rounded-full flex items-center justify-center transition-colors z-30 ${
-                isDark
-                  ? "bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white border border-white/5"
-                  : "bg-gray-50 hover:bg-gray-100 text-gray-500 hover:text-gray-900 border border-gray-200"
-              }`}
-            >
-              <X className="w-4 h-4" />
-            </button>
+        {/* Floating Close Button */}
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute top-5 right-5 z-40 w-9 h-9 rounded-full flex items-center justify-center bg-white/[0.06] hover:bg-white/[0.12] text-white/70 hover:text-white transition-all backdrop-blur-md border border-white/10 shadow-lg cursor-pointer"
+        >
+          <X className="w-4 h-4" />
+        </button>
 
-            <div className="flex flex-col items-center justify-center gap-4 w-full max-w-4xl mx-auto px-2 sm:px-6">
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-10 lg:gap-16 w-full">
-                <motion.h2
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className={`text-xl sm:text-2xl lg:text-3xl font-black italic tracking-tight uppercase leading-none ${
-                    isDark ? "text-white" : "text-gray-900"
+        {/* Content wrapper */}
+        <div className="relative z-10 flex flex-col w-full flex-1 min-h-0 pt-6 pb-6 px-4 sm:px-6 lg:px-8">
+          {/* Floating Pill Toggle (Sin cápsula negra, componente sobrepuesto puro) */}
+          <div className="flex flex-col items-center justify-center pb-5 shrink-0 z-20">
+            <div className="inline-flex items-center gap-1.5 p-1 rounded-full bg-transparent">
+              <button
+                type="button"
+                onClick={() => setBillingCycle("monthly")}
+                className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                  billingCycle === "monthly"
+                    ? "bg-white text-black font-bold shadow-[0_2px_12px_rgba(255,255,255,0.2)]"
+                    : "text-white/50 hover:text-white hover:bg-white/[0.04]"
+                }`}
+              >
+                {t("monthly")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setBillingCycle("yearly")}
+                className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center gap-2 ${
+                  billingCycle === "yearly"
+                    ? "bg-white text-black font-bold shadow-[0_2px_12px_rgba(255,255,255,0.2)]"
+                    : "text-white/50 hover:text-white hover:bg-white/[0.04]"
+                }`}
+              >
+                <span>{t("yearly")}</span>
+                <span
+                  className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold ${
+                    billingCycle === "yearly"
+                      ? "bg-black/10 text-black"
+                      : "bg-white/10 text-white"
                   }`}
                 >
-                  {t("choose_your_plan")}
-                </motion.h2>
-
-                <div
-                  className={`shrink-0 grid grid-cols-2 rounded-xl p-1 w-full max-w-[220px] ${
-                    isDark ? "bg-white/5 border border-white/10" : "bg-gray-100 border border-gray-200"
-                  }`}
-                >
-                  {(["monthly", "yearly"] as BillingCycle[]).map((cycle) => (
-                    <button
-                      key={cycle}
-                      type="button"
-                      onClick={() => setBillingCycle(cycle)}
-                      className={`rounded-lg py-2 text-[11px] sm:text-xs font-bold uppercase tracking-widest transition-all duration-200 ${
-                        billingCycle === cycle
-                          ? isDark
-                            ? "bg-white text-gray-950 shadow-md"
-                            : "bg-white text-gray-900 shadow-md border border-gray-200/50"
-                          : isDark
-                            ? "text-gray-400 hover:text-white hover:bg-white/5"
-                            : "text-gray-500 hover:text-gray-900 hover:bg-gray-200/50"
-                      }`}
-                    >
-                      {cycle === "monthly" ? t("monthly") : t("yearly")}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Mobile Plan Tab Switcher */}
-              <div className="flex lg:hidden items-center justify-center w-full mt-4 shrink-0">
-                <div className={`grid grid-cols-3 rounded-xl p-1 w-full max-w-[320px] ${
-                  isDark ? "bg-white/5 border border-white/10" : "bg-gray-100 border border-gray-200"
-                }`}>
-                  {displayPlans.map((plan) => (
-                    <button
-                      key={plan.id}
-                      type="button"
-                      onClick={() => setActiveMobilePlanCode(plan.code)}
-                      className={`rounded-lg py-2 text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
-                        activeMobilePlanCode === plan.code
-                          ? isDark
-                            ? "bg-white text-gray-950 shadow-sm"
-                            : "bg-white text-gray-900 shadow-sm border border-gray-200/50"
-                          : isDark
-                            ? "text-gray-400 hover:text-white"
-                            : "text-gray-500 hover:text-gray-900"
-                      }`}
-                    >
-                      {plan.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
+                  -20%
+                </span>
+              </button>
             </div>
           </div>
 
-          {/* Plans Grid */}
-          <div className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 lg:px-8 pb-6 sm:pb-8 pt-4 sm:pt-5 lg:pt-6">
-            {isBillingLoading ? (
-              <CardGridSkeleton count={3} />
-            ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-5 lg:gap-6 mx-auto place-items-center lg:items-stretch w-full">
-                {displayPlans.map((plan, index) => (
-                  <div
-                    key={plan.id}
-                    className={`${activeMobilePlanCode === plan.code ? "block" : "hidden"} lg:block w-[min(100%,25rem)] lg:w-full lg:max-w-none`}
-                  >
-                    <PlanCard
-                      plan={plan}
-                      index={index}
-                      onClose={onClose}
-                      onSelect={
-                        isRestricted ? undefined : () => handleUpgrade(plan)
-                      }
-                      isLoading={isUpgrading}
-                      activePlanIds={activePlanIds}
-                      isReadOnly={isRestricted}
-                      billingCycle={billingCycle}
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
+        {/* Mobile Plan Tab Switcher */}
+        <div className="flex lg:hidden items-center justify-center w-full mb-2 shrink-0">
+          <div className="grid grid-cols-3 rounded-xl p-1 w-full max-w-[320px] bg-[#0B0C10]/80 border border-white/15 backdrop-blur-xl">
+            {displayPlans.map((plan) => (
+              <button
+                key={plan.id}
+                type="button"
+                onClick={() => setActiveMobilePlanCode(plan.code)}
+                className={`rounded-lg py-2 text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
+                  activeMobilePlanCode === plan.code
+                    ? "bg-white text-black shadow-sm"
+                    : "text-white/50 hover:text-white"
+                }`}
+              >
+                {plan.name}
+              </button>
+            ))}
           </div>
         </div>
+
+        {/* Plans Grid (Tarjetas Obsidian Glass flotando limpias en el espacio con espacio superior completo para el badge) */}
+        <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar overflow-x-hidden pt-6 sm:pt-7 pb-6 px-2">
+          {isBillingLoading ? (
+            <CardGridSkeleton count={3} />
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mx-auto place-items-stretch items-stretch w-full">
+              {displayPlans.map((plan, index) => (
+                <div
+                  key={plan.id}
+                  className={`${activeMobilePlanCode === plan.code ? "block" : "hidden"} lg:block w-[min(100%,25rem)] lg:w-full lg:max-w-none h-full relative hover:z-30 transition-all`}
+                >
+                  <PlanCard
+                    plan={plan}
+                    index={index}
+                    onClose={onClose}
+                    onSelect={
+                      isRestricted ? undefined : () => handleUpgrade(plan)
+                    }
+                    isLoading={isUpgrading}
+                    activePlanIds={activePlanIds}
+                    isReadOnly={isRestricted}
+                    billingCycle={billingCycle}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-    </BillingModal>
+    </div>
+  </BillingModal>
   );
 }

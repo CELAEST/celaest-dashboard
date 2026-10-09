@@ -3,7 +3,6 @@
 import React, { useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X, CheckCircle, CreditCard, DownloadSimple, Check } from "@phosphor-icons/react";
-import { useTheme } from "@/features/shared/hooks/useTheme";
 import { SuccessConfetti } from "@/features/shared/components/SuccessConfetti";
 import { useMarketplaceCouponStore } from "@/features/marketplace/store";
 import { formatCurrency } from "@/lib/utils";
@@ -37,7 +36,6 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
   onSuccess,
 }) => {
   const t = useTranslations("marketplace");
-  const { theme } = useTheme();
   const { navigateTo } = useDashboardRouter();
   const {
     step,
@@ -50,7 +48,7 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
     resetFlow,
   } = usePurchaseFlow(onClose, initialStep, onSuccess);
 
-  const { activeCoupon } = useMarketplaceCouponStore();
+  const { activeCoupon, setCoupon, clearCoupon } = useMarketplaceCouponStore();
   const { pricing, formatPrice } = useGeoPricing();
 
   // Geo-pricing (NO PPP discount for products, only exchange rate)
@@ -63,24 +61,33 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
   // Fixed-amount coupons are denominated in USD; scale to local currency.
   const exchangeRate = pricing?.exchange_rate ?? 1;
   let finalPrice = localBasePrice;
+  let discountAmountValue = 0;
+  let discountPercentage = 0;
+
   if (activeCoupon && product) {
     if (activeCoupon.type === "percentage") {
-      finalPrice = localBasePrice * (1 - activeCoupon.value / 100);
+      discountPercentage = activeCoupon.value;
+      discountAmountValue = localBasePrice * (activeCoupon.value / 100);
+      finalPrice = localBasePrice - discountAmountValue;
     } else if (activeCoupon.type === "fixed_amount") {
       const localDiscount = isGeoPriced
         ? activeCoupon.value * exchangeRate
         : activeCoupon.value;
+      discountAmountValue = localDiscount;
+      discountPercentage = localBasePrice > 0 ? Math.round((localDiscount / localBasePrice) * 100) : 0;
       finalPrice = Math.max(0, localBasePrice - localDiscount);
     }
   }
 
   // Original price for strikethrough — shown in local currency when geo-priced
-  // (we no longer display the USD base price here).
   const formattedOriginalPrice = product
     ? (isGeoPriced ? formatPrice(localBasePrice) : formatCurrency(product.base_price, product.currency))
     : "";
   const formattedFinalPrice = product
     ? (isGeoPriced ? formatPrice(finalPrice) : formatCurrency(finalPrice, product.currency))
+    : "";
+  const formattedDiscountAmount = discountAmountValue > 0
+    ? (isGeoPriced ? formatPrice(discountAmountValue) : formatCurrency(discountAmountValue, product?.currency ?? "USD"))
     : "";
 
   // Close on Escape key
@@ -93,9 +100,9 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
   }, [isOpen, resetFlow]);
 
   const steps = [
-    { number: 1, title: t("confirmation_step"), icon: <CheckCircle size={20} weight="bold" /> },
-    { number: 2, title: t("secure_payment"), icon: <CreditCard size={20} weight="bold" /> },
-    { number: 3, title: t("activation_step"), icon: <DownloadSimple size={20} weight="bold" /> },
+    { number: 1, title: t("confirmation_step"), icon: <CheckCircle size={18} weight="bold" /> },
+    { number: 2, title: t("secure_payment"), icon: <CreditCard size={18} weight="bold" /> },
+    { number: 3, title: t("activation_step"), icon: <DownloadSimple size={18} weight="bold" /> },
   ];
 
   return (
@@ -109,140 +116,127 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={resetFlow}
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-black/85 backdrop-blur-md z-50"
           />
 
-          {/* Modal */}
+          {/* Modal Container: Lingua Standard Golden Ratio (520px) & Pure Obsidian */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            initial={{ opacity: 0, scale: 0.95, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className={`
-              fixed sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 z-50
-              flex flex-col
-              inset-0 sm:inset-auto w-full sm:w-[90%] sm:max-w-2xl
-              h-[100dvh] sm:h-auto rounded-none sm:rounded-3xl overflow-hidden
-              ${
-                theme === "dark"
-                  ? "bg-[#0a0a0a] border-0 sm:border border-white/10"
-                  : "bg-white border-0 sm:border border-gray-200 shadow-2xl"
-              }
-            `}
+            exit={{ opacity: 0, scale: 0.95, y: 15 }}
+            transition={{ duration: 0.2 }}
+            style={{ width: "100%", maxWidth: "520px" }}
+            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 flex flex-col w-[calc(100%-2rem)] max-w-[520px] max-h-[92dvh] rounded-3xl overflow-hidden bg-[#09090B] border border-white/[0.08] shadow-[0_32px_96px_-12px_rgba(0,0,0,0.95)]"
           >
+            {/* Tokyo Corner Accents */}
+            <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-white/10 rounded-tl-sm pointer-events-none z-30" />
+            <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-white/10 rounded-tr-sm pointer-events-none z-30" />
+            <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-white/10 rounded-bl-sm pointer-events-none z-30" />
+            <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-white/10 rounded-br-sm pointer-events-none z-30" />
+
             {/* Close Button */}
             <button
+              type="button"
               onClick={resetFlow}
-              className={`
-                absolute top-4 right-4 z-20 w-10 h-10 rounded-full flex items-center justify-center transition-colors
-                ${
-                  theme === "dark"
-                    ? "bg-white/5 hover:bg-white/10 text-white"
-                    : "bg-gray-100 hover:bg-gray-200 text-gray-900"
-                }
-              `}
+              className="absolute top-4 right-4 z-20 w-9 h-9 rounded-full flex items-center justify-center bg-white/[0.04] hover:bg-white/[0.08] text-white/60 hover:text-white transition-colors cursor-pointer"
             >
-              <X size={20} />
+              <X size={18} />
             </button>
 
-            {/* Progress Steps */}
-            <div className={`shrink-0 px-6 sm:px-20 pt-20 sm:pt-14 pb-6 sm:pb-8 ${theme === "dark" ? "bg-linear-to-b from-white/3 to-transparent" : "bg-linear-to-b from-gray-50/80 to-transparent"}`}>
-              {/* Row: circle — line — circle — line — circle */}
-              <div className="flex items-center justify-center">
-                {steps.map((s, index) => {
-                  const isCompleted = step > s.number;
-                  const isActive = step === s.number;
-                  return (
-                    <React.Fragment key={s.number}>
-                      {/* Circle */}
-                      <div className="relative shrink-0">
-                        {isActive && (
-                          <div className={`absolute inset-0 -m-2 rounded-full ${
-                            theme === "dark"
-                              ? "bg-cyan-500/15 blur-xl"
-                              : "bg-cyan-400/10 blur-xl"
-                          }`} />
-                        )}
-                        <div
-                          className={`
-                            relative w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300
-                            ${
-                              isCompleted
-                                ? theme === "dark"
-                                  ? "bg-cyan-500 text-black"
-                                  : "bg-cyan-500 text-white shadow-md shadow-cyan-500/20"
-                                : isActive
-                                  ? theme === "dark"
-                                    ? "bg-cyan-500 text-black shadow-[0_0_30px_rgba(0,255,255,0.35)]"
-                                    : "bg-cyan-500 text-white shadow-xl shadow-cyan-500/30"
-                                  : theme === "dark"
-                                    ? "bg-white/8 text-gray-500 ring-1 ring-white/20"
-                                    : "bg-gray-100 text-gray-400 ring-1 ring-gray-300"
-                            }
-                          `}
-                        >
-                          {isCompleted ? <Check size={20} weight="bold" /> : s.icon}
-                        </div>
-                      </div>
-                      {/* Connector line */}
-                      {index < steps.length - 1 && (
-                        <div
-                          className={`flex-1 h-[2px] mx-3 sm:mx-5 transition-all duration-500 ${
-                            step > s.number
-                              ? "bg-cyan-400"
-                              : theme === "dark"
-                                ? "bg-white/15"
-                                : "bg-gray-300"
-                          }`}
-                        />
-                      )}
-                    </React.Fragment>
-                  );
-                })}
-              </div>
+            {/* Stepper Header (100% Centrado, simétrico, línea no cruza por debajo de los círculos) */}
+            <div className="shrink-0 px-8 sm:px-12 pt-7 pb-4.5 border-b border-white/[0.06] bg-[#0D0D11]">
+              <div className="flex items-start justify-between w-full max-w-[380px] mx-auto relative">
+                {/* Conector 1: Entre Paso 1 y Paso 2 (Nunca pasa por debajo de ningún círculo) */}
+                <div
+                  className="absolute top-[21px] h-0.5 bg-white/[0.08] z-0 overflow-hidden rounded-full pointer-events-none"
+                  style={{
+                    left: "calc(46px + 24px)",
+                    right: "calc(50% + 24px)",
+                  }}
+                >
+                  <div
+                    className="h-full transition-all duration-300"
+                    style={{
+                      width: step >= 2 ? "100%" : "0%",
+                      backgroundColor: "#FFFFFF",
+                    }}
+                  />
+                </div>
 
-              {/* Labels row — separate from circles for clean alignment */}
-              <div className="flex items-start justify-between mt-4" style={{ paddingLeft: 0, paddingRight: 0 }}>
-                {steps.map((s, index) => {
+                {/* Conector 2: Entre Paso 2 y Paso 3 (Nunca pasa por debajo de ningún círculo) */}
+                <div
+                  className="absolute top-[21px] h-0.5 bg-white/[0.08] z-0 overflow-hidden rounded-full pointer-events-none"
+                  style={{
+                    left: "calc(50% + 24px)",
+                    right: "calc(46px + 24px)",
+                  }}
+                >
+                  <div
+                    className="h-full transition-all duration-300"
+                    style={{
+                      width: step >= 3 ? "100%" : "0%",
+                      backgroundColor: "#FFFFFF",
+                    }}
+                  />
+                </div>
+
+                {steps.map((s) => {
                   const isCompleted = step > s.number;
                   const isActive = step === s.number;
                   return (
-                    <span
-                      key={`label-${s.number}`}
-                      className={`text-[10px] sm:text-xs font-semibold px-1 transition-colors duration-300 ${
-                        index === 0 ? "text-left" : index === steps.length - 1 ? "text-right" : "text-center"
-                      } ${
-                        isCompleted
-                          ? theme === "dark"
-                            ? "text-cyan-400"
-                            : "text-cyan-600"
-                          : isActive
-                            ? theme === "dark"
-                              ? "text-white"
-                              : "text-gray-900"
-                            : theme === "dark"
-                              ? "text-gray-500"
-                              : "text-gray-400"
-                      }`}
-                      style={{ flex: 1 }}
+                    <div
+                      key={s.number}
+                      className="flex flex-col items-center gap-2.5 relative z-10"
+                      style={{ width: "92px" }}
                     >
-                      {s.title}
-                    </span>
+                      <div
+                        className={`w-11 h-11 rounded-full flex items-center justify-center transition-all duration-200 text-xs font-semibold ${
+                          isActive
+                            ? "bg-white text-black shadow-md"
+                            : isCompleted
+                              ? "bg-white/10 text-white border border-white/25"
+                              : "bg-[#121319] text-white/30 border border-white/[0.08]"
+                        }`}
+                      >
+                        {isCompleted ? <Check size={16} weight="bold" /> : s.icon}
+                      </div>
+
+                      <span
+                        className={`text-[11px] sm:text-xs transition-colors text-center truncate w-full ${
+                          isActive
+                            ? "text-white font-semibold"
+                            : isCompleted
+                              ? "text-white/60"
+                              : "text-white/30"
+                        }`}
+                      >
+                        {s.title}
+                      </span>
+                    </div>
                   );
                 })}
               </div>
             </div>
 
-            {/* Divider */}
-            <div className={`shrink-0 h-px ${theme === "dark" ? "bg-white/8" : "bg-gray-200"}`} />
-
-            {/* Content */}
-            <div className="flex-1 overflow-y-auto p-6 sm:p-8 pb-32 sm:pb-8">
+            {/* Content Body */}
+            <div className="flex-1 overflow-y-auto p-6 sm:p-7 space-y-6">
               {step === 1 && product && (
                 <ConfirmationStep
                   product={{ title: product.title, image: product.image }}
                   originalPrice={formattedOriginalPrice}
                   finalPrice={formattedFinalPrice}
                   hasCoupon={!!activeCoupon}
+                  couponCode={activeCoupon?.code}
+                  discountAmount={formattedDiscountAmount}
+                  discountPercentage={discountPercentage || 20}
+                  onRemoveCoupon={clearCoupon}
+                  onApplyCoupon={(code) => {
+                    setCoupon({
+                      code,
+                      type: "percentage",
+                      value: 20,
+                    });
+                  }}
                   onContinue={() => handlePurchase(product.id)}
                 />
               )}
@@ -265,8 +259,6 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
                   onGoToAssets={() => {
                     if (product) {
                       navigateTo("catalog");
-                      // Use dispatch event or state approach to open modal for product.id
-                      // Setting a sessionStorage item is the most robust way across navigation boundaries
                       sessionStorage.setItem("open_asset_modal_id", product.id);
                     }
                     resetFlow();

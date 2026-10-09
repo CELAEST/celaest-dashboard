@@ -59,18 +59,18 @@ export const ReviewList: React.FC<ReviewListProps> = ({
       <div
         className={`flex flex-col items-center justify-center rounded-2xl border border-dashed py-12 text-center ${
           isDark
-            ? "border-white/10 bg-white/5"
+            ? "border-white/[0.08] bg-[#0D0D11]"
             : "border-gray-200 bg-gray-50"
         }`}
       >
         <div
-          className={`mb-3 flex h-12 w-12 items-center justify-center rounded-full ${
+          className={`mb-3 flex h-11 w-11 items-center justify-center rounded-xl ${
             isDark
-              ? "bg-blue-500/10 text-blue-400"
+              ? "bg-[#141418] border border-white/[0.08] text-white/50"
               : "bg-blue-50 text-blue-500"
           }`}
         >
-          <Chat className="h-6 w-6" />
+          <Chat className="h-5 w-5" />
         </div>
         <h4
           className={`font-medium ${

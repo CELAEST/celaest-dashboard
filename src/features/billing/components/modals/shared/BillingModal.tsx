@@ -14,6 +14,7 @@ interface BillingModalProps {
   children: React.ReactNode;
   className?: string; // For overriding max-width etc.
   showCloseButton?: boolean;
+  transparent?: boolean;
 }
 
 export const BillingModal = React.memo(
@@ -23,6 +24,7 @@ export const BillingModal = React.memo(
     children,
     className = "",
     showCloseButton = true,
+    transparent = false,
   }: BillingModalProps) => {
     const { theme } = useTheme();
     const isDark = theme === "dark";
@@ -82,7 +84,7 @@ export const BillingModal = React.memo(
                 className={cn(
                   "w-full min-w-[320px] sm:min-w-112 max-w-4xl relative shrink-0 pointer-events-auto rounded-3xl overflow-hidden shadow-2xl max-h-[94vh] flex flex-col",
                   isDark
-                    ? "bg-[#0a0a0a] border border-white/10 shadow-teal-900/20"
+                    ? "bg-[#09090b] border border-white/10 shadow-2xl shadow-black/90"
                     : "bg-white border border-gray-200 shadow-xl",
                   className
                 )}

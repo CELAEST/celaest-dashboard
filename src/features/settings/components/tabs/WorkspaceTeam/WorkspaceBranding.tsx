@@ -125,36 +125,30 @@ export function WorkspaceBranding({
   ];
 
   return (
-    <div
-      className={`rounded-2xl border p-6 transition-all duration-300 ${
-        isDark
-          ? "bg-black/40 backdrop-blur-xl border-white/10"
-          : "bg-white border-gray-200 shadow-sm"
-      }`}
-    >
+    <div className="settings-glass-card rounded-2xl p-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-3">
           <div
-            className={`p-2 rounded-xl shrink-0 ${
+            className={`w-10 h-10 rounded-xl flex items-center justify-center border transition-colors shrink-0 ${
               isDark
-                ? "bg-purple-500/10 text-purple-400"
-                : "bg-purple-100 text-purple-600"
+                ? "bg-white/[0.04] border-white/8 text-white/70"
+                : "bg-gray-100 border-gray-200 text-gray-700"
             }`}
           >
             <Palette size={20} />
           </div>
           <div>
             <h3
-              className={`text-sm font-black uppercase tracking-wider ${
+              className={`text-base font-bold font-jakarta flex items-center gap-2 ${
                 isDark ? "text-white" : "text-gray-900"
               }`}
             >
               {t("branding_settings")}
             </h3>
             <p
-              className={`text-xs mt-0.5 ${
-                isDark ? "text-gray-500" : "text-gray-400"
+              className={`text-xs mt-0.5 font-mono ${
+                isDark ? "text-white/40" : "text-gray-400"
               }`}
             >
               {t("branding_settings_desc")}
@@ -166,10 +160,10 @@ export function WorkspaceBranding({
             <>
               <button
                 onClick={handleReset}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all ${
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
                   isDark
-                    ? "text-gray-500 hover:text-white hover:bg-white/5"
-                    : "text-gray-400 hover:text-gray-700 hover:bg-gray-100"
+                    ? "border-white/8 bg-white/[0.04] text-white/70 hover:bg-white/[0.08] hover:text-white"
+                    : "border-gray-200 text-gray-600 hover:bg-gray-50"
                 }`}
               >
                 <ArrowCounterClockwise size={12} /> {t("reset_defaults")}
@@ -177,14 +171,10 @@ export function WorkspaceBranding({
               <button
                 onClick={handleSave}
                 disabled={isSaving}
-                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all hover:scale-105 active:scale-95 ${
-                  isDark
-                    ? "bg-purple-500/20 text-purple-300 border border-purple-500/30 hover:bg-purple-500/30"
-                    : "bg-purple-600 text-white hover:bg-purple-500"
-                }`}
+                className="flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-semibold bg-white text-black hover:bg-neutral-200 active:scale-[0.98] transition-all cursor-pointer shadow-md font-jakarta uppercase tracking-wider"
               >
                 {isSaving ? (
-                  <CircleNotch size={12} className="animate-spin" />
+                  <CircleNotch size={12} className="animate-spin text-black" />
                 ) : (
                   <FloppyDisk size={12} />
                 )}
@@ -193,7 +183,7 @@ export function WorkspaceBranding({
             </>
           )}
           {readOnly && (
-            <span className="text-[10px] bg-gray-500/10 text-gray-500 px-2 py-1 rounded uppercase tracking-wider font-black ml-auto sm:ml-0">
+            <span className="text-[10px] bg-white/[0.04] border border-white/8 text-white/50 px-2.5 py-1 rounded-full uppercase tracking-wider font-mono ml-auto sm:ml-0">
               {t("view_only")}
             </span>
           )}
@@ -202,15 +192,15 @@ export function WorkspaceBranding({
 
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
-          <CircleNotch className="w-6 h-6 animate-spin text-purple-500" />
+          <CircleNotch className="w-6 h-6 animate-spin text-white/80" />
         </div>
       ) : (
         <div className="space-y-6">
           {/* Company Name */}
           <div>
             <label
-              className={`block text-[10px] font-black uppercase tracking-widest mb-2 ${
-                isDark ? "text-gray-500" : "text-gray-400"
+              className={`block text-[10px] font-mono uppercase tracking-wider font-bold mb-2 ${
+                isDark ? "text-white/40" : "text-gray-400"
               }`}
             >
               {t("display_name")}
@@ -225,8 +215,8 @@ export function WorkspaceBranding({
               placeholder={t("display_name_placeholder")}
               className={`w-full px-4 py-2.5 rounded-xl border text-sm transition-all ${
                 isDark
-                  ? "bg-white/5 border-white/10 text-white placeholder-gray-600 focus:border-purple-500/50"
-                  : "bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-purple-400"
+                  ? "bg-white/[0.03] border-white/8 text-zinc-100 placeholder:text-zinc-500 focus:border-white/20"
+                  : "bg-gray-50 border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-gray-400"
               } outline-none ${readOnly ? "cursor-not-allowed opacity-70" : ""}`}
             />
           </div>
@@ -234,8 +224,8 @@ export function WorkspaceBranding({
           {/* Color Pickers */}
           <div>
             <label
-              className={`block text-[10px] font-black uppercase tracking-widest mb-3 ${
-                isDark ? "text-gray-500" : "text-gray-400"
+              className={`block text-[10px] font-mono uppercase tracking-wider font-bold mb-3 ${
+                isDark ? "text-white/40" : "text-gray-400"
               }`}
             >
               {t("brand_colors")}
@@ -246,7 +236,7 @@ export function WorkspaceBranding({
                   key={key}
                   className={`p-4 rounded-xl border transition-all ${
                     isDark
-                      ? "bg-white/5 border-white/10"
+                      ? "bg-white/[0.02] border-white/[0.05] hover:border-white/[0.12]"
                       : "bg-gray-50 border-gray-200"
                   }`}
                 >
@@ -260,15 +250,15 @@ export function WorkspaceBranding({
                     />
                     <div>
                       <div
-                        className={`text-xs font-bold ${
-                          isDark ? "text-white" : "text-gray-900"
+                        className={`text-xs font-bold font-mono ${
+                          isDark ? "text-zinc-100" : "text-gray-900"
                         }`}
                       >
                         {label}
                       </div>
                       <div
-                        className={`text-[10px] ${
-                          isDark ? "text-gray-500" : "text-gray-400"
+                        className={`text-[10px] font-mono ${
+                          isDark ? "text-white/40" : "text-gray-400"
                         }`}
                       >
                         {desc}
@@ -282,7 +272,7 @@ export function WorkspaceBranding({
                     disabled={readOnly}
                     className={`w-full px-3 py-1.5 rounded-lg border text-xs font-mono uppercase ${
                       isDark
-                        ? "bg-black/40 border-white/10 text-gray-400"
+                        ? "bg-white/[0.03] border-white/8 text-zinc-200"
                         : "bg-white border-gray-200 text-gray-600"
                     } outline-none ${readOnly ? "cursor-not-allowed" : ""}`}
                   />
@@ -294,13 +284,13 @@ export function WorkspaceBranding({
           {/* Preview Strip */}
           <div>
             <label
-              className={`block text-[10px] font-black uppercase tracking-widest mb-2 ${
-                isDark ? "text-gray-500" : "text-gray-400"
+              className={`block text-[10px] font-mono uppercase tracking-wider font-bold mb-2 ${
+                isDark ? "text-white/40" : "text-gray-400"
               }`}
             >
               {t("color_preview")}
             </label>
-            <div className="flex rounded-xl overflow-hidden h-8">
+            <div className="flex rounded-xl overflow-hidden h-8 border border-white/8">
               <div
                 className="flex-1 transition-colors"
                 style={{ backgroundColor: branding.brand_primary_color }}
@@ -320,8 +310,8 @@ export function WorkspaceBranding({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label
-                className={`block text-[10px] font-black uppercase tracking-widest mb-2 ${
-                  isDark ? "text-gray-500" : "text-gray-400"
+                className={`block text-[10px] font-mono uppercase tracking-wider font-bold mb-2 ${
+                  isDark ? "text-white/40" : "text-gray-400"
                 }`}
               >
                 <UploadSimple size={10} className="inline mr-1" />
@@ -335,15 +325,15 @@ export function WorkspaceBranding({
                 placeholder={t("logo_url_placeholder")}
                 className={`w-full px-4 py-2.5 rounded-xl border text-sm transition-all ${
                   isDark
-                    ? "bg-white/5 border-white/10 text-white placeholder-gray-600 focus:border-purple-500/50"
-                    : "bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-purple-400"
+                    ? "bg-white/[0.03] border-white/8 text-zinc-100 placeholder:text-zinc-500 focus:border-white/20"
+                    : "bg-gray-50 border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-gray-400"
                 } outline-none ${readOnly ? "cursor-not-allowed opacity-70" : ""}`}
               />
               {branding.brand_logo_url && (
                 <div
-                  className={`mt-2 p-3 rounded-lg border ${
+                  className={`mt-2 p-3 rounded-xl border ${
                     isDark
-                      ? "bg-white/5 border-white/10"
+                      ? "bg-white/[0.02] border-white/[0.05]"
                       : "bg-gray-50 border-gray-200"
                   }`}
                 >
@@ -360,8 +350,8 @@ export function WorkspaceBranding({
             </div>
             <div>
               <label
-                className={`block text-[10px] font-black uppercase tracking-widest mb-2 ${
-                  isDark ? "text-gray-500" : "text-gray-400"
+                className={`block text-[10px] font-mono uppercase tracking-wider font-bold mb-2 ${
+                  isDark ? "text-white/40" : "text-gray-400"
                 }`}
               >
                 <UploadSimple size={10} className="inline mr-1" />
@@ -377,8 +367,8 @@ export function WorkspaceBranding({
                 placeholder={t("favicon_url_placeholder")}
                 className={`w-full px-4 py-2.5 rounded-xl border text-sm transition-all ${
                   isDark
-                    ? "bg-white/5 border-white/10 text-white placeholder-gray-600 focus:border-purple-500/50"
-                    : "bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-purple-400"
+                    ? "bg-white/[0.03] border-white/8 text-zinc-100 placeholder:text-zinc-500 focus:border-white/20"
+                    : "bg-gray-50 border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-gray-400"
                 } outline-none ${readOnly ? "cursor-not-allowed opacity-70" : ""}`}
               />
             </div>

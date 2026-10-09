@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "motion/react";
 import {
   Pulse,
   ArrowCounterClockwise,
+  Check,
 } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useTranslations } from "next-intl";
@@ -23,176 +24,159 @@ interface ErrorListProps {
   isAdmin: boolean;
 }
 
-// Custom Bespoke Holographic SVG for Clean State (Main)
-// Custom Bespoke Holographic SVG for Clean State (Main)
+// Custom Bespoke Holographic SVG for Clean State (Obsidian Luxury Standard)
 const SecureSystemVisual = () => (
-  <svg viewBox="0 10 100 80" className="w-[85px] h-[85px] overflow-visible drop-shadow-[0_0_15px_rgba(34,211,238,0.4)]">
+  <svg viewBox="0 0 100 100" className="w-[104px] h-[104px] overflow-visible">
     <defs>
-      <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#22d3ee" stopOpacity="1" />
-        <stop offset="100%" stopColor="#0891b2" stopOpacity="0.8" />
+      <linearGradient id="celaestObsidianShield" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#ffffff" stopOpacity="0.95" />
+        <stop offset="100%" stopColor="#71717a" stopOpacity="0.4" />
       </linearGradient>
-      <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-        <feGaussianBlur stdDeviation="3.5" result="blur" />
-        <feComposite in="SourceGraphic" in2="blur" operator="over" />
-      </filter>
+      <radialGradient id="celaestCenterGlow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stopColor="#ffffff" stopOpacity="0.12" />
+        <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+      </radialGradient>
     </defs>
     
-    <motion.g animate={{ y: [-2, 2, -2] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}>
-      
-      {/* Outer Partial Arc Ring */}
+    <motion.g animate={{ y: [-1.5, 1.5, -1.5] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}>
+      {/* Ambient Radial Fill with Pure Luminance Aura */}
+      <circle cx="50" cy="50" r="46" fill="url(#celaestCenterGlow)" />
+
+      {/* Outer Precision Reticle Ring with Dashed Segments */}
       <motion.circle 
-        cx="50" cy="50" r="47" fill="none" stroke="#0891b2" strokeWidth="2" strokeDasharray="70 200"
-        animate={{ rotate: 360 }} transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+        cx="50" cy="50" r="46" fill="none" stroke="rgba(255, 255, 255, 0.2)" strokeWidth="1" strokeDasharray="6 8"
+        animate={{ rotate: 360 }} transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+        style={{ transformOrigin: "center" }}
+      />
+
+      {/* Inner Fine Calibration Ring */}
+      <motion.circle 
+        cx="50" cy="50" r="38" fill="none" stroke="rgba(255, 255, 255, 0.35)" strokeWidth="1.2" strokeDasharray="60 120"
+        animate={{ rotate: -360 }} transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
         style={{ transformOrigin: "center" }}
         strokeLinecap="round"
       />
-      
-      {/* Inner Dotted Ring */}
-      <motion.circle 
-        cx="50" cy="50" r="41" fill="none" stroke="#0e7490" strokeWidth="2.5" strokeDasharray="3 10"
-        animate={{ rotate: -360 }} transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-        style={{ transformOrigin: "center" }}
-      />
-      
-      {/* Subtle Background Inner Ring */}
-      <circle cx="50" cy="50" r="33" fill="none" stroke="rgba(34, 211, 238, 0.08)" strokeWidth="1.5" />
 
-      {/* Futuristic Shield */}
+      {/* Geometric Reticle Crosshairs */}
+      <line x1="50" y1="6" x2="50" y2="14" stroke="rgba(255, 255, 255, 0.45)" strokeWidth="1" />
+      <line x1="50" y1="86" x2="50" y2="94" stroke="rgba(255, 255, 255, 0.45)" strokeWidth="1" />
+      <line x1="6" y1="50" x2="14" y2="50" stroke="rgba(255, 255, 255, 0.45)" strokeWidth="1" />
+      <line x1="86" y1="50" x2="94" y2="50" stroke="rgba(255, 255, 255, 0.45)" strokeWidth="1" />
+
+      {/* Sleek Obsidian Shield Frame */}
       <motion.g
-        animate={{ scale: [1, 1.02, 1] }}
-        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+        animate={{ scale: [1, 1.025, 1] }}
+        transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
         style={{ transformOrigin: "center" }}
       >
-        {/* Outer Glowing Shield Boundary */}
         <path 
-          d="M50 18 L20 26 V48 C20 70 33 86 50 92 C67 86 80 70 80 48 V26 Z" 
-          fill="rgba(34, 211, 238, 0.04)" 
-          stroke="url(#shieldGrad)" 
-          strokeWidth="3.5" 
-          filter="url(#glow)"
+          d="M50 20 L24 28 V48 C24 67 36 82 50 88 C64 82 76 67 76 48 V28 Z" 
+          fill="rgba(255, 255, 255, 0.04)" 
+          stroke="url(#celaestObsidianShield)" 
+          strokeWidth="1.6" 
           strokeLinejoin="round"
         />
-        
-        {/* Inner Solid Shield Edge */}
+
         <path 
-          d="M50 25 L27 31 V48 C27 65 37 78 50 83 C63 78 73 65 73 48 V31 Z" 
-          fill="rgba(34, 211, 238, 0.08)" 
-          stroke="#22d3ee" 
-          strokeWidth="1.5"
+          d="M50 26 L30 32 V48 C30 63 39 75 50 80 C61 75 70 63 70 48 V32 Z" 
+          fill="none" 
+          stroke="rgba(255, 255, 255, 0.2)" 
+          strokeWidth="1" 
+          strokeDasharray="3 3"
           strokeLinejoin="round" 
         />
-        
-        {/* Central Sharp Checkmark */}
+
+        {/* Dynamic Razor Checkmark with Pure Luminance */}
         <motion.path 
-          d="M38 52 L46 60 L66 40" 
+          d="M40 52 L47 59 L62 44" 
           fill="none" 
-          stroke="#cffafe" 
-          strokeWidth="4" 
+          stroke="#ffffff" 
+          strokeWidth="2.8" 
           strokeLinecap="round" 
           strokeLinejoin="round" 
           initial={{ pathLength: 0, opacity: 0 }}
           animate={{ pathLength: 1, opacity: 1 }}
-          transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 4 }}
-          filter="url(#glow)"
+          transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
         />
       </motion.g>
     </motion.g>
   </svg>
 );
 
-// Custom Bespoke Holographic SVG for Filter State (Main)
+// Custom Bespoke Holographic SVG for Filter State (Pure Luminance Reticle)
 const FilteredMonitorVisual = () => (
-  <svg viewBox="0 10 100 80" className="w-[85px] h-[85px] overflow-visible drop-shadow-[0_0_15px_rgba(245,158,11,0.3)]">
-    <defs>
-      <linearGradient id="searchGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#fbbf24" stopOpacity="0.8" />
-        <stop offset="100%" stopColor="#b45309" stopOpacity="0.2" />
-      </linearGradient>
-    </defs>
-    <motion.g animate={{ y: [-2, 2, -2] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}>
-      <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(245, 158, 11, 0.1)" strokeWidth="1" strokeDasharray="2 4" />
+  <svg viewBox="0 0 100 100" className="w-[104px] h-[104px] overflow-visible">
+    <motion.g animate={{ y: [-1.5, 1.5, -1.5] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}>
+      <circle cx="50" cy="50" r="44" fill="none" stroke="rgba(255, 255, 255, 0.15)" strokeWidth="1" strokeDasharray="3 5" />
       <motion.circle 
-        cx="50" cy="50" r="32" fill="none" stroke="rgba(245, 158, 11, 0.3)" strokeWidth="2" strokeDasharray="20 10"
-        animate={{ rotate: -360 }} transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+        cx="50" cy="50" r="36" fill="none" stroke="rgba(255, 255, 255, 0.3)" strokeWidth="1.5" strokeDasharray="40 20"
+        animate={{ rotate: -360 }} transition={{ duration: 16, repeat: Infinity, ease: "linear" }}
         style={{ transformOrigin: "center" }} 
       />
-      <motion.g animate={{ scale: [1, 1.05, 1] }} transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }} style={{ transformOrigin: "center" }}>
-        <circle cx="44" cy="44" r="16" fill="rgba(245, 158, 11, 0.05)" stroke="url(#searchGrad)" strokeWidth="2.5" />
-        <line x1="56" y1="56" x2="72" y2="72" stroke="#fcd34d" strokeWidth="4" strokeLinecap="round" />
-        <motion.line x1="28" y1="44" x2="60" y2="44" stroke="#fde68a" strokeWidth="1" strokeDasharray="2 2" animate={{ rotate: 360 }} transition={{ duration: 4, repeat: Infinity, ease: "linear" }} style={{ transformOrigin: "44px 44px" }} />
+      <motion.g animate={{ scale: [1, 1.03, 1] }} transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }} style={{ transformOrigin: "center" }}>
+        <circle cx="46" cy="46" r="16" fill="rgba(255, 255, 255, 0.05)" stroke="#ffffff" strokeWidth="2" />
+        <line x1="58" y1="58" x2="74" y2="74" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" />
+        <line x1="36" y1="46" x2="56" y2="46" stroke="rgba(255, 255, 255, 0.3)" strokeWidth="1" strokeDasharray="2 2" />
+        <line x1="46" y1="36" x2="46" y2="56" stroke="rgba(255, 255, 255, 0.3)" strokeWidth="1" strokeDasharray="2 2" />
       </motion.g>
     </motion.g>
   </svg>
 );
 
-// Sidebar Icons for Empty State Cards
+// Sidebar Icons for Empty State Cards (Obsidian Luminance Standard)
 const TechStreamIcon = () => (
-  <svg viewBox="0 0 24 24" className="w-5 h-5 text-cyan-400">
+  <svg viewBox="0 0 24 24" className="w-5 h-5 text-white/90">
     <motion.path 
       d="M3 12h4l3 -6l4 12l3 -6h4" 
       fill="none" 
       stroke="currentColor" 
       strokeWidth="2" 
       strokeLinecap="round" 
-      strokeLinejoin="round"
+      strokeLinejoin="round" 
       initial={{ pathLength: 0, opacity: 0 }}
       animate={{ pathLength: 1, opacity: 1 }}
-      transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+      transition={{ duration: 2.5, repeat: Infinity, ease: "linear" }}
     />
   </svg>
 );
 
 const SecurityShieldIcon = () => (
-  <svg viewBox="0 0 24 24" className="w-5 h-5 text-emerald-400">
-    <motion.path 
+  <svg viewBox="0 0 24 24" className="w-5 h-5 text-white/90">
+    <path 
       d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" 
-      fill="rgba(16, 185, 129, 0.1)" 
+      fill="rgba(255, 255, 255, 0.05)" 
       stroke="currentColor" 
-      strokeWidth="2" 
+      strokeWidth="1.8" 
       strokeLinecap="round" 
       strokeLinejoin="round" 
     />
-    <motion.path 
+    <path 
       d="M9 12l2 2 4-4" 
       fill="none" 
-      stroke="currentColor" 
+      stroke="#ffffff" 
       strokeWidth="2" 
       strokeLinecap="round" 
-      strokeLinejoin="round"
-      initial={{ scale: 0 }}
-      animate={{ scale: 1 }}
-      transition={{ duration: 1, repeat: Infinity, repeatDelay: 2 }}
-      style={{ transformOrigin: "12px 12px" }}
+      strokeLinejoin="round" 
     />
   </svg>
 );
 
 const FilterLensIcon = () => (
-  <svg viewBox="0 0 24 24" className="w-5 h-5 text-amber-400">
+  <svg viewBox="0 0 24 24" className="w-5 h-5 text-white/90">
     <circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" strokeWidth="2" />
     <line x1="16" y1="16" x2="21" y2="21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    <motion.circle 
-      cx="11" cy="11" r="2" 
-      fill="currentColor" 
-      animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }} 
-      transition={{ duration: 2, repeat: Infinity }} 
-    />
   </svg>
 );
 
 const ResetSyncIcon = () => (
-  <svg viewBox="0 0 24 24" className="w-5 h-5 text-amber-400">
-    <motion.path 
+  <svg viewBox="0 0 24 24" className="w-5 h-5 text-white/90">
+    <path 
       d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" 
       fill="none" 
       stroke="currentColor" 
       strokeWidth="2" 
       strokeLinecap="round" 
       strokeLinejoin="round" 
-      animate={{ rotate: 360 }} 
-      transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-      style={{ transformOrigin: "center" }}
     />
     <path d="M3 3v5h5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
@@ -253,16 +237,12 @@ export const ErrorList = React.memo(
           },
         ];
 
-    const emptyStateBadgeClass = hasActiveFilters
-      ? isDark
-        ? "bg-amber-500/10 border-amber-500/20 text-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.2)]"
-        : "bg-amber-50 border-amber-200 text-amber-700"
-      : isDark
-        ? "bg-cyan-500/10 border-cyan-500/20 text-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.2)]"
-        : "bg-cyan-50 border-cyan-200 text-cyan-700";
+    const emptyStateBadgeClass = isDark
+      ? "bg-white/[0.08] text-white border border-white/10 font-semibold shadow-xs"
+      : "bg-gray-100 text-gray-900 border-gray-300";
 
     const emptyStateSurfaceClass = isDark
-      ? "bg-white/3 border-white/8 backdrop-blur-3xl shadow-[0_24px_80px_rgba(0,0,0,0.35)]"
+      ? "bg-[#080c14]/90 border-white/8 backdrop-blur-2xl shadow-[0_24px_80px_rgba(0,0,0,0.6)]"
       : "bg-white border-gray-200 shadow-xl shadow-gray-200/40";
 
     if (isLoading) {
@@ -278,7 +258,7 @@ export const ErrorList = React.memo(
                 size={14}
                 className={
                   isDark
-                    ? "text-cyan-400 animate-pulse"
+                    ? "text-white animate-pulse"
                     : "text-blue-600 animate-pulse"
                 }
               />
@@ -347,18 +327,15 @@ export const ErrorList = React.memo(
         >
           <div
             className={`relative h-full w-full overflow-y-auto md:overflow-hidden custom-scrollbar rounded-3xl border p-4 md:p-6 transition-all duration-300 ${
-              isDark ? "bg-[#0a0a0a]/60 border-white/10" : "bg-gray-50/80 border-gray-200"
+              isDark
+                ? "bg-[#040811] border-white/10 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px]"
+                : "bg-gray-50/80 border-gray-200"
             }`}
           >
+            {/* Ambient pure luminance aura */}
             <div
-              className={`pointer-events-none absolute left-1/2 top-10 h-80 w-80 -translate-x-1/2 rounded-full blur-[100px] ${
-                hasActiveFilters
-                  ? isDark
-                    ? "bg-amber-500/15"
-                    : "bg-amber-200/60"
-                  : isDark
-                    ? "bg-cyan-500/15"
-                    : "bg-cyan-200/70"
+              className={`pointer-events-none absolute left-1/2 top-10 h-80 w-80 -translate-x-1/2 rounded-full blur-[130px] ${
+                isDark ? "bg-white/[0.03]" : "bg-gray-200/40"
               }`}
             />
 
@@ -366,44 +343,41 @@ export const ErrorList = React.memo(
               <div
                 className={`w-full min-w-0 overflow-visible lg:overflow-hidden rounded-3xl border p-6 sm:p-8 md:p-10 ${emptyStateSurfaceClass}`}
               >
-                <div className="grid gap-6 lg:grid-cols-[1fr_minmax(18rem,22rem)] xl:grid-cols-[1fr_max(22rem,320px)] items-center">
+                <div className="grid gap-8 lg:grid-cols-[1fr_minmax(18rem,22rem)] xl:grid-cols-[1fr_max(22rem,320px)] items-center">
                   <div className="min-w-0 text-center lg:text-left">
                     <div className="flex flex-wrap items-center justify-center gap-2 lg:justify-start">
                       <span
-                        className={`inline-flex items-center rounded-lg border px-3 py-1 text-[9px] font-black uppercase tracking-[0.24em] ${emptyStateBadgeClass}`}
+                        className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[10px] font-mono tracking-widest uppercase font-semibold ${emptyStateBadgeClass}`}
                       >
+                        <Check size={11} strokeWidth={3} className="text-white/80" />
                         {hasActiveFilters
                           ? "FILTROS ACTIVOS"
-                          : "SISTEMA SEGURO"}
+                          : "SISTEMA 100% OPERATIVO"}
                       </span>
 
                       <span
-                        className={`inline-flex items-center gap-2 rounded-lg border px-3 py-1 text-[9px] font-black tracking-[0.2em] font-mono uppercase ${
+                        className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[10px] font-mono tracking-widest uppercase ${
                           isDark
-                            ? "border-white/10 bg-white/5 text-gray-400"
+                            ? "border-white/10 bg-white/[0.03] text-white/60"
                             : "border-gray-200 bg-white text-gray-500"
                         }`}
                       >
-                        <Pulse size={12} className="shrink-0" />
+                        <Pulse size={12} className="shrink-0 text-white/60" />
                         {hasActiveFilters
-                          ? "ANALISIS SUPERFICIAL"
-                          : "TELEMETRIA EN VIVO"}
+                          ? "ANÁLISIS DE FILTRO"
+                          : "TELEMETRÍA EN VIVO"}
                       </span>
                     </div>
 
                     <div className="mt-8 flex justify-center lg:justify-start">
                       <div className="relative flex items-center justify-center p-2 isolate">
-                        {/* Immersive Background Glow */}
-                        <div className={`absolute inset-0 blur-2xl opacity-40 rounded-full ${
-                          hasActiveFilters ? "bg-amber-500/20" : "bg-cyan-500/20"
-                        }`} />
                         {hasActiveFilters ? <FilteredMonitorVisual /> : <SecureSystemVisual />}
                       </div>
                     </div>
 
-                    <div className="mt-6 flex w-full max-w-[460px] flex-col gap-3">
+                    <div className="mt-6 flex w-full max-w-[480px] flex-col gap-2.5">
                       <h3
-                        className={`text-3xl font-black italic tracking-tighter sm:text-4xl ${
+                        className={`text-2xl sm:text-3xl font-bold tracking-tight ${
                           isDark ? "text-white" : "text-gray-900"
                         }`}
                       >
@@ -413,60 +387,69 @@ export const ErrorList = React.memo(
                       </h3>
 
                       <p
-                        className={`text-xs sm:text-sm leading-relaxed uppercase tracking-widest ${
-                          isDark ? "text-gray-400" : "text-gray-500"
+                        className={`text-xs sm:text-sm leading-relaxed ${
+                          isDark ? "text-white/50" : "text-gray-500"
                         }`}
                       >
                         {hasActiveFilters
                           ? t("adjust_params")
                           : t("clean_signal")}
                       </p>
+
+                      {/* Telemetry HUD status indicators */}
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        <span className="px-2.5 py-1 rounded-md bg-white/[0.03] border border-white/6 text-[10px] font-mono tracking-wider text-white/50 uppercase">
+                          Incidentes: <strong className="text-white font-semibold">0</strong>
+                        </span>
+                        <span className="px-2.5 py-1 rounded-md bg-white/[0.03] border border-white/6 text-[10px] font-mono tracking-wider text-white/50 uppercase">
+                          Buffer: <strong className="text-white font-semibold">Operativo</strong>
+                        </span>
+                        <span className="px-2.5 py-1 rounded-md bg-white/[0.03] border border-white/6 text-[10px] font-mono tracking-wider text-white/50 uppercase">
+                          Integridad: <strong className="text-white font-semibold">100%</strong>
+                        </span>
+                      </div>
                     </div>
 
                     <div className="mt-8 flex flex-wrap items-center justify-center gap-4 lg:justify-start">
                       {hasActiveFilters ? (
                         <button
                           onClick={onClearFilters}
-                          className={`inline-flex items-center gap-2 rounded-xl border px-5 py-2.5 text-[10px] font-black tracking-widest uppercase transition-all duration-200 ${
-                            isDark
-                              ? "border-amber-500/40 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 hover:border-amber-500/60"
-                              : "border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100"
-                          }`}
+                          className="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-mono font-semibold uppercase tracking-wider bg-white text-black hover:bg-zinc-200 transition-colors cursor-pointer"
                         >
-                          <ArrowCounterClockwise size={16} />
+                          <ArrowCounterClockwise size={13} weight="bold" />
                           {t("clear_and_scan")}
                         </button>
                       ) : (
                         <span
-                          className={`inline-flex items-center gap-2 rounded-xl border px-5 py-2.5 text-[10px] font-black tracking-widest uppercase ${
+                          className={`inline-flex items-center gap-2 rounded-xl border px-3.5 py-1.5 text-xs font-mono tracking-wider uppercase ${
                             isDark
-                              ? "border-white/10 bg-white/5 text-gray-300"
+                              ? "border-white/10 bg-white/[0.03] text-white/60 font-medium"
                               : "border-gray-200 bg-white text-gray-600"
                           }`}
                         >
-                          <Pulse size={14} className="shrink-0" />
+                          <Pulse size={12} className="shrink-0 text-white/60" />
                           {t("waiting_anomalies")}
                         </span>
                       )}
                     </div>
                   </div>
 
-                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-                    {emptyStateCards.map((card) => (
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+                    {emptyStateCards.map((card, idx) => (
                       <div
                         key={card.title}
-                        className={`group rounded-2xl border p-5 text-left transition-all duration-300 ${
+                        className={`group rounded-2xl border p-4.5 text-left transition-all duration-300 ${
                           isDark
-                            ? "border-white/8 bg-white/3 hover:border-white/15 hover:bg-white/5"
+                            ? "border-white/8 bg-white/[0.02] hover:border-white/15 hover:bg-white/[0.04]"
                             : "border-gray-200 bg-gray-50 hover:bg-gray-100"
                         }`}
                       >
-                        <div className="flex items-start gap-4">
+                        <div className="flex items-start gap-3.5">
                           <div
-                            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-input border shadow-sm ${
+                            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border ${
                               isDark
-                                ? "bg-white/10 border-white/10 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_2px_4px_rgba(0,0,0,0.2)]"
-                                : "bg-white border-gray-200 text-gray-900 shadow-[inset_0_1px_0_rgba(255,255,255,1),0_1px_2px_rgba(0,0,0,0.04)]"
+                                ? "bg-white/[0.05] border-white/10 text-white"
+                                : "bg-white border-gray-200 text-gray-900 shadow-sm"
                             }`}
                           >
                             {card.icon}
@@ -474,14 +457,14 @@ export const ErrorList = React.memo(
 
                           <div className="min-w-0 mt-0.5">
                             <p
-                              className={`text-[9px] font-black uppercase tracking-[0.24em] ${
-                                isDark ? "text-gray-500" : "text-gray-400"
+                              className={`text-[9px] font-mono tracking-[0.18em] uppercase ${
+                                isDark ? "text-white/40" : "text-gray-400"
                               }`}
                             >
                               {card.label}
                             </p>
                             <h4
-                              className={`mt-1 font-mono text-sm font-bold tracking-tight ${
+                              className={`mt-0.5 font-sans text-sm font-semibold tracking-tight ${
                                 isDark ? "text-white" : "text-gray-900"
                               }`}
                             >
@@ -491,8 +474,8 @@ export const ErrorList = React.memo(
                         </div>
 
                         <p
-                          className={`mt-4 text-[11px] font-medium leading-5 ${
-                            isDark ? "text-gray-400" : "text-gray-500"
+                          className={`mt-3 text-xs leading-relaxed ${
+                            isDark ? "text-white/50" : "text-gray-500"
                           }`}
                         >
                           {card.description}

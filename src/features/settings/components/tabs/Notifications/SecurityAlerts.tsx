@@ -14,8 +14,8 @@ export const SecurityAlerts: React.FC = memo(() => {
       }`}
     >
       <div className="flex items-start gap-4">
-        <div className="w-10 h-10 rounded-lg bg-red-500 flex items-center justify-center shrink-0 shadow-lg shadow-red-500/20">
-          <ShieldWarning className="w-6 h-6 text-white" />
+        <div className="w-10 h-10 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center justify-center shrink-0">
+          <ShieldWarning className="w-5 h-5 text-red-400" />
         </div>
         <div>
           <p

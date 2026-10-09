@@ -21,70 +21,76 @@ export const AutoRenewToggle: React.FC<AutoRenewToggleProps> = ({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.3 }}
-      whileHover={{ scale: 1.01 }}
-      className={`p-5 rounded-xl transition-all duration-300 ${
+      transition={{ duration: 0.3, delay: 0.15 }}
+      className={`p-4 sm:p-5 rounded-xl border transition-colors ${
         disabled
           ? isDark
-            ? "bg-black/20 border-white/5 opacity-60"
-            : "bg-gray-50 border-gray-100 opacity-60"
+            ? "bg-white/[0.01] border-white/4 opacity-50 cursor-not-allowed"
+            : "bg-gray-50 border-gray-100 opacity-50 cursor-not-allowed"
           : isDark
-            ? "bg-black/40 backdrop-blur-xl border border-white/10 hover:border-cyan-500/20"
-            : "bg-white/60 border border-gray-200 hover:border-blue-500/20 shadow-sm"
+            ? "bg-white/[0.02] border-white/6 hover:border-white/12"
+            : "bg-white border-gray-200 hover:border-gray-300 shadow-xs"
       }`}
     >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <motion.div
-            animate={{ rotate: autoRenew ? 360 : 0 }}
-            transition={{ duration: 0.5 }}
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3 min-w-0">
+          <div
+            className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border transition-colors ${
+              isDark
+                ? "bg-white/[0.04] border-white/8 text-white/60"
+                : "bg-gray-100 border-gray-200 text-gray-600"
+            }`}
           >
-            <ArrowClockwise
-              className={`w-5 h-5 ${isDark ? "text-cyan-400" : "text-blue-600"}`}
-            />
-          </motion.div>
-          <div>
+            <ArrowClockwise className="w-4 h-4" />
+          </div>
+          <div className="min-w-0">
             <div
-              className={`font-semibold ${
-                isDark ? "text-white" : "text-gray-900"
+              className={`text-sm font-semibold tracking-tight ${
+                isDark ? "text-zinc-100" : "text-gray-900"
               }`}
             >
               Auto-Renewal
             </div>
             <div
-              className={`text-xs ${isDark ? "text-gray-400" : "text-gray-600"}`}
+              className={`text-[11px] font-mono truncate ${
+                isDark ? "text-white/40" : "text-gray-500"
+              }`}
             >
               Automatically renew on {renewalDate}
             </div>
           </div>
         </div>
+
         <button
           onClick={disabled ? undefined : onToggle}
           disabled={disabled}
-          className={`relative w-14 h-7 rounded-full transition-all duration-300 ${
+          type="button"
+          className={`relative w-11 h-6 rounded-full transition-colors duration-200 shrink-0 cursor-pointer ${
             disabled
-              ? isDark
-                ? "bg-gray-800"
-                : "bg-gray-200"
+              ? "opacity-50 cursor-not-allowed bg-white/10"
               : autoRenew
                 ? isDark
-                  ? "bg-linear-to-r from-cyan-400 to-blue-500 shadow-lg shadow-cyan-500/50"
-                  : "bg-linear-to-r from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/30"
+                  ? "bg-white"
+                  : "bg-gray-900"
                 : isDark
-                  ? "bg-gray-700"
-                  : "bg-gray-300"
-          } ${disabled ? "cursor-not-allowed" : ""}`}
+                  ? "bg-white/10 border border-white/10"
+                  : "bg-gray-200"
+          }`}
         >
           <motion.div
-            animate={{ x: autoRenew ? 28 : 4 }}
-            transition={{
-              type: "spring",
-              stiffness: 500,
-              damping: 30,
-            }}
-            className="absolute top-1 w-5 h-5 bg-white rounded-full shadow-lg"
+            animate={{ x: autoRenew ? 22 : 2 }}
+            transition={{ type: "spring", stiffness: 500, damping: 30 }}
+            className={`w-5 h-5 rounded-full shadow-xs ${
+              autoRenew
+                ? isDark
+                  ? "bg-black"
+                  : "bg-white"
+                : isDark
+                  ? "bg-zinc-400"
+                  : "bg-white"
+            }`}
           />
         </button>
       </div>

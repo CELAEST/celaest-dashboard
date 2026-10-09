@@ -1,5 +1,5 @@
 import React from "react";
-import { Warning, Info } from "@phosphor-icons/react";
+import { Warning, Info, Check, X, Clock } from "@phosphor-icons/react";
 import {
   ErrorSeverity,
   ErrorStatus,
@@ -16,65 +16,116 @@ export const ErrorBadge = React.memo(
     if (type === "severity") {
       const severity = value as ErrorSeverity;
       const icons = {
-        critical: <Warning size={16} />,
-        warning: <Warning size={16} />,
-        info: <Info size={16} />,
+        critical: <Warning size={14} />,
+        warning: <Warning size={14} />,
+        info: <Info size={14} />,
       };
 
-      const colors = {
-        critical: "red",
-        warning: "orange",
-        info: isDark ? "cyan" : "blue",
-      };
+      if (severity === "critical") {
+        return (
+          <span
+            className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-mono uppercase tracking-wider ${
+              isDark
+                ? "bg-red-500/10 text-red-300 border border-red-500/20 font-medium"
+                : "bg-red-50 text-red-700 border border-red-200 font-medium"
+            }`}
+          >
+            {icons.critical}
+            Crítico
+          </span>
+        );
+      }
 
-      const baseColors = {
-        critical: isDark ? "bg-red-500/20" : "bg-red-50",
-        warning: isDark ? "bg-orange-500/20" : "bg-orange-50",
-        info: isDark ? "bg-cyan-500/20" : "bg-blue-50",
-      };
+      if (severity === "warning") {
+        return (
+          <span
+            className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-mono uppercase tracking-wider ${
+              isDark
+                ? "bg-white/[0.04] text-white/70 border border-white/[0.06] font-medium"
+                : "bg-gray-100 text-gray-700 border border-gray-200 font-medium"
+            }`}
+          >
+            {icons.warning}
+            Advertencia
+          </span>
+        );
+      }
 
       return (
-        <div
-          className={`w-10 h-10 rounded-lg flex items-center justify-center ${baseColors[severity]}`}
+        <span
+          className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-mono uppercase tracking-wider ${
+            isDark
+              ? "bg-white/[0.03] text-white/50 border border-white/[0.05] font-medium"
+              : "bg-gray-50 text-gray-600 border border-gray-200 font-medium"
+          }`}
         >
-          <span className={`text-${colors[severity]}-400`}>
-            {icons[severity]}
-          </span>
-        </div>
+          {icons.info}
+          Info
+        </span>
       );
     }
 
     const status = value as ErrorStatus;
-    const statusColors: Record<string, string> = {
-      failed: isDark
-        ? "bg-red-500/20 text-red-400 border-red-500/30"
-        : "bg-red-50 text-red-600 border-red-200",
-      reviewing: isDark
-        ? "bg-orange-500/20 text-orange-400 border-orange-500/30"
-        : "bg-orange-50 text-orange-600 border-orange-200",
-      resolved: isDark
-        ? "bg-green-500/20 text-green-400 border-green-500/30"
-        : "bg-green-50 text-green-600 border-green-200",
-      ignored: isDark
-        ? "bg-gray-500/20 text-gray-400 border-gray-500/30"
-        : "bg-gray-100 text-gray-600 border-gray-200",
-    };
 
-    const labels: Record<string, string> = {
-      failed: "Fallido",
-      reviewing: "En Revisión",
-      resolved: "Resuelto",
-      ignored: "Ignorado",
-    };
+    if (status === "resolved") {
+      return (
+        <span
+          className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-mono uppercase tracking-wider font-semibold shadow-xs border ${
+            isDark
+              ? "bg-white/[0.08] text-white border-white/10"
+              : "bg-gray-100 text-gray-900 border-gray-300"
+          }`}
+        >
+          <Check size={10} strokeWidth={3} className={isDark ? "text-white/80" : "text-gray-800"} />
+          Resuelto
+        </span>
+      );
+    }
+
+    if (status === "failed") {
+      return (
+        <span
+          className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-mono uppercase tracking-wider border font-medium ${
+            isDark
+              ? "bg-red-500/10 text-red-300 border border-red-500/20"
+              : "bg-red-50 text-red-700 border border-red-200"
+          }`}
+        >
+          <X size={10} strokeWidth={3} className={isDark ? "text-red-400" : "text-red-600"} />
+          Fallido
+        </span>
+      );
+    }
+
+    if (status === "reviewing") {
+      return (
+        <span
+          className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-mono uppercase tracking-wider border font-medium ${
+            isDark
+              ? "bg-white/[0.04] text-white/70 border border-white/[0.06]"
+              : "bg-gray-100 text-gray-700 border border-gray-200"
+          }`}
+        >
+          <Clock size={10} className={isDark ? "text-white/40" : "text-gray-500"} />
+          En Revisión
+        </span>
+      );
+    }
 
     return (
       <span
-        className={`px-2 py-1 rounded-md text-xs font-medium border ${statusColors[status]}`}
+        className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-mono uppercase tracking-wider border font-medium ${
+          isDark
+            ? "bg-white/[0.03] text-white/50 border border-white/[0.05]"
+            : "bg-gray-50 text-gray-500 border border-gray-200"
+        }`}
       >
-        {labels[status]}
+        <Clock size={10} className={isDark ? "text-white/40" : "text-gray-400"} />
+        Ignorado
       </span>
     );
   },
 );
 
 ErrorBadge.displayName = "ErrorBadge";
+

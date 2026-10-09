@@ -2,6 +2,7 @@
 
 import React, { useState, useCallback, useMemo } from "react";
 import {
+  Gear,
   Shield,
   Users,
   Bell,
@@ -10,6 +11,7 @@ import {
   User,
   CreditCard,
   CaretLeft,
+  Check,
 } from "@phosphor-icons/react";
 import { AccountProfile } from "./tabs/AccountProfile";
 import { SecurityAccess } from "./tabs/SecurityAccess";
@@ -19,17 +21,19 @@ import { DeveloperAPI } from "./tabs/DeveloperAPI";
 import { Preferences } from "./tabs/Preferences";
 import { PlansBilling } from "./tabs/PlansBilling";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 import type { SettingsTabId } from "./types";
 import { motion, AnimatePresence } from "motion/react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 
 /**
- * Gear View - Edge-to-Edge Professional Layout
- * Sidebar Navigation + Full-Width Content
+ * Settings View - Executive Split-Pane Architecture
+ * Cohesive with Marketplace, Orders, and Facturación design system
  */
 export function SettingsView() {
   const { isDark } = useTheme();
+  const { user } = useAuthStore();
   const searchParams = useSearchParams();
   const t = useTranslations("settings");
   const [activeTab, setActiveTab] = useState<SettingsTabId>(() => {
@@ -40,6 +44,8 @@ export function SettingsView() {
     const section = searchParams.get("section");
     return section ? "detail" : "list";
   });
+
+  const sessionUserEmail = user?.email || "esteban@celaest.com";
 
   // Sync if section changes via URL
   React.useEffect(() => {
@@ -59,47 +65,17 @@ export function SettingsView() {
     setViewMode("list");
   }, []);
 
-  // Tab configuration
+  // Tab configuration - Grouped Domain Architecture
   const tabs = useMemo(
     () =>
       [
-        {
-          id: "account",
-          icon: User,
-          label: t("tab_account"),
-          color: "cyan",
-        },
-        {
-          id: "security",
-          icon: Shield,
-          label: t("tab_security"),
-          color: "purple",
-        },
-        {
-          id: "billing",
-          icon: CreditCard,
-          label: t("tab_billing"),
-          color: "emerald",
-        },
-        {
-          id: "workspace",
-          icon: Users,
-          label: t("tab_workspace"),
-          color: "blue",
-        },
-        {
-          id: "notifications",
-          icon: Bell,
-          label: t("tab_notifications"),
-          color: "amber",
-        },
-        { id: "developer", icon: Code, label: t("tab_developer"), color: "pink" },
-        {
-          id: "preferences",
-          icon: Globe,
-          label: t("tab_preferences"),
-          color: "indigo",
-        },
+        { id: "account", icon: User, label: t("tab_account"), group: "Identidad" },
+        { id: "security", icon: Shield, label: t("tab_security"), group: "Identidad" },
+        { id: "billing", icon: CreditCard, label: t("tab_billing"), group: "Organización" },
+        { id: "workspace", icon: Users, label: t("tab_workspace"), group: "Organización" },
+        { id: "notifications", icon: Bell, label: t("tab_notifications"), group: "Sistema" },
+        { id: "developer", icon: Code, label: t("tab_developer"), group: "Sistema" },
+        { id: "preferences", icon: Globe, label: t("tab_preferences"), group: "Sistema" },
       ] as const,
     [t],
   );
@@ -126,188 +102,286 @@ export function SettingsView() {
     }
   }, [activeTab]);
 
-  const colorClasses: Record<
-    string,
-    { text: string; bg: string; border: string }
-  > = {
-    cyan: {
-      text: "text-cyan-400",
-      bg: "bg-cyan-500/10",
-      border: "border-cyan-500/30",
-    },
-    purple: {
-      text: "text-purple-400",
-      bg: "bg-purple-500/10",
-      border: "border-purple-500/30",
-    },
-    emerald: {
-      text: "text-emerald-400",
-      bg: "bg-emerald-500/10",
-      border: "border-emerald-500/30",
-    },
-    blue: {
-      text: "text-blue-400",
-      bg: "bg-blue-500/10",
-      border: "border-blue-500/30",
-    },
-    amber: {
-      text: "text-amber-400",
-      bg: "bg-amber-500/10",
-      border: "border-amber-500/30",
-    },
-    pink: {
-      text: "text-pink-400",
-      bg: "bg-pink-500/10",
-      border: "border-pink-500/30",
-    },
-    indigo: {
-      text: "text-indigo-400",
-      bg: "bg-indigo-500/10",
-      border: "border-indigo-500/30",
-    },
-  };
-
   return (
     <div
-      className={`h-full flex overflow-hidden ${isDark ? "text-white dark" : "text-gray-900"}`}
+      className={`h-full flex flex-col min-h-0 overflow-hidden ${
+        isDark ? "bg-transparent text-white" : "bg-gray-50 text-gray-900"
+      }`}
     >
-      {/* ===== SIDEBAR NAVIGATION ===== */}
-      <div
-        className={`md:w-64 w-full shrink-0 flex-col border-r ${
-          viewMode === "list" ? "flex" : "hidden md:flex"
-        } ${isDark ? "border-white/5" : "border-gray-200/50"}`}
+      {/* ===== TOP HEADER (Cohesive with BillingPortal & MarketplaceHeader) ===== */}
+      <header
+        className={`shrink-0 px-4 sm:px-6 py-3.5 flex items-center justify-between border-b backdrop-blur-xl transition-colors duration-200 ${
+          isDark
+            ? "bg-[#09090b]/80 border-white/6"
+            : "bg-white/80 border-gray-200/80"
+        }`}
       >
-        {/* Sidebar Header */}
-        <div className={`px-4 py-3 sm:px-6 sm:py-4 border-b ${isDark ? 'border-white/5' : 'border-gray-200/50'}`}>
-          <h1
-            className={`text-lg sm:text-xl font-black italic tracking-tighter uppercase ${isDark ? "text-white" : "text-gray-900"}`}
-          >
-            {t("configuration")}
-          </h1>
-          <p
-            className={`text-[9px] font-black uppercase tracking-[0.2em] mt-0.5 ${isDark ? "text-gray-500" : "text-gray-400"}`}
-          >
-            {t("system_control")}
-          </p>
-        </div>
-
-        {/* Navigation Items */}
-        <nav className="flex-1 overflow-y-auto p-3 space-y-1">
-          {tabs.map((tab) => {
-            const isActive = activeTab === tab.id;
-            const Icon = tab.icon;
-            const themeColor = colorClasses[tab.color];
-
-            return (
-              <button
-                key={tab.id}
-                onClick={() => handleTabSelect(tab.id)}
-                className={`
-                  relative w-full px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-xl flex items-center gap-3 transition-all duration-200
-                  text-sm font-medium group
-                  ${
-                    isActive
-                      ? isDark
-                        ? `${themeColor.bg} ${themeColor.border} border text-white`
-                        : "bg-white border border-gray-200 text-gray-900 shadow-sm"
-                      : isDark
-                        ? "text-gray-400 hover:bg-white/5 hover:text-white"
-                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                  }
-                `}
-              >
-                {isActive && (
-                  <motion.div
-                    layoutId="activeSidebarTab"
-                    className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 rounded-r-full ${themeColor.text.replace("text-", "bg-")}`}
-                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                  />
-                )}
-
-                <Icon
-                  size={18}
-                  className={`shrink-0 transition-colors ${isActive ? themeColor.text : "opacity-60 group-hover:opacity-100"}`}
-                />
-                <span className="truncate">{tab.label}</span>
-              </button>
-            );
-          })}
-        </nav>
-
-        {/* Sidebar Footer */}
-        <div
-          className={`px-4 py-3 sm:px-6 sm:py-4 border-t ${isDark ? "border-white/5" : "border-gray-200/50"}`}
-        >
+        <div className="flex items-center gap-3 min-w-0">
           <div
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg ${isDark ? "bg-emerald-500/10" : "bg-emerald-50"}`}
+            className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border transition-colors ${
+              isDark
+                ? "bg-white/[0.04] border-white/8 text-white/70"
+                : "bg-gray-100 border-gray-200 text-gray-700"
+            }`}
           >
-            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span
-              className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-emerald-400" : "text-emerald-600"}`}
+            <Gear size={15} />
+          </div>
+          <div className="flex items-center gap-3">
+            <h1
+              className={`text-sm sm:text-base font-semibold font-jakarta tracking-tight ${
+                isDark ? "text-zinc-100" : "text-gray-900"
+              }`}
             >
-              {t("system_online")}
+              {t("configuration")}
+            </h1>
+            <span
+              className={`text-[10px] sm:text-[11px] font-mono tracking-wider uppercase border-l pl-3 ${
+                isDark
+                  ? "border-white/10 text-white/40"
+                  : "border-gray-200 text-gray-400"
+              }`}
+            >
+              CELAEST Hub • Governance
             </span>
           </div>
         </div>
-      </div>
 
-      {/* ===== MAIN CONTENT AREA (Edge-to-Edge) ===== */}
-      <div
-        className={`flex-1 flex-col min-w-0 overflow-hidden ${
-          viewMode === "detail" ? "flex" : "hidden md:flex"
-        }`}
-      >
-        {/* Content Header Bar */}
         <div
-          className={`shrink-0 px-4 py-3 sm:px-8 sm:py-4 border-b backdrop-blur-md ${
+          className={`hidden sm:flex items-center gap-2 px-2.5 py-1 rounded-lg border ${
             isDark
-              ? "border-white/5 bg-white/2"
-              : "border-gray-200/50 bg-white/50"
+              ? "bg-white/[0.02] border-white/8 text-white/50"
+              : "bg-gray-50 border-gray-200 text-gray-600"
           }`}
         >
-          <div className="flex items-center gap-3">
-            <button
-              onClick={handleBackToList}
-              className="md:hidden p-2 -ml-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 text-gray-500 dark:text-gray-400"
-              aria-label="Back to settings list"
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+          <span className="text-[9px] font-mono uppercase tracking-[0.18em]">
+            {t("system_online")}
+          </span>
+        </div>
+      </header>
+
+      {/* ===== SPLIT-PANE BODY ===== */}
+      <div className="flex-1 flex min-h-0 overflow-hidden">
+        {/* ===== SIDEBAR NAVIGATION (MarketplaceFilterSidebar Standard) ===== */}
+        <div
+          className={`w-60 h-full shrink-0 flex-col border-r transition-colors ${
+            viewMode === "list" ? "flex" : "hidden md:flex"
+          } ${
+            isDark
+              ? "border-white/6 bg-transparent"
+              : "border-gray-200 bg-white"
+          }`}
+        >
+          {/* Subheader */}
+          <div
+            className={`px-4 py-3.5 border-b ${
+              isDark ? "border-white/6" : "border-gray-200"
+            }`}
+          >
+            <h2
+              className={`text-xs font-mono font-bold uppercase tracking-[0.16em] ${
+                isDark ? "text-white/90" : "text-gray-900"
+              }`}
             >
-              <CaretLeft size={20} weight="bold" />
-            </button>
-            <div>
-              <h2
-                className={`text-lg font-bold ${isDark ? "text-white" : "text-gray-900"}`}
+              Módulos
+            </h2>
+            <p
+              className={`text-[10px] font-mono tracking-wider ${
+                isDark ? "text-white/40" : "text-gray-400"
+              }`}
+            >
+              7 paneles de control
+            </p>
+          </div>
+
+          {/* Navigation Items */}
+          <nav className="flex-1 overflow-y-auto no-scrollbar p-3 space-y-4">
+            {["Identidad", "Organización", "Sistema"].map((groupName) => {
+              const groupTabs = tabs.filter((t) => t.group === groupName);
+              if (groupTabs.length === 0) return null;
+              return (
+                <div key={groupName} className="space-y-1">
+                  <span
+                    className={`px-3 text-[9px] font-mono uppercase tracking-[0.16em] font-semibold mb-1 block ${
+                      isDark ? "text-white/30" : "text-gray-400"
+                    }`}
+                  >
+                    {groupName}
+                  </span>
+                  {groupTabs.map((tab) => {
+                    const isActive = activeTab === tab.id;
+                    const Icon = tab.icon;
+
+                    return (
+                      <button
+                        key={tab.id}
+                        type="button"
+                        onClick={() => handleTabSelect(tab.id)}
+                        className={`
+                          group relative overflow-hidden w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-all duration-200 cursor-pointer text-left border
+                          ${
+                            isActive
+                              ? isDark
+                                ? "bg-zinc-800/40 border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] text-zinc-100 font-semibold"
+                                : "bg-white border-black/6 shadow-xs text-zinc-900 font-semibold"
+                              : isDark
+                                ? "border-transparent text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40 hover:border-white/8 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+                                : "border-transparent text-zinc-500 hover:text-zinc-900 hover:bg-white hover:border-black/6 hover:shadow-xs"
+                          }
+                        `}
+                      >
+                        <div className="flex items-center gap-2.5 truncate">
+                          <Icon
+                            size={14}
+                            className={`shrink-0 transition-colors ${
+                              isActive
+                                ? isDark
+                                  ? "text-zinc-100"
+                                  : "text-zinc-900"
+                                : isDark
+                                  ? "text-zinc-400 group-hover:text-zinc-200"
+                                  : "text-zinc-500 group-hover:text-zinc-900"
+                            }`}
+                          />
+                          <span className="truncate">{tab.label}</span>
+                        </div>
+                        {isActive && (
+                          <Check
+                            size={12}
+                            strokeWidth={2.5}
+                            className={
+                              isDark
+                                ? "text-zinc-200 shrink-0"
+                                : "text-zinc-900 shrink-0"
+                            }
+                          />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              );
+            })}
+          </nav>
+
+          {/* Footer (OrderDetails style) */}
+          <div
+            className={`p-3 border-t flex items-center justify-between shrink-0 ${
+              isDark
+                ? "border-white/6 bg-transparent"
+                : "border-gray-200 bg-gray-50"
+            }`}
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div
+                className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border ${
+                  isDark
+                    ? "bg-white/[0.04] text-white/50 border-white/8"
+                    : "bg-white text-gray-600 border-gray-200"
+                }`}
               >
-                {tabs.find((t) => t.id === activeTab)?.label}
-              </h2>
-              <p
-                className={`text-xs mt-0.5 ${isDark ? "text-gray-400" : "text-gray-500"}`}
-              >
-                {activeTab === "account" && t("desc_account")}
-                {activeTab === "security" && t("desc_security")}
-                {activeTab === "billing" && t("desc_billing")}
-                {activeTab === "workspace" && t("desc_workspace")}
-                {activeTab === "notifications" && t("desc_notifications")}
-                {activeTab === "developer" && t("desc_developer")}
-                {activeTab === "preferences" && t("desc_preferences")}
-              </p>
+                <User size={13} />
+              </div>
+              <div className="min-w-0">
+                <p
+                  className={`text-[9px] font-mono uppercase tracking-[0.16em] ${
+                    isDark ? "text-white/30" : "text-gray-400"
+                  } truncate`}
+                >
+                  Sesión
+                </p>
+                <p
+                  className={`text-[11px] font-mono ${
+                    isDark ? "text-white/70" : "text-gray-700"
+                  } truncate`}
+                >
+                  {sessionUserEmail}
+                </p>
+              </div>
             </div>
+            <span className="shrink-0 px-2 py-0.5 rounded-full bg-white/[0.04] border border-white/8 text-[9px] font-mono text-emerald-400 uppercase tracking-wider font-semibold">
+              OK
+            </span>
           </div>
         </div>
 
-        {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, x: 10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -10 }}
-              transition={{ duration: 0.2 }}
-              className="h-full w-full"
-            >
-              <div className="px-4 py-4 sm:px-8 sm:py-6">{renderTabContent()}</div>
-            </motion.div>
-          </AnimatePresence>
+        {/* ===== MAIN CONTENT AREA (Marketplace / Billing Standard) ===== */}
+        <div
+          className={`flex-1 flex-col min-w-0 overflow-hidden ${
+            viewMode === "detail" ? "flex" : "hidden md:flex"
+          } ${isDark ? "bg-transparent" : "bg-white"}`}
+        >
+          {/* Section Canvas Header */}
+          <div
+            className={`shrink-0 px-6 py-4 border-b flex items-center justify-between gap-3 ${
+              isDark
+                ? "bg-[#09090b]/80 border-white/6 backdrop-blur-xl"
+                : "bg-white border-gray-200"
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleBackToList}
+                className="md:hidden p-2 -ml-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 text-gray-500 dark:text-gray-400 cursor-pointer"
+                aria-label="Back to settings list"
+              >
+                <CaretLeft size={20} weight="bold" />
+              </button>
+              <div>
+                <div className="flex items-center gap-2.5">
+                  <h2
+                    className={`text-base sm:text-lg font-bold font-jakarta tracking-tight ${
+                      isDark ? "text-white" : "text-gray-900"
+                    }`}
+                  >
+                    {tabs.find((t) => t.id === activeTab)?.label}
+                  </h2>
+                  <span
+                    className={`text-[10px] font-mono uppercase px-2.5 py-0.5 rounded-full border ${
+                      isDark
+                        ? "bg-white/[0.04] text-white/60 border-white/8"
+                        : "bg-gray-100 text-gray-600 border-gray-200"
+                    }`}
+                  >
+                    Activo
+                  </span>
+                </div>
+                <p
+                  className={`text-xs font-mono mt-0.5 ${
+                    isDark ? "text-white/40" : "text-gray-500"
+                  }`}
+                >
+                  {activeTab === "account" && t("desc_account")}
+                  {activeTab === "security" && t("desc_security")}
+                  {activeTab === "billing" && t("desc_billing")}
+                  {activeTab === "workspace" && t("desc_workspace")}
+                  {activeTab === "notifications" && t("desc_notifications")}
+                  {activeTab === "developer" && t("desc_developer")}
+                  {activeTab === "preferences" && t("desc_preferences")}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Scrollable Content Container (Transparent Obsidian Canvas) */}
+          <div
+            className={`flex-1 overflow-y-auto no-scrollbar ${
+              isDark ? "bg-transparent" : "bg-gray-50/50"
+            }`}
+          >
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.15 }}
+                className="w-full p-4 sm:p-6 lg:p-8 space-y-6"
+              >
+                {renderTabContent()}
+              </motion.div>
+            </AnimatePresence>
+          </div>
         </div>
       </div>
     </div>
