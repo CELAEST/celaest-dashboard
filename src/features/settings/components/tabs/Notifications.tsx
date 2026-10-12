@@ -28,7 +28,7 @@ export function Notifications() {
   return (
     <div className="space-y-6">
       {/* Overview Card */}
-      <div className="settings-glass-card rounded-2xl p-6">
+      <div className="settings-glass-card rounded-2xl p-4 sm:p-6">
         <NotificationHeader />
         <NotificationPreferences
           sections={notificationSections}
@@ -45,7 +45,7 @@ export function Notifications() {
       <div className="flex justify-end pb-8">
         <button
           onClick={() => toast.success(t("notification_updated"))}
-          className="px-6 py-2.5 rounded-xl text-xs font-semibold bg-white text-black hover:bg-neutral-200 active:scale-[0.98] transition-all cursor-pointer shadow-md font-jakarta"
+          className="w-full sm:w-auto px-6 py-2.5 rounded-xl text-xs font-semibold bg-white text-black hover:bg-neutral-200 active:scale-[0.98] transition-all cursor-pointer shadow-md font-jakarta"
         >
           {t("save_settings")}
         </button>

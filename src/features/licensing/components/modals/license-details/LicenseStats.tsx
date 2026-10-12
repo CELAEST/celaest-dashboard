@@ -26,9 +26,9 @@ export const LicenseStats: React.FC<LicenseStatsProps> = ({
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5 sm:gap-3">
       <div
-        className={`p-3.5 rounded-xl border ${
+        className={`p-3 sm:p-3.5 rounded-xl border ${
           isDark
             ? "bg-white/[0.02] border-white/8"
             : "bg-gray-50 border-gray-100"
@@ -43,7 +43,7 @@ export const LicenseStats: React.FC<LicenseStatsProps> = ({
       </div>
 
       <div
-        className={`p-3.5 rounded-xl border ${
+        className={`p-3 sm:p-3.5 rounded-xl border ${
           isDark
             ? "bg-white/[0.02] border-white/8"
             : "bg-gray-50 border-gray-100"
@@ -58,7 +58,7 @@ export const LicenseStats: React.FC<LicenseStatsProps> = ({
       </div>
 
       <div
-        className={`p-3.5 rounded-xl border ${
+        className={`col-span-2 md:col-span-1 p-3 sm:p-3.5 rounded-xl border ${
           isDark
             ? "bg-white/[0.02] border-white/8"
             : "bg-gray-50 border-gray-100"

@@ -15,6 +15,8 @@ import { useTranslations } from "next-intl";
 interface MarketplaceFilterSidebarProps {
   selectedCategories: string[];
   onCategoryChange: (category: string) => void;
+  selectedTier?: string;
+  onTierChange?: (tier: string) => void;
   selectedRating: number;
   onRatingChange: (rating: number) => void;
   priceRange: string;
@@ -25,6 +27,8 @@ interface MarketplaceFilterSidebarProps {
 export function MarketplaceFilterSidebar({
   selectedCategories,
   onCategoryChange,
+  selectedTier = "all",
+  onTierChange,
   selectedRating,
   onRatingChange,
   priceRange,
@@ -190,6 +194,80 @@ export function MarketplaceFilterSidebar({
             )}
           </AnimatePresence>
         </div>
+
+        {/* Plan Tier Section */}
+        {onTierChange && (
+          <div className="space-y-1">
+            <button
+              onClick={() => toggleSection("plans")}
+              className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg transition-colors duration-150 cursor-pointer ${
+                isDark
+                  ? "hover:bg-white/[0.03] text-white/50 hover:text-white/80"
+                  : "hover:bg-gray-50 text-gray-600 hover:text-gray-900"
+              }`}
+            >
+              <span className="text-[10px] font-mono uppercase tracking-[0.15em]">
+                {t("plan_filter")}
+              </span>
+              <CaretDown
+                size={12}
+                className={`transition-transform duration-200 ${
+                  collapsedSections.has("plans") ? "" : "rotate-180"
+                } ${isDark ? "text-white/30" : "text-gray-400"}`}
+              />
+            </button>
+
+            <AnimatePresence>
+              {!collapsedSections.has("plans") && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="space-y-0.5 mt-1 overflow-hidden"
+                >
+                  {[
+                    { id: "all", label: t("all_plans") },
+                    { id: "Starter+", label: "Starter+" },
+                    { id: "Pro Tier", label: "Pro Tier" },
+                    { id: "Enterprise", label: "Enterprise" },
+                  ].map((tier) => {
+                    const isSelected = selectedTier === tier.id;
+                    return (
+                      <button
+                        key={tier.id}
+                        onClick={() => onTierChange(tier.id)}
+                        className={`
+                          group relative overflow-hidden w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-all duration-200 cursor-pointer text-left border
+                          ${
+                            isSelected
+                              ? isDark
+                                ? "bg-zinc-800/40 border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] text-zinc-100 font-semibold"
+                                : "bg-white border-black/6 shadow-sm text-zinc-900 font-semibold"
+                              : isDark
+                                ? "border-transparent text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40 hover:border-white/8 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+                                : "border-transparent text-zinc-500 hover:text-zinc-900 hover:bg-white hover:border-black/6 hover:shadow-xs"
+                          }
+                        `}
+                      >
+                        {isSelected && isDark && (
+                          <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/4 to-transparent w-[200%] animate-sheen pointer-events-none" />
+                        )}
+                        <span className="truncate relative z-10">{tier.label}</span>
+                        {isSelected && (
+                          <Check
+                            size={12}
+                            className={isDark ? "text-zinc-200 shrink-0 relative z-10" : "text-zinc-900 shrink-0 relative z-10"}
+                            strokeWidth={2.5}
+                          />
+                        )}
+                      </button>
+                    );
+                  })}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
 
         {/* Rating Funnel Section */}
         <div className="space-y-1">

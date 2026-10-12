@@ -92,7 +92,7 @@ export const LicensingHub: React.FC = () => {
           )}
 
           {effectiveActiveTab === "licenses" && (
-            <div className="flex-1 min-h-0 px-4 sm:px-6 pt-4 sm:pt-5 pb-4 sm:pb-6 overflow-hidden flex flex-col">
+            <div className="flex-1 min-h-0 px-0 sm:px-6 pt-2.5 sm:pt-5 pb-3 sm:pb-6 overflow-y-auto sm:overflow-hidden flex flex-col">
               <LicensingList
                 licenses={licenses}
                 loading={loading}

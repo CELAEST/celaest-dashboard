@@ -40,45 +40,39 @@ const GaugeRing: React.FC<GaugeRingProps> = ({
   isDark,
   delay = 0,
 }) => {
-  const size = 64;
-  const stroke = 5;
-  const radius = (size - stroke) / 2;
-  const circumference = 2 * Math.PI * radius;
   const safePct = Math.min(Math.max(percent, 0), 100);
 
   return (
-    <div className="flex flex-col items-center gap-1.5">
-      <div className="relative" style={{ width: size, height: size }}>
-        <svg width={size} height={size} className="absolute inset-0 -rotate-90">
+    <div className="flex flex-col items-center gap-0.5 sm:gap-1.5">
+      <div className="relative w-10 h-10 sm:w-16 sm:h-16">
+        <svg viewBox="0 0 64 64" className="w-full h-full absolute inset-0 -rotate-90">
           <circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
+            cx="32"
+            cy="32"
+            r="29.5"
             fill="none"
             stroke={isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}
-            strokeWidth={stroke}
+            strokeWidth="5"
           />
-        </svg>
-        <svg width={size} height={size} className="absolute inset-0 -rotate-90">
           <motion.circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
+            cx="32"
+            cy="32"
+            r="29.5"
             fill="none"
             stroke={isDark ? "rgba(255,255,255,0.85)" : "rgba(15,23,42,0.85)"}
-            strokeWidth={stroke}
+            strokeWidth="5"
             strokeLinecap="round"
-            strokeDasharray={circumference}
-            initial={{ strokeDashoffset: circumference }}
-            animate={{ strokeDashoffset: circumference - (circumference * safePct) / 100 }}
+            strokeDasharray={2 * Math.PI * 29.5}
+            initial={{ strokeDashoffset: 2 * Math.PI * 29.5 }}
+            animate={{ strokeDashoffset: 2 * Math.PI * 29.5 - (2 * Math.PI * 29.5 * safePct) / 100 }}
             transition={{ duration: 1.2, delay, ease: "easeOut" }}
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          {icon}
+          <div className="scale-[0.65] sm:scale-100">{icon}</div>
           <span
             className={`font-mono font-bold leading-none mt-0.5 ${
-              value.length > 5 ? "text-[10px]" : "text-xs"
+              value.length > 5 ? "text-[7px] sm:text-[10px]" : "text-[9px] sm:text-xs"
             } ${isDark ? "text-zinc-100" : "text-gray-900"}`}
           >
             {value}
@@ -87,13 +81,13 @@ const GaugeRing: React.FC<GaugeRingProps> = ({
       </div>
       <div className="text-center">
         <div
-          className={`text-[10px] font-mono uppercase tracking-wider ${
+          className={`text-[8px] sm:text-[10px] font-mono uppercase tracking-wider ${
             isDark ? "text-white/60" : "text-gray-600"
           }`}
         >
           {label}
         </div>
-        <div className={`text-[9px] font-mono ${isDark ? "text-white/40" : "text-gray-400"}`}>
+        <div className={`text-[7px] sm:text-[9px] font-mono ${isDark ? "text-white/40" : "text-gray-400"}`}>
           {sub}
         </div>
       </div>
@@ -172,13 +166,199 @@ export const SubscriptionManager: React.FC = () => {
   return (
     <>
       <div
-        className={`relative w-full rounded-2xl transition-all duration-200 border p-4 sm:p-5 ${
+        className={`relative w-full rounded-2xl transition-all duration-200 border p-3.5 sm:p-5 ${
           isDark
             ? "bg-[#09090b]/80 border-white/6 backdrop-blur-xl hover:border-white/10"
             : "bg-white border-gray-200 shadow-sm hover:border-gray-300"
         }`}
       >
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between lg:gap-6">
+        {/* ── MOBILE LAYOUT (<lg) ── */}
+        <div className="flex flex-col gap-2.5 lg:hidden">
+          {/* Row 1: Plan Name & Badges on left, Price on right */}
+          <div className="flex items-center justify-between gap-3 min-w-0">
+            <div className="flex flex-col min-w-0">
+              <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
+                <span
+                  className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-mono uppercase tracking-wider border ${
+                    isDark
+                      ? "bg-white/[0.04] border-white/8 text-white/70"
+                      : "bg-gray-100 border-gray-200 text-gray-700"
+                  }`}
+                >
+                  <Lightning size={10} className={isDark ? "text-white/60" : "text-gray-500"} />
+                  {plan?.name ? plan.name.toUpperCase() : t("no_plan")}
+                </span>
+                <span
+                  className={`inline-flex items-center px-1.5 py-0.5 rounded-md text-[9px] font-mono uppercase tracking-wider border ${
+                    subscription?.status === "active" || subscription?.status === "trial"
+                      ? isDark
+                        ? "bg-white/[0.08] text-white border-white/10 shadow-xs font-semibold"
+                        : "bg-gray-900 text-white font-semibold"
+                      : isDark
+                        ? "bg-white/[0.03] text-white/50 border-white/[0.05]"
+                        : "bg-gray-100 text-gray-600 border-gray-200"
+                  }`}
+                >
+                  <Check size={9} strokeWidth={3} className="mr-1 text-white/80" />
+                  {subscription?.status?.toUpperCase() || "INACTIVE"}
+                </span>
+              </div>
+              <h2
+                className={`text-lg font-bold tracking-tight truncate ${
+                  isDark ? "text-zinc-100" : "text-gray-900"
+                }`}
+              >
+                {plan?.name || "Plan Nexus"}
+              </h2>
+            </div>
+
+            <div className="flex items-baseline gap-1 shrink-0">
+              <span
+                className={`text-2xl font-bold font-mono tracking-tight ${
+                  isDark ? "text-zinc-100" : "text-gray-900"
+                }`}
+              >
+                {priceDisplay}
+              </span>
+              {!selectedPrice.isFree && (
+                <span
+                  className={`text-[10px] font-mono ${
+                    isDark ? "text-white/40" : "text-gray-500"
+                  }`}
+                >
+                  {periodLabel}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Row 2: 2 symmetrical metric tiles with progress bars */}
+          <div className="grid grid-cols-2 gap-2">
+            <div
+              className={`flex items-center gap-2.5 p-2 rounded-xl border ${
+                isDark ? "bg-white/[0.02] border-white/6" : "bg-gray-50 border-gray-200"
+              }`}
+            >
+              <div
+                className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border ${
+                  isDark
+                    ? "bg-white/[0.04] border-white/8 text-white/70"
+                    : "bg-white border-gray-200 text-gray-700"
+                }`}
+              >
+                <CheckCircle size={14} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div
+                  className={`text-[9px] font-mono uppercase tracking-wider truncate ${
+                    isDark ? "text-white/40" : "text-gray-500"
+                  }`}
+                >
+                  {t("licenses")}
+                </div>
+                <div
+                  className={`text-xs font-mono font-bold leading-tight ${
+                    isDark ? "text-zinc-100" : "text-gray-900"
+                  }`}
+                >
+                  {usage.licenses.used} / {usage.licenses.total}
+                </div>
+                <div className="w-full h-1 bg-white/10 rounded-full mt-1 overflow-hidden">
+                  <div
+                    className="h-full bg-white rounded-full transition-all duration-500"
+                    style={{
+                      width: `${Math.min(
+                        100,
+                        usage.licenses.total > 0
+                          ? (usage.licenses.used / usage.licenses.total) * 100
+                          : 0
+                      )}%`,
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div
+              className={`flex items-center gap-2.5 p-2 rounded-xl border ${
+                isDark ? "bg-white/[0.02] border-white/6" : "bg-gray-50 border-gray-200"
+              }`}
+            >
+              <div
+                className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border ${
+                  isDark
+                    ? "bg-white/[0.04] border-white/8 text-white/70"
+                    : "bg-white border-gray-200 text-gray-700"
+                }`}
+              >
+                <TrendUp size={14} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div
+                  className={`text-[9px] font-mono uppercase tracking-wider truncate ${
+                    isDark ? "text-white/40" : "text-gray-500"
+                  }`}
+                >
+                  {t("api_calls")}
+                </div>
+                <div
+                  className={`text-xs font-mono font-bold leading-tight ${
+                    isDark ? "text-zinc-100" : "text-gray-900"
+                  }`}
+                >
+                  {usage.apiCalls.used.toLocaleString()}
+                </div>
+                <div className="w-full h-1 bg-white/10 rounded-full mt-1 overflow-hidden">
+                  <div
+                    className="h-full bg-white/60 rounded-full transition-all duration-500"
+                    style={{
+                      width: `${Math.min(
+                        100,
+                        Math.max(5, usage.apiCalls.percent)
+                      )}%`,
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Row 3: Symmetrical action buttons */}
+          <div className="grid grid-cols-2 gap-2 pt-0.5">
+            <button
+              onClick={canBilling ? () => setIsUpgradeModalOpen(true) : undefined}
+              disabled={!canBilling}
+              title={!canBilling ? t("owners_only") : undefined}
+              className={`flex items-center justify-center gap-1.5 h-9 rounded-xl text-[11px] font-mono font-bold uppercase tracking-wider transition-all duration-150 cursor-pointer ${
+                !canBilling
+                  ? "bg-white/[0.02] text-white/30 border border-white/5 cursor-not-allowed"
+                  : isDark
+                    ? "bg-white text-black hover:bg-zinc-200 shadow-sm"
+                    : "bg-gray-900 text-white hover:bg-black shadow-sm"
+              }`}
+            >
+              <Sparkle className="w-3.5 h-3.5" weight="fill" />
+              <span>{t("upgrade")}</span>
+            </button>
+            <button
+              onClick={canBilling ? () => setIsManageModalOpen(true) : undefined}
+              disabled={!canBilling}
+              title={!canBilling ? t("owners_only") : undefined}
+              className={`flex items-center justify-center gap-1.5 h-9 rounded-xl text-[11px] font-mono font-medium uppercase tracking-wider transition-all duration-150 cursor-pointer ${
+                !canBilling
+                  ? "bg-white/[0.01] text-white/30 border border-white/5 cursor-not-allowed"
+                  : isDark
+                    ? "bg-white/[0.03] border border-white/10 text-white/70 hover:text-white hover:bg-white/[0.06] hover:border-white/20"
+                    : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300"
+              }`}
+            >
+              <span>{t("manage")}</span>
+            </button>
+          </div>
+        </div>
+
+        {/* ── DESKTOP LAYOUT (lg+) ── */}
+        <div className="hidden lg:flex lg:flex-row lg:items-center lg:justify-between lg:gap-6">
           {/* ── LEFT: Plan info ── */}
           <div className="flex flex-col gap-1 min-w-0">
             {/* Badges inline */}
@@ -299,7 +479,7 @@ export const SubscriptionManager: React.FC = () => {
           />
 
           {/* ── RIGHT: Actions ── */}
-          <div className="flex flex-row gap-2 lg:flex-col shrink-0">
+          <div className="flex flex-col gap-2 shrink-0">
             <button
               onClick={canBilling ? () => setIsUpgradeModalOpen(true) : undefined}
               disabled={!canBilling}

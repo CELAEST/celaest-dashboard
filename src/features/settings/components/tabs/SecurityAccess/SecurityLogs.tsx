@@ -15,7 +15,7 @@ export const SecurityLogs: React.FC<SecurityLogsProps> = memo(
     const t = useTranslations("settings");
 
     return (
-      <div className="settings-glass-card rounded-2xl p-6">
+      <div className="settings-glass-card rounded-2xl p-4 sm:p-6">
         <div className="flex items-center justify-between mb-6">
           <h3
             className={`text-base font-bold font-jakarta flex items-center gap-2 ${

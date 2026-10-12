@@ -134,7 +134,7 @@ export const BillingPortal: React.FC = () => {
       >
         <button
           onClick={() => setActiveTab("overview")}
-          className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-medium transition-all cursor-pointer ${
+          className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-md text-[10px] sm:text-[11px] font-medium transition-all cursor-pointer ${
             activeTab === "overview"
               ? isDark
                 ? "bg-white/10 text-white shadow-xs font-semibold"
@@ -149,7 +149,7 @@ export const BillingPortal: React.FC = () => {
         </button>
         <button
           onClick={() => setActiveTab("invoices")}
-          className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-medium transition-all cursor-pointer ${
+          className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-md text-[10px] sm:text-[11px] font-medium transition-all cursor-pointer ${
             activeTab === "invoices"
               ? isDark
                 ? "bg-white/10 text-white shadow-xs font-semibold"
@@ -285,30 +285,30 @@ export const BillingPortal: React.FC = () => {
   return (
     <div className={`flex-1 flex flex-col min-h-0 h-full ${isDark ? "bg-transparent" : "bg-gray-50"}`}>
       <header
-        className={`shrink-0 px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-3 border-b backdrop-blur-xl transition-colors duration-200 ${
+        className={`shrink-0 px-3 sm:px-6 py-2.5 sm:py-3.5 flex items-center justify-between gap-2.5 sm:gap-3 border-b backdrop-blur-xl transition-colors duration-200 ${
           isDark ? "bg-[#09090b]/80 border-white/6" : "bg-white/80 border-gray-200/80"
         }`}
       >
-        <div className="flex items-center gap-3 min-w-0">
+        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
           <div
-            className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border transition-colors ${
+            className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center shrink-0 border transition-colors ${
               isDark
                 ? "bg-white/[0.04] border-white/8 text-white/70"
                 : "bg-gray-100 border-gray-200 text-gray-700"
             }`}
           >
-            <Receipt size={15} />
+            <Receipt size={14} className="sm:scale-110" />
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <h1
-              className={`text-sm sm:text-base font-semibold tracking-tight ${
+              className={`text-sm sm:text-base font-semibold tracking-tight truncate ${
                 isDark ? "text-zinc-100" : "text-gray-900"
               }`}
             >
               {effectiveView === "admin" ? t("financial_center") : t("billing_portal")}
             </h1>
             <span
-              className={`text-[10px] sm:text-[11px] font-mono tracking-wider uppercase border-l pl-3 ${
+              className={`text-[10px] sm:text-[11px] font-mono tracking-wider uppercase border-l pl-2.5 sm:pl-3 hidden sm:inline-block ${
                 isDark ? "border-white/10 text-white/40" : "border-gray-200 text-gray-400"
               }`}
             >
@@ -317,7 +317,7 @@ export const BillingPortal: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           {billingTabs}
           {headerActions}
         </div>
@@ -349,7 +349,7 @@ export const BillingPortal: React.FC = () => {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.2 }}
-              className="w-full min-h-full lg:h-full flex flex-col"
+              className="w-full h-full min-h-0 flex flex-col flex-1"
             >
               {activeTab === "overview" && <BillingOverview />}
               {activeTab === "invoices" && <InvoicesView />}

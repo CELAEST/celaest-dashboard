@@ -54,17 +54,17 @@ export const ErrorListItem = React.memo(
       >
         <button
           type="button"
-          className={`w-full text-left p-4 sm:p-5 cursor-pointer transition-colors outline-none flex items-start justify-between gap-4 ${
+          className={`w-full text-left p-3.5 sm:p-5 cursor-pointer transition-colors outline-none flex items-start justify-between gap-3 sm:gap-4 ${
             isExpanded ? (isDark ? "bg-white/[0.02]" : "bg-gray-50/40") : ""
           }`}
           onClick={() => toggleErrorExpansion(error.id)}
           aria-expanded={isExpanded}
           aria-controls={`error-details-${error.id}`}
         >
-          <div className="flex items-start gap-3.5 min-w-0">
+          <div className="flex items-start gap-2.5 sm:gap-3.5 min-w-0">
             {/* Left: Severity Indicator Line */}
             <div
-              className={`w-1.5 h-11 rounded-full shrink-0 ${
+              className={`w-1.5 h-10 sm:h-11 rounded-full shrink-0 ${
                 error.severity === "critical"
                   ? "bg-red-500/80"
                   : error.severity === "warning"
@@ -75,9 +75,9 @@ export const ErrorListItem = React.memo(
 
             <div className="space-y-1.5 min-w-0">
               {/* Metadata Header */}
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
                 <span
-                  className={`font-mono text-[10px] font-bold px-2 py-0.5 rounded border ${
+                  className={`font-mono text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded border ${
                     isDark
                       ? "border-white/10 bg-white/[0.04] text-white/80"
                       : "border-gray-200 bg-gray-100 text-gray-800"
@@ -91,7 +91,7 @@ export const ErrorListItem = React.memo(
                   isDark={isDark}
                 />
                 <span
-                  className={`flex items-center gap-1 text-[11px] font-mono ${
+                  className={`flex items-center gap-1 text-[10px] sm:text-[11px] font-mono ${
                     isDark ? "text-white/40" : "text-gray-400"
                   }`}
                 >
@@ -102,7 +102,7 @@ export const ErrorListItem = React.memo(
 
               {/* Main Error Message */}
               <p
-                className={`text-sm sm:text-base font-bold tracking-tight leading-snug ${
+                className={`text-xs sm:text-base font-bold tracking-tight leading-snug ${
                   isDark ? "text-white" : "text-gray-900"
                 }`}
               >
@@ -111,7 +111,7 @@ export const ErrorListItem = React.memo(
 
               {/* Footer Metadata */}
               <div
-                className={`flex items-center gap-4 text-xs font-mono flex-wrap pt-0.5 ${
+                className={`flex items-center gap-2.5 sm:gap-4 text-[11px] sm:text-xs font-mono flex-wrap pt-0.5 ${
                   isDark ? "text-white/40" : "text-gray-500"
                 }`}
               >

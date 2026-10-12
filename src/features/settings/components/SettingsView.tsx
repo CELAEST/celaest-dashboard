@@ -11,6 +11,7 @@ import {
   User,
   CreditCard,
   CaretLeft,
+  CaretRight,
   Check,
 } from "@phosphor-icons/react";
 import { AccountProfile } from "./tabs/AccountProfile";
@@ -110,15 +111,15 @@ export function SettingsView() {
     >
       {/* ===== TOP HEADER (Cohesive with BillingPortal & MarketplaceHeader) ===== */}
       <header
-        className={`shrink-0 px-4 sm:px-6 py-3.5 flex items-center justify-between border-b backdrop-blur-xl transition-colors duration-200 ${
+        className={`shrink-0 px-3.5 sm:px-6 py-2.5 sm:py-3.5 flex items-center justify-between border-b backdrop-blur-xl transition-colors duration-200 ${
           isDark
             ? "bg-[#09090b]/80 border-white/6"
             : "bg-white/80 border-gray-200/80"
         }`}
       >
-        <div className="flex items-center gap-3 min-w-0">
+        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
           <div
-            className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border transition-colors ${
+            className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center shrink-0 border transition-colors ${
               isDark
                 ? "bg-white/[0.04] border-white/8 text-white/70"
                 : "bg-gray-100 border-gray-200 text-gray-700"
@@ -126,16 +127,16 @@ export function SettingsView() {
           >
             <Gear size={15} />
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <h1
-              className={`text-sm sm:text-base font-semibold font-jakarta tracking-tight ${
+              className={`text-xs sm:text-base font-semibold font-jakarta tracking-tight truncate ${
                 isDark ? "text-zinc-100" : "text-gray-900"
               }`}
             >
               {t("configuration")}
             </h1>
             <span
-              className={`text-[10px] sm:text-[11px] font-mono tracking-wider uppercase border-l pl-3 ${
+              className={`text-[9px] sm:text-[11px] font-mono tracking-wider uppercase border-l pl-2 sm:pl-3 truncate ${
                 isDark
                   ? "border-white/10 text-white/40"
                   : "border-gray-200 text-gray-400"
@@ -164,7 +165,7 @@ export function SettingsView() {
       <div className="flex-1 flex min-h-0 overflow-hidden">
         {/* ===== SIDEBAR NAVIGATION (MarketplaceFilterSidebar Standard) ===== */}
         <div
-          className={`w-60 h-full shrink-0 flex-col border-r transition-colors ${
+          className={`w-full md:w-60 h-full shrink-0 flex-col md:border-r transition-colors ${
             viewMode === "list" ? "flex" : "hidden md:flex"
           } ${
             isDark
@@ -174,7 +175,7 @@ export function SettingsView() {
         >
           {/* Subheader */}
           <div
-            className={`px-4 py-3.5 border-b ${
+            className={`px-4 py-3 sm:py-3.5 border-b ${
               isDark ? "border-white/6" : "border-gray-200"
             }`}
           >
@@ -218,7 +219,7 @@ export function SettingsView() {
                         type="button"
                         onClick={() => handleTabSelect(tab.id)}
                         className={`
-                          group relative overflow-hidden w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-all duration-200 cursor-pointer text-left border
+                          group relative overflow-hidden w-full flex items-center justify-between px-3.5 py-3 sm:py-2.5 rounded-xl text-xs transition-all duration-200 cursor-pointer text-left border
                           ${
                             isActive
                               ? isDark
@@ -230,9 +231,9 @@ export function SettingsView() {
                           }
                         `}
                       >
-                        <div className="flex items-center gap-2.5 truncate">
+                        <div className="flex items-center gap-2.5 min-w-0">
                           <Icon
-                            size={14}
+                            size={15}
                             className={`shrink-0 transition-colors ${
                               isActive
                                 ? isDark
@@ -245,17 +246,26 @@ export function SettingsView() {
                           />
                           <span className="truncate">{tab.label}</span>
                         </div>
-                        {isActive && (
-                          <Check
-                            size={12}
-                            strokeWidth={2.5}
-                            className={
-                              isDark
-                                ? "text-zinc-200 shrink-0"
-                                : "text-zinc-900 shrink-0"
-                            }
-                          />
-                        )}
+                        <div className="flex items-center gap-2 shrink-0">
+                          {isActive ? (
+                            <Check
+                              size={13}
+                              strokeWidth={2.5}
+                              className={
+                                isDark
+                                  ? "text-zinc-200 shrink-0"
+                                  : "text-zinc-900 shrink-0"
+                              }
+                            />
+                          ) : (
+                            <CaretRight
+                              size={14}
+                              className={`md:hidden shrink-0 ${
+                                isDark ? "text-white/20" : "text-gray-400"
+                              }`}
+                            />
+                          )}
+                        </div>
                       </button>
                     );
                   })}
@@ -266,7 +276,7 @@ export function SettingsView() {
 
           {/* Footer (OrderDetails style) */}
           <div
-            className={`p-3 border-t flex items-center justify-between shrink-0 ${
+            className={`p-3.5 sm:p-3 border-t flex items-center justify-between shrink-0 ${
               isDark
                 ? "border-white/6 bg-transparent"
                 : "border-gray-200 bg-gray-50"
@@ -313,41 +323,33 @@ export function SettingsView() {
         >
           {/* Section Canvas Header */}
           <div
-            className={`shrink-0 px-6 py-4 border-b flex items-center justify-between gap-3 ${
+            className={`shrink-0 px-3.5 sm:px-6 py-3 sm:py-4 border-b flex items-center justify-between gap-3 ${
               isDark
                 ? "bg-[#09090b]/80 border-white/6 backdrop-blur-xl"
                 : "bg-white border-gray-200"
             }`}
           >
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
               <button
                 onClick={handleBackToList}
-                className="md:hidden p-2 -ml-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 text-gray-500 dark:text-gray-400 cursor-pointer"
+                className="md:hidden flex items-center gap-1.5 px-2.5 py-1.5 -ml-1 rounded-xl bg-white/[0.04] border border-white/8 text-white/70 hover:text-white cursor-pointer transition-colors shrink-0"
                 aria-label="Back to settings list"
               >
-                <CaretLeft size={20} weight="bold" />
+                <CaretLeft size={15} weight="bold" />
+                <span className="text-[10px] font-mono uppercase tracking-wider font-semibold">Módulos</span>
               </button>
-              <div>
-                <div className="flex items-center gap-2.5">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 sm:gap-2.5">
                   <h2
-                    className={`text-base sm:text-lg font-bold font-jakarta tracking-tight ${
+                    className={`text-sm sm:text-lg font-bold font-jakarta tracking-tight truncate ${
                       isDark ? "text-white" : "text-gray-900"
                     }`}
                   >
                     {tabs.find((t) => t.id === activeTab)?.label}
                   </h2>
-                  <span
-                    className={`text-[10px] font-mono uppercase px-2.5 py-0.5 rounded-full border ${
-                      isDark
-                        ? "bg-white/[0.04] text-white/60 border-white/8"
-                        : "bg-gray-100 text-gray-600 border-gray-200"
-                    }`}
-                  >
-                    Activo
-                  </span>
                 </div>
                 <p
-                  className={`text-xs font-mono mt-0.5 ${
+                  className={`text-[11px] sm:text-xs font-mono mt-0.5 truncate ${
                     isDark ? "text-white/40" : "text-gray-500"
                   }`}
                 >
@@ -363,6 +365,37 @@ export function SettingsView() {
             </div>
           </div>
 
+          {/* Quick Tab Switcher on Mobile (<md) */}
+          <div
+            className={`md:hidden shrink-0 border-b px-2.5 py-1.5 overflow-x-auto no-scrollbar flex items-center gap-1.5 ${
+              isDark ? "bg-[#080c14]/60 border-white/6" : "bg-gray-100/80 border-gray-200"
+            }`}
+          >
+            {tabs.map((tab) => {
+              const isActive = activeTab === tab.id;
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => handleTabSelect(tab.id)}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-mono uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer shrink-0 border ${
+                    isActive
+                      ? isDark
+                        ? "bg-white/10 text-white font-semibold border-white/10"
+                        : "bg-white text-gray-900 font-semibold border-gray-300 shadow-xs"
+                      : isDark
+                        ? "text-white/40 hover:text-white border-transparent"
+                        : "text-gray-500 hover:text-gray-800 border-transparent"
+                  }`}
+                >
+                  <Icon size={12} className="shrink-0" />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
           {/* Scrollable Content Container (Transparent Obsidian Canvas) */}
           <div
             className={`flex-1 overflow-y-auto no-scrollbar ${
@@ -376,7 +409,7 @@ export function SettingsView() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -6 }}
                 transition={{ duration: 0.15 }}
-                className="w-full p-4 sm:p-6 lg:p-8 space-y-6"
+                className="w-full p-3.5 sm:p-6 lg:p-8 space-y-4 sm:space-y-6"
               >
                 {renderTabContent()}
               </motion.div>

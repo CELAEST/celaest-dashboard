@@ -19,109 +19,74 @@ export const SignOutCard: React.FC<SignOutCardProps> = memo(
     return (
       <div
         onClick={(e) => e.stopPropagation()}
-        className={`relative w-full overflow-hidden rounded-4xl backdrop-blur-xl border shadow-2xl transition-all duration-300 ${
+        className={`relative w-full overflow-hidden rounded-3xl border shadow-[0_32px_96px_-12px_rgba(0,0,0,0.95)] backdrop-blur-2xl transition-all duration-300 ${
           isDark
-            ? "bg-[#07090d] border-white/10 shadow-cyan-950/30"
-            : "bg-white/95 border-gray-200/50"
+            ? "bg-[#09090b] border-white/[0.08]"
+            : "bg-white border-zinc-200 shadow-2xl"
         }`}
       >
-        <div
-          className={`absolute inset-x-0 top-0 h-px ${
-            isDark
-              ? "bg-linear-to-r from-transparent via-cyan-400/70 to-transparent"
-              : "bg-linear-to-r from-transparent via-blue-500/60 to-transparent"
-          }`}
-        />
-
-        <div
-          className={`absolute -top-24 -right-24 w-48 h-48 bg-linear-to-br from-cyan-400/20 to-blue-400/20 rounded-full blur-3xl ${
-            isDark ? "opacity-100" : "opacity-0"
-          }`}
-        />
-        <div
-          className={`absolute -bottom-24 -left-24 w-48 h-48 bg-linear-to-tr from-blue-400/20 to-cyan-400/20 rounded-full blur-3xl ${
-            isDark ? "opacity-100" : "opacity-0"
-          }`}
-        />
+        {/* Tokyo Corner Accents (Dark Mode) */}
+        {isDark && (
+          <>
+            <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-white/20 rounded-tl-sm pointer-events-none z-30" />
+            <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-white/20 rounded-tr-sm pointer-events-none z-30" />
+            <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-white/20 rounded-bl-sm pointer-events-none z-30" />
+            <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-white/20 rounded-br-sm pointer-events-none z-30" />
+          </>
+        )}
 
         <div className="relative flex min-w-0 flex-col items-stretch gap-6 p-6 sm:p-8">
           <button
             onClick={onClose}
-            className={`absolute top-4 right-4 z-10 flex h-9 w-9 items-center justify-center rounded-xl transition-all duration-200 group ${
-              isDark ? "hover:bg-white/10" : "hover:bg-gray-100"
+            className={`absolute top-4 right-4 z-10 flex h-8 w-8 items-center justify-center rounded-xl transition-colors cursor-pointer ${
+              isDark
+                ? "text-white/40 hover:text-white hover:bg-white/5"
+                : "text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100"
             }`}
           >
-            <X
-              className={`w-5 h-5 ${
-                isDark
-                  ? "text-gray-400 group-hover:text-white"
-                  : "text-gray-500 group-hover:text-gray-700"
-              }`}
-            />
+            <X className="w-4 h-4" />
           </button>
 
           <div className="flex flex-col items-stretch gap-4 text-center">
-            <span
-              className={`mx-auto inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-bold uppercase tracking-[0.24em] ${
-                isDark
-                  ? "border-cyan-500/20 bg-cyan-500/10 text-cyan-300"
-                  : "border-blue-200 bg-blue-50 text-blue-700"
-              }`}
-            >
-              {isDemo ? t("demo_mode") : t("secure_session")}
-            </span>
-
             <div className="mx-auto flex justify-center">
-              <div className="relative">
-                <div
-                  className={`absolute inset-0 rounded-[1.75rem] bg-linear-to-br blur-xl scale-110 ${
-                    isDark
-                      ? "from-cyan-400 to-blue-400 opacity-60"
-                      : "from-blue-600 to-indigo-600 opacity-40"
-                  }`}
-                />
-
-                <div
-                  className={`relative h-18 w-18 rounded-[1.75rem] bg-linear-to-br flex items-center justify-center shadow-lg ${
-                    isDark
-                      ? "from-cyan-400 to-blue-400"
-                      : "from-blue-600 to-indigo-600"
-                  }`}
-                >
-                  <SignOut className="w-8 h-8 text-white" />
-                </div>
+              <div
+                className={`h-15 w-15 rounded-2xl flex items-center justify-center border shadow-inner transition-colors ${
+                  isDark
+                    ? "bg-white/[0.04] border-white/10 text-zinc-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
+                    : "bg-zinc-100 border-zinc-200 text-zinc-800"
+                }`}
+              >
+                <SignOut className="w-7 h-7" weight="bold" />
               </div>
             </div>
 
             <div className="min-w-0 space-y-2">
               <h2
-                className={`w-full text-2xl font-black text-center tracking-tight sm:text-[2rem] ${
-                  isDark ? "text-white" : "text-gray-900"
+                className={`w-full text-xl sm:text-2xl font-bold text-center tracking-tight ${
+                  isDark ? "text-white" : "text-zinc-900"
                 }`}
               >
                 {isDemo ? t("reset_demo") : t("sign_out")}
               </h2>
 
               <p
-                className={`w-full text-center text-sm leading-6 sm:text-base ${
-                  isDark ? "text-gray-400" : "text-gray-600"
+                className={`w-full text-center text-xs sm:text-sm leading-relaxed max-w-sm mx-auto ${
+                  isDark ? "text-zinc-400" : "text-zinc-600"
                 }`}
               >
-                {isDemo
-                  ? t("reset_demo_desc")
-                  : t("sign_out_desc")}
+                {isDemo ? t("reset_demo_desc") : t("sign_out_desc")}
               </p>
             </div>
           </div>
 
-          <div className="flex flex-col-reverse gap-3 sm:flex-row">
+          <div className="flex flex-col-reverse gap-3 sm:flex-row pt-1">
             <button
               onClick={onClose}
               disabled={isLoading}
-              className={`min-w-0 flex-1 px-6 py-3.5 rounded-2xl font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+              className={`min-w-0 flex-1 px-5 py-3 rounded-xl font-mono text-xs uppercase tracking-wider font-semibold transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
                 isDark
-                  ? "bg-white/5 text-gray-300 hover:bg-white/10 border border-white/10"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-transparent"
+                  ? "bg-[#141418] hover:bg-[#1C1C22] text-white/80 border border-white/[0.08]"
+                  : "bg-zinc-100 hover:bg-zinc-200 text-zinc-800 border border-zinc-200"
               }`}
             >
               {tCommon("cancel")}
@@ -131,36 +96,16 @@ export const SignOutCard: React.FC<SignOutCardProps> = memo(
               onClick={onConfirm}
               disabled={isLoading}
               autoFocus
-              className="group relative min-w-0 flex-1 px-6 py-3.5 rounded-2xl font-semibold text-white overflow-hidden transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+              className={`min-w-0 flex-1 px-5 py-3 rounded-xl font-mono text-xs uppercase tracking-wider font-bold transition-all cursor-pointer shadow-md active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
+                isDark
+                  ? "bg-white hover:bg-neutral-200 text-black"
+                  : "bg-zinc-900 hover:bg-zinc-800 text-white"
+              }`}
             >
-              <div
-                className={`absolute inset-0 bg-linear-to-r transition-transform duration-300 group-hover:scale-105 ${
-                  isDark
-                    ? "from-cyan-400 to-blue-400"
-                    : "from-blue-600 to-indigo-600"
-                }`}
-              />
-
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-              </div>
-
-              <div className="relative grid place-items-center">
-                <span
-                  className={`col-start-1 row-start-1 flex items-center justify-center gap-2 transition-opacity duration-200 ${
-                    isLoading ? "opacity-0 invisible" : "opacity-100 visible"
-                  }`}
-                >
-                  {isDemo ? t("reset_demo") : t("sign_out")}
-                </span>
-
-                <span
-                  className={`col-start-1 row-start-1 flex items-center justify-center gap-2 transition-opacity duration-200 ${
-                    isLoading ? "opacity-100 visible" : "opacity-0 invisible"
-                  }`}
-                >
+              {isLoading ? (
+                <>
                   <svg
-                    className="animate-spin h-5 w-5"
+                    className="animate-spin h-4 w-4"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -179,25 +124,25 @@ export const SignOutCard: React.FC<SignOutCardProps> = memo(
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     />
                   </svg>
-                  {isDemo ? t("resetting") : t("signing_out")}
-                </span>
-              </div>
+                  <span>{isDemo ? t("resetting") : t("signing_out")}</span>
+                </>
+              ) : (
+                <span>{isDemo ? t("reset_demo") : t("sign_out")}</span>
+              )}
             </button>
           </div>
 
           <div
-            className={`mt-6 pt-6 border-t ${
-              isDark ? "border-white/10" : "border-gray-200/50"
+            className={`mt-2 pt-4 border-t ${
+              isDark ? "border-white/[0.06]" : "border-zinc-200/60"
             }`}
           >
             <p
-              className={`w-full text-xs text-center leading-5 ${
-                isDark ? "text-gray-500" : "text-gray-500"
+              className={`w-full text-[11px] font-mono text-center leading-relaxed ${
+                isDark ? "text-white/40" : "text-zinc-500"
               }`}
             >
-              {isDemo
-                ? t("demo_session_desc")
-                : t("secure_session_desc")}
+              {isDemo ? t("demo_session_desc") : t("secure_session_desc")}
             </p>
           </div>
         </div>

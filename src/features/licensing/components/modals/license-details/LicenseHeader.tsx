@@ -40,21 +40,21 @@ export const LicenseHeader: React.FC<LicenseHeaderProps> = ({
   };
 
   return (
-    <div className="relative px-6 py-4.5 border-b border-white/8 flex items-start justify-between shrink-0 bg-white/[0.015]">
-      <div className="relative z-10 flex items-start gap-3.5">
-        <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-white/[0.04] text-white/70 border border-white/8 mt-0.5">
-          <Key size={16} />
+    <div className="relative px-4 sm:px-6 py-3.5 sm:py-4.5 border-b border-white/8 flex items-start justify-between shrink-0 bg-white/[0.015]">
+      <div className="relative z-10 flex items-start gap-3 sm:gap-3.5 min-w-0">
+        <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center shrink-0 bg-white/[0.04] text-white/70 border border-white/8 mt-0.5">
+          <Key size={15} />
         </div>
-        <div>
-          <div className="flex items-center gap-2.5 mb-1 flex-wrap">
-            <h2 className="text-sm sm:text-base font-semibold tracking-tight text-zinc-100">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 sm:gap-2.5 mb-1 flex-wrap">
+            <h2 className="text-sm sm:text-base font-semibold tracking-tight text-zinc-100 truncate max-w-[180px] sm:max-w-none">
               {license.plan?.name ||
                 (license.metadata?.product_name as string) ||
                 license.license_key.substring(0, 16)}
             </h2>
             {renderStatus(license.status)}
           </div>
-          <p className="text-[10px] font-mono uppercase tracking-wider text-white/40">
+          <p className="text-[10px] font-mono uppercase tracking-wider text-white/40 truncate">
             {license.id}
           </p>
 

@@ -14,14 +14,6 @@ export const MarketplacePublicHero: React.FC = () => {
     catalog?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const handleIntegrationsGlow = (
-    event: React.MouseEvent<HTMLDivElement>,
-  ) => {
-    const bounds = event.currentTarget.getBoundingClientRect();
-    const x = ((event.clientX - bounds.left) / bounds.width) * 100;
-    event.currentTarget.style.setProperty("--glow-x", `${x}%`);
-  };
-
   const integrations = [
     {
       label: "WhatsApp",
@@ -64,13 +56,17 @@ export const MarketplacePublicHero: React.FC = () => {
           fill
           priority
           sizes="100vw"
-          className="hidden sm:block translate-x-14 scale-[1.34] object-contain object-right opacity-25 transform-gpu sm:-translate-x-5 sm:scale-[1.18] sm:object-center sm:opacity-100 lg:-translate-x-7 lg:scale-[1.2]"
+          className="hidden sm:block translate-x-14 scale-[1.34] object-contain object-right opacity-30 transform-gpu sm:-translate-x-5 sm:scale-[1.18] sm:object-center sm:opacity-100 lg:-translate-x-7 lg:scale-[1.2]"
           alt={t("hero_visual_alt")}
         />
-        <div className="absolute inset-y-0 left-0 w-full bg-linear-to-r from-black/92 via-black/68 to-black/18 sm:from-black/82 sm:via-black/42 sm:to-transparent lg:w-[58%]" />
-        <div className="absolute inset-y-0 left-0 w-20 bg-linear-to-r from-black to-transparent" />
-        <div className="absolute inset-y-0 right-0 w-48 bg-linear-to-l from-black via-black/70 to-transparent sm:w-56 lg:w-72" />
-        <div className="absolute inset-x-0 bottom-0 h-32 bg-linear-to-b from-transparent via-black/35 to-black" />
+        {/* Seamless black gradient on the left for text contrast without cutting the image */}
+        <div className="absolute inset-y-0 left-0 w-full bg-linear-to-r from-black via-black/85 to-transparent sm:from-black/90 sm:via-black/50 sm:to-transparent lg:w-[58%]" />
+        <div className="absolute inset-y-0 left-0 w-24 bg-linear-to-r from-black to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-28 bg-linear-to-b from-transparent via-black/40 to-black" />
+
+        {/* Ambient electric blue glow echoing the 3D cube */}
+        <div className="pointer-events-none absolute -left-20 top-1/4 h-96 w-96 rounded-full bg-[#0088ff]/10 blur-[130px]" />
+        <div className="pointer-events-none absolute left-1/4 top-1/2 h-64 w-64 rounded-full bg-[#00d2ff]/08 blur-[100px]" />
 
         <div className="relative z-10 mx-auto max-w-392">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-8 py-8 sm:py-0 min-h-[580px] sm:min-h-[526px] lg:min-h-[469px]">
@@ -84,18 +80,20 @@ export const MarketplacePublicHero: React.FC = () => {
                 {t("hero_headline")}
                 <span className="mt-1 block">
                   {t("hero_line_prefix")}{" "}
-                  <span className="text-blue-500">{t("hero_line_accent")}</span>{" "}
+                  <span className="text-transparent bg-clip-text bg-linear-to-r from-[#38bdf8] via-[#0099ff] to-[#60a5fa] drop-shadow-[0_0_24px_rgba(0,153,255,0.45)]">
+                    {t("hero_line_accent")}
+                  </span>{" "}
                   {t("hero_line_suffix")}
                 </span>
               </h1>
 
-              <p className="mt-5 max-w-108 text-sm leading-6 text-gray-300 sm:max-w-112 sm:text-base sm:text-gray-400">
+              <p className="mt-5 max-w-108 text-sm leading-6 text-zinc-400 sm:max-w-112 sm:text-base">
                 {t("hero_subtitle")}
               </p>
 
               <button
                 onClick={handleScrollToCatalog}
-                className="mt-7 inline-flex h-12 items-center justify-center gap-3 rounded-xl bg-blue-600 px-5 text-sm font-semibold text-white shadow-lg shadow-blue-600/25 transition-colors hover:bg-blue-500 cursor-pointer"
+                className="mt-7 inline-flex h-12 items-center justify-center gap-3 rounded-xl bg-linear-to-r from-[#0066cc] via-[#0088ff] to-[#00b4d8] px-6 font-mono text-xs uppercase tracking-wider font-bold text-white shadow-[0_0_24px_rgba(0,136,255,0.4)] hover:shadow-[0_0_36px_rgba(0,136,255,0.65)] hover:brightness-110 active:scale-[0.99] transition-all cursor-pointer"
               >
                 {t("hero_primary_cta")}
                 <ArrowUpRight className="h-4 w-4" weight="bold" />
@@ -124,18 +122,8 @@ export const MarketplacePublicHero: React.FC = () => {
 
       <section className="mt-8 sm:-mt-7 lg:-mt-8 bg-black px-4 pb-8 text-white sm:px-6 lg:px-8">
         <div className="mx-auto max-w-392">
-          <div
-            onMouseMove={handleIntegrationsGlow}
-            onMouseLeave={(event) =>
-              event.currentTarget.style.setProperty("--glow-x", "50%")
-            }
-            className="group relative overflow-hidden rounded-[1.55rem] border border-blue-400/18 bg-[#050b14]/82 px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-sm transition-shadow duration-200 hover:shadow-[0_0_44px_rgba(37,99,235,0.13),inset_0_1px_0_rgba(255,255,255,0.08)] sm:rounded-[1.85rem] sm:px-5 sm:py-5"
-            style={{ "--glow-x": "50%" } as React.CSSProperties}
-          >
-            <div className="pointer-events-none absolute inset-x-10 top-0 h-px bg-linear-to-r from-transparent via-blue-400 to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-65" />
-            <div className="pointer-events-none absolute inset-x-10 bottom-0 h-px bg-linear-to-r from-transparent via-blue-500 to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-55" />
-            <div className="pointer-events-none absolute left-(--glow-x) top-0 h-8 w-36 -translate-x-1/2 rounded-full bg-blue-500/38 opacity-0 blur-2xl transition-[left,opacity] duration-150 ease-out group-hover:opacity-100" />
-            <div className="pointer-events-none absolute bottom-0 left-(--glow-x) h-8 w-36 -translate-x-1/2 rounded-full bg-blue-600/38 opacity-0 blur-2xl transition-[left,opacity] duration-150 ease-out group-hover:opacity-100" />
+          <div className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-[#09090b]/80 px-4 py-4 shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl sm:px-5 sm:py-5">
+            <div className="pointer-events-none absolute inset-x-10 top-0 h-px bg-linear-to-r from-transparent via-[#0099ff]/30 to-transparent" />
 
             <div className="relative grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-6 lg:gap-0">
               {integrations.map(({ label, logo, name }, index) => (
@@ -150,10 +138,10 @@ export const MarketplacePublicHero: React.FC = () => {
                   <img
                     src={logo}
                     alt={label}
-                    className={`${name ? "h-5 max-w-20" : "h-6 max-w-28"} w-auto brightness-0 invert opacity-80 transition-opacity group-hover:opacity-100`}
+                    className={`${name ? "h-5 max-w-20" : "h-6 max-w-28"} w-auto brightness-0 invert opacity-70 transition-opacity group-hover:opacity-100`}
                   />
                   {name ? (
-                    <span className="whitespace-nowrap text-xs sm:text-sm font-semibold tracking-wide text-gray-300 transition-colors group-hover:text-white">
+                    <span className="whitespace-nowrap text-xs sm:text-sm font-semibold tracking-wide text-zinc-400 transition-colors group-hover:text-white">
                       {name}
                     </span>
                   ) : null}

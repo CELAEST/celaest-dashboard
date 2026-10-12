@@ -418,7 +418,7 @@ export const LicensingList: React.FC<LicensingListProps> = ({
 
   if (isMobile && !loading) {
     return (
-      <div className="flex flex-col gap-3 p-2 w-full">
+      <div className="flex flex-col gap-2.5 w-full">
         {licenses.length === 0 ? (
           <div className="flex flex-col items-center justify-center text-gray-500 space-y-3 py-16 px-4">
             <div
@@ -442,7 +442,7 @@ export const LicensingList: React.FC<LicensingListProps> = ({
             </div>
           </div>
         ) : (
-          <div className="flex flex-col gap-3 w-full">
+          <div className="flex flex-col gap-2.5 w-full">
             {licenses.map((license) => {
               const productName =
                 license.plan?.name ||
@@ -468,54 +468,44 @@ export const LicensingList: React.FC<LicensingListProps> = ({
                   key={license.id}
                   onClick={() => onSelectLicense(license)}
                   className={`
-                    relative rounded-2xl border p-4 transition-all active:scale-[0.99] cursor-pointer
+                    relative rounded-2xl border p-3.5 transition-all active:scale-[0.99] cursor-pointer overflow-hidden
                     ${
                       isDark
-                        ? "bg-[#09090b] border-white/8 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+                        ? "bg-[#04040a] border-white/[0.07] hover:border-white/[0.12] shadow-[0_16px_40px_rgba(0,0,0,0.85),inset_0_1px_0_rgba(255,255,255,0.06)]"
                         : "bg-white border-gray-200/80 shadow-sm"
                     }
-                    flex flex-col gap-3.5 w-full
+                    flex flex-col gap-2.5 w-full select-none
                   `}
                 >
+                  {/* Top Specular Hairline (Lingua Standard) */}
+                  <div className="absolute top-0 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent pointer-events-none" />
+
                   {/* Header: Plan & Status */}
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-2.5">
+                  <div className="flex items-center justify-between gap-2.5">
+                    <div className="flex items-center gap-2 min-w-0">
                       <div
-                        className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border ${
+                        className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border ${
                           isDark
-                            ? "bg-white/[0.04] border-white/8 text-white/60"
+                            ? "bg-white/[0.03] border-white/8 text-white/70"
                             : "bg-gray-100 border-gray-200 text-gray-600"
                         }`}
                       >
-                        <Monitor size={15} />
+                        <Monitor size={14} />
                       </div>
-                      <div className="flex flex-col">
+                      <div className="flex flex-col min-w-0">
                         <span
-                          className={`text-xs font-semibold tracking-tight ${
-                            isDark ? "text-zinc-100" : "text-gray-900"
+                          className={`text-xs font-semibold tracking-tight truncate ${
+                            isDark ? "text-white" : "text-gray-900"
                           }`}
                         >
                           {productName}
                         </span>
                         <div className="flex items-center gap-1.5 mt-0.5">
                           <span
-                            className={`text-[9px] font-mono px-1 py-0.2 rounded border uppercase ${
-                              isDark
-                                ? "bg-white/[0.04] border-white/8 text-white/50"
-                                : "bg-gray-100 border-gray-200 text-gray-600"
-                            }`}
+                            className={`text-[9px] font-mono tracking-wider uppercase text-white/40`}
                           >
-                            {productCode}
+                            {productCode} {!showAdminData && "· v1.0.4"}
                           </span>
-                          {!showAdminData && (
-                            <span
-                              className={`text-[9px] font-mono ${
-                                isDark ? "text-white/40" : "text-gray-400"
-                              }`}
-                            >
-                              v1.0.4
-                            </span>
-                          )}
                         </div>
                       </div>
                     </div>
@@ -523,182 +513,162 @@ export const LicensingList: React.FC<LicensingListProps> = ({
                     <div className="shrink-0">{renderStatus(license.status)}</div>
                   </div>
 
-                  {/* License Key Section */}
-                  <div className="flex flex-col gap-1">
-                    <span
-                      className={`text-[9px] font-mono uppercase tracking-wider ${
-                        isDark ? "text-white/40" : "text-gray-400"
-                      }`}
-                    >
-                      {showAdminData ? t("owner") : t("license")}
-                    </span>
-                    {showAdminData ? (
-                      <div className="flex items-center gap-2.5">
-                        <div
-                          className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-mono font-bold shrink-0 border ${
-                            isDark
-                              ? "bg-white/[0.05] border-white/8 text-white/70"
-                              : "bg-gray-100 border-gray-200 text-gray-700"
-                          }`}
-                        >
-                          {license.user_name?.[0]?.toUpperCase() || (
-                            <Users size={11} />
-                          )}
-                        </div>
-                        <div className="flex flex-col min-w-0">
-                          <span
-                            className={`text-xs font-medium truncate ${
-                              isDark ? "text-zinc-200" : "text-gray-800"
-                            }`}
-                          >
-                            {license.user_name || "N/A"}
-                          </span>
-                          <span
-                            className={`text-[10px] font-mono truncate ${
-                              isDark ? "text-white/40" : "text-gray-400"
-                            }`}
-                          >
-                            ID: {license.organization_id.substring(0, 8)}
-                          </span>
-                        </div>
-                      </div>
-                    ) : (
+                  {/* License Key Section (Compact & Proportional) */}
+                  {showAdminData ? (
+                    <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-white/[0.02] border border-white/[0.05]">
                       <div
-                        className={`flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-lg border ${
+                        className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-mono font-bold shrink-0 border ${
                           isDark
-                            ? "border-white/8 bg-white/[0.02]"
-                            : "border-gray-200 bg-gray-50"
+                            ? "bg-white/[0.05] border-white/8 text-white/70"
+                            : "bg-gray-100 border-gray-200 text-gray-700"
                         }`}
                       >
+                        {license.user_name?.[0]?.toUpperCase() || (
+                          <Users size={10} />
+                        )}
+                      </div>
+                      <div className="flex items-baseline gap-2 min-w-0 flex-1">
+                        <span className="text-[11px] font-medium truncate text-zinc-200">
+                          {license.user_name || "N/A"}
+                        </span>
+                        <span className="text-[9px] font-mono text-white/30 truncate">
+                          ID: {license.organization_id.substring(0, 8)}
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      className={`flex items-center justify-between px-2.5 py-1.5 rounded-lg border ${
+                        isDark
+                          ? "border-white/[0.06] bg-white/[0.02]"
+                          : "border-gray-200 bg-gray-50"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="text-[9px] font-mono uppercase tracking-widest text-white/30 shrink-0">KEY</span>
                         <span
-                          className={`text-xs font-mono tracking-wider ${
-                            isDark ? "text-white/60" : "text-gray-600"
+                          className={`text-[11px] font-mono tracking-wider truncate ${
+                            isDark ? "text-zinc-300" : "text-gray-700"
                           }`}
                         >
                           {maskLicenseKey(license.license_key)}
                         </span>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            copyToClipboard(license.license_key);
-                            toast.success(
-                              t("copied_to_clipboard") ||
-                                "Copiado al portapapeles"
-                            );
-                          }}
-                          className={`transition-colors p-1 ${
-                            isDark
-                              ? "text-white/40 hover:text-white"
-                              : "text-gray-400 hover:text-gray-900"
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          copyToClipboard(license.license_key);
+                          toast.success(
+                            t("copied_to_clipboard") ||
+                              "Copiado al portapapeles"
+                          );
+                        }}
+                        className={`transition-colors p-1 rounded hover:bg-white/5 active:scale-95 shrink-0 ${
+                          isDark
+                            ? "text-white/40 hover:text-white"
+                            : "text-gray-400 hover:text-gray-900"
+                        }`}
+                        title="Copiar"
+                      >
+                        <Copy size={12} />
+                      </button>
+                    </div>
+                  )}
+
+                  {/* AI progress meter */}
+                  <div className="space-y-1">
+                    <div
+                      className={`flex justify-between items-center text-[10px] font-mono ${
+                        isDark ? "text-white/40" : "text-gray-500"
+                      }`}
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <Cpu size={11} className={isDark ? "text-white/40" : "text-gray-500"} />
+                        <span className="uppercase tracking-wider text-[9px] text-white/40">AI Qty</span>
+                      </div>
+                      <span className="tabular-nums text-[10px] text-white/60">
+                        {license.ai_requests_used} / {maxAi}
+                      </span>
+                    </div>
+                    <div
+                      className={`h-1 w-full rounded-full overflow-hidden ${
+                        isDark ? "bg-white/[0.04]" : "bg-gray-200"
+                      }`}
+                    >
+                      <div
+                        className={`h-full rounded-full transition-all duration-500 ${
+                          isDark ? "bg-white/50" : "bg-gray-700"
+                        }`}
+                        style={{ width: `${aiPercent}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Devices & Storage side-by-side (Lingua compact micro-chips) */}
+                  <div className="grid grid-cols-2 gap-2 text-[10px] font-mono">
+                    <div
+                      className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg border ${
+                        isDark
+                          ? "bg-white/[0.015] border-white/[0.04] text-white/70"
+                          : "bg-gray-50 border-gray-100 text-gray-700"
+                      }`}
+                    >
+                      <Monitor size={12} className={isDark ? "text-white/30" : "text-gray-400"} />
+                      <div className="flex items-baseline gap-1.5 min-w-0">
+                        <span
+                          className={`text-[8px] font-mono uppercase tracking-wider ${
+                            isDark ? "text-white/30" : "text-gray-400"
                           }`}
                         >
-                          <Copy size={13} />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Usage / Metrics Section */}
-                  <div
-                    className={`flex flex-col gap-3 py-3 border-t border-b ${
-                      isDark ? "border-white/6" : "border-gray-100"
-                    }`}
-                  >
-                    {/* AI progress */}
-                    <div className="flex flex-col gap-1.5">
-                      <div
-                        className={`flex justify-between items-center text-[10px] font-mono ${
-                          isDark ? "text-white/50" : "text-gray-500"
-                        }`}
-                      >
-                        <div className="flex items-center gap-1">
-                          <Cpu size={11} className={isDark ? "text-white/60" : "text-gray-600"} />
-                          <span>AI Qty</span>
-                        </div>
-                        <span className="tabular-nums">
-                          {license.ai_requests_used} / {maxAi}
+                          Disp:
+                        </span>
+                        <span className="text-[11px] font-mono font-medium tabular-nums text-white/80">
+                          {license.active_activations} / {maxUsers}
                         </span>
                       </div>
-                      <div
-                        className={`h-1 w-full rounded-full overflow-hidden ${
-                          isDark ? "bg-white/[0.06]" : "bg-gray-200"
-                        }`}
-                      >
-                        <div
-                          className={`h-full rounded-full transition-all ${
-                            isDark ? "bg-white/50" : "bg-gray-700"
-                          }`}
-                          style={{ width: `${aiPercent}%` }}
-                        />
-                      </div>
                     </div>
-
-                    {/* Devices & Storage side-by-side */}
-                    <div className="grid grid-cols-2 gap-3">
-                      <div
-                        className={`flex items-center gap-2 p-2 rounded-lg border ${
-                          isDark
-                            ? "bg-white/[0.02] border-white/6 text-white/70"
-                            : "bg-gray-50 border-gray-100 text-gray-700"
-                        }`}
-                      >
-                        <Monitor size={12} className={isDark ? "text-white/40" : "text-gray-400"} />
-                        <div className="flex flex-col">
-                          <span
-                            className={`text-[8px] font-mono uppercase tracking-wider ${
-                              isDark ? "text-white/40" : "text-gray-400"
-                            }`}
-                          >
-                            Dispositivos
-                          </span>
-                          <span className="text-[10px] font-mono tabular-nums">
-                            {license.active_activations} / {maxUsers}
-                          </span>
-                        </div>
-                      </div>
-                      <div
-                        className={`flex items-center gap-2 p-2 rounded-lg border ${
-                          isDark
-                            ? "bg-white/[0.02] border-white/6 text-white/70"
-                            : "bg-gray-50 border-gray-100 text-gray-700"
-                        }`}
-                      >
-                        <HardDrive size={12} className={isDark ? "text-white/40" : "text-gray-400"} />
-                        <div className="flex flex-col">
-                          <span
-                            className={`text-[8px] font-mono uppercase tracking-wider ${
-                              isDark ? "text-white/40" : "text-gray-400"
-                            }`}
-                          >
-                            Storage
-                          </span>
-                          <span className="text-[10px] font-mono tabular-nums">
-                            {storageGb} GB
-                          </span>
-                        </div>
+                    <div
+                      className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg border ${
+                        isDark
+                          ? "bg-white/[0.015] border-white/[0.04] text-white/70"
+                          : "bg-gray-50 border-gray-100 text-gray-700"
+                      }`}
+                    >
+                      <HardDrive size={12} className={isDark ? "text-white/30" : "text-gray-400"} />
+                      <div className="flex items-baseline gap-1.5 min-w-0">
+                        <span
+                          className={`text-[8px] font-mono uppercase tracking-wider ${
+                            isDark ? "text-white/30" : "text-gray-400"
+                          }`}
+                        >
+                          Storage:
+                        </span>
+                        <span className="text-[11px] font-mono font-medium tabular-nums text-white/80">
+                          {storageGb} GB
+                        </span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Expiration & Next billing */}
-                  <div className="flex items-center justify-between text-[10px] font-mono">
+                  {/* Expiration & Billing Footer */}
+                  <div className="flex items-center justify-between text-[10px] font-mono pt-1 border-t border-white/[0.04]">
                     <div className="flex items-center gap-1.5">
-                      <Calendar size={11} className={isDark ? "text-white/40" : "text-gray-400"} />
-                      <span className={isDark ? "text-white/60" : "text-gray-600"}>
+                      <Calendar size={11} className={isDark ? "text-white/30" : "text-gray-400"} />
+                      <span className={isDark ? "text-white/50" : "text-gray-600"}>
                         {license.billing_cycle === "lifetime"
                           ? t("unlimited")
                           : formatDate(license.expires_at)}
                       </span>
                     </div>
                     <div
-                      className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded border ${
+                      className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-mono uppercase tracking-wider ${
                         isDark
-                          ? "bg-white/[0.03] border-white/6 text-white/60"
-                          : "bg-gray-50 border-gray-200 text-gray-600"
+                          ? "bg-white/[0.03] text-white/50"
+                          : "bg-gray-100 text-gray-600"
                       }`}
                     >
-                      <CreditCard size={10} className={isDark ? "text-white/40" : "text-gray-400"} />
+                      <CreditCard size={10} className={isDark ? "text-white/30" : "text-gray-400"} />
                       <span className="capitalize">
                         {license.billing_cycle === "lifetime"
                           ? t("lifetime_access")

@@ -64,7 +64,7 @@ export const LicensesList: React.FC = () => {
 
   return (
     <div
-      className={`relative w-full rounded-2xl transition-all duration-200 border p-4 sm:p-5 flex flex-col h-full min-h-0 overflow-hidden ${
+      className={`relative w-full rounded-2xl transition-all duration-200 border p-3.5 sm:p-5 flex flex-col h-full min-h-0 overflow-hidden ${
         isDark
           ? "bg-[#09090b]/80 border-white/6 backdrop-blur-xl hover:border-white/10"
           : "bg-white border-gray-200 shadow-sm hover:border-gray-300"
@@ -72,27 +72,27 @@ export const LicensesList: React.FC = () => {
     >
       <div className="relative flex flex-col h-full min-h-0">
         {/* Header */}
-        <div className="flex items-center justify-between mb-4 shrink-0">
-          <div className="flex items-center gap-2.5">
+        <div className="flex items-center justify-between mb-3 sm:mb-4 shrink-0">
+          <div className="flex items-center gap-2 sm:gap-2.5">
             <div
-              className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border transition-colors ${
+              className={`w-6 h-6 sm:w-7 sm:h-7 rounded-lg flex items-center justify-center shrink-0 border transition-colors ${
                 isDark
                   ? "bg-white/[0.04] border-white/8 text-white/60"
                   : "bg-gray-100 border-gray-200 text-gray-600"
               }`}
             >
-              <Shield size={14} />
+              <Shield size={13} className="sm:scale-110" />
             </div>
             <div>
               <h3
-                className={`text-sm sm:text-base font-semibold tracking-tight ${
+                className={`text-xs sm:text-base font-semibold tracking-tight ${
                   isDark ? "text-zinc-100" : "text-gray-900"
                 }`}
               >
                 Licencias
               </h3>
               <p
-                className={`text-[10px] sm:text-[11px] font-mono tracking-wider uppercase ${
+                className={`text-[9px] sm:text-[11px] font-mono tracking-wider uppercase hidden sm:block ${
                   isDark ? "text-white/40" : "text-gray-400"
                 }`}
               >
@@ -102,7 +102,7 @@ export const LicensesList: React.FC = () => {
           </div>
 
           <span
-            className={`text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-md border ${
+            className={`text-[9px] sm:text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-md border ${
               isDark
                 ? "bg-white/[0.04] border-white/8 text-white/60"
                 : "bg-gray-100 border-gray-200 text-gray-600"
@@ -124,6 +124,23 @@ export const LicensesList: React.FC = () => {
               index={index}
             />
           ))}
+        </div>
+
+        {/* Subtle security/status footer */}
+        <div
+          className={`shrink-0 pt-2.5 mt-2 border-t flex items-center justify-between text-[9px] font-mono tracking-wider uppercase ${
+            isDark
+              ? "border-white/[0.06] text-white/40"
+              : "border-gray-200 text-gray-400"
+          }`}
+        >
+          <span className="flex items-center gap-1.5">
+            <ShieldCheck size={12} className={isDark ? "text-white/60" : "text-gray-500"} />
+            <span>Sincronizado con Stripe</span>
+          </span>
+          <span className="text-[8px] sm:text-[9px]">
+            {allSubscriptions.length} {allSubscriptions.length === 1 ? "activa" : "totales"}
+          </span>
         </div>
       </div>
     </div>
@@ -171,7 +188,7 @@ const LicenseItem: React.FC<LicenseItemProps> = ({
       initial={{ opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.05 }}
-      className={`relative rounded-xl p-3 border transition-colors duration-150 ${
+      className={`relative rounded-xl p-2.5 sm:p-3 border transition-colors duration-150 ${
         isEffective
           ? isDark
             ? "bg-white/[0.04] border-white/15 shadow-sm"
@@ -181,23 +198,10 @@ const LicenseItem: React.FC<LicenseItemProps> = ({
             : "bg-white border-gray-200 hover:border-gray-300"
       } ${isSuperseded ? "opacity-40" : ""}`}
     >
-      {/* Effective badge */}
-      {isEffective && (
-        <div
-          className={`absolute -top-2 right-3 px-2 py-0.2 rounded-full text-[9px] font-mono font-bold tracking-wider uppercase ${
-            isDark
-              ? "bg-white text-black shadow-xs"
-              : "bg-gray-900 text-white shadow-xs"
-          }`}
-        >
-          EN USO
-        </div>
-      )}
-
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2.5 sm:gap-3">
         {/* Icon */}
         <div
-          className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border transition-colors ${
+          className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center shrink-0 border transition-colors ${
             isEffective
               ? isDark
                 ? "bg-white/[0.08] border-white/12 text-white"
@@ -207,12 +211,12 @@ const LicenseItem: React.FC<LicenseItemProps> = ({
                 : "bg-gray-100 border-gray-200 text-gray-600"
           }`}
         >
-          <StatusIcon className="w-4 h-4" />
+          <StatusIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
         </div>
 
         {/* Info */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 flex-wrap">
             <span
               className={`text-xs font-semibold truncate ${
                 isDark ? "text-zinc-100" : "text-gray-900"
@@ -222,7 +226,7 @@ const LicenseItem: React.FC<LicenseItemProps> = ({
             </span>
             {tier > 0 && (
               <span
-                className={`text-[9px] font-mono font-semibold uppercase tracking-wider px-1.5 py-0.2 rounded border ${
+                className={`text-[8px] sm:text-[9px] font-mono font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded border ${
                   isDark
                     ? "bg-white/[0.04] border-white/8 text-white/50"
                     : "bg-gray-100 border-gray-200 text-gray-500"
@@ -231,9 +235,20 @@ const LicenseItem: React.FC<LicenseItemProps> = ({
                 Tier {tier}
               </span>
             )}
+            {isEffective && (
+              <span
+                className={`text-[8px] sm:text-[9px] font-mono font-bold tracking-wider uppercase px-1.5 py-0.5 rounded ${
+                  isDark
+                    ? "bg-white text-black shadow-xs"
+                    : "bg-gray-900 text-white shadow-xs"
+                }`}
+              >
+                EN USO
+              </span>
+            )}
           </div>
           <div
-            className={`text-[11px] font-mono mt-0.5 ${
+            className={`text-[10px] sm:text-[11px] font-mono mt-0.5 ${
               isDark ? "text-white/50" : "text-gray-500"
             }`}
           >
@@ -243,7 +258,7 @@ const LicenseItem: React.FC<LicenseItemProps> = ({
 
         {/* Status badge */}
         <div
-          className={`px-2 py-0.5 rounded-md text-[10px] font-mono uppercase tracking-wider shrink-0 border ${
+          className={`px-2 py-0.5 rounded-md text-[9px] sm:text-[10px] font-mono uppercase tracking-wider shrink-0 border ${
             isEffective || isActive
               ? isDark
                 ? "bg-white/[0.08] text-white border-white/10 font-semibold shadow-xs"
@@ -259,7 +274,7 @@ const LicenseItem: React.FC<LicenseItemProps> = ({
         >
           {isEffective || isActive ? (
             <span className="flex items-center gap-1">
-              <Check size={10} strokeWidth={3} className="text-white/80" />
+              <Check size={9} strokeWidth={3} className="text-white/80" />
               <span>{sub.status.toUpperCase()}</span>
             </span>
           ) : isSuperseded ? (

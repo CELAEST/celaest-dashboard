@@ -32,7 +32,7 @@ export const SecurityTwoFactor: React.FC<SecurityTwoFactorProps> = memo(
 
     return (
       <>
-        <div className="settings-glass-card rounded-2xl p-6">
+        <div className="settings-glass-card rounded-2xl p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-start sm:items-center gap-4 flex-1 min-w-0">
               <div

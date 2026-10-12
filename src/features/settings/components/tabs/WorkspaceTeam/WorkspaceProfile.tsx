@@ -130,7 +130,7 @@ export const WorkspaceProfile: React.FC<WorkspaceProfileProps> = memo(
 
     return (
       <div
-        className={`settings-glass-card rounded-2xl p-6 transition-all ${readOnly ? "opacity-90" : ""}`}
+        className={`settings-glass-card rounded-2xl p-4 sm:p-6 transition-all ${readOnly ? "opacity-90" : ""}`}
       >
         <div className="flex justify-between items-start mb-6">
           <div>

@@ -82,7 +82,7 @@ export const BillingModal = React.memo(
                 exit={{ opacity: 0, scale: 0.95, y: 10 }}
                 transition={{ type: "spring", duration: 0.5, bounce: 0.3 }}
                 className={cn(
-                  "w-full min-w-[320px] sm:min-w-112 max-w-4xl relative shrink-0 pointer-events-auto rounded-3xl overflow-hidden shadow-2xl max-h-[94vh] flex flex-col",
+                  "w-full min-w-0 sm:min-w-112 max-w-4xl relative shrink-0 pointer-events-auto rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl max-h-[92dvh] sm:max-h-[94vh] flex flex-col",
                   isDark
                     ? "bg-[#09090b] border border-white/10 shadow-2xl shadow-black/90"
                     : "bg-white border border-gray-200 shadow-xl",

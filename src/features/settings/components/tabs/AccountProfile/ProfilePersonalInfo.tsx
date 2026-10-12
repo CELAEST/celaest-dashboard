@@ -19,16 +19,16 @@ export const ProfilePersonalInfo: React.FC = memo(() => {
   const t = useTranslations("settings");
 
   return (
-    <div className="settings-glass-card rounded-2xl p-6">
+    <div className="settings-glass-card rounded-2xl p-4 sm:p-6">
       <h3
-        className={`text-lg font-bold mb-6 ${
+        className={`text-base sm:text-lg font-bold mb-4 sm:mb-6 ${
           isDark ? "text-white" : "text-gray-900"
         }`}
       >
         {t("personal_info")}
       </h3>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         <FormField
           control={control}
           name="displayName"

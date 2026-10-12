@@ -38,7 +38,7 @@ const ErrorMonitoring: React.FC = () => {
 
   const tabSwitcher = (
     <div
-      className={`flex items-center p-0.5 rounded-lg border ${
+      className={`w-full sm:w-auto grid grid-cols-2 sm:flex sm:items-center p-0.5 rounded-xl sm:rounded-lg border ${
         isDark
           ? "bg-white/5 border-white/6"
           : "bg-gray-100 border-gray-200"
@@ -47,7 +47,7 @@ const ErrorMonitoring: React.FC = () => {
       <button
         type="button"
         onClick={() => setActiveTab("logs")}
-        className={`px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 transition-all cursor-pointer ${
+        className={`flex-1 sm:flex-none justify-center px-3 py-1.5 sm:py-1 rounded-lg sm:rounded-md text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 transition-all cursor-pointer ${
           activeTab === "logs"
             ? isDark
               ? "bg-white text-black shadow-xs"
@@ -63,7 +63,7 @@ const ErrorMonitoring: React.FC = () => {
       <button
         type="button"
         onClick={() => setActiveTab("overview")}
-        className={`px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 transition-all cursor-pointer ${
+        className={`flex-1 sm:flex-none justify-center px-3 py-1.5 sm:py-1 rounded-lg sm:rounded-md text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 transition-all cursor-pointer ${
           activeTab === "overview"
             ? isDark
               ? "bg-white text-black shadow-xs"
@@ -83,30 +83,30 @@ const ErrorMonitoring: React.FC = () => {
     <div className="h-full flex flex-col min-h-0 overflow-hidden font-sans">
       {/* Sleek luxury header — space-saving, pure contrast (CELAEST Obsidian Standard) */}
       <header
-        className={`shrink-0 px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-3 border-b backdrop-blur-xl transition-colors duration-200 ${
+        className={`shrink-0 px-3.5 sm:px-6 py-2.5 sm:py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 border-b backdrop-blur-xl transition-colors duration-200 ${
           isDark ? "bg-[#09090b]/80 border-white/6" : "bg-white/80 border-gray-200/80"
         }`}
       >
-        <div className="flex items-center gap-3 min-w-0">
+        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
           <div
-            className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border transition-colors ${
+            className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center shrink-0 border transition-colors ${
               isDark
                 ? "bg-white/[0.04] border-white/8 text-white/70"
                 : "bg-gray-100 border-gray-200 text-gray-700"
             }`}
           >
-            <WarningOctagon size={16} />
+            <WarningOctagon size={15} />
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <h1
-              className={`text-sm sm:text-base font-semibold tracking-tight ${
+              className={`text-xs sm:text-base font-semibold tracking-tight truncate ${
                 isDark ? "text-zinc-100" : "text-gray-900"
               }`}
             >
               {t("error_monitor_title")}
             </h1>
             <span
-              className={`text-[10px] sm:text-[11px] font-mono tracking-wider uppercase border-l pl-3 ${
+              className={`text-[9px] sm:text-[11px] font-mono tracking-wider uppercase border-l pl-2 sm:pl-3 truncate ${
                 isDark ? "border-white/10 text-white/40" : "border-gray-200 text-gray-400"
               }`}
             >
@@ -116,13 +116,13 @@ const ErrorMonitoring: React.FC = () => {
         </div>
 
         {/* Tab switcher: Live Logs / Overview */}
-        <div className="flex items-center gap-2.5">
+        <div className="w-full sm:w-auto">
           {tabSwitcher}
         </div>
       </header>
 
       {/* Content Area - Maximized */}
-      <div className="flex-1 min-h-0 relative p-3 sm:p-4 overflow-hidden flex flex-col">
+      <div className="flex-1 min-h-0 relative p-2 sm:p-4 overflow-hidden flex flex-col">
         <AnimatePresence mode="wait">
           {activeTab === "overview" ? (
             <motion.div
@@ -130,7 +130,7 @@ const ErrorMonitoring: React.FC = () => {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
-              className="h-full flex flex-col gap-4 overflow-y-auto md:overflow-hidden custom-scrollbar"
+              className="h-full flex flex-col gap-4 overflow-y-auto md:overflow-hidden no-scrollbar"
             >
               {/* Top Row: Core 4 Stats */}
               <ErrorStats stats={stats} />
@@ -146,40 +146,52 @@ const ErrorMonitoring: React.FC = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="h-full flex flex-col gap-3 min-h-0"
+              className="h-full flex flex-col gap-2.5 sm:gap-3 min-h-0"
             >
               {/* Controles de Búsqueda y Filtros Unificados (Executive Stream) */}
               <div
-                className={`shrink-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 sm:p-3.5 rounded-xl border ${
+                className={`shrink-0 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 p-2.5 sm:p-3.5 rounded-xl border ${
                   isDark
                     ? "bg-[#080c14]/90 border-white/8"
                     : "bg-white border-gray-200 shadow-xs"
                 }`}
               >
-                <div className="relative flex-1 max-w-md">
+                <div className="relative flex-1 sm:max-w-md w-full">
                   <MagnifyingGlass
                     size={14}
-                    className={`absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none ${
+                    className={`absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none ${
                       isDark ? "text-white/40" : "text-gray-400"
                     }`}
                   />
                   <input
                     type="text"
-                    placeholder="Buscar por mensaje, código de error, plantilla o usuario..."
+                    placeholder="Buscar errores, código, usuario..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className={`w-full pl-9 pr-4 py-1.5 rounded-lg text-xs font-mono transition-all outline-none border ${
+                    className={`w-full pl-8.5 ${searchQuery ? "pr-8" : "pr-4"} h-9 rounded-xl text-xs font-mono transition-all outline-none border ${
                       isDark
                         ? "bg-black/40 border-white/10 text-white placeholder:text-white/30 focus:border-white/30"
                         : "bg-gray-50 border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-gray-400"
                     }`}
                   />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery("")}
+                      className={`absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-md text-xs transition-colors cursor-pointer ${
+                        isDark ? "text-white/40 hover:text-white hover:bg-white/10" : "text-gray-400 hover:text-gray-700 hover:bg-gray-100"
+                      }`}
+                      aria-label="Limpiar búsqueda"
+                    >
+                      ✕
+                    </button>
+                  )}
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="w-full sm:w-auto overflow-x-auto no-scrollbar flex items-center gap-2 py-0.5">
                   {/* Severidad */}
                   <div
-                    className={`inline-flex items-center p-0.5 rounded-lg border text-[11px] font-mono ${
+                    className={`inline-flex items-center p-0.5 rounded-lg border text-[10px] sm:text-[11px] font-mono shrink-0 ${
                       isDark ? "bg-white/[0.02] border-white/8" : "bg-gray-100 border-gray-200"
                     }`}
                   >
@@ -190,7 +202,7 @@ const ErrorMonitoring: React.FC = () => {
                           key={sev}
                           type="button"
                           onClick={() => setErrorFilters({ ...errorFilters, severity: sev })}
-                          className={`px-2.5 py-1 rounded-md uppercase tracking-wider transition-all cursor-pointer ${
+                          className={`px-2 sm:px-2.5 py-1 rounded-md uppercase tracking-wider transition-all cursor-pointer shrink-0 ${
                             isActive
                               ? isDark
                                 ? "bg-white/10 text-white font-semibold"
@@ -206,9 +218,11 @@ const ErrorMonitoring: React.FC = () => {
                     })}
                   </div>
 
+                  <div className="w-px h-3.5 bg-white/10 shrink-0" />
+
                   {/* Estado */}
                   <div
-                    className={`inline-flex items-center p-0.5 rounded-lg border text-[11px] font-mono ${
+                    className={`inline-flex items-center p-0.5 rounded-lg border text-[10px] sm:text-[11px] font-mono shrink-0 ${
                       isDark ? "bg-white/[0.02] border-white/8" : "bg-gray-100 border-gray-200"
                     }`}
                   >
@@ -219,7 +233,7 @@ const ErrorMonitoring: React.FC = () => {
                           key={st}
                           type="button"
                           onClick={() => setErrorFilters({ ...errorFilters, status: st })}
-                          className={`px-2.5 py-1 rounded-md uppercase tracking-wider transition-all cursor-pointer ${
+                          className={`px-2 sm:px-2.5 py-1 rounded-md uppercase tracking-wider transition-all cursor-pointer shrink-0 ${
                             isActive
                               ? isDark
                                 ? "bg-white/10 text-white font-semibold"
@@ -239,7 +253,7 @@ const ErrorMonitoring: React.FC = () => {
 
               {/* Stream Table Area - 100% Flex-Height Chain */}
               <div
-                className={`flex-1 min-h-0 overflow-hidden rounded-2xl border ${
+                className={`flex-1 min-h-0 overflow-hidden rounded-xl sm:rounded-2xl border ${
                   isDark
                     ? "bg-[#080c14]/40 border-white/8"
                     : "bg-white border-gray-200 shadow-sm"

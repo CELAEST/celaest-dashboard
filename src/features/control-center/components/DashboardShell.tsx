@@ -159,7 +159,7 @@ export function DashboardShell() {
 
         <main
           aria-label="Contenido principal del dashboard"
-          className="flex-1 w-full min-w-0 overflow-y-auto p-3 scroll-smooth"
+          className="flex-1 h-full min-h-0 w-full min-w-0 overflow-y-auto p-3 scroll-smooth flex flex-col"
         >
           <AnimatedSlot
             activeKey={activeTab}

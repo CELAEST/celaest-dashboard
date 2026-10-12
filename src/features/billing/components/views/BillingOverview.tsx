@@ -5,19 +5,19 @@ import { LicensesList } from "../LicensesList";
 
 export const BillingOverview = () => {
   return (
-    <div className="flex-1 min-h-0 w-full flex flex-col px-4 sm:px-6 pt-4 sm:pt-5 pb-4 sm:pb-6 gap-4 sm:gap-5 overflow-y-auto lg:overflow-hidden lg:grid lg:grid-cols-2">
-      {/* Left column: Subscription + Payment Methods stacked */}
-      <div className="flex flex-col gap-4 sm:gap-5 min-h-0">
+    <div className="flex-1 h-full min-h-0 w-full flex flex-col px-0 sm:px-6 pt-1 sm:pt-5 pb-2 sm:pb-6 gap-2.5 sm:gap-5 overflow-hidden lg:grid lg:grid-cols-2">
+      {/* Left column: Subscription on mobile, Subscription + Payment Methods stacked on desktop */}
+      <div className="flex flex-col gap-3 sm:gap-5 min-h-0 lg:flex-1 shrink-0 lg:shrink">
         <div className="shrink-0">
           <SubscriptionManager />
         </div>
-        <div className="flex-1 min-h-0">
+        <div className="hidden lg:block min-h-0 lg:flex-1">
           <PaymentMethodsCard />
         </div>
       </div>
 
-      {/* Right column: Licenses full height */}
-      <div className="min-h-0 h-full">
+      {/* Right column: Licenses (fills remaining mobile viewport with internal scroll) */}
+      <div className="flex-1 min-h-0 lg:h-full flex flex-col overflow-hidden">
         <LicensesList />
       </div>
     </div>

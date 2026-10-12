@@ -66,13 +66,13 @@ export const SignOutModal: React.FC<SignOutModalProps> = ({
     >
       <div
         onClick={!isLoading ? onClose : undefined}
-        className="absolute inset-0 bg-black/65 backdrop-blur-md animate-modal-backdrop"
+        className="absolute inset-0 bg-black/70 backdrop-blur-md animate-modal-backdrop"
       />
 
       <div className="relative z-10 flex w-full items-center justify-center pointer-events-none">
         <div
           onClick={(event) => event.stopPropagation()}
-          className="pointer-events-auto relative shrink-0 w-136 min-w-80 sm:min-w-136 max-w-[90vw] animate-modal-content"
+          className="pointer-events-auto relative shrink-0 w-full max-w-[440px] animate-modal-content"
         >
           <SignOutCard
             onClose={onClose}

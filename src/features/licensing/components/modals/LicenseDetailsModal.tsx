@@ -53,7 +53,7 @@ export const LicenseDetailsModal = ({
     <BillingModal isOpen={isOpen} onClose={onClose} className="max-w-2xl" showCloseButton={false}>
       <LicenseHeader license={license} onClose={onClose} />
 
-      <div className="p-6 overflow-y-auto flex-1 min-h-0 space-y-7">
+      <div className="p-4 sm:p-6 overflow-y-auto flex-1 min-h-0 space-y-5 sm:space-y-7">
         <LicenseStats
           tier={license.plan?.code}
           maxIpSlots={license.ip_bindings?.length || 0}
@@ -79,15 +79,15 @@ export const LicenseDetailsModal = ({
       </div>
 
       {/* Footer Obsidian Luxury */}
-      <div className="relative shrink-0 border-t border-white/6 bg-white/[0.015] px-6 py-3.5 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
+      <div className="relative shrink-0 border-t border-white/6 bg-white/[0.015] px-4 sm:px-6 py-3 sm:py-3.5 flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 sm:gap-4">
+        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
           <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-white/[0.04] text-white/70 border border-white/8">
             <Key size={14} />
           </div>
-          <div className="flex flex-col">
+          <div className="flex flex-col min-w-0">
             <p className="text-[9px] font-mono uppercase tracking-[0.16em] text-white/40 mb-0.5">{t("license_key")}</p>
-            <div className="flex items-center gap-2">
-              <p className="text-xs font-mono text-zinc-300 tracking-wider">
+            <div className="flex items-center gap-2 min-w-0">
+              <p className="text-xs font-mono text-zinc-300 tracking-wider truncate">
                 {maskLicenseKey(license.license_key)}
               </p>
               <button
@@ -96,7 +96,7 @@ export const LicenseDetailsModal = ({
                   navigator.clipboard.writeText(license.license_key);
                   toast.success(t("copied_to_clipboard") || "Copiado al portapapeles");
                 }}
-                className="text-white/40 hover:text-white transition-colors p-1 cursor-pointer"
+                className="text-white/40 hover:text-white transition-colors p-1 cursor-pointer shrink-0"
                 title="Copiar clave"
               >
                 <Copy size={13} />
@@ -104,7 +104,7 @@ export const LicenseDetailsModal = ({
             </div>
           </div>
         </div>
-        <div className="text-[10px] font-mono uppercase tracking-wider text-white/60 bg-white/[0.04] border border-white/8 px-2.5 py-1 rounded-md font-medium">
+        <div className="text-[10px] font-mono uppercase tracking-wider text-white/60 bg-white/[0.04] border border-white/8 px-2.5 py-1 rounded-md font-medium shrink-0">
           {t("licensed")}
         </div>
       </div>

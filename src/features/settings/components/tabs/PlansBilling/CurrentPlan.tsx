@@ -25,19 +25,19 @@ export const CurrentPlan: React.FC<CurrentPlanProps> = memo(
     };
 
     return (
-      <div className="settings-glass-card rounded-2xl p-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-6">
-          <div className="flex items-center gap-4">
+      <div className="settings-glass-card rounded-2xl p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6">
+          <div className="flex items-center gap-3 sm:gap-4 min-w-0">
             <div
-              className={`w-10 h-10 rounded-xl flex items-center justify-center border transition-colors ${
+              className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center border transition-colors shrink-0 ${
                 isDark ? "bg-white/[0.04] border-white/10 text-white/70" : "bg-gray-100 border-gray-200 text-gray-700"
               }`}
             >
               <Lightning className="w-5 h-5" />
             </div>
-            <div>
+            <div className="min-w-0">
               <h3
-                className={`text-base font-bold font-jakarta tracking-tight ${
+                className={`text-sm sm:text-base font-bold font-jakarta tracking-tight truncate ${
                   isDark ? "text-white" : "text-gray-900"
                 }`}
               >
@@ -47,7 +47,7 @@ export const CurrentPlan: React.FC<CurrentPlanProps> = memo(
                 </span>
               </h3>
               <p
-                className={`text-xs mt-0.5 font-mono ${
+                className={`text-[11px] sm:text-xs mt-0.5 font-mono truncate ${
                   isDark ? "text-white/40" : "text-gray-400"
                 }`}
               >
@@ -57,13 +57,13 @@ export const CurrentPlan: React.FC<CurrentPlanProps> = memo(
           </div>
 
           <div
-            className={`p-1 rounded-xl flex items-center border ${
+            className={`w-full sm:w-auto grid grid-cols-2 sm:flex sm:items-center p-1 rounded-xl border ${
               isDark ? "bg-white/[0.03] border-white/8" : "bg-gray-100 border-gray-200"
             }`}
           >
             <button
               onClick={() => onCycleChange("monthly")}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              className={`flex-1 sm:flex-none justify-center px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center ${
                 billingCycle === "monthly"
                   ? isDark
                     ? "bg-white/10 text-white shadow-xs"
@@ -77,7 +77,7 @@ export const CurrentPlan: React.FC<CurrentPlanProps> = memo(
             </button>
             <button
               onClick={() => onCycleChange("yearly")}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
+              className={`flex-1 sm:flex-none justify-center px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
                 billingCycle === "yearly"
                   ? isDark
                     ? "bg-white/10 text-white shadow-xs"

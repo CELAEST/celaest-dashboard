@@ -26,7 +26,7 @@ interface ErrorListProps {
 
 // Custom Bespoke Holographic SVG for Clean State (Obsidian Luxury Standard)
 const SecureSystemVisual = () => (
-  <svg viewBox="0 0 100 100" className="w-[104px] h-[104px] overflow-visible">
+  <svg viewBox="0 0 100 100" className="w-20 h-20 sm:w-[104px] sm:h-[104px] overflow-visible">
     <defs>
       <linearGradient id="celaestObsidianShield" x1="0%" y1="0%" x2="100%" y2="100%">
         <stop offset="0%" stopColor="#ffffff" stopOpacity="0.95" />
@@ -105,7 +105,7 @@ const SecureSystemVisual = () => (
 
 // Custom Bespoke Holographic SVG for Filter State (Pure Luminance Reticle)
 const FilteredMonitorVisual = () => (
-  <svg viewBox="0 0 100 100" className="w-[104px] h-[104px] overflow-visible">
+  <svg viewBox="0 0 100 100" className="w-20 h-20 sm:w-[104px] sm:h-[104px] overflow-visible">
     <motion.g animate={{ y: [-1.5, 1.5, -1.5] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}>
       <circle cx="50" cy="50" r="44" fill="none" stroke="rgba(255, 255, 255, 0.15)" strokeWidth="1" strokeDasharray="3 5" />
       <motion.circle 
@@ -323,10 +323,10 @@ export const ErrorList = React.memo(
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          className="h-full w-full min-w-0 p-4 md:p-5"
+          className="h-full w-full min-w-0 p-2 sm:p-4 md:p-5"
         >
           <div
-            className={`relative h-full w-full overflow-y-auto md:overflow-hidden custom-scrollbar rounded-3xl border p-4 md:p-6 transition-all duration-300 ${
+            className={`relative h-full w-full overflow-y-auto md:overflow-hidden no-scrollbar rounded-2xl sm:rounded-3xl border p-3 sm:p-4 md:p-6 transition-all duration-300 ${
               isDark
                 ? "bg-[#040811] border-white/10 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px]"
                 : "bg-gray-50/80 border-gray-200"
@@ -339,24 +339,24 @@ export const ErrorList = React.memo(
               }`}
             />
 
-            <div className="relative mx-auto flex min-h-full w-full max-w-5xl items-center justify-center py-6 md:py-0">
+            <div className="relative mx-auto flex min-h-full w-full max-w-5xl items-center justify-center py-2 sm:py-6 md:py-0">
               <div
-                className={`w-full min-w-0 overflow-visible lg:overflow-hidden rounded-3xl border p-6 sm:p-8 md:p-10 ${emptyStateSurfaceClass}`}
+                className={`w-full min-w-0 overflow-visible lg:overflow-hidden rounded-2xl sm:rounded-3xl border p-4 sm:p-8 md:p-10 ${emptyStateSurfaceClass}`}
               >
-                <div className="grid gap-8 lg:grid-cols-[1fr_minmax(18rem,22rem)] xl:grid-cols-[1fr_max(22rem,320px)] items-center">
+                <div className="grid gap-6 sm:gap-8 lg:grid-cols-[1fr_minmax(18rem,22rem)] xl:grid-cols-[1fr_max(22rem,320px)] items-center">
                   <div className="min-w-0 text-center lg:text-left">
-                    <div className="flex flex-wrap items-center justify-center gap-2 lg:justify-start">
+                    <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 lg:justify-start">
                       <span
-                        className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[10px] font-mono tracking-widest uppercase font-semibold ${emptyStateBadgeClass}`}
+                        className={`inline-flex items-center gap-1.5 rounded-md border px-2 sm:px-2.5 py-0.5 sm:py-1 text-[9px] sm:text-[10px] font-mono tracking-wider sm:tracking-widest uppercase font-semibold ${emptyStateBadgeClass}`}
                       >
-                        <Check size={11} strokeWidth={3} className="text-white/80" />
+                        <Check size={11} strokeWidth={3} className="text-white/80 shrink-0" />
                         {hasActiveFilters
                           ? "FILTROS ACTIVOS"
                           : "SISTEMA 100% OPERATIVO"}
                       </span>
 
                       <span
-                        className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[10px] font-mono tracking-widest uppercase ${
+                        className={`inline-flex items-center gap-1.5 rounded-md border px-2 sm:px-2.5 py-0.5 sm:py-1 text-[9px] sm:text-[10px] font-mono tracking-wider sm:tracking-widest uppercase ${
                           isDark
                             ? "border-white/10 bg-white/[0.03] text-white/60"
                             : "border-gray-200 bg-white text-gray-500"
@@ -369,15 +369,15 @@ export const ErrorList = React.memo(
                       </span>
                     </div>
 
-                    <div className="mt-8 flex justify-center lg:justify-start">
-                      <div className="relative flex items-center justify-center p-2 isolate">
+                    <div className="mt-4 sm:mt-8 flex justify-center lg:justify-start">
+                      <div className="relative flex items-center justify-center p-1 sm:p-2 isolate">
                         {hasActiveFilters ? <FilteredMonitorVisual /> : <SecureSystemVisual />}
                       </div>
                     </div>
 
-                    <div className="mt-6 flex w-full max-w-[480px] flex-col gap-2.5">
+                    <div className="mt-4 sm:mt-6 flex w-full max-w-[480px] flex-col gap-1.5 sm:gap-2.5 mx-auto lg:mx-0">
                       <h3
-                        className={`text-2xl sm:text-3xl font-bold tracking-tight ${
+                        className={`text-lg sm:text-2xl md:text-3xl font-bold tracking-tight ${
                           isDark ? "text-white" : "text-gray-900"
                         }`}
                       >
@@ -387,7 +387,7 @@ export const ErrorList = React.memo(
                       </h3>
 
                       <p
-                        className={`text-xs sm:text-sm leading-relaxed ${
+                        className={`text-[11px] sm:text-sm leading-relaxed max-w-sm mx-auto lg:mx-0 ${
                           isDark ? "text-white/50" : "text-gray-500"
                         }`}
                       >
@@ -397,31 +397,31 @@ export const ErrorList = React.memo(
                       </p>
 
                       {/* Telemetry HUD status indicators */}
-                      <div className="mt-2 flex flex-wrap items-center gap-2">
-                        <span className="px-2.5 py-1 rounded-md bg-white/[0.03] border border-white/6 text-[10px] font-mono tracking-wider text-white/50 uppercase">
+                      <div className="mt-2.5 sm:mt-3 grid grid-cols-3 gap-1.5 sm:flex sm:flex-wrap sm:gap-2 max-w-md mx-auto lg:mx-0">
+                        <span className="px-1.5 sm:px-2.5 py-1 rounded-md bg-white/[0.03] border border-white/6 text-[9px] sm:text-[10px] font-mono tracking-wider text-white/50 uppercase text-center sm:text-left">
                           Incidentes: <strong className="text-white font-semibold">0</strong>
                         </span>
-                        <span className="px-2.5 py-1 rounded-md bg-white/[0.03] border border-white/6 text-[10px] font-mono tracking-wider text-white/50 uppercase">
-                          Buffer: <strong className="text-white font-semibold">Operativo</strong>
+                        <span className="px-1.5 sm:px-2.5 py-1 rounded-md bg-white/[0.03] border border-white/6 text-[9px] sm:text-[10px] font-mono tracking-wider text-white/50 uppercase text-center sm:text-left">
+                          Buffer: <strong className="text-white font-semibold">OK</strong>
                         </span>
-                        <span className="px-2.5 py-1 rounded-md bg-white/[0.03] border border-white/6 text-[10px] font-mono tracking-wider text-white/50 uppercase">
+                        <span className="px-1.5 sm:px-2.5 py-1 rounded-md bg-white/[0.03] border border-white/6 text-[9px] sm:text-[10px] font-mono tracking-wider text-white/50 uppercase text-center sm:text-left">
                           Integridad: <strong className="text-white font-semibold">100%</strong>
                         </span>
                       </div>
                     </div>
 
-                    <div className="mt-8 flex flex-wrap items-center justify-center gap-4 lg:justify-start">
+                    <div className="mt-4 sm:mt-8 flex flex-wrap items-center justify-center gap-3 sm:gap-4 lg:justify-start">
                       {hasActiveFilters ? (
                         <button
                           onClick={onClearFilters}
-                          className="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-mono font-semibold uppercase tracking-wider bg-white text-black hover:bg-zinc-200 transition-colors cursor-pointer"
+                          className="inline-flex items-center gap-2 rounded-xl px-3.5 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs font-mono font-semibold uppercase tracking-wider bg-white text-black hover:bg-zinc-200 transition-colors cursor-pointer"
                         >
                           <ArrowCounterClockwise size={13} weight="bold" />
                           {t("clear_and_scan")}
                         </button>
                       ) : (
                         <span
-                          className={`inline-flex items-center gap-2 rounded-xl border px-3.5 py-1.5 text-xs font-mono tracking-wider uppercase ${
+                          className={`inline-flex items-center gap-1.5 sm:gap-2 rounded-xl border px-3 sm:px-3.5 py-1 sm:py-1.5 text-[10px] sm:text-xs font-mono tracking-wider uppercase ${
                             isDark
                               ? "border-white/10 bg-white/[0.03] text-white/60 font-medium"
                               : "border-gray-200 bg-white text-gray-600"
@@ -434,19 +434,19 @@ export const ErrorList = React.memo(
                     </div>
                   </div>
 
-                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+                  <div className="grid gap-2.5 sm:gap-3 sm:grid-cols-2 lg:grid-cols-1">
                     {emptyStateCards.map((card, idx) => (
                       <div
                         key={card.title}
-                        className={`group rounded-2xl border p-4.5 text-left transition-all duration-300 ${
+                        className={`group rounded-xl sm:rounded-2xl border p-3.5 sm:p-4.5 text-left transition-all duration-300 ${
                           isDark
                             ? "border-white/8 bg-white/[0.02] hover:border-white/15 hover:bg-white/[0.04]"
                             : "border-gray-200 bg-gray-50 hover:bg-gray-100"
                         }`}
                       >
-                        <div className="flex items-start gap-3.5">
+                        <div className="flex items-start gap-2.5 sm:gap-3.5">
                           <div
-                            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border ${
+                            className={`flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-lg sm:rounded-xl border ${
                               isDark
                                 ? "bg-white/[0.05] border-white/10 text-white"
                                 : "bg-white border-gray-200 text-gray-900 shadow-sm"
@@ -457,14 +457,14 @@ export const ErrorList = React.memo(
 
                           <div className="min-w-0 mt-0.5">
                             <p
-                              className={`text-[9px] font-mono tracking-[0.18em] uppercase ${
+                              className={`text-[8px] sm:text-[9px] font-mono tracking-[0.18em] uppercase ${
                                 isDark ? "text-white/40" : "text-gray-400"
                               }`}
                             >
                               {card.label}
                             </p>
                             <h4
-                              className={`mt-0.5 font-sans text-sm font-semibold tracking-tight ${
+                              className={`mt-0.5 font-sans text-xs sm:text-sm font-semibold tracking-tight ${
                                 isDark ? "text-white" : "text-gray-900"
                               }`}
                             >
@@ -474,7 +474,7 @@ export const ErrorList = React.memo(
                         </div>
 
                         <p
-                          className={`mt-3 text-xs leading-relaxed ${
+                          className={`mt-2 sm:mt-3 text-[11px] sm:text-xs leading-relaxed ${
                             isDark ? "text-white/50" : "text-gray-500"
                           }`}
                         >
@@ -492,8 +492,8 @@ export const ErrorList = React.memo(
     }
 
     return (
-      <div className="h-full overflow-y-auto p-4 custom-scrollbar">
-        <ul className="m-0 list-none space-y-3 p-0">
+      <div className="h-full overflow-y-auto p-2.5 sm:p-4 no-scrollbar">
+        <ul className="m-0 list-none space-y-2.5 sm:space-y-3 p-0">
           <AnimatePresence mode="popLayout">
             {errors.map((error, index) => (
               <ErrorListItem

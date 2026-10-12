@@ -48,14 +48,14 @@ export function ManageSubscriptionModal({
     <BillingModal
       isOpen={isOpen}
       onClose={onClose}
-      className="max-w-3xl max-h-[85vh] bg-[#09090b]/95 border-white/10 backdrop-blur-2xl"
+      className="w-[min(94vw,48rem)] max-h-[90vh] sm:max-h-[85vh] bg-[#09090b]/95 border-white/10 backdrop-blur-2xl"
       showCloseButton={false}
     >
       <ManageSubscriptionHeader onClose={onClose} />
 
       <div
         ref={scrollContainerRef}
-        className="px-8 py-6 space-y-5 overflow-y-auto flex-1 min-h-0 scroll-smooth"
+        className="px-4 sm:px-8 py-4 sm:py-6 space-y-4 sm:space-y-5 overflow-y-auto flex-1 min-h-0 scroll-smooth"
       >
         <CurrentPlanCard
           plan={subscriptionDetails.plan}

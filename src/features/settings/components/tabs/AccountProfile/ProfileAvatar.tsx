@@ -17,7 +17,7 @@ export const ProfileAvatar: React.FC<ProfileAvatarProps> = memo(
     const t = useTranslations("settings");
 
     return (
-      <div className="settings-glass-card rounded-2xl p-6">
+      <div className="settings-glass-card rounded-2xl p-4 sm:p-6">
         <h3
           className={`text-base font-bold font-jakarta mb-4 flex items-center gap-2 ${
             isDark ? "text-white" : "text-gray-900"

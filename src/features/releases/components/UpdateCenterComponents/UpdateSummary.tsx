@@ -23,11 +23,11 @@ export const UpdateSummary: React.FC<UpdateSummaryProps> = memo(
             : "bg-white border-gray-200/80 shadow-xs"
         }`}
       >
-        <div className="relative p-4 sm:p-5 flex items-center justify-between gap-4 flex-wrap">
-          <div className="flex items-center gap-3.5 min-w-0">
+        <div className="relative p-3.5 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+          <div className="flex items-start sm:items-center gap-3 sm:gap-3.5 min-w-0">
             {/* Icon */}
             <div
-              className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 border transition-colors ${
+              className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center shrink-0 border transition-colors mt-0.5 sm:mt-0 ${
                 hasUpdates
                   ? isDark
                     ? "bg-white/[0.05] border-white/10 text-white"
@@ -39,35 +39,49 @@ export const UpdateSummary: React.FC<UpdateSummaryProps> = memo(
             >
               {hasUpdates ? (
                 <ArrowsClockwise
-                  size={18}
+                  size={16}
                   weight="bold"
-                  className={isDark ? "text-white" : "text-gray-900"}
+                  className={isDark ? "text-white" : "text-gray-900 sm:scale-110"}
                 />
               ) : (
                 <CheckCircle
-                  size={18}
+                  size={16}
                   weight="bold"
-                  className={isDark ? "text-white/70" : "text-gray-700"}
+                  className={isDark ? "text-white/70" : "text-gray-700 sm:scale-110"}
                 />
               )}
             </div>
 
-            {/* Text */}
-            <div className="min-w-0">
-              <h2
-                className={`text-sm sm:text-base font-semibold tracking-tight ${
-                  isDark ? "text-zinc-100" : "text-gray-900"
-                }`}
-              >
-                {hasUpdates
-                  ? updateCount === 1
-                    ? t("update_summary_title_single", { count: updateCount })
-                    : t("update_summary_title_plural", { count: updateCount })
-                  : t("update_summary_desc")}
-              </h2>
+            {/* Text & Inline Count */}
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2
+                  className={`text-xs sm:text-base font-semibold tracking-tight ${
+                    isDark ? "text-zinc-100" : "text-gray-900"
+                  }`}
+                >
+                  {hasUpdates
+                    ? updateCount === 1
+                      ? t("update_summary_title_single", { count: updateCount })
+                      : t("update_summary_title_plural", { count: updateCount })
+                    : t("update_summary_desc")}
+                </h2>
+                {hasUpdates && (
+                  <span
+                    className={`inline-flex sm:hidden items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider border ${
+                      isDark
+                        ? "bg-white/10 text-white border-white/15 shadow-xs"
+                        : "bg-gray-900 text-white border-gray-800 shadow-xs"
+                    }`}
+                  >
+                    <Sparkle size={10} weight="fill" />
+                    <span>{updateCount}</span>
+                  </span>
+                )}
+              </div>
               {hasUpdates && (
                 <p
-                  className={`text-[11px] font-mono tracking-wider uppercase mt-0.5 ${
+                  className={`text-[10px] sm:text-[11px] font-mono tracking-wider uppercase mt-0.5 ${
                     isDark ? "text-white/40" : "text-gray-400"
                   }`}
                 >
@@ -79,19 +93,19 @@ export const UpdateSummary: React.FC<UpdateSummaryProps> = memo(
 
           {/* Actions & Badge */}
           {hasUpdates && (
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2 sm:gap-2.5 w-full sm:w-auto">
               {onDownloadAll && (
                 <button
                   type="button"
                   onClick={onDownloadAll}
-                  className="px-3 py-1.5 rounded-lg text-xs font-mono font-semibold uppercase tracking-wider bg-white text-black hover:bg-zinc-200 transition-colors shadow-xs cursor-pointer flex items-center gap-1.5"
+                  className="w-full sm:w-auto px-3.5 py-2 sm:py-1.5 rounded-xl sm:rounded-lg text-xs font-mono font-bold uppercase tracking-wider bg-white text-black hover:bg-zinc-200 transition-colors shadow-xs cursor-pointer flex items-center justify-center gap-1.5"
                 >
                   <ArrowsClockwise size={13} weight="bold" />
                   <span>Actualizar Todo</span>
                 </button>
               )}
               <span
-                className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-mono font-semibold uppercase tracking-wider border ${
+                className={`hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-mono font-semibold uppercase tracking-wider border ${
                   isDark
                     ? "bg-white/10 text-white border-white/15 shadow-xs"
                     : "bg-gray-900 text-white border-gray-800 shadow-xs"

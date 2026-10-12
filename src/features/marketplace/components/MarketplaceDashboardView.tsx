@@ -452,6 +452,8 @@ export function MarketplaceDashboardView() {
           <MarketplaceFilterSidebar
             selectedCategories={filters.category ? [filters.category] : ["all"]}
             onCategoryChange={handleCategoryChange}
+            selectedTier={selectedTier}
+            onTierChange={setSelectedTier}
             selectedRating={selectedRating}
             onRatingChange={handleRatingChange}
             priceRange={activePriceRange}

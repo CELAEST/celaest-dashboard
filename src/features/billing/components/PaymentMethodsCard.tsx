@@ -62,7 +62,7 @@ export const PaymentMethodsCard: React.FC = () => {
   return (
     <>
       <div
-        className={`relative w-full rounded-2xl transition-all duration-200 border p-4 sm:p-5 flex flex-col h-full min-h-0 overflow-hidden ${
+        className={`relative w-full rounded-2xl transition-all duration-200 border p-3.5 sm:p-5 flex flex-col h-auto lg:h-full min-h-0 overflow-hidden ${
           isDark
             ? "bg-[#09090b]/80 border-white/6 backdrop-blur-xl hover:border-white/10"
             : "bg-white border-gray-200 shadow-sm hover:border-gray-300"
@@ -70,27 +70,27 @@ export const PaymentMethodsCard: React.FC = () => {
       >
         <div className="relative flex flex-col h-full min-h-0">
           {/* Header */}
-          <div className="flex items-center justify-between mb-4 shrink-0">
-            <div className="flex items-center gap-2.5">
+          <div className="flex items-center justify-between mb-3 sm:mb-4 shrink-0">
+            <div className="flex items-center gap-2 sm:gap-2.5">
               <div
-                className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border transition-colors ${
+                className={`w-6 h-6 sm:w-7 sm:h-7 rounded-lg flex items-center justify-center shrink-0 border transition-colors ${
                   isDark
                     ? "bg-white/[0.04] border-white/8 text-white/60"
                     : "bg-gray-100 border-gray-200 text-gray-600"
                 }`}
               >
-                <CreditCard size={14} />
+                <CreditCard size={13} className="sm:scale-110" />
               </div>
               <div>
                 <h3
-                  className={`text-sm sm:text-base font-semibold tracking-tight ${
+                  className={`text-xs sm:text-base font-semibold tracking-tight ${
                     isDark ? "text-zinc-100" : "text-gray-900"
                   }`}
                 >
                   {t("payment_methods")}
                 </h3>
                 <p
-                  className={`text-[10px] sm:text-[11px] font-mono tracking-wider uppercase ${
+                  className={`text-[9px] sm:text-[11px] font-mono tracking-wider uppercase hidden sm:block ${
                     isDark ? "text-white/40" : "text-gray-400"
                   }`}
                 >
@@ -101,25 +101,25 @@ export const PaymentMethodsCard: React.FC = () => {
 
             <button
               onClick={() => setIsAddCardOpen(true)}
-              className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
+              className={`p-1 sm:p-1.5 rounded-lg border transition-all cursor-pointer ${
                 isDark
                   ? "border-white/10 bg-white/[0.03] text-white/70 hover:text-white hover:bg-white/10 hover:border-white/20"
                   : "border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100"
               }`}
               title={t("add_payment_method")}
             >
-              <Plus size={14} />
+              <Plus size={13} className="sm:scale-110" />
             </button>
           </div>
 
           {/* Payment Cards - Scrollable Section */}
-          <div className="flex-1 overflow-y-auto pr-1 space-y-2.5 mb-3 custom-scrollbar min-h-0">
+          <div className="flex-1 overflow-y-auto pr-1 space-y-2.5 mb-2.5 sm:mb-3 custom-scrollbar min-h-[70px] sm:min-h-0">
             {isLoading ? (
               <div className="space-y-2.5">
                 {[1, 2].map((i) => (
                   <div
                     key={i}
-                    className={`h-20 rounded-xl animate-pulse ${
+                    className={`h-16 sm:h-20 rounded-xl animate-pulse ${
                       isDark ? "bg-white/[0.02] border border-white/6" : "bg-gray-100"
                     }`}
                   />
@@ -130,7 +130,7 @@ export const PaymentMethodsCard: React.FC = () => {
                 <p className="text-red-400 text-xs font-mono">{error}</p>
               </div>
             ) : methods.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-center p-4">
+              <div className="h-full flex flex-col items-center justify-center text-center py-5 sm:py-6">
                 <p
                   className={`text-xs font-mono ${
                     isDark ? "text-white/40" : "text-gray-400"
@@ -158,16 +158,16 @@ export const PaymentMethodsCard: React.FC = () => {
 
           {/* Security Notice */}
           <div
-            className={`mt-auto pt-3 border-t flex items-center gap-2.5 ${
+            className={`mt-auto pt-2.5 sm:pt-3 border-t flex items-center gap-2 sm:gap-2.5 ${
               isDark ? "border-white/6 text-white/40" : "border-gray-200 text-gray-500"
             }`}
           >
-            <Shield size={14} className={isDark ? "text-white/50" : "text-gray-400"} />
+            <Shield size={13} className={isDark ? "text-white/50" : "text-gray-400"} />
             <div className="flex-1 min-w-0">
-              <span className={`text-[10px] font-mono uppercase tracking-wider block font-semibold ${isDark ? "text-zinc-300" : "text-gray-700"}`}>
+              <span className={`text-[9px] sm:text-[10px] font-mono uppercase tracking-wider block font-semibold ${isDark ? "text-zinc-300" : "text-gray-700"}`}>
                 {t("bank_level_security")}
               </span>
-              <span className="text-[10px] font-mono text-white/40 block truncate">
+              <span className="text-[9px] sm:text-[10px] font-mono text-white/40 hidden sm:block truncate">
                 {t("bank_level_security_desc")}
               </span>
             </div>

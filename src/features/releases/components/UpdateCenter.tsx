@@ -78,10 +78,40 @@ export const UpdateCenter: React.FC<{ enabled?: boolean }> = ({
 
       {/* Controls Bar: Search & Status Filters */}
       {!isLoading && assets.length > 0 && (
-        <div className="flex items-center justify-between gap-3 flex-wrap">
-          {/* Segmented Filter Pills */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 sm:gap-3">
+          {/* Search Input - Full width on mobile, right-aligned on desktop */}
+          <div className="relative w-full sm:w-56 order-1 sm:order-2">
+            <MagnifyingGlass
+              size={13}
+              className={`absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none ${
+                isDark ? "text-white/30" : "text-gray-400"
+              }`}
+            />
+            <input
+              type="text"
+              placeholder="Buscar por activo..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className={`w-full pl-8.5 pr-8 py-1.5 sm:py-1 rounded-xl sm:rounded-lg text-xs font-mono border outline-none transition-colors ${
+                isDark
+                  ? "bg-white/[0.04] border-white/8 text-white placeholder-white/30 focus:border-white/20"
+                  : "bg-gray-100 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-gray-400"
+              }`}
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/40 hover:text-white text-xs font-mono"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+
+          {/* Segmented Filter Pills - Smooth scroll on mobile without scrollbar */}
           <div
-            className={`inline-flex items-center p-0.5 rounded-lg border ${
+            className={`w-full sm:w-auto inline-flex items-center p-0.5 rounded-xl sm:rounded-lg border overflow-x-auto no-scrollbar order-2 sm:order-1 ${
               isDark
                 ? "bg-white/[0.02] border-white/8"
                 : "bg-gray-100 border-gray-200"
@@ -90,7 +120,7 @@ export const UpdateCenter: React.FC<{ enabled?: boolean }> = ({
             <button
               type="button"
               onClick={() => setFilter("all")}
-              className={`px-2.5 py-1 rounded-md text-[11px] font-mono uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
+              className={`flex-1 sm:flex-initial text-center px-3 py-1.5 sm:py-1 rounded-lg sm:rounded-md text-[10px] sm:text-[11px] font-mono uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                 filter === "all"
                   ? isDark
                     ? "bg-white/10 text-white shadow-xs font-semibold"
@@ -105,7 +135,7 @@ export const UpdateCenter: React.FC<{ enabled?: boolean }> = ({
             <button
               type="button"
               onClick={() => setFilter("updates")}
-              className={`px-2.5 py-1 rounded-md text-[11px] font-mono uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+              className={`flex-1 sm:flex-initial text-center px-3 py-1.5 sm:py-1 rounded-lg sm:rounded-md text-[10px] sm:text-[11px] font-mono uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap shrink-0 flex items-center justify-center gap-1.5 ${
                 filter === "updates"
                   ? isDark
                     ? "bg-white/10 text-white shadow-xs font-semibold"
@@ -121,7 +151,7 @@ export const UpdateCenter: React.FC<{ enabled?: boolean }> = ({
             <button
               type="button"
               onClick={() => setFilter("uptodate")}
-              className={`px-2.5 py-1 rounded-md text-[11px] font-mono uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+              className={`flex-1 sm:flex-initial text-center px-3 py-1.5 sm:py-1 rounded-lg sm:rounded-md text-[10px] sm:text-[11px] font-mono uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap shrink-0 flex items-center justify-center gap-1.5 ${
                 filter === "uptodate"
                   ? isDark
                     ? "bg-white/10 text-white shadow-xs font-semibold"
@@ -134,27 +164,6 @@ export const UpdateCenter: React.FC<{ enabled?: boolean }> = ({
               <CheckCircle size={11} weight="bold" />
               <span>Al Día ({assets.length - updateCount})</span>
             </button>
-          </div>
-
-          {/* Search Input */}
-          <div className="relative w-40 sm:w-56">
-            <MagnifyingGlass
-              size={12}
-              className={`absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none ${
-                isDark ? "text-white/30" : "text-gray-400"
-              }`}
-            />
-            <input
-              type="text"
-              placeholder="Buscar por activo..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className={`w-full pl-7 pr-2.5 py-1 rounded-lg text-[11px] font-mono border outline-none transition-colors ${
-                isDark
-                  ? "bg-white/[0.04] border-white/8 text-white placeholder-white/30 focus:border-white/20"
-                  : "bg-gray-100 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-gray-400"
-              }`}
-            />
           </div>
         </div>
       )}

@@ -45,44 +45,62 @@ export const LicensingHeader: React.FC<LicensingHeaderProps> = ({
 
   return (
     <header
-      className={`shrink-0 px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-3 border-b backdrop-blur-xl transition-colors duration-200 ${
+      className={`shrink-0 px-3 sm:px-6 py-2.5 sm:py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 border-b backdrop-blur-xl transition-colors duration-200 ${
         isDark ? "bg-[#09090b]/80 border-white/6" : "bg-white/80 border-gray-200/80"
       }`}
     >
-      {/* Título & Subtítulo en una sola línea compacta */}
-      <div className="flex items-center gap-3 min-w-0">
-        <div
-          className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border transition-colors ${
-            isDark
-              ? "bg-white/[0.04] border-white/8 text-white/70"
-              : "bg-gray-100 border-gray-200 text-gray-700"
-          }`}
-        >
-          <Key size={15} />
-        </div>
-        <div className="flex items-center gap-3">
-          <h1
-            className={`text-sm sm:text-base font-semibold tracking-tight ${
-              isDark ? "text-zinc-100" : "text-gray-900"
+      {/* Título & Subtítulo (Subtítulo solo en pantallas sm+) */}
+      <div className="flex items-center justify-between sm:justify-start gap-2.5 min-w-0 w-full sm:w-auto">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <div
+            className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center shrink-0 border transition-colors ${
+              isDark
+                ? "bg-white/[0.04] border-white/8 text-white/70"
+                : "bg-gray-100 border-gray-200 text-gray-700"
             }`}
           >
-            {t("licensing_hub")}
-          </h1>
-          <span
-            className={`text-[10px] sm:text-[11px] font-mono tracking-wider uppercase border-l pl-3 ${
-              isDark ? "border-white/10 text-white/40" : "border-gray-200 text-gray-400"
+            <Key size={14} />
+          </div>
+          <div className="flex items-center gap-2.5 min-w-0">
+            <h1
+              className={`text-sm sm:text-base font-semibold tracking-tight truncate ${
+                isDark ? "text-zinc-100" : "text-gray-900"
+              }`}
+            >
+              {t("licensing_hub")}
+            </h1>
+            <span
+              className={`hidden sm:inline-block text-[10px] sm:text-[11px] font-mono tracking-wider uppercase border-l pl-3 ${
+                isDark ? "border-white/10 text-white/40" : "border-gray-200 text-gray-400"
+              }`}
+            >
+              {t("licensing_hub_subtitle")}
+            </span>
+          </div>
+        </div>
+
+        {/* Botón Nueva Licencia en Mobile (arriba a la derecha para fácil acceso táctil) */}
+        {isSuperAdmin && (
+          <button
+            type="button"
+            onClick={onCreateClick}
+            className={`sm:hidden px-2.5 py-1 rounded-lg text-[10px] font-semibold tracking-tight transition-colors flex items-center gap-1 cursor-pointer shrink-0 shadow-xs ${
+              isDark
+                ? "bg-white text-zinc-950 hover:bg-zinc-200"
+                : "bg-gray-900 text-white hover:bg-gray-800"
             }`}
           >
-            {t("licensing_hub_subtitle")}
-          </span>
-        </div>
+            <Plus size={12} weight="bold" />
+            <span>{t("generate_key")}</span>
+          </button>
+        )}
       </div>
 
-      {/* Controles de Tab, Filtros & Acciones */}
-      <div className="flex items-center gap-2.5 flex-wrap">
-        {/* Búsqueda integrada cuando la pestaña es Licencias */}
+      {/* Controles de Tab, Filtros & Búsqueda */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-1.5 sm:gap-2.5 w-full sm:w-auto">
+        {/* Búsqueda integrada (h-8 compacta y proporcional) */}
         {activeTab === "licenses" && onSearchChange && (
-          <div className="relative w-36 sm:w-48">
+          <div className="relative w-full sm:w-48">
             <MagnifyingGlass
               size={12}
               className={`absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none ${
@@ -94,93 +112,96 @@ export const LicensingHeader: React.FC<LicensingHeaderProps> = ({
               placeholder="Buscar..."
               value={searchQuery || ""}
               onChange={(e) => onSearchChange(e.target.value)}
-              className={`w-full pl-7 pr-2.5 py-1 rounded-lg text-[11px] font-mono border outline-none transition-colors ${
+              className={`w-full h-8 pl-7 pr-2.5 rounded-lg text-[11px] font-mono border outline-none transition-colors ${
                 isDark
-                  ? "bg-white/[0.04] border-white/8 text-white placeholder-white/30 focus:border-white/20"
+                  ? "bg-white/[0.03] border-white/8 text-white placeholder-white/30 focus:border-white/20"
                   : "bg-gray-100 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-gray-400"
               }`}
             />
           </div>
         )}
 
-        {/* Segmented Control */}
-        <div
-          className={`flex items-center p-0.5 rounded-lg border ${
-            isDark ? "bg-white/5 border-white/6" : "bg-gray-100 border-gray-200"
-          }`}
-        >
-          {tabs.map((tab) => {
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => onTabChange(tab.id)}
-                className={`px-2.5 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider transition-colors cursor-pointer flex items-center gap-1.5 ${
-                  isActive
-                    ? isDark
-                      ? "bg-white/10 text-white shadow-xs"
-                      : "bg-white text-gray-900 shadow-xs"
-                    : isDark
-                      ? "text-white/40 hover:text-white"
-                      : "text-gray-500 hover:text-gray-900"
-                }`}
-              >
-                <span>{tab.label}</span>
-                {tab.id === "collisions" && collisionsCount > 0 && (
-                  <span
-                    className={`px-1 py-0.2 rounded text-[9px] font-mono ${
-                      isDark ? "bg-red-500/20 text-red-300" : "bg-red-100 text-red-700"
-                    }`}
-                  >
-                    {collisionsCount}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Filtro de Estado */}
-        {activeTab === "licenses" && (
-          <div className="relative">
-            <select
-              value={statusFilter}
-              onChange={(e) => onStatusFilterChange(e.target.value)}
-              className={`px-2.5 py-1 rounded-lg text-[10px] font-mono uppercase tracking-wider border outline-none cursor-pointer transition-colors ${
-                isDark
-                  ? "bg-white/[0.04] border-white/8 text-white/70 hover:text-white"
-                  : "bg-gray-100 border-gray-200 text-gray-700 hover:text-gray-900"
-              }`}
-            >
-              {STATUS_OPTIONS.map((opt) => (
-                <option
-                  key={opt.value}
-                  value={opt.value}
-                  className={isDark ? "bg-[#09090b] text-white" : "bg-white text-gray-900"}
-                >
-                  {t(opt.label)}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-
-        {/* Botón Nueva Licencia (SuperAdmin) */}
-        {isSuperAdmin && (
-          <button
-            type="button"
-            onClick={onCreateClick}
-            className={`px-3 py-1 rounded-lg text-[11px] font-semibold tracking-tight transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs ${
-              isDark
-                ? "bg-white text-zinc-950 hover:bg-zinc-200"
-                : "bg-gray-900 text-white hover:bg-gray-800"
+        {/* Tabs & Filtros (Solo visibles en Desktop sm+, ocultos en mobile por petición explícita) */}
+        <div className="hidden sm:flex items-center justify-start gap-2 w-auto">
+          {/* Segmented Control */}
+          <div
+            className={`flex items-center h-8 p-0.5 rounded-lg border flex-1 sm:flex-none justify-center ${
+              isDark ? "bg-white/[0.03] border-white/6" : "bg-gray-100 border-gray-200"
             }`}
           >
-            <Plus size={13} weight="bold" />
-            <span>{t("generate_key")}</span>
-          </button>
-        )}
+            {tabs.map((tab) => {
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => onTabChange(tab.id)}
+                  className={`flex-1 sm:flex-none justify-center px-2 sm:px-2.5 h-full rounded-md text-[10px] font-medium uppercase tracking-wider transition-colors cursor-pointer flex items-center gap-1.5 ${
+                    isActive
+                      ? isDark
+                        ? "bg-white/10 text-white shadow-xs"
+                        : "bg-white text-gray-900 shadow-xs"
+                      : isDark
+                        ? "text-white/40 hover:text-white"
+                        : "text-gray-500 hover:text-gray-900"
+                  }`}
+                >
+                  <span>{tab.label}</span>
+                  {tab.id === "collisions" && collisionsCount > 0 && (
+                    <span
+                      className={`px-1 py-0.2 rounded text-[9px] font-mono ${
+                        isDark ? "bg-red-500/20 text-red-300" : "bg-red-100 text-red-700"
+                      }`}
+                    >
+                      {collisionsCount}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Filtro de Estado */}
+          {activeTab === "licenses" && (
+            <div className="relative shrink-0">
+              <select
+                value={statusFilter}
+                onChange={(e) => onStatusFilterChange(e.target.value)}
+                className={`h-8 px-2 rounded-lg text-[10px] font-mono uppercase tracking-wider border outline-none cursor-pointer transition-colors ${
+                  isDark
+                    ? "bg-white/[0.03] border-white/8 text-white/70 hover:text-white"
+                    : "bg-gray-100 border-gray-200 text-gray-700 hover:text-gray-900"
+                }`}
+              >
+                {STATUS_OPTIONS.map((opt) => (
+                  <option
+                    key={opt.value}
+                    value={opt.value}
+                    className={isDark ? "bg-[#09090b] text-white" : "bg-white text-gray-900"}
+                  >
+                    {t(opt.label)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* Botón Nueva Licencia (SuperAdmin - Pantallas sm+) */}
+          {isSuperAdmin && (
+            <button
+              type="button"
+              onClick={onCreateClick}
+              className={`hidden sm:flex px-3 py-1 rounded-lg text-[11px] font-semibold tracking-tight transition-colors items-center gap-1.5 cursor-pointer shadow-xs ${
+                isDark
+                  ? "bg-white text-zinc-950 hover:bg-zinc-200"
+                  : "bg-gray-900 text-white hover:bg-gray-800"
+              }`}
+            >
+              <Plus size={13} weight="bold" />
+              <span>{t("generate_key")}</span>
+            </button>
+          )}
+        </div>
       </div>
     </header>
   );
