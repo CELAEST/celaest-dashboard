@@ -19,16 +19,19 @@ import { useTranslations } from "next-intl";
 import { useErrorStore } from "@/features/errors/stores/useErrorStore";
 import { UserInfo } from "./Header/UserInfo";
 import { HeaderFilterPill } from "./Header/HeaderFilterPill";
+import Logo from "@/components/icons/Logo";
 
 interface HeaderProps {
   onShowLogin?: () => void;
   onMenuClick?: () => void;
+  isGuest?: boolean;
 }
 
 export const Header = React.memo(function Header({
   onMenuClick,
+  isGuest = false,
 }: HeaderProps) {
-  const { toggleTheme, isMounted } = useTheme();
+  const { toggleTheme, isMounted, isDark } = useTheme();
   const { user } = useAuth();
   const { showErrorControls, errorFilters, setErrorFilters } = useErrorStore();
   const tHeader = useTranslations("header");
@@ -56,8 +59,8 @@ export const Header = React.memo(function Header({
 
   return (
     <header className={headerClassName}>
-      <div className="flex items-center gap-1.5">
-        {onMenuClick && (
+      <div className="flex items-center gap-3">
+        {onMenuClick && !isGuest && (
           <button
             onClick={onMenuClick}
             className="md:hidden p-2 rounded-full transition-all duration-300 text-gray-500 hover:text-blue-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-cyan-400 dark:hover:bg-white/5"
@@ -65,6 +68,36 @@ export const Header = React.memo(function Header({
           >
             <List size={22} />
           </button>
+        )}
+
+        {isGuest && (
+          <Link
+            href="/?tab=marketplace"
+            className="flex items-center gap-2.5 transition-opacity hover:opacity-85"
+          >
+            <Logo
+              className="w-7 h-7 sm:w-8 sm:h-8"
+              color={isDark ? "#22d3ee" : "#2563eb"}
+            />
+            <div className="flex flex-col leading-none">
+              <span
+                className={`text-base sm:text-lg font-bold tracking-tight ${
+                  isDark
+                    ? "text-white"
+                    : "bg-linear-to-r from-blue-600 via-blue-500 to-indigo-600 bg-clip-text text-transparent"
+                }`}
+              >
+                CELAEST
+              </span>
+              <span
+                className={`text-[9px] font-mono tracking-[0.2em] uppercase mt-0.5 ${
+                  isDark ? "text-white/40" : "text-blue-600/60"
+                }`}
+              >
+                Marketplace
+              </span>
+            </div>
+          </Link>
         )}
       </div>
 
@@ -150,7 +183,7 @@ export const Header = React.memo(function Header({
           </button>
         )}
 
-        <NotificationCenter />
+        {user && <NotificationCenter />}
       </div>
     </header>
   );

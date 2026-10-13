@@ -20,7 +20,7 @@ export function ConfirmDeleteOrderModal({
 }: ConfirmDeleteOrderModalProps) {
   const t = useTranslations("billing");
   return (
-    <BillingModal isOpen={isOpen} onClose={onClose} className="max-w-[448px] w-[448px] min-w-[448px] shrink-0" showCloseButton={false}>
+    <BillingModal isOpen={isOpen} onClose={onClose} className="w-full sm:w-[448px] max-w-[448px] min-w-0 sm:min-w-[448px] shrink-0" showCloseButton={false}>
       {/* Top accent line — RED for destructive */}
       <div className="absolute inset-x-0 top-0 h-px z-20 bg-linear-to-r from-transparent via-red-500/70 to-transparent" />
       {/* Corner glow — RED */}
@@ -38,7 +38,7 @@ export function ConfirmDeleteOrderModal({
       />
 
       {/* Header */}
-      <div className="relative px-8 py-6 border-b border-white/8 flex items-center justify-between overflow-hidden shrink-0">
+      <div className="relative px-5 sm:px-8 py-4 sm:py-6 border-b border-white/8 flex items-center justify-between overflow-hidden shrink-0">
         <div className="absolute inset-0 bg-linear-to-r from-red-500/10 via-red-600/8 to-transparent" />
         <div
           style={{
@@ -93,7 +93,7 @@ export function ConfirmDeleteOrderModal({
             pointerEvents: "none",
           }}
         />
-        <div className="relative px-8 py-5 flex gap-3">
+        <div className="relative px-5 sm:px-8 py-4 sm:py-5 flex gap-3 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
           <button
             onClick={onClose}
             autoFocus

@@ -20,6 +20,7 @@ export function mapSupabaseUser(supabaseUser: SupabaseUser): AuthUser {
     name:
       metadata.name ||
       metadata.full_name ||
+      metadata.user_name ||
       supabaseUser.email?.split("@")[0] ||
       "Usuario",
     avatarUrl: metadata.avatar_url || metadata.picture,

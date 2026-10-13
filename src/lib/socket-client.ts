@@ -5,7 +5,7 @@
  */
 
 const getWsUrl = () => {
-  const apiUrl = process.env.NEXT_PUBLIC_CELAEST_API_URL || "http://localhost:3001";
+  const apiUrl = process.env.NEXT_PUBLIC_CELAEST_API_URL || "http://localhost:3101";
   return apiUrl.replace(/^http/, "ws") + "/ws";
 };
 

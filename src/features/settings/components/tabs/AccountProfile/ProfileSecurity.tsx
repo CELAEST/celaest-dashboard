@@ -90,19 +90,19 @@ export const ProfileSecurity: React.FC<ProfileSecurityProps> = memo(
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
               {/* Google */}
               <div
-                className={`flex items-center justify-between p-4 rounded-xl border transition-all ${
+                className={`flex items-center justify-between gap-3 p-3.5 sm:p-4 rounded-xl border transition-all min-w-0 overflow-hidden ${
                   isDark
                     ? "bg-white/[0.02] border-white/[0.05] hover:border-white/[0.12]"
                     : "bg-gray-50 border-gray-100"
                 }`}
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
                   <div
-                    className={`w-10 h-10 rounded-lg flex items-center justify-center shadow-sm ${
+                    className={`w-10 h-10 shrink-0 rounded-lg flex items-center justify-center shadow-sm ${
                       isDark ? "bg-white/90" : "bg-white border border-gray-100"
                     }`}
                   >
-                    <svg className="w-5 h-5" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
                       <path
                         fill="#4285F4"
                         d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -121,16 +121,17 @@ export const ProfileSecurity: React.FC<ProfileSecurityProps> = memo(
                       />
                     </svg>
                   </div>
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <p
-                      className={`font-semibold text-sm ${
+                      className={`font-semibold text-sm truncate ${
                         isDark ? "text-zinc-100" : "text-gray-900"
                       }`}
                     >
                       Google
                     </p>
                     <p
-                      className={`text-xs font-mono ${
+                      title={getIdentityEmail("google")}
+                      className={`text-xs font-mono truncate ${
                         isDark ? "text-white/40" : "text-gray-400"
                       }`}
                     >
@@ -141,12 +142,12 @@ export const ProfileSecurity: React.FC<ProfileSecurityProps> = memo(
                 <button
                   onClick={() => onToggleAccount("google")}
                   disabled={isAuthLoading}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer border disabled:opacity-50 disabled:cursor-not-allowed ${
+                  className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all cursor-pointer border disabled:opacity-50 disabled:cursor-not-allowed ${
                     connectedAccounts.google
-                      ? "text-red-400 hover:bg-red-500/20 bg-red-500/10 border-red-500/20"
+                      ? "text-red-400 hover:bg-red-500/20 bg-red-500/10 border-red-500/20 active:scale-95"
                       : isDark
-                        ? "text-white/80 border-white/8 bg-white/[0.04] hover:bg-white/[0.08] hover:text-white"
-                        : "text-gray-600 border-gray-200 hover:bg-gray-100"
+                        ? "text-white/80 border-white/8 bg-white/[0.04] hover:bg-white/[0.08] hover:text-white active:scale-95"
+                        : "text-gray-600 border-gray-200 hover:bg-gray-100 active:scale-95"
                   }`}
                 >
                   {isAuthLoading
@@ -159,30 +160,31 @@ export const ProfileSecurity: React.FC<ProfileSecurityProps> = memo(
 
               {/* GitHub */}
               <div
-                className={`flex items-center justify-between p-4 rounded-xl border transition-all ${
+                className={`flex items-center justify-between gap-3 p-3.5 sm:p-4 rounded-xl border transition-all min-w-0 overflow-hidden ${
                   isDark
                     ? "bg-white/[0.02] border-white/[0.05] hover:border-white/[0.12]"
                     : "bg-gray-50 border-gray-100"
                 }`}
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
                   <div
-                    className={`w-10 h-10 rounded-lg flex items-center justify-center shadow-sm ${
+                    className={`w-10 h-10 shrink-0 rounded-lg flex items-center justify-center shadow-sm ${
                       isDark ? "bg-white/10" : "bg-gray-900"
                     }`}
                   >
-                    <GithubLogo className="w-5 h-5 text-white" />
+                    <GithubLogo className="w-5 h-5 text-white shrink-0" />
                   </div>
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <p
-                      className={`font-semibold text-sm ${
+                      className={`font-semibold text-sm truncate ${
                         isDark ? "text-zinc-100" : "text-gray-900"
                       }`}
                     >
                       GitHub
                     </p>
                     <p
-                      className={`text-xs font-mono ${
+                      title={getIdentityEmail("github")}
+                      className={`text-xs font-mono truncate ${
                         isDark ? "text-white/40" : "text-gray-400"
                       }`}
                     >
@@ -193,12 +195,12 @@ export const ProfileSecurity: React.FC<ProfileSecurityProps> = memo(
                 <button
                   onClick={() => onToggleAccount("github")}
                   disabled={isAuthLoading}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer border disabled:opacity-50 disabled:cursor-not-allowed ${
+                  className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all cursor-pointer border disabled:opacity-50 disabled:cursor-not-allowed ${
                     connectedAccounts.github
-                      ? "text-red-400 hover:bg-red-500/20 bg-red-500/10 border-red-500/20"
+                      ? "text-red-400 hover:bg-red-500/20 bg-red-500/10 border-red-500/20 active:scale-95"
                       : isDark
-                        ? "text-white/80 border-white/8 bg-white/[0.04] hover:bg-white/[0.08] hover:text-white"
-                        : "text-gray-600 border-gray-200 hover:bg-gray-100"
+                        ? "text-white/80 border-white/8 bg-white/[0.04] hover:bg-white/[0.08] hover:text-white active:scale-95"
+                        : "text-gray-600 border-gray-200 hover:bg-gray-100 active:scale-95"
                   }`}
                 >
                   {isAuthLoading

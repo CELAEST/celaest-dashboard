@@ -17,6 +17,7 @@ import { Asset, assetsService } from "../services/assets.service";
 import { BackendRelease } from "../api/assets.api";
 import { useApiAuth } from "@/lib/use-api-auth";
 import { toast } from "sonner";
+import { useSwipeDownToClose } from "@/features/shared/hooks/useSwipeDownToClose";
 
 interface ReleaseManagementModalProps {
   isOpen: boolean;
@@ -33,6 +34,22 @@ export const ReleaseManagementModal: React.FC<ReleaseManagementModalProps> = ({
   const [releases, setReleases] = useState<BackendRelease[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+
+  const {
+    sheetRef,
+    bodyRef,
+    handlePillRef,
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
+    handlePointerDown,
+    handlePointerMove,
+    handlePointerUp,
+    handleBodyTouchStart,
+    handleBodyTouchMove,
+    handleBodyTouchEnd,
+    handlePillClick,
+  } = useSwipeDownToClose({ onClose });
 
   // New Release Form State
   const [newVersion, setNewVersion] = useState("");
@@ -155,21 +172,42 @@ export const ReleaseManagementModal: React.FC<ReleaseManagementModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-hidden">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="absolute inset-0 bg-black/60 backdrop-blur-md"
+        className="absolute inset-0 bg-black/80 backdrop-blur-md"
       />
 
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="relative w-full max-w-2xl bg-[#0a0a0a] border border-white/10 rounded-4xl overflow-hidden shadow-2xl"
+      <div
+        ref={sheetRef}
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full sm:max-w-2xl max-h-[92dvh] sm:max-h-[88vh] bg-[#0a0a0a] border-t sm:border border-white/10 rounded-t-[26px] sm:rounded-3xl overflow-hidden shadow-2xl flex flex-col animate-modal-content"
+        style={{ willChange: "transform", backfaceVisibility: "hidden" }}
       >
+        {/* Mobile Drag Indicator (Lingua Standard with Swipe-to-Close) */}
+        <div
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onClick={handlePillClick}
+          className="sm:hidden w-full flex items-center justify-center pt-3 pb-2 shrink-0 bg-[#0D0D11] select-none cursor-grab active:cursor-grabbing touch-none"
+          title="Desliza hacia abajo para cerrar"
+          role="button"
+          tabIndex={0}
+          aria-label="Deslizar hacia abajo para cerrar"
+        >
+          <div
+            ref={handlePillRef}
+            className="w-10 h-1.5 rounded-full bg-white/20 hover:bg-white/35 transition-all duration-150"
+          />
+        </div>
+
         {/* Top accent line */}
         <div className="absolute inset-x-0 top-0 h-px z-20 bg-linear-to-r from-transparent via-cyan-500/70 to-transparent" />
 
@@ -187,10 +225,18 @@ export const ReleaseManagementModal: React.FC<ReleaseManagementModalProps> = ({
           }}
         />
 
-        {/* Header */}
-        <div className="relative px-8 py-6 border-b border-white/8 flex items-center justify-between overflow-hidden shrink-0">
+        {/* Header (Drag-enabled on Mobile) */}
+        <div
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          className="relative px-4 sm:px-8 py-3.5 sm:py-6 border-b border-white/8 flex items-center justify-between overflow-hidden shrink-0 select-none cursor-grab active:cursor-grabbing touch-none"
+        >
           {/* Gradient wash */}
-          <div className="absolute inset-0 bg-linear-to-r from-cyan-500/10 via-teal-600/8 to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-r from-cyan-500/10 via-teal-600/8 to-transparent pointer-events-none" />
           {/* Grid dots */}
           <div
             style={{
@@ -202,14 +248,14 @@ export const ReleaseManagementModal: React.FC<ReleaseManagementModalProps> = ({
             }}
           />
           {/* Bottom accent line */}
-          <div className="absolute bottom-0 left-0 h-px w-2/5 bg-linear-to-r from-cyan-500/50 to-transparent" />
+          <div className="absolute bottom-0 left-0 h-px w-2/5 bg-linear-to-r from-cyan-500/50 to-transparent pointer-events-none" />
 
-          <div className="relative z-10 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg shrink-0 bg-[#111] text-cyan-400 border border-white/10 shadow-cyan-500/10">
-              <ClockCounterClockwise size={24} />
+          <div className="relative z-10 flex items-center gap-3 sm:gap-4 pointer-events-none">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shadow-lg shrink-0 bg-[#111] text-cyan-400 border border-white/10 shadow-cyan-500/10">
+              <ClockCounterClockwise size={22} />
             </div>
             <div>
-              <h2 className="text-xl font-black italic tracking-tighter text-white uppercase">
+              <h2 className="text-lg sm:text-xl font-black italic tracking-tighter text-white uppercase">
                 {isCreating ? "Link New Release" : "RELEASES HISTORY"}
               </h2>
               <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40">
@@ -221,16 +267,28 @@ export const ReleaseManagementModal: React.FC<ReleaseManagementModalProps> = ({
           </div>
           <div className="relative z-10">
             <button
-              onClick={onClose}
-              className="p-2 rounded-full transition-colors text-gray-400 hover:text-white hover:bg-white/10"
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onClose();
+              }}
+              onTouchEnd={(e) => e.stopPropagation()}
+              onPointerDown={(e) => e.stopPropagation()}
+              className="p-2 rounded-full transition-colors text-gray-400 hover:text-white hover:bg-white/10 cursor-pointer"
             >
-              <X size={22} />
+              <X size={20} />
             </button>
           </div>
         </div>
 
         {/* Content */}
-        <div className="p-8 max-h-[70vh] overflow-y-auto scrollbar-thin scrollbar-thumb-white/10">
+        <div
+          ref={bodyRef}
+          onTouchStart={handleBodyTouchStart}
+          onTouchMove={handleBodyTouchMove}
+          onTouchEnd={handleBodyTouchEnd}
+          className="p-4 sm:p-8 flex-1 min-h-0 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 pb-[max(1.5rem,env(safe-area-inset-bottom))]"
+        >
           {isCreating ? (
             <div className="space-y-6">
               {/* DownloadSimple URL */}
@@ -579,7 +637,7 @@ export const ReleaseManagementModal: React.FC<ReleaseManagementModalProps> = ({
             by default.
           </p>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 };

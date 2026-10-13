@@ -6,6 +6,7 @@ import { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import { mapSupabaseUser } from "../lib/mappers";
 import { useAuthStore } from "../stores/useAuthStore";
 import { logger } from "@/lib/logger";
+import { toast } from "sonner";
 
 /**
  * Hook to manage Supabase session state.
@@ -126,6 +127,91 @@ export function useAuthSession() {
         if (!currentAuth.isAuthenticated) {
           setLoading(true);
         }
+
+        // Handle OAuth callback (code or error from GitHub/Google redirect)
+        if (typeof window !== "undefined") {
+          const urlParams = new URLSearchParams(window.location.search);
+          const code = urlParams.get("code");
+          const errorParam =
+            urlParams.get("error_description") || urlParams.get("error");
+
+          if (errorParam) {
+            const decodedError = decodeURIComponent(errorParam);
+            logger.error("OAuth callback error:", decodedError);
+            toast.error(`Error de autenticación: ${decodedError}`);
+            const cleanUrl = new URL(window.location.href);
+            cleanUrl.searchParams.delete("error");
+            cleanUrl.searchParams.delete("error_description");
+            cleanUrl.searchParams.delete("error_code");
+            window.history.replaceState({}, "", cleanUrl.toString());
+            syncSession(null);
+            setLoading(false);
+            return;
+          }
+
+          if (code) {
+            try {
+              // 1. Proactive PKCE code exchange
+              const { data: exchangeData, error: exchangeError } =
+                await supabase.auth.exchangeCodeForSession(code);
+              if (exchangeData?.session?.user) {
+                syncSession(exchangeData.session);
+                const cleanUrl = new URL(window.location.href);
+                cleanUrl.searchParams.delete("code");
+                window.history.replaceState({}, "", cleanUrl.toString());
+                setLoading(false);
+                return;
+              }
+
+              if (exchangeError) {
+                logger.warn(
+                  "[useAuthSession] Code exchange reported error, checking session fallback:",
+                  exchangeError.message,
+                );
+                // 2. Fallback: Check if detectSessionInUrl already redeemed the code
+                const { data: fallbackData } = await supabase.auth.getSession();
+                if (fallbackData?.session?.user) {
+                  syncSession(fallbackData.session);
+                  const cleanUrl = new URL(window.location.href);
+                  cleanUrl.searchParams.delete("code");
+                  window.history.replaceState({}, "", cleanUrl.toString());
+                  setLoading(false);
+                  return;
+                }
+              }
+            } catch (err) {
+              logger.warn(
+                "[useAuthSession] Exception during PKCE exchange, attempting getSession:",
+                err,
+              );
+              const { data: fallbackData } = await supabase.auth.getSession();
+              if (fallbackData?.session?.user) {
+                syncSession(fallbackData.session);
+                const cleanUrl = new URL(window.location.href);
+                cleanUrl.searchParams.delete("code");
+                window.history.replaceState({}, "", cleanUrl.toString());
+                setLoading(false);
+                return;
+              }
+            }
+          }
+
+          // Handle implicit hash token (#access_token=...)
+          if (window.location.hash.includes("access_token")) {
+            const { data: hashSessionData } = await supabase.auth.getSession();
+            if (hashSessionData?.session?.user) {
+              syncSession(hashSessionData.session);
+              window.history.replaceState(
+                {},
+                "",
+                window.location.pathname + window.location.search,
+              );
+              setLoading(false);
+              return;
+            }
+          }
+        }
+
         const { data: userData, error: userError } = await supabase.auth.getUser();
         if (userError || !userData.user) {
           syncSession(null);

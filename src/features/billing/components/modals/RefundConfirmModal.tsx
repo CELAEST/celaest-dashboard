@@ -156,7 +156,7 @@ export const RefundConfirmModal: React.FC<RefundConfirmModalProps> = ({
             pointerEvents: "none",
           }}
         />
-        <div className="relative px-8 py-5 flex gap-3">
+        <div className="relative px-5 sm:px-8 py-4 sm:py-5 flex gap-3 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
           <button
             onClick={onClose}
             disabled={isLoading}

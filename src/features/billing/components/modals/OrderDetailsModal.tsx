@@ -1,7 +1,8 @@
 "use client";
 
+import React from "react";
 import { useQuery } from "@tanstack/react-query";
-import { BillingModal } from "./shared/BillingModal";
+import { BillingModal, useBillingModalSwipe } from "./shared/BillingModal";
 import { useOrderDetails } from "../../hooks/useOrderDetails";
 import { Order, OrderActivityEvent } from "../../types";
 import { OrderDetailsHeader } from "./OrderDetails/OrderDetailsHeader";
@@ -21,6 +22,47 @@ interface OrderDetailsModalProps {
   onDownload?: () => void;
   canRefund?: boolean;
   isSuperAdmin?: boolean;
+}
+
+function OrderDetailsBody({
+  formData,
+  mode,
+  updateField,
+  events,
+  onDownload,
+}: {
+  formData: Order;
+  mode: "view" | "edit";
+  updateField: (field: keyof Order, value: string) => void;
+  events: OrderActivityEvent[];
+  onDownload?: () => void;
+}) {
+  const swipe = useBillingModalSwipe();
+
+  return (
+    <div
+      ref={swipe?.bodyRef}
+      onTouchStart={swipe?.handleBodyTouchStart}
+      onTouchMove={swipe?.handleBodyTouchMove}
+      onTouchEnd={swipe?.handleBodyTouchEnd}
+      className="flex-1 overflow-y-auto p-4 sm:p-6 pb-[max(1.5rem,env(safe-area-inset-bottom))]"
+    >
+      <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-4 sm:gap-6">
+        <OrderDetailsContent
+          formData={formData}
+          mode={mode}
+          updateField={updateField}
+          events={events}
+        />
+        <OrderDetailsSidebar
+          formData={formData}
+          mode={mode}
+          updateField={updateField}
+          onDownload={onDownload}
+        />
+      </div>
+    </div>
+  );
 }
 
 export function OrderDetailsModal({
@@ -64,7 +106,7 @@ export function OrderDetailsModal({
     <BillingModal
       isOpen={isOpen}
       onClose={onClose}
-      className="max-w-3xl max-h-[90vh]"
+      className="max-w-3xl max-h-[92dvh] sm:max-h-[90vh]"
       showCloseButton={false}
     >
       {/* Top subtle luminance line */}
@@ -76,22 +118,13 @@ export function OrderDetailsModal({
         onClose={onClose}
       />
 
-      <div className="flex-1 overflow-y-auto p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-6">
-          <OrderDetailsContent
-            formData={formData}
-            mode={mode}
-            updateField={updateField}
-            events={events}
-          />
-          <OrderDetailsSidebar
-            formData={formData}
-            mode={mode}
-            updateField={updateField}
-            onDownload={onDownload}
-          />
-        </div>
-      </div>
+      <OrderDetailsBody
+        formData={formData}
+        mode={mode}
+        updateField={updateField}
+        events={events}
+        onDownload={onDownload}
+      />
 
       <OrderDetailsFooter
         mode={mode}

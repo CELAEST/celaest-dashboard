@@ -497,7 +497,7 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter = true }
   }, [allColumns, isSuperAdmin]);
 
   return (
-    <div className="w-full relative">
+    <div className="w-full h-full flex-1 min-h-0 flex flex-col relative">
       <DataTable
         columns={columns}
         data={orders}

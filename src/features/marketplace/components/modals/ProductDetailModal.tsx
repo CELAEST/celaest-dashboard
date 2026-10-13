@@ -13,6 +13,8 @@ import { LiteYouTube } from "@/features/shared/components/LiteYouTube";
 import { MarketplaceProduct } from "../../types";
 import { useTranslations } from "next-intl";
 
+import { useSwipeDownToClose } from "@/features/shared/hooks/useSwipeDownToClose";
+
 interface ProductDetailModalProps {
   initialProduct: MarketplaceProduct;
   onClose: () => void;
@@ -43,6 +45,22 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   const [activeTab, setActiveTab] = React.useState(initialTab ?? "overview");
   const [mounted, setMounted] = React.useState(false);
 
+  const {
+    sheetRef,
+    bodyRef,
+    handlePillRef,
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
+    handlePointerDown,
+    handlePointerMove,
+    handlePointerUp,
+    handleBodyTouchStart,
+    handleBodyTouchMove,
+    handleBodyTouchEnd,
+    handlePillClick,
+  } = useSwipeDownToClose({ onClose });
+
   React.useEffect(() => {
     setMounted(true);
   }, []);
@@ -60,18 +78,21 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   if (!mounted || !product) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-hidden">
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-hidden">
       {/* Backdrop */}
       <div
         onClick={onClose}
-        className="absolute inset-0 bg-black/60 backdrop-blur-md animate-modal-backdrop"
+        className="absolute inset-0 bg-black/80 backdrop-blur-md animate-modal-backdrop"
       />
 
       {/* Modal */}
       <div
+        ref={sheetRef}
+        onClick={(e) => e.stopPropagation()}
+        style={{ willChange: "transform", backfaceVisibility: "hidden" }}
         className={`
-          relative shrink-0 flex flex-col w-full max-h-[92dvh] sm:max-w-4xl lg:max-w-6xl
-          rounded-3xl border shadow-[0_32px_96px_-12px_rgba(0,0,0,0.95)] overflow-hidden animate-modal-content
+          relative shrink-0 flex flex-col w-full max-h-[92dvh] sm:max-h-[88vh] sm:max-w-4xl lg:max-w-6xl
+          rounded-t-[26px] sm:rounded-3xl border-t sm:border shadow-[0_32px_96px_-12px_rgba(0,0,0,0.95)] overflow-hidden animate-modal-content
           ${
             theme === "dark"
               ? "bg-[#09090B] border-white/[0.08]"
@@ -79,20 +100,47 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           }
         `}
       >
-        {/* Tokyo Corner Accents (Dark Mode) */}
+        {/* Mobile Drag Indicator (Lingua Standard with Swipe-to-Close) */}
+        <div
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onClick={handlePillClick}
+          className="sm:hidden w-full flex items-center justify-center pt-2.5 pb-1 shrink-0 bg-[#0D0D11] select-none cursor-grab active:cursor-grabbing touch-none"
+          title="Desliza hacia abajo para cerrar"
+          role="button"
+          tabIndex={0}
+          aria-label="Deslizar hacia abajo para cerrar"
+        >
+          <div
+            ref={handlePillRef}
+            className="w-10 h-1.5 rounded-full bg-white/20 hover:bg-white/35 transition-all duration-150"
+          />
+        </div>
+
+        {/* Tokyo Corner Accents (Dark Mode Desktop Only) */}
         {theme === "dark" && (
-          <>
+          <div className="hidden sm:block">
             <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-white/20 rounded-tl-sm pointer-events-none z-30" />
             <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-white/20 rounded-tr-sm pointer-events-none z-30" />
             <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-white/20 rounded-bl-sm pointer-events-none z-30" />
             <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-white/20 rounded-br-sm pointer-events-none z-30" />
-          </>
+          </div>
         )}
 
-        {/* ── HEADER ULTRA-LIMPIO (PLAN PRO RETIRADO PARA EVITAR REDUNDANCIA) ── */}
+        {/* ── HEADER ULTRA-LIMPIO (Drag-enabled on Mobile) ── */}
         <div
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
           className={`
-            shrink-0 px-6 sm:px-8 py-4.5 border-b flex items-center justify-between
+            shrink-0 px-4 sm:px-8 py-3 sm:py-4.5 border-b flex items-center justify-between select-none cursor-grab active:cursor-grabbing touch-none
             ${
               theme === "dark"
                 ? "bg-[#0D0D11] border-white/[0.06]"
@@ -100,9 +148,9 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
             }
           `}
         >
-          <div className="flex flex-col gap-1.5 pr-4 min-w-0">
-            {/* Floating Micro-Typography Tags (Sin Cajas, Sin Bordes) */}
-            <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-col gap-1 sm:gap-1.5 pr-2 sm:pr-4 min-w-0 pointer-events-none">
+            {/* Floating Micro-Typography Tags */}
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
               <span className={`text-[10px] font-mono tracking-[0.18em] uppercase ${theme === "dark" ? "text-white/40" : "text-gray-500"}`}>
                 {product.category_name || t("general")}
               </span>
@@ -127,7 +175,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
             </div>
 
             <h2
-              className={`text-lg sm:text-xl font-extrabold tracking-tight truncate ${
+              className={`text-base sm:text-xl font-extrabold tracking-tight truncate ${
                 theme === "dark" ? "text-white" : "text-gray-900"
               }`}
             >
@@ -135,7 +183,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
             </h2>
           </div>
 
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <div className={`hidden sm:flex items-center gap-2 text-xs font-mono ${theme === "dark" ? "text-white/50" : "text-gray-500"}`}>
               <span className="flex items-center gap-1 text-amber-400">
                 <Star size={13} weight="fill" />
@@ -148,10 +196,15 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 
             <button
               type="button"
-              onClick={onClose}
+              onClick={(e) => {
+                e.stopPropagation();
+                onClose();
+              }}
+              onTouchEnd={(e) => e.stopPropagation()}
+              onPointerDown={(e) => e.stopPropagation()}
               aria-label="Cerrar modal"
               className={`
-                w-9 h-9 rounded-xl flex items-center justify-center transition-all cursor-pointer
+                w-9 h-9 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center transition-all cursor-pointer active:scale-95
                 ${
                   theme === "dark"
                     ? "bg-white/[0.04] hover:bg-white/[0.1] text-white/60 hover:text-white border border-white/[0.08]"
@@ -165,17 +218,23 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
         </div>
 
         {/* ── CUERPO SPLIT PANORÁMICO (64% / 36%) ── */}
-        <div className="flex-1 overflow-y-auto no-scrollbar grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-white/[0.06]">
+        <div
+          ref={bodyRef}
+          onTouchStart={handleBodyTouchStart}
+          onTouchMove={handleBodyTouchMove}
+          onTouchEnd={handleBodyTouchEnd}
+          className="flex-1 min-h-0 overflow-y-auto no-scrollbar grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-white/[0.06]"
+        >
           {/* Canvas Izquierdo (64%) */}
           <div
             className={`
-              lg:col-span-8 p-6 sm:p-8 flex flex-col gap-6
+              lg:col-span-8 p-3.5 sm:p-8 flex flex-col gap-3.5 sm:gap-6
               ${theme === "dark" ? "bg-[#09090B]" : "bg-white"}
             `}
           >
             {/* Media Display Cinema 16:9 */}
             {product.youtube_video_id ? (
-              <div className="w-full rounded-2xl overflow-hidden bg-black aspect-video border border-white/[0.08] shadow-2xl">
+              <div className="w-full rounded-xl sm:rounded-2xl overflow-hidden bg-black aspect-video border border-white/[0.08] shadow-2xl">
                 <LiteYouTube
                   videoId={product.youtube_video_id}
                   title={product.name}
@@ -185,7 +244,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
               </div>
             ) : (
               <div
-                className={`relative aspect-video rounded-2xl overflow-hidden bg-black border border-white/[0.08] shadow-2xl ${
+                className={`relative aspect-video rounded-xl sm:rounded-2xl overflow-hidden bg-black border border-white/[0.08] shadow-2xl ${
                   loading ? "animate-pulse" : ""
                 }`}
               >
@@ -213,7 +272,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           {/* Right Column / Command Deck (36%) */}
           <div
             className={`
-              lg:col-span-4 p-6 sm:p-7 flex flex-col gap-6
+              lg:col-span-4 p-3.5 sm:p-7 flex flex-col gap-4 sm:gap-6 pb-[max(1.5rem,env(safe-area-inset-bottom))]
               ${theme === "dark" ? "bg-[#060608]" : "bg-gray-50/50"}
             `}
           >

@@ -41,7 +41,7 @@ export function useAssets() {
         : null;
 
       // Build absolute URL pointing to the backend (not Next.js frontend)
-      const backendBase = process.env.NEXT_PUBLIC_CELAEST_API_URL || "http://localhost:3001";
+      const backendBase = process.env.NEXT_PUBLIC_CELAEST_API_URL || "http://localhost:3101";
       const fullUrl = download_url.startsWith("/")
         ? `${backendBase}${download_url}`
         : download_url;

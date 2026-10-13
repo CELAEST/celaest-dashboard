@@ -5,6 +5,7 @@ import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { useEscapeKey } from "@/features/shared/hooks/useEscapeKey";
 import { X, Lock, ArrowRight, GithubLogo } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -125,9 +126,11 @@ export const LoginModal: React.FC<LoginModalProps> = ({
             <div className="w-full space-y-3 pt-1">
               <button
                 type="button"
-                onClick={() => {
-                  signInWithGoogle();
-                  onClose();
+                onClick={async () => {
+                  const res = await signInWithGoogle();
+                  if (!res.success && res.error) {
+                    toast.error(res.error.message);
+                  }
                 }}
                 autoFocus
                 className="h-11 w-full rounded-xl font-mono text-xs uppercase tracking-wider font-bold transition-all duration-200 cursor-pointer shadow-sm active:scale-[0.99] bg-white hover:bg-zinc-200 text-zinc-950 flex items-center justify-center gap-2.5"
@@ -155,9 +158,11 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 
               <button
                 type="button"
-                onClick={() => {
-                  signInWithGitHub();
-                  onClose();
+                onClick={async () => {
+                  const res = await signInWithGitHub();
+                  if (!res.success && res.error) {
+                    toast.error(res.error.message);
+                  }
                 }}
                 className={`h-11 w-full rounded-xl font-mono text-xs uppercase tracking-wider font-semibold transition-colors duration-200 cursor-pointer flex items-center justify-center gap-2.5 border ${
                   isDark

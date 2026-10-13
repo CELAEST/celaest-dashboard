@@ -9,7 +9,7 @@ const DEFAULT_CASES = [
   { country: "PE", currency: "PEN", zeroDecimal: false },
 ];
 
-const apiBaseUrl = (process.env.QA_API_URL || process.env.NEXT_PUBLIC_CELAEST_API_URL || "http://localhost:3001").replace(/\/$/, "");
+const apiBaseUrl = (process.env.QA_API_URL || process.env.NEXT_PUBLIC_CELAEST_API_URL || "http://localhost:3101").replace(/\/$/, "");
 const selectedCountries = process.env.QA_GEO_COUNTRIES
   ? new Set(process.env.QA_GEO_COUNTRIES.split(",").map((value) => value.trim().toUpperCase()).filter(Boolean))
   : null;

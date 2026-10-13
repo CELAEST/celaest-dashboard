@@ -2,6 +2,7 @@ import React from "react";
 import { X, Key, User, Envelope, Check, Clock } from "@phosphor-icons/react";
 import { useRole } from "@/features/auth/hooks/useAuthorization";
 import type { LicenseResponse } from "@/features/licensing/types";
+import { useBillingModalSwipe } from "@/features/billing/components/modals/shared/BillingModal";
 
 interface LicenseHeaderProps {
   license: LicenseResponse;
@@ -13,6 +14,7 @@ export const LicenseHeader: React.FC<LicenseHeaderProps> = ({
   onClose,
 }) => {
   const { isSuperAdmin } = useRole();
+  const swipe = useBillingModalSwipe();
 
   const renderStatus = (status: string) => {
     if (status === "active") {
@@ -40,8 +42,16 @@ export const LicenseHeader: React.FC<LicenseHeaderProps> = ({
   };
 
   return (
-    <div className="relative px-4 sm:px-6 py-3.5 sm:py-4.5 border-b border-white/8 flex items-start justify-between shrink-0 bg-white/[0.015]">
-      <div className="relative z-10 flex items-start gap-3 sm:gap-3.5 min-w-0">
+    <div
+      onTouchStart={swipe?.handleTouchStart}
+      onTouchMove={swipe?.handleTouchMove}
+      onTouchEnd={swipe?.handleTouchEnd}
+      onPointerDown={swipe?.handlePointerDown}
+      onPointerMove={swipe?.handlePointerMove}
+      onPointerUp={swipe?.handlePointerUp}
+      className="relative px-4 sm:px-6 py-3.5 sm:py-4.5 border-b border-white/8 flex items-start justify-between shrink-0 bg-white/[0.015] select-none cursor-grab active:cursor-grabbing touch-none"
+    >
+      <div className="relative z-10 flex items-start gap-3 sm:gap-3.5 min-w-0 pointer-events-none">
         <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center shrink-0 bg-white/[0.04] text-white/70 border border-white/8 mt-0.5">
           <Key size={15} />
         </div>
@@ -77,10 +87,15 @@ export const LicenseHeader: React.FC<LicenseHeaderProps> = ({
         </div>
       </div>
 
-      <div className="relative z-10">
+      <div className="relative z-10 shrink-0">
         <button
           type="button"
-          onClick={onClose}
+          onClick={(e) => {
+            e.stopPropagation();
+            onClose();
+          }}
+          onTouchEnd={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
           className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
         >
           <X size={16} />

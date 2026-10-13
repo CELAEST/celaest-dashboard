@@ -201,9 +201,7 @@ export function useAuthActions(
         provider: "github",
         options: {
           redirectTo: `${window.location.origin}`,
-          queryParams: {
-            access_type: "offline",
-          }, // Added access_type offline just in case, consistent with google
+          scopes: "read:user user:email",
         },
       });
 

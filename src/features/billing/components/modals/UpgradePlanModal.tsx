@@ -16,6 +16,8 @@ import { useTranslations } from "next-intl";
 import type { BillingCycle } from "../../types";
 import { useSearchParams } from "next/navigation";
 
+import { useSwipeDownToClose } from "@/features/shared/hooks/useSwipeDownToClose";
+
 interface UpgradePlanModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -35,6 +37,22 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
   const [billingCycle, setBillingCycle] = useState<BillingCycle>(requestedCycle);
   const [activeMobilePlanCode, setActiveMobilePlanCode] = useState<string>("pro");
   const t = useTranslations("billing");
+
+  const {
+    sheetRef,
+    bodyRef,
+    handlePillRef,
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
+    handlePointerDown,
+    handlePointerMove,
+    handlePointerUp,
+    handleBodyTouchStart,
+    handleBodyTouchMove,
+    handleBodyTouchEnd,
+    handlePillClick,
+  } = useSwipeDownToClose({ onClose });
 
   const handleUpgrade = useCallback(async (plan: Plan) => {
     if (!currentOrg?.id || !session?.accessToken) {
@@ -146,34 +164,59 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
     <BillingModal
       isOpen={isOpen}
       onClose={onClose}
-      className="w-[min(96vw,1280px)] max-w-none bg-transparent! rounded-3xl shadow-none! border-0!"
+      className="w-full sm:w-[min(96vw,1280px)] max-w-none bg-transparent! rounded-t-[26px] sm:rounded-3xl shadow-none! border-0! p-0 sm:p-0"
       showCloseButton={false}
+      showGrabHandle={false}
     >
       <div
-        className={`relative w-full max-h-[94vh] rounded-3xl overflow-hidden flex flex-col font-sans ${
+        ref={sheetRef}
+        className={`relative w-full max-h-[92dvh] sm:max-h-[94vh] rounded-t-[26px] sm:rounded-3xl overflow-hidden flex flex-col font-sans border-t sm:border ${
           isDark
-            ? "bg-[#09090C] border border-white/[0.08] shadow-[0_32px_96px_-12px_rgba(0,0,0,0.95)]"
-            : "bg-white border border-gray-200 shadow-2xl"
+            ? "bg-[#09090C] border-white/[0.08] shadow-[0_32px_96px_-12px_rgba(0,0,0,0.95)]"
+            : "bg-white border-gray-200 shadow-2xl"
         }`}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Tokyo Corner Accents */}
-        <div className="absolute top-0 left-0 w-3.5 h-3.5 border-t-2 border-l-2 border-white/20 rounded-tl-sm pointer-events-none z-20" />
-        <div className="absolute top-0 right-0 w-3.5 h-3.5 border-t-2 border-r-2 border-white/20 rounded-tr-sm pointer-events-none z-20" />
-        <div className="absolute bottom-0 left-0 w-3.5 h-3.5 border-b-2 border-l-2 border-white/20 rounded-bl-sm pointer-events-none z-20" />
-        <div className="absolute bottom-0 right-0 w-3.5 h-3.5 border-b-2 border-r-2 border-white/20 rounded-br-sm pointer-events-none z-20" />
+        {/* Mobile Grab Handle with Swipe-Down-To-Close Touch Listeners */}
+        <div
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onClick={handlePillClick}
+          className="sm:hidden w-full flex items-center justify-center pt-3 pb-1 shrink-0 select-none cursor-grab active:cursor-grabbing touch-none bg-[#0D0D11]/90"
+          title="Desliza hacia abajo para cerrar"
+          role="button"
+          tabIndex={0}
+          aria-label="Deslizar hacia abajo para cerrar"
+        >
+          <div
+            ref={handlePillRef}
+            className="w-10 h-1.5 rounded-full bg-white/20 hover:bg-white/35 transition-all duration-150"
+          />
+        </div>
+
+        {/* Tokyo Corner Accents (Desktop Only) */}
+        <div className="hidden sm:block pointer-events-none">
+          <div className="absolute top-0 left-0 w-3.5 h-3.5 border-t-2 border-l-2 border-white/20 rounded-tl-sm z-20" />
+          <div className="absolute top-0 right-0 w-3.5 h-3.5 border-t-2 border-r-2 border-white/20 rounded-tr-sm z-20" />
+          <div className="absolute bottom-0 left-0 w-3.5 h-3.5 border-b-2 border-l-2 border-white/20 rounded-bl-sm z-20" />
+          <div className="absolute bottom-0 right-0 w-3.5 h-3.5 border-b-2 border-r-2 border-white/20 rounded-br-sm z-20" />
+        </div>
 
         {/* Floating Close Button */}
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-5 right-5 z-40 w-9 h-9 rounded-full flex items-center justify-center bg-white/[0.06] hover:bg-white/[0.12] text-white/70 hover:text-white transition-all backdrop-blur-md border border-white/10 shadow-lg cursor-pointer"
+          className="absolute top-3 sm:top-5 right-3 sm:right-5 z-40 w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center bg-white/[0.06] hover:bg-white/[0.12] text-white/70 hover:text-white transition-all backdrop-blur-md border border-white/10 shadow-lg cursor-pointer"
         >
           <X className="w-4 h-4" />
         </button>
 
         {/* Content wrapper */}
-        <div className="relative z-10 flex flex-col w-full flex-1 min-h-0 pt-6 pb-6 px-4 sm:px-6 lg:px-8">
+        <div className="relative z-10 flex flex-col w-full flex-1 min-h-0 pt-3 sm:pt-6 pb-6 px-3 sm:px-6 lg:px-8">
           {/* Floating Pill Toggle (Sin cápsula negra, componente sobrepuesto puro) */}
           <div className="flex flex-col items-center justify-center pb-5 shrink-0 z-20">
             <div className="inline-flex items-center gap-1.5 p-1 rounded-full bg-transparent">
@@ -232,7 +275,13 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
         </div>
 
         {/* Plans Grid (Tarjetas Obsidian Glass flotando limpias en el espacio con espacio superior completo para el badge) */}
-        <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar overflow-x-hidden pt-6 sm:pt-7 pb-6 px-2">
+        <div
+          ref={bodyRef}
+          onTouchStart={handleBodyTouchStart}
+          onTouchMove={handleBodyTouchMove}
+          onTouchEnd={handleBodyTouchEnd}
+          className="flex-1 min-h-0 overflow-y-auto no-scrollbar overflow-x-hidden pt-4 sm:pt-7 pb-6 px-1 sm:px-2 pb-[max(1.5rem,env(safe-area-inset-bottom))]"
+        >
           {isBillingLoading ? (
             <CardGridSkeleton count={3} />
           ) : (

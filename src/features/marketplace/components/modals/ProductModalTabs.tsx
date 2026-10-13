@@ -37,7 +37,7 @@ export const ProductModalTabs: React.FC<ProductModalTabsProps> = ({
   return (
     <div>
       <div
-        className={`flex items-center gap-1 p-1 rounded-xl border ${
+        className={`flex items-center gap-1 p-1 rounded-xl border max-w-full overflow-x-auto no-scrollbar touch-pan-x overscroll-x-contain ${
           theme === "dark"
             ? "bg-[#0D0D11] border-white/[0.06]"
             : "bg-gray-100 border-gray-200"
@@ -49,7 +49,7 @@ export const ProductModalTabs: React.FC<ProductModalTabsProps> = ({
             type="button"
             onClick={() => setActiveTab(tab.id)}
             className={`
-              flex-1 py-2.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer
+              flex-1 whitespace-nowrap shrink-0 py-2.5 px-2.5 sm:px-3 min-h-[44px] rounded-lg text-[11px] sm:text-xs font-bold transition-all cursor-pointer flex items-center justify-center
               ${
                 activeTab === tab.id
                   ? theme === "dark"
@@ -67,7 +67,7 @@ export const ProductModalTabs: React.FC<ProductModalTabsProps> = ({
       </div>
 
       {/* Tab Content */}
-      <div className="mt-6">
+      <div className="mt-5 sm:mt-6">
         {activeTab === "overview" && (
           <TabOverview
             description={product.description}

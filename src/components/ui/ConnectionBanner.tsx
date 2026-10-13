@@ -26,7 +26,7 @@ export const ConnectionBanner = React.memo(function ConnectionBanner() {
     }
     // 2. Backend health check
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_CELAEST_API_URL || "http://localhost:3001";
+      const baseUrl = process.env.NEXT_PUBLIC_CELAEST_API_URL || "http://localhost:3101";
       const res = await fetch(`${baseUrl}/health`, {
         method: "GET",
         cache: "no-store",

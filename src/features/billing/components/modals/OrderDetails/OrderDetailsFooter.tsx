@@ -26,7 +26,7 @@ export const OrderDetailsFooter: React.FC<OrderDetailsFooterProps> = ({
   const t = useTranslations("billing");
   const tCommon = useTranslations("common");
   return (
-    <div className="px-6 py-3.5 border-t border-white/8 bg-[#09090b] flex items-center justify-between shrink-0">
+    <div className="px-4 sm:px-6 py-3 sm:py-3.5 border-t border-white/8 bg-[#09090b] flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 shrink-0 pb-[max(0.875rem,env(safe-area-inset-bottom))]">
       {/* Left: metadata badge */}
       <div className="flex items-center gap-2.5">
         <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 bg-white/[0.04] text-white/50 border border-white/8">

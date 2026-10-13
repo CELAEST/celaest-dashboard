@@ -255,7 +255,7 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
       </div>
 
       {/* ── CUERPO EN PLUS JAKARTA SANS ── */}
-      <div className="p-5 flex-1 flex flex-col justify-between gap-4">
+      <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between gap-4">
         <div>
           {/* Rating con estrella dorada y conteo perfectamente centrado */}
           <div className="flex items-center justify-between pb-1.5 border-b border-white/[0.03]">
@@ -302,13 +302,13 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
           </div>
         </div>
 
-        {/* ── PIE DESPEJADO: BOTONERA DUAL DIRECTA ── */}
+        {/* ── PIE DESPEJADO: BOTONERA DUAL DIRECTA (TOUCH 44PX ON MOBILE) ── */}
         <div className="pt-3 border-t border-white/[0.04]">
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
               onClick={onViewDetails}
-              className="py-2.5 rounded-xl text-xs font-semibold text-white/75 hover:text-white bg-[#141418] hover:bg-[#1C1C22] border border-white/[0.06] hover:border-white/15 transition-all flex items-center justify-center gap-1.5 cursor-pointer font-jakarta"
+              className="py-2.5 min-h-[44px] sm:min-h-0 rounded-xl text-xs font-semibold text-white/75 hover:text-white bg-[#141418] hover:bg-[#1C1C22] border border-white/[0.06] hover:border-white/15 transition-all flex items-center justify-center gap-1.5 cursor-pointer font-jakarta active:scale-[0.98]"
             >
               <Eye size={13} weight="bold" />
               <span>{t("view_details")}</span>
@@ -318,7 +318,7 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
               type="button"
               onClick={onSelect}
               disabled={hasAccess || !!disabledReason}
-              className="py-2.5 rounded-xl text-xs font-bold bg-white hover:bg-neutral-200 text-black active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md font-jakarta disabled:opacity-40 disabled:cursor-not-allowed"
+              className="py-2.5 min-h-[44px] sm:min-h-0 rounded-xl text-xs font-bold bg-white hover:bg-neutral-200 text-black active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md font-jakarta disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <span>{buttonText}</span>
               <ArrowRight size={13} weight="bold" />

@@ -12,7 +12,7 @@ import {
   consumeAuthIntent,
   MarketplaceAuthIntentTab,
 } from "../utils/authIntent";
-import { Storefront } from "@phosphor-icons/react";
+import { Storefront, ArrowClockwise } from "@phosphor-icons/react";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 import { useOrgStore } from "@/features/shared/stores/useOrgStore";
@@ -69,6 +69,8 @@ export function MarketplaceDashboardView() {
     filters,
     updateFilters,
     reset,
+    error: marketplaceError,
+    refresh: refreshMarketplace,
   } = useMarketplaceProducts();
 
   const {
@@ -277,6 +279,7 @@ export function MarketplaceDashboardView() {
     reset();
     setSelectedTier("all");
     setSelectedRating(0);
+    refreshMarketplace();
   };
 
   useEffect(() => {
@@ -494,6 +497,33 @@ export function MarketplaceDashboardView() {
                 }
                 return true;
               });
+
+              if (marketplaceError && visibleProducts.length === 0) {
+                return (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="flex flex-col items-center justify-center h-full w-full p-12 text-center"
+                  >
+                    <div className="w-12 h-12 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center justify-center text-white/50 mb-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl">
+                      <ArrowClockwise size={24} className="text-white/60" />
+                    </div>
+                    <p className="text-sm font-bold text-white tracking-tight">
+                      Error al sincronizar el catálogo
+                    </p>
+                    <p className="text-xs text-white/40 max-w-sm mt-1 leading-relaxed">
+                      {marketplaceError || "No se pudo conectar con el catálogo en este momento."}
+                    </p>
+                    <button
+                      onClick={() => refreshMarketplace()}
+                      className="mt-4 px-4 py-2 rounded-xl text-xs font-semibold bg-white text-black hover:bg-white/90 transition-all cursor-pointer flex items-center gap-2 active:scale-95 shadow-md"
+                    >
+                      <ArrowClockwise size={14} />
+                      <span>Reintentar conexión</span>
+                    </button>
+                  </motion.div>
+                );
+              }
 
               return visibleProducts.length === 0 ? (
               <motion.div

@@ -17,6 +17,7 @@ import { assetsService } from "@/features/assets/services/assets.service";
 import { useApiAuth } from "@/lib/use-api-auth";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { useSwipeDownToClose } from "@/features/shared/hooks/useSwipeDownToClose";
 
 interface LicenseModalProps {
   isOpen: boolean;
@@ -55,6 +56,22 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [license, setLicense] = useState<LicenseDetails | null>(null);
   const [copied, setCopied] = useState(false);
+
+  const {
+    sheetRef,
+    bodyRef,
+    handlePillRef,
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
+    handlePointerDown,
+    handlePointerMove,
+    handlePointerUp,
+    handleBodyTouchStart,
+    handleBodyTouchMove,
+    handleBodyTouchEnd,
+    handlePillClick,
+  } = useSwipeDownToClose({ onClose });
 
   useEffect(() => {
     if (!isOpen) {
@@ -133,7 +150,7 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
 
     setLoading(true);
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_CELAEST_API_URL || "http://localhost:3001";
+      const baseUrl = process.env.NEXT_PUBLIC_CELAEST_API_URL || "http://localhost:3101";
       const res = await fetch(`${baseUrl}/api/v1/public/licenses/deactivate`, {
         method: "POST",
         headers: { "Content-TextT": "application/json" },
@@ -163,14 +180,7 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
     <AnimatePresence>
       {isOpen && (
         <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 99999,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
+          className="fixed inset-0 z-[99999] flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-hidden"
           role="dialog"
           aria-modal="true"
         >
@@ -179,40 +189,43 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            style={{
-              position: "absolute",
-              inset: 0,
-              background: "rgba(0,0,0,0.75)",
-              backdropFilter: "blur(8px)",
-            }}
+            transition={{ duration: 0.2 }}
+            className="absolute inset-0 bg-black/80 backdrop-blur-md"
             onClick={onClose}
           />
 
           {/* Modal */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: 12 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.96, y: 12 }}
-            transition={{ type: "spring", duration: 0.45, bounce: 0.2 }}
-            style={{
-              position: "relative",
-              zIndex: 10,
-              flexShrink: 0,
-              width: "100%",
-              maxWidth: "30rem",
-              margin: "0 1rem",
-              borderRadius: "1.5rem",
-              overflow: "hidden",
-              display: "flex",
-              flexDirection: "column",
-              boxShadow: isDark
-                ? "0 30px 60px -12px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.08)"
-                : "0 30px 60px -12px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.08)",
-              background: isDark ? "#0a0a0a" : "#ffffff",
-            }}
+          <div
+            ref={sheetRef}
             onClick={(e) => e.stopPropagation()}
+            style={{ willChange: "transform", backfaceVisibility: "hidden" }}
+            className={`relative z-10 shrink-0 flex flex-col w-full sm:max-w-md max-h-[92dvh] sm:max-h-[88vh] rounded-t-[26px] sm:rounded-3xl overflow-hidden border-t sm:border shadow-[0_32px_96px_-12px_rgba(0,0,0,0.95)] animate-modal-content ${
+              isDark
+                ? "bg-[#09090B] border-white/[0.08]"
+                : "bg-white border-zinc-200"
+            }`}
           >
+            {/* Mobile Drag Indicator (Lingua Standard with Swipe-to-Close) */}
+            <div
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              onPointerDown={handlePointerDown}
+              onPointerMove={handlePointerMove}
+              onPointerUp={handlePointerUp}
+              onClick={handlePillClick}
+              className="sm:hidden w-full flex items-center justify-center pt-2.5 pb-1 shrink-0 bg-[#0D0D11] select-none cursor-grab active:cursor-grabbing touch-none"
+              title="Desliza hacia abajo para cerrar"
+              role="button"
+              tabIndex={0}
+              aria-label="Deslizar hacia abajo para cerrar"
+            >
+              <div
+                ref={handlePillRef}
+                className="w-10 h-1.5 rounded-full bg-white/20 hover:bg-white/35 transition-all duration-150"
+              />
+            </div>
+
             {/* Top accent line */}
             <div
               className={`absolute inset-x-0 top-0 h-px z-20 ${
@@ -238,18 +251,19 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
               }}
             />
 
-            {/* Header */}
+            {/* Header (Drag-enabled on Mobile) */}
             <div
-              className="relative px-7 py-5 flex items-center justify-between overflow-hidden shrink-0"
-              style={{
-                borderBottom: isDark
-                  ? "1px solid rgba(255,255,255,0.07)"
-                  : "1px solid rgba(0,0,0,0.08)",
-              }}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              onPointerDown={handlePointerDown}
+              onPointerMove={handlePointerMove}
+              onPointerUp={handlePointerUp}
+              className="relative px-5 sm:px-7 py-3.5 sm:py-5 flex items-center justify-between overflow-hidden shrink-0 border-b border-white/[0.07] select-none cursor-grab active:cursor-grabbing touch-none"
             >
               {/* Gradient wash */}
               <div
-                className={`absolute inset-0 ${
+                className={`absolute inset-0 pointer-events-none ${
                   isDark
                     ? "bg-linear-to-r from-emerald-500/10 via-teal-600/8 to-transparent"
                     : "bg-linear-to-r from-emerald-50 via-teal-50/60 to-transparent"
@@ -269,14 +283,14 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
               />
               {/* Bottom accent */}
               <div
-                className={`absolute bottom-0 left-0 h-px w-2/5 ${
+                className={`absolute bottom-0 left-0 h-px w-2/5 pointer-events-none ${
                   isDark
                     ? "bg-linear-to-r from-emerald-500/50 to-transparent"
                     : "bg-linear-to-r from-emerald-400/30 to-transparent"
                 }`}
               />
 
-              <div className="relative z-10 flex items-center gap-3">
+              <div className="relative z-10 flex items-center gap-3 pointer-events-none">
                 <div
                   className={`w-11 h-11 rounded-xl flex items-center justify-center shadow-lg shrink-0 ${
                     isDark
@@ -310,9 +324,15 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
 
               <div className="relative z-10">
                 <button
-                  onClick={onClose}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onClose();
+                  }}
+                  onTouchEnd={(e) => e.stopPropagation()}
+                  onPointerDown={(e) => e.stopPropagation()}
                   aria-label={t("close_license_modal")}
-                  className={`p-2 rounded-full transition-colors ${
+                  className={`p-2 rounded-full transition-colors cursor-pointer ${
                     isDark
                       ? "hover:bg-white/10 text-gray-400 hover:text-white"
                       : "hover:bg-black/5 text-gray-500 hover:text-gray-900"
@@ -324,7 +344,13 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
             </div>
 
             {/* Body */}
-            <div className="p-6 space-y-4">
+            <div
+              ref={bodyRef}
+              onTouchStart={handleBodyTouchStart}
+              onTouchMove={handleBodyTouchMove}
+              onTouchEnd={handleBodyTouchEnd}
+              className="p-4 sm:p-6 space-y-3.5 sm:space-y-4 overflow-y-auto min-h-0 flex-1 pb-[max(1.5rem,env(safe-area-inset-bottom))]"
+            >
               {loading ? (
                 <div className="flex flex-col items-center justify-center py-12 gap-3">
                   <CircleNotch
@@ -340,7 +366,7 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
                 <>
                   {/* License Key */}
                   <div
-                    className={`p-4 rounded-xl border ${
+                    className={`p-3.5 sm:p-4 rounded-xl border ${
                       isDark
                         ? "bg-white/3 border-white/8"
                         : "bg-gray-50 border-gray-200"
@@ -355,7 +381,7 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
                     </label>
                     <div className="flex items-center justify-between gap-2">
                       <code
-                        className={`font-mono text-base font-bold truncate ${
+                        className={`font-mono text-sm sm:text-base font-bold truncate ${
                           isDark ? "text-emerald-400" : "text-emerald-600"
                         }`}
                       >
@@ -364,7 +390,7 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
                       <button
                         onClick={handleCopy}
                         aria-label={copied ? t("license_copied_aria") : t("copy_license_aria")}
-                        className={`p-1.5 rounded-lg transition-colors shrink-0 ${
+                        className={`p-2 min-h-[40px] min-w-[40px] flex items-center justify-center rounded-lg transition-colors shrink-0 cursor-pointer ${
                           isDark
                             ? "hover:bg-emerald-500/10 text-gray-400 hover:text-emerald-400"
                             : "hover:bg-emerald-50 text-gray-400 hover:text-emerald-600"
@@ -380,7 +406,7 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
                   </div>
 
                   {/* Details grid */}
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
                     <div
                       className={`p-3 rounded-xl ${
                         isDark ? "bg-white/3 border border-white/8" : "bg-gray-50 border border-gray-200"
@@ -474,7 +500,7 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
 
             {/* Footer */}
             <div
-              className={`px-6 pb-6 flex items-center gap-3 ${
+              className={`px-5 sm:px-6 py-4 sm:pb-6 flex items-center gap-3 shrink-0 border-t border-white/[0.06] pb-[max(1.25rem,env(safe-area-inset-bottom))] ${
                 license?.status === "owner" ? "justify-between" : "justify-end"
               }`}
             >
@@ -482,7 +508,7 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
                 <button
                   onClick={handleDeactivate}
                   disabled={loading}
-                  className={`px-4 py-2.5 rounded-xl text-sm font-bold transition-colors border disabled:opacity-50 ${
+                  className={`px-4 min-h-[44px] rounded-xl text-sm font-bold transition-colors border disabled:opacity-50 cursor-pointer ${
                     isDark
                       ? "text-red-400 border-red-500/20 hover:bg-red-500/10"
                       : "text-red-600 border-red-200 hover:bg-red-50"
@@ -493,7 +519,7 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
               )}
               <button
                 onClick={onClose}
-                className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
+                className={`px-6 min-h-[44px] rounded-xl text-sm font-bold transition-all cursor-pointer ${
                   isDark
                     ? "bg-white/8 text-gray-300 hover:bg-white/12 border border-white/10"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200"
@@ -502,7 +528,7 @@ export const LicenseModal: React.FC<LicenseModalProps> = ({
                 {t("close")}
               </button>
             </div>
-          </motion.div>
+          </div>
         </div>
       )}
     </AnimatePresence>,

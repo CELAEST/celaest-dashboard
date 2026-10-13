@@ -2,7 +2,7 @@
 import { logger } from "@/lib/logger";
 import React, { useState } from "react";
 import { X, Sparkle } from "@phosphor-icons/react";
-import { BillingModal } from "@/features/billing/components/modals/shared/BillingModal";
+import { BillingModal, useBillingModalSwipe } from "@/features/billing/components/modals/shared/BillingModal";
 import { useCreateLicense, LicenseFormData } from "@/features/licensing/hooks/useCreateLicense";
 import { LicenseForm } from "./create-license/LicenseForm";
 import { LicenseSuccess } from "./create-license/LicenseSuccess";
@@ -13,6 +13,64 @@ interface CreateLicenseModalProps {
   isOpen: boolean;
   onClose: () => void;
   onCreate: (licenseData: LicenseFormData) => Promise<string>;
+}
+
+function CreateLicenseHeader({ onClose }: { onClose: () => void }) {
+  const t = useTranslations("licensing");
+  const swipe = useBillingModalSwipe();
+
+  return (
+    <div
+      onTouchStart={swipe?.handleTouchStart}
+      onTouchMove={swipe?.handleTouchMove}
+      onTouchEnd={swipe?.handleTouchEnd}
+      onPointerDown={swipe?.handlePointerDown}
+      onPointerMove={swipe?.handlePointerMove}
+      onPointerUp={swipe?.handlePointerUp}
+      className="relative px-4 sm:px-8 py-4 sm:py-6 border-b border-white/8 flex items-center justify-between overflow-hidden shrink-0 select-none cursor-grab active:cursor-grabbing touch-none"
+    >
+      <div className="absolute inset-0 bg-linear-to-r from-amber-500/10 via-amber-600/8 to-transparent" />
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px)",
+          backgroundSize: "20px 20px",
+          pointerEvents: "none",
+        }}
+      />
+      <div className="absolute bottom-0 left-0 h-px w-2/5 bg-linear-to-r from-amber-500/50 to-transparent" />
+
+      <div className="relative z-10 flex items-center gap-3 sm:gap-4 min-w-0 pointer-events-none">
+        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 bg-[#111] text-amber-400 border border-white/10 shadow-lg shadow-amber-500/10">
+          <Sparkle size={20} />
+        </div>
+        <div className="min-w-0">
+          <h2 className="text-base sm:text-xl font-black italic tracking-tighter text-white uppercase truncate">
+            {t("generate_license")}
+          </h2>
+          <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40 truncate">
+            {t("generate_license_desc")}
+          </p>
+        </div>
+      </div>
+
+      <div className="relative z-10 shrink-0">
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onClose();
+          }}
+          onTouchEnd={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
+          className="p-1.5 sm:p-2 rounded-full transition-colors text-gray-400 hover:text-white hover:bg-white/10 cursor-pointer"
+        >
+          <X size={20} />
+        </button>
+      </div>
+    </div>
+  );
 }
 
 export const CreateLicenseModal = ({
@@ -47,7 +105,12 @@ export const CreateLicenseModal = ({
   };
 
   return (
-    <BillingModal isOpen={isOpen} onClose={handleClose} className="max-w-128" showCloseButton={false}>
+    <BillingModal
+      isOpen={isOpen}
+      onClose={handleClose}
+      className="w-full sm:max-w-128 max-h-[92dvh] sm:max-h-[88vh]"
+      showCloseButton={false}
+    >
       {/* Top accent line */}
       <div className="absolute inset-x-0 top-0 h-px z-20 bg-linear-to-r from-transparent via-amber-500/70 to-transparent" />
       {/* Corner glow */}
@@ -64,43 +127,7 @@ export const CreateLicenseModal = ({
         }}
       />
 
-      {/* Header */}
-      <div className="relative px-4 sm:px-8 py-4 sm:py-6 border-b border-white/8 flex items-center justify-between overflow-hidden shrink-0">
-        <div className="absolute inset-0 bg-linear-to-r from-amber-500/10 via-amber-600/8 to-transparent" />
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px)",
-            backgroundSize: "20px 20px",
-            pointerEvents: "none",
-          }}
-        />
-        <div className="absolute bottom-0 left-0 h-px w-2/5 bg-linear-to-r from-amber-500/50 to-transparent" />
-
-        <div className="relative z-10 flex items-center gap-3 sm:gap-4 min-w-0">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 bg-[#111] text-amber-400 border border-white/10 shadow-lg shadow-amber-500/10">
-            <Sparkle size={20} />
-          </div>
-          <div className="min-w-0">
-            <h2 className="text-base sm:text-xl font-black italic tracking-tighter text-white uppercase truncate">
-              {t("generate_license")}
-            </h2>
-            <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40 truncate">
-              {t("generate_license_desc")}
-            </p>
-          </div>
-        </div>
-
-        <div className="relative z-10">
-          <button
-            onClick={handleClose}
-            className="p-1.5 sm:p-2 rounded-full transition-colors text-gray-400 hover:text-white hover:bg-white/10"
-          >
-            <X size={20} />
-          </button>
-        </div>
-      </div>
+      <CreateLicenseHeader onClose={handleClose} />
 
       {/* Content */}
       <div className="px-4 sm:px-8 py-4 sm:py-6 flex-1 min-h-0 overflow-y-auto">
@@ -135,17 +162,19 @@ export const CreateLicenseModal = ({
               pointerEvents: "none",
             }}
           />
-          <div className="relative px-4 sm:px-8 py-3.5 sm:py-5 flex flex-col sm:flex-row gap-2.5 sm:gap-3">
+          <div className="relative px-4 sm:px-8 py-3.5 sm:py-5 flex flex-col sm:flex-row gap-2.5 sm:gap-3 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
             <button
+              type="button"
               onClick={handleClose}
-              className="w-full sm:flex-1 py-2.5 sm:py-3 rounded-2xl bg-white/5 border border-white/10 text-white/60 text-xs sm:text-sm font-semibold hover:bg-white/10 transition-colors"
+              className="w-full sm:flex-1 py-2.5 sm:py-3 rounded-2xl bg-white/5 border border-white/10 text-white/60 text-xs sm:text-sm font-semibold hover:bg-white/10 transition-colors cursor-pointer"
             >
               {t("cancel")}
             </button>
             <button
+              type="button"
               onClick={form.handleSubmit(onSubmit)}
               disabled={loading}
-              className="w-full sm:flex-1 py-2.5 sm:py-3 rounded-2xl bg-linear-to-r from-amber-500 to-amber-600 text-black text-xs sm:text-sm font-black uppercase tracking-wide shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full sm:flex-1 py-2.5 sm:py-3 rounded-2xl bg-linear-to-r from-amber-500 to-amber-600 text-black text-xs sm:text-sm font-black uppercase tracking-wide shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
             >
               {loading ? (
                 <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />

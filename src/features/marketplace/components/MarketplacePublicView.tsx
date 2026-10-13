@@ -3,11 +3,11 @@
 import React, { useCallback, useState } from "react";
 import { MarketplacePublicHero } from "./MarketplacePublicHero";
 import { ProductCardCompact } from "./ProductCardCompact";
-import { useMarketplaceProducts } from "../hooks/useMarketplaceProducts";
 import { MarketplaceProduct } from "../types";
-import { Storefront } from "@phosphor-icons/react";
-import dynamic from "next/dynamic";
+import { useMarketplaceProducts } from "../hooks/useMarketplaceProducts";
 import { useTheme } from "@/features/shared/hooks/useTheme";
+import { MagnifyingGlass, ArrowCounterClockwise } from "@phosphor-icons/react";
+import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { AuthPromptProvider } from "../context/AuthPromptContext";
 import { setAuthIntent, MarketplaceAuthIntent } from "../utils/authIntent";
@@ -30,6 +30,7 @@ const ProductDetailModal = dynamic(
 
 export function MarketplacePublicView() {
   const t = useTranslations("marketplace");
+  const tCommon = useTranslations("common");
   const { isDark } = useTheme();
 
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -38,18 +39,24 @@ export function MarketplacePublicView() {
   );
 
   // Data from Storefront
-  const { products, loading: isLoading, reset } = useMarketplaceProducts();
+  const {
+    products,
+    loading: isLoading,
+    reset,
+    error: marketplaceError,
+    refresh: refreshMarketplace,
+  } = useMarketplaceProducts();
 
   const [selectedTier, setSelectedTier] = useState<string>("all");
 
   const PLAN_TIERS = React.useMemo(
     () => [
-      { id: "all", label: t("all_plans") },
+      { id: "all", label: tCommon("all") },
       { id: "Starter+", label: "Starter+" },
       { id: "Pro Tier", label: "Pro Tier" },
       { id: "Enterprise", label: "Enterprise" },
     ],
-    [t],
+    [tCommon],
   );
 
   const visibleProducts = React.useMemo(() => {
@@ -90,24 +97,27 @@ export function MarketplacePublicView() {
         <MarketplacePublicHero />
 
         <div
-          className="bg-black px-4 pb-16 pt-4 sm:px-6 lg:px-8"
+          className="bg-black px-4 pb-24 sm:pb-16 pt-3 sm:pt-4 sm:px-6 lg:px-8"
           id="marketplace-catalog"
         >
-          <div className="mx-auto mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
+          <div className="mx-auto mb-6 flex flex-col items-center sm:flex-row sm:items-center justify-between gap-3.5 sm:gap-4 text-center sm:text-left">
+            <div className="flex items-baseline justify-center sm:justify-start gap-2.5">
               <h2
-                className={`text-xl font-bold sm:text-2xl tracking-tight ${
+                className={`text-xl sm:text-2xl font-bold tracking-tight ${
                   isDark ? "text-white" : "text-zinc-900"
                 }`}
               >
                 {t("available_solutions")}
               </h2>
+              <span className="text-[10px] sm:text-[11px] font-mono tracking-[0.18em] uppercase text-white/40 font-semibold">
+                ({visibleProducts.length})
+              </span>
             </div>
 
-            {/* Plan Tier Filters + Count */}
-            <div className="flex flex-wrap items-center gap-2.5">
+            {/* Plan Tier Filters (Centrado en mobile, sin cortes) */}
+            <div className="w-full sm:w-auto flex justify-center">
               <div
-                className={`inline-flex items-center p-1 rounded-xl border ${
+                className={`inline-flex items-center gap-0.5 sm:gap-1 p-1 rounded-xl border max-w-full overflow-x-auto no-scrollbar touch-pan-x overscroll-x-contain ${
                   isDark
                     ? "bg-[#09090b] border-white/[0.08]"
                     : "bg-zinc-100 border-zinc-200"
@@ -122,7 +132,7 @@ export function MarketplacePublicView() {
                       key={tier.id}
                       type="button"
                       onClick={() => setSelectedTier(tier.id)}
-                      className={`px-3 py-1.5 rounded-lg font-mono text-[11px] font-semibold tracking-wider transition-all cursor-pointer ${
+                      className={`whitespace-nowrap shrink-0 px-3 sm:px-3.5 py-1.5 rounded-lg font-mono text-[11px] font-semibold tracking-wider transition-all cursor-pointer active:scale-[0.97] flex items-center justify-center ${
                         isSelected
                           ? isDark
                             ? "bg-white/10 text-white shadow-xs"
@@ -137,21 +147,11 @@ export function MarketplacePublicView() {
                   );
                 })}
               </div>
-
-              <div
-                className={`shrink-0 rounded-xl px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.18em] font-semibold border ${
-                  isDark
-                    ? "border-white/[0.08] bg-white/[0.03] text-zinc-300"
-                    : "border-zinc-200 bg-zinc-100 text-zinc-700"
-                }`}
-              >
-                {t("products_count", { count: visibleProducts.length })}
-              </div>
             </div>
           </div>
 
-          {isLoading && products.length === 0 ? (
-            <div className="mx-auto grid max-w-392 grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+          {isLoading ? (
+            <div className="mx-auto grid max-w-392 grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 xl:grid-cols-3">
               {[...Array(6)].map((_, i) => (
                 <div
                   key={i}
@@ -162,24 +162,58 @@ export function MarketplacePublicView() {
                 </div>
               ))}
             </div>
+          ) : marketplaceError && visibleProducts.length === 0 ? (
+            <div className="flex flex-col items-center justify-center min-h-[320px] sm:min-h-[380px] w-full max-w-md mx-auto p-6 sm:p-12 text-center">
+              <div className="w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/8 flex items-center justify-center text-white/40 mb-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl">
+                <ArrowCounterClockwise size={24} weight="duotone" className="text-white/40" />
+              </div>
+              <span className="text-[10px] font-mono tracking-[0.2em] uppercase text-white/40 mb-1 font-semibold">
+                Catálogo
+              </span>
+              <h3 className="text-base font-bold text-white tracking-tight font-jakarta">
+                Error al sincronizar el catálogo
+              </h3>
+              <p className="text-xs text-white/40 max-w-xs mx-auto mt-1.5 leading-relaxed font-sans">
+                {marketplaceError || "No se pudo conectar con el catálogo en este momento."}
+              </p>
+              <button
+                type="button"
+                onClick={() => refreshMarketplace()}
+                className="mt-5 w-full sm:w-auto px-5 py-2.5 sm:py-2 min-h-[44px] sm:min-h-0 rounded-xl text-xs font-mono font-semibold uppercase tracking-wider text-white/80 hover:text-white bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 transition-all cursor-pointer shadow-xs active:scale-95 flex items-center justify-center gap-2"
+              >
+                <ArrowCounterClockwise size={13} weight="bold" />
+                <span>Reintentar conexión</span>
+              </button>
+            </div>
           ) : visibleProducts.length === 0 ? (
-            <div className="mx-auto max-w-392 rounded-3xl border border-dashed border-white/10 bg-white/[0.02] py-20 text-center">
-              <Storefront className="mx-auto h-12 w-12 text-zinc-500 mb-4" />
-              <h3 className="text-base font-semibold text-zinc-400">
+            <div className="flex flex-col items-center justify-center min-h-[320px] sm:min-h-[380px] w-full max-w-md mx-auto p-6 sm:p-12 text-center">
+              <div className="w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/8 flex items-center justify-center text-white/40 mb-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl">
+                <MagnifyingGlass size={24} weight="duotone" className="text-white/40" />
+              </div>
+              <span className="text-[10px] font-mono tracking-[0.2em] uppercase text-white/40 mb-1 font-semibold">
+                Catálogo
+              </span>
+              <h3 className="text-base font-bold text-white tracking-tight font-jakarta">
                 {t("no_products_found")}
               </h3>
+              <p className="text-xs text-white/40 max-w-xs mx-auto mt-1.5 leading-relaxed font-sans">
+                No hay productos que coincidan con los criterios seleccionados. Prueba a restablecer los filtros para explorar el catálogo completo.
+              </p>
               <button
+                type="button"
                 onClick={() => {
                   setSelectedTier("all");
                   reset();
+                  refreshMarketplace();
                 }}
-                className="mt-3 px-4 py-2 rounded-xl text-xs font-semibold bg-white text-black hover:bg-zinc-200 transition-all cursor-pointer font-mono uppercase tracking-wider"
+                className="mt-5 w-full sm:w-auto px-5 py-2.5 sm:py-2 min-h-[44px] sm:min-h-0 rounded-xl text-xs font-mono font-semibold uppercase tracking-wider text-white/80 hover:text-white bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 transition-all cursor-pointer shadow-xs active:scale-95 flex items-center justify-center gap-2"
               >
-                {t("clear_filters")}
+                <ArrowCounterClockwise size={13} weight="bold" />
+                <span>{t("clear_filters")}</span>
               </button>
             </div>
           ) : (
-            <div className="mx-auto grid max-w-392 grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="mx-auto grid max-w-392 grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 xl:grid-cols-3">
               {visibleProducts.map((product, index) => (
                 <ProductCardCompact
                   key={product.id}

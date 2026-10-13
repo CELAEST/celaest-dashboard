@@ -7,7 +7,15 @@
 import { z } from "zod";
 import { logger } from "./logger";
 
-const BASE_URL = process.env.NEXT_PUBLIC_CELAEST_API_URL || "http://localhost:3001";
+const getBaseUrl = (): string => {
+  const envUrl = process.env.NEXT_PUBLIC_CELAEST_API_URL || process.env.NEXT_PUBLIC_API_URL;
+  if (envUrl && envUrl.trim()) {
+    return envUrl.trim().replace(/\/+$/, "");
+  }
+  return "http://127.0.0.1:3101";
+};
+
+const BASE_URL = getBaseUrl();
 
 // Persistence-aware blacklist for revoked organizations.
 // Using sessionStorage ensures that if a 403 occurs and triggers a reload, 
@@ -223,7 +231,7 @@ async function request<T>(
       
       let errorMessage = error instanceof Error ? error.message : "Error de red desconocido";
       const isConnectionRefused = errorMessage === "Failed to fetch" || errorMessage.includes("ERR_CONNECTION_REFUSED");
-      
+
       // Si el servidor está completamente apagado (Failed to fetch), no hacemos retry (evita spam 3x en consola browser)
       if (isNetworkError && attempt < MAX_RETRIES && !isConnectionRefused) {
         attempt++;
@@ -242,7 +250,7 @@ async function request<T>(
       
       // Hacker alert: Ocultarle el stack a Turbopack para que no salte el error en pantalla
       // solo en caso de errores de RED puros.
-      if (isConnectionRefused && typeof window !== 'undefined') {
+      if (isNetworkError && typeof window !== 'undefined') {
          apiError.stack = "";
       }
       throw apiError;

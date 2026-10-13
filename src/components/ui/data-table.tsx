@@ -141,8 +141,8 @@ export function DataTable<TData, TValue>({
 
   // ─── Mobile Card Classes ───
   const cardCls = isDark
-    ? "rounded-xl border border-white/[0.07] bg-white/[0.02] p-4 transition-colors duration-150 active:bg-white/[0.05]"
-    : "rounded-xl border border-gray-200/60 bg-white p-4 shadow-sm transition-colors duration-150 active:bg-gray-50";
+    ? "rounded-xl border border-white/[0.07] bg-white/[0.02] p-3 sm:p-3.5 transition-colors duration-150 active:bg-white/[0.05]"
+    : "rounded-xl border border-gray-200/60 bg-white p-3 sm:p-3.5 shadow-sm transition-colors duration-150 active:bg-gray-50";
 
   const cardLabelCls = isDark
     ? "text-[10px] font-semibold uppercase tracking-wider text-gray-500"
@@ -157,11 +157,11 @@ export function DataTable<TData, TValue>({
     // Mobile skeleton: stacked card skeletons
     if (isMobile) {
       return (
-        <div className={`${containerCls} border-0 bg-transparent shadow-none`}>
-          <div className="flex flex-col gap-3 p-3">
+        <div className={`${containerCls} border-0 bg-transparent shadow-none h-full flex-1 min-h-0 flex flex-col`}>
+          <div className="flex flex-col gap-2.5 p-2 pb-8">
             {Array.from({ length: Math.min(skeletonRows, 4) }).map((_, i) => (
               <div key={i} className={cardCls}>
-                <div className="space-y-3">
+                <div className="space-y-2.5">
                   {Array.from({ length: Math.min(columns.length, 4) }).map((_, j) => (
                     <div key={j} className="flex items-center justify-between gap-4">
                       <Skeleton className={`h-2.5 w-16 rounded-md ${skeletonBgCls}`} />
@@ -271,27 +271,37 @@ export function DataTable<TData, TValue>({
     ) ?? [];
 
     return (
-      <div className={`${containerCls} border-0 bg-transparent shadow-none`}>
-        <div className="overflow-auto" style={{ maxHeight }}>
+      <div className={`${containerCls} border-0 bg-transparent shadow-none h-full flex-1 min-h-0 flex flex-col`}>
+        <div className="overflow-y-auto flex-1 min-h-0 scroll-smooth">
           {rows.length ? (
-            <div className="flex flex-col gap-3 p-3">
+            <div className="flex flex-col gap-2.5 p-1 sm:p-2.5 pb-12">
               {rows.map((row: Row<TData>) => (
                 <div
                   key={row.id}
                   className={`${cardCls} ${onRowClick ? "cursor-pointer" : ""}`}
                   onClick={() => onRowClick?.(row.original)}
                 >
-                  <div className="space-y-2.5">
+                  <div className="divide-y divide-white/[0.04] dark:divide-white/[0.04] divide-gray-100">
                     {row.getVisibleCells().map((cell: Cell<TData, unknown>, cellIdx) => {
                       const label = headerLabels[cellIdx] || "";
+                      const isActions = cell.column.id === "actions";
                       return (
-                        <div key={cell.id} className={`flex items-start justify-between gap-3 ${cellIdx === 0 ? "" : `pt-2.5 border-t ${isDark ? "border-white/4" : "border-gray-100"}`}`}>
-                          {label && (
-                            <span className={`${cardLabelCls} shrink-0 pt-0.5`}>
+                        <div
+                          key={cell.id}
+                          className={`flex items-center justify-between gap-3 ${
+                            isActions ? "pt-2.5 pb-0.5" : "py-2"
+                          }`}
+                        >
+                          {label && !isActions && (
+                            <span className={`${cardLabelCls} shrink-0`}>
                               {label}
                             </span>
                           )}
-                          <div className={`${cardValueCls} ${label ? "text-right min-w-0" : "w-full"}`}>
+                          <div
+                            className={`${cardValueCls} ${
+                              label && !isActions ? "text-right min-w-0" : "w-full"
+                            }`}
+                          >
                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                           </div>
                         </div>

@@ -150,7 +150,7 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
         <button
           type="button"
           onClick={onContinue}
-          className="w-full py-3.5 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md bg-white hover:bg-neutral-200 text-black active:scale-[0.99]"
+          className="w-full min-h-[44px] py-3.5 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md bg-white hover:bg-neutral-200 text-black active:scale-[0.99]"
         >
           <span>{t("continue_to_payment")} ({finalPrice})</span>
           <ArrowRight size={15} weight="bold" />

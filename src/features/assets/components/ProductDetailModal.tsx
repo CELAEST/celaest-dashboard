@@ -20,6 +20,7 @@ import { AssetTypeIcon } from "./shared/AssetTypeIcon";
 import { getAssetTypeLabel } from "../utils/assetUtils";
 import { useLocalProductPrice } from "@/features/billing/hooks/useLocalProductPrice";
 import { useTranslations } from "next-intl";
+import { useSwipeDownToClose } from "@/features/shared/hooks/useSwipeDownToClose";
 
 interface ProductDetailModalProps {
   product: Asset | null;
@@ -39,51 +40,93 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   const { format: formatLocalPrice } = useLocalProductPrice();
   const t = useTranslations("assets");
 
+  const {
+    sheetRef,
+    bodyRef,
+    handlePillRef,
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
+    handlePointerDown,
+    handlePointerMove,
+    handlePointerUp,
+    handleBodyTouchStart,
+    handleBodyTouchMove,
+    handleBodyTouchEnd,
+    handlePillClick,
+  } = useSwipeDownToClose({ onClose });
+
   useEscapeKey(onClose, !!product);
 
   if (!product) return null;
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6">
+      <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-6 overflow-hidden">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="absolute inset-0 bg-black/70 backdrop-blur-md"
+          className="absolute inset-0 bg-black/80 backdrop-blur-md"
         />
-        <motion.div
-          initial={{ opacity: 0, scale: 0.97, y: 16 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.97, y: 16 }}
-          transition={{ type: "spring", duration: 0.35, bounce: 0.1 }}
-          className={`relative w-full max-w-4xl max-h-[90vh] rounded-3xl border shadow-[0_32px_96px_-12px_rgba(0,0,0,0.95)] overflow-hidden flex flex-col ${
+        <div
+          ref={sheetRef}
+          onClick={(e) => e.stopPropagation()}
+          className={`relative w-full max-w-4xl max-h-[92dvh] sm:max-h-[90vh] rounded-t-[26px] sm:rounded-3xl border-t sm:border shadow-[0_32px_96px_-12px_rgba(0,0,0,0.95)] overflow-hidden flex flex-col animate-modal-content ${
             isDark
               ? "bg-[#09090b] border-white/[0.08]"
               : "bg-white border-zinc-200"
           }`}
+          style={{ willChange: "transform", backfaceVisibility: "hidden" }}
         >
-          {/* Tokyo Corner Accents (Dark Mode) */}
+          {/* Mobile Drag Indicator (Lingua Standard with Swipe-to-Close) */}
+          <div
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onClick={handlePillClick}
+            className="sm:hidden w-full flex items-center justify-center pt-3 pb-2 shrink-0 bg-[#0D0D11] select-none cursor-grab active:cursor-grabbing touch-none"
+            title="Desliza hacia abajo para cerrar"
+            role="button"
+            tabIndex={0}
+            aria-label="Deslizar hacia abajo para cerrar"
+          >
+            <div
+              ref={handlePillRef}
+              className="w-10 h-1.5 rounded-full bg-white/20 hover:bg-white/35 transition-all duration-150"
+            />
+          </div>
+
+          {/* Tokyo Corner Accents (Dark Mode Desktop Only) */}
           {isDark && (
-            <>
-              <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-white/20 rounded-tl-sm pointer-events-none z-30" />
-              <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-white/20 rounded-tr-sm pointer-events-none z-30" />
-              <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-white/20 rounded-bl-sm pointer-events-none z-30" />
-              <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-white/20 rounded-br-sm pointer-events-none z-30" />
-            </>
+            <div className="hidden sm:block pointer-events-none">
+              <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-white/20 rounded-tl-sm z-30" />
+              <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-white/20 rounded-tr-sm z-30" />
+              <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-white/20 rounded-bl-sm z-30" />
+              <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-white/20 rounded-br-sm z-30" />
+            </div>
           )}
 
-          {/* Header */}
+          {/* Header (Drag-enabled on Mobile) */}
           <div
-            className={`relative px-6 sm:px-8 py-5 flex justify-between items-center shrink-0 border-b ${
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            className={`relative px-4 sm:px-8 py-3.5 sm:py-5 flex justify-between items-center shrink-0 border-b select-none cursor-grab active:cursor-grabbing touch-none ${
               isDark
                 ? "bg-[#0D0D11] border-white/[0.06]"
                 : "bg-zinc-50 border-zinc-200"
             }`}
           >
             {/* Left: icon badge + title + pills */}
-            <div className="relative z-10 flex gap-4 items-center min-w-0">
+            <div className="relative z-10 flex gap-4 items-center min-w-0 pointer-events-none">
               <div
                 className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 border shadow-xs ${
                   isDark
@@ -143,9 +186,15 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
             {/* Close button */}
             <div className="relative z-10 shrink-0">
               <button
-                onClick={onClose}
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClose();
+                }}
+                onTouchEnd={(e) => e.stopPropagation()}
+                onPointerDown={(e) => e.stopPropagation()}
                 aria-label="Close"
-                className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors cursor-pointer ${
+                className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors cursor-pointer ${
                   isDark
                     ? "text-white/40 hover:text-white hover:bg-white/5"
                     : "text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100"
@@ -157,17 +206,23 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           </div>
 
           {/* Body */}
-          <div className="relative z-10 flex-1 overflow-y-auto min-h-0">
+          <div
+            ref={bodyRef}
+            onTouchStart={handleBodyTouchStart}
+            onTouchMove={handleBodyTouchMove}
+            onTouchEnd={handleBodyTouchEnd}
+            className="relative z-10 flex-1 overflow-y-auto min-h-0"
+          >
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-0">
               {/* Main column: image + content */}
               <div
-                className={`col-span-1 lg:col-span-2 flex flex-col gap-6 p-6 sm:p-7 border-b lg:border-b-0 lg:border-r ${
+                className={`col-span-1 lg:col-span-2 flex flex-col gap-5 sm:gap-6 p-4 sm:p-7 border-b lg:border-b-0 lg:border-r ${
                   isDark ? "border-white/[0.06]" : "border-zinc-200"
                 }`}
               >
                 {/* Image */}
                 <div
-                  className={`w-full aspect-video rounded-2xl overflow-hidden border ${
+                  className={`w-full aspect-video rounded-xl sm:rounded-2xl overflow-hidden border ${
                     isDark
                       ? "bg-black/40 border-white/10 shadow-inner"
                       : "bg-zinc-100 border-zinc-200 shadow-inner"
@@ -293,7 +348,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 
               {/* Sidebar: price + stats + actions */}
               <div
-                className={`col-span-1 flex flex-col justify-between gap-6 p-6 sm:p-7 ${
+                className={`col-span-1 flex flex-col justify-between gap-6 p-4 sm:p-7 pb-[max(1.5rem,env(safe-area-inset-bottom))] ${
                   isDark ? "bg-[#0D0D11]/60" : "bg-zinc-50/60"
                 }`}
               >
@@ -448,7 +503,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                           href={product.external_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-full py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider font-mono flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md bg-white hover:bg-neutral-200 text-black active:scale-[0.99]"
+                          className="w-full min-h-[44px] py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider font-mono flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md bg-white hover:bg-neutral-200 text-black active:scale-[0.99]"
                         >
                           <ArrowSquareOut size={14} weight="bold" />
                           {t("open_resource")}
@@ -457,7 +512,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                         <button
                           onClick={() => onAction?.(product, "download")}
                           disabled={isProcessing}
-                          className="w-full py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider font-mono flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md bg-white hover:bg-neutral-200 text-black active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="w-full min-h-[44px] py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider font-mono flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md bg-white hover:bg-neutral-200 text-black active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {isProcessing ? (
                             <CircleNotch size={14} className="animate-spin text-black" />
@@ -473,7 +528,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                       )}
                       <button
                         onClick={() => onAction?.(product, "docs")}
-                        className={`w-full py-2.5 rounded-xl text-xs font-medium font-mono uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                        className={`w-full min-h-[40px] py-2.5 rounded-xl text-xs font-medium font-mono uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer ${
                           isDark
                             ? "bg-[#141418] hover:bg-[#1C1C22] text-white/80 border border-white/[0.08]"
                             : "bg-zinc-100 hover:bg-zinc-200 text-zinc-800 border border-zinc-200"
@@ -485,7 +540,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   ) : (
                     <button
                       onClick={() => onAction?.(product, "cart")}
-                      className="w-full py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider font-mono flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md bg-white hover:bg-neutral-200 text-black active:scale-[0.99]"
+                      className="w-full min-h-[44px] py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider font-mono flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md bg-white hover:bg-neutral-200 text-black active:scale-[0.99]"
                     >
                       <ShoppingCart size={14} weight="bold" />
                       {t("add_to_cart")} — {formatLocalPrice(product.price)}
@@ -495,7 +550,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
               </div>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </AnimatePresence>
   );

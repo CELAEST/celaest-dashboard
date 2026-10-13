@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 import { MarketplaceProduct, SearchFilter } from "./types";
 import { marketplaceService } from "./services/marketplace.service";
 
@@ -16,9 +15,51 @@ interface MarketplaceState {
   reset: () => void;
 }
 
-export const useMarketplaceStore = create<MarketplaceState>()(
-  persist(
-    (set, get) => ({
+// Clean legacy cached filters from previous sessions so users always enter with clean catalog
+if (typeof window !== "undefined") {
+  try {
+    localStorage.removeItem("celaest-marketplace-cache");
+  } catch {
+    // ignore
+  }
+}
+
+export const useMarketplaceStore = create<MarketplaceState>()((set, get) => ({
+  products: [],
+  total: 0,
+  loading: false,
+  error: null,
+  filters: {
+    page: 1,
+    limit: 20,
+    sort: "newest",
+  },
+
+  setFilters: (newFilters) => {
+    set((state) => ({
+      filters: { ...state.filters, ...newFilters, page: newFilters.page || 1 },
+    }));
+  },
+
+  search: async () => {
+    set({ loading: true, error: null });
+    try {
+      const { filters } = get();
+      const response = await marketplaceService.search(filters);
+      
+      set({ 
+        products: response?.products || [], 
+        total: response?.total || 0,
+        loading: false 
+      });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Error al buscar productos";
+      set({ error: message, loading: false });
+    }
+  },
+
+  reset: () => {
+    set({
       products: [],
       total: 0,
       loading: false,
@@ -28,50 +69,9 @@ export const useMarketplaceStore = create<MarketplaceState>()(
         limit: 20,
         sort: "newest",
       },
-
-      setFilters: (newFilters) => {
-        set((state) => ({
-          filters: { ...state.filters, ...newFilters, page: newFilters.page || 1 },
-        }));
-      },
-
-      search: async () => {
-        set({ loading: true, error: null });
-        try {
-          const { filters } = get();
-          const response = await marketplaceService.search(filters);
-          
-          set({ 
-            products: response?.products || [], 
-            total: response?.total || 0,
-            loading: false 
-          });
-        } catch (error: unknown) {
-          const message = error instanceof Error ? error.message : "Error al buscar productos";
-          set({ error: message, loading: false });
-        }
-      },
-
-      reset: () => {
-        set({
-          products: [],
-          total: 0,
-          loading: false,
-          error: null,
-          filters: {
-            page: 1,
-            limit: 20,
-            sort: "newest",
-          },
-        });
-      },
-    }),
-    {
-      name: "celaest-marketplace-cache",
-      partialize: (state) => ({ filters: state.filters }), // Solo persistir filtros
-    }
-  )
-);
+    });
+  },
+}));
 
 export interface ActiveCoupon {
   code: string;

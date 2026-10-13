@@ -4,6 +4,7 @@ import React from "react";
 import { motion } from "motion/react";
 import { Trash, WarningCircle } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
+import { useSwipeDownToClose } from "@/features/shared/hooks/useSwipeDownToClose";
 
 interface ConfirmArchiveModalProps {
   isOpen: boolean;
@@ -22,56 +23,62 @@ export const ConfirmArchiveModal: React.FC<ConfirmArchiveModalProps> = ({
 }) => {
   const t = useTranslations("marketplace");
 
+  const {
+    sheetRef,
+    handlePillRef,
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
+    handlePointerDown,
+    handlePointerMove,
+    handlePointerUp,
+    handlePillClick,
+  } = useSwipeDownToClose({
+    onClose: () => {
+      if (!isDeleting) onCancel();
+    },
+  });
+
   if (!isOpen) return null;
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        zIndex: 1000,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "1rem",
-      }}
-    >
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-hidden">
       {/* Backdrop */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         onClick={() => !isDeleting && onCancel()}
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: "rgba(0,0,0,0.7)",
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-        }}
+        className="absolute inset-0 bg-black/80 backdrop-blur-md"
       />
 
       {/* Card */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 16 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.18, ease: "easeOut" }}
-        style={{
-          position: "relative",
-          width: "100%",
-          maxWidth: "24rem",
-          background: "#0a0a0a",
-          border: "1px solid rgba(255,255,255,0.1)",
-          borderRadius: "24px",
-          overflow: "hidden",
-          boxShadow: "0 25px 50px rgba(0,0,0,0.5)",
-        }}
+      <div
+        ref={sheetRef}
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full sm:max-w-sm rounded-t-[26px] sm:rounded-3xl border-t sm:border border-white/10 bg-[#0A0A0A] overflow-hidden shadow-2xl animate-modal-content"
+        style={{ willChange: "transform", backfaceVisibility: "hidden" }}
       >
+        {/* Mobile Drag Indicator (Lingua Standard with Swipe-to-Close) */}
+        <div
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onClick={handlePillClick}
+          className="sm:hidden w-full flex items-center justify-center pt-3 pb-2 shrink-0 bg-[#0D0D11] select-none cursor-grab active:cursor-grabbing touch-none"
+          title="Desliza hacia abajo para cerrar"
+          role="button"
+          tabIndex={0}
+          aria-label="Deslizar hacia abajo para cerrar"
+        >
+          <div
+            ref={handlePillRef}
+            className="w-10 h-1.5 rounded-full bg-white/20 hover:bg-white/35 transition-all duration-150"
+          />
+        </div>
+
         {/* Top accent line */}
         <div
           style={{
@@ -102,15 +109,7 @@ export const ConfirmArchiveModal: React.FC<ConfirmArchiveModalProps> = ({
         />
 
         {/* Header */}
-        <div
-          style={{
-            position: "relative",
-            padding: "1.5rem 1.5rem 1.25rem",
-            display: "flex",
-            alignItems: "flex-start",
-            gap: "1rem",
-          }}
-        >
+        <div className="relative p-5 sm:p-6 flex items-start gap-3.5">
           <div
             style={{
               flexShrink: 0,
@@ -164,55 +163,26 @@ export const ConfirmArchiveModal: React.FC<ConfirmArchiveModalProps> = ({
         />
 
         {/* Actions */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "flex-end",
-            gap: "0.75rem",
-            padding: "1rem 1.5rem",
-          }}
-        >
+        <div className="flex items-center justify-end gap-3 p-4 sm:p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
           <button
+            type="button"
             onClick={onCancel}
             disabled={isDeleting}
-            style={{
-              padding: "0.5rem 1rem",
-              fontSize: "0.75rem",
-              fontWeight: 600,
-              borderRadius: "0.75rem",
-              border: "1px solid rgba(255,255,255,0.1)",
-              color: "rgba(255,255,255,0.6)",
-              background: "transparent",
-              cursor: "pointer",
-              opacity: isDeleting ? 0.4 : 1,
-            }}
+            className="px-4 py-2.5 min-h-[44px] text-xs font-semibold rounded-xl border border-white/10 text-white/60 hover:text-white transition-colors cursor-pointer disabled:opacity-40"
           >
             {t("cancel_btn")}
           </button>
           <button
+            type="button"
             onClick={onConfirm}
             disabled={isDeleting}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "0.375rem",
-              padding: "0.5rem 1rem",
-              fontSize: "0.75rem",
-              fontWeight: 700,
-              borderRadius: "0.75rem",
-              background: "rgba(239,68,68,0.15)",
-              border: "1px solid rgba(239,68,68,0.3)",
-              color: "rgb(248,113,113)",
-              cursor: "pointer",
-              opacity: isDeleting ? 0.4 : 1,
-            }}
+            className="flex items-center gap-1.5 px-4 py-2.5 min-h-[44px] text-xs font-bold rounded-xl bg-red-500/15 border border-red-500/30 text-red-400 hover:bg-red-500/25 transition-colors cursor-pointer disabled:opacity-40"
           >
             <Trash size={13} weight="bold" />
             {isDeleting ? t("archiving") : t("yes_archive")}
           </button>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 };

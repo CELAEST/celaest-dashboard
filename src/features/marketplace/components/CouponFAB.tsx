@@ -184,7 +184,7 @@ export function CouponFAB({ onRequireLogin }: CouponFABProps = {}) {
 
   return (
     <>
-      <div ref={containerRef} className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2.5">
+      <div ref={containerRef} className="fixed bottom-[max(1.25rem,env(safe-area-inset-bottom))] right-3.5 sm:right-6 z-30 flex flex-col items-end gap-2.5">
         {/* Popover Bubble for Coupons (Obsidian Enterprise Standard) */}
         <AnimatePresence>
           {isOpen && (
@@ -194,7 +194,7 @@ export function CouponFAB({ onRequireLogin }: CouponFABProps = {}) {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, scale: 0.96, transition: { duration: 0.15 } }}
               transition={{ type: "spring", stiffness: 350, damping: 28 }}
-              className="mb-1 w-84 bg-[#09090B] border border-white/[0.08] rounded-2xl shadow-[0_24px_60px_rgba(0,0,0,0.95)] overflow-hidden origin-bottom-right font-jakarta relative"
+              className="mb-1 w-[calc(100vw-2rem)] sm:w-84 max-w-[340px] bg-[#09090B] border border-white/[0.08] rounded-2xl shadow-[0_24px_60px_rgba(0,0,0,0.95)] overflow-hidden origin-bottom-right font-jakarta relative"
             >
               {/* 4 Tokyo architectural corner ticks */}
               <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-white/20 pointer-events-none" />
@@ -298,7 +298,7 @@ export function CouponFAB({ onRequireLogin }: CouponFABProps = {}) {
                       type="button"
                       onClick={() => void handleApply()}
                       disabled={!code.trim() || loading}
-                      className="w-full py-2.5 bg-white hover:bg-neutral-200 text-black text-xs font-bold uppercase tracking-wider rounded-xl disabled:opacity-40 disabled:cursor-not-allowed transition-all flex justify-center items-center h-9 shadow-md cursor-pointer font-jakarta active:scale-[0.99]"
+                      className="w-full py-2.5 bg-white hover:bg-neutral-200 text-black text-xs font-bold uppercase tracking-wider rounded-xl disabled:opacity-40 disabled:cursor-not-allowed transition-all flex justify-center items-center h-10 min-h-[40px] shadow-md cursor-pointer font-jakarta active:scale-[0.99]"
                     >
                       {loading ? (
                         <CircleNotch className="w-4 h-4 animate-spin text-black" />

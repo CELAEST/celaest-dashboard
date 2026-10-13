@@ -37,7 +37,7 @@ export const AuthFormContainer: React.FC<AuthFormContainerProps> = ({
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: mode === "signin" ? 20 : -20 }}
         transition={{ duration: 0.3, ease: [0.43, 0.13, 0.23, 0.96] }}
-        className="space-y-5"
+        className="space-y-4 sm:space-y-5"
       >
         {mode === "signin" ? (
           <LoginForm
@@ -53,15 +53,19 @@ export const AuthFormContainer: React.FC<AuthFormContainerProps> = ({
           />
         )}
 
-        <div className="relative">
+        <div className="relative pt-3 pb-2 sm:pt-4 sm:pb-3">
           <div className="absolute inset-0 flex items-center">
             <div
-              className={`w-full border-t ${isDark ? "border-white/10" : "border-gray-300"}`}
+              className={`w-full border-t ${isDark ? "border-white/10" : "border-gray-200"}`}
             />
           </div>
-          <div className="relative flex justify-center text-xs uppercase">
+          <div className="relative flex justify-center text-[10px] sm:text-xs uppercase font-mono tracking-[0.16em]">
             <span
-              className={`px-2 ${isDark ? "bg-black/40 text-gray-400" : "bg-white/90 text-gray-500"}`}
+              className={`px-3 py-1 rounded-full border text-[10px] font-mono font-medium ${
+                isDark
+                  ? "bg-[#09090b] text-white/45 border-white/10 shadow-sm"
+                  : "bg-white text-gray-500 border-gray-200 shadow-xs"
+              }`}
             >
               {tAuth("or_continue_with")}
             </span>

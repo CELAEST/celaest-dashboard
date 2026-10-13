@@ -140,26 +140,29 @@ export function DashboardShell() {
         <div className="absolute inset-0 hidden md:block bg-[url('https://grainy-gradients.vercel.app/noise.svg')] z-20 mix-blend-overlay opacity-5 dark:opacity-20" />
       </div>
 
-      <AppSidebar
-        activeTab={activeTab}
-        setActiveTab={handleTabChange}
-        isGuest={isGuest}
-        onShowLogin={() => setShowLoginModal(true)}
-        isMobileSidebarOpen={isMobileSidebarOpen}
-        setIsMobileSidebarOpen={setIsMobileSidebarOpen}
-      />
+      {!isGuest && (
+        <AppSidebar
+          activeTab={activeTab}
+          setActiveTab={handleTabChange}
+          isGuest={isGuest}
+          onShowLogin={() => setShowLoginModal(true)}
+          isMobileSidebarOpen={isMobileSidebarOpen}
+          setIsMobileSidebarOpen={setIsMobileSidebarOpen}
+        />
+      )}
 
       <ConnectionBanner />
 
-      <div className="md:pl-[88px] pl-0 w-full min-w-full relative z-10 transition-all duration-300 h-screen flex flex-col">
+      <div className={`${!isGuest ? "md:pl-[88px] pl-0" : "pl-0"} w-full min-w-full relative z-10 transition-all duration-300 h-screen flex flex-col`}>
         <Header
           onShowLogin={() => setShowLoginModal(true)}
-          onMenuClick={() => setIsMobileSidebarOpen(true)}
+          onMenuClick={!isGuest ? () => setIsMobileSidebarOpen(true) : undefined}
+          isGuest={isGuest}
         />
 
         <main
           aria-label="Contenido principal del dashboard"
-          className="flex-1 h-full min-h-0 w-full min-w-0 overflow-y-auto p-3 scroll-smooth flex flex-col"
+          className="flex-1 h-full min-h-0 w-full min-w-0 overflow-y-auto p-1.5 sm:p-3 scroll-smooth flex flex-col"
         >
           <AnimatedSlot
             activeKey={activeTab}

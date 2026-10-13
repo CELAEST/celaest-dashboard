@@ -332,7 +332,7 @@ const SuperAdminDashboard = ({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
-              className="h-full flex flex-col min-h-0"
+              className="h-full flex-1 flex flex-col min-h-0"
             >
               <OrdersTable hideFooter />
             </motion.div>
@@ -379,8 +379,8 @@ const ClientDashboard = ({
       </header>
 
       {/* Main Content — SOLO LA TABLA */}
-      <PageContent>
-        <div className="flex-1 min-h-0 flex flex-col">
+      <PageContent noPadding>
+        <div className="flex-1 min-h-0 h-full flex flex-col">
           <OrdersTable hideFooter />
         </div>
       </PageContent>

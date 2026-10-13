@@ -7,6 +7,7 @@ import {
   DownloadSimple,
   Key,
   Sparkle,
+  Shield,
 } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { MarketplaceProduct } from "../../types";
@@ -104,7 +105,7 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
       {/* Price Card / Ownership Card */}
       <div
         className={`
-          p-5 sm:p-6 rounded-2xl border relative overflow-hidden shadow-xl flex flex-col gap-4
+          p-4 sm:p-6 rounded-2xl border relative overflow-hidden shadow-xl flex flex-col gap-3.5 sm:gap-4
           ${
             theme === "dark"
               ? "bg-[#0D0D11] border-white/[0.08]"
@@ -152,7 +153,7 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
                 <button
                   type="button"
                   onClick={onDownload}
-                  className="w-full py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 active:scale-[0.99] transition-all cursor-pointer shadow-md bg-white hover:bg-neutral-200 text-black"
+                  className="w-full min-h-[44px] py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 active:scale-[0.99] transition-all cursor-pointer shadow-md bg-white hover:bg-neutral-200 text-black"
                 >
                   <DownloadSimple weight="bold" className="size-4" />
                   <span>
@@ -169,7 +170,7 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
                   type="button"
                   onClick={() => onViewLicense?.()}
                   className={`
-                    w-full py-2.5 rounded-xl text-xs font-medium flex items-center justify-center gap-2 transition-all cursor-pointer
+                    w-full min-h-[40px] py-2.5 rounded-xl text-xs font-medium flex items-center justify-center gap-2 transition-all cursor-pointer
                     ${
                       theme === "dark"
                         ? "bg-[#141418] hover:bg-[#1C1C22] text-white/80 border border-white/[0.08]"
@@ -223,7 +224,7 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
             <button
               type="button"
               onClick={onPurchase}
-              className="w-full py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 active:scale-[0.99] transition-all cursor-pointer shadow-md bg-white hover:bg-neutral-200 text-black"
+              className="w-full min-h-[44px] py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 active:scale-[0.99] transition-all cursor-pointer shadow-md bg-white hover:bg-neutral-200 text-black"
             >
               <ShoppingCart weight="bold" className="size-4" />
               <span>{t("buy_now")}</span>
@@ -235,7 +236,7 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
       {/* Info Card (Sin Repetir Plan Pro - Reemplazado por Licenciamiento Comercial) */}
       <div
         className={`
-          p-4 sm:p-5 rounded-2xl border flex flex-col gap-3
+          p-3.5 sm:p-5 rounded-2xl border flex flex-col gap-2.5 sm:gap-3
           ${
             theme === "dark"
               ? "bg-[#0D0D11] border-white/[0.06]"
@@ -299,6 +300,80 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
           ))}
         </div>
       </div>
+
+      {/* Guarantee Badge */}
+      <div
+        className={`
+          p-3.5 sm:p-4 rounded-2xl border flex items-start gap-3
+          ${
+            theme === "dark"
+              ? "bg-[#0D0D11] border-white/[0.06] text-white/80"
+              : "bg-emerald-50/60 border-emerald-200/80 text-emerald-950"
+          }
+        `}
+      >
+        <Shield
+          className={`size-5 shrink-0 mt-0.5 ${
+            theme === "dark" ? "text-white/60" : "text-emerald-700"
+          }`}
+          weight="duotone"
+        />
+        <div className="flex flex-col gap-0.5">
+          <span
+            className={`text-xs font-semibold ${
+              theme === "dark" ? "text-white" : "text-emerald-900"
+            }`}
+          >
+            {t("guarantee_title")}
+          </span>
+          <p
+            className={`text-[11px] leading-relaxed ${
+              theme === "dark" ? "text-white/50" : "text-emerald-800/80"
+            }`}
+          >
+            {t("guarantee_desc")}
+          </p>
+        </div>
+      </div>
+
+      {/* Tags Section */}
+      {product.tags && product.tags.length > 0 && (
+        <div
+          className={`
+            p-3.5 sm:p-5 rounded-2xl border flex flex-col gap-2.5 sm:gap-3
+            ${
+              theme === "dark"
+                ? "bg-[#0D0D11] border-white/[0.06]"
+                : "bg-white border-gray-200"
+            }
+          `}
+        >
+          <span
+            className={`text-[10px] font-mono uppercase tracking-[0.18em] font-semibold ${
+              theme === "dark" ? "text-white/40" : "text-gray-500"
+            }`}
+          >
+            {t("categories_and_tags")}
+          </span>
+          <div className="flex flex-wrap gap-1.5">
+            {product.tags.map((tag, i) => (
+              <span
+                key={`${tag}-${i}`}
+                className={`
+                  px-2 py-0.5 rounded-md text-[11px] font-mono transition-colors
+                  ${
+                    theme === "dark"
+                      ? "bg-white/[0.05] text-white/70 hover:bg-white/[0.08] hover:text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }
+                `}
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Micro-Footer Notice */}
       <div className={`text-[10px] text-center font-mono ${theme === "dark" ? "text-white/30" : "text-gray-400"}`}>

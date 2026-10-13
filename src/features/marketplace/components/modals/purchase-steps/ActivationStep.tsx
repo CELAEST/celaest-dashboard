@@ -68,7 +68,7 @@ export const ActivationStep: React.FC<ActivationStepProps> = ({
             <button
               type="button"
               onClick={onGoToAssets || onReset}
-              className="w-full py-3.5 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer shadow-md bg-white hover:bg-neutral-200 text-black active:scale-[0.99]"
+              className="w-full min-h-[44px] py-3.5 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer shadow-md bg-white hover:bg-neutral-200 text-black active:scale-[0.99]"
             >
               {t("go_to_my_assets")}
             </button>

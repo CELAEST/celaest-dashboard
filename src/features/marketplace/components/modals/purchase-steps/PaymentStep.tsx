@@ -88,7 +88,7 @@ export const PaymentStep: React.FC<PaymentStepProps> = ({
             <button
               type="button"
               onClick={onPurchase}
-              className="w-full py-3.5 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md bg-white hover:bg-neutral-200 text-black active:scale-[0.99]"
+              className="w-full min-h-[44px] py-3.5 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md bg-white hover:bg-neutral-200 text-black active:scale-[0.99]"
             >
               <span>{t("pay_with_stripe")} ({finalPrice})</span>
               <ArrowSquareOut size={16} weight="bold" />

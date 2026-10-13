@@ -3,6 +3,7 @@ import { Warning, ShieldSlash, X } from "@phosphor-icons/react";
 import { motion, AnimatePresence } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useEscapeKey } from "@/features/shared/hooks/useEscapeKey";
+import { useSwipeDownToClose } from "@/features/shared/hooks/useSwipeDownToClose";
 import { useTranslations } from "next-intl";
 
 interface RevokeConfirmationModalProps {
@@ -16,6 +17,7 @@ interface RevokeConfirmationModalProps {
 /**
  * A premium confirmation modal for destructive license revocation.
  * Follows SOLID principles by isolating the confirmation logic and UI.
+ * Upgraded to Lingua Standard with mobile swipe-down-to-close.
  */
 export const RevokeConfirmationModal: React.FC<
   RevokeConfirmationModalProps
@@ -26,10 +28,23 @@ export const RevokeConfirmationModal: React.FC<
   // Keyboard accessibility: Esc to close
   useEscapeKey(onClose, isOpen);
 
+  // Mobile Swipe-down-to-close gesture
+  const {
+    sheetRef,
+    handlePillRef,
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
+    handlePointerDown,
+    handlePointerMove,
+    handlePointerUp,
+    handlePillClick,
+  } = useSwipeDownToClose({ onClose });
+
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3.5 sm:p-6">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6 overflow-hidden">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -40,16 +55,37 @@ export const RevokeConfirmationModal: React.FC<
           />
 
           {/* Modal Content */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className={`relative w-full max-w-lg rounded-2xl sm:rounded-[32px] border overflow-hidden p-5 sm:p-8 max-h-[92dvh] overflow-y-auto ${
+          <div
+            ref={sheetRef}
+            onClick={(e) => e.stopPropagation()}
+            style={{ willChange: "transform", backfaceVisibility: "hidden" }}
+            className={`relative z-10 w-full max-w-lg rounded-t-[26px] sm:rounded-[32px] border-t sm:border overflow-hidden p-5 sm:p-8 max-h-[92dvh] overflow-y-auto animate-modal-content pb-[max(1.5rem,env(safe-area-inset-bottom))] ${
               isDark
-                ? "bg-[#0a0a0a]/90 border-white/5 shadow-[0_0_50px_rgba(0,0,0,0.5)]"
+                ? "bg-[#0a0a0a] border-white/5 shadow-[0_0_50px_rgba(0,0,0,0.5)]"
                 : "bg-white border-gray-100 shadow-2xl"
             }`}
           >
+            {/* Mobile Drag Indicator Handle */}
+            <div
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              onPointerDown={handlePointerDown}
+              onPointerMove={handlePointerMove}
+              onPointerUp={handlePointerUp}
+              onClick={handlePillClick}
+              className="sm:hidden -mt-2 mb-4 w-full flex items-center justify-center py-2 shrink-0 select-none cursor-grab active:cursor-grabbing touch-none"
+              title="Desliza hacia abajo para cerrar"
+              role="button"
+              tabIndex={0}
+              aria-label="Deslizar hacia abajo para cerrar"
+            >
+              <div
+                ref={handlePillRef}
+                className="w-10 h-1.5 rounded-full bg-white/20 hover:bg-white/35 transition-all duration-150"
+              />
+            </div>
+
             {/* Decorative Header */}
             <div className="absolute top-0 left-0 w-full h-1.5 bg-linear-to-r from-rose-500 via-rose-400 to-rose-500" />
 
@@ -106,8 +142,9 @@ export const RevokeConfirmationModal: React.FC<
 
               <div className="grid grid-cols-1 sm:grid-cols-2 w-full gap-2.5 sm:gap-4 mt-2 sm:mt-4">
                 <button
+                  type="button"
                   onClick={onClose}
-                  className={`order-2 sm:order-1 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black uppercase tracking-widest text-xs transition-all ${
+                  className={`order-2 sm:order-1 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black uppercase tracking-widest text-xs transition-all cursor-pointer ${
                     isDark
                       ? "bg-white/5 text-gray-400 hover:text-white hover:bg-white/10"
                       : "bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700"
@@ -116,11 +153,12 @@ export const RevokeConfirmationModal: React.FC<
                   {t("cancel_protocol")}
                 </button>
                 <button
+                  type="button"
                   onClick={() => {
                     onConfirm();
                     onClose();
                   }}
-                  className={`order-1 sm:order-2 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-lg active:scale-95 ${
+                  className={`order-1 sm:order-2 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-lg active:scale-95 cursor-pointer ${
                     isDark
                       ? "bg-rose-500 text-white hover:bg-rose-600 shadow-rose-500/25"
                       : "bg-rose-600 text-white hover:bg-rose-700 shadow-rose-600/30"
@@ -132,12 +170,16 @@ export const RevokeConfirmationModal: React.FC<
             </div>
 
             <button
+              type="button"
               onClick={onClose}
-              className="absolute top-4 right-4 sm:top-6 sm:right-6 p-1.5 sm:p-2 rounded-full hover:bg-white/5 transition-colors text-gray-500 hover:text-white"
+              onTouchEnd={(e) => e.stopPropagation()}
+              onPointerDown={(e) => e.stopPropagation()}
+              aria-label="Cerrar modal"
+              className="absolute top-4 right-4 sm:top-6 sm:right-6 p-1.5 sm:p-2 rounded-full hover:bg-white/5 transition-colors text-gray-500 hover:text-white cursor-pointer"
             >
               <X size={18} />
             </button>
-          </motion.div>
+          </div>
         </div>
       )}
     </AnimatePresence>

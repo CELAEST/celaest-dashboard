@@ -76,7 +76,7 @@ export const MarketplacePublicHero: React.FC = () => {
               transition={{ duration: 0.45 }}
               className="max-w-128 sm:max-w-136 w-full text-left"
             >
-              <h1 className="text-[2rem] font-black leading-[1.05] text-white sm:text-5xl lg:text-[3.2rem]">
+              <h1 className="text-[1.85rem] sm:text-5xl lg:text-[3.2rem] font-black leading-[1.08] sm:leading-[1.05] text-white">
                 {t("hero_headline")}
                 <span className="mt-1 block">
                   {t("hero_line_prefix")}{" "}
@@ -87,16 +87,16 @@ export const MarketplacePublicHero: React.FC = () => {
                 </span>
               </h1>
 
-              <p className="mt-5 max-w-108 text-sm leading-6 text-zinc-400 sm:max-w-112 sm:text-base">
+              <p className="mt-4 sm:mt-5 max-w-108 text-sm leading-6 text-zinc-400 sm:max-w-112 sm:text-base">
                 {t("hero_subtitle")}
               </p>
 
               <button
                 onClick={handleScrollToCatalog}
-                className="mt-7 inline-flex h-12 items-center justify-center gap-3 rounded-xl bg-linear-to-r from-[#0066cc] via-[#0088ff] to-[#00b4d8] px-6 font-mono text-xs uppercase tracking-wider font-bold text-white shadow-[0_0_24px_rgba(0,136,255,0.4)] hover:shadow-[0_0_36px_rgba(0,136,255,0.65)] hover:brightness-110 active:scale-[0.99] transition-all cursor-pointer"
+                className="mt-6 sm:mt-7 w-full sm:w-auto inline-flex h-12 items-center justify-center gap-3 rounded-xl bg-linear-to-r from-[#0066cc] via-[#0088ff] to-[#00b4d8] px-6 font-mono text-xs uppercase tracking-wider font-bold text-white shadow-[0_0_24px_rgba(0,136,255,0.4)] hover:shadow-[0_0_36px_rgba(0,136,255,0.65)] hover:brightness-110 active:scale-[0.98] transition-all cursor-pointer"
               >
                 {t("hero_primary_cta")}
-                <ArrowUpRight className="h-4 w-4" weight="bold" />
+                <ArrowUpRight className="h-4 w-4 shrink-0" weight="bold" />
               </button>
             </motion.div>
 
@@ -105,7 +105,7 @@ export const MarketplacePublicHero: React.FC = () => {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="w-full max-w-88 sm:hidden block mx-auto mt-5"
+              className="w-full max-w-88 sm:hidden block mx-auto mt-4"
             >
               <Image
                 src="/images/marketplace-automation-hero-mobile-centered.webp"
@@ -120,16 +120,16 @@ export const MarketplacePublicHero: React.FC = () => {
         </div>
       </section>
 
-      <section className="mt-8 sm:-mt-7 lg:-mt-8 bg-black px-4 pb-8 text-white sm:px-6 lg:px-8">
+      <section className="mt-6 sm:-mt-7 lg:-mt-8 bg-black px-4 pb-6 sm:pb-8 text-white sm:px-6 lg:px-8">
         <div className="mx-auto max-w-392">
-          <div className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-[#09090b]/80 px-4 py-4 shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl sm:px-5 sm:py-5">
+          <div className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-[#09090b]/80 px-3 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl sm:px-5 sm:py-5">
             <div className="pointer-events-none absolute inset-x-10 top-0 h-px bg-linear-to-r from-transparent via-[#0099ff]/30 to-transparent" />
 
-            <div className="relative grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-6 lg:gap-0">
+            <div className="relative grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-4 lg:grid-cols-6 lg:gap-0">
               {integrations.map(({ label, logo, name }, index) => (
                 <div
                   key={label}
-                  className="group relative flex h-12 items-center justify-center gap-2.5 rounded-xl border border-white/4 bg-white/2 px-3 transition-all duration-300 hover:bg-white/6 hover:border-white/10 lg:h-11 lg:rounded-none lg:border-0 lg:bg-transparent lg:hover:bg-transparent lg:px-3"
+                  className="group relative flex h-11 sm:h-12 items-center justify-center gap-2 rounded-xl border border-white/4 bg-white/2 px-2.5 transition-all duration-300 hover:bg-white/6 hover:border-white/10 lg:h-11 lg:rounded-none lg:border-0 lg:bg-transparent lg:hover:bg-transparent lg:px-3"
                 >
                   {index > 0 ? (
                     <span className="absolute left-0 hidden h-7 w-px bg-white/12 lg:block" />
@@ -138,10 +138,10 @@ export const MarketplacePublicHero: React.FC = () => {
                   <img
                     src={logo}
                     alt={label}
-                    className={`${name ? "h-5 max-w-20" : "h-6 max-w-28"} w-auto brightness-0 invert opacity-70 transition-opacity group-hover:opacity-100`}
+                    className={`${name ? "h-4.5 sm:h-5 max-w-16 sm:max-w-20" : "h-5 sm:h-6 max-w-24 sm:max-w-28"} w-auto brightness-0 invert opacity-70 transition-opacity group-hover:opacity-100 shrink-0`}
                   />
                   {name ? (
-                    <span className="whitespace-nowrap text-xs sm:text-sm font-semibold tracking-wide text-zinc-400 transition-colors group-hover:text-white">
+                    <span className="truncate text-xs font-semibold tracking-wide text-zinc-400 transition-colors group-hover:text-white">
                       {name}
                     </span>
                   ) : null}

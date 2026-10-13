@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useMarketplaceStore } from "../store";
 import { SearchFilter } from "../types";
 
@@ -22,7 +22,7 @@ export function useMarketplaceProducts() {
 
 
 
-  const { data, isLoading, error, refetch } = useQuery({
+  const { data, isLoading, isPending, isFetching, error, refetch } = useQuery({
     queryKey: QUERY_KEYS.marketplace.products({ ...filters }),
     queryFn: () => marketplaceApi.search(filters),
     // El endpoint /public/marketplace/search no requiere autenticación.
@@ -30,6 +30,20 @@ export function useMarketplaceProducts() {
     enabled: true,
     staleTime: 60 * 1000, // 1 minute
   });
+
+  // Accurate loading state: true whenever initial data hasn't arrived yet and no error has occurred
+  const isInitialLoading = !error && (isPending || (isLoading && !data) || data === undefined);
+
+  // Escuchar eventos de restauración de conexión para refrescar automáticamente el catálogo
+  useEffect(() => {
+    const handleRestore = () => {
+      refetch();
+    };
+    window.addEventListener("celaest:connection_restored", handleRestore);
+    return () => {
+      window.removeEventListener("celaest:connection_restored", handleRestore);
+    };
+  }, [refetch]);
 
   const searchWithDebounce = useCallback(
     (query: string) => {
@@ -64,10 +78,17 @@ export function useMarketplaceProducts() {
     }
   }, [filters.page, setFilters]);
 
+  const handleReset = useCallback(() => {
+    reset();
+    refetch();
+  }, [reset, refetch]);
+
   return {
     products: data?.products || [],
     total: data?.total || 0,
-    loading: isLoading,
+    loading: isInitialLoading || isLoading,
+    isInitialLoading,
+    isFetching,
     error: error ? (error instanceof Error ? error.message : String(error)) : null,
     filters,
     currentPage: filters.page || 1,
@@ -78,7 +99,7 @@ export function useMarketplaceProducts() {
     updateFilters,
     nextPage,
     prevPage,
-    reset,
+    reset: handleReset,
     refresh: refetch,
   };
 }
