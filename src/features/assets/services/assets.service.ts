@@ -79,7 +79,18 @@ export const assetsService = {
     reviews: ba.product_reviews || 0,
     shortDescription: ba.product_short_desc || "",
     description: ba.product_description || "",
-    features: ba.product_features || [],
+    features: Array.isArray(ba.product_features)
+      ? ba.product_features
+      : typeof ba.product_features === "string"
+        ? (() => {
+            try {
+              const parsed = JSON.parse(ba.product_features);
+              return Array.isArray(parsed) ? parsed : [];
+            } catch {
+              return [ba.product_features as string];
+            }
+          })()
+        : [],
     tags: ba.product_tags || [],
     technicalStack: ba.product_technical_stack || [],
     requirements: (() => {
@@ -94,7 +105,7 @@ export const assetsService = {
       }
       return req.split("\n").map(s => s.trim()).filter((s) => s && s !== "null" && s !== "undefined");
     })(),
-    minPlanTier: ba.product_min_plan_tier || 0,
+    minPlanTier: Number(ba.product_min_plan_tier ?? (ba as unknown as { min_plan_tier?: number }).min_plan_tier ?? 0),
     thumbnail: ba.product_thumbnail_url || "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&fm=webp",
     accessType: (ba.access_type === "subscription" ? "subscription" : "purchase") as "purchase" | "subscription",
     isPurchased: true,
