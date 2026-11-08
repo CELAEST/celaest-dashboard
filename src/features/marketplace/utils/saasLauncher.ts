@@ -32,8 +32,12 @@ export function resolveSaasExternalUrl(
   product?: SaasProductCandidate | null,
 ): string {
   const explicit = product?.external_url?.trim().replace(/\/+$/, "");
+  const explicitLower = explicit?.toLowerCase() || "";
   const isDeadPlaceholder =
-    explicit?.toLowerCase() === "https://lingua.celaest.com";
+    explicitLower === "https://lingua.celaest.com" ||
+    explicitLower === "https://app.celaest.com" ||
+    explicitLower.includes("app.celaest.com") ||
+    explicitLower.includes("example.com");
 
   if (explicit && /^https?:\/\//i.test(explicit) && !isDeadPlaceholder) {
     return explicit;
@@ -46,7 +50,7 @@ export function resolveSaasExternalUrl(
       (window.location.hostname === "localhost" ||
         window.location.hostname === "127.0.0.1");
     return isLocal
-      ? "http://localhost:5173"
+      ? "http://localhost:3001"
       : "https://celaest-english-front.vercel.app";
   }
   return "";

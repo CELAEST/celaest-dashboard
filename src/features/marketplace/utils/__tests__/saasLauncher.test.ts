@@ -42,10 +42,17 @@ describe("saasLauncher", () => {
         slug: "lingua",
         external_url: "https://lingua.celaest.com/",
       }),
-    ).toBe("http://localhost:5173");
+    ).toBe("http://localhost:3001");
+
+    expect(
+      resolveSaasExternalUrl({
+        slug: "lingua",
+        external_url: "https://app.celaest.com/dashboard/marketplace",
+      }),
+    ).toBe("http://localhost:3001");
 
     expect(resolveSaasExternalUrl({ slug: "lingua" })).toBe(
-      "http://localhost:5173",
+      "http://localhost:3001",
     );
   });
 
