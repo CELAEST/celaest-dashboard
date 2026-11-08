@@ -1,6 +1,6 @@
 import React from "react";
 import { useFormContext } from "react-hook-form";
-import { FileCsv, Code, Globe, GithubLogo, YoutubeLogo } from "@phosphor-icons/react";
+import { FileCsv, Code, Globe, GithubLogo, YoutubeLogo, Cloud } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { SettingsSelect } from "../../settings/components/SettingsSelect";
 import { AssetFormValues } from "../hooks/useAssetForm";
@@ -73,7 +73,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
         >
           {t("asset_type")}
         </label>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
             {
               value: "excel",
@@ -82,6 +82,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
             },
             { value: "script", label: t("script_code"), icon: Code },
             { value: "google-sheet", label: t("google_sheet"), icon: Globe },
+            { value: "saas", label: "SaaS / Web App", icon: Cloud },
           ].map((type) => {
             const Icon = type.icon;
             const isSelected = selectedType === type.value;
@@ -92,7 +93,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
                 onClick={() =>
                   setValue(
                     "type",
-                    type.value as "excel" | "script" | "google-sheet",
+                    type.value as "excel" | "script" | "google-sheet" | "saas",
                   )
                 }
                 className={`p-4 rounded-xl border transition-all relative overflow-hidden group ${
@@ -114,13 +115,124 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
                         : "opacity-50 group-hover:opacity-100"
                     }`}
                   />
-                  <div className="text-xs font-bold">{type.label}</div>
+                  <div className="text-xs font-bold text-center">{type.label}</div>
                 </div>
               </button>
             );
           })}
         </div>
       </div>
+
+      {/* SaaS Hub & Spoke Helpers */}
+      {selectedType === "saas" && (
+        <div
+          className={`p-4 rounded-xl border space-y-3 ${
+            isDark
+              ? "bg-cyan-500/5 border-cyan-500/30"
+              : "bg-cyan-50/70 border-cyan-200"
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <span
+              className={`text-xs uppercase tracking-wider font-bold ${
+                isDark ? "text-cyan-400" : "text-cyan-700"
+              }`}
+            >
+              Configuración SaaS Hub & Spoke
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                setValue("slug", "lingua");
+                if (!watch("name")) {
+                  setValue("name", "CELAEST Lingua AI");
+                }
+                if (!watch("external_url")) {
+                  setValue("external_url", "https://celaest-english-front.vercel.app");
+                }
+              }}
+              className={`text-[11px] px-2.5 py-1 rounded-md font-medium transition-colors ${
+                isDark
+                  ? "bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/30"
+                  : "bg-cyan-100 text-cyan-800 hover:bg-cyan-200"
+              }`}
+            >
+              Preset: Lingua (`lingua`)
+            </button>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label
+                className={`block text-[11px] font-bold mb-1 ${
+                  isDark ? "text-gray-300" : "text-gray-700"
+                }`}
+              >
+                Slug Identificador (Licencia)
+              </label>
+              <input
+                type="text"
+                {...register("slug", {
+                  onChange: (e) => {
+                    const val = String(e.target.value || "").trim();
+                    if (/^https?:\/\//i.test(val)) {
+                      if (!watch("external_url")) {
+                        setValue("external_url", val);
+                      }
+                      setValue("slug", "lingua");
+                    }
+                  },
+                })}
+                placeholder="lingua"
+                className={`w-full px-3 py-2 rounded-lg border text-sm transition-all outline-none ${
+                  isDark
+                    ? "bg-white/8 border-white/13 text-white placeholder-gray-500 focus:border-cyan-500"
+                    : "bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-cyan-500"
+                }`}
+              />
+            </div>
+            <div>
+              <label
+                className={`block text-[11px] font-bold mb-1 ${
+                  isDark ? "text-gray-300" : "text-gray-700"
+                }`}
+              >
+                URL Rápida de la App
+              </label>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setValue("external_url", "http://localhost:5173")
+                  }
+                  className={`flex-1 text-[11px] px-2 py-1.5 rounded-lg border text-center transition-colors font-medium ${
+                    isDark
+                      ? "bg-white/10 hover:bg-white/15 text-gray-200 border-white/10"
+                      : "bg-white hover:bg-gray-100 text-gray-700 border-gray-300"
+                  }`}
+                >
+                  Local (:5173)
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setValue(
+                      "external_url",
+                      "https://celaest-english-front.vercel.app",
+                    )
+                  }
+                  className={`flex-1 text-[11px] px-2 py-1.5 rounded-lg border text-center transition-colors font-medium ${
+                    isDark
+                      ? "bg-white/10 hover:bg-white/15 text-gray-200 border-white/10"
+                      : "bg-white hover:bg-gray-100 text-gray-700 border-gray-300"
+                  }`}
+                >
+                  Producción (Vercel)
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Basic Info */}
       <div className="grid grid-cols-2 gap-6">

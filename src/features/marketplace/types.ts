@@ -26,6 +26,8 @@ export interface MarketplaceProduct {
   seller_name: string;
   version: string;
   min_plan_tier: number;
+  product_type?: string;
+  external_url?: string;
   created_at: string;
 }
 

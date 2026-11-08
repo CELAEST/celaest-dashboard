@@ -7,7 +7,8 @@ const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 
 export const assetSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
-  type: z.enum(["excel", "script", "google-sheet", "software", "plugin", "theme", "template", "asset", "service"]),
+  slug: z.string().optional(),
+  type: z.enum(["excel", "script", "google-sheet", "software", "plugin", "theme", "template", "asset", "service", "saas"]),
   category_id: z.string().min(1, "Category is required"),
   price: z.number().min(0, "Price must be positive"),
   status: z.enum(["draft", "published", "archived"]),

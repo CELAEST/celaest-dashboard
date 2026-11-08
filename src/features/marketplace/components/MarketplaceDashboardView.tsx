@@ -12,6 +12,7 @@ import {
   consumeAuthIntent,
   MarketplaceAuthIntentTab,
 } from "../utils/authIntent";
+import { isSaasProduct, launchSaasProduct } from "../utils/saasLauncher";
 import { Storefront, ArrowClockwise } from "@phosphor-icons/react";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
@@ -57,7 +58,7 @@ const LoginModal = dynamic(
 export function MarketplaceDashboardView() {
   const { theme } = useTheme();
   const isDark = theme === "dark";
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, session } = useAuthStore();
   const { currentOrg, isLoading: isOrgsLoading } = useOrgStore();
   const tMarketplace = useTranslations("marketplace");
 
@@ -265,6 +266,10 @@ export function MarketplaceDashboardView() {
 
     // Safety check in case the button wasn't disabled correctly
     const access = checkAccess(product);
+    if (access !== "none" && isSaasProduct(product)) {
+      launchSaasProduct(product, session?.accessToken, session?.refreshToken);
+      return;
+    }
     const reason = getDisabledReason(product, access);
     if (reason && reason !== tMarketplace("current_plan")) {
       toast.error(reason);
@@ -360,6 +365,14 @@ export function MarketplaceDashboardView() {
           isOwned={checkAccess(detailProduct) !== "none"}
           accessLevel={checkAccess(detailProduct)}
           onDownload={() => {
+            if (isSaasProduct(detailProduct)) {
+              launchSaasProduct(
+                detailProduct,
+                session?.accessToken,
+                session?.refreshToken,
+              );
+              return;
+            }
             const asset = assets.find(
               (a) =>
                 (a.productId === detailProduct.id ||

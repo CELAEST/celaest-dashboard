@@ -9,7 +9,7 @@ import {
   BackendCategory
 } from "../api/assets.api";
 
-export type AssetType = "excel" | "script" | "google-sheet" | "software" | "plugin" | "theme" | "template" | "asset" | "service";
+export type AssetType = "excel" | "script" | "google-sheet" | "software" | "plugin" | "theme" | "template" | "asset" | "service" | "saas";
 
 export interface Asset {
   id: string;
@@ -61,13 +61,20 @@ export interface InventoryPage {
 
 export const assetsService = {
   // Maps a customer-owned asset from /user/my/assets
-  mapBackendAssetToAsset: (ba: BackendCustomerAsset): Asset => ({
-    id: ba.id,
-    productId: ba.product_id,
-    name: ba.product_name,
-    slug: ba.product_slug,
-    type: (ba.product_type || "asset") as AssetType,
-    category: ba.product_category || "Purchased",
+  mapBackendAssetToAsset: (ba: BackendCustomerAsset): Asset => {
+    const resolvedType =
+      ba.product_type === "saas" ||
+      ba.product_display_type === "saas" ||
+      Boolean(ba.product_external_url && /^https?:\/\//i.test(ba.product_external_url))
+        ? "saas"
+        : ((ba.product_type || "asset") as AssetType);
+    return {
+      id: ba.id,
+      productId: ba.product_id,
+      name: ba.product_name,
+      slug: ba.product_slug,
+      type: resolvedType,
+      category: ba.product_category || "Purchased",
     categoryId: ba.product_category_id,
     categoryName: ba.product_category,
     price: ba.product_price || 0,
@@ -113,48 +120,57 @@ export const assetsService = {
     isFeatured: false,
     license_id: ba.license_id,
     organizationId: ba.organization_id,
-    external_url: "",
-    display_type: ba.product_display_type || ba.product_type,
-    createdAt: ba.granted_at || new Date().toISOString(),
-    updatedAt: ba.granted_at || new Date().toISOString(),
-  }),
+    external_url: ba.product_external_url || "",
+      display_type: ba.product_display_type || ba.product_type,
+      createdAt: ba.granted_at || new Date().toISOString(),
+      updatedAt: ba.granted_at || new Date().toISOString(),
+    };
+  },
 
   // Maps an organization product from /org/:id/products (inventory)
-  mapBackendProductToAsset: (bp: BackendProduct): Asset => ({
-    id: bp.id,
-    productId: bp.id,
-    name: bp.name,
-    slug: bp.slug,
-    type: (bp.product_type || "software") as AssetType,
-    category: bp.category_name || "Inventory",
-    categoryId: bp.category_id,
-    categoryName: bp.category_name,
-    price: bp.base_price,
-    status: (bp.status === "published" ? "active" : bp.status) as Asset["status"],
-    version: bp.version || "1.0.0",
-    fileSize: "0 KB",
-    downloads: bp.download_count,
-    rating: bp.rating_avg,
-    reviews: bp.rating_count,
-    shortDescription: bp.short_description || "",
-    description: bp.description || "",
-    features: bp.features || [],
-    tags: bp.tags || [],
-    technicalStack: bp.technical_stack || [],
-    requirements: bp.requirements || [],
-    minPlanTier: bp.min_plan_tier || 0,
-    thumbnail: bp.thumbnail_url || "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&fm=webp",
-    youtubeVideoId: bp.youtube_video_id || undefined,
-    external_url: bp.external_url || "",
-    display_type: bp.display_type || bp.product_type,
-    isPurchased: false,
-    isPublic: bp.is_public,
-    isFeatured: bp.is_featured,
-    github_repository: bp.github_repository,
-    organizationId: bp.organization_id,
-    createdAt: bp.created_at,
-    updatedAt: bp.updated_at,
-  }),
+  mapBackendProductToAsset: (bp: BackendProduct): Asset => {
+    const resolvedType =
+      bp.product_type === "saas" ||
+      bp.display_type === "saas" ||
+      Boolean(bp.external_url && /^https?:\/\//i.test(bp.external_url))
+        ? "saas"
+        : ((bp.product_type || "software") as AssetType);
+    return {
+      id: bp.id,
+      productId: bp.id,
+      name: bp.name,
+      slug: bp.slug,
+      type: resolvedType,
+      category: bp.category_name || "Inventory",
+      categoryId: bp.category_id,
+      categoryName: bp.category_name,
+      price: bp.base_price,
+      status: (bp.status === "published" ? "active" : bp.status) as Asset["status"],
+      version: bp.version || "1.0.0",
+      fileSize: "0 KB",
+      downloads: bp.download_count,
+      rating: bp.rating_avg,
+      reviews: bp.rating_count,
+      shortDescription: bp.short_description || "",
+      description: bp.description || "",
+      features: bp.features || [],
+      tags: bp.tags || [],
+      technicalStack: bp.technical_stack || [],
+      requirements: bp.requirements || [],
+      minPlanTier: bp.min_plan_tier || 0,
+      thumbnail: bp.thumbnail_url || "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&fm=webp",
+      youtubeVideoId: bp.youtube_video_id || undefined,
+      external_url: bp.external_url || "",
+      display_type: bp.display_type || bp.product_type,
+      isPurchased: false,
+      isPublic: bp.is_public,
+      isFeatured: bp.is_featured,
+      github_repository: bp.github_repository,
+      organizationId: bp.organization_id,
+      createdAt: bp.created_at,
+      updatedAt: bp.updated_at,
+    };
+  },
 
   // Customer-owned assets
   async getMyAssets(token: string): Promise<Asset[]> {

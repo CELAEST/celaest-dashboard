@@ -96,6 +96,7 @@ export interface CreateCategoryPayload {
 export interface UpdateProductPayload {
   name?: string;
   slug?: string;
+  product_type?: string;
   short_description?: string;
   description?: string;
   category_id?: string;
@@ -200,6 +201,7 @@ export interface BackendCustomerAsset {
   product_requirements?: string;
   product_min_plan_tier: number;
   product_file_size: number;
+  product_external_url?: string;
 }
 
 // Overview Response Types

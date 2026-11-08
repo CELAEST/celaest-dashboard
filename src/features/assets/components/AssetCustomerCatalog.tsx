@@ -12,6 +12,8 @@ import { ProductCardCompact } from "@/features/marketplace/components/ProductCar
 import { MarketplaceProduct } from "@/features/marketplace/types";
 import { useAssets } from "../hooks/useAssets";
 import { useTranslations } from "next-intl";
+import { useAuthStore } from "@/features/auth/stores/useAuthStore";
+import { launchSaasProduct, isSaasProduct } from "@/features/marketplace/utils/saasLauncher";
 
 interface AssetCustomerCatalogProps {
   assets: Asset[];
@@ -28,6 +30,7 @@ export const AssetCustomerCatalog: React.FC<
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const t = useTranslations("marketplace");
+  const { session } = useAuthStore();
   const [selectedProduct, setSelectedProduct] = useState<Asset | null>(null);
   const [internalFilter] = useState<string>("all");
   const [internalSearchQuery] = useState("");
@@ -80,6 +83,29 @@ export const AssetCustomerCatalog: React.FC<
     product: Asset,
     type: "download" | "cart" | "docs",
   ) => {
+    if (
+      type === "download" &&
+      isSaasProduct({
+        product_type: product.type,
+        display_type: product.display_type,
+        external_url: product.external_url,
+        slug: product.slug,
+        name: product.name,
+      })
+    ) {
+      launchSaasProduct(
+        {
+          product_type: product.type,
+          display_type: product.display_type,
+          external_url: product.external_url,
+          slug: product.slug,
+          name: product.name,
+        },
+        session?.accessToken,
+        session?.refreshToken,
+      );
+      return;
+    }
     if (type === "download") {
       setDownloading(product.id);
       try {
@@ -127,13 +153,27 @@ export const AssetCustomerCatalog: React.FC<
                   seller_name: "",
                   version: product.version || "1.0.0",
                   min_plan_tier: product.minPlanTier || 0,
+                  product_type:
+                    product.display_type === "saas" ? "saas" : product.type,
+                  external_url: product.external_url,
                   created_at: product.createdAt || new Date().toISOString(),
                 };
+                const isSaas = isSaasProduct(mappedProduct);
                 return (
                   <ProductCardCompact
                     key={product.id}
                     product={mappedProduct}
-                    onSelect={() => setSelectedProduct(product)}
+                    onSelect={() => {
+                      if (isSaas) {
+                        launchSaasProduct(
+                          mappedProduct,
+                          session?.accessToken,
+                          session?.refreshToken,
+                        );
+                        return;
+                      }
+                      setSelectedProduct(product);
+                    }}
                     onViewDetails={() => setSelectedProduct(product)}
                     accessLevel={product.accessType === "subscription" ? "plan" : "owned"}
                     priority={index < 3}

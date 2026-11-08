@@ -1,9 +1,10 @@
 "use client";
 
 import React from "react";
-import { Eye, ArrowRight, Star, Play } from "@phosphor-icons/react";
+import { Eye, ArrowRight, ArrowSquareOut, Star, Play } from "@phosphor-icons/react";
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
 import { MarketplaceProduct } from "../types";
+import { isSaasProduct } from "../utils/saasLauncher";
 import { formatCurrency } from "@/lib/utils";
 import { useMarketplaceCouponStore } from "../store";
 import { useTranslations } from "next-intl";
@@ -134,10 +135,14 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
   const badge = rating >= 4.9 ? "BESTSELLER" : rating >= 4.7 ? "POPULAR" : undefined;
 
   // Secondary CTA text
+  const isSaas = isSaasProduct(product);
+
   const buttonText = hasAccess
-    ? effectiveAccess === "plan"
-      ? t("in_plan")
-      : t("acquired")
+    ? isSaas
+      ? "Abrir App"
+      : effectiveAccess === "plan"
+        ? t("in_plan")
+        : t("acquired")
     : disabledReason || t("acquire");
 
   return (
@@ -317,11 +322,15 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
             <button
               type="button"
               onClick={onSelect}
-              disabled={hasAccess || !!disabledReason}
+              disabled={(!isSaas && hasAccess) || !!disabledReason}
               className="py-2.5 min-h-[44px] sm:min-h-0 rounded-xl text-xs font-bold bg-white hover:bg-neutral-200 text-black active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md font-jakarta disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <span>{buttonText}</span>
-              <ArrowRight size={13} weight="bold" />
+              {hasAccess && isSaas ? (
+                <ArrowSquareOut size={13} weight="bold" />
+              ) : (
+                <ArrowRight size={13} weight="bold" />
+              )}
             </button>
           </div>
         </div>

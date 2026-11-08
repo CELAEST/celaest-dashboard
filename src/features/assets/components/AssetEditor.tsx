@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useForm, FormProvider } from "react-hook-form";
 import { motion, AnimatePresence } from "motion/react";
-import { X, Package } from "@phosphor-icons/react";
+import { X, Package, Cloud } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useTranslations } from "next-intl";
 import { assetSchema, AssetFormValues } from "../hooks/useAssetForm";
@@ -57,6 +57,7 @@ export const AssetEditor: React.FC<AssetEditorProps> = ({
     resolver: zodResolver(assetSchema),
     defaultValues: {
       name: "",
+      slug: "",
       type: "excel",
       category_id: "",
       price: 0,
@@ -96,9 +97,22 @@ export const AssetEditor: React.FC<AssetEditorProps> = ({
     };
 
     if (asset) {
+      const resolvedType =
+        asset.display_type === "saas" ||
+        asset.type === "saas" ||
+        Boolean(asset.external_url && /^https?:\/\//i.test(asset.external_url))
+          ? "saas"
+          : ((asset.display_type || asset.type) as AssetType);
+      const cleanSlug =
+        asset.slug && !/^https?:\/\//i.test(asset.slug)
+          ? asset.slug
+          : resolvedType === "saas"
+            ? "lingua"
+            : "";
       reset({
         name: asset.name,
-        type: (asset.display_type || asset.type) as AssetType,
+        slug: cleanSlug,
+        type: resolvedType,
         category_id: asset.categoryId || "",
         price: asset.price,
         status: normalizeStatus(asset.status),
@@ -119,6 +133,7 @@ export const AssetEditor: React.FC<AssetEditorProps> = ({
     } else {
       reset({
         name: "",
+        slug: "",
         type: "excel",
         category_id: "",
         price: 0,
@@ -400,10 +415,38 @@ export const AssetEditor: React.FC<AssetEditorProps> = ({
                 style={{ position: "relative", zIndex: 10 }}
                 className="flex-1 overflow-y-auto p-6 space-y-8"
               >
-                <AssetFileUploader
-                  selectedFile={selectedFile}
-                  onFileSelect={setSelectedFile}
-                />
+                {methods.watch("type") !== "saas" ? (
+                  <AssetFileUploader
+                    selectedFile={selectedFile}
+                    onFileSelect={setSelectedFile}
+                  />
+                ) : (
+                  <div
+                    className={`p-4 rounded-xl border flex items-center gap-3 ${
+                      isDark
+                        ? "bg-cyan-500/10 border-cyan-500/30 text-white"
+                        : "bg-cyan-50 border-cyan-200 text-cyan-900"
+                    }`}
+                  >
+                    <div
+                      className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
+                        isDark ? "bg-cyan-500/20 text-cyan-400" : "bg-cyan-100 text-cyan-700"
+                      }`}
+                    >
+                      <Cloud size={24} weight="duotone" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold">Aplicación SaaS / Web App</h4>
+                      <p
+                        className={`text-xs ${
+                          isDark ? "text-gray-400" : "text-gray-600"
+                        }`}
+                      >
+                        No requiere subir binario ni instalador. El acceso y las licencias se gestionan automáticamente vía SSO con la URL Externa configurada.
+                      </p>
+                    </div>
+                  </div>
+                )}
                 <AssetFormFields
                   isUploading={isUploading}
                   uploadProgress={uploadProgress}

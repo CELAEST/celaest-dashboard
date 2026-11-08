@@ -2,6 +2,8 @@ import React from "react";
 import { Lock, DownloadSimple, ShoppingCart, ArrowSquareOut } from "@phosphor-icons/react";
 import { Asset } from "../../services/assets.service";
 import { useLocalProductPrice } from "@/features/billing/hooks/useLocalProductPrice";
+import { launchSaasProduct, isSaasProduct } from "@/features/marketplace/utils/saasLauncher";
+import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 
 interface ProductActionsSectionProps {
   product: Asset;
@@ -17,6 +19,13 @@ export const ProductActionsSection: React.FC<ProductActionsSectionProps> = ({
   isProcessing,
 }) => {
   const { format: formatLocalPrice } = useLocalProductPrice();
+  const { session } = useAuthStore();
+  const isSaas = isSaasProduct({
+    product_type: product.type,
+    external_url: product.external_url,
+    slug: product.slug,
+  });
+
   return (
     <>
       {/* Access Notice (if not purchased) */}
@@ -60,7 +69,30 @@ export const ProductActionsSection: React.FC<ProductActionsSectionProps> = ({
       <div className="flex gap-4">
         {product.isPurchased ? (
           <>
-            {product.external_url ? (
+            {isSaas ? (
+              <button
+                type="button"
+                onClick={() =>
+                  launchSaasProduct(
+                    {
+                      product_type: product.type,
+                      external_url: product.external_url,
+                      slug: product.slug,
+                    },
+                    session?.accessToken,
+                    session?.refreshToken,
+                  )
+                }
+                className={`flex-1 py-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                  isDark
+                    ? "bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 border border-cyan-500/20"
+                    : "bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
+                }`}
+              >
+                <ArrowSquareOut size={18} />
+                Abrir Aplicación
+              </button>
+            ) : product.external_url ? (
               <a
                 href={product.external_url}
                 target="_blank"

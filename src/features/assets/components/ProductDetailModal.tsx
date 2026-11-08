@@ -21,6 +21,11 @@ import { getAssetTypeLabel } from "../utils/assetUtils";
 import { useLocalProductPrice } from "@/features/billing/hooks/useLocalProductPrice";
 import { useTranslations } from "next-intl";
 import { useSwipeDownToClose } from "@/features/shared/hooks/useSwipeDownToClose";
+import { useAuthStore } from "@/features/auth/stores/useAuthStore";
+import {
+  isSaasProduct,
+  launchSaasProduct,
+} from "@/features/marketplace/utils/saasLauncher";
 
 interface ProductDetailModalProps {
   product: Asset | null;
@@ -39,6 +44,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   const isDark = theme === "dark";
   const { format: formatLocalPrice } = useLocalProductPrice();
   const t = useTranslations("assets");
+  const { session } = useAuthStore();
 
   const {
     sheetRef,
@@ -498,7 +504,34 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                 <div className="flex flex-col gap-2.5 pt-2">
                   {product.isPurchased ? (
                     <>
-                      {product.external_url ? (
+                      {isSaasProduct({
+                        product_type: product.type,
+                        display_type: product.display_type,
+                        external_url: product.external_url,
+                        slug: product.slug,
+                        name: product.name,
+                      }) ? (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            launchSaasProduct(
+                              {
+                                product_type: product.type,
+                                display_type: product.display_type,
+                                external_url: product.external_url,
+                                slug: product.slug,
+                                name: product.name,
+                              },
+                              session?.accessToken,
+                              session?.refreshToken,
+                            )
+                          }
+                          className="w-full min-h-[44px] py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider font-mono flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md bg-white hover:bg-neutral-200 text-black active:scale-[0.99]"
+                        >
+                          <ArrowSquareOut size={14} weight="bold" />
+                          Abrir Aplicación
+                        </button>
+                      ) : product.external_url ? (
                         <a
                           href={product.external_url}
                           target="_blank"

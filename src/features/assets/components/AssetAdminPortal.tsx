@@ -211,7 +211,7 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
 
     const transformedData: CreateProductPayload = {
       name: data.name,
-      slug: editingAsset?.slug || data.name.toLowerCase().replace(/\s+/g, "-"),
+      slug: data.slug?.trim() || editingAsset?.slug || data.name.toLowerCase().replace(/\s+/g, "-"),
       short_description: data.description?.substring(0, 100),
       description: data.description,
       base_price: data.price,

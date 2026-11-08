@@ -5,12 +5,14 @@ import {
   ShoppingCart,
   CheckCircle,
   DownloadSimple,
+  ArrowSquareOut,
   Key,
   Sparkle,
   Shield,
 } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { MarketplaceProduct } from "../../types";
+import { isSaasProduct } from "../../utils/saasLauncher";
 import { formatCurrency } from "@/lib/utils";
 import { useMarketplaceCouponStore } from "../../store";
 import { useTranslations } from "next-intl";
@@ -149,20 +151,31 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
             )}
 
             <div className="flex flex-col gap-2 pt-1">
-              {!!product.version && (
+              {isSaasProduct(product) ? (
                 <button
                   type="button"
                   onClick={onDownload}
                   className="w-full min-h-[44px] py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 active:scale-[0.99] transition-all cursor-pointer shadow-md bg-white hover:bg-neutral-200 text-black"
                 >
-                  <DownloadSimple weight="bold" className="size-4" />
-                  <span>
-                    {t("download")}{" "}
-                    {product.version.startsWith("v")
-                      ? product.version
-                      : `v${product.version}`}
-                  </span>
+                  <span>Abrir Aplicación</span>
+                  <ArrowSquareOut weight="bold" className="size-4" />
                 </button>
+              ) : (
+                !!product.version && (
+                  <button
+                    type="button"
+                    onClick={onDownload}
+                    className="w-full min-h-[44px] py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 active:scale-[0.99] transition-all cursor-pointer shadow-md bg-white hover:bg-neutral-200 text-black"
+                  >
+                    <DownloadSimple weight="bold" className="size-4" />
+                    <span>
+                      {t("download")}{" "}
+                      {product.version.startsWith("v")
+                        ? product.version
+                        : `v${product.version}`}
+                    </span>
+                  </button>
+                )
               )}
 
               {!isPlan && effectiveAccess === "owned" && (
