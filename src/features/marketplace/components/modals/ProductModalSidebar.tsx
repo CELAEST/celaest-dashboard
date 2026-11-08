@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   ShoppingCart,
   CheckCircle,
@@ -9,6 +9,8 @@ import {
   Key,
   Sparkle,
   Shield,
+  Tag,
+  CircleNotch,
 } from "@phosphor-icons/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { MarketplaceProduct } from "../../types";
@@ -17,6 +19,8 @@ import { formatCurrency } from "@/lib/utils";
 import { useMarketplaceCouponStore } from "../../store";
 import { useTranslations } from "next-intl";
 import { useGeoPricing } from "@/features/billing/providers/GeoPricingProvider";
+import { useApiAuth } from "@/lib/use-api-auth";
+import { couponsService } from "@/features/coupons/services/coupons.service";
 
 interface ProductModalSidebarProps {
   product: MarketplaceProduct;
@@ -43,8 +47,45 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
   const hasAccess = effectiveAccess === "owned" || effectiveAccess === "plan";
   const isPlan = effectiveAccess === "plan";
 
-  const { activeCoupon } = useMarketplaceCouponStore();
+  const { token, orgId } = useApiAuth();
+  const { activeCoupon, setCoupon, clearCoupon } = useMarketplaceCouponStore();
   const { pricing, formatPrice } = useGeoPricing();
+  const [couponInput, setCouponInput] = useState("");
+  const [validatingCoupon, setValidatingCoupon] = useState(false);
+  const [couponError, setCouponError] = useState<string | null>(null);
+
+  const handleApplyCoupon = async () => {
+    const clean = couponInput.trim().toUpperCase();
+    if (!clean) return;
+    setValidatingCoupon(true);
+    setCouponError(null);
+    try {
+      if (!token || !orgId) {
+        setCouponError("Inicia sesión para aplicar un cupón");
+        return;
+      }
+      const res = await couponsService.validateCoupon(clean, token, orgId);
+      if (!res || !res.valid || !res.coupon) {
+        setCouponError(res?.reason || "Cupón no válido o expirado");
+        return;
+      }
+      setCoupon({
+        code: res.coupon.code,
+        type: res.coupon.discount_type,
+        value: res.coupon.discount_value,
+      });
+      setCouponInput("");
+    } catch {
+      setCouponError("Error al validar el cupón");
+    } finally {
+      setValidatingCoupon(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    clearCoupon();
+    setCouponError(null);
+  };
 
   // Geo-pricing (NO PPP discount for products, only exchange rate)
   const isGeoPriced = !!(pricing && pricing.country_code && pricing.country_code !== "US");
@@ -233,6 +274,59 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
               </div>
             </div>
 
+            {/* Inline Coupon Field */}
+            <div className="flex flex-col gap-1.5 py-1">
+              {activeCoupon ? (
+                <div className={`flex items-center justify-between px-3 py-2 rounded-xl border text-xs ${theme === "dark" ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" : "bg-emerald-50 border-emerald-200 text-emerald-700"}`}>
+                  <div className="flex items-center gap-1.5 font-mono">
+                    <Tag className="size-3.5" />
+                    <span className="font-bold">{activeCoupon.code}</span>
+                    <span className="text-[10px] opacity-80">
+                      ({activeCoupon.type === "percentage" ? `-${activeCoupon.value}%` : `-$${activeCoupon.value}`})
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleRemoveCoupon}
+                    className="text-[10px] uppercase font-mono tracking-wider opacity-70 hover:opacity-100 transition-opacity cursor-pointer"
+                  >
+                    Remover
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1.5">
+                  <input
+                    type="text"
+                    value={couponInput}
+                    onChange={(e) => {
+                      setCouponInput(e.target.value.toUpperCase());
+                      setCouponError(null);
+                    }}
+                    placeholder="¿Tienes un cupón? (ej. PROMO100)"
+                    className={`flex-1 h-9 px-3 text-xs font-mono uppercase rounded-xl border outline-none transition-all ${
+                      theme === "dark"
+                        ? "bg-white/[0.03] border-white/10 text-white placeholder:text-white/30 focus:border-white/30"
+                        : "bg-gray-50 border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-gray-400"
+                    }`}
+                  />
+                  <button
+                    type="button"
+                    disabled={validatingCoupon || !couponInput.trim()}
+                    onClick={() => void handleApplyCoupon()}
+                    className="h-9 px-3 rounded-xl text-xs font-mono font-medium border border-white/10 bg-white/5 hover:bg-white/10 text-white transition-all disabled:opacity-40 cursor-pointer flex items-center gap-1"
+                  >
+                    {validatingCoupon && <CircleNotch className="size-3 animate-spin" />}
+                    <span>Aplicar</span>
+                  </button>
+                </div>
+              )}
+              {couponError && (
+                <span className="text-[10px] text-rose-400 font-mono px-1">
+                  {couponError}
+                </span>
+              )}
+            </div>
+
             {/* Primary Action Button (Platino Monocromático Puro) */}
             <button
               type="button"
@@ -240,7 +334,7 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
               className="w-full min-h-[44px] py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 active:scale-[0.99] transition-all cursor-pointer shadow-md bg-white hover:bg-neutral-200 text-black"
             >
               <ShoppingCart weight="bold" className="size-4" />
-              <span>{t("buy_now")}</span>
+              <span>{activeCoupon && finalPrice === 0 ? "Canjear y Desbloquear" : t("buy_now")}</span>
             </button>
           </>
         )}
