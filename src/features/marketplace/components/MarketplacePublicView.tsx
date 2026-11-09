@@ -93,65 +93,65 @@ export function MarketplacePublicView() {
 
   return (
     <AuthPromptProvider onRequestLogin={handleRequestLogin}>
-      <div className="flex flex-col min-h-screen bg-black">
+      <div className="flex flex-col w-full min-w-0 bg-[#020202] selection:bg-violet-500/25 selection:text-white">
         <MarketplacePublicHero />
 
         <div
-          className="bg-black px-4 pb-24 sm:pb-16 pt-3 sm:pt-4 sm:px-6 lg:px-8"
+          className="relative bg-[#020202] px-6 sm:px-10 lg:px-16 pb-24 sm:pb-32 pt-6 sm:pt-8 overflow-visible"
           id="marketplace-catalog"
         >
-          <div className="mx-auto mb-6 flex flex-col items-center sm:flex-row sm:items-center justify-between gap-3.5 sm:gap-4 text-center sm:text-left">
-            <div className="flex items-baseline justify-center sm:justify-start gap-2.5">
-              <h2
-                className={`text-xl sm:text-2xl font-bold tracking-tight ${
-                  isDark ? "text-white" : "text-zinc-900"
-                }`}
-              >
-                {t("available_solutions")}
-              </h2>
-              <span className="text-[10px] sm:text-[11px] font-mono tracking-[0.18em] uppercase text-white/40 font-semibold">
-                ({visibleProducts.length})
-              </span>
-            </div>
+          {/* Subtle landing atmospheric aura */}
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(167,139,250,0.05),transparent_70%)]" />
 
-            {/* Plan Tier Filters (Centrado en mobile, sin cortes) */}
-            <div className="w-full sm:w-auto flex justify-center">
+          {/* Master Editorial Catalog Header: Zero-Box Symmetrical Architecture */}
+          <div className="relative z-10 max-w-[85rem] mx-auto mb-10 sm:mb-12">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 pb-6 border-b border-[#24242b]">
+              <div className="flex flex-col gap-2 text-left">
+                <span className="text-[10px] font-mono tracking-[0.25em] uppercase text-zinc-500 font-medium">
+                  CATÁLOGO · {visibleProducts.length} SOLUCIONES
+                </span>
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-[-0.03em] text-white">
+                  {t("available_solutions")}
+                </h2>
+              </div>
+
+              {/* Zero-Box Editorial Typography Switcher (CELAEST Landing Standard) */}
               <div
-                className={`inline-flex items-center gap-0.5 sm:gap-1 p-1 rounded-xl border max-w-full overflow-x-auto no-scrollbar touch-pan-x overscroll-x-contain ${
-                  isDark
-                    ? "bg-[#09090b] border-white/[0.08]"
-                    : "bg-zinc-100 border-zinc-200"
-                }`}
+                className="flex items-center gap-5 sm:gap-6 flex-wrap"
                 role="tablist"
                 aria-label={t("filter_by_plan")}
               >
-                {PLAN_TIERS.map((tier) => {
-                  const isSelected = selectedTier === tier.id;
-                  return (
-                    <button
-                      key={tier.id}
-                      type="button"
-                      onClick={() => setSelectedTier(tier.id)}
-                      className={`whitespace-nowrap shrink-0 px-3 sm:px-3.5 py-1.5 rounded-lg font-mono text-[11px] font-semibold tracking-wider transition-all cursor-pointer active:scale-[0.97] flex items-center justify-center ${
-                        isSelected
-                          ? isDark
-                            ? "bg-white/10 text-white shadow-xs"
-                            : "bg-white text-zinc-900 shadow-xs"
-                          : isDark
-                            ? "text-zinc-400 hover:text-white hover:bg-white/[0.04]"
-                            : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200/50"
-                      }`}
-                    >
-                      {tier.label}
-                    </button>
-                  );
-                })}
+                <span className="font-mono text-[11px] text-zinc-500 uppercase tracking-[0.16em]">
+                  PLAN:
+                </span>
+                <div className="flex items-center gap-5 sm:gap-6 overflow-x-auto no-scrollbar py-1">
+                  {PLAN_TIERS.map((tier) => {
+                    const isSelected = selectedTier === tier.id;
+                    return (
+                      <button
+                        key={tier.id}
+                        type="button"
+                        onClick={() => setSelectedTier(tier.id)}
+                        className={`relative py-1 text-xs sm:text-sm tracking-wider font-medium transition-colors cursor-pointer shrink-0 ${
+                          isSelected
+                            ? "text-white font-semibold"
+                            : "text-zinc-500 hover:text-zinc-300"
+                        }`}
+                      >
+                        {tier.label}
+                        {isSelected && (
+                          <span className="absolute -bottom-1.5 left-0 right-0 h-[2px] bg-violet-400 shadow-[0_0_8px_rgba(167,139,250,0.7)]" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </div>
 
           {isLoading ? (
-            <div className="mx-auto grid max-w-392 grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="max-w-[85rem] mx-auto grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
               {[...Array(6)].map((_, i) => (
                 <div
                   key={i}
@@ -179,7 +179,7 @@ export function MarketplacePublicView() {
               <button
                 type="button"
                 onClick={() => refreshMarketplace()}
-                className="mt-5 w-full sm:w-auto px-5 py-2.5 sm:py-2 min-h-[44px] sm:min-h-0 rounded-xl text-xs font-mono font-semibold uppercase tracking-wider text-white/80 hover:text-white bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 transition-all cursor-pointer shadow-xs active:scale-95 flex items-center justify-center gap-2"
+                className="mt-5 w-full sm:w-auto px-5 py-2.5 sm:py-2 min-h-[44px] sm:min-h-0 rounded-xl text-xs font-mono font-semibold uppercase tracking-wider text-white/80 hover:text-violet-200 bg-white/[0.05] hover:bg-violet-500/10 border border-white/10 hover:border-violet-500/30 transition-all cursor-pointer shadow-xs active:scale-95 flex items-center justify-center gap-2"
               >
                 <ArrowCounterClockwise size={13} weight="bold" />
                 <span>Reintentar conexión</span>
@@ -206,14 +206,14 @@ export function MarketplacePublicView() {
                   reset();
                   refreshMarketplace();
                 }}
-                className="mt-5 w-full sm:w-auto px-5 py-2.5 sm:py-2 min-h-[44px] sm:min-h-0 rounded-xl text-xs font-mono font-semibold uppercase tracking-wider text-white/80 hover:text-white bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 transition-all cursor-pointer shadow-xs active:scale-95 flex items-center justify-center gap-2"
+                className="mt-5 w-full sm:w-auto px-5 py-2.5 sm:py-2 min-h-[44px] sm:min-h-0 rounded-xl text-xs font-mono font-semibold uppercase tracking-wider text-white/80 hover:text-violet-200 bg-white/[0.05] hover:bg-violet-500/10 border border-white/10 hover:border-violet-500/30 transition-all cursor-pointer shadow-xs active:scale-95 flex items-center justify-center gap-2"
               >
                 <ArrowCounterClockwise size={13} weight="bold" />
                 <span>{t("clear_filters")}</span>
               </button>
             </div>
           ) : (
-            <div className="mx-auto grid max-w-392 grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="max-w-[85rem] mx-auto grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
               {visibleProducts.map((product, index) => (
                 <ProductCardCompact
                   key={product.id}

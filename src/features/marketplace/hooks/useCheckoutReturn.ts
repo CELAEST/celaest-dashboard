@@ -27,8 +27,12 @@ export function useCheckoutReturn(
       processedReturn.current = true;
       // 1. Clear coupon automatically because it was definitely used in the checkout
       clearCoupon();
+      try {
+        localStorage.setItem("celaest_coupon_used", "true");
+        window.dispatchEvent(new Event("celaest:coupon_used"));
+      } catch {}
       if (token) {
-        settingsApi.updatePreferences({ marketplace_active_coupon: null }, token).catch(console.error);
+        settingsApi.updatePreferences({ marketplace_active_coupon: null, marketplace_coupon_used: true }, token).catch(console.error);
       }
 
       // 2. Try to find the real product

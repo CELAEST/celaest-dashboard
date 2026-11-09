@@ -118,26 +118,22 @@ export function DashboardShell() {
 
   return (
     <div
-      className="min-h-screen w-full font-sans selection:bg-white/20 selection:text-white overflow-x-hidden transition-colors duration-500 bg-[#F5F7FA] text-gray-900 dark:bg-[#020202] dark:text-white"
+      className="min-h-screen w-full font-sans selection:bg-violet-500/25 selection:text-white overflow-x-hidden transition-colors duration-500 bg-[#F5F7FA] text-gray-900 dark:bg-[#020202] dark:text-white"
     >
       {/* Background with Overlay */}
       <div className="fixed inset-0 z-0 pointer-events-none">
-        {/* En Light Mode se muestra el gradiente azulado. En Dark Mode se oculta y en su lugar se pinta el fondo negro puro. */}
-        <div className="absolute inset-0 bg-linear-to-br from-blue-50 to-white dark:hidden z-10" />
+        {/* En Light Mode se muestra el gradiente sutil. En Dark Mode se pinta el fondo negro obsidiana. */}
+        <div className="absolute inset-0 bg-linear-to-br from-violet-50/40 via-white to-white dark:hidden z-10" />
         <div className="absolute inset-0 hidden dark:block bg-[#020202] z-10" />
         
-        {/* El gradiente radial solo es visible en Dark Mode */}
-        <div className="absolute inset-0 hidden dark:block bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-white/3 via-transparent to-transparent z-10" />
+        {/* Sutil aura ambiental violeta idéntica al hero de la Landing */}
+        <div className="absolute inset-0 hidden dark:block bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(167,139,250,0.07),transparent_70%)] z-10" />
 
-        <div className="absolute inset-0 z-0 animate-bg-glow">
-          <ImageWithFallback
-            src="https://images.unsplash.com/photo-1647356161576-4e80c6619a0e?crop=entropy&cs=tinysrgb&fit=max&fm=webp&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMGRhcmslMjBibHVlJTIwbmV1cmFsJTIwbmV0d29yayUyMGNvbnN0ZWxsYXRpb24lMjBiYWNrZ3JvdW5kfGVufDF8fHx8MTc2ODU3Njg3OHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-            className="w-full h-full object-cover transition-opacity duration-500 opacity-10 mix-blend-normal dark:mix-blend-screen dark:opacity-40"
-            alt="background"
-          />
+        <div className="absolute inset-0 z-0 animate-bg-glow opacity-30 dark:opacity-20">
+          <div className="w-full h-full bg-[radial-gradient(ellipse_at_top,_rgba(139,92,246,0.12),transparent_60%)]" />
         </div>
         {/* Subtle grid overlay - hidden on mobile for rendering performance */}
-        <div className="absolute inset-0 hidden md:block bg-[url('https://grainy-gradients.vercel.app/noise.svg')] z-20 mix-blend-overlay opacity-5 dark:opacity-20" />
+        <div className="absolute inset-0 hidden md:block bg-[url('https://grainy-gradients.vercel.app/noise.svg')] z-20 mix-blend-overlay opacity-5 dark:opacity-15" />
       </div>
 
       {!isGuest && (
@@ -162,7 +158,7 @@ export function DashboardShell() {
 
         <main
           aria-label="Contenido principal del dashboard"
-          className="flex-1 h-full min-h-0 w-full min-w-0 overflow-y-auto p-1.5 sm:p-3 scroll-smooth flex flex-col"
+          className={`flex-1 min-h-0 w-full min-w-0 overflow-y-auto ${isGuest || activeTab === "marketplace" ? "p-0" : "p-1.5 sm:p-3"} flex flex-col`}
         >
           <AnimatedSlot
             activeKey={activeTab}

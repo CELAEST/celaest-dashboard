@@ -1,0 +1,90 @@
+/* ==========================================================================
+   MARKETPLACE PUBLIC HERO: B4 M-SERIES PROXIMITY GLOW BANNER
+   Landing Hero Physics · Proximity Euclidean Distance Falloff
+   Commercial Strip Integrated Directly with the Header Border
+   ========================================================================== */
+
+.comm-glow-letters {
+  display: inline;
+}
+
+.comm-glow-letter {
+  --glow: 0;
+  display: inline;
+  white-space: pre;
+  color: #e4e4e7;
+  text-shadow:
+    0 0 calc(var(--glow) * 24px) rgba(167, 139, 250, calc(var(--glow) * 0.95)),
+    0 0 calc(var(--glow) * 8px) rgba(216, 180, 254, calc(var(--glow) * 0.95)),
+    0 0 calc(var(--glow) * 2px) rgba(255, 255, 255, calc(var(--glow) * 0.85));
+  transition: text-shadow 100ms linear, color 140ms ease;
+}
+
+.comm-glow-outline-letters {
+  display: inline-block;
+  user-select: none;
+}
+
+.comm-glow-outline-letter {
+  --glow: 0;
+  display: inline-block;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-weight: 900;
+  letter-spacing: -0.06em;
+  line-height: 0.9;
+  -webkit-text-stroke: 1.5px rgba(
+    calc(244 - var(--glow) * 30),
+    calc(242 - var(--glow) * 80),
+    calc(255),
+    calc(0.42 + var(--glow) * 0.58)
+  ) !important;
+  filter:
+    drop-shadow(0 0 calc(var(--glow) * 24px) rgba(167, 139, 250, calc(var(--glow) * 0.95)))
+    drop-shadow(0 0 calc(var(--glow) * 8px) rgba(216, 180, 254, calc(var(--glow) * 0.85)))
+    drop-shadow(0 0 calc(var(--glow) * 2px) rgba(255, 255, 255, calc(var(--glow) * 0.75)));
+  transition: filter 100ms linear, -webkit-text-stroke 140ms ease;
+}
+
+/* Full-width strip attached directly to the header line with zero top margin */
+.comm-commercial-strip {
+  width: 100%;
+  position: relative;
+  background:
+    radial-gradient(circle 460px at var(--mouse-x, -999px) var(--mouse-y, -999px), rgba(167, 139, 250, 0.12) 0%, transparent 80%),
+    linear-gradient(180deg, rgba(10, 10, 14, 0.98) 0%, rgba(5, 5, 7, 0.98) 100%);
+  border-bottom: 1px solid #24242b;
+  overflow: hidden;
+  box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.9);
+  transition: border-color 0.25s ease;
+}
+
+.comm-commercial-strip::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(167, 139, 250, 0.45) 50%, transparent 100%);
+  pointer-events: none;
+}
+
+.comm-commercial-strip-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  padding: 22px 0;
+}
+
+@media (max-width: 1024px) {
+  .comm-commercial-strip-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 18px 0;
+    gap: 20px;
+  }
+}
+

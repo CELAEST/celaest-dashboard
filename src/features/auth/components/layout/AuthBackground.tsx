@@ -63,6 +63,9 @@ export const AuthBackground: React.FC<AuthBackgroundProps> = ({
               : "bg-linear-to-b from-white/70 via-white/50 to-white/80 md:bg-linear-to-br md:from-black/40 md:via-black/30 md:to-black/50"
           }`}
         />
+        {isDark && (
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(167,139,250,0.12),transparent_70%)] pointer-events-none" />
+        )}
       </motion.div>
     </AnimatePresence>
   );

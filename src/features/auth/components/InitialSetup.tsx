@@ -130,8 +130,8 @@ export const InitialSetup: React.FC = () => {
                 onClick={() => window.location.reload()}
                 className={`w-full ${
                   isDark
-                    ? "bg-cyan-500 hover:bg-cyan-600"
-                    : "bg-blue-600 hover:bg-blue-700"
+                    ? "bg-violet-600 hover:bg-violet-500 shadow-sm shadow-violet-600/30"
+                    : "bg-violet-600 hover:bg-violet-700"
                 }`}
               >
                 Refresh & Sign In

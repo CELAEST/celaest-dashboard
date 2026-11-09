@@ -12,6 +12,11 @@ vi.mock("@/features/shared/hooks/useTheme", () => ({
   useTheme: () => ({ theme: "dark" }),
 }));
 
+// Mock useApiAuth
+vi.mock("@/lib/use-api-auth", () => ({
+  useApiAuth: () => ({ token: "mock-token", orgId: "mock-org-id" }),
+}));
+
 // Mock GeoPricingProvider hook
 vi.mock("@/features/billing/providers/GeoPricingProvider", () => ({
   useGeoPricing: () => ({

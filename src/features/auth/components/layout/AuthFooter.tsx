@@ -38,7 +38,7 @@ export const AuthFooter: React.FC<AuthFooterProps> = ({
             type="button"
             onClick={onToggleMode}
             className={`font-semibold py-0.5 px-1 rounded-md cursor-pointer transition-colors ${
-              isDark ? "text-cyan-400 hover:text-cyan-300" : "text-blue-600 hover:text-blue-700"
+              isDark ? "text-violet-400 hover:text-violet-300" : "text-violet-600 hover:text-violet-700"
             }`}
           >
             {mode === "signin" ? tAuth("sign_up") : tAuth("sign_in")}
@@ -65,13 +65,13 @@ export const AuthFooter: React.FC<AuthFooterProps> = ({
         <div className="flex items-center justify-center gap-4 sm:gap-6 text-[10px] sm:text-xs text-gray-400">
           <div className="flex items-center gap-1.5">
             <Lock
-              className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isDark ? "text-cyan-400" : "text-blue-600"}`}
+              className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isDark ? "text-violet-400" : "text-violet-600"}`}
             />
             <span>{tAuth("encryption")}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <Shield
-              className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isDark ? "text-cyan-400" : "text-blue-600"}`}
+              className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isDark ? "text-violet-400" : "text-violet-600"}`}
             />
             <span>{tCommon("secure")}</span>
           </div>

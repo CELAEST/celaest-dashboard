@@ -97,8 +97,8 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                 <div
                   className={`h-15 w-15 rounded-2xl flex items-center justify-center border shadow-inner transition-colors ${
                     isDark
-                      ? "bg-white/[0.04] border-white/10 text-zinc-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
-                      : "bg-zinc-100 border-zinc-200 text-zinc-800"
+                      ? "bg-violet-500/10 border-violet-500/20 text-violet-300 shadow-[inset_0_1px_0_rgba(167,139,250,0.15)]"
+                      : "bg-violet-50 border-violet-200 text-violet-700"
                   }`}
                 >
                   <Lock className="w-7 h-7" weight="bold" />
@@ -196,10 +196,10 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                 onClick={() => {
                   window.location.href = "/?mode=signin";
                 }}
-                className={`h-10 w-full rounded-xl font-mono text-xs uppercase tracking-wider font-semibold transition-colors duration-200 cursor-pointer flex items-center justify-center gap-2 ${
+                className={`h-10 w-full rounded-xl font-mono text-xs uppercase tracking-wider font-semibold transition-colors duration-200 cursor-pointer flex items-center justify-center gap-2 border border-transparent ${
                   isDark
-                    ? "text-zinc-300 hover:text-white hover:bg-white/[0.04]"
-                    : "text-zinc-700 hover:text-zinc-900 hover:bg-zinc-100"
+                    ? "text-zinc-300 hover:text-violet-300 hover:bg-violet-500/10 hover:border-violet-500/20"
+                    : "text-zinc-700 hover:text-violet-700 hover:bg-violet-50 hover:border-violet-200"
                 }`}
               >
                 <span>{tAuth("sign_in_with_email")}</span>

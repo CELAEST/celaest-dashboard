@@ -125,7 +125,7 @@ export const NotificationCenter = React.memo(function NotificationCenter() {
       `relative flex items-center justify-center transition-all duration-300 cursor-pointer
       ${
         isDark
-          ? "text-gray-400 hover:text-cyan-400"
+          ? "text-gray-400 hover:text-violet-400"
           : "text-gray-500 hover:text-blue-600"
       }`,
     [isDark],
@@ -164,7 +164,7 @@ export const NotificationCenter = React.memo(function NotificationCenter() {
             className={`absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center
               ${
                 isDark
-                  ? "bg-linear-to-br from-cyan-400 to-blue-400 shadow-[0_0_10px_rgba(34,211,238,0.8)]"
+                  ? "bg-linear-to-br from-violet-500 to-purple-600 shadow-[0_0_10px_rgba(167,139,250,0.5)]"
                   : "bg-linear-to-br from-blue-600 to-indigo-600"
               }`}
           >
@@ -214,7 +214,7 @@ export const NotificationCenter = React.memo(function NotificationCenter() {
                         className={`px-2.5 py-1 rounded-full text-[11px] font-semibold tracking-wide uppercase
                         ${
                           isDark
-                            ? "bg-cyan-500/10 text-cyan-300 ring-1 ring-cyan-400/20"
+                            ? "bg-violet-500/10 text-violet-300 ring-1 ring-violet-400/20"
                             : "bg-blue-50 text-blue-600 ring-1 ring-blue-200"
                         }`}
                       >

@@ -60,7 +60,7 @@ export const NotificationItem = memo(function NotificationItem({
           className={`absolute left-2 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full 
           ${
             isDark
-              ? "bg-linear-to-br from-cyan-400 to-blue-400"
+              ? "bg-linear-to-br from-violet-500 to-purple-600"
               : "bg-linear-to-br from-blue-600 to-indigo-600"
           }`}
         />
@@ -118,7 +118,7 @@ export const NotificationItem = memo(function NotificationItem({
                         : "bg-red-50 text-red-700 hover:bg-red-100"
                       : action.variant === "primary"
                         ? isDark
-                          ? "bg-cyan-500/15 text-cyan-300 hover:bg-cyan-500/25"
+                          ? "bg-violet-500/15 text-violet-300 hover:bg-violet-500/25"
                           : "bg-blue-50 text-blue-700 hover:bg-blue-100"
                         : isDark
                           ? "bg-white/5 text-gray-300 hover:bg-white/10"

@@ -45,10 +45,10 @@ const getColorScheme = (type: Notification["type"], isDark: boolean) => {
       progress: isDark ? "bg-blue-400" : "bg-blue-600",
     },
     info: {
-      icon: isDark ? "text-cyan-400" : "text-blue-500",
-      bgIcon: isDark ? "bg-cyan-500/10" : "bg-blue-50",
-      glow: isDark ? "shadow-cyan-500/20" : "",
-      progress: isDark ? "bg-cyan-400" : "bg-blue-500",
+      icon: isDark ? "text-violet-400" : "text-violet-600",
+      bgIcon: isDark ? "bg-violet-500/10" : "bg-violet-50",
+      glow: isDark ? "shadow-violet-500/20" : "",
+      progress: isDark ? "bg-violet-400" : "bg-violet-600",
     },
   };
   return schemes[type];

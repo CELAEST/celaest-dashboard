@@ -63,7 +63,7 @@ export const Header = React.memo(function Header({
         {onMenuClick && !isGuest && (
           <button
             onClick={onMenuClick}
-            className="md:hidden p-2 rounded-full transition-all duration-300 text-gray-500 hover:text-blue-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-cyan-400 dark:hover:bg-white/5"
+            className="md:hidden p-2 rounded-full transition-all duration-300 text-gray-500 hover:text-violet-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-violet-400 dark:hover:bg-white/5"
             aria-label="Open menu"
           >
             <List size={22} />
@@ -77,21 +77,21 @@ export const Header = React.memo(function Header({
           >
             <Logo
               className="w-7 h-7 sm:w-8 sm:h-8"
-              color={isDark ? "#22d3ee" : "#2563eb"}
+              color={isDark ? "#a78bfa" : "#8b5cf6"}
             />
             <div className="flex flex-col leading-none">
               <span
                 className={`text-base sm:text-lg font-bold tracking-tight ${
                   isDark
                     ? "text-white"
-                    : "bg-linear-to-r from-blue-600 via-blue-500 to-indigo-600 bg-clip-text text-transparent"
+                    : "bg-linear-to-r from-violet-600 via-purple-500 to-indigo-600 bg-clip-text text-transparent"
                 }`}
               >
                 CELAEST
               </span>
               <span
                 className={`text-[9px] font-mono tracking-[0.2em] uppercase mt-0.5 ${
-                  isDark ? "text-white/40" : "text-blue-600/60"
+                  isDark ? "text-white/40" : "text-violet-600/60"
                 }`}
               >
                 Marketplace
@@ -150,7 +150,7 @@ export const Header = React.memo(function Header({
               <div className="h-6 w-px bg-gray-300 dark:bg-white/25" />
               <Link
                 href="/?mode=signup"
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 text-xs font-semibold text-white shadow-md shadow-blue-600/20 transition-colors hover:bg-blue-500 sm:text-sm"
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-violet-600 px-4 text-xs font-semibold text-white shadow-md shadow-violet-600/25 transition-colors hover:bg-violet-500 sm:text-sm"
               >
                 {tAuth("sign_up")}
                 <ArrowUpRight className="h-3.5 w-3.5" weight="bold" />
@@ -160,7 +160,7 @@ export const Header = React.memo(function Header({
             {/* Mobile compact login icon */}
             <Link
               href="/?mode=signin"
-              className="flex sm:hidden transition-colors duration-300 text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-cyan-400 cursor-pointer"
+              className="flex sm:hidden transition-colors duration-300 text-gray-500 hover:text-violet-600 dark:text-gray-400 dark:hover:text-violet-400 cursor-pointer"
               aria-label={tAuth("sign_in")}
             >
               <User size={20} />

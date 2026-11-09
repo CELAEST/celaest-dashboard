@@ -93,11 +93,11 @@ export function LocaleSwitcher({ align = "right" }: LocaleSwitcherProps) {
         aria-label={`Idioma actual: ${meta.nativeName}`}
       >
         {isPending ? (
-          <CircleNotch className="w-4 h-4 animate-spin text-blue-500 dark:text-cyan-400" />
+          <CircleNotch className="w-4 h-4 animate-spin text-violet-500 dark:text-violet-400" />
         ) : (
           <GlobeSimple
             weight="duotone"
-            className="w-4 h-4 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-colors"
+            className="w-4 h-4 text-gray-500 dark:text-gray-400 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors"
           />
         )}
         <span className="text-xs font-bold tracking-widest text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
@@ -133,7 +133,7 @@ export function LocaleSwitcher({ align = "right" }: LocaleSwitcherProps) {
             `}
           >
             {/* Decorative top accent — subtle */}
-            <div className="h-px w-full bg-linear-to-r from-transparent via-blue-500/30 to-transparent dark:via-cyan-400/30" />
+            <div className="h-px w-full bg-linear-to-r from-transparent via-violet-500/30 to-transparent dark:via-violet-400/30" />
 
             <div className="py-1.5">
               <p className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500">
@@ -159,7 +159,7 @@ export function LocaleSwitcher({ align = "right" }: LocaleSwitcherProps) {
                       transition-colors duration-150
                       ${
                         isActive
-                          ? "bg-blue-50 text-blue-700 font-semibold dark:bg-cyan-500/10 dark:text-cyan-300"
+                          ? "bg-violet-50 text-violet-700 font-semibold dark:bg-violet-500/10 dark:text-violet-300"
                           : "text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white"
                       }
                       ${isPending ? "cursor-wait" : "cursor-pointer"}
@@ -173,11 +173,11 @@ export function LocaleSwitcher({ align = "right" }: LocaleSwitcherProps) {
                     </span>
                     <span className="flex-1 truncate">{item.nativeName}</span>
                     {isLoading ? (
-                      <CircleNotch className="w-4 h-4 animate-spin text-blue-500 dark:text-cyan-400" />
+                      <CircleNotch className="w-4 h-4 animate-spin text-violet-500 dark:text-violet-400" />
                     ) : isActive ? (
                       <Check
                         weight="bold"
-                        className="w-4 h-4 text-blue-500 dark:text-cyan-400"
+                        className="w-4 h-4 text-violet-500 dark:text-violet-400"
                       />
                     ) : (
                       <span className="w-4 h-4" />

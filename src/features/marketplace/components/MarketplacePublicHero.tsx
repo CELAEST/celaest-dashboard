@@ -1,156 +1,206 @@
 "use client";
 
-import React from "react";
-import { motion } from "motion/react";
-import Image from "next/image";
-import { ArrowUpRight } from "@phosphor-icons/react";
+import React, { useRef, useCallback, useEffect, useState } from "react";
+import { Copy, Check } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
+import "./MarketplacePublicHero.css";
 
+/* Helper: splits string into individual hover-reactive letter spans (Landing Hero Physics) */
+function GlowLetters({ text, className = "" }: { text: string; className?: string }) {
+  return (
+    <span className={`comm-glow-letters ${className}`} aria-hidden="true">
+      {Array.from(text).map((char, index) => (
+        <span className="comm-glow-letter" key={`${char}-${index}`}>
+          {char === " " ? "\u00A0" : char}
+        </span>
+      ))}
+    </span>
+  );
+}
+
+/* Helper: splits outlined text into individual stroke-reactive spans */
+function GlowOutlineLetters({ text, className = "" }: { text: string; className?: string }) {
+  return (
+    <span className={`comm-glow-outline-letters ${className}`} aria-hidden="true">
+      {Array.from(text).map((char, index) => (
+        <span className="comm-glow-outline-letter" key={`${char}-${index}`}>
+          {char === " " ? "\u00A0" : char}
+        </span>
+      ))}
+    </span>
+  );
+}
+
+/**
+ * MarketplacePublicHero: B4 M-Series Proximity Glow Promotional Banner
+ *
+ * Replaces the redundant marketing hero with an elite, high-conversion
+ * promotional banner featuring Landing Hero proximity physics, monumental 30%
+ * outline typography, letter-by-letter hover luminescence, and zero vertical bloat.
+ */
 export const MarketplacePublicHero: React.FC = () => {
   const t = useTranslations("marketplace");
+  const [copied, setCopied] = useState(false);
 
-  const handleScrollToCatalog = () => {
-    const catalog = document.getElementById("marketplace-catalog");
-    catalog?.scrollIntoView({ behavior: "smooth" });
+  const bannerRef = useRef<HTMLDivElement | null>(null);
+  const letterRects = useRef<{ el: HTMLElement; x: number; y: number }[]>([]);
+  const rafId = useRef<number>(0);
+  const pointer = useRef<{ x: number; y: number }>({ x: -9999, y: -9999 });
+
+  const measureLetters = useCallback(() => {
+    if (!bannerRef.current) return;
+    const els = bannerRef.current.querySelectorAll<HTMLElement>(
+      ".comm-glow-letter, .comm-glow-outline-letter"
+    );
+    letterRects.current = Array.from(els).map((el) => {
+      const box = el.getBoundingClientRect();
+      return { el, x: box.left + box.width / 2, y: box.top + box.height / 2 };
+    });
+  }, []);
+
+  useEffect(() => {
+    letterRects.current = [];
+    const handleResize = () => {
+      letterRects.current = [];
+    };
+    window.addEventListener("resize", handleResize, { passive: true });
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      if (rafId.current) cancelAnimationFrame(rafId.current);
+    };
+  }, []);
+
+  const paintGlow = useCallback(() => {
+    rafId.current = 0;
+    const { x, y } = pointer.current;
+    if (letterRects.current.length === 0) {
+      measureLetters();
+    }
+
+    const GLOW_RADIUS = 140; // Euclidean proximity radius
+    for (const { el, x: cx, y: cy } of letterRects.current) {
+      const distance = Math.hypot(x - cx, y - cy);
+      const falloff = Math.max(0, 1 - distance / GLOW_RADIUS);
+      el.style.setProperty("--glow", (falloff * falloff).toFixed(3));
+    }
+  }, [measureLetters]);
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLElement>) => {
+    pointer.current = { x: e.clientX, y: e.clientY };
+    if (bannerRef.current) {
+      const rect = bannerRef.current.getBoundingClientRect();
+      bannerRef.current.style.setProperty(
+        "--mouse-x",
+        `${(e.clientX - rect.left).toFixed(1)}px`
+      );
+      bannerRef.current.style.setProperty(
+        "--mouse-y",
+        `${(e.clientY - rect.top).toFixed(1)}px`
+      );
+    }
+    if (!rafId.current) {
+      rafId.current = requestAnimationFrame(paintGlow);
+    }
   };
 
-  const integrations = [
-    {
-      label: "WhatsApp",
-      logo: "/images/integrations/whatsapp.svg",
-      name: "WhatsApp",
-    },
-    {
-      label: "Google Sheets",
-      logo: "/images/integrations/google-sheets.svg",
-      name: "Google Sheets",
-    },
-    {
-      label: "HubSpot CRM",
-      logo: "/images/integrations/hubspot.svg",
-      name: "HubSpot CRM",
-    },
-    {
-      label: "Gmail",
-      logo: "/images/integrations/gmail.svg",
-      name: "Gmail",
-    },
-    {
-      label: "API",
-      logo: "/images/integrations/api.svg",
-      name: "",
-    },
-    {
-      label: "Webhooks",
-      logo: "/images/integrations/webhooks.svg",
-      name: "",
-    },
-  ];
+  const handlePointerLeave = () => {
+    pointer.current = { x: -9999, y: -9999 };
+    for (const { el } of letterRects.current) {
+      el.style.setProperty("--glow", "0");
+    }
+    if (bannerRef.current) {
+      bannerRef.current.style.setProperty("--mouse-x", "-9999px");
+      bannerRef.current.style.setProperty("--mouse-y", "-9999px");
+    }
+  };
+
+  const handleCopyCoupon = () => {
+    navigator.clipboard.writeText("WELCOME");
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2200);
+  };
+
+  const kicker = t("promo_banner_kicker") || "✦ BENEFICIO EXCLUSIVO DE BIENVENIDA";
+  const kickerHint = t("promo_banner_hint") || "PASA EL CURSOR POR LAS LETRAS";
+  const title = t("promo_banner_title") || "100% de Descuento de Bienvenida en tu Primer Despliegue";
+  const subtitle =
+    t("promo_banner_subtitle") ||
+    "Aplica el cupón WELCOME en el checkout y activa cualquier solución de inteligencia artificial con 100% de bonificación.";
+  const couponLabel = t("promo_banner_coupon_label") || "CUPÓN DE BIENVENIDA";
+  const copyLabel = t("promo_banner_copy") || "Copiar";
+  const copiedLabel = t("promo_banner_copied") || "Copiado";
 
   return (
-    <>
-      <section className="relative min-h-[580px] sm:min-h-[526px] lg:min-h-[469px] overflow-hidden bg-black px-4 text-white sm:px-6 lg:px-8">
-        <div className="absolute inset-0 bg-black" />
-        <Image
-          src="/images/marketplace-automation-hero-panorama.webp"
-          fill
-          priority
-          sizes="100vw"
-          className="hidden sm:block translate-x-14 scale-[1.34] object-contain object-right opacity-30 transform-gpu sm:-translate-x-5 sm:scale-[1.18] sm:object-center sm:opacity-100 lg:-translate-x-7 lg:scale-[1.2]"
-          alt={t("hero_visual_alt")}
-        />
-        {/* Seamless black gradient on the left for text contrast without cutting the image */}
-        <div className="absolute inset-y-0 left-0 w-full bg-linear-to-r from-black via-black/85 to-transparent sm:from-black/90 sm:via-black/50 sm:to-transparent lg:w-[58%]" />
-        <div className="absolute inset-y-0 left-0 w-24 bg-linear-to-r from-black to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-28 bg-linear-to-b from-transparent via-black/40 to-black" />
+    <section
+      ref={bannerRef}
+      className="comm-commercial-strip select-none"
+      aria-label={title}
+      onPointerMove={handlePointerMove}
+      onPointerLeave={handlePointerLeave}
+    >
+      <div className="max-w-[85rem] mx-auto px-6 sm:px-10 lg:px-16">
+        <div className="comm-commercial-strip-inner">
+          {/* Left Column: Monumental 100% + Reactive Heading */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 sm:gap-7">
+            <div className="text-5xl sm:text-6xl font-black shrink-0 flex items-center leading-none">
+              <GlowOutlineLetters text="100%" />
+            </div>
 
-        {/* Ambient electric blue glow echoing the 3D cube */}
-        <div className="pointer-events-none absolute -left-20 top-1/4 h-96 w-96 rounded-full bg-[#0088ff]/10 blur-[130px]" />
-        <div className="pointer-events-none absolute left-1/4 top-1/2 h-64 w-64 rounded-full bg-[#00d2ff]/08 blur-[100px]" />
-
-        <div className="relative z-10 mx-auto max-w-392">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-8 py-8 sm:py-0 min-h-[580px] sm:min-h-[526px] lg:min-h-[469px]">
-            <motion.div
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.45 }}
-              className="max-w-128 sm:max-w-136 w-full text-left"
-            >
-              <h1 className="text-[1.85rem] sm:text-5xl lg:text-[3.2rem] font-black leading-[1.08] sm:leading-[1.05] text-white">
-                {t("hero_headline")}
-                <span className="mt-1 block">
-                  {t("hero_line_prefix")}{" "}
-                  <span className="text-transparent bg-clip-text bg-linear-to-r from-[#38bdf8] via-[#0099ff] to-[#60a5fa] drop-shadow-[0_0_24px_rgba(0,153,255,0.45)]">
-                    {t("hero_line_accent")}
-                  </span>{" "}
-                  {t("hero_line_suffix")}
+            <div className="flex flex-col gap-1.5 text-left">
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-[10px] font-bold tracking-[0.22em] uppercase text-violet-400">
+                  {kicker}
                 </span>
-              </h1>
+                <span className="text-zinc-600 text-xs hidden sm:inline">·</span>
+                <span className="font-mono text-[10px] text-zinc-500 tracking-[0.16em] uppercase hidden sm:inline">
+                  {kickerHint}
+                </span>
+              </div>
 
-              <p className="mt-4 sm:mt-5 max-w-108 text-sm leading-6 text-zinc-400 sm:max-w-112 sm:text-base">
-                {t("hero_subtitle")}
+              <h2 className="text-lg sm:text-xl font-bold tracking-tight text-white leading-snug m-0">
+                <GlowLetters text={title} />
+              </h2>
+
+              <p className="text-xs sm:text-[13.5px] text-zinc-400 m-0 leading-relaxed max-w-2xl font-light">
+                {subtitle}
               </p>
-
-              <button
-                onClick={handleScrollToCatalog}
-                className="mt-6 sm:mt-7 w-full sm:w-auto inline-flex h-12 items-center justify-center gap-3 rounded-xl bg-linear-to-r from-[#0066cc] via-[#0088ff] to-[#00b4d8] px-6 font-mono text-xs uppercase tracking-wider font-bold text-white shadow-[0_0_24px_rgba(0,136,255,0.4)] hover:shadow-[0_0_36px_rgba(0,136,255,0.65)] hover:brightness-110 active:scale-[0.98] transition-all cursor-pointer"
-              >
-                {t("hero_primary_cta")}
-                <ArrowUpRight className="h-4 w-4 shrink-0" weight="bold" />
-              </button>
-            </motion.div>
-
-            {/* Mobile Visual block - centered cropped logo stack */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="w-full max-w-88 sm:hidden block mx-auto mt-4"
-            >
-              <Image
-                src="/images/marketplace-automation-hero-mobile-centered.webp"
-                width={860}
-                height={599}
-                priority
-                className="w-full h-auto object-contain"
-                alt={t("hero_visual_alt")}
-              />
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      <section className="mt-6 sm:-mt-7 lg:-mt-8 bg-black px-4 pb-6 sm:pb-8 text-white sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-392">
-          <div className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-[#09090b]/80 px-3 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl sm:px-5 sm:py-5">
-            <div className="pointer-events-none absolute inset-x-10 top-0 h-px bg-linear-to-r from-transparent via-[#0099ff]/30 to-transparent" />
-
-            <div className="relative grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-4 lg:grid-cols-6 lg:gap-0">
-              {integrations.map(({ label, logo, name }, index) => (
-                <div
-                  key={label}
-                  className="group relative flex h-11 sm:h-12 items-center justify-center gap-2 rounded-xl border border-white/4 bg-white/2 px-2.5 transition-all duration-300 hover:bg-white/6 hover:border-white/10 lg:h-11 lg:rounded-none lg:border-0 lg:bg-transparent lg:hover:bg-transparent lg:px-3"
-                >
-                  {index > 0 ? (
-                    <span className="absolute left-0 hidden h-7 w-px bg-white/12 lg:block" />
-                  ) : null}
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={logo}
-                    alt={label}
-                    className={`${name ? "h-4.5 sm:h-5 max-w-16 sm:max-w-20" : "h-5 sm:h-6 max-w-24 sm:max-w-28"} w-auto brightness-0 invert opacity-70 transition-opacity group-hover:opacity-100 shrink-0`}
-                  />
-                  {name ? (
-                    <span className="truncate text-xs font-semibold tracking-wide text-zinc-400 transition-colors group-hover:text-white">
-                      {name}
-                    </span>
-                  ) : null}
-                </div>
-              ))}
             </div>
           </div>
+
+          {/* Right Column: Tactile Copy Pill */}
+          <div className="flex items-center shrink-0 self-start sm:self-center">
+            <button
+              type="button"
+              onClick={handleCopyCoupon}
+              className="flex items-center gap-3 bg-white/[0.04] hover:bg-violet-500/[0.08] border border-white/[0.12] hover:border-violet-400/50 hover:shadow-[0_0_20px_rgba(167,139,250,0.2)] px-4 py-2.5 rounded-xl cursor-pointer transition-all duration-200 active:scale-[0.98]"
+              title="Copiar cupón de descuento"
+            >
+              <div className="flex flex-col items-start gap-0.5">
+                <span className="font-mono text-[9px] text-violet-400 tracking-[0.18em] uppercase font-bold">
+                  {couponLabel}
+                </span>
+                <span className="font-mono text-sm font-extrabold text-white tracking-[0.16em]">
+                  WELCOME
+                </span>
+              </div>
+
+              <div className="w-px h-6 bg-white/15 mx-1" />
+
+              {copied ? (
+                <span className="text-emerald-400 text-xs font-mono font-bold flex items-center gap-1">
+                  <Check size={14} weight="bold" />
+                  <span>{copiedLabel}</span>
+                </span>
+              ) : (
+                <span className="text-violet-400 hover:text-violet-300 text-xs font-mono font-medium flex items-center gap-1 transition-colors">
+                  <Copy size={14} weight="bold" />
+                  <span>{copyLabel}</span>
+                </span>
+              )}
+            </button>
+          </div>
         </div>
-      </section>
-    </>
+      </div>
+    </section>
   );
 };

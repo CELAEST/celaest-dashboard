@@ -62,8 +62,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                     type="email"
                     className={`pl-9.5 sm:pl-10 h-10 sm:h-11 text-sm rounded-xl ${
                       isDark
-                        ? "bg-white/5 border-white/10 text-white focus:border-cyan-500"
-                        : "bg-gray-50 border-gray-300 focus:border-blue-500"
+                        ? "bg-white/5 border-white/10 text-white focus:border-violet-500"
+                        : "bg-gray-50 border-gray-300 focus:border-violet-500"
                     }`}
                     placeholder={tAuth("email_placeholder")}
                     {...field}
@@ -95,8 +95,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                     type={showPassword ? "text" : "password"}
                     className={`pl-9.5 sm:pl-10 pr-9.5 sm:pr-10 h-10 sm:h-11 text-sm rounded-xl ${
                       isDark
-                        ? "bg-white/5 border-white/10 text-white focus:border-cyan-500"
-                        : "bg-gray-50 border-gray-300 focus:border-blue-500"
+                        ? "bg-white/5 border-white/10 text-white focus:border-violet-500"
+                        : "bg-gray-50 border-gray-300 focus:border-violet-500"
                     }`}
                     placeholder="••••••••"
                     {...field}
@@ -128,8 +128,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           disabled={loading}
           className={`w-full h-10 sm:h-11 text-sm font-semibold rounded-xl cursor-pointer active:scale-[0.99] transition-all duration-200 ${
             isDark
-              ? "bg-linear-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white shadow-[0_0_24px_rgba(34,211,238,0.25)]"
-              : "bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md"
+              ? "bg-linear-to-r from-violet-600 via-violet-500 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white shadow-[0_0_24px_rgba(167,139,250,0.35)]"
+              : "bg-linear-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-md shadow-violet-500/25"
           }`}
         >
           {loading ? (

@@ -19,14 +19,14 @@ export const AuthHeader: React.FC<AuthHeaderProps> = ({ isDark }) => {
       <div className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 flex items-center justify-center">
         <Logo
           className="w-full h-full"
-          color={isDark ? "#22d3ee" : "#2563eb"}
+          color={isDark ? "#a78bfa" : "#8b5cf6"}
         />
       </div>
       <div className="flex flex-col shrink-0 leading-none whitespace-nowrap">
         <span
           className={`text-lg sm:text-xl font-bold tracking-tight ${
             isDark
-              ? "bg-linear-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent"
+              ? "bg-linear-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent"
               : "bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
           }`}
         >
@@ -34,7 +34,7 @@ export const AuthHeader: React.FC<AuthHeaderProps> = ({ isDark }) => {
         </span>
         <span
           className={`text-[9px] sm:text-[10px] font-medium tracking-[0.21em] mt-0.5 ${
-            isDark ? "text-cyan-400/60" : "text-blue-500/60"
+            isDark ? "text-violet-400/60" : "text-blue-500/60"
           }`}
         >
           DASHBOARD

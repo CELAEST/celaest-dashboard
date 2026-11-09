@@ -56,7 +56,7 @@ export const SidebarMenuItem = React.memo(
             {/* Premium Animated Sheen (Glass Reflection) - High Performance CSS Native */}
             {isDark && (
               <div 
-                className="absolute inset-0 bg-linear-to-r from-transparent via-white/4 to-transparent w-[200%] animate-sheen"
+                className="absolute inset-0 bg-linear-to-r from-transparent via-violet-400/6 to-transparent w-[200%] animate-sheen"
               />
             )}
           </div>
@@ -74,7 +74,7 @@ export const SidebarMenuItem = React.memo(
                 isHovered={isHovered}
                 className={`transition-all duration-300 ${
                   isActive && isDark
-                    ? "drop-shadow-[0_0_6px_rgba(255,255,255,0.25)]"
+                    ? "drop-shadow-[0_0_8px_rgba(167,139,250,0.35)] text-violet-300"
                     : ""
                 }`}
               />

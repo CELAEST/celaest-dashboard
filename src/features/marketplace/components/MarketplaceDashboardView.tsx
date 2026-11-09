@@ -23,6 +23,7 @@ import { useBilling } from "@/features/billing/hooks/useBilling";
 import { LicenseModal } from "./modals/LicenseModal";
 import { toast } from "sonner";
 import { CouponFAB } from "./CouponFAB";
+import { MarketplaceInternalHero } from "./MarketplaceInternalHero";
 import { useTranslations } from "next-intl";
 
 const PurchaseFlow = dynamic(
@@ -483,6 +484,9 @@ export function MarketplaceDashboardView() {
           ref={contentScrollRef}
           className="flex-1 overflow-y-auto no-scrollbar bg-[#020204]"
         >
+          {/* Commercial Banner for Authenticated Users (Scoped to cards column, disappears when coupon is used) */}
+          <MarketplaceInternalHero />
+
           <AnimatePresence mode="wait">
             {isLoading ? (
               <div

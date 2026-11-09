@@ -55,14 +55,14 @@ export const UserInfo: React.FC<UserInfoProps> = memo(({ user }) => {
       <DropdownMenuTrigger asChild>
         <button className="flex items-center gap-2 text-left cursor-pointer select-none outline-none group transition-colors duration-150">
           <div className="flex flex-col justify-center">
-            <span className={`text-xs font-bold transition-colors duration-150 ${isDark ? "text-white group-hover:text-cyan-400" : "text-gray-900 group-hover:text-blue-600"}`}>
+            <span className={`text-xs font-bold transition-colors duration-150 ${isDark ? "text-white group-hover:text-violet-400" : "text-gray-900 group-hover:text-violet-600"}`}>
               {displayName}
             </span>
             <span className={`text-[9px] font-bold tracking-wider mt-0.5 leading-none ${isDark ? "text-gray-500" : "text-gray-400"}`}>
               {displayRole}
             </span>
           </div>
-          <CaretDown size={12} weight="bold" className={`transition-colors duration-150 ${isDark ? "text-gray-400 group-hover:text-cyan-400" : "text-gray-500 group-hover:text-blue-600"}`} />
+          <CaretDown size={12} weight="bold" className={`transition-colors duration-150 ${isDark ? "text-gray-400 group-hover:text-violet-400" : "text-gray-500 group-hover:text-violet-600"}`} />
         </button>
       </DropdownMenuTrigger>
 
@@ -70,7 +70,7 @@ export const UserInfo: React.FC<UserInfoProps> = memo(({ user }) => {
         align="end"
         className={`w-60 mt-2 border shadow-2xl p-2 rounded-2xl ${
           isDark
-            ? "bg-[#07090d]/90 backdrop-blur-xl border-white/10 text-white"
+            ? "bg-[#09090b]/95 backdrop-blur-xl border-white/10 text-white"
             : "bg-white/95 backdrop-blur-xl border-gray-200 text-gray-900"
         }`}
       >
@@ -99,7 +99,7 @@ export const UserInfo: React.FC<UserInfoProps> = memo(({ user }) => {
             user.role === "super_admin"
               ? "bg-purple-500/10 border-purple-500/20 text-purple-400"
               : user.role === "admin"
-                ? "bg-cyan-500/10 border-cyan-500/20 text-cyan-400"
+                ? "bg-violet-500/10 border-violet-500/20 text-violet-400"
                 : "bg-gray-500/10 border-gray-500/20 text-gray-400"
           }`}>
             {displayRole}

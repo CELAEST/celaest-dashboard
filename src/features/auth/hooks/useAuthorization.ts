@@ -29,7 +29,7 @@ export function usePermissions() {
     if (!user) return false
     // AuthUser now has 'permissions' array from types.ts
     // Check if permission is in user's granted permissions OR inferred from role
-    return user.permissions.includes(permission) || roleHasPermission(user.role, permission)
+    return (user.permissions?.includes(permission) ?? false) || roleHasPermission(user.role, permission)
   }, [user])
   
   const hasAllPermissions = useCallback((permissions: Permission[]): boolean => {

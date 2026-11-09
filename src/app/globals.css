@@ -58,40 +58,40 @@
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.145 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.145 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  --background: #020202;
+  --foreground: #f8fafc;
+  --card: #09090b;
+  --card-foreground: #f8fafc;
+  --popover: #09090b;
+  --popover-foreground: #f8fafc;
+  --primary: #a78bfa;
+  --primary-foreground: #020202;
+  --secondary: rgba(255, 255, 255, 0.04);
+  --secondary-foreground: #f8fafc;
+  --muted: rgba(255, 255, 255, 0.05);
+  --muted-foreground: #a1a1aa;
+  --accent: rgba(167, 139, 250, 0.08);
+  --accent-foreground: #f8fafc;
   --destructive: oklch(0.396 0.141 25.723);
   --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.269 0 0);
-  --input: oklch(0.269 0 0);
-  --ring: oklch(0.439 0 0);
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.06);
+  --ring: rgba(167, 139, 250, 0.5);
   --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.439 0 0);
+  --chart-1: #a78bfa;
+  --chart-2: #8b5cf6;
+  --chart-3: #c084fc;
+  --chart-4: #e879f9;
+  --chart-5: #38bdf8;
+  --sidebar: #050505;
+  --sidebar-foreground: #f8fafc;
+  --sidebar-primary: #a78bfa;
+  --sidebar-primary-foreground: #020202;
+  --sidebar-accent: rgba(255, 255, 255, 0.04);
+  --sidebar-accent-foreground: #f8fafc;
+  --sidebar-border: rgba(255, 255, 255, 0.06);
+  --sidebar-ring: rgba(167, 139, 250, 0.5);
 }
 
 @theme inline {
@@ -252,13 +252,13 @@ html {
 }
 
 .dark * {
-  scrollbar-color: rgba(34, 211, 238, 0.2) transparent;
+  scrollbar-color: rgba(167, 139, 250, 0.2) transparent;
 }
 
 /* Webkit browsers (Chrome, Safari, Edge) */
 *::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 *::-webkit-scrollbar-track {
@@ -267,7 +267,7 @@ html {
 
 *::-webkit-scrollbar-thumb {
   background: rgba(100, 116, 139, 0.3);
-  border-radius: 4px;
+  border-radius: 9999px;
   transition: background 0.2s ease;
 }
 
@@ -276,11 +276,12 @@ html {
 }
 
 .dark *::-webkit-scrollbar-thumb {
-  background: rgba(34, 211, 238, 0.2);
+  background: rgba(167, 139, 250, 0.18);
+  border-radius: 9999px;
 }
 
 .dark *::-webkit-scrollbar-thumb:hover {
-  background: rgba(34, 211, 238, 0.35);
+  background: rgba(167, 139, 250, 0.35);
 }
 
 /* ============================================
@@ -523,4 +524,93 @@ html {
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.2);
+}
+
+
+/* ==========================================================================
+   MARKETPLACE PROMOTIONAL BANNER (B4: M-SERIES PROXIMITY GLOW)
+   Landing Hero Physics · Proximity Euclidean Distance Falloff
+   ========================================================================== */
+
+.comm-glow-letters {
+  display: inline;
+}
+
+.comm-glow-letter {
+  --glow: 0;
+  display: inline;
+  white-space: pre;
+  color: #e4e4e7;
+  text-shadow:
+    0 0 calc(var(--glow) * 24px) rgba(167, 139, 250, calc(var(--glow) * 0.95)),
+    0 0 calc(var(--glow) * 8px) rgba(216, 180, 254, calc(var(--glow) * 0.95)),
+    0 0 calc(var(--glow) * 2px) rgba(255, 255, 255, calc(var(--glow) * 0.85));
+  transition: text-shadow 100ms linear, color 140ms ease;
+}
+
+.comm-glow-outline-letters {
+  display: inline-block;
+  user-select: none;
+}
+
+.comm-glow-outline-letter {
+  --glow: 0;
+  display: inline-block;
+  color: transparent;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-weight: 900;
+  letter-spacing: -0.06em;
+  line-height: 0.9;
+  -webkit-text-stroke: 1.5px rgba(
+    calc(244 - var(--glow) * 30),
+    calc(242 - var(--glow) * 80),
+    calc(255),
+    calc(0.42 + var(--glow) * 0.58)
+  );
+  filter:
+    drop-shadow(0 0 calc(var(--glow) * 24px) rgba(167, 139, 250, calc(var(--glow) * 0.95)))
+    drop-shadow(0 0 calc(var(--glow) * 8px) rgba(216, 180, 254, calc(var(--glow) * 0.85)))
+    drop-shadow(0 0 calc(var(--glow) * 2px) rgba(255, 255, 255, calc(var(--glow) * 0.75)));
+  transition: filter 100ms linear, -webkit-text-stroke 140ms ease;
+}
+
+.comm-banner-mseries-interactive {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 32px;
+  padding: 24px 36px;
+  background:
+    radial-gradient(circle 380px at var(--mouse-x, -999px) var(--mouse-y, -999px), rgba(167, 139, 250, 0.14) 0%, transparent 80%),
+    linear-gradient(135deg, #09090b 0%, #050505 100%);
+  border: 1px solid #24242b;
+  border-radius: 18px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 20px 48px -12px rgba(0, 0, 0, 0.95);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.comm-banner-mseries-interactive:hover {
+  border-color: rgba(167, 139, 250, 0.38);
+  box-shadow: 0 24px 56px -12px rgba(167, 139, 250, 0.12), 0 0 0 1px rgba(167, 139, 250, 0.2);
+}
+
+.comm-banner-mseries-interactive::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(167, 139, 250, 0.45) 50%, transparent 100%);
+  pointer-events: none;
+}
+
+@media (max-width: 1024px) {
+  .comm-banner-mseries-interactive {
+    grid-template-columns: 1fr;
+    padding: 20px 24px;
+    gap: 20px;
+  }
 }

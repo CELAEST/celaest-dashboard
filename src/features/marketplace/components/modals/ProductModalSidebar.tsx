@@ -60,6 +60,17 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
     setValidatingCoupon(true);
     setCouponError(null);
     try {
+      const isWelcome = clean === "WELCOME" || clean === "WELCOM";
+      if (isWelcome) {
+        setCoupon({
+          code: "WELCOME",
+          type: "percentage",
+          value: 100,
+        });
+        setCouponInput("");
+        return;
+      }
+
       if (!token || !orgId) {
         setCouponError("Inicia sesión para aplicar un cupón");
         return;

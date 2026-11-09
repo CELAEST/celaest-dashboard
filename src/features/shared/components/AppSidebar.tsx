@@ -136,8 +136,8 @@ export const AppSidebar = React.memo(function AppSidebar({
         <div
           className={`absolute inset-0 bg-linear-to-r ${
             isDark
-              ? "from-white/2 to-transparent"
-              : "from-blue-500/5 to-transparent"
+              ? "from-violet-500/5 to-transparent"
+              : "from-violet-500/5 to-transparent"
           }`}
         />
 
@@ -161,7 +161,7 @@ export const AppSidebar = React.memo(function AppSidebar({
           >
             <Logo
               className="w-full h-full"
-              color={isDark ? "#22d3ee" : "#2563eb"}
+              color={isDark ? "#a78bfa" : "#8b5cf6"}
             />
           </motion.div>
 
@@ -179,14 +179,14 @@ export const AppSidebar = React.memo(function AppSidebar({
                 className={`text-xl font-bold tracking-tight ${
                   isDark
                     ? "text-white"
-                    : "bg-linear-to-r from-blue-600 via-blue-500 to-indigo-600 bg-clip-text text-transparent"
+                    : "bg-linear-to-r from-violet-600 via-purple-500 to-indigo-600 bg-clip-text text-transparent"
                 }`}
               >
                 CELAEST
               </span>
               <span
                 className={`text-[10px] font-medium tracking-[0.21em] mt-0.5 ${
-                  isDark ? "text-gray-500" : "text-blue-500/60"
+                  isDark ? "text-gray-500" : "text-violet-500/60"
                 }`}
               >
                 DASHBOARD
@@ -251,12 +251,12 @@ export const AppSidebar = React.memo(function AppSidebar({
             }`}
           >
             <div className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-violet-500"></span>
             </div>
             <div className="flex flex-col">
               <span
-                className={`text-[9px] font-black uppercase tracking-widest ${isDark ? "text-cyan-400/80" : "text-blue-600/80"}`}
+                className={`text-[9px] font-black uppercase tracking-widest ${isDark ? "text-violet-400/80" : "text-violet-600/80"}`}
               >
                 {tSidebar("live_connection")}
               </span>
@@ -325,7 +325,7 @@ export const AppSidebar = React.memo(function AppSidebar({
           className="p-4 border-t flex flex-col gap-3.5 border-gray-200 dark:border-white/5 bg-gray-50/50 dark:bg-white/1"
         >
           <div className="flex items-center gap-2.5 px-1">
-            <div className="w-8 h-8 rounded-full bg-blue-600/10 flex items-center justify-center text-blue-600 dark:text-cyan-400">
+            <div className="w-8 h-8 rounded-full bg-violet-600/10 flex items-center justify-center text-violet-600 dark:text-violet-400">
               <User size={16} weight="bold" />
             </div>
             <div className="flex flex-col">

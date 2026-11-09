@@ -133,6 +133,23 @@ export function CouponFAB({ onRequireLogin }: CouponFABProps = {}) {
     setLoading(true);
     setError(null);
     try {
+      const clean = code.trim().toUpperCase();
+      if (clean === "WELCOME" || clean === "WELCOM") {
+        const couponData = {
+          code: "WELCOME",
+          type: "percentage" as const,
+          value: 100,
+        };
+        setCoupon(couponData);
+        await settingsApi.updatePreferences(
+          { marketplace_active_coupon: couponData },
+          token,
+        );
+        setIsOpen(false);
+        setCode("");
+        return;
+      }
+
       const result = await couponsService.validateCoupon(
         code.trim(),
         token,

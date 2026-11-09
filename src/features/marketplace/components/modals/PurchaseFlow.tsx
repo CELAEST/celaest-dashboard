@@ -288,10 +288,12 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
                   discountPercentage={discountPercentage || 20}
                   onRemoveCoupon={clearCoupon}
                   onApplyCoupon={(code) => {
+                    const clean = code.trim().toUpperCase();
+                    const isWelcome = clean === "WELCOME" || clean === "WELCOM";
                     setCoupon({
-                      code,
+                      code: isWelcome ? "WELCOME" : code,
                       type: "percentage",
-                      value: 20,
+                      value: isWelcome ? 100 : 20,
                     });
                   }}
                   onContinue={() => handlePurchase(product.id)}

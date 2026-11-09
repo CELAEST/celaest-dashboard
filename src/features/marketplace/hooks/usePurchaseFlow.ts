@@ -88,7 +88,11 @@ export const usePurchaseFlow = (onClose: () => void, initialStep = 1, onSuccess?
             setStatusMessage("¡Activación completa!");
             setProgress(100);
             hapticFeedback("heavy");
-                  if (onSuccessRef.current) onSuccessRef.current();
+            try {
+              localStorage.setItem("celaest_coupon_used", "true");
+              window.dispatchEvent(new Event("celaest:coupon_used"));
+            } catch {}
+            if (onSuccessRef.current) onSuccessRef.current();
             return;
           }
 

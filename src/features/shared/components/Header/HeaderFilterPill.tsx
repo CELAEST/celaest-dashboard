@@ -102,7 +102,7 @@ export function HeaderFilterPill({
               ? "bg-white/3 border-white/10 hover:bg-white/8 hover:border-white/20"
               : "bg-gray-100/50 border-gray-200 hover:bg-gray-100 hover:border-gray-300"
           }
-          ${isOpen ? (isDark ? "ring-1 ring-cyan-500/50 border-cyan-500/50" : "ring-1 ring-blue-500/50 border-blue-500/50") : ""}
+          ${isOpen ? (isDark ? "ring-1 ring-violet-500/40 border-violet-500/40" : "ring-1 ring-violet-500/40 border-violet-500/40") : ""}
         `}
       >
         <Icon
@@ -110,8 +110,8 @@ export function HeaderFilterPill({
           className={`shrink-0 transition-colors ${
             isOpen
               ? isDark
-                ? "text-cyan-400"
-                : "text-blue-500"
+                ? "text-violet-400"
+                : "text-violet-600"
               : "text-gray-400"
           }`}
         />
@@ -160,8 +160,8 @@ export function HeaderFilterPill({
                     ${
                       option.value === value
                         ? isDark
-                          ? "bg-cyan-500/10 text-cyan-400"
-                          : "bg-blue-50 text-blue-600"
+                          ? "bg-violet-500/10 text-violet-400"
+                          : "bg-violet-50 text-violet-600"
                         : focusedIndex === index
                           ? isDark
                             ? "bg-white/5 text-white"
@@ -176,7 +176,7 @@ export function HeaderFilterPill({
                   {option.value === value && (
                     <Check
                       size={14}
-                      className={isDark ? "text-cyan-400" : "text-blue-500"}
+                      className={isDark ? "text-violet-400" : "text-violet-600"}
                     />
                   )}
                 </button>

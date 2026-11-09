@@ -67,7 +67,7 @@ export const MarketplaceSearch = React.memo(
                 px-6 py-2.5 rounded-xl font-medium text-sm transition-all
                 ${
                   isDark
-                    ? "bg-cyan-500 text-black hover:bg-cyan-400"
+                    ? "bg-violet-600 text-white hover:bg-violet-500 shadow-sm shadow-violet-600/30"
                     : "bg-gray-900 text-white hover:bg-gray-800"
                 }
               `}
