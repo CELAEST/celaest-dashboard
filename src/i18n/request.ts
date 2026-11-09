@@ -13,25 +13,29 @@ export const defaultLocale: Locale = "es";
  * 3. Fallback to defaultLocale ("es")
  */
 async function getLocale(): Promise<Locale> {
-  // 1. Check cookie
-  const cookieStore = await cookies();
-  const cookieLocale = cookieStore.get("NEXT_LOCALE")?.value;
-  if (cookieLocale && locales.includes(cookieLocale as Locale)) {
-    return cookieLocale as Locale;
-  }
-
-  // 2. Parse Accept-Language header
-  const headerStore = await headers();
-  const acceptLanguage = headerStore.get("accept-language") || "";
-  const browserLangs = acceptLanguage
-    .split(",")
-    .map((part) => part.split(";")[0].trim().substring(0, 2).toLowerCase());
-
-  for (const lang of browserLangs) {
-    if (locales.includes(lang as Locale)) {
-      return lang as Locale;
+  try {
+    // 1. Check cookie
+    const cookieStore = await cookies();
+    const cookieLocale = cookieStore.get("NEXT_LOCALE")?.value;
+    if (cookieLocale && locales.includes(cookieLocale as Locale)) {
+      return cookieLocale as Locale;
     }
-  }
+  } catch {}
+
+  try {
+    // 2. Parse Accept-Language header
+    const headerStore = await headers();
+    const acceptLanguage = headerStore.get("accept-language") || "";
+    const browserLangs = acceptLanguage
+      .split(",")
+      .map((part) => part.split(";")[0].trim().substring(0, 2).toLowerCase());
+
+    for (const lang of browserLangs) {
+      if (locales.includes(lang as Locale)) {
+        return lang as Locale;
+      }
+    }
+  } catch {}
 
   // 3. Fallback
   return defaultLocale;

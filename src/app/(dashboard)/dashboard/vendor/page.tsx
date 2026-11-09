@@ -1,6 +1,8 @@
 import { Suspense } from "react";
 import { ReleaseManager } from "@/features/releases/components/ReleaseManager";
 
+export const dynamic = "force-static";
+
 export const metadata = {
   title: "Vendor / Releases - Celaest",
   description: "Manage your digital products, releases, and pipelines.",

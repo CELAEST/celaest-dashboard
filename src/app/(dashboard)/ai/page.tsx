@@ -8,6 +8,8 @@
 
 import { redirect } from "next/navigation";
 
+export const dynamic = "force-static";
+
 export default function AIPage() {
   // The AI tab is rendered inside the DashboardShell — redirect to the root
   // dashboard and let the shell handle tab selection via the URL hash or

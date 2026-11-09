@@ -148,7 +148,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
                   setValue("name", "CELAEST Lingua AI");
                 }
                 if (!watch("external_url")) {
-                  setValue("external_url", "https://celaest-english-front.vercel.app");
+                  setValue("external_url", "https://celaest-english.estebani1421.workers.dev");
                 }
               }}
               className={`text-[11px] px-2.5 py-1 rounded-md font-medium transition-colors ${
@@ -217,7 +217,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
                   onClick={() =>
                     setValue(
                       "external_url",
-                      "https://celaest-english-front.vercel.app",
+                      "https://celaest-english.estebani1421.workers.dev",
                     )
                   }
                   className={`flex-1 text-[11px] px-2 py-1.5 rounded-lg border text-center transition-colors font-medium ${
@@ -226,7 +226,7 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
                       : "bg-white hover:bg-gray-100 text-gray-700 border-gray-300"
                   }`}
                 >
-                  Producción (Vercel)
+                  Producción (Cloudflare)
                 </button>
               </div>
             </div>
