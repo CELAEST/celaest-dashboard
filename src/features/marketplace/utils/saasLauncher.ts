@@ -51,7 +51,7 @@ export function resolveSaasExternalUrl(
         window.location.hostname === "127.0.0.1");
     return isLocal
       ? "http://localhost:3001"
-      : "https://celaest-english.estebani1421.workers.dev";
+      : "https://lingua.celaest.com";
   }
   return "";
 }
