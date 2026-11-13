@@ -65,10 +65,10 @@ export const useAuthStore = create<AuthStore>()(
     {
       name: 'celaest-auth-storage',
       storage: createJSONStorage(() => localStorage),
-      // Solo persistimos la autenticación superficial y el usuario para la UI
-      partialize: (state) => ({ 
+      partialize: (state) => ({
         user: state.user,
-        isAuthenticated: state.isAuthenticated
+        session: state.session,
+        isAuthenticated: state.isAuthenticated,
       }),
     }
   )

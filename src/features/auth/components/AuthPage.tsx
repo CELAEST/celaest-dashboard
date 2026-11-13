@@ -16,21 +16,31 @@ import { useTranslations } from "next-intl";
 import { AuthBackground } from "./layout/AuthBackground";
 import { AuthHeader } from "./layout/AuthHeader";
 import { AuthFooter } from "./layout/AuthFooter";
-import { AuthFormContainer } from "./layout/AuthFormContainer";
+import { AuthFormContainer, AuthViewMode } from "./layout/AuthFormContainer";
 import { LocaleSwitcher } from "@/features/shared/components/Header/LocaleSwitcher";
 
-export const AuthPage: React.FC = () => {
+interface AuthPageProps {
+  defaultMode?: AuthViewMode;
+}
+
+export const AuthPage: React.FC<AuthPageProps> = ({ defaultMode }) => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { signIn, signUp } = useAuth();
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
-  const initialMode =
-    searchParams.get("mode") === "signup" ? "signup" : "signin";
-  const [mode, setMode] = useState<"signin" | "signup">(initialMode);
+  const paramMode = searchParams.get("mode") as AuthViewMode | null;
+  const resolvedInitialMode: AuthViewMode =
+    defaultMode ||
+    (paramMode && ["signin", "signup", "forgot", "otp", "reset", "lockout"].includes(paramMode)
+      ? paramMode
+      : "signin");
+
+  const [mode, setMode] = useState<AuthViewMode>(resolvedInitialMode);
   const [loading, setLoading] = useState(false);
   const tAuth = useTranslations("auth");
+  const bgMode: "signin" | "signup" = mode === "signup" ? "signup" : "signin";
 
   const getPostAuthRedirect = () => {
     const explicitRedirect = searchParams.get("redirect");
@@ -82,14 +92,32 @@ export const AuthPage: React.FC = () => {
 
   const toggleMode = () => setMode(mode === "signin" ? "signup" : "signin");
 
+  const titleByMode: Record<AuthViewMode, string> = {
+    signin: tAuth("welcome_back"),
+    signup: tAuth("create_account"),
+    forgot: tAuth("forgot_password_title"),
+    otp: tAuth("otp_title"),
+    reset: tAuth("reset_password_title"),
+    lockout: tAuth("security_lockout_title"),
+  };
+
+  const descByMode: Record<AuthViewMode, string> = {
+    signin: tAuth("enter_credentials"),
+    signup: tAuth("start_journey"),
+    forgot: tAuth("forgot_password_desc"),
+    otp: tAuth("otp_desc"),
+    reset: tAuth("reset_password_desc"),
+    lockout: tAuth("security_lockout_desc"),
+  };
+
   return (
     <div className="min-h-[100dvh] w-full overflow-x-hidden overflow-y-auto font-sans relative">
-      <AuthBackground mode={mode} isDark={isDark} />
+      <AuthBackground mode={bgMode} isDark={isDark} />
 
       <div className="w-full min-h-[100dvh] flex flex-col justify-center items-center md:items-start relative z-10 py-6 sm:py-8 lg:py-10 px-3.5 sm:px-6 md:px-0">
         <motion.div
           className={`w-full max-w-[430px] lg:max-w-[450px] my-auto ${
-            mode === "signin"
+            bgMode === "signin"
               ? "mx-auto md:mx-0 md:ml-10 lg:ml-20 xl:ml-32"
               : "mx-auto md:mx-0 md:mr-10 lg:mr-20 xl:mr-32 md:ml-auto"
           }`}
@@ -115,9 +143,9 @@ export const AuthPage: React.FC = () => {
               <AnimatePresence mode="wait">
                 <motion.div
                   key={mode}
-                  initial={{ opacity: 0, x: mode === "signin" ? -20 : 20 }}
+                  initial={{ opacity: 0, x: bgMode === "signin" ? -20 : 20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: mode === "signin" ? 20 : -20 }}
+                  exit={{ opacity: 0, x: bgMode === "signin" ? 20 : -20 }}
                   transition={{ duration: 0.3, ease: [0.43, 0.13, 0.23, 0.96] }}
                   className="mb-4 sm:mb-5 lg:mb-6"
                 >
@@ -126,31 +154,33 @@ export const AuthPage: React.FC = () => {
                       isDark ? "text-white" : "text-gray-900"
                     }`}
                   >
-                    {mode === "signin" ? tAuth("welcome_back") : tAuth("create_account")}
+                    {titleByMode[mode]}
                   </h1>
                   <p
                     className={`text-xs sm:text-sm leading-relaxed ${
                       isDark ? "text-gray-400" : "text-gray-600"
                     }`}
                   >
-                    {mode === "signin"
-                      ? tAuth("enter_credentials")
-                      : tAuth("start_journey")}
+                    {descByMode[mode]}
                   </p>
                 </motion.div>
               </AnimatePresence>
 
               <AuthFormContainer
                 mode={mode}
+                onChangeMode={setMode}
                 isDark={isDark}
                 loading={loading}
                 setLoading={setLoading}
                 onLoginSubmit={handleLoginSubmit}
                 onSignupSubmit={handleSignupSubmit}
+                initialEmail={searchParams.get("email") || ""}
+                initialToken={searchParams.get("token") || ""}
+                onAuthComplete={() => router.push(getPostAuthRedirect())}
               />
 
               <AuthFooter
-                mode={mode}
+                mode={bgMode}
                 isDark={isDark}
                 onToggleMode={toggleMode}
               />

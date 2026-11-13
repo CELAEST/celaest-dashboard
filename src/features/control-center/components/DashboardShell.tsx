@@ -95,7 +95,9 @@ export function DashboardShell() {
   const isGuest = !isLoading && !user;
   const authMode = searchParams.get("mode");
   const showAuthPage =
-    !user && (authMode === "signin" || authMode === "signup");
+    !user &&
+    authMode !== null &&
+    ["signin", "signup", "forgot", "otp", "reset", "lockout"].includes(authMode);
 
   // Fix: Explicit callback for sidebar to match types
   const handleTabChange = (tabId: string) => {

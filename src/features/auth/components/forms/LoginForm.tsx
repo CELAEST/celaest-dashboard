@@ -22,12 +22,16 @@ interface LoginFormProps {
   isDark: boolean;
   onSubmit: (data: LoginFormValues) => Promise<void>;
   loading: boolean;
+  onForgotPassword?: () => void;
+  onOtpLogin?: () => void;
 }
 
 export const LoginForm: React.FC<LoginFormProps> = ({
   isDark,
   onSubmit,
   loading,
+  onForgotPassword,
+  onOtpLogin,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
   const tAuth = useTranslations("auth");
@@ -81,9 +85,22 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className={`text-xs font-medium ${isDark ? "text-gray-300" : "text-gray-700"}`}>
-                {tAuth("password")}
-              </FormLabel>
+              <div className="flex items-center justify-between">
+                <FormLabel className={`text-xs font-medium ${isDark ? "text-gray-300" : "text-gray-700"}`}>
+                  {tAuth("password")}
+                </FormLabel>
+                {onForgotPassword && (
+                  <button
+                    type="button"
+                    onClick={onForgotPassword}
+                    className={`text-xs font-medium cursor-pointer transition-colors ${
+                      isDark ? "text-violet-400 hover:text-violet-300" : "text-violet-600 hover:text-violet-700"
+                    }`}
+                  >
+                    {tAuth("forgot_password")}
+                  </button>
+                )}
+              </div>
               <FormControl>
                 <div className="relative mt-1">
                   <Lock
@@ -145,6 +162,20 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             </span>
           )}
         </Button>
+
+        {onOtpLogin && (
+          <button
+            type="button"
+            onClick={onOtpLogin}
+            className={`w-full text-xs font-medium py-1.5 rounded-lg cursor-pointer transition-colors ${
+              isDark
+                ? "text-gray-400 hover:text-violet-300 hover:bg-white/5"
+                : "text-gray-600 hover:text-violet-700 hover:bg-gray-100"
+            }`}
+          >
+            {tAuth("sign_in_with_otp")}
+          </button>
+        )}
       </form>
     </Form>
   );

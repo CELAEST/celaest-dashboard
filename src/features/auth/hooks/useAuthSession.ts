@@ -214,6 +214,19 @@ export function useAuthSession() {
 
         const { data: userData, error: userError } = await supabase.auth.getUser();
         if (userError || !userData.user) {
+          const storedToken = useAuthStore.getState().session?.accessToken;
+          if (storedToken) {
+            try {
+              const { authService } = await import("../services/auth.service");
+              const verified = await authService.verifySession(storedToken);
+              if (verified?.valid) {
+                setBackendSynced(true);
+                return;
+              }
+            } catch {
+              // Fall through to reset session if backend rejects token
+            }
+          }
           syncSession(null);
         }
       } catch (error: unknown) {
@@ -229,9 +242,11 @@ export function useAuthSession() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(
-      (_event: AuthChangeEvent, currentSession: Session | null) => {
+      (event: AuthChangeEvent, currentSession: Session | null) => {
         if (!currentSession) {
-          syncSession(null);
+          if (event === "SIGNED_OUT" || !useAuthStore.getState().session?.accessToken) {
+            syncSession(null);
+          }
           return;
         }
 
@@ -253,7 +268,7 @@ export function useAuthSession() {
     return () => {
       subscription.unsubscribe();
     };
-  }, [supabase, setLoading, reset, syncSession, setAuth, buildVerifiedSession]);
+  }, [supabase, setLoading, reset, syncSession, setAuth, buildVerifiedSession, setBackendSynced]);
 
 
   return { supabase };

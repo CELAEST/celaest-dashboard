@@ -39,5 +39,35 @@ export const authService = {
    */
   async getUserOrganizations(token: string) {
     return authApi.getMyOrganizations(token);
-  }
+  },
+
+  async requestPasswordReset(email: string, locale = "es") {
+    return authApi.forgotPassword(email.trim().toLowerCase(), locale);
+  },
+
+  async confirmPasswordReset(token: string, newPassword: string) {
+    return authApi.resetPassword(token.trim(), newPassword);
+  },
+
+  async requestOTP(email: string, locale = "es") {
+    return authApi.requestOTP(email.trim().toLowerCase(), locale);
+  },
+
+  async verifyOTP(params: {
+    email?: string;
+    code?: string;
+    magicToken?: string;
+    locale?: string;
+  }): Promise<AuthResponse> {
+    return authApi.verifyOTP({
+      ...params,
+      email: params.email?.trim().toLowerCase(),
+      code: params.code?.trim(),
+      magicToken: params.magicToken?.trim(),
+    });
+  },
+
+  async emergencyLockout(token: string) {
+    return authApi.emergencyLockout(token.trim());
+  },
 };
