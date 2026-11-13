@@ -57,7 +57,7 @@ export const usePurchaseFlow = (onClose: () => void, initialStep = 1, onSuccess?
           currency: response.local_currency || "COP",
           couponCode: activeCoupon?.code,
         });
-        setStep(1);
+        setStep(2);
         return;
       }
 

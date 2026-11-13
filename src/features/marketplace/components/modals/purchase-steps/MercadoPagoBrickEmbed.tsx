@@ -1,19 +1,18 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { X, ShieldCheck, SpinnerGap } from "@phosphor-icons/react";
+import { SpinnerGap, ArrowLeft } from "@phosphor-icons/react";
 import { toast } from "sonner";
-import { marketplaceApi } from "../../api/marketplace.api";
+import { marketplaceApi } from "../../../api/marketplace.api";
 
-interface MercadoPagoBrickModalProps {
-  isOpen: boolean;
+interface MercadoPagoBrickEmbedProps {
   productId: string;
   amount: number;
   currency: string;
   couponCode?: string;
   token: string;
   orgId: string;
-  onClose: () => void;
+  onBack: () => void;
   onApproved: () => void;
 }
 
@@ -52,23 +51,23 @@ function loadMercadoPagoSDK(): Promise<void> {
   });
 }
 
-export const MercadoPagoBrickModal: React.FC<MercadoPagoBrickModalProps> = ({
-  isOpen,
+export const MercadoPagoBrickEmbed: React.FC<MercadoPagoBrickEmbedProps> = ({
   productId,
   amount,
   currency,
   couponCode,
   token,
   orgId,
-  onClose,
+  onBack,
   onApproved,
 }) => {
   const [loading, setLoading] = useState(true);
   const controllerRef = useRef<{ unmount: () => void } | null>(null);
   const publicKey = process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY || "";
+  const isBelowMinimum = currency.toUpperCase() === "COP" && amount < 1000;
 
   useEffect(() => {
-    if (!isOpen || !publicKey) return;
+    if (!publicKey || isBelowMinimum) return;
     let cancelled = false;
 
     loadMercadoPagoSDK()
@@ -77,15 +76,9 @@ export const MercadoPagoBrickModal: React.FC<MercadoPagoBrickModalProps> = ({
         const mp = new window.MercadoPago(publicKey, { locale: "es-CO" });
         const bricksBuilder = mp.bricks();
         const controller = await bricksBuilder.create("payment", "mp-payment-brick-container", {
-          initialization: {
-            amount,
-          },
+          initialization: { amount },
           customization: {
-            visual: {
-              style: {
-                theme: "dark",
-              },
-            },
+            visual: { style: { theme: "dark" } },
             paymentMethods: {
               creditCard: "all",
               debitCard: "all",
@@ -127,7 +120,6 @@ export const MercadoPagoBrickModal: React.FC<MercadoPagoBrickModalProps> = ({
               if (res.status === "approved" && res.access) {
                 toast.success("¡Pago aprobado! Tu licencia ya está activa.");
                 onApproved();
-                onClose();
                 return;
               }
               if (res.redirect_url) {
@@ -139,10 +131,11 @@ export const MercadoPagoBrickModal: React.FC<MercadoPagoBrickModalProps> = ({
                 return;
               }
               toast.info("Pago pendiente de confirmación. Te notificaremos en segundos.");
-              onClose();
+              onBack();
             },
-            onError: () => {
-              toast.error("Error cargando la pasarela de pago.");
+            onError: (err: unknown) => {
+              console.error("MercadoPago Brick error:", err);
+              toast.error("No se pudo cargar el formulario de pago.");
               setLoading(false);
             },
           },
@@ -165,37 +158,44 @@ export const MercadoPagoBrickModal: React.FC<MercadoPagoBrickModalProps> = ({
       controllerRef.current?.unmount();
       controllerRef.current = null;
     };
-  }, [isOpen, publicKey, productId, amount, couponCode, token, orgId, onApproved, onClose]);
-
-  if (!isOpen) return null;
+  }, [publicKey, isBelowMinimum, productId, amount, couponCode, token, orgId, onApproved, onBack]);
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
-      <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl border border-white/10 bg-[#0d0d14] p-6 shadow-2xl">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="w-5 h-5 text-emerald-400" />
-            <h3 className="text-base font-semibold text-white">
-              Pago seguro ({currency.toUpperCase()} {amount.toLocaleString("es-CO")})
-            </h3>
-          </div>
-          <button
-            onClick={onClose}
-            className="rounded-lg p-1.5 text-zinc-400 hover:bg-white/10 hover:text-white"
-            aria-label="Cerrar"
-          >
-            <X className="w-4 h-4" />
-          </button>
+    <div className="space-y-4 text-left">
+      <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
+        <div>
+          <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40 block">
+            Pago Seguro · Mercado Pago
+          </span>
+          <span className="text-lg font-bold font-mono text-white">
+            {currency.toUpperCase()} {amount.toLocaleString("es-CO")}
+          </span>
         </div>
-
-        {loading && (
-          <div className="flex items-center justify-center py-12 text-zinc-400 gap-2">
-            <SpinnerGap className="w-5 h-5 animate-spin" />
-            <span className="text-sm">Cargando métodos de pago...</span>
-          </div>
-        )}
-        <div id="mp-payment-brick-container" />
+        <button
+          type="button"
+          onClick={onBack}
+          className="inline-flex items-center gap-1.5 text-xs text-white/60 hover:text-white transition-colors"
+        >
+          <ArrowLeft size={14} />
+          Volver
+        </button>
       </div>
+
+      {isBelowMinimum ? (
+        <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs text-amber-200">
+          El monto mínimo para pagar con Mercado Pago en Colombia es <strong>$1,000 COP</strong> (monto actual: ${amount.toLocaleString("es-CO")} COP).
+        </div>
+      ) : (
+        <>
+          {loading && (
+            <div className="flex items-center justify-center py-10 text-white/50 gap-2">
+              <SpinnerGap size={18} className="animate-spin" />
+              <span className="text-xs font-mono">Cargando métodos de pago (PSE, Nequi, Tarjeta)...</span>
+            </div>
+          )}
+          <div id="mp-payment-brick-container" />
+        </>
+      )}
     </div>
   );
 };

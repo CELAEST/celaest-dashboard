@@ -7,6 +7,14 @@ import {
   ArrowSquareOut,
 } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
+import { MercadoPagoBrickEmbed } from "./MercadoPagoBrickEmbed";
+
+interface MpBrickData {
+  productId: string;
+  amount: number;
+  currency: string;
+  couponCode?: string;
+}
 
 interface PaymentStepProps {
   finalPrice: string;
@@ -14,6 +22,11 @@ interface PaymentStepProps {
   progress: number;
   onPurchase: () => void;
   onBack?: () => void;
+  mpBrickData?: MpBrickData | null;
+  token?: string;
+  orgId?: string;
+  onMpBack?: () => void;
+  onMpApproved?: () => void;
 }
 
 export const PaymentStep: React.FC<PaymentStepProps> = ({
@@ -22,8 +35,28 @@ export const PaymentStep: React.FC<PaymentStepProps> = ({
   progress,
   onPurchase,
   onBack,
+  mpBrickData,
+  token = "",
+  orgId = "",
+  onMpBack,
+  onMpApproved,
 }) => {
   const t = useTranslations("marketplace");
+
+  if (mpBrickData && onMpBack && onMpApproved) {
+    return (
+      <MercadoPagoBrickEmbed
+        productId={mpBrickData.productId}
+        amount={mpBrickData.amount}
+        currency={mpBrickData.currency}
+        couponCode={mpBrickData.couponCode}
+        token={token}
+        orgId={orgId}
+        onBack={onMpBack}
+        onApproved={onMpApproved}
+      />
+    );
+  }
 
   return (
     <motion.div
