@@ -212,6 +212,33 @@ export const marketplaceApi = {
     );
   },
 
+  processMercadoPagoBrick: async (
+    payload: {
+      product_id: string;
+      coupon_code?: string;
+      country?: string;
+      token?: string;
+      payment_method_id: string;
+      issuer_id?: string;
+      installments?: number;
+      payer: {
+        email: string;
+        identification?: { type: string; number: string };
+      };
+    },
+    token: string,
+    orgId: string
+  ) => {
+    return api.post<{
+      session_id: string;
+      payment_id: number;
+      status: string;
+      status_detail: string;
+      redirect_url?: string;
+      access: boolean;
+    }>("/api/v1/org/marketplace/checkout/mercadopago", payload, { token, orgId });
+  },
+
   /**
    * Verificar estado de una compra (Polling actively)
    */

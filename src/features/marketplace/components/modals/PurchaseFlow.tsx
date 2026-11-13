@@ -10,6 +10,7 @@ import { usePurchaseFlow } from "@/features/marketplace/hooks/usePurchaseFlow";
 import { ConfirmationStep } from "./purchase-steps/ConfirmationStep";
 import { PaymentStep } from "./purchase-steps/PaymentStep";
 import { ActivationStep } from "./purchase-steps/ActivationStep";
+import { MercadoPagoBrickModal } from "./MercadoPagoBrickModal";
 import { useDashboardRouter } from "@/features/control-center/hooks/useDashboardRouter";
 import { useTranslations } from "next-intl";
 import { useGeoPricing } from "@/features/billing/providers/GeoPricingProvider";
@@ -47,6 +48,10 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
     statusMessage,
     handlePurchase,
     resetFlow,
+    mpBrickData,
+    closeMpBrick,
+    token,
+    orgId,
   } = usePurchaseFlow(onClose, initialStep, onSuccess);
 
   const {
@@ -123,6 +128,7 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
   ];
 
   return (
+    <>
     <AnimatePresence>
       {isOpen && (
         <>
@@ -330,5 +336,22 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
         </>
       )}
     </AnimatePresence>
+    {mpBrickData && (
+      <MercadoPagoBrickModal
+        isOpen={Boolean(mpBrickData)}
+        productId={mpBrickData.productId}
+        amount={mpBrickData.amount}
+        currency={mpBrickData.currency}
+        couponCode={mpBrickData.couponCode}
+        token={token}
+        orgId={orgId}
+        onClose={closeMpBrick}
+        onApproved={() => {
+          onSuccess?.();
+          resetFlow();
+        }}
+      />
+    )}
+    </>
   );
 };

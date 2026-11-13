@@ -14,6 +14,12 @@ export const usePurchaseFlow = (onClose: () => void, initialStep = 1, onSuccess?
   const [showConfetti, setShowConfetti] = useState(false);
   const [progress, setProgress] = useState(0);
   const [statusMessage, setStatusMessage] = useState("");
+  const [mpBrickData, setMpBrickData] = useState<{
+    productId: string;
+    amount: number;
+    currency: string;
+    couponCode?: string;
+  } | null>(null);
   const { token, orgId, isReady, isAuthReady } = useApiAuth();
   const { isLoading: isOrgsLoading } = useOrgStore();
   const { activeCoupon } = useMarketplaceCouponStore();
@@ -35,9 +41,25 @@ export const usePurchaseFlow = (onClose: () => void, initialStep = 1, onSuccess?
       setStep(2);
       setProgress(10);
     },
-    onSuccess: (response) => {
+    onSuccess: (response, productId) => {
       setProgress(50);
       hapticFeedback("light");
+
+      const hasMpBrick = Boolean(process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY);
+      if (
+        hasMpBrick &&
+        response.session_id?.startsWith("mp_") &&
+        (response.local_amount ?? 0) > 0
+      ) {
+        setMpBrickData({
+          productId,
+          amount: response.local_amount!,
+          currency: response.local_currency || "COP",
+          couponCode: activeCoupon?.code,
+        });
+        setStep(1);
+        return;
+      }
 
       if (response.checkout_url) {
         setProgress(100);
@@ -177,5 +199,9 @@ export const usePurchaseFlow = (onClose: () => void, initialStep = 1, onSuccess?
     statusMessage,
     handlePurchase,
     resetFlow,
+    mpBrickData,
+    closeMpBrick: () => setMpBrickData(null),
+    token: token || "",
+    orgId: orgId || "",
   };
 };

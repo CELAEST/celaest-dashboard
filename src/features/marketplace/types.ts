@@ -125,4 +125,6 @@ export interface UpdateReviewStatusInput {
 export interface CheckoutResponse {
   session_id: string;
   checkout_url: string;
+  local_currency?: string;
+  local_amount?: number;
 }
