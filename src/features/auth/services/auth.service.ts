@@ -20,6 +20,19 @@ export const authService = {
     }
   },
 
+  async register(params: {
+    email: string;
+    password: string;
+    name: string;
+    locale?: string;
+  }) {
+    return authApi.register({
+      ...params,
+      email: params.email.trim().toLowerCase(),
+      name: params.name.trim(),
+    });
+  },
+
   /**
    * Verifica si una sesión es válida con el backend
    */

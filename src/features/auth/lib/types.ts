@@ -115,7 +115,7 @@ export interface AuthState {
 
 export interface AuthActions {
   signIn: (email: string, password: string) => Promise<AuthResult>
-  signUp: (email: string, password: string, name: string) => Promise<AuthResult>
+  signUp: (email: string, password: string, name: string) => Promise<AuthResult<{ requiresVerification?: boolean; email?: string }>>
   signInWithGoogle: () => Promise<AuthResult>
   signInWithGitHub: () => Promise<AuthResult>
   signOut: () => Promise<AuthResult>

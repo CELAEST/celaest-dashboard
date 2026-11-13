@@ -14,9 +14,12 @@ vi.mock('next/navigation', () => ({
 }));
 
 // Mock auth service
-const { mockLogin } = vi.hoisted(() => ({ mockLogin: vi.fn() }));
+const { mockLogin, mockRegister } = vi.hoisted(() => ({
+  mockLogin: vi.fn(),
+  mockRegister: vi.fn(),
+}));
 vi.mock('@/features/auth/services/auth.service', () => ({
-  authService: { login: mockLogin },
+  authService: { login: mockLogin, register: mockRegister },
 }));
 
 // Mock logger
@@ -58,6 +61,7 @@ describe('useAuthActions', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockLogin.mockReset();
+    mockRegister.mockReset();
   });
 
   // ── signIn ──────────────────────────────────────────────────────
@@ -100,30 +104,32 @@ describe('useAuthActions', () => {
 
   // ── signUp ──────────────────────────────────────────────────────
   describe('signUp', () => {
-    it('returns success when Supabase creates user', async () => {
-      const { result } = renderHook(() => useAuthActions(createMockSupabase()));
-      let res: { success: boolean };
-      await act(async () => { res = await result.current.signUp('e@m.com', 'pass', 'John'); });
-      expect(res!.success).toBe(true);
-    });
-
-    it('returns error when Supabase signUp returns error', async () => {
-      const sbErr = { message: 'Email already taken' };
-      const supabase = createMockSupabase({
-        signUp: vi.fn().mockResolvedValue({ data: {}, error: sbErr }),
+    it('calls backend authService.register and returns requiresVerification=true', async () => {
+      mockRegister.mockResolvedValue({
+        requires_verification: true,
+        email: 'e@m.com',
+        message: 'Verification code sent to email',
       });
-      const { result } = renderHook(() => useAuthActions(supabase));
-      let res: { success: boolean; error?: { code: string } };
-      await act(async () => { res = await result.current.signUp('e@m.com', 'p', 'J'); });
-      expect(res!.success).toBe(false);
+      const { result } = renderHook(() => useAuthActions(null));
+      let res: { success: boolean; data?: { requiresVerification?: boolean; email?: string } };
+      await act(async () => { res = await result.current.signUp(' E@M.com ', 'pass123', ' John '); });
+      expect(mockRegister).toHaveBeenCalledWith({
+        email: 'e@m.com',
+        password: 'pass123',
+        name: 'John',
+        locale: expect.any(String),
+      });
+      expect(res!.success).toBe(true);
+      expect(res!.data).toEqual({ requiresVerification: true, email: 'e@m.com' });
     });
 
-    it('returns error when supabase is null', async () => {
-      const { result } = renderHook(() => useAuthActions(null));
-      let res: { success: boolean; error?: { message: string } };
-      await act(async () => { res = await result.current.signUp('e@m.com', 'p', 'J'); });
+    it('returns backend error message when authService.register rejects', async () => {
+      mockRegister.mockRejectedValue(new Error('Email already taken'));
+      const { result } = renderHook(() => useAuthActions(createMockSupabase()));
+      let res: { success: boolean; error?: { code: string; message: string } };
+      await act(async () => { res = await result.current.signUp('e@m.com', 'pass123', 'J'); });
       expect(res!.success).toBe(false);
-      expect(res!.error?.message).toContain('no disponible');
+      expect(res!.error?.message).toBe('Email already taken');
     });
   });
 

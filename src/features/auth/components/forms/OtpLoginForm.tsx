@@ -244,7 +244,7 @@ export const OtpLoginForm: React.FC<OtpLoginFormProps> = ({
       </Button>
       <button type="button" onClick={onBack} className={`w-full text-xs font-medium py-1.5 flex items-center justify-center gap-1.5 cursor-pointer ${isDark ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-gray-900"}`}>
         <ArrowLeft className="w-3.5 h-3.5" />
-        {tAuth("use_password_instead")}
+        {tAuth("back_to_signin")}
       </button>
     </form>
   );

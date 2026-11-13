@@ -70,11 +70,21 @@ export function useAuthActions(
           error: { code: "UNKNOWN_ERROR", message: "Error al iniciar sesión" },
         };
       } catch (error: unknown) {
+        const errCode =
+          typeof error === "object" &&
+          error !== null &&
+          "code" in error &&
+          (error as { code?: unknown }).code === "EMAIL_NOT_VERIFIED"
+            ? "EMAIL_NOT_VERIFIED"
+            : "INVALID_CREDENTIALS";
         return {
           success: false,
-          error: { 
-            code: "INVALID_CREDENTIALS", 
-            message: error instanceof Error ? error.message : "Email o contraseña incorrectos" 
+          error: {
+            code: errCode,
+            message:
+              error instanceof Error
+                ? error.message
+                : "Email o contraseña incorrectos",
           },
         };
       }
@@ -89,64 +99,41 @@ export function useAuthActions(
       email: string,
       password: string,
       name: string,
-    ): Promise<AuthResult> => {
-      if (!supabase) {
-        return {
-          success: false,
-          error: { code: "UNKNOWN_ERROR", message: "Servicio no disponible" },
-        };
-      }
-
+    ): Promise<AuthResult<{ requiresVerification?: boolean; email?: string }>> => {
       try {
-        const { data, error } = await supabase.auth.signUp({
-          email: email.trim().toLowerCase(),
+        const cleanEmail = email.trim().toLowerCase();
+        const locale =
+          typeof document !== "undefined" && document.documentElement.lang
+            ? document.documentElement.lang
+            : "es";
+        const response = await authService.register({
+          email: cleanEmail,
           password,
-          options: {
-            data: {
-              full_name: name,
-              name: name,
-            },
-          },
+          name: name.trim(),
+          locale,
         });
 
-        if (error) {
-          return {
-            success: false,
-            error: {
-              code: "UNKNOWN_ERROR",
-              message: getAuthErrorMessage(error),
-            },
-          };
-        }
-
-        if (data.user) {
-          if (data.session) {
-            const mappedUser = mapSupabaseUser(data.user);
-            useAuthStore.getState().setAuth({
-              user: mappedUser,
-              session: {
-                user: mappedUser,
-                accessToken: data.session.access_token,
-                refreshToken: data.session.refresh_token,
-                expiresAt: data.session.expires_at || 0,
-              },
-            });
-          }
-          return { success: true };
-        }
-
         return {
-          success: false,
-          error: { code: "UNKNOWN_ERROR", message: "Error al crear cuenta" },
+          success: true,
+          data: {
+            requiresVerification: Boolean(response.requires_verification),
+            email: response.email || cleanEmail,
+          },
         };
-      } catch {
+      } catch (error: unknown) {
         return {
           success: false,
-          error: { code: "NETWORK_ERROR", message: "Error de conexión" },
+          error: {
+            code: "UNKNOWN_ERROR",
+            message:
+              error instanceof Error
+                ? error.message
+                : "No se pudo crear la cuenta",
+          },
         };
       }
     },
-    [supabase],
+    [],
   );
 
   const signInWithGoogle = useCallback(async (): Promise<AuthResult> => {

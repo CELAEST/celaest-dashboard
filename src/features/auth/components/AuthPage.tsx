@@ -38,6 +38,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ defaultMode }) => {
       : "signin");
 
   const [mode, setMode] = useState<AuthViewMode>(resolvedInitialMode);
+  const [pendingVerificationEmail, setPendingVerificationEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const tAuth = useTranslations("auth");
   const bgMode: "signin" | "signup" = mode === "signup" ? "signup" : "signin";
@@ -61,11 +62,25 @@ export const AuthPage: React.FC<AuthPageProps> = ({ defaultMode }) => {
     router.push(getPostAuthRedirect());
   }, [router, getPostAuthRedirect]);
 
+  const handleModeChange = useCallback(
+    (nextMode: AuthViewMode) => {
+      setMode(nextMode);
+      if (defaultMode === "reset" && nextMode === "signin") {
+        router.replace("/auth");
+      }
+    },
+    [defaultMode, router],
+  );
+
   // Handlers
   const handleLoginSubmit = async (data: LoginFormValues) => {
     setLoading(true);
     const result = await signIn(data.email, data.password);
     if (!result.success) {
+      if (result.error?.code === "EMAIL_NOT_VERIFIED") {
+        setPendingVerificationEmail(data.email.trim().toLowerCase());
+        setMode("otp");
+      }
       toast.error(tAuth("login_error_title"), {
         description: result.error?.message || tAuth("login_error_message")
       });
@@ -85,6 +100,11 @@ export const AuthPage: React.FC<AuthPageProps> = ({ defaultMode }) => {
       toast.error(tAuth("signup_error_title"), {
         description: result.error?.message || tAuth("signup_error_message")
       });
+    } else if (result.data?.requiresVerification) {
+      const targetEmail = result.data.email || data.email.trim().toLowerCase();
+      setPendingVerificationEmail(targetEmail);
+      setMode("otp");
+      toast.success(tAuth("otp_code_sent"));
     } else {
       toast.success(tAuth("account_created"), {
         description: tAuth("account_created_message")
@@ -172,13 +192,13 @@ export const AuthPage: React.FC<AuthPageProps> = ({ defaultMode }) => {
 
               <AuthFormContainer
                 mode={mode}
-                onChangeMode={setMode}
+                onChangeMode={handleModeChange}
                 isDark={isDark}
                 loading={loading}
                 setLoading={setLoading}
                 onLoginSubmit={handleLoginSubmit}
                 onSignupSubmit={handleSignupSubmit}
-                initialEmail={searchParams.get("email") || ""}
+                initialEmail={pendingVerificationEmail || searchParams.get("email") || ""}
                 initialToken={searchParams.get("token") || ""}
                 onAuthComplete={handleAuthComplete}
               />

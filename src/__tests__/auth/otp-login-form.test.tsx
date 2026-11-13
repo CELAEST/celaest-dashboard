@@ -4,6 +4,7 @@ import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import esMessages from "@/messages/es.json";
 import { OtpLoginForm } from "@/features/auth/components/forms/OtpLoginForm";
+import { LoginForm } from "@/features/auth/components/forms/LoginForm";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 
 function renderWithIntl(ui: React.ReactElement) {
@@ -135,6 +136,63 @@ describe("OtpLoginForm — magic-link single invocation and error recovery", () 
       const requestCalls = fetchMock.mock.calls.filter(([url]) => String(url).includes("/auth/otp/request"));
       expect(requestCalls).toHaveLength(1);
     });
+  });
+
+  it("submits 6-digit signup confirmation code directly when initialEmail is provided without magicToken", async () => {
+    window.history.replaceState({}, "", "/auth");
+    const fetchMock = vi.fn().mockImplementation(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("/auth/otp/verify")) {
+        return new Response(
+          JSON.stringify({
+            success: true,
+            data: {
+              access_token: "jwt-signup-ok",
+              expires_in: 86400,
+              refresh_token: "ref-signup-ok",
+              user: { id: "u-new-1", email: "nuevo@celaest.com", role: "client" },
+            },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", { status: 404 });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const onSuccess = vi.fn();
+    renderWithIntl(
+      <OtpLoginForm
+        isDark={false}
+        initialEmail="nuevo@celaest.com"
+        onSuccess={onSuccess}
+        onBack={vi.fn()}
+      />,
+    );
+
+    const input = screen.getByPlaceholderText("000000");
+    fireEvent.change(input, { target: { value: "849201" } });
+    fireEvent.click(screen.getByRole("button", { name: esMessages.auth.verify_otp_button }));
+
+    await waitFor(() => {
+      expect(useAuthStore.getState().isAuthenticated).toBe(true);
+    });
+    expect(onSuccess).toHaveBeenCalledTimes(1);
+    expect(useAuthStore.getState().user?.email).toBe("nuevo@celaest.com");
+  });
+
+  it("does NOT render secondary 6-digit login button on LoginForm", () => {
+    renderWithIntl(
+      <LoginForm
+        isDark={false}
+        onSubmit={vi.fn()}
+        loading={false}
+        onForgotPassword={vi.fn()}
+      />,
+    );
+
+    expect(screen.queryByText(esMessages.auth.sign_in_with_otp)).toBeNull();
+    expect(screen.getByText(esMessages.auth.forgot_password)).toBeTruthy();
   });
 });
 

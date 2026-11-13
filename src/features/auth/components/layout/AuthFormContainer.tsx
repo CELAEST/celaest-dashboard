@@ -60,7 +60,6 @@ export const AuthFormContainer: React.FC<AuthFormContainerProps> = ({
             onSubmit={onLoginSubmit}
             loading={loading}
             onForgotPassword={() => onChangeMode?.("forgot")}
-            onOtpLogin={() => onChangeMode?.("otp")}
           />
         )}
         {mode === "signup" && (

@@ -23,7 +23,6 @@ interface LoginFormProps {
   onSubmit: (data: LoginFormValues) => Promise<void>;
   loading: boolean;
   onForgotPassword?: () => void;
-  onOtpLogin?: () => void;
 }
 
 export const LoginForm: React.FC<LoginFormProps> = ({
@@ -31,7 +30,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   onSubmit,
   loading,
   onForgotPassword,
-  onOtpLogin,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
   const tAuth = useTranslations("auth");
@@ -162,20 +160,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             </span>
           )}
         </Button>
-
-        {onOtpLogin && (
-          <button
-            type="button"
-            onClick={onOtpLogin}
-            className={`w-full text-xs font-medium py-1.5 rounded-lg cursor-pointer transition-colors ${
-              isDark
-                ? "text-gray-400 hover:text-violet-300 hover:bg-white/5"
-                : "text-gray-600 hover:text-violet-700 hover:bg-gray-100"
-            }`}
-          >
-            {tAuth("sign_in_with_otp")}
-          </button>
-        )}
       </form>
     </Form>
   );
