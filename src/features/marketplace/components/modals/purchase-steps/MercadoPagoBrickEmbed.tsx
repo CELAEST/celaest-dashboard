@@ -63,6 +63,13 @@ export const MercadoPagoBrickEmbed: React.FC<MercadoPagoBrickEmbedProps> = ({
 }) => {
   const [loading, setLoading] = useState(true);
   const controllerRef = useRef<{ unmount: () => void } | null>(null);
+  const onBackRef = useRef(onBack);
+  const onApprovedRef = useRef(onApproved);
+  useEffect(() => {
+    onBackRef.current = onBack;
+    onApprovedRef.current = onApproved;
+  }, [onBack, onApproved]);
+
   const publicKey = process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY || "";
   const isBelowMinimum = currency.toUpperCase() === "COP" && amount < 1000;
 
@@ -83,21 +90,20 @@ export const MercadoPagoBrickEmbed: React.FC<MercadoPagoBrickEmbedProps> = ({
               style: {
                 theme: "dark",
                 customVariables: {
-                  formBackgroundColor: "transparent",
-                  baseColor: "#ffffff",
-                  baseColorFirstVariant: "#e4e4e7",
-                  baseColorSecondVariant: "#a1a1aa",
+                  formBackgroundColor: "#0c0c14",
+                  baseColor: "#8b5cf6",
+                  baseColorFirstVariant: "#7c3aed",
+                  baseColorSecondVariant: "#6d28d9",
                   textPrimaryColor: "#f8fafc",
                   textSecondaryColor: "#94a3b8",
-                  inputBackgroundColor: "#0c0c14",
-                  inputFocusedBackgroundColor: "#11111c",
-                  inputBorderColor: "rgba(255, 255, 255, 0.12)",
-                  inputFocusedBorderColor: "rgba(255, 255, 255, 0.4)",
-                  buttonTextColor: "#09090b",
+                  inputBackgroundColor: "#12121d",
+                  inputFocusedBackgroundColor: "#161625",
+                  inputBorderColor: "rgba(255, 255, 255, 0.1)",
+                  inputFocusedBorderColor: "#8b5cf6",
+                  buttonTextColor: "#ffffff",
                   borderRadiusSmall: "8px",
                   borderRadiusMedium: "12px",
                   borderRadiusLarge: "16px",
-                  formPadding: "0px",
                 },
               },
             },
@@ -142,7 +148,7 @@ export const MercadoPagoBrickEmbed: React.FC<MercadoPagoBrickEmbedProps> = ({
 
               if (res.status === "approved" && res.access) {
                 toast.success("¡Pago aprobado! Tu licencia ya está activa.");
-                onApproved();
+                onApprovedRef.current();
                 return;
               }
               if (res.redirect_url) {
@@ -154,7 +160,7 @@ export const MercadoPagoBrickEmbed: React.FC<MercadoPagoBrickEmbedProps> = ({
                 return;
               }
               toast.info("Pago pendiente de confirmación. Te notificaremos en segundos.");
-              onBack();
+              onBackRef.current();
             },
             onError: (err: unknown) => {
               console.error("MercadoPago Brick error:", err);
@@ -181,7 +187,7 @@ export const MercadoPagoBrickEmbed: React.FC<MercadoPagoBrickEmbedProps> = ({
       controllerRef.current?.unmount();
       controllerRef.current = null;
     };
-  }, [publicKey, isBelowMinimum, productId, amount, couponCode, token, orgId, onApproved, onBack]);
+  }, [publicKey, isBelowMinimum, productId, amount, couponCode, token, orgId]);
 
   return (
     <div className="space-y-4 text-left">
