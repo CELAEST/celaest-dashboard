@@ -1,7 +1,7 @@
 "use client";
 
 // Login and Registration page for CELAEST with split screen transition
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { motion, AnimatePresence } from "motion/react";
@@ -42,7 +42,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ defaultMode }) => {
   const tAuth = useTranslations("auth");
   const bgMode: "signin" | "signup" = mode === "signup" ? "signup" : "signin";
 
-  const getPostAuthRedirect = () => {
+  const getPostAuthRedirect = useCallback(() => {
     const explicitRedirect = searchParams.get("redirect");
     if (explicitRedirect) return explicitRedirect;
 
@@ -55,7 +55,11 @@ export const AuthPage: React.FC<AuthPageProps> = ({ defaultMode }) => {
     }
 
     return "/?tab=marketplace";
-  };
+  }, [searchParams]);
+
+  const handleAuthComplete = useCallback(() => {
+    router.push(getPostAuthRedirect());
+  }, [router, getPostAuthRedirect]);
 
   // Handlers
   const handleLoginSubmit = async (data: LoginFormValues) => {
@@ -176,7 +180,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ defaultMode }) => {
                 onSignupSubmit={handleSignupSubmit}
                 initialEmail={searchParams.get("email") || ""}
                 initialToken={searchParams.get("token") || ""}
-                onAuthComplete={() => router.push(getPostAuthRedirect())}
+                onAuthComplete={handleAuthComplete}
               />
 
               <AuthFooter

@@ -57,6 +57,10 @@ describe("auth endpoint 401 exclusion", () => {
     { path: "/auth/login", label: "/auth/login" },
     { path: "/auth/register", label: "/auth/register" },
     { path: "/auth/signup", label: "/auth/signup" },
+    { path: "/auth/otp/verify", label: "/auth/otp/verify" },
+    { path: "/auth/otp/request", label: "/auth/otp/request" },
+    { path: "/auth/reset-password", label: "/auth/reset-password" },
+    { path: "/auth/forgot-password", label: "/auth/forgot-password" },
   ];
 
   authEndpoints.forEach(({ path, label }) => {

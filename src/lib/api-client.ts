@@ -147,7 +147,8 @@ async function request<T>(
         const errorData = (data.error || {}) as NonNullable<ApiResponse<T>["error"]>;
         
         if (response.status === 401) {
-          const isAuthEndpoint = url.includes('/auth/login') || url.includes('/auth/register') || url.includes('/auth/signup');
+          const authPaths = ['/auth/login', '/auth/register', '/auth/signup', '/auth/otp/', '/auth/reset-password', '/auth/forgot-password'];
+          const isAuthEndpoint = authPaths.some((path) => url.includes(path));
           if (typeof window !== "undefined" && !isAuthEndpoint) {
             logger.error("🚨 TRIGGERING 401 UNAUTHORIZED LOGOUT. FAILED URL:", url);
             window.dispatchEvent(new CustomEvent('celaest:unauthorized'));
