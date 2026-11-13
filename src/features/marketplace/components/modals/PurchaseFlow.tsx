@@ -200,65 +200,51 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
               onPointerDown={handlePointerDown}
               onPointerMove={handlePointerMove}
               onPointerUp={handlePointerUp}
-              className="shrink-0 px-4 sm:px-12 pt-3.5 sm:pt-7 pb-3 sm:pb-4.5 border-b border-white/[0.06] bg-[#0D0D11] select-none cursor-grab active:cursor-grabbing touch-none"
+              className="shrink-0 px-12 sm:px-14 pt-3.5 sm:pt-7 pb-3 sm:pb-4.5 border-b border-white/[0.06] bg-[#0D0D11] select-none cursor-grab active:cursor-grabbing touch-none"
             >
-              <div className="flex items-start justify-between w-full max-w-[340px] sm:max-w-[380px] mx-auto relative">
-                {/* Conector 1: Entre Paso 1 y Paso 2 */}
-                <div
-                  className="absolute top-[18px] sm:top-[21px] h-0.5 bg-white/[0.08] z-0 overflow-hidden rounded-full pointer-events-none"
-                  style={{
-                    left: "calc(36px + 16px)",
-                    right: "calc(50% + 16px)",
-                  }}
-                >
-                  <div
-                    className="h-full transition-all duration-300"
-                    style={{
-                      width: step >= 2 ? "100%" : "0%",
-                      backgroundColor: "#FFFFFF",
-                    }}
-                  />
+              <div className="w-full max-w-[340px] sm:max-w-[380px] mx-auto">
+                {/* Fila 1: Círculos y Conectores en Flexbox puro (cero colisión) */}
+                <div className="flex items-center px-[21px] sm:px-[24px]">
+                  {steps.map((s, idx) => {
+                    const isCompleted = step > s.number;
+                    const isActive = step === s.number;
+                    return (
+                      <React.Fragment key={s.number}>
+                        <div
+                          aria-current={isActive ? "step" : undefined}
+                          className={`w-9 h-9 sm:w-11 sm:h-11 rounded-full shrink-0 flex items-center justify-center transition-all duration-200 text-xs font-semibold ${
+                            isActive
+                              ? "bg-white text-[#09090B] shadow-[0_0_20px_rgba(255,255,255,0.22)] ring-4 ring-white/[0.08]"
+                              : isCompleted
+                                ? "bg-[#161820] text-white/90 border border-white/25"
+                                : "bg-[#121319] text-white/30 border border-white/[0.08]"
+                          }`}
+                        >
+                          {isCompleted ? <Check size={16} weight="bold" /> : s.icon}
+                        </div>
+
+                        {idx < steps.length - 1 && (
+                          <div className="flex-1 mx-2.5 sm:mx-3 h-[2px] rounded-full bg-white/[0.08] overflow-hidden">
+                            <div
+                              className="h-full rounded-full bg-white transition-all duration-300 ease-out"
+                              style={{ width: step > s.number ? "100%" : "0%" }}
+                            />
+                          </div>
+                        )}
+                      </React.Fragment>
+                    );
+                  })}
                 </div>
 
-                {/* Conector 2: Entre Paso 2 y Paso 3 */}
-                <div
-                  className="absolute top-[18px] sm:top-[21px] h-0.5 bg-white/[0.08] z-0 overflow-hidden rounded-full pointer-events-none"
-                  style={{
-                    left: "calc(50% + 16px)",
-                    right: "calc(36px + 16px)",
-                  }}
-                >
-                  <div
-                    className="h-full transition-all duration-300"
-                    style={{
-                      width: step >= 3 ? "100%" : "0%",
-                      backgroundColor: "#FFFFFF",
-                    }}
-                  />
-                </div>
-
-                {steps.map((s) => {
-                  const isCompleted = step > s.number;
-                  const isActive = step === s.number;
-                  return (
-                    <div
-                      key={s.number}
-                      className="flex flex-col items-center gap-1.5 sm:gap-2.5 relative z-10 w-[78px] sm:w-[92px]"
-                    >
-                      <div
-                        className={`w-9 h-9 sm:w-11 sm:h-11 rounded-full flex items-center justify-center transition-all duration-200 text-xs font-semibold ${
-                          isActive
-                            ? "bg-white text-black shadow-md"
-                            : isCompleted
-                              ? "bg-white/10 text-white border border-white/25"
-                              : "bg-[#121319] text-white/30 border border-white/[0.08]"
-                        }`}
-                      >
-                        {isCompleted ? <Check size={16} weight="bold" /> : s.icon}
-                      </div>
-
+                {/* Fila 2: Etiquetas alineadas ópticamente bajo cada círculo */}
+                <div className="flex items-start justify-between mt-1.5 sm:mt-2.5">
+                  {steps.map((s) => {
+                    const isCompleted = step > s.number;
+                    const isActive = step === s.number;
+                    return (
                       <span
-                        className={`text-[10px] sm:text-xs transition-colors text-center truncate w-full ${
+                        key={s.number}
+                        className={`w-[78px] sm:w-[92px] text-[10px] sm:text-xs transition-colors text-center truncate ${
                           isActive
                             ? "text-white font-semibold"
                             : isCompleted
@@ -268,9 +254,9 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
                       >
                         {s.title}
                       </span>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
             </div>
 

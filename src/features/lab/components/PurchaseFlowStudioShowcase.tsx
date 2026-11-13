@@ -22,6 +22,11 @@ import {
   Code,
 } from "@phosphor-icons/react";
 import { toast } from "sonner";
+import {
+  PurchaseStepperHeader,
+  PurchaseStepperLabPreview,
+  type StepperVariant,
+} from "./PurchaseStepperVariants";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // MODELOS EN EL LAB (ESTÁNDAR LINGUA: 6 PARADIGMAS INNOVADORES & ANTI-AI-SLOP)
@@ -58,7 +63,10 @@ const SAMPLE_PRODUCT: RealProduct = {
 };
 
 export function PurchaseFlowStudioShowcase() {
-  const [selectedModel, setSelectedModel] = useState<ShowcaseModel>("lingua_cobalt");
+  const [selectedModel, setSelectedModel] =
+    useState<ShowcaseModel>("lingua_cobalt");
+  const [stepperVariant, setStepperVariant] =
+    useState<StepperVariant>("linear_pills");
   const [isModalOpen, setIsModalOpen] = useState(true);
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [hasCoupon, setHasCoupon] = useState(true);
@@ -130,13 +138,18 @@ export function PurchaseFlowStudioShowcase() {
           <div className="inline-flex items-center gap-2 text-[10px] font-mono uppercase tracking-[0.2em] text-[#3B66F5] mb-1.5 font-semibold">
             <span>CELAEST Lingua Standard</span>
             <span>•</span>
-            <span className="text-white">Proporción Áurea & Calma Cognitiva</span>
+            <span className="text-white">
+              Proporción Áurea & Calma Cognitiva
+            </span>
           </div>
           <h2 className="text-lg font-bold text-white tracking-tight">
             Checkout Enterprise: Redirección Ágil & Éxito Proporcionado
           </h2>
           <p className="text-xs text-white/50 mt-0.5 max-w-2xl leading-relaxed">
-            Paso 2 simplificado con resumen visual del producto y redirección a Stripe sin bloques vacíos gigantes. Paso 3 rebalanceado con tarjeta ancla del activo y proporciones equilibradas (cero botones gigantes fuera de escala).
+            Paso 2 simplificado con resumen visual del producto y redirección a
+            Stripe sin bloques vacíos gigantes. Paso 3 rebalanceado con tarjeta
+            ancla del activo y proporciones equilibradas (cero botones gigantes
+            fuera de escala).
           </p>
         </div>
 
@@ -151,7 +164,9 @@ export function PurchaseFlowStudioShowcase() {
                 setIsProcessing(false);
               }}
               className={`px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
-                step === 1 ? "bg-white text-black font-semibold" : "text-white/50 hover:text-white"
+                step === 1
+                  ? "bg-white text-black font-semibold"
+                  : "text-white/50 hover:text-white"
               }`}
             >
               1. Confirmar
@@ -192,7 +207,9 @@ export function PurchaseFlowStudioShowcase() {
                 setIsProcessing(false);
               }}
               className={`px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
-                step === 3 ? "bg-white text-black font-semibold" : "text-white/50 hover:text-white"
+                step === 3
+                  ? "bg-white text-black font-semibold"
+                  : "text-white/50 hover:text-white"
               }`}
             >
               3. Activación
@@ -224,6 +241,22 @@ export function PurchaseFlowStudioShowcase() {
         </div>
       </div>
 
+      {/* ── LABORATORIO DE STEPPER (4 EJEMPLOS LIMPIOS SIN COLISIONES) ── */}
+      <PurchaseStepperLabPreview
+        selectedVariant={stepperVariant}
+        step={step}
+        isCobalt={isCobalt}
+        onSelectVariant={setStepperVariant}
+        onSelectStep={(s) => {
+          setStep(s);
+          setIsProcessing(false);
+        }}
+        onOpenModalWithVariant={(variant) => {
+          setStepperVariant(variant);
+          setIsModalOpen(true);
+        }}
+      />
+
       {/* ── SELECTOR DE MODELOS DE CHECKOUT LUXURY (6 PARADIGMAS INNOVADORES) ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
         {/* Modelo 01: Tipografía Pura (Base Reference - INTACTO) */}
@@ -248,9 +281,12 @@ export function PurchaseFlowStudioShowcase() {
                 Intacto
               </span>
             </div>
-            <h3 className="text-sm font-semibold text-white">Tipografía Minimalista</h3>
+            <h3 className="text-sm font-semibold text-white">
+              Tipografía Minimalista
+            </h3>
             <p className="text-[11px] text-white/50 leading-relaxed">
-              La referencia base solicitada intacta: cero imágenes, tipografía mono limpia y foco 100% transaccional.
+              La referencia base solicitada intacta: cero imágenes, tipografía
+              mono limpia y foco 100% transaccional.
             </p>
           </div>
           <div className="mt-3 pt-2.5 border-t border-white/[0.04] flex items-center justify-between text-xs text-[#3B66F5] font-semibold">
@@ -281,9 +317,12 @@ export function PurchaseFlowStudioShowcase() {
                 Modular
               </span>
             </div>
-            <h3 className="text-sm font-semibold text-white">Bento Studio Grid</h3>
+            <h3 className="text-sm font-semibold text-white">
+              Bento Studio Grid
+            </h3>
             <p className="text-[11px] text-white/50 leading-relaxed">
-              Composición asimétrica 7/5: tarjeta visual viva con telemetry + módulos laterales de garantía SLA y tarifa neta.
+              Composición asimétrica 7/5: tarjeta visual viva con telemetry +
+              módulos laterales de garantía SLA y tarifa neta.
             </p>
           </div>
           <div className="mt-3 pt-2.5 border-t border-white/[0.04] flex items-center justify-between text-xs text-blue-400 font-semibold">
@@ -314,9 +353,12 @@ export function PurchaseFlowStudioShowcase() {
                 Espacial
               </span>
             </div>
-            <h3 className="text-sm font-semibold text-white">Cinematic Ambient Lens</h3>
+            <h3 className="text-sm font-semibold text-white">
+              Cinematic Ambient Lens
+            </h3>
             <p className="text-[11px] text-white/50 leading-relaxed">
-              Frame panorámico con desvanecimiento obsidiana, metadatos flotantes en cristal y liquidación integrada.
+              Frame panorámico con desvanecimiento obsidiana, metadatos
+              flotantes en cristal y liquidación integrada.
             </p>
           </div>
           <div className="mt-3 pt-2.5 border-t border-white/[0.04] flex items-center justify-between text-xs text-white/80 font-semibold">
@@ -347,9 +389,12 @@ export function PurchaseFlowStudioShowcase() {
                 Sintetizador
               </span>
             </div>
-            <h3 className="text-sm font-semibold text-white">Cyber-Deck Cartridge</h3>
+            <h3 className="text-sm font-semibold text-white">
+              Cyber-Deck Cartridge
+            </h3>
             <p className="text-[11px] text-white/50 leading-relaxed">
-              Inspirado en Teenage Engineering: chasis con tornillos +, ventana OLED, ecualizador SVG en vivo y luces LED.
+              Inspirado en Teenage Engineering: chasis con tornillos +, ventana
+              OLED, ecualizador SVG en vivo y luces LED.
             </p>
           </div>
           <div className="mt-3 pt-2.5 border-t border-white/[0.04] flex items-center justify-between text-xs text-blue-400 font-semibold">
@@ -380,9 +425,12 @@ export function PurchaseFlowStudioShowcase() {
                 Ingeniería
               </span>
             </div>
-            <h3 className="text-sm font-semibold text-white">Terminal Blueprint</h3>
+            <h3 className="text-sm font-semibold text-white">
+              Terminal Blueprint
+            </h3>
             <p className="text-[11px] text-white/50 leading-relaxed">
-              Manifiesto de ingeniería con marcadores CAD crosshair +, terminal macOS, matriz de infraestructura y recibo neto.
+              Manifiesto de ingeniería con marcadores CAD crosshair +, terminal
+              macOS, matriz de infraestructura y recibo neto.
             </p>
           </div>
           <div className="mt-3 pt-2.5 border-t border-white/[0.04] flex items-center justify-between text-xs text-emerald-400 font-semibold">
@@ -413,9 +461,12 @@ export function PurchaseFlowStudioShowcase() {
                 Suizo
               </span>
             </div>
-            <h3 className="text-sm font-semibold text-white">Swiss Editorial Proof</h3>
+            <h3 className="text-sm font-semibold text-white">
+              Swiss Editorial Proof
+            </h3>
             <p className="text-[11px] text-white/50 leading-relaxed">
-              Máximo rigor editorial: hoja de contacto fotográfica con marcas de recorte ⌐ ⌙, libro mayor con dot-leaders y total suizo.
+              Máximo rigor editorial: hoja de contacto fotográfica con marcas de
+              recorte ⌐ ⌙, libro mayor con dot-leaders y total suizo.
             </p>
           </div>
           <div className="mt-3 pt-2.5 border-t border-white/[0.04] flex items-center justify-between text-xs text-white/80 font-semibold">
@@ -505,91 +556,16 @@ export function PurchaseFlowStudioShowcase() {
                   </div>
                 </div>
               ) : (
-                /* Modelos 01 (Cobalto) y 02 (Platino): Círculos Proporcionados y 100% Centrados */
-                <div className="shrink-0 px-8 sm:px-12 pt-7 pb-4.5 border-b border-white/[0.06] bg-[#0D0D11]">
-                  <div className="flex items-start justify-between w-full max-w-[380px] mx-auto relative">
-                    {/* Conector 1: Entre Paso 1 y Paso 2 (Nunca pasa por debajo de ningún círculo) */}
-                    <div
-                      className="absolute top-[21px] h-0.5 bg-white/[0.08] z-0 overflow-hidden rounded-full pointer-events-none"
-                      style={{
-                        left: "calc(46px + 24px)",
-                        right: "calc(50% + 24px)",
-                      }}
-                    >
-                      <div
-                        className="h-full transition-all duration-300"
-                        style={{
-                          width: step >= 2 ? "100%" : "0%",
-                          backgroundColor: isCobalt ? "#2563EB" : "#FFFFFF",
-                        }}
-                      />
-                    </div>
-
-                    {/* Conector 2: Entre Paso 2 y Paso 3 (Nunca pasa por debajo de ningún círculo) */}
-                    <div
-                      className="absolute top-[21px] h-0.5 bg-white/[0.08] z-0 overflow-hidden rounded-full pointer-events-none"
-                      style={{
-                        left: "calc(50% + 24px)",
-                        right: "calc(46px + 24px)",
-                      }}
-                    >
-                      <div
-                        className="h-full transition-all duration-300"
-                        style={{
-                          width: step >= 3 ? "100%" : "0%",
-                          backgroundColor: isCobalt ? "#2563EB" : "#FFFFFF",
-                        }}
-                      />
-                    </div>
-
-                    {[
-                      { number: 1, title: "Confirmación", icon: <CheckCircle size={18} weight="bold" /> },
-                      { number: 2, title: "Pago Seguro", icon: <CreditCard size={18} weight="bold" /> },
-                      { number: 3, title: "Activación", icon: <DownloadSimple size={18} weight="bold" /> },
-                    ].map((s) => {
-                      const isCompleted = step > s.number;
-                      const isActive = step === s.number;
-                      return (
-                        <div
-                          key={s.number}
-                          onClick={() => {
-                            setStep(s.number as 1 | 2 | 3);
-                            setIsProcessing(false);
-                          }}
-                          className="flex flex-col items-center gap-2.5 cursor-pointer relative z-10 group"
-                          style={{ width: "92px" }}
-                        >
-                          <div
-                            className={`w-11 h-11 rounded-full flex items-center justify-center transition-all duration-200 text-xs font-semibold ${
-                              isActive
-                                ? isCobalt
-                                  ? "bg-blue-600 text-white shadow-md shadow-blue-950/40"
-                                  : "bg-white text-black shadow-md"
-                                : isCompleted
-                                  ? isCobalt
-                                    ? "bg-[#0B132B] text-blue-400 border border-blue-500/50"
-                                    : "bg-[#1A1C24] text-white border border-white/40"
-                                  : "bg-[#121319] text-white/30 border border-white/[0.08] group-hover:border-white/20"
-                            }`}
-                          >
-                            {isCompleted ? <Check size={16} weight="bold" /> : s.icon}
-                          </div>
-
-                          <span
-                            className={`text-[11px] sm:text-xs transition-colors text-center truncate w-full ${
-                              isActive
-                                ? "text-white font-semibold"
-                                : isCompleted
-                                  ? "text-white/60"
-                                  : "text-white/30"
-                            }`}
-                          >
-                            {s.title}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
+                <div className="shrink-0 px-12 sm:px-14 pt-7 pb-5 border-b border-white/[0.06] bg-[#0D0D11]">
+                  <PurchaseStepperHeader
+                    variant={stepperVariant}
+                    step={step}
+                    onSelectStep={(s) => {
+                      setStep(s);
+                      setIsProcessing(false);
+                    }}
+                    isCobalt={isCobalt}
+                  />
                 </div>
               )}
 
@@ -607,7 +583,10 @@ export function PurchaseFlowStudioShowcase() {
                     className="space-y-4 animate-in fade-in duration-200"
                   >
                     {/* Encabezado Directo y Limpio */}
-                    <div className="text-center space-y-1" style={{ width: "100%", display: "block" }}>
+                    <div
+                      className="text-center space-y-1"
+                      style={{ width: "100%", display: "block" }}
+                    >
                       <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
                         Confirmar Suscripción
                       </h2>
@@ -663,11 +642,17 @@ export function PurchaseFlowStudioShowcase() {
                               </span>
                               <div className="space-y-1.5 py-1">
                                 <div className="flex items-center gap-1.5 text-[10px] text-white/80 font-mono">
-                                  <ShieldCheck size={12} className="text-blue-400 shrink-0" />
+                                  <ShieldCheck
+                                    size={12}
+                                    className="text-blue-400 shrink-0"
+                                  />
                                   <span>SLA 99.99%</span>
                                 </div>
                                 <div className="flex items-center gap-1.5 text-[10px] text-white/60 font-mono">
-                                  <LockSimple size={12} className="text-white/40 shrink-0" />
+                                  <LockSimple
+                                    size={12}
+                                    className="text-white/40 shrink-0"
+                                  />
                                   <span>1 Asiento Org</span>
                                 </div>
                               </div>
@@ -693,9 +678,13 @@ export function PurchaseFlowStudioShowcase() {
                                   <span className="text-lg font-bold font-mono tracking-tight text-white">
                                     ${finalPrice.toFixed(2)}
                                   </span>
-                                  <span className="text-[9px] font-mono text-white/40">USD</span>
+                                  <span className="text-[9px] font-mono text-white/40">
+                                    USD
+                                  </span>
                                 </div>
-                                <span className="text-[9px] text-white/40 block font-mono">/ mes</span>
+                                <span className="text-[9px] text-white/40 block font-mono">
+                                  / mes
+                                </span>
                               </div>
                             </div>
                           </div>
@@ -707,10 +696,16 @@ export function PurchaseFlowStudioShowcase() {
                             <Tag size={13} className="text-blue-400" />
                             {hasCoupon ? (
                               <span className="text-[11px] font-mono text-white/70">
-                                Cupón activo: <strong className="text-emerald-400">{couponCode}</strong> (-${discountAmount.toFixed(2)})
+                                Cupón activo:{" "}
+                                <strong className="text-emerald-400">
+                                  {couponCode}
+                                </strong>{" "}
+                                (-${discountAmount.toFixed(2)})
                               </span>
                             ) : (
-                              <span className="text-[11px] text-white/40 font-mono">Sin cupón promocional</span>
+                              <span className="text-[11px] text-white/40 font-mono">
+                                Sin cupón promocional
+                              </span>
                             )}
                           </div>
                           {hasCoupon ? (
@@ -773,7 +768,10 @@ export function PurchaseFlowStudioShowcase() {
                               </h3>
                             </div>
                             <div className="shrink-0 flex items-center gap-1 px-2 py-0.5 rounded bg-white/[0.08] backdrop-blur-md border border-white/10 text-[9px] font-mono text-white/70">
-                              <Fingerprint size={11} className="text-blue-400" />
+                              <Fingerprint
+                                size={11}
+                                className="text-blue-400"
+                              />
                               <span>SHA-256</span>
                             </div>
                           </div>
@@ -783,7 +781,9 @@ export function PurchaseFlowStudioShowcase() {
                         <div className="p-3.5 rounded-2xl bg-white/[0.02] backdrop-blur-md border border-white/[0.06] flex items-center justify-between">
                           <div>
                             <div className="flex items-center gap-2">
-                              <span className="text-xs text-white/70 font-medium">Inversión mensual</span>
+                              <span className="text-xs text-white/70 font-medium">
+                                Inversión mensual
+                              </span>
                               {hasCoupon && (
                                 <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-1.5 py-0.2 rounded border border-emerald-500/20">
                                   VIP -20%
@@ -791,7 +791,8 @@ export function PurchaseFlowStudioShowcase() {
                               )}
                             </div>
                             <span className="text-[10px] font-mono text-white/30 block mt-0.5">
-                              Facturación directa por Stripe • Cancela cuando quieras
+                              Facturación directa por Stripe • Cancela cuando
+                              quieras
                             </span>
                           </div>
 
@@ -800,7 +801,9 @@ export function PurchaseFlowStudioShowcase() {
                               <span className="text-2xl font-bold text-white tracking-tight">
                                 ${finalPrice.toFixed(2)}
                               </span>
-                              <span className="text-[10px] text-white/40">USD</span>
+                              <span className="text-[10px] text-white/40">
+                                USD
+                              </span>
                             </div>
                             {hasCoupon && (
                               <span className="text-[10px] line-through text-white/30 block">
@@ -818,10 +821,18 @@ export function PurchaseFlowStudioShowcase() {
                         {/* Chassis Hardware con tornillos táctiles */}
                         <div className="relative rounded-2xl bg-[#090A0E] border border-white/[0.1] p-3.5 shadow-2xl overflow-hidden">
                           {/* Tornillos de chasis metálicos */}
-                          <div className="absolute top-2 left-2 text-[8px] font-mono text-white/20 select-none">+</div>
-                          <div className="absolute top-2 right-2 text-[8px] font-mono text-white/20 select-none">+</div>
-                          <div className="absolute bottom-2 left-2 text-[8px] font-mono text-white/20 select-none">+</div>
-                          <div className="absolute bottom-2 right-2 text-[8px] font-mono text-white/20 select-none">+</div>
+                          <div className="absolute top-2 left-2 text-[8px] font-mono text-white/20 select-none">
+                            +
+                          </div>
+                          <div className="absolute top-2 right-2 text-[8px] font-mono text-white/20 select-none">
+                            +
+                          </div>
+                          <div className="absolute bottom-2 left-2 text-[8px] font-mono text-white/20 select-none">
+                            +
+                          </div>
+                          <div className="absolute bottom-2 right-2 text-[8px] font-mono text-white/20 select-none">
+                            +
+                          </div>
 
                           <div className="flex items-center gap-3.5 px-1 py-0.5 relative z-10">
                             {/* Cassette OLED / Sapphire Window */}
@@ -835,7 +846,9 @@ export function PurchaseFlowStudioShowcase() {
                               <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.5)_50%)] bg-[length:100%_4px] pointer-events-none opacity-40" />
                               <div className="absolute bottom-1 right-1 flex items-center gap-1 px-1 py-0.2 rounded bg-black/90 border border-white/10">
                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                                <span className="text-[7px] font-mono text-emerald-300 font-bold">NODE</span>
+                                <span className="text-[7px] font-mono text-emerald-300 font-bold">
+                                  NODE
+                                </span>
                               </div>
                             </div>
 
@@ -864,7 +877,10 @@ export function PurchaseFlowStudioShowcase() {
 
                               {/* Equalizer / Audio Waveform Bars animadas */}
                               <div className="flex items-end gap-0.5 h-3 my-1.5 opacity-70">
-                                {[40, 70, 30, 90, 50, 80, 60, 100, 45, 75, 90, 35, 65, 85].map((h, i) => (
+                                {[
+                                  40, 70, 30, 90, 50, 80, 60, 100, 45, 75, 90,
+                                  35, 65, 85,
+                                ].map((h, i) => (
                                   <div
                                     key={i}
                                     className="w-1 bg-blue-400/80 rounded-t-xs"
@@ -894,7 +910,9 @@ export function PurchaseFlowStudioShowcase() {
                               TARIFA DE NODO // CICLO RECURRENTE
                             </span>
                             <div className="flex items-center gap-2 mt-1">
-                              <span className="text-xs text-white/70 font-mono">Plan Dedicado</span>
+                              <span className="text-xs text-white/70 font-mono">
+                                Plan Dedicado
+                              </span>
                               {hasCoupon && (
                                 <span className="text-[9px] font-mono text-emerald-400 bg-emerald-500/10 px-1.5 py-0.2 rounded border border-emerald-500/20 font-bold">
                                   VIP -20%
@@ -907,7 +925,9 @@ export function PurchaseFlowStudioShowcase() {
                               <span className="text-2xl font-bold text-white tracking-tight">
                                 ${finalPrice.toFixed(2)}
                               </span>
-                              <span className="text-[10px] text-white/40">USD</span>
+                              <span className="text-[10px] text-white/40">
+                                USD
+                              </span>
                             </div>
                             {hasCoupon && (
                               <span className="text-[11px] line-through text-white/30 block">
@@ -930,9 +950,13 @@ export function PurchaseFlowStudioShowcase() {
                               <span className="w-2 h-2 rounded-full bg-red-500/80" />
                               <span className="w-2 h-2 rounded-full bg-amber-500/80" />
                               <span className="w-2 h-2 rounded-full bg-emerald-500/80" />
-                              <span className="text-white/40 ml-1.5">manifest.spec.json</span>
+                              <span className="text-white/40 ml-1.5">
+                                manifest.spec.json
+                              </span>
                             </div>
-                            <span className="text-emerald-400 text-[9px]">git://celaest/hub@v2.4.1</span>
+                            <span className="text-emerald-400 text-[9px]">
+                              git://celaest/hub@v2.4.1
+                            </span>
                           </div>
 
                           {/* Blueprint Visual & CAD Crosshair Markers */}
@@ -945,10 +969,18 @@ export function PurchaseFlowStudioShowcase() {
                             <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent" />
 
                             {/* CAD Crosshairs */}
-                            <span className="absolute top-1.5 left-1.5 text-[8px] text-emerald-400 font-bold select-none">+</span>
-                            <span className="absolute top-1.5 right-1.5 text-[8px] text-emerald-400 font-bold select-none">+</span>
-                            <span className="absolute bottom-1.5 left-1.5 text-[8px] text-emerald-400 font-bold select-none">+</span>
-                            <span className="absolute bottom-1.5 right-1.5 text-[8px] text-emerald-400 font-bold select-none">+</span>
+                            <span className="absolute top-1.5 left-1.5 text-[8px] text-emerald-400 font-bold select-none">
+                              +
+                            </span>
+                            <span className="absolute top-1.5 right-1.5 text-[8px] text-emerald-400 font-bold select-none">
+                              +
+                            </span>
+                            <span className="absolute bottom-1.5 left-1.5 text-[8px] text-emerald-400 font-bold select-none">
+                              +
+                            </span>
+                            <span className="absolute bottom-1.5 right-1.5 text-[8px] text-emerald-400 font-bold select-none">
+                              +
+                            </span>
 
                             <div className="relative z-10 space-y-0.5">
                               <span className="text-[8px] uppercase tracking-widest text-emerald-400 font-bold block">
@@ -963,8 +995,12 @@ export function PurchaseFlowStudioShowcase() {
                             </div>
 
                             <div className="relative z-10 text-right">
-                              <span className="text-[9px] text-white/40 block">AUTOR</span>
-                              <span className="text-[10px] text-white/90 font-bold">{SAMPLE_PRODUCT.seller}</span>
+                              <span className="text-[9px] text-white/40 block">
+                                AUTOR
+                              </span>
+                              <span className="text-[10px] text-white/90 font-bold">
+                                {SAMPLE_PRODUCT.seller}
+                              </span>
                             </div>
                           </div>
 
@@ -972,11 +1008,15 @@ export function PurchaseFlowStudioShowcase() {
                           <div className="space-y-1 text-[10px] text-white/60 pt-0.5">
                             <div className="flex items-center justify-between py-0.5 border-b border-dashed border-white/[0.06]">
                               <span>TARGET INFRASTRUCTURE</span>
-                              <span className="text-white/90">Cloudflare Workers / AWS Edge</span>
+                              <span className="text-white/90">
+                                Cloudflare Workers / AWS Edge
+                              </span>
                             </div>
                             <div className="flex items-center justify-between py-0.5 border-b border-dashed border-white/[0.06]">
                               <span>LICENCIA ASIGNADA</span>
-                              <span className="text-white/90">1 Org Seat • Unlimited Invocations</span>
+                              <span className="text-white/90">
+                                1 Org Seat • Unlimited Invocations
+                              </span>
                             </div>
                             {hasCoupon && (
                               <div className="flex items-center justify-between py-0.5 text-emerald-400">
@@ -989,14 +1029,20 @@ export function PurchaseFlowStudioShowcase() {
                           {/* Perforated Receipt Total */}
                           <div className="pt-2 border-t border-dashed border-white/20 flex items-baseline justify-between">
                             <div>
-                              <span className="text-xs text-white/70 font-bold block">TOTAL MENSUAL NETO</span>
-                              <span className="text-[9px] text-white/30">Facturación recurrente mensual</span>
+                              <span className="text-xs text-white/70 font-bold block">
+                                TOTAL MENSUAL NETO
+                              </span>
+                              <span className="text-[9px] text-white/30">
+                                Facturación recurrente mensual
+                              </span>
                             </div>
                             <div className="text-right">
                               <span className="text-xl font-bold text-white tracking-tight">
                                 ${finalPrice.toFixed(2)}
                               </span>
-                              <span className="text-[10px] text-white/40 ml-1">USD</span>
+                              <span className="text-[10px] text-white/40 ml-1">
+                                USD
+                              </span>
                             </div>
                           </div>
                         </div>
@@ -1017,10 +1063,18 @@ export function PurchaseFlowStudioShowcase() {
                                 className="w-full h-full object-cover filter contrast-105"
                               />
                               {/* Crop marks fotográficas */}
-                              <span className="absolute top-0.5 left-0.5 text-[7px] text-white/60 font-mono select-none">⌐</span>
-                              <span className="absolute top-0.5 right-0.5 text-[7px] text-white/60 font-mono select-none">¬</span>
-                              <span className="absolute bottom-0.5 left-0.5 text-[7px] text-white/60 font-mono select-none">L</span>
-                              <span className="absolute bottom-0.5 right-0.5 text-[7px] text-white/60 font-mono select-none">┙</span>
+                              <span className="absolute top-0.5 left-0.5 text-[7px] text-white/60 font-mono select-none">
+                                ⌐
+                              </span>
+                              <span className="absolute top-0.5 right-0.5 text-[7px] text-white/60 font-mono select-none">
+                                ¬
+                              </span>
+                              <span className="absolute bottom-0.5 left-0.5 text-[7px] text-white/60 font-mono select-none">
+                                L
+                              </span>
+                              <span className="absolute bottom-0.5 right-0.5 text-[7px] text-white/60 font-mono select-none">
+                                ┙
+                              </span>
                             </div>
 
                             {/* Tipografía Editorial Suiza */}
@@ -1032,7 +1086,8 @@ export function PurchaseFlowStudioShowcase() {
                                 {SAMPLE_PRODUCT.title}
                               </h3>
                               <p className="text-[11px] text-white/50">
-                                Edición: {SAMPLE_PRODUCT.version} • Por {SAMPLE_PRODUCT.seller}
+                                Edición: {SAMPLE_PRODUCT.version} • Por{" "}
+                                {SAMPLE_PRODUCT.seller}
                               </p>
                             </div>
                           </div>
@@ -1048,7 +1103,9 @@ export function PurchaseFlowStudioShowcase() {
                               <div className="flex items-baseline justify-between text-white/80">
                                 <span>Descuento Preferencial (-20%)</span>
                                 <span className="flex-1 mx-2 border-b border-dotted border-white/20" />
-                                <span className="text-emerald-400">-${discountAmount.toFixed(2)} USD</span>
+                                <span className="text-emerald-400">
+                                  -${discountAmount.toFixed(2)} USD
+                                </span>
                               </div>
                             )}
                             <div className="flex items-baseline justify-between text-white/30 text-[10px]">
@@ -1064,13 +1121,17 @@ export function PurchaseFlowStudioShowcase() {
                               <span className="text-xs uppercase tracking-wider font-semibold text-white/60 block">
                                 Inversión Neta
                               </span>
-                              <span className="text-[10px] text-white/30 font-mono">Facturación periódica de 30 días</span>
+                              <span className="text-[10px] text-white/30 font-mono">
+                                Facturación periódica de 30 días
+                              </span>
                             </div>
                             <div className="text-right font-mono">
                               <span className="text-2xl font-bold text-white tracking-tight">
                                 ${finalPrice.toFixed(2)}
                               </span>
-                              <span className="text-xs text-white/40 ml-1">USD</span>
+                              <span className="text-xs text-white/40 ml-1">
+                                USD
+                              </span>
                             </div>
                           </div>
                         </div>
@@ -1084,7 +1145,10 @@ export function PurchaseFlowStudioShowcase() {
                         {hasCoupon ? (
                           <div className="flex items-center justify-center">
                             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.06] text-xs font-mono shadow-sm">
-                              <Tag size={12} className="text-white/40 shrink-0" />
+                              <Tag
+                                size={12}
+                                className="text-white/40 shrink-0"
+                              />
                               <span className="text-[11px] uppercase font-semibold text-white/90 tracking-wider">
                                 {couponCode}
                               </span>
@@ -1103,7 +1167,10 @@ export function PurchaseFlowStudioShowcase() {
                             </div>
                           </div>
                         ) : showCouponInput ? (
-                          <form onSubmit={handleApplyCoupon} className="flex items-center justify-center gap-2 max-w-[340px] mx-auto">
+                          <form
+                            onSubmit={handleApplyCoupon}
+                            className="flex items-center justify-center gap-2 max-w-[340px] mx-auto"
+                          >
                             <input
                               type="text"
                               placeholder="CÓDIGO DE CUPÓN"
@@ -1135,7 +1202,9 @@ export function PurchaseFlowStudioShowcase() {
                         {/* Total Mensual */}
                         <div className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-white/[0.05]">
                           <div className="space-y-0.5">
-                            <span className="text-xs text-white/50 block font-medium">Inversión mensual recurrente</span>
+                            <span className="text-xs text-white/50 block font-medium">
+                              Inversión mensual recurrente
+                            </span>
                             {hasCoupon ? (
                               <div className="flex items-center gap-2 text-xs font-mono">
                                 <span className="line-through text-white/30">
@@ -1146,7 +1215,9 @@ export function PurchaseFlowStudioShowcase() {
                                 </span>
                               </div>
                             ) : (
-                              <span className="text-[10px] font-mono text-white/30">Cancela en cualquier momento</span>
+                              <span className="text-[10px] font-mono text-white/30">
+                                Cancela en cualquier momento
+                              </span>
                             )}
                           </div>
                           <div className="text-right">
@@ -1154,9 +1225,13 @@ export function PurchaseFlowStudioShowcase() {
                               <span className="text-2xl font-bold font-mono tracking-tight text-white">
                                 ${finalPrice.toFixed(2)}
                               </span>
-                              <span className="text-xs text-white/40 font-mono">USD</span>
+                              <span className="text-xs text-white/40 font-mono">
+                                USD
+                              </span>
                             </div>
-                            <span className="text-[10px] text-white/30 font-mono block">/ mes</span>
+                            <span className="text-[10px] text-white/30 font-mono block">
+                              / mes
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -1179,13 +1254,18 @@ export function PurchaseFlowStudioShowcase() {
                                   : "bg-white text-black hover:bg-neutral-100 shadow-md font-semibold"
                         }`}
                       >
-                        <span>Continuar al Pago Seguro ({formattedFinalPrice})</span>
+                        <span>
+                          Continuar al Pago Seguro ({formattedFinalPrice})
+                        </span>
                         <ArrowRight size={15} weight="bold" />
                       </button>
 
                       <div className="flex items-center justify-center gap-2 text-[10px] font-mono text-white/30">
                         <LockSimple size={12} />
-                        <span>Cifrado bancario 256-bit • Facturación mensual flexible</span>
+                        <span>
+                          Cifrado bancario 256-bit • Facturación mensual
+                          flexible
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -1198,18 +1278,32 @@ export function PurchaseFlowStudioShowcase() {
                     className="py-4 space-y-6 animate-in fade-in duration-200 text-center"
                   >
                     {isProcessing ? (
-                      <div className="w-full py-8 text-center space-y-4" style={{ width: "100%", display: "block" }}>
+                      <div
+                        className="w-full py-8 text-center space-y-4"
+                        style={{ width: "100%", display: "block" }}
+                      >
                         <div className="relative mx-auto w-14 h-14 flex items-center justify-center">
                           <CircleNotch
                             size={52}
                             className={`animate-spin ${
-                              isCobalt ? "text-blue-500" : isStealth ? "text-emerald-400" : "text-white"
+                              isCobalt
+                                ? "text-blue-500"
+                                : isStealth
+                                  ? "text-emerald-400"
+                                  : "text-white"
                             }`}
                             weight="bold"
                           />
-                          <LockSimple size={20} className="absolute text-white/80" weight="bold" />
+                          <LockSimple
+                            size={20}
+                            className="absolute text-white/80"
+                            weight="bold"
+                          />
                         </div>
-                        <div className="space-y-1" style={{ width: "100%", display: "block" }}>
+                        <div
+                          className="space-y-1"
+                          style={{ width: "100%", display: "block" }}
+                        >
                           <p className="text-sm font-semibold text-white">
                             Conectando con Stripe Checkout...
                           </p>
@@ -1220,7 +1314,11 @@ export function PurchaseFlowStudioShowcase() {
                         <div className="w-48 h-1 mx-auto bg-white/[0.08] rounded-full overflow-hidden">
                           <div
                             className={`h-full transition-all duration-300 ${
-                              isCobalt ? "bg-blue-600" : isStealth ? "bg-emerald-400" : "bg-white"
+                              isCobalt
+                                ? "bg-blue-600"
+                                : isStealth
+                                  ? "bg-emerald-400"
+                                  : "bg-white"
                             }`}
                             style={{ width: `${progress}%` }}
                           />
@@ -1250,7 +1348,9 @@ export function PurchaseFlowStudioShowcase() {
                               wordBreak: "normal",
                             }}
                           >
-                            Te transferiremos a la pasarela cifrada de Stripe para completar la transacción de forma segura sin almacenar datos sensibles.
+                            Te transferiremos a la pasarela cifrada de Stripe
+                            para completar la transacción de forma segura sin
+                            almacenar datos sensibles.
                           </p>
                         </div>
 
@@ -1265,7 +1365,10 @@ export function PurchaseFlowStudioShowcase() {
                         </div>
 
                         {/* Botón de Salto Directo a Stripe */}
-                        <div style={{ width: "100%" }} className="space-y-2.5 pt-1">
+                        <div
+                          style={{ width: "100%" }}
+                          className="space-y-2.5 pt-1"
+                        >
                           <button
                             type="button"
                             onClick={handleSimulatePayment}
@@ -1277,13 +1380,17 @@ export function PurchaseFlowStudioShowcase() {
                                   : "bg-white text-black hover:bg-neutral-200"
                             }`}
                           >
-                            <span>Ir a Stripe Checkout ({formattedFinalPrice})</span>
+                            <span>
+                              Ir a Stripe Checkout ({formattedFinalPrice})
+                            </span>
                             <ArrowSquareOut size={16} weight="bold" />
                           </button>
 
                           <div className="flex items-center justify-center gap-2 text-[10px] font-mono text-white/30 text-center">
                             <ShieldCheck size={13} />
-                            <span>Visa • Mastercard • Amex • Apple Pay • TLS 1.3</span>
+                            <span>
+                              Visa • Mastercard • Amex • Apple Pay • TLS 1.3
+                            </span>
                           </div>
 
                           <button
@@ -1302,7 +1409,11 @@ export function PurchaseFlowStudioShowcase() {
                 {/* ── PASO 3: ACTIVACIÓN (CHECKMARK CIRCULAR LIMPIO SIN CAJA EXTERIOR) ── */}
                 {step === 3 && (
                   <div
-                    style={{ width: "100%", display: "block", textAlign: "center" }}
+                    style={{
+                      width: "100%",
+                      display: "block",
+                      textAlign: "center",
+                    }}
                     className="py-6 sm:py-8 space-y-6 animate-in fade-in duration-200"
                   >
                     {/* Icono Circular de Confirmación (Basado 100% en la referencia del usuario - Imagen 3) */}
@@ -1318,7 +1429,13 @@ export function PurchaseFlowStudioShowcase() {
                         xmlns="http://www.w3.org/2000/svg"
                         className="text-emerald-400 relative z-10"
                       >
-                        <circle cx="27" cy="27" r="23" stroke="currentColor" strokeWidth="3" />
+                        <circle
+                          cx="27"
+                          cy="27"
+                          r="23"
+                          stroke="currentColor"
+                          strokeWidth="3"
+                        />
                         <path
                           d="M17 27.5L24 34.5L37.5 20"
                           stroke="currentColor"
@@ -1351,7 +1468,9 @@ export function PurchaseFlowStudioShowcase() {
                           wordBreak: "normal",
                         }}
                       >
-                        Tu suscripción ha sido dada de alta exitosamente y el servicio ya se encuentra disponible en tu entorno de trabajo.
+                        Tu suscripción ha sido dada de alta exitosamente y el
+                        servicio ya se encuentra disponible en tu entorno de
+                        trabajo.
                       </p>
                     </div>
 
@@ -1374,7 +1493,8 @@ export function PurchaseFlowStudioShowcase() {
                       </button>
 
                       <p className="text-[10px] font-mono text-white/30 text-center">
-                        Comprobante fiscal y detalles de acceso enviados a tu correo corporativo
+                        Comprobante fiscal y detalles de acceso enviados a tu
+                        correo corporativo
                       </p>
                     </div>
                   </div>
@@ -1382,7 +1502,7 @@ export function PurchaseFlowStudioShowcase() {
               </div>
             </div>
           </div>,
-          document.body
+          document.body,
         )}
     </div>
   );
