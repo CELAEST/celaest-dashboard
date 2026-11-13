@@ -78,7 +78,29 @@ export const MercadoPagoBrickEmbed: React.FC<MercadoPagoBrickEmbedProps> = ({
         const controller = await bricksBuilder.create("payment", "mp-payment-brick-container", {
           initialization: { amount },
           customization: {
-            visual: { style: { theme: "dark" } },
+            visual: {
+              hideFormTitle: true,
+              style: {
+                theme: "dark",
+                customVariables: {
+                  formBackgroundColor: "transparent",
+                  baseColor: "#ffffff",
+                  baseColorFirstVariant: "#e4e4e7",
+                  baseColorSecondVariant: "#a1a1aa",
+                  textPrimaryColor: "#f8fafc",
+                  textSecondaryColor: "#94a3b8",
+                  inputBackgroundColor: "#0c0c14",
+                  inputFocusedBackgroundColor: "#11111c",
+                  inputBorderColor: "rgba(255, 255, 255, 0.12)",
+                  inputFocusedBorderColor: "rgba(255, 255, 255, 0.4)",
+                  buttonTextColor: "#09090b",
+                  borderRadiusSmall: "8px",
+                  borderRadiusMedium: "12px",
+                  borderRadiusLarge: "16px",
+                  formPadding: "0px",
+                },
+              },
+            },
             paymentMethods: {
               creditCard: "all",
               debitCard: "all",
