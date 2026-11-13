@@ -121,6 +121,7 @@ export const MercadoPagoBrickEmbed: React.FC<MercadoPagoBrickEmbedProps> = ({
                 {
                   product_id: productId,
                   coupon_code: couponCode,
+                  country: currency.toUpperCase() === "COP" ? "CO" : undefined,
                   token: formData.token as string | undefined,
                   payment_method_id: String(formData.payment_method_id || ""),
                   issuer_id: formData.issuer_id ? String(formData.issuer_id) : undefined,
