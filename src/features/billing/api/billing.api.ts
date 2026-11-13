@@ -57,8 +57,34 @@ export const billingApi = {
   getSubscription: (orgId: string, token: string, id: string) =>
     api.get<Subscription>(`/api/v1/org/subscriptions/${id}`, { orgId, token }),
 
-  createSubscription: (orgId: string, token: string, data: Partial<Subscription>) =>
+  createSubscription: (orgId: string, token: string, data: Partial<Subscription> & { country?: string }) =>
     api.post<Subscription>("/api/v1/org/subscriptions", data, { orgId, token }),
+
+  processMercadoPagoPlanBrick: (
+    orgId: string,
+    token: string,
+    data: {
+      plan_id: string;
+      billing_cycle: "monthly" | "yearly";
+      country?: string;
+      token?: string;
+      payment_method_id: string;
+      issuer_id?: string;
+      installments?: number;
+      payer: {
+        email: string;
+        identification?: { type: string; number: string };
+      };
+    }
+  ) =>
+    api.post<{
+      session_id: string;
+      payment_id: number;
+      status: "approved" | "pending" | "in_process" | "rejected";
+      status_detail: string;
+      redirect_url?: string;
+      access: boolean;
+    }>("/api/v1/org/subscriptions/checkout/mercadopago", data, { orgId, token }),
 
   updateSubscription: (orgId: string, token: string, subId: string, data: { plan_id?: string; quantity?: number; billing_cycle?: "monthly" | "yearly"; metadata?: Record<string, unknown> }) =>
     api.put<Subscription>(`/api/v1/org/subscriptions/${subId}`, data, { orgId, token }),

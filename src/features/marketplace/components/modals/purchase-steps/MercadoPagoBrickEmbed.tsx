@@ -4,9 +4,13 @@ import React, { useEffect, useRef, useState } from "react";
 import { SpinnerGap, ArrowLeft } from "@phosphor-icons/react";
 import { toast } from "sonner";
 import { marketplaceApi } from "../../../api/marketplace.api";
+import { billingApi } from "@/features/billing/api/billing.api";
 
 interface MercadoPagoBrickEmbedProps {
-  productId: string;
+  productId?: string;
+  planId?: string;
+  billingCycle?: "monthly" | "yearly";
+  title?: string;
   amount: number;
   currency: string;
   couponCode?: string;
@@ -53,6 +57,9 @@ function loadMercadoPagoSDK(): Promise<void> {
 
 export const MercadoPagoBrickEmbed: React.FC<MercadoPagoBrickEmbedProps> = ({
   productId,
+  planId,
+  billingCycle = "monthly",
+  title,
   amount,
   currency,
   couponCode,
@@ -63,12 +70,31 @@ export const MercadoPagoBrickEmbed: React.FC<MercadoPagoBrickEmbedProps> = ({
 }) => {
   const [loading, setLoading] = useState(true);
   const controllerRef = useRef<{ unmount: () => void } | null>(null);
-  const onBackRef = useRef(onBack);
-  const onApprovedRef = useRef(onApproved);
+  const contextRef = useRef({
+    productId,
+    planId,
+    billingCycle,
+    couponCode,
+    currency,
+    token,
+    orgId,
+    onBack,
+    onApproved,
+  });
+
   useEffect(() => {
-    onBackRef.current = onBack;
-    onApprovedRef.current = onApproved;
-  }, [onBack, onApproved]);
+    contextRef.current = {
+      productId,
+      planId,
+      billingCycle,
+      couponCode,
+      currency,
+      token,
+      orgId,
+      onBack,
+      onApproved,
+    };
+  }, [productId, planId, billingCycle, couponCode, currency, token, orgId, onBack, onApproved]);
 
   const publicKey = process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY || "";
   const isBelowMinimum = currency.toUpperCase() === "COP" && amount < 1000;
@@ -119,36 +145,50 @@ export const MercadoPagoBrickEmbed: React.FC<MercadoPagoBrickEmbedProps> = ({
               if (!cancelled) setLoading(false);
             },
             onSubmit: async ({ formData }: { formData: Record<string, unknown> }) => {
+              const ctx = contextRef.current;
               const payer = (formData.payer || {}) as {
                 email?: string;
                 identification?: { type?: string; number?: string };
               };
-              const res = await marketplaceApi.processMercadoPagoBrick(
-                {
-                  product_id: productId,
-                  coupon_code: couponCode,
-                  country: currency.toUpperCase() === "COP" ? "CO" : undefined,
-                  token: formData.token as string | undefined,
-                  payment_method_id: String(formData.payment_method_id || ""),
-                  issuer_id: formData.issuer_id ? String(formData.issuer_id) : undefined,
-                  installments: formData.installments ? Number(formData.installments) : undefined,
-                  payer: {
-                    email: payer.email || "",
-                    identification: payer.identification?.number
-                      ? {
-                          type: payer.identification.type || "CC",
-                          number: payer.identification.number,
-                        }
-                      : undefined,
-                  },
-                },
-                token,
-                orgId
-              );
+              const payerPayload = {
+                email: payer.email || "",
+                identification: payer.identification?.number
+                  ? {
+                      type: payer.identification.type || "CC",
+                      number: payer.identification.number,
+                    }
+                  : undefined,
+              };
+
+              const res = ctx.planId
+                ? await billingApi.processMercadoPagoPlanBrick(ctx.orgId, ctx.token, {
+                    plan_id: ctx.planId,
+                    billing_cycle: ctx.billingCycle,
+                    country: ctx.currency.toUpperCase() === "COP" ? "CO" : undefined,
+                    token: formData.token as string | undefined,
+                    payment_method_id: String(formData.payment_method_id || ""),
+                    issuer_id: formData.issuer_id ? String(formData.issuer_id) : undefined,
+                    installments: formData.installments ? Number(formData.installments) : undefined,
+                    payer: payerPayload,
+                  })
+                : await marketplaceApi.processMercadoPagoBrick(
+                    {
+                      product_id: ctx.productId || "",
+                      coupon_code: ctx.couponCode,
+                      country: ctx.currency.toUpperCase() === "COP" ? "CO" : undefined,
+                      token: formData.token as string | undefined,
+                      payment_method_id: String(formData.payment_method_id || ""),
+                      issuer_id: formData.issuer_id ? String(formData.issuer_id) : undefined,
+                      installments: formData.installments ? Number(formData.installments) : undefined,
+                      payer: payerPayload,
+                    },
+                    ctx.token,
+                    ctx.orgId
+                  );
 
               if (res.status === "approved" && res.access) {
                 toast.success("¡Pago aprobado! Tu licencia ya está activa.");
-                onApprovedRef.current();
+                ctx.onApproved();
                 return;
               }
               if (res.redirect_url) {
@@ -160,7 +200,7 @@ export const MercadoPagoBrickEmbed: React.FC<MercadoPagoBrickEmbedProps> = ({
                 return;
               }
               toast.info("Pago pendiente de confirmación. Te notificaremos en segundos.");
-              onBackRef.current();
+              ctx.onBack();
             },
             onError: (err: unknown) => {
               console.error("MercadoPago Brick error:", err);
@@ -187,14 +227,14 @@ export const MercadoPagoBrickEmbed: React.FC<MercadoPagoBrickEmbedProps> = ({
       controllerRef.current?.unmount();
       controllerRef.current = null;
     };
-  }, [publicKey, isBelowMinimum, productId, amount, couponCode, token, orgId]);
+  }, [publicKey, isBelowMinimum, amount]);
 
   return (
     <div className="space-y-4 text-left">
       <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
         <div>
           <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40 block">
-            Pago Seguro · Mercado Pago
+            {title ? `${title} · Mercado Pago` : "Pago Seguro · Mercado Pago"}
           </span>
           <span className="text-lg font-bold font-mono text-white">
             {currency.toUpperCase()} {amount.toLocaleString("es-CO")}
@@ -228,4 +268,3 @@ export const MercadoPagoBrickEmbed: React.FC<MercadoPagoBrickEmbedProps> = ({
     </div>
   );
 };
-

@@ -17,6 +17,7 @@ import type { BillingCycle } from "../../types";
 import { useSearchParams } from "next/navigation";
 
 import { useSwipeDownToClose } from "@/features/shared/hooks/useSwipeDownToClose";
+import { MercadoPagoBrickEmbed } from "@/features/marketplace/components/modals/purchase-steps/MercadoPagoBrickEmbed";
 
 interface UpgradePlanModalProps {
   isOpen: boolean;
@@ -36,6 +37,12 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
   const [isUpgrading, setIsUpgrading] = useState(false);
   const [billingCycle, setBillingCycle] = useState<BillingCycle>(requestedCycle);
   const [activeMobilePlanCode, setActiveMobilePlanCode] = useState<string>("pro");
+  const [mpPlanCheckout, setMpPlanCheckout] = useState<{
+    plan: Plan;
+    amount: number;
+    currency: string;
+    cycle: BillingCycle;
+  } | null>(null);
   const t = useTranslations("billing");
 
   const {
@@ -73,15 +80,30 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
           user_id: session.user.id,
           plan_id: plan.id,
           billing_cycle: billingCycle,
+          country: "CO",
           ...(plan.productId || plan.product_id
             ? { product_id: plan.productId || plan.product_id }
             : {}),
         },
       );
 
-      // Check for Stripe Checkout URL
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const resAny = response as any;
+      const gateway = resAny?.data?.gateway || resAny?.gateway;
+      const localAmount = Number(resAny?.data?.local_amount ?? resAny?.local_amount ?? 0);
+      const localCurrency = String(resAny?.data?.local_currency ?? resAny?.local_currency ?? "COP");
+
+      if (gateway === "mercadopago" && localAmount > 0) {
+        setMpPlanCheckout({
+          plan,
+          amount: localAmount,
+          currency: localCurrency,
+          cycle: billingCycle,
+        });
+        return;
+      }
+
+      // Check for Stripe Checkout URL
       const checkoutUrl =
         resAny?.data?.checkout_url ||
         resAny?.checkout_url ||
@@ -217,6 +239,26 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
 
         {/* Content wrapper */}
         <div className="relative z-10 flex flex-col w-full flex-1 min-h-0 pt-3 sm:pt-6 pb-6 px-3 sm:px-6 lg:px-8">
+          {mpPlanCheckout && currentOrg?.id && session?.accessToken ? (
+            <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar w-full max-w-lg mx-auto py-4 px-2">
+              <MercadoPagoBrickEmbed
+                planId={mpPlanCheckout.plan.id}
+                billingCycle={mpPlanCheckout.cycle}
+                title={`Plan ${mpPlanCheckout.plan.name}`}
+                amount={mpPlanCheckout.amount}
+                currency={mpPlanCheckout.currency}
+                token={session.accessToken}
+                orgId={currentOrg.id}
+                onBack={() => setMpPlanCheckout(null)}
+                onApproved={() => {
+                  setMpPlanCheckout(null);
+                  onClose();
+                  window.location.reload();
+                }}
+              />
+            </div>
+          ) : (
+            <>
           {/* Floating Pill Toggle (Sin cápsula negra, componente sobrepuesto puro) */}
           <div className="flex flex-col items-center justify-center pb-5 shrink-0 z-20">
             <div className="inline-flex items-center gap-1.5 p-1 rounded-full bg-transparent">
@@ -308,6 +350,8 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
             </div>
           )}
         </div>
+            </>
+          )}
       </div>
     </div>
   </BillingModal>
