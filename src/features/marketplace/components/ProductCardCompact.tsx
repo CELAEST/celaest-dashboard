@@ -228,9 +228,11 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
               </span>
               {base_price > 0 && finalPrice > 0 && (
                 <>
-                  <span className="font-jetbrains text-[10px] font-bold uppercase tracking-wider text-white/90 drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
-                    {currency}
-                  </span>
+                  {!isGeoPriced && (
+                    <span className="font-jetbrains text-[10px] font-bold uppercase tracking-wider text-white/90 drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
+                      {currency}
+                    </span>
+                  )}
                   <span className="font-jetbrains text-[10px] text-white/70 drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
                     / mes
                   </span>
