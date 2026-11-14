@@ -163,15 +163,6 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   </span>
                 </>
               )}
-
-              {product.rating_avg >= 4.5 && (
-                <>
-                  <span className={theme === "dark" ? "text-white/20" : "text-gray-300"}>•</span>
-                  <span className={`text-[10px] font-mono tracking-wider uppercase font-medium ${theme === "dark" ? "text-amber-400/90" : "text-amber-600"}`}>
-                    {t("popular")}
-                  </span>
-                </>
-              )}
             </div>
 
             <h2
@@ -184,15 +175,21 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            <div className={`hidden sm:flex items-center gap-2 text-xs font-mono ${theme === "dark" ? "text-white/50" : "text-gray-500"}`}>
-              <span className="flex items-center gap-1 text-amber-400">
-                <Star size={13} weight="fill" />
-                <strong className={theme === "dark" ? "text-white" : "text-gray-900"}>
-                  {product.rating_avg > 0 ? product.rating_avg.toFixed(1) : "N/A"}
-                </strong>
-              </span>
-              <span>({product.rating_count} {t("reviews_count")})</span>
-            </div>
+            {product.rating_count > 0 && product.rating_avg > 0 ? (
+              <div className={`hidden sm:flex items-center gap-2 text-xs font-mono ${theme === "dark" ? "text-white/50" : "text-gray-500"}`}>
+                <span className="flex items-center gap-1 text-amber-400">
+                  <Star size={13} weight="fill" />
+                  <strong className={theme === "dark" ? "text-white" : "text-gray-900"}>
+                    {product.rating_avg.toFixed(1)}
+                  </strong>
+                </span>
+                <span>({product.rating_count} {t("reviews_count")})</span>
+              </div>
+            ) : (
+              <div className={`hidden sm:flex items-center gap-2 text-xs font-mono ${theme === "dark" ? "text-white/40" : "text-gray-400"}`}>
+                <span>{t("no_reviews_yet_title")}</span>
+              </div>
+            )}
 
             <button
               type="button"

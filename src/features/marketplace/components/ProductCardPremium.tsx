@@ -57,7 +57,7 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
   const image =
     thumbnail_url ||
     "https://images.unsplash.com/photo-1551288049-bebda4e38f71";
-  const badge = rating >= 4.5 ? "PREMIUM" : undefined;
+  const badge = undefined;
 
   // Geo-pricing: resolve localized price for this product (NO PPP discount, only exchange rate)
   const isGeoPriced = !!(pricing && pricing.country_code && pricing.country_code !== "US");
@@ -188,29 +188,41 @@ export const ProductCardPremium = React.memo(function ProductCardPremium({
       <div className="p-6 space-y-4 flex flex-col flex-1">
         {/* Rating */}
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1">
-            {[...Array(5)].map((_, i) => (
-              <Star
-                key={i}
-                size={12}
-                weight="fill"
-                className={
-                  i < Math.floor(rating)
-                    ? "text-yellow-500"
-                    : theme === "dark"
-                      ? "text-white/15"
-                      : "text-gray-300"
-                }
-              />
-            ))}
-          </div>
-          <span
-            className={`text-xs font-medium ${
-              theme === "dark" ? "text-gray-400" : "text-gray-600"
-            }`}
-          >
-            {rating.toFixed(1)} {t("reviews_count", { count: reviews })}
-          </span>
+          {reviews > 0 && rating > 0 ? (
+            <>
+              <div className="flex items-center gap-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    size={12}
+                    weight="fill"
+                    className={
+                      i < Math.floor(rating)
+                        ? "text-yellow-500"
+                        : theme === "dark"
+                          ? "text-white/15"
+                          : "text-gray-300"
+                    }
+                  />
+                ))}
+              </div>
+              <span
+                className={`text-xs font-medium ${
+                  theme === "dark" ? "text-gray-400" : "text-gray-600"
+                }`}
+              >
+                {rating.toFixed(1)} {t("reviews_count", { count: reviews })}
+              </span>
+            </>
+          ) : (
+            <span
+              className={`text-xs font-medium ${
+                theme === "dark" ? "text-gray-500" : "text-gray-500"
+              }`}
+            >
+              {t("no_reviews_yet_title")}
+            </span>
+          )}
         </div>
 
         {/* Title */}

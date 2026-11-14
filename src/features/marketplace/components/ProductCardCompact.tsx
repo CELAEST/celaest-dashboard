@@ -65,8 +65,8 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
     name: title,
     short_description: description,
     thumbnail_url: imageUrl,
-    rating_avg: rating = 5.0,
-    rating_count: reviews = 24,
+    rating_avg: rating = 0,
+    rating_count: reviews = 0,
     base_price,
     currency = "USD",
     category_name: category = "Automatización",
@@ -130,9 +130,6 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
       ? `-${activeCoupon.value}%`
       : `-${isGeoPriced ? formatPrice(activeCoupon.value * exchangeRate) : formatCurrency(activeCoupon.value, currency)}`
     : "";
-
-  // Badge
-  const badge = rating >= 4.9 ? "BESTSELLER" : rating >= 4.7 ? "POPULAR" : undefined;
 
   // Secondary CTA text
   const isSaas = isSaasProduct(product);
@@ -262,20 +259,26 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
       {/* ── CUERPO EN PLUS JAKARTA SANS ── */}
       <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between gap-4">
         <div>
-          {/* Rating con estrella dorada y conteo perfectamente centrado */}
+          {/* Rating real solo si existen reseñas verificadas */}
           <div className="flex items-center justify-between pb-1.5 border-b border-white/[0.03]">
             <span className="font-jetbrains text-[10px] font-medium text-[#666666] uppercase tracking-wider">
-              {badge ? `★ ${badge}` : "Catálogo Oficial"}
+              Catálogo Oficial
             </span>
-            <div className="flex items-center gap-1.5 text-amber-400">
-              <Star size={11} weight="fill" className="text-amber-400 shrink-0" />
-              <span className="font-jetbrains text-white font-bold text-[11px] leading-none">
-                {rating.toFixed(1)}
-              </span>
+            {reviews > 0 && rating > 0 ? (
+              <div className="flex items-center gap-1.5 text-amber-400">
+                <Star size={11} weight="fill" className="text-amber-400 shrink-0" />
+                <span className="font-jetbrains text-white font-bold text-[11px] leading-none">
+                  {rating.toFixed(1)}
+                </span>
+                <span className="font-jetbrains text-[#71717A] text-[10px] leading-none">
+                  ({reviews})
+                </span>
+              </div>
+            ) : (
               <span className="font-jetbrains text-[#71717A] text-[10px] leading-none">
-                ({reviews})
+                {t("no_reviews_yet_title")}
               </span>
-            </div>
+            )}
           </div>
 
           {/* Nombre del Asset en Plus Jakarta Sans ExtraBold */}

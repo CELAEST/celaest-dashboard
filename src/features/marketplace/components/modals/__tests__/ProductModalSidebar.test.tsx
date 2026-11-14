@@ -168,10 +168,10 @@ describe("ProductModalSidebar", () => {
       expect(screen.getByText("Software")).toBeInTheDocument();
     });
 
-    it("displays 3-day guarantee badge", () => {
+    it("displays technical defect refund policy badge", () => {
       render(<ProductModalSidebar product={mockProduct} />);
 
-      expect(screen.getByText(/Garantía de 3 Días/i)).toBeInTheDocument();
+      expect(screen.getByText(/Política de Reembolso por Fallo Técnico/i)).toBeInTheDocument();
     });
   });
 

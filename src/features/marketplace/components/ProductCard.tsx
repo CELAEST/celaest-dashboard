@@ -75,10 +75,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
         {/* Rating Badge */}
-        <div className="absolute top-3 right-3 flex items-center gap-1 rounded-full bg-black/60 px-2 py-1 text-xs font-medium text-blue-400 backdrop-blur-md border border-white/10">
-          <Star className="h-3 w-3 fill-current" />
-          {product.rating_avg.toFixed(1)}
-        </div>
+        {product.rating_count > 0 && product.rating_avg > 0 && (
+          <div className="absolute top-3 right-3 flex items-center gap-1 rounded-full bg-black/60 px-2 py-1 text-xs font-medium text-blue-400 backdrop-blur-md border border-white/10">
+            <Star className="h-3 w-3 fill-current" />
+            {product.rating_avg.toFixed(1)}
+          </div>
+        )}
       </div>
 
       {/* Contenido */}
