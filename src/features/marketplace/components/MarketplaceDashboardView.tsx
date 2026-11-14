@@ -5,6 +5,7 @@ import { useTheme } from "@/features/shared/contexts/ThemeContext";
 import dynamic from "next/dynamic";
 import { MarketplaceFilterSidebar } from "./MarketplaceFilterSidebar";
 import { ProductCardCompact } from "./ProductCardCompact";
+import { UpcomingReleaseCard, UPCOMING_RELEASES } from "./UpcomingReleaseCard";
 import { ProductSkeleton } from "./ProductSkeleton";
 import { useMarketplaceProducts } from "../hooks/useMarketplaceProducts";
 import { MarketplaceProduct } from "../types";
@@ -583,6 +584,12 @@ export function MarketplaceDashboardView() {
                     />
                   );
                 })}
+                {selectedTier === "all" &&
+                  !filters.q &&
+                  !filters.category &&
+                  UPCOMING_RELEASES.map((item) => (
+                    <UpcomingReleaseCard key={item.id} item={item} />
+                  ))}
               </motion.div>
               );
             })()}

@@ -19,9 +19,9 @@ export const TabCompatibility: React.FC = React.memo(() => {
         </h4>
         <div className="space-y-2">
           {[
-            "Microsoft Excel 2016 o superior",
-            "Windows 10/11 o macOS",
-            "4GB RAM mínimo",
+            "Navegador web moderno (Chrome, Edge, Safari, Firefox)",
+            "Windows, macOS, Linux, iOS y Android",
+            "Conexión a internet estable",
           ].map((req, i) => (
             <div
               key={i}
@@ -44,7 +44,7 @@ export const TabCompatibility: React.FC = React.memo(() => {
           {t("available_languages")}
         </h4>
         <div className="flex gap-2">
-          {["Español", "English", "Português"].map((lang) => (
+          {["Español", "English"].map((lang) => (
             <span
               key={lang}
               className={`

@@ -135,9 +135,10 @@ export const PlanCard: React.FC<PlanCardProps> = ({
 
   const renderFeature = (f: string) => {
     if (!f) return f;
-    const key = f.replace(/[^a-zA-Z0-9]/g, "_").toLowerCase();
+    const cleaned = f.replace(/&amp;/gi, "&").trim();
+    const key = cleaned.replace(/[^a-zA-Z0-9]/g, "_").toLowerCase();
     const tKey = `features.${key}` as string;
-    return t.has(tKey) ? t(tKey) : f;
+    return t.has(tKey) ? t(tKey) : cleaned;
   };
 
   const features = plan.features || [];

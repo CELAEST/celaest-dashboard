@@ -70,7 +70,7 @@ export const ProductModalTabs: React.FC<ProductModalTabsProps> = ({
       <div className="mt-5 sm:mt-6">
         {activeTab === "overview" && (
           <TabOverview
-            description={product.description}
+            description={product.description || product.short_description}
             stack={product.technical_stack}
             tags={product.tags}
           />

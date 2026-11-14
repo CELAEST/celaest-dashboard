@@ -3,6 +3,7 @@
 import React, { useCallback, useState } from "react";
 import { MarketplacePublicHero } from "./MarketplacePublicHero";
 import { ProductCardCompact } from "./ProductCardCompact";
+import { UpcomingReleaseCard, UPCOMING_RELEASES } from "./UpcomingReleaseCard";
 import { MarketplaceProduct } from "../types";
 import { useMarketplaceProducts } from "../hooks/useMarketplaceProducts";
 import { useTheme } from "@/features/shared/hooks/useTheme";
@@ -106,13 +107,16 @@ export function MarketplacePublicView() {
           {/* Master Editorial Catalog Header: Zero-Box Symmetrical Architecture */}
           <div className="relative z-10 max-w-[85rem] mx-auto mb-10 sm:mb-12">
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 pb-6 border-b border-[#24242b]">
-              <div className="flex flex-col gap-2 text-left">
-                <span className="text-[10px] font-mono tracking-[0.25em] uppercase text-zinc-500 font-medium">
-                  CATÁLOGO · {visibleProducts.length} SOLUCIONES
+              <div className="flex flex-col gap-2 text-left max-w-2xl">
+                <span className="text-[10px] font-mono tracking-[0.25em] uppercase text-violet-400/90 font-semibold">
+                  {t("progressive_rollout_badge")} · {visibleProducts.length} EN PRODUCCIÓN + {UPCOMING_RELEASES.length} EN HOJA DE RUTA
                 </span>
                 <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-[-0.03em] text-white">
                   {t("available_solutions")}
                 </h2>
+                <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed font-sans">
+                  {t("progressive_rollout_note")}
+                </p>
               </div>
 
               {/* Zero-Box Editorial Typography Switcher (CELAEST Landing Standard) */}
@@ -224,6 +228,10 @@ export function MarketplacePublicView() {
                   priority={index < 3}
                 />
               ))}
+              {selectedTier === "all" &&
+                UPCOMING_RELEASES.map((item) => (
+                  <UpcomingReleaseCard key={item.id} item={item} />
+                ))}
             </div>
           )}
         </div>

@@ -255,7 +255,7 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
             {/* ── AQUÍ Y ÚNICAMENTE AQUÍ SE MUESTRA PLAN PRO (1 SOLA VEZ EN TODO EL MODAL, SOLO COLOR DE TEXTO) ── */}
             <div className="flex items-center justify-between">
               <span className={`text-[10px] font-mono uppercase tracking-[0.18em] ${theme === "dark" ? "text-white/40" : "text-gray-500"}`}>
-                Licencia Comercial
+                {isSaasProduct(product) ? t("licensing_saas") : t("licensing_perpetual")}
               </span>
               <span className={`text-[10px] font-mono tracking-wider uppercase font-semibold ${planColorClass}`}>
                 {planLabel}
@@ -279,8 +279,9 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
                 <span className={`text-3xl sm:text-4xl font-extrabold tracking-tight font-sans ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
                   {formattedFinalPrice}
                 </span>
-                <span className={`text-xs ${theme === "dark" ? "text-white/40" : "text-gray-500"}`}>
-                  {product.currency}
+                <span className={`text-xs font-mono ${theme === "dark" ? "text-white/40" : "text-gray-500"}`}>
+                  {!isGeoPriced ? product.currency : ""}
+                  {isSaasProduct(product) ? " / mes" : ""}
                 </span>
               </div>
             </div>
@@ -396,8 +397,8 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
               isMono: true,
             },
             {
-              label: "Licenciamiento",
-              value: "Comercial Perpetua",
+              label: t("licensing_label"),
+              value: isSaasProduct(product) ? t("licensing_saas") : t("licensing_perpetual"),
               isMono: true,
             },
           ].map((item) => (
