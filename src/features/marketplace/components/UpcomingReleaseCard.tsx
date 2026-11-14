@@ -1,90 +1,113 @@
 "use client";
 
-import React from "react";
-import { Sparkle, Cpu, Database, ClockCountdown } from "@phosphor-icons/react";
+import React, { useState } from "react";
+import { Bell, CaretRight, Check } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
+import { StudioCardShell } from "./studio-card/StudioCardShell";
+import type { StudioCapabilityStep } from "./studio-card/catalogCardHelpers";
 
 export interface UpcomingReleaseItem {
-  id: "flow-studio" | "data-ops";
+  id: "empleo" | "ordenes";
+  imageSrc: string;
+  imageAltKey: "upcoming_1_image_alt" | "upcoming_2_image_alt";
   categoryKey: "upcoming_1_category" | "upcoming_2_category";
   titleKey: "upcoming_1_title" | "upcoming_2_title";
   descKey: "upcoming_1_desc" | "upcoming_2_desc";
   tierKey: "upcoming_1_tier" | "upcoming_2_tier";
   tagsKey: "upcoming_1_tags" | "upcoming_2_tags";
+  stepPrefix: "upcoming_1" | "upcoming_2";
 }
 
 export const UPCOMING_RELEASES: UpcomingReleaseItem[] = [
   {
-    id: "flow-studio",
+    id: "empleo",
+    imageSrc: "/images/marketplace/upcoming-empleo-violet.webp",
+    imageAltKey: "upcoming_1_image_alt",
     categoryKey: "upcoming_1_category",
     titleKey: "upcoming_1_title",
     descKey: "upcoming_1_desc",
     tierKey: "upcoming_1_tier",
     tagsKey: "upcoming_1_tags",
+    stepPrefix: "upcoming_1",
   },
   {
-    id: "data-ops",
+    id: "ordenes",
+    imageSrc: "/images/marketplace/upcoming-ordenes-violet.webp",
+    imageAltKey: "upcoming_2_image_alt",
     categoryKey: "upcoming_2_category",
     titleKey: "upcoming_2_title",
     descKey: "upcoming_2_desc",
     tierKey: "upcoming_2_tier",
     tagsKey: "upcoming_2_tags",
+    stepPrefix: "upcoming_2",
   },
 ];
 
 export const UpcomingReleaseCard: React.FC<{ item: UpcomingReleaseItem }> = ({ item }) => {
   const t = useTranslations("marketplace");
-  const tags = t(item.tagsKey).split(",");
-  const Icon = item.id === "flow-studio" ? Cpu : Database;
+  const [activeStep, setActiveStep] = useState(0);
+  const [notified, setNotified] = useState(false);
+
+  const steps: StudioCapabilityStep[] = [1, 2, 3].map((n) => ({
+    num: `0${n}`,
+    name: t(`${item.stepPrefix}_step_${n}_name`),
+    tag: t(`${item.stepPrefix}_step_${n}_tag`),
+    detail: t(`${item.stepPrefix}_step_${n}_detail`),
+  }));
+
+  const title = t(item.titleKey);
+  const nextStepLabel = `0${((activeStep + 1) % steps.length) + 1}`;
+
+  const handleToggleNotify = () => {
+    const nextState = !notified;
+    setNotified(nextState);
+    if (nextState) {
+      toast.success(t("upcoming_notify_toast", { title }));
+    } else {
+      toast.message(t("upcoming_notify_cancelled_toast", { title }));
+    }
+  };
 
   return (
-    <article className="relative flex flex-col justify-between rounded-2xl bg-[#070709]/90 border border-dashed border-white/[0.11] hover:border-violet-400/35 p-5 sm:p-6 transition-all duration-300 overflow-hidden select-none">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(167,139,250,0.06),transparent_65%)]" />
-      <div className="relative z-10 flex flex-col gap-3.5">
-        <div className="flex items-center justify-between gap-2 pb-3 border-b border-white/[0.06]">
-          <span className="inline-flex items-center gap-1.5 font-jetbrains text-[10px] font-bold uppercase tracking-[0.16em] text-violet-300/90">
-            <ClockCountdown size={13} weight="duotone" className="text-violet-400" />
-            {t("upcoming_badge")}
-          </span>
-          <span className="font-jetbrains text-[10px] uppercase tracking-wider text-zinc-400">
-            {t(item.tierKey)}
-          </span>
-        </div>
-
-        <div className="flex items-center gap-3 pt-1">
-          <div className="w-10 h-10 rounded-xl bg-violet-500/10 border border-violet-400/20 flex items-center justify-center text-violet-300 shrink-0">
-            <Icon size={20} weight="duotone" />
-          </div>
-          <div>
-            <span className="font-jetbrains text-[10px] uppercase tracking-[0.18em] text-zinc-500 block">
-              {t(item.categoryKey)}
-            </span>
-            <h3 className="font-jakarta font-extrabold text-white text-base sm:text-lg tracking-tight leading-snug">
-              {t(item.titleKey)}
-            </h3>
-          </div>
-        </div>
-
-        <p className="text-xs text-[#A1A1AA] leading-relaxed font-sans">{t(item.descKey)}</p>
-
-        <div className="flex flex-wrap gap-1.5 pt-1">
-          {tags.map((tag) => (
-            <span
-              key={tag}
-              className="px-2 py-0.5 rounded-md bg-white/[0.03] border border-white/[0.06] font-jetbrains text-[10px] text-zinc-400"
-            >
-              {tag.trim()}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      <div className="relative z-10 mt-5 pt-3.5 border-t border-white/[0.06] flex items-center justify-between gap-2">
-        <span className="inline-flex items-center gap-1.5 text-[11px] font-jetbrains text-violet-300/85">
-          <Sparkle size={12} weight="fill" className="text-violet-400 shrink-0" />
-          {t("upcoming_footer")}
+    <StudioCardShell
+      variant="upcoming"
+      imageSrc={item.imageSrc}
+      imageAlt={t(item.imageAltKey)}
+      topLeftLabel={t(item.categoryKey)}
+      topRightNode={<span className="sb4-tag-sub">{t("upcoming_short_badge")}</span>}
+      title={title}
+      description={t(item.descKey)}
+      steps={steps}
+      activeStep={activeStep}
+      onSelectStep={setActiveStep}
+      footerMetaLeft={
+        <span className="sb-mono sb-muted" style={{ whiteSpace: "normal", lineHeight: 1.35, fontSize: 9 }}>
+          {t("upcoming_rollout_note")}
         </span>
-      </div>
-    </article>
+      }
+      footerMetaRight={t(item.tierKey)}
+      leftActionButton={
+        <button
+          type="button"
+          className="sb-btn sb-btn--ghost"
+          onClick={() => setActiveStep((prev) => (prev + 1) % steps.length)}
+        >
+          <span>{t("upcoming_step_btn", { step: nextStepLabel })}</span>
+          <CaretRight size={13} weight="bold" />
+        </button>
+      }
+      rightActionButton={
+        <button
+          type="button"
+          aria-pressed={notified}
+          className={`sb-btn ${notified ? "sb-btn--active" : "sb-btn--solid"}`}
+          onClick={handleToggleNotify}
+        >
+          {notified ? <Check size={13} weight="bold" /> : <Bell size={13} weight="bold" />}
+          <span>{notified ? t("upcoming_notified_btn") : t("upcoming_notify_btn")}</span>
+        </button>
+      }
+    />
   );
 };

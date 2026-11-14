@@ -1,111 +1,50 @@
 import React from "react";
 import { motion } from "motion/react";
-import { useTheme } from "@/features/shared/hooks/useTheme";
 
 export const ProductSkeleton: React.FC = () => {
-  const { theme } = useTheme();
-
   return (
-    <div
-      className={`
-      rounded-3xl overflow-hidden
-      ${
-        theme === "dark"
-          ? "bg-[#0a0a0a]/60 border border-white/5"
-          : "bg-white border border-gray-200"
-      }
-    `}
-    >
-      {/* Image Skeleton */}
-      <div className="h-[280px] w-full relative overflow-hidden">
-        <motion.div
-          animate={{
-            backgroundPosition: ["0% 0%", "100% 0%", "0% 0%"],
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-          className={`
-            w-full h-full
-            ${
-              theme === "dark"
-                ? "bg-linear-to-r from-white/5 via-white/10 to-white/5"
-                : "bg-linear-to-r from-gray-200 via-gray-300 to-gray-200"
-            }
-          `}
-          style={{ backgroundSize: "200% 100%" }}
-        />
+    <div className="min-h-[556px] rounded-2xl bg-[#09090b] border border-white/[0.08] overflow-hidden flex flex-col justify-between">
+      <div>
+        {/* Studio 214px Hero Skeleton */}
+        <div className="h-[214px] w-full relative overflow-hidden bg-[#050507]">
+          <motion.div
+            animate={{ backgroundPosition: ["0% 0%", "100% 0%", "0% 0%"] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            className="w-full h-full bg-linear-to-r from-white/[0.03] via-white/[0.08] to-white/[0.03]"
+            style={{ backgroundSize: "200% 100%" }}
+          />
+        </div>
+
+        {/* Body & 3 Flush Hairline Rows */}
+        <div className="px-[22px] pt-1 pb-4 space-y-3">
+          <div className="h-5 w-2/3 rounded bg-white/[0.08]" />
+          <div className="space-y-1.5">
+            <div className="h-3.5 w-full rounded bg-white/[0.05]" />
+            <div className="h-3.5 w-4/5 rounded bg-white/[0.05]" />
+          </div>
+
+          <div className="pt-1 border-t border-white/[0.06] divide-y divide-white/[0.05]">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="py-2.5 flex items-center justify-between gap-3">
+                <div className="h-3 w-36 rounded bg-white/[0.06]" />
+                <div className="h-2.5 w-10 rounded bg-white/[0.04]" />
+              </div>
+            ))}
+          </div>
+
+          <div className="h-7 w-11/12 rounded bg-white/[0.04]" />
+        </div>
       </div>
 
-      {/* Content Skeleton */}
-      <div className="p-6 space-y-4">
-        {/* Rating skeleton */}
-        <div className="flex items-center gap-2">
-          <div
-            className={`h-3 w-20 rounded ${
-              theme === "dark" ? "bg-white/10" : "bg-gray-200"
-            }`}
-          />
-          <div
-            className={`h-3 w-24 rounded ${
-              theme === "dark" ? "bg-white/10" : "bg-gray-200"
-            }`}
-          />
+      {/* Footer Price + Dual CTA Skeleton */}
+      <div className="px-[22px] pt-3 pb-[18px] border-t border-white/[0.06] space-y-2.5">
+        <div className="flex items-end justify-between">
+          <div className="h-7 w-28 rounded bg-white/[0.08]" />
+          <div className="h-3 w-16 rounded bg-white/[0.05]" />
         </div>
-
-        {/* Title skeleton */}
-        <div
-          className={`h-6 w-3/4 rounded ${
-            theme === "dark" ? "bg-white/10" : "bg-gray-200"
-          }`}
-        />
-
-        {/* Description skeleton */}
-        <div className="space-y-2">
-          <div
-            className={`h-4 w-full rounded ${
-              theme === "dark" ? "bg-white/10" : "bg-gray-200"
-            }`}
-          />
-          <div
-            className={`h-4 w-5/6 rounded ${
-              theme === "dark" ? "bg-white/10" : "bg-gray-200"
-            }`}
-          />
-        </div>
-
-        {/* Features skeleton */}
-        <div className="space-y-2 pt-2">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="flex items-center gap-2">
-              <div
-                className={`h-4 w-4 rounded ${
-                  theme === "dark" ? "bg-white/10" : "bg-gray-200"
-                }`}
-              />
-              <div
-                className={`h-3 w-32 rounded ${
-                  theme === "dark" ? "bg-white/10" : "bg-gray-200"
-                }`}
-              />
-            </div>
-          ))}
-        </div>
-
-        {/* Price & Button skeleton */}
-        <div className="pt-4 border-t border-white/10 space-y-4">
-          <div
-            className={`h-8 w-28 rounded ${
-              theme === "dark" ? "bg-white/10" : "bg-gray-200"
-            }`}
-          />
-          <div
-            className={`h-12 w-full rounded-xl ${
-              theme === "dark" ? "bg-white/10" : "bg-gray-200"
-            }`}
-          />
+        <div className="grid grid-cols-2 gap-2">
+          <div className="h-9 rounded-[9px] bg-white/[0.05]" />
+          <div className="h-9 rounded-[9px] bg-white/[0.08]" />
         </div>
       </div>
     </div>
