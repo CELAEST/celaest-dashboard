@@ -8,6 +8,7 @@ import { AuthActions, AuthResult, AuthSession, AuthUser } from "../lib/types";
 
 import { getAuthErrorMessage } from "../lib/errors";
 import { mapSupabaseUser } from "../lib/mappers";
+import { parseRole, calculateEffectivePermissions } from "../lib/permissions";
 import { authService } from "../services/auth.service";
 import { useAuthStore } from "../stores/useAuthStore";
 
@@ -38,6 +39,7 @@ export function useAuthActions(
           }
 
           // Sincronizar inmediatamente el store para evitar parpadeos de renderizado
+          const fallbackRole = parseRole((response.user as { role?: string } | undefined)?.role);
           const userObj: AuthUser = sessionData?.session?.user
             ? mapSupabaseUser(sessionData.session.user)
             : {
@@ -45,8 +47,8 @@ export function useAuthActions(
                 email: response.user?.email || email.trim().toLowerCase(),
                 name: response.user?.name || email.split("@")[0],
                 avatarUrl: response.user?.avatar_url,
-                role: "client",
-                permissions: [],
+                role: fallbackRole,
+                permissions: calculateEffectivePermissions(fallbackRole),
                 emailVerified: true,
                 createdAt: new Date().toISOString(),
               };

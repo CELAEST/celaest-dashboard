@@ -8,6 +8,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { authService } from "../../services/auth.service";
 import { useAuthStore } from "../../stores/useAuthStore";
 import { AuthUser } from "../../lib/types";
+import { parseRole, calculateEffectivePermissions } from "../../lib/permissions";
 import { toast } from "sonner";
 
 interface OtpLoginFormProps {
@@ -74,14 +75,15 @@ export const OtpLoginForm: React.FC<OtpLoginFormProps> = ({
 
   const applyVerifiedSession = useCallback((res: OtpVerifyResponse, targetEmail: string) => {
     if (!res.access_token) return false;
-    const resUser = res.user as { id?: string; email?: string; name?: string; role?: AuthUser["role"] } | undefined;
+    const resUser = res.user as { id?: string; email?: string; name?: string; role?: string } | undefined;
     const resolvedEmail = resUser?.email || targetEmail;
+    const resolvedRole = parseRole(resUser?.role);
     const userObj: AuthUser = {
       id: resUser?.id || "user",
       email: resolvedEmail,
       name: resUser?.name || resolvedEmail.split("@")[0],
-      role: resUser?.role || "client",
-      permissions: [],
+      role: resolvedRole,
+      permissions: calculateEffectivePermissions(resolvedRole),
       emailVerified: true,
       createdAt: new Date().toISOString(),
     };
