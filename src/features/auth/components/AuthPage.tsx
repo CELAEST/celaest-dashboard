@@ -1,7 +1,7 @@
 "use client";
 
 // Login and Registration page for CELAEST with split screen transition
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { motion, AnimatePresence } from "motion/react";
@@ -40,6 +40,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ defaultMode }) => {
   const [mode, setMode] = useState<AuthViewMode>(resolvedInitialMode);
   const [pendingVerificationEmail, setPendingVerificationEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const authSubmitInFlightRef = useRef(false);
   const tAuth = useTranslations("auth");
   const bgMode: "signin" | "signup" = mode === "signup" ? "signup" : "signin";
 
@@ -74,44 +75,56 @@ export const AuthPage: React.FC<AuthPageProps> = ({ defaultMode }) => {
 
   // Handlers
   const handleLoginSubmit = async (data: LoginFormValues) => {
+    if (authSubmitInFlightRef.current) return;
+    authSubmitInFlightRef.current = true;
     setLoading(true);
-    const result = await signIn(data.email, data.password);
-    if (!result.success) {
-      if (result.error?.code === "EMAIL_NOT_VERIFIED") {
-        setPendingVerificationEmail(data.email.trim().toLowerCase());
-        setMode("otp");
+    try {
+      const result = await signIn(data.email, data.password);
+      if (!result.success) {
+        if (result.error?.code === "EMAIL_NOT_VERIFIED") {
+          setPendingVerificationEmail(data.email.trim().toLowerCase());
+          setMode("otp");
+        }
+        toast.error(tAuth("login_error_title"), {
+          description: result.error?.message || tAuth("login_error_message")
+        });
+      } else {
+        toast.success(tAuth("welcome_back_toast"), {
+          description: tAuth("login_success")
+        });
+        router.push(getPostAuthRedirect());
       }
-      toast.error(tAuth("login_error_title"), {
-        description: result.error?.message || tAuth("login_error_message")
-      });
-    } else {
-      toast.success(tAuth("welcome_back_toast"), {
-        description: tAuth("login_success")
-      });
-      router.push(getPostAuthRedirect());
+    } finally {
+      authSubmitInFlightRef.current = false;
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleSignupSubmit = async (data: SignupFormValues) => {
+    if (authSubmitInFlightRef.current) return;
+    authSubmitInFlightRef.current = true;
     setLoading(true);
-    const result = await signUp(data.email, data.password, data.name);
-    if (!result.success) {
-      toast.error(tAuth("signup_error_title"), {
-        description: result.error?.message || tAuth("signup_error_message")
-      });
-    } else if (result.data?.requiresVerification) {
-      const targetEmail = result.data.email || data.email.trim().toLowerCase();
-      setPendingVerificationEmail(targetEmail);
-      setMode("otp");
-      toast.success(tAuth("otp_code_sent"));
-    } else {
-      toast.success(tAuth("account_created"), {
-        description: tAuth("account_created_message")
-      });
-      router.push(getPostAuthRedirect());
+    try {
+      const result = await signUp(data.email, data.password, data.name);
+      if (!result.success) {
+        toast.error(tAuth("signup_error_title"), {
+          description: result.error?.message || tAuth("signup_error_message")
+        });
+      } else if (result.data?.requiresVerification) {
+        const targetEmail = result.data.email || data.email.trim().toLowerCase();
+        setPendingVerificationEmail(targetEmail);
+        setMode("otp");
+        toast.success(tAuth("otp_code_sent"));
+      } else {
+        toast.success(tAuth("account_created"), {
+          description: tAuth("account_created_message")
+        });
+        router.push(getPostAuthRedirect());
+      }
+    } finally {
+      authSubmitInFlightRef.current = false;
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const toggleMode = () => setMode(mode === "signin" ? "signup" : "signin");

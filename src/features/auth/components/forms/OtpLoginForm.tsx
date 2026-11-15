@@ -54,6 +54,7 @@ export const OtpLoginForm: React.FC<OtpLoginFormProps> = ({
   const [resending, setResending] = useState(false);
   const [verifyingLink, setVerifyingLink] = useState(Boolean(initialToken));
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const actionInFlightRef = useRef(false);
 
   const onSuccessRef = useRef(onSuccess);
   onSuccessRef.current = onSuccess;
@@ -144,7 +145,8 @@ export const OtpLoginForm: React.FC<OtpLoginFormProps> = ({
 
   const handleVerifyCode = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (loading || verifyingLink) return;
+    if (actionInFlightRef.current || loading || verifyingLink) return;
+    actionInFlightRef.current = true;
     setLoading(true);
     setErrorMsg(null);
     try {
@@ -155,6 +157,7 @@ export const OtpLoginForm: React.FC<OtpLoginFormProps> = ({
       setErrorMsg(msg);
       toast.error(msg);
     } finally {
+      actionInFlightRef.current = false;
       setLoading(false);
     }
   };
@@ -162,7 +165,8 @@ export const OtpLoginForm: React.FC<OtpLoginFormProps> = ({
   const handleRequestCode = async (e: React.FormEvent) => {
     e.preventDefault();
     const cleanEmail = email.trim();
-    if (!cleanEmail || loading) return;
+    if (!cleanEmail || actionInFlightRef.current || loading) return;
+    actionInFlightRef.current = true;
     setLoading(true);
     setErrorMsg(null);
     try {
@@ -175,6 +179,7 @@ export const OtpLoginForm: React.FC<OtpLoginFormProps> = ({
       setErrorMsg(msg);
       toast.error(msg);
     } finally {
+      actionInFlightRef.current = false;
       setLoading(false);
     }
   };
@@ -185,7 +190,8 @@ export const OtpLoginForm: React.FC<OtpLoginFormProps> = ({
       setStep("email");
       return;
     }
-    if (resending || loading || verifyingLink) return;
+    if (actionInFlightRef.current || resending || loading || verifyingLink) return;
+    actionInFlightRef.current = true;
     setResending(true);
     setErrorMsg(null);
     try {
@@ -197,6 +203,7 @@ export const OtpLoginForm: React.FC<OtpLoginFormProps> = ({
       setErrorMsg(msg);
       toast.error(msg);
     } finally {
+      actionInFlightRef.current = false;
       setResending(false);
     }
   };

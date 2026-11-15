@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Envelope, ArrowRight, ArrowLeft, CheckCircle } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,10 +22,12 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  const submittingRef = useRef(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim()) return;
+    if (submittingRef.current || loading || sent || !email.trim()) return;
+    submittingRef.current = true;
     setLoading(true);
     try {
       await authService.requestPasswordReset(email, locale);
@@ -34,6 +36,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
     } catch (err) {
       toast.error(err instanceof Error ? err.message : tAuth("unexpected_error"));
     } finally {
+      submittingRef.current = false;
       setLoading(false);
     }
   };

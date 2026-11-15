@@ -5,6 +5,7 @@ import { NextIntlClientProvider } from "next-intl";
 import esMessages from "@/messages/es.json";
 import { OtpLoginForm } from "@/features/auth/components/forms/OtpLoginForm";
 import { LoginForm } from "@/features/auth/components/forms/LoginForm";
+import { ForgotPasswordForm } from "@/features/auth/components/forms/ForgotPasswordForm";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 
 function renderWithIntl(ui: React.ReactElement) {
@@ -193,6 +194,95 @@ describe("OtpLoginForm — magic-link single invocation and error recovery", () 
 
     expect(screen.queryByText(esMessages.auth.sign_in_with_otp)).toBeNull();
     expect(screen.getByText(esMessages.auth.forgot_password)).toBeTruthy();
+  });
+
+  it("maps fallback 'authenticated' role to 'client' with full client permissions on OTP verify", async () => {
+    window.history.replaceState({}, "", "/auth");
+    const fetchMock = vi.fn().mockImplementation(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("/auth/otp/verify")) {
+        return new Response(
+          JSON.stringify({
+            success: true,
+            data: {
+              access_token: "jwt-auth-fallback",
+              expires_in: 86400,
+              refresh_token: "ref-auth-fallback",
+              user: { id: "u-new-2", email: "cliente@celaest.com", role: "authenticated" },
+            },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", { status: 404 });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    renderWithIntl(
+      <OtpLoginForm isDark={false} initialEmail="cliente@celaest.com" onSuccess={vi.fn()} onBack={vi.fn()} />,
+    );
+
+    fireEvent.change(screen.getByPlaceholderText("000000"), { target: { value: "123456" } });
+    fireEvent.click(screen.getByRole("button", { name: esMessages.auth.verify_otp_button }));
+
+    await waitFor(() => {
+      expect(useAuthStore.getState().isAuthenticated).toBe(true);
+    });
+    const storedUser = useAuthStore.getState().user;
+    expect(storedUser?.role).toBe("client");
+    expect((storedUser?.permissions || []).length).toBeGreaterThan(0);
+  });
+
+  it("ignores rapid double-click on ForgotPasswordForm and OtpLoginForm resend (strictly 1 email request)", async () => {
+    window.history.replaceState({}, "", "/auth");
+    const deferred: Array<() => void> = [];
+    const fetchMock = vi.fn().mockImplementation(
+      () =>
+        new Promise<Response>((resolve) => {
+          deferred.push(() =>
+            resolve(
+              new Response(JSON.stringify({ success: true, data: { message: "sent", expires_in: 900 } }), {
+                status: 200,
+                headers: { "Content-Type": "application/json" },
+              }),
+            ),
+          );
+        }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    renderWithIntl(<ForgotPasswordForm isDark={false} onBack={vi.fn()} />);
+    fireEvent.change(screen.getByPlaceholderText(esMessages.auth.email_placeholder), {
+      target: { value: "rapid@celaest.com" },
+    });
+    const submitBtn = screen.getByRole("button", { name: esMessages.auth.send_recovery_link });
+    const form = submitBtn.closest("form")!;
+    fireEvent.submit(form);
+    fireEvent.submit(form);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    deferred.shift()?.();
+
+    const otpFetchMock = vi.fn().mockImplementation(
+      () =>
+        new Promise<Response>((resolve) => {
+          deferred.push(() =>
+            resolve(
+              new Response(JSON.stringify({ success: true, data: { message: "sent", expires_in: 900 } }), {
+                status: 200,
+                headers: { "Content-Type": "application/json" },
+              }),
+            ),
+          );
+        }),
+    );
+    vi.stubGlobal("fetch", otpFetchMock);
+
+    renderWithIntl(<OtpLoginForm isDark={false} initialEmail="rapid@celaest.com" onSuccess={vi.fn()} onBack={vi.fn()} />);
+    const resendBtn = screen.getByRole("button", { name: esMessages.auth.resend_otp });
+    fireEvent.click(resendBtn);
+    fireEvent.click(resendBtn);
+    expect(otpFetchMock).toHaveBeenCalledTimes(1);
+    deferred.shift()?.();
   });
 });
 
