@@ -193,13 +193,20 @@ export const marketplaceApi = {
    */
   createCheckoutSession: async (productId: string, token: string, orgId: string, couponCode?: string) => {
     let returnUrl = "";
+    let countryOverride: string | undefined;
     if (typeof window !== "undefined") {
       returnUrl = window.location.href.split("?")[0];
+      const params = new URLSearchParams(window.location.search);
+      const rawCountry = params.get("geoCountry") || params.get("country");
+      if (rawCountry) {
+        countryOverride = rawCountry.toUpperCase();
+      }
     }
     
-    const payload: { product_id: string; coupon_code?: string; return_url?: string } = { 
+    const payload: { product_id: string; coupon_code?: string; return_url?: string; country?: string } = { 
       product_id: productId,
-      ...(returnUrl && { return_url: returnUrl })
+      ...(returnUrl && { return_url: returnUrl }),
+      ...(countryOverride && { country: countryOverride })
     };
     if (couponCode) {
       payload.coupon_code = couponCode;

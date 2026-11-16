@@ -10,6 +10,7 @@ import { CardGridSkeleton } from "@/components/ui/skeletons";
 import { useBilling } from "../../hooks/useBilling";
 import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
+import { useGeoPricing } from "../../providers/GeoPricingProvider";
 import { billingApi } from "../../api/billing.api";
 import { ApiError } from "@/lib/api-client";
 import { useTranslations } from "next-intl";
@@ -30,6 +31,7 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
   const { plans, activePlanIds, isLoading: isBillingLoading } = useBilling();
   const { currentOrg } = useOrgStore();
   const { session } = useAuth();
+  const { pricing } = useGeoPricing();
   const searchParams = useSearchParams();
   const requestedPlan = searchParams.get("plan");
   const requestedCycle = searchParams.get("billing_cycle") === "yearly" ? "yearly" : "monthly";
@@ -80,7 +82,7 @@ export function UpgradePlanModal({ isOpen, onClose }: UpgradePlanModalProps) {
           user_id: session.user.id,
           plan_id: plan.id,
           billing_cycle: billingCycle,
-          country: "CO",
+          ...(pricing?.country_code ? { country: pricing.country_code } : {}),
           ...(plan.productId || plan.product_id
             ? { product_id: plan.productId || plan.product_id }
             : {}),
