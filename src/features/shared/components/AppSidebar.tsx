@@ -71,10 +71,10 @@ export const AppSidebar = React.memo(function AppSidebar({
         .map((section) => ({
           ...section,
           items: section.items.filter((item) => {
-            if (isGuest) return true;
             if (item.superAdminOnly && user?.role !== "super_admin") return false;
+            if (isGuest || !user) return !item.scope;
             if (!item.scope) return true;
-            return user ? hasPermission(item.scope as Permission) : true;
+            return hasPermission(item.scope as Permission);
           }),
         }))
         .filter((section) => section.items.length > 0),

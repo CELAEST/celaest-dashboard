@@ -85,7 +85,8 @@ export const usePurchaseFlow = (onClose: () => void, initialStep = 1, onSuccess?
   useEffect(() => {
     if (step === 3 && !purchaseComplete && !purchaseMutation.isPending && !isVerifying.current) {       
       const urlParams = new URLSearchParams(window.location.search);
-      const sessionId = urlParams.get("session_id");
+      const sessionId =
+        urlParams.get("checkout_id") || urlParams.get("session_id");
 
       if (!sessionId || !token || !orgId) {
         logger.error("Missing session_id, auth token, or orgId for verification");

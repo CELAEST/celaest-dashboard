@@ -64,7 +64,8 @@ export const BillingPortal: React.FC = () => {
 
     const success = searchParams.get("success");
     const cancel = searchParams.get("cancel");
-    const sessionId = searchParams.get("session_id");
+    const sessionId =
+      searchParams.get("checkout_id") || searchParams.get("session_id");
 
     if (success === "true") {
       // Defer until the token is available so verifyPurchase can be called.

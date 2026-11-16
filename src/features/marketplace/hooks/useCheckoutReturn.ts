@@ -18,7 +18,8 @@ export function useCheckoutReturn(
 
   useEffect(() => {
     const isSuccess = searchParams.get("success") === "true";
-    const productIdFromUrl = searchParams.get("product_id");
+    const productIdFromUrl =
+      searchParams.get("celaest_product_id") || searchParams.get("product_id");
 
     if (isSuccess && !selectedProduct && !processedReturn.current) {
       // Wait until products have at least finished loading before grabbing them
@@ -47,6 +48,7 @@ export function useCheckoutReturn(
           const url = new URL(window.location.href);
           url.searchParams.delete("success");
           url.searchParams.delete("product_id");
+          url.searchParams.delete("celaest_product_id");
           window.history.replaceState({}, "", url.toString());
         }, 0);
       } else if (!isLoading && products.length > 0) {
