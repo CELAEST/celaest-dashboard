@@ -103,14 +103,24 @@ export function resolveCardPricingState({
   const currency = product.currency || "USD";
   const isGeoPriced = Boolean(pricing && pricing.country_code && pricing.country_code !== "US");
   const exchangeRate = pricing?.exchange_rate ?? 1;
-  const localBasePrice = isGeoPriced ? product.base_price * exchangeRate : product.base_price;
+  const pppFactor = pricing?.ppp_factor ?? 1;
+  const isZeroDecimal = pricing?.currency?.is_zero_decimal ?? false;
+  const roundLocal = (v: number) =>
+    isZeroDecimal ? Math.round(v) : Math.round(v * 100) / 100;
+  const localBasePrice = isGeoPriced
+    ? roundLocal(product.base_price * pppFactor * exchangeRate)
+    : product.base_price;
 
   let finalPrice = localBasePrice;
   if (activeCoupon) {
     if (activeCoupon.type === "percentage") {
-      finalPrice = localBasePrice * (1 - activeCoupon.value / 100);
+      finalPrice = isGeoPriced
+        ? roundLocal(localBasePrice * (1 - activeCoupon.value / 100))
+        : localBasePrice * (1 - activeCoupon.value / 100);
     } else if (activeCoupon.type === "fixed_amount") {
-      const localDiscount = isGeoPriced ? activeCoupon.value * exchangeRate : activeCoupon.value;
+      const localDiscount = isGeoPriced
+        ? roundLocal(activeCoupon.value * pppFactor * exchangeRate)
+        : activeCoupon.value;
       finalPrice = Math.max(0, localBasePrice - localDiscount);
     }
   }

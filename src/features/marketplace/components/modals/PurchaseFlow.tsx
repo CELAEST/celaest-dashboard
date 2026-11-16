@@ -72,15 +72,19 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
   const { activeCoupon, setCoupon, clearCoupon } = useMarketplaceCouponStore();
   const { pricing, formatPrice } = useGeoPricing();
 
-  // Geo-pricing (NO PPP discount for products, only exchange rate)
+  // Geo-pricing (PPP + exchange rate aligned with backend CalculateLocalPrice)
   const isGeoPriced = !!(pricing && pricing.country_code && pricing.country_code !== "US");
   const basePrice = product?.base_price ?? 0;
+  const exchangeRate = pricing?.exchange_rate ?? 1;
+  const pppFactor = pricing?.ppp_factor ?? 1;
+  const isZeroDecimal = pricing?.currency?.is_zero_decimal ?? false;
+  const roundLocal = (v: number) =>
+    isZeroDecimal ? Math.round(v) : Math.round(v * 100) / 100;
   const localBasePrice = isGeoPriced
-    ? basePrice * (pricing?.exchange_rate ?? 1)
+    ? roundLocal(basePrice * pppFactor * exchangeRate)
     : basePrice;
 
   // Fixed-amount coupons are denominated in USD; scale to local currency.
-  const exchangeRate = pricing?.exchange_rate ?? 1;
   let finalPrice = localBasePrice;
   let discountAmountValue = 0;
   let discountPercentage = 0;
@@ -88,11 +92,13 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
   if (activeCoupon && product) {
     if (activeCoupon.type === "percentage") {
       discountPercentage = activeCoupon.value;
-      discountAmountValue = localBasePrice * (activeCoupon.value / 100);
+      discountAmountValue = isGeoPriced
+        ? roundLocal(localBasePrice * (activeCoupon.value / 100))
+        : localBasePrice * (activeCoupon.value / 100);
       finalPrice = localBasePrice - discountAmountValue;
     } else if (activeCoupon.type === "fixed_amount") {
       const localDiscount = isGeoPriced
-        ? activeCoupon.value * exchangeRate
+        ? roundLocal(activeCoupon.value * pppFactor * exchangeRate)
         : activeCoupon.value;
       discountAmountValue = localDiscount;
       discountPercentage = localBasePrice > 0 ? Math.round((localDiscount / localBasePrice) * 100) : 0;

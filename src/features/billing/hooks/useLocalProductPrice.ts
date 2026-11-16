@@ -25,9 +25,14 @@ export function useLocalProductPrice() {
     pricing.country_code !== "US"
   );
   const exchangeRate = pricing?.exchange_rate ?? 1;
+  const pppFactor = pricing?.ppp_factor ?? 1;
+  const isZeroDecimal = pricing?.currency?.is_zero_decimal ?? false;
 
-  const localize = (usdPrice: number): number =>
-    isGeoPriced ? usdPrice * exchangeRate : usdPrice;
+  const localize = (usdPrice: number): number => {
+    if (!isGeoPriced) return usdPrice;
+    const raw = usdPrice * pppFactor * exchangeRate;
+    return isZeroDecimal ? Math.round(raw) : Math.round(raw * 100) / 100;
+  };
 
   const format = (usdPrice: number, fallbackCurrency = "USD"): string =>
     isGeoPriced

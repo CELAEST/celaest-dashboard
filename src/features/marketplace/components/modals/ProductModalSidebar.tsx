@@ -98,21 +98,27 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
     setCouponError(null);
   };
 
-  // Geo-pricing (NO PPP discount for products, only exchange rate)
+  // Geo-pricing (PPP + exchange rate aligned with backend CalculateLocalPrice)
   const isGeoPriced = !!(pricing && pricing.country_code && pricing.country_code !== "US");
+  const exchangeRate = pricing?.exchange_rate ?? 1;
+  const pppFactor = pricing?.ppp_factor ?? 1;
+  const isZeroDecimal = pricing?.currency?.is_zero_decimal ?? false;
+  const roundLocal = (v: number) =>
+    isZeroDecimal ? Math.round(v) : Math.round(v * 100) / 100;
   const localBasePrice = isGeoPriced
-    ? product.base_price * (pricing?.exchange_rate ?? 1)
+    ? roundLocal(product.base_price * pppFactor * exchangeRate)
     : product.base_price;
 
   // Fixed-amount coupons are denominated in USD; scale to local currency.
-  const exchangeRate = pricing?.exchange_rate ?? 1;
   let finalPrice = localBasePrice;
   if (activeCoupon) {
     if (activeCoupon.type === "percentage") {
-      finalPrice = localBasePrice * (1 - activeCoupon.value / 100);
+      finalPrice = isGeoPriced
+        ? roundLocal(localBasePrice * (1 - activeCoupon.value / 100))
+        : localBasePrice * (1 - activeCoupon.value / 100);
     } else if (activeCoupon.type === "fixed_amount") {
       const localDiscount = isGeoPriced
-        ? activeCoupon.value * exchangeRate
+        ? roundLocal(activeCoupon.value * pppFactor * exchangeRate)
         : activeCoupon.value;
       finalPrice = Math.max(0, localBasePrice - localDiscount);
     }

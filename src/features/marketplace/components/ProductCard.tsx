@@ -27,23 +27,26 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   const { activeCoupon } = useMarketplaceCouponStore();
   const { pricing, formatPrice } = useGeoPricing();
 
-  // Geo-pricing: resolve localized price (NO PPP discount, only exchange rate)
+  // Geo-pricing: resolve localized price (PPP + exchange rate)
   const isGeoPriced = !!(pricing && pricing.country_code && pricing.country_code !== "US");
+  const exchangeRate = pricing?.exchange_rate ?? 1;
+  const pppFactor = pricing?.ppp_factor ?? 1;
+  const isZeroDecimal = pricing?.currency?.is_zero_decimal ?? false;
+  const roundLocal = (v: number) =>
+    isZeroDecimal ? Math.round(v) : Math.round(v * 100) / 100;
   const localBasePrice = isGeoPriced
-    ? product.base_price * (pricing?.exchange_rate ?? 1)
+    ? roundLocal(product.base_price * pppFactor * exchangeRate)
     : product.base_price;
 
-  // Coupon `value` for fixed_amount is denominated in USD; convert to local
-  // currency using the same exchange rate as the base price so a $20 USD
-  // coupon doesn't get applied as 20 COP off a localized COP price.
-  const exchangeRate = pricing?.exchange_rate ?? 1;
   let finalPrice = localBasePrice;
   if (activeCoupon) {
     if (activeCoupon.type === "percentage") {
-      finalPrice = localBasePrice * (1 - activeCoupon.value / 100);
+      finalPrice = isGeoPriced
+        ? roundLocal(localBasePrice * (1 - activeCoupon.value / 100))
+        : localBasePrice * (1 - activeCoupon.value / 100);
     } else if (activeCoupon.type === "fixed_amount") {
       const localDiscount = isGeoPriced
-        ? activeCoupon.value * exchangeRate
+        ? roundLocal(activeCoupon.value * pppFactor * exchangeRate)
         : activeCoupon.value;
       finalPrice = Math.max(0, localBasePrice - localDiscount);
     }
