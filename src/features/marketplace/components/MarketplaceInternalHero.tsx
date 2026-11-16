@@ -125,11 +125,11 @@ export const MarketplaceInternalHero: React.FC = () => {
     setCoupon({
       code: "WELCOME",
       type: "percentage",
-      value: 100,
+      value: 25,
     });
     setCopied(true);
     toast.success(
-      "¡Cupón WELCOME activado! 100% de descuento de bienvenida aplicado en tu próximo checkout."
+      "¡Cupón WELCOME activado! 25% de descuento de bienvenida aplicado en tu próximo checkout."
     );
     setTimeout(() => setCopied(false), 2400);
   };
@@ -142,10 +142,10 @@ export const MarketplaceInternalHero: React.FC = () => {
     t("promo_banner_internal_kicker") || "✦ CUPÓN DE BIENVENIDA DISPONIBLE";
   const kickerHint = t("promo_banner_hint") || "PASA EL CURSOR POR LAS LETRAS";
   const title =
-    t("promo_banner_internal_title") || "100% de Descuento de Bienvenida en tu Primer Despliegue";
+    t("promo_banner_internal_title") || "25% de Descuento de Bienvenida en tu Primer Despliegue";
   const subtitle =
     t("promo_banner_internal_subtitle") ||
-    "Aplica el cupón WELCOME al adquirir cualquier solución de IA para activar tu infraestructura sin costo inicial.";
+    "Aplica el cupón WELCOME al adquirir cualquier solución de IA y obtén 25% de descuento en tu primera suscripción.";
   const couponLabel = t("promo_banner_coupon_label") || "CUPÓN DE BIENVENIDA";
   const isCouponActive =
     activeCoupon?.code === "WELCOME" || activeCoupon?.code === "WELCOM" || activeCoupon?.code === "EARLYBIRD";
@@ -171,7 +171,7 @@ export const MarketplaceInternalHero: React.FC = () => {
             {/* Left Column: Monumental 100% + Reactive Heading */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 sm:gap-7">
               <div className="text-5xl sm:text-6xl font-black shrink-0 flex items-center leading-none">
-                <GlowOutlineLetters text="100%" />
+                <GlowOutlineLetters text="25%" />
               </div>
 
               <div className="flex flex-col gap-1.5 text-left">

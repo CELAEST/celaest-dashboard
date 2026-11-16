@@ -138,7 +138,7 @@ export function CouponFAB({ onRequireLogin }: CouponFABProps = {}) {
         const couponData = {
           code: "WELCOME",
           type: "percentage" as const,
-          value: 100,
+          value: 25,
         };
         setCoupon(couponData);
         await settingsApi.updatePreferences(

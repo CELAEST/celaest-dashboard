@@ -122,10 +122,10 @@ export const MarketplacePublicHero: React.FC = () => {
 
   const kicker = t("promo_banner_kicker") || "✦ BENEFICIO EXCLUSIVO DE BIENVENIDA";
   const kickerHint = t("promo_banner_hint") || "PASA EL CURSOR POR LAS LETRAS";
-  const title = t("promo_banner_title") || "100% de Descuento de Bienvenida en tu Primer Despliegue";
+  const title = t("promo_banner_title") || "25% de Descuento de Bienvenida en tu Primer Despliegue";
   const subtitle =
     t("promo_banner_subtitle") ||
-    "Aplica el cupón WELCOME en el checkout y activa cualquier solución de inteligencia artificial con 100% de bonificación.";
+    "Aplica el cupón WELCOME en el checkout y activa cualquier solución de inteligencia artificial con 25% de descuento.";
   const couponLabel = t("promo_banner_coupon_label") || "CUPÓN DE BIENVENIDA";
   const copyLabel = t("promo_banner_copy") || "Copiar";
   const copiedLabel = t("promo_banner_copied") || "Copiado";
@@ -143,7 +143,7 @@ export const MarketplacePublicHero: React.FC = () => {
           {/* Left Column: Monumental 100% + Reactive Heading */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 sm:gap-7">
             <div className="text-5xl sm:text-6xl font-black shrink-0 flex items-center leading-none">
-              <GlowOutlineLetters text="100%" />
+              <GlowOutlineLetters text="25%" />
             </div>
 
             <div className="flex flex-col gap-1.5 text-left">

@@ -65,7 +65,7 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
         setCoupon({
           code: "WELCOME",
           type: "percentage",
-          value: 100,
+          value: 25,
         });
         setCouponInput("");
         return;

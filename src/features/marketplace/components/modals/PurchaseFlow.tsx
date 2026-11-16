@@ -290,7 +290,7 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
                     setCoupon({
                       code: isWelcome ? "WELCOME" : code,
                       type: "percentage",
-                      value: isWelcome ? 100 : 20,
+                      value: isWelcome ? 25 : 20,
                     });
                   }}
                   onContinue={() => handlePurchase(product.id)}
