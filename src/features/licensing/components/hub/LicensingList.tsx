@@ -22,6 +22,21 @@ import type { LicenseResponse } from "@/features/licensing/types";
 import { useIsMobile } from "@/components/ui/use-mobile";
 import { toast } from "sonner";
 
+const resolveAiQuotaMetrics = (license: LicenseResponse) => {
+  const rawMaxAi =
+    (license.custom_limits?.max_ai_requests_per_month as number | undefined) ??
+    (license.plan?.limits?.max_ai_requests_per_month as number | undefined);
+  const maxAi = typeof rawMaxAi === "number" ? rawMaxAi : 1000;
+  const maxAiLabel = maxAi < 0 ? "∞" : String(maxAi);
+  const aiPercent =
+    maxAi > 0
+      ? Math.min(100, Math.round((license.ai_requests_used / maxAi) * 100))
+      : maxAi === 0 && license.ai_requests_used > 0
+        ? 100
+        : 0;
+  return { maxAiLabel, aiPercent };
+};
+
 interface LicensingListProps {
   licenses: LicenseResponse[];
   loading: boolean;
@@ -249,8 +264,7 @@ export const LicensingList: React.FC<LicensingListProps> = ({
         header: t("consumption_usage"),
         cell: ({ row }) => {
           const license = row.original;
-          const maxAi = (license.plan?.limits?.max_ai_requests_per_month as number) || 1000;
-          const aiPercent = Math.min(100, Math.round((license.ai_requests_used / maxAi) * 100));
+          const { maxAiLabel, aiPercent } = resolveAiQuotaMetrics(license);
           const maxUsers = (license.plan?.limits?.max_users as number) || 5;
           const storageGb = (license.storage_used_bytes / (1024 * 1024 * 1024)).toFixed(1);
 
@@ -270,7 +284,7 @@ export const LicensingList: React.FC<LicensingListProps> = ({
                   <Cpu size={11} /> AI
                 </span>
                 <span className="tabular-nums">
-                  {license.ai_requests_used} / {maxAi}
+                  {license.ai_requests_used} / {maxAiLabel}
                 </span>
               </div>
               <div
@@ -449,13 +463,8 @@ export const LicensingList: React.FC<LicensingListProps> = ({
                 (license.metadata?.product_name as string) ||
                 "—";
               const productCode = license.plan?.code || "STD";
-              const maxAi =
-                (license.plan?.limits?.max_ai_requests_per_month as number) ||
-                1000;
-              const aiPercent = Math.min(
-                100,
-                Math.round((license.ai_requests_used / maxAi) * 100)
-              );
+              const { maxAiLabel: mobileMaxAiLabel, aiPercent } = resolveAiQuotaMetrics(license);
+              const maxAi = mobileMaxAiLabel;
               const maxUsers =
                 (license.plan?.limits?.max_users as number) || 5;
               const storageGb = (

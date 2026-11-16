@@ -1,9 +1,10 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { toast } from "sonner";
 import { toastMutationError } from "@/lib/toast-helpers";
 import { useQueryClient, useMutation, InfiniteData } from "@tanstack/react-query";
 import { licensingService } from "@/features/licensing/services/licensing.service";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
+import { socket } from "@/lib/socket-client";
 
 import { QUERY_KEYS } from "@/features/shared/constants/queryKeys";
 
@@ -40,6 +41,45 @@ export const useLicensing = () => {
 
   const session = useAuthStore((s) => s.session);
   const queryClient = useQueryClient();
+
+  // Real-time license quota & status sync over WebSocket
+  useEffect(() => {
+    const unsub = socket.on("license.updated", (raw: unknown) => {
+      const payload = raw as {
+        license_id?: string;
+        ai_requests_used?: number;
+      };
+      if (payload?.license_id && typeof payload.ai_requests_used === "number") {
+        queryClient.setQueriesData<InfiniteData<LicenseListResponse>>(
+          { queryKey: ["licensing", "list"] },
+          (old) => {
+            if (!old?.pages) return old;
+            return {
+              ...old,
+              pages: old.pages.map((p) => ({
+                ...p,
+                licenses: p.licenses.map((l) =>
+                  l.id === payload.license_id
+                    ? { ...l, ai_requests_used: payload.ai_requests_used! }
+                    : l
+                ),
+              })),
+            };
+          }
+        );
+        setSelectedLicense((prev) =>
+          prev && prev.id === payload.license_id
+            ? { ...prev, ai_requests_used: payload.ai_requests_used! }
+            : prev
+        );
+      }
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.licensing.all });
+    });
+
+    return () => {
+      unsub();
+    };
+  }, [queryClient]);
 
   // Queries
   const {
