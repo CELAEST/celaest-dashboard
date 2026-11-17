@@ -67,13 +67,19 @@ export const useAIPool = (token: string, orgId: string) => {
     enabled: !!token && !!orgId,
   });
 
+  const identifyKeyMutation = useMutation({
+    mutationFn: (data: { api_key: string; provider?: string }) =>
+      aiApi.identifyPoolKey(token, orgId, data.api_key, data.provider),
+  });
+
   const createKeyMutation = useMutation({
-    mutationFn: (data: { name: string; provider: string; api_key: string }) => aiApi.createPoolKey(token, orgId, data),
+    mutationFn: (data: { name: string; provider: string; api_key: string; rate_limit?: number; verify?: boolean }) =>
+      aiApi.createPoolKey(token, orgId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ai-pool-keys', orgId] });
-      toast.success('API Key added to pool');
+      toast.success('API Key verified & added to pool');
     },
-    onError: () => toast.error('Failed to add API Key'),
+    onError: (err: Error) => toast.error(err.message || 'Failed to add API Key'),
   });
 
   const deleteKeyMutation = useMutation({
@@ -82,20 +88,20 @@ export const useAIPool = (token: string, orgId: string) => {
       queryClient.invalidateQueries({ queryKey: ['ai-pool-keys', orgId] });
       toast.success('API Key removed from pool');
     },
-    onError: () => toast.error('Failed to remove API Key'),
+    onError: (err: Error) => toast.error(err.message || 'Failed to remove API Key'),
   });
 
   const updateKeyMutation = useMutation({
-    mutationFn: (data: { id: string } & Partial<AIPoolKey>) =>
+    mutationFn: (data: { id: string } & Partial<AIPoolKey> & { api_key?: string; verify?: boolean }) =>
       aiApi.updatePoolKey(token, orgId, data.id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["ai-pool-keys", orgId] });
       toast.success("API Key updated successfully");
     },
-    onError: () => toast.error("Failed to update API Key"),
+    onError: (err: Error) => toast.error(err.message || "Failed to update API Key"),
   });
 
-  return { statusQuery, keysQuery, createKeyMutation, updateKeyMutation, deleteKeyMutation };
+  return { statusQuery, keysQuery, identifyKeyMutation, createKeyMutation, updateKeyMutation, deleteKeyMutation };
 };
 
 export const useAIProviders = (token: string, orgId: string) => {

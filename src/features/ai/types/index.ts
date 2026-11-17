@@ -183,3 +183,18 @@ export interface AIPoolKey {
   last_used_at?: string;
   created_at: string;
 }
+
+export interface KeyIdentificationResult {
+  valid: boolean;
+  provider: string;
+  display_name: string;
+  confidence: string;
+  detection_method: string;
+  key_prefix: string;
+  suggested_name: string;
+  recommended_rate_limit: number;
+  sample_models?: string[];
+  status_code?: number;
+  message: string;
+  latency_ms: number;
+}

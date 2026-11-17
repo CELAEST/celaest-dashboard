@@ -8,6 +8,7 @@ import {
   AIPoolStatus, 
   AIPoolKey, 
   AIProvider,
+  KeyIdentificationResult,
   PoolStats,
   CompletionRequest,
   CompletionResponse,
@@ -22,6 +23,7 @@ import {
   AIPoolStatusSchema, 
   AIPoolKeySchema, 
   AIProviderSchema,
+  KeyIdentificationSchema,
   PoolStatsSchema,
   ChatResponseSchema,
   CompletionResponseSchema
@@ -192,7 +194,23 @@ export const aiApi = {
     });
   },
 
-  createPoolKey: async (token: string, orgId: string, data: Partial<AIPoolKey>) => {
+  identifyPoolKey: async (token: string, orgId: string, apiKey: string, provider?: string) => {
+    return api.post<KeyIdentificationResult>(
+      '/api/v1/org/ai/pool/keys/identify',
+      { api_key: apiKey, provider },
+      {
+        token,
+        orgId,
+        schema: KeyIdentificationSchema as z.ZodType<KeyIdentificationResult>,
+      },
+    );
+  },
+
+  createPoolKey: async (
+    token: string,
+    orgId: string,
+    data: Partial<AIPoolKey> & { api_key?: string; verify?: boolean },
+  ) => {
     return api.post<AIPoolKey>('/api/v1/org/ai/pool/keys', data, {
       token,
       orgId,
@@ -200,7 +218,12 @@ export const aiApi = {
     });
   },
 
-  updatePoolKey: async (token: string, orgId: string, id: string, data: Partial<AIPoolKey>) => {
+  updatePoolKey: async (
+    token: string,
+    orgId: string,
+    id: string,
+    data: Partial<AIPoolKey> & { api_key?: string; verify?: boolean },
+  ) => {
     return api.put<AIPoolKey>(`/api/v1/org/ai/pool/keys/${id}`, data, {
       token,
       orgId,

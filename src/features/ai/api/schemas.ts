@@ -129,6 +129,21 @@ export const AIPoolKeySchema = z.object({
   created_at: z.string(),
 });
 
+export const KeyIdentificationSchema = z.object({
+  valid: z.boolean(),
+  provider: z.string(),
+  display_name: z.string(),
+  confidence: z.string(),
+  detection_method: z.string(),
+  key_prefix: z.string(),
+  suggested_name: z.string(),
+  recommended_rate_limit: z.number(),
+  sample_models: z.array(z.string()).nullish().transform(v => v ?? undefined),
+  status_code: z.number().nullish().transform(v => v ?? undefined),
+  message: z.string(),
+  latency_ms: z.number(),
+});
+
 export const ChatMessageSchema = z.object({
   role: z.union([z.literal('system'), z.literal('user'), z.literal('assistant')]),
   content: z.string(),

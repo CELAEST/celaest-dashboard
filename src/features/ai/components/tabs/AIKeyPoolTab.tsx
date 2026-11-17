@@ -25,7 +25,7 @@ interface AIKeyPoolTabProps {
 }
 
 export const AIKeyPoolTab: React.FC<AIKeyPoolTabProps> = ({ token, orgId }) => {
-  const { keysQuery, createKeyMutation, updateKeyMutation, deleteKeyMutation } =
+  const { keysQuery, identifyKeyMutation, createKeyMutation, updateKeyMutation, deleteKeyMutation } =
     useAIPool(token, orgId);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingKey, setEditingKey] = useState<AIPoolKey | null>(null);
@@ -38,7 +38,7 @@ export const AIKeyPoolTab: React.FC<AIKeyPoolTabProps> = ({ token, orgId }) => {
     });
   };
 
-  const handleAddKey = (data: Partial<AIPoolKey> & { api_key?: string }) => {
+  const handleAddKey = (data: Partial<AIPoolKey> & { api_key?: string; verify?: boolean }) => {
     if (editingKey) {
       updateKeyMutation.mutate(
         { id: editingKey.id, ...data },
@@ -51,12 +51,15 @@ export const AIKeyPoolTab: React.FC<AIKeyPoolTabProps> = ({ token, orgId }) => {
         },
       );
     } else {
-      createKeyMutation.mutate(data as { name: string; provider: string; api_key: string }, {
-        onSuccess: () => {
-          setIsModalOpen(false);
-          toast.success("Neural key authorized successfully");
+      createKeyMutation.mutate(
+        data as { name: string; provider: string; api_key: string; rate_limit?: number; verify?: boolean },
+        {
+          onSuccess: () => {
+            setIsModalOpen(false);
+            toast.success("Neural key verified & authorized successfully");
+          },
         },
-      });
+      );
     }
   };
 
@@ -250,6 +253,9 @@ export const AIKeyPoolTab: React.FC<AIKeyPoolTabProps> = ({ token, orgId }) => {
         isOpen={isModalOpen}
         onClose={closeHealthModal}
         onSubmit={handleAddKey}
+        onIdentifyKey={(apiKey, provider) =>
+          identifyKeyMutation.mutateAsync({ api_key: apiKey, provider })
+        }
         isLoading={createKeyMutation.isPending || updateKeyMutation.isPending}
         initialData={editingKey}
       />
