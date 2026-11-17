@@ -6,6 +6,10 @@
 
 import { z } from "zod";
 import { logger } from "./logger";
+import {
+  isJwtNearOrPastExpiry,
+  recoverDashboardSession,
+} from "@/features/auth/lib/sessionRefresh";
 
 const getBaseUrl = (): string => {
   const envUrl = process.env.NEXT_PUBLIC_CELAEST_API_URL || process.env.NEXT_PUBLIC_API_URL;
@@ -93,8 +97,33 @@ async function request<T>(
     ...init.headers,
   };
 
-  if (token) {
-    (headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
+  const authPaths = [
+    "/auth/login",
+    "/auth/register",
+    "/auth/signup",
+    "/auth/otp/",
+    "/auth/reset-password",
+    "/auth/forgot-password",
+    "/auth/refresh",
+    "/auth/logout",
+  ];
+  const isAuthEndpoint = authPaths.some((p) => url.includes(p));
+
+  let activeToken = token;
+  if (
+    activeToken &&
+    typeof window !== "undefined" &&
+    !isAuthEndpoint &&
+    isJwtNearOrPastExpiry(activeToken, 5)
+  ) {
+    const preflight = await recoverDashboardSession(activeToken);
+    if (preflight.status === "recovered") {
+      activeToken = preflight.accessToken;
+    }
+  }
+
+  if (activeToken) {
+    (headers as Record<string, string>)["Authorization"] = `Bearer ${activeToken}`;
   }
   if (orgId) {
     const blacklist = getBlacklist();
@@ -111,6 +140,7 @@ async function request<T>(
 
   const MAX_RETRIES = 2;
   let attempt = 0;
+  let hasRetriedAuth = false;
 
   while (attempt <= MAX_RETRIES) {
     try {
@@ -146,12 +176,34 @@ async function request<T>(
 
         const errorData = (data.error || {}) as NonNullable<ApiResponse<T>["error"]>;
         
-        if (response.status === 401) {
-          const authPaths = ['/auth/login', '/auth/register', '/auth/signup', '/auth/otp/', '/auth/reset-password', '/auth/forgot-password'];
-          const isAuthEndpoint = authPaths.some((path) => url.includes(path));
-          if (typeof window !== "undefined" && !isAuthEndpoint) {
-            logger.error("🚨 TRIGGERING 401 UNAUTHORIZED LOGOUT. FAILED URL:", url);
-            window.dispatchEvent(new CustomEvent('celaest:unauthorized'));
+        if (response.status === 401 && typeof window !== "undefined" && !isAuthEndpoint) {
+          if (!hasRetriedAuth) {
+            hasRetriedAuth = true;
+            const recovery = await recoverDashboardSession(activeToken);
+            if (recovery.status === "recovered") {
+              activeToken = recovery.accessToken;
+              (headers as Record<string, string>)["Authorization"] =
+                `Bearer ${activeToken}`;
+              continue;
+            }
+            if (recovery.status === "transient_error") {
+              logger.warn(
+                "⚠️ Transient auth refresh error on 401; preserving local session:",
+                url,
+              );
+            } else {
+              logger.error(
+                "🚨 TRIGGERING 401 UNAUTHORIZED LOGOUT (refresh unavailable/expired). FAILED URL:",
+                url,
+              );
+              window.dispatchEvent(new CustomEvent("celaest:unauthorized"));
+            }
+          } else {
+            logger.error(
+              "🚨 TRIGGERING 401 UNAUTHORIZED LOGOUT (post-refresh retry failed). FAILED URL:",
+              url,
+            );
+            window.dispatchEvent(new CustomEvent("celaest:unauthorized"));
           }
         }
 

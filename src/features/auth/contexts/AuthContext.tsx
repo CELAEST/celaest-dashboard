@@ -54,14 +54,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // Keep React Query user profile fresh based on WS events
   useUserSync(storeValues.session?.accessToken);
 
-  // Global unauthorized listener (from api-client)
+  const isSigningOutRef = React.useRef(false);
+
+  React.useEffect(() => {
+    if (storeValues.isAuthenticated) {
+      isSigningOutRef.current = false;
+    }
+  }, [storeValues.isAuthenticated]);
+
+  // Global unauthorized listener (from api-client after refresh retry fails)
   React.useEffect(() => {
     const handleUnauthorized = () => {
       if (
         typeof window !== "undefined" &&
-        !window.location.pathname.startsWith("/auth")
+        !window.location.pathname.startsWith("/auth") &&
+        !isSigningOutRef.current &&
+        useAuthStore.getState().isAuthenticated
       ) {
-        actions.signOut();
+        isSigningOutRef.current = true;
+        void actions.signOut().finally(() => {
+          isSigningOutRef.current = false;
+        });
       }
     };
 

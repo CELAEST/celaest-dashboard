@@ -59,7 +59,10 @@ export function resolveSaasExternalUrl(
 export function buildSaasLaunchUrl(
   externalUrl: string,
   accessToken?: string | null,
-  refreshToken?: string | null,
+  // Kept optional in signature for backward compatibility; refresh tokens MUST
+  // NEVER be forwarded across origins because Supabase single-use refresh
+  // token rotation in one app revokes the session family in both apps.
+  _refreshToken?: string | null,
 ): string {
   const cleanBase = externalUrl.trim().replace(/\/+$/, "");
   if (!cleanBase) return "";
@@ -67,20 +70,66 @@ export function buildSaasLaunchUrl(
 
   const params = new URLSearchParams();
   params.set("access_token", accessToken);
-  if (refreshToken) {
-    params.set("refresh_token", refreshToken);
-  }
   return `${cleanBase}/auth/callback#${params.toString()}`;
+}
+
+function readPersistedAuthTokens(): {
+  accessToken: string | null;
+  refreshToken: string | null;
+} {
+  try {
+    const storage =
+      typeof window !== "undefined" && window.localStorage
+        ? window.localStorage
+        : typeof localStorage !== "undefined"
+          ? localStorage
+          : null;
+    if (!storage) return { accessToken: null, refreshToken: null };
+    const raw = storage.getItem("celaest-auth-storage");
+    if (raw) {
+      const parsed = JSON.parse(raw) as {
+        state?: { session?: { accessToken?: string; refreshToken?: string } };
+      };
+      const accessToken = parsed?.state?.session?.accessToken || null;
+      const refreshToken = parsed?.state?.session?.refreshToken || null;
+      if (accessToken) {
+        return { accessToken, refreshToken };
+      }
+    }
+    for (let i = 0; i < storage.length; i++) {
+      const key = storage.key(i);
+      if (key && key.startsWith("sb-") && key.endsWith("-auth-token")) {
+        const sbRaw = storage.getItem(key);
+        if (sbRaw) {
+          const sbParsed = JSON.parse(sbRaw) as {
+            access_token?: string;
+            refresh_token?: string;
+          };
+          if (sbParsed?.access_token) {
+            return {
+              accessToken: sbParsed.access_token,
+              refreshToken: sbParsed.refresh_token || null,
+            };
+          }
+        }
+      }
+    }
+    return { accessToken: null, refreshToken: null };
+  } catch {
+    return { accessToken: null, refreshToken: null };
+  }
 }
 
 export function launchSaasProduct(
   product: SaasProductCandidate,
   accessToken?: string | null,
-  refreshToken?: string | null,
+  _refreshToken?: string | null,
 ): boolean {
   const baseUrl = resolveSaasExternalUrl(product);
   if (!baseUrl) return false;
-  const launchUrl = buildSaasLaunchUrl(baseUrl, accessToken, refreshToken);
+  const resolvedAccessToken =
+    accessToken || readPersistedAuthTokens().accessToken;
+  const launchUrl = buildSaasLaunchUrl(baseUrl, resolvedAccessToken);
   if (typeof window !== "undefined" && launchUrl) {
     window.open(launchUrl, "_blank", "noopener,noreferrer");
     return true;
