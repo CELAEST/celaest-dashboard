@@ -25,13 +25,14 @@ export function useAuthActions(
         const response = await authService.login(email.trim().toLowerCase(), password);
 
         if (response.access_token && supabase) {
-          // Sincronizar el cliente de Supabase con el token recibido del backend
+          // Sincronizar el cliente de Supabase cuando el token es de Supabase; si el backend emitió
+          // un JWT de sesión de 24h (HS256), setSession puede devolver aviso sin invalidar el login.
           const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
             access_token: response.access_token,
             refresh_token: response.refresh_token,
           });
 
-          if (sessionError) {
+          if (sessionError && !response.user && !response.access_token.includes(".")) {
             return {
               success: false,
               error: { code: "UNKNOWN_ERROR", message: getAuthErrorMessage(sessionError) },
@@ -59,7 +60,7 @@ export function useAuthActions(
               user: userObj,
               accessToken: response.access_token,
               refreshToken: response.refresh_token,
-              expiresAt: Math.floor(Date.now() / 1000) + (response.expires_in || 3600),
+              expiresAt: Math.floor(Date.now() / 1000) + (response.expires_in || 86400),
             },
           });
 
@@ -219,7 +220,7 @@ export function useAuthActions(
     if (!supabase) return { success: false };
 
     try {
-      await supabase.auth.signOut();
+      await supabase.auth.signOut({ scope: "local" });
     } catch (error: unknown) {
       logger.error("Supabase signOut error:", error);
       // Continue cleanup even if server call fails

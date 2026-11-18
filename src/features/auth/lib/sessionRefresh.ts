@@ -1,4 +1,3 @@
-import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
 import { parseRole, calculateEffectivePermissions } from "./permissions";
 import { useAuthStore } from "../stores/useAuthStore";
@@ -163,6 +162,7 @@ async function performRecovery(
       user?: Parameters<typeof resolveUpdatedUser>[0];
     } | null = null;
     try {
+      const { getSupabaseBrowserClient } = await import("@/lib/supabase/client");
       const supabase = getSupabaseBrowserClient();
       const { data: sessionData, error: sessionError } =
         await supabase.auth.getSession();
@@ -222,7 +222,11 @@ async function performRecovery(
     }
 
     // 4. Fallback for OTP / custom HS256 backend-issued sessions in Zustand store
-    const storedRefreshToken = storeState.session?.refreshToken;
+    const storedRefreshToken =
+      storeState.session?.refreshToken ||
+      (storeState.session?.accessToken
+        ? `sso:${storeState.session.accessToken}`
+        : undefined);
     if (storedRefreshToken) {
       const res = await fetch(`${getBackendBaseUrl()}/api/v1/auth/refresh`, {
         method: "POST",

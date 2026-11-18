@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import { mapSupabaseUser } from "../lib/mappers";
+import { isJwtNearOrPastExpiry, recoverDashboardSession } from "../lib/sessionRefresh";
 import { useAuthStore } from "../stores/useAuthStore";
 import { logger } from "@/lib/logger";
 import { toast } from "sonner";
@@ -121,6 +122,105 @@ export function useAuthSession() {
       return;
     }
 
+    let isMounted = true;
+
+    const readPersistedStoreSession = (): {
+      user: NonNullable<ReturnType<typeof useAuthStore.getState>["user"]>;
+      session: NonNullable<ReturnType<typeof useAuthStore.getState>["session"]>;
+    } | null => {
+      const inMemory = useAuthStore.getState();
+      if (inMemory.session?.accessToken && inMemory.user) {
+        return { user: inMemory.user, session: inMemory.session };
+      }
+      if (typeof window === "undefined") return null;
+      try {
+        const raw = localStorage.getItem("celaest-auth-storage");
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        const storedSession = parsed?.state?.session;
+        const storedUser = parsed?.state?.user || storedSession?.user;
+        if (storedSession?.accessToken && storedUser) {
+          return { user: storedUser, session: storedSession };
+        }
+      } catch {
+        // ignore storage parse errors
+      }
+      return null;
+    };
+
+    const ensureFreshSupabaseSession = async (verifiedUser: Session["user"]) => {
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        let activeSession = sessionData?.session ?? null;
+        if (!activeSession) return;
+
+        const expiresAtMs = (activeSession.expires_at ?? 0) * 1000;
+        if (expiresAtMs > 0 && expiresAtMs <= Date.now() + 120_000) {
+          const { data: refreshedData } = await supabase.auth.refreshSession();
+          if (refreshedData?.session) {
+            activeSession = refreshedData.session;
+          }
+        }
+
+        if (!isMounted) return;
+        const currentStore = useAuthStore.getState();
+        if (
+          !currentStore.isAuthenticated ||
+          currentStore.session?.accessToken !== activeSession.access_token ||
+          currentStore.session?.refreshToken !== activeSession.refresh_token
+        ) {
+          syncSession(buildVerifiedSession(activeSession, verifiedUser));
+        }
+      } catch (err) {
+        logger.warn("[useAuthSession] Session freshness sync warning:", err);
+      }
+    };
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(
+      (event: AuthChangeEvent, currentSession: Session | null) => {
+        if (!isMounted) return;
+        if (!currentSession) {
+          const persisted = readPersistedStoreSession();
+          // Preserve active CELAEST 24h session if Supabase emits a background SIGNED_OUT
+          // (e.g. when entering Lingua or using a backend-issued 24h JWT).
+          // Explicit user signOut() already clears localStorage before reset().
+          if (
+            persisted?.session?.accessToken &&
+            !isJwtNearOrPastExpiry(persisted.session.accessToken, 5)
+          ) {
+            if (!useAuthStore.getState().session?.accessToken) {
+              setAuth(persisted);
+            }
+            return;
+          }
+          if (event === "SIGNED_OUT" || !persisted?.session?.accessToken) {
+            syncSession(null);
+            return;
+          }
+          if (!useAuthStore.getState().session?.accessToken) {
+            setAuth(persisted);
+          }
+          return;
+        }
+
+        // Fast-path: Sincronizar inmediatamente con currentSession para eliminar latencia en la UI
+        if (currentSession.user) {
+          syncSession(currentSession);
+        }
+
+        void supabase.auth.getUser().then(({ data, error }) => {
+          if (!isMounted) return;
+          if (error || !data.user) {
+            if (!currentSession.user) syncSession(null);
+            return;
+          }
+          syncSession(buildVerifiedSession(currentSession, data.user));
+        });
+      },
+    );
+
     const initializeAuth = async () => {
       try {
         const currentAuth = useAuthStore.getState();
@@ -214,8 +314,12 @@ export function useAuthSession() {
 
         const { data: userData, error: userError } = await supabase.auth.getUser();
         if (userError || !userData.user) {
-          const storedToken = useAuthStore.getState().session?.accessToken;
-          if (storedToken) {
+          const persisted = readPersistedStoreSession();
+          const storedToken = persisted?.session?.accessToken;
+          if (persisted && storedToken) {
+            if (!useAuthStore.getState().session?.accessToken) {
+              setAuth(persisted);
+            }
             try {
               const { authService } = await import("../services/auth.service");
               const verified = await authService.verifySession(storedToken);
@@ -224,49 +328,52 @@ export function useAuthSession() {
                 return;
               }
             } catch {
-              // Fall through to reset session if backend rejects token
+              const expiresAtMs = (persisted.session.expiresAt || 0) * 1000;
+              if (!expiresAtMs || expiresAtMs > Date.now()) {
+                return;
+              }
             }
           }
           syncSession(null);
+        } else {
+          // Ensure Zustand store + localStorage mirror the latest refreshed Supabase token
+          await ensureFreshSupabaseSession(userData.user);
         }
       } catch (error: unknown) {
         logger.error("Failed to initialize auth:", error);
         reset();
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
-    initializeAuth();
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(
-      (event: AuthChangeEvent, currentSession: Session | null) => {
-        if (!currentSession) {
-          if (event === "SIGNED_OUT" || !useAuthStore.getState().session?.accessToken) {
-            syncSession(null);
-          }
-          return;
+    const handleVisibilityOrFocus = () => {
+      if (typeof document !== "undefined" && document.visibilityState === "hidden") return;
+      const persisted = readPersistedStoreSession();
+      const activeTok = persisted?.session?.accessToken;
+      if (activeTok && isJwtNearOrPastExpiry(activeTok, 15 * 60)) {
+        void recoverDashboardSession(activeTok);
+      }
+      void supabase.auth.getUser().then(({ data, error }) => {
+        if (!error && data.user && isMounted) {
+          void ensureFreshSupabaseSession(data.user);
         }
+      });
+    };
 
-        // Fast-path: Sincronizar inmediatamente con currentSession para eliminar latencia en la UI
-        if (currentSession.user) {
-          syncSession(currentSession);
-        }
-
-        void supabase.auth.getUser().then(({ data, error }) => {
-          if (error || !data.user) {
-            if (!currentSession.user) syncSession(null);
-            return;
-          }
-          syncSession(buildVerifiedSession(currentSession, data.user));
-        });
-      },
-    );
+    void initializeAuth();
+    if (typeof window !== "undefined") {
+      window.addEventListener("focus", handleVisibilityOrFocus);
+      document.addEventListener("visibilitychange", handleVisibilityOrFocus);
+    }
 
     return () => {
+      isMounted = false;
       subscription.unsubscribe();
+      if (typeof window !== "undefined") {
+        window.removeEventListener("focus", handleVisibilityOrFocus);
+        document.removeEventListener("visibilitychange", handleVisibilityOrFocus);
+      }
     };
   }, [supabase, setLoading, reset, syncSession, setAuth, buildVerifiedSession, setBackendSynced]);
 
