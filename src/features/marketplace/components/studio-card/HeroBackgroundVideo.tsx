@@ -11,11 +11,15 @@ interface HeroBackgroundVideoProps {
 
 const YT_FRAME_W = 1280;
 const YT_FRAME_H = 720;
-const YT_OVERSCAN = 1.18;
+const YT_OVERSCAN = 1.15;
 const YT_ORIGIN_HOST = "https://www.youtube-nocookie.com";
 
 function postYtCommand(iframe: HTMLIFrameElement | null, func: string, args: unknown[] = []) {
   iframe?.contentWindow?.postMessage(JSON.stringify({ event: "command", func, args }), YT_ORIGIN_HOST);
+}
+
+function sendYtListening(iframe: HTMLIFrameElement | null) {
+  iframe?.contentWindow?.postMessage(JSON.stringify({ event: "listening" }), YT_ORIGIN_HOST);
 }
 
 function subscribeReducedMotion(cb: () => void) {
@@ -103,7 +107,10 @@ export const HeroBackgroundVideo: React.FC<HeroBackgroundVideoProps> = ({
       if (!ev.origin.includes("youtube")) return;
       try {
         const msg = typeof ev.data === "string" ? JSON.parse(ev.data) : ev.data;
-        if (msg?.event === "onStateChange" && msg.info === 1) setIsReady(true);
+        const isPlaying =
+          (msg?.event === "onStateChange" && msg.info === 1) ||
+          (msg?.event === "infoDelivery" && msg.info?.playerState === 1);
+        if (isPlaying) setIsReady(true);
       } catch {
         // Ignore non-JSON postMessage frames from unrelated scripts
       }
@@ -150,10 +157,11 @@ export const HeroBackgroundVideo: React.FC<HeroBackgroundVideoProps> = ({
           allow="autoplay; encrypted-media; picture-in-picture"
           referrerPolicy="strict-origin-when-cross-origin"
           onLoad={() => {
+            sendYtListening(iframeRef.current);
             postYtCommand(iframeRef.current, "mute");
             postYtCommand(iframeRef.current, "setPlaybackQuality", ["hd1080"]);
             postYtCommand(iframeRef.current, "playVideo");
-            window.setTimeout(() => setIsReady(true), 900);
+            window.setTimeout(() => setIsReady(true), 1200);
           }}
           style={{
             transform: `translate(-50%, -50%) scale(${coverScale.toFixed(4)})`,
