@@ -110,15 +110,28 @@ describe("ProductCardCompact (Preset 04 · Studio 3D)", () => {
     fireEvent.click(screen.getByRole("button", { name: /Demo/i }));
     expect(onViewDetails).toHaveBeenCalledTimes(1);
 
-    // Background YouTube HD preview iframe renders silently in HeroBackgroundVideo
+    // At rest (before hover): ONLY the centered Play icon orb renders cleanly with zero video iframe overhead
+    const playOrb = screen.getByRole("button", { name: /Demo/i });
+    expect(playOrb).toBeVisible();
+    expect(playOrb.textContent).toBe("");
+    expect(document.querySelector('iframe[title*="ambient preview"]')).toBeNull();
+
+    // Hovering the card activates background YouTube HD playback cleanly
+    const card = playOrb.closest("article");
+    expect(card).not.toBeNull();
+    fireEvent.mouseEnter(card!);
     const ytFrame = document.querySelector('iframe[title*="ambient preview"]') as HTMLIFrameElement | null;
     expect(ytFrame).not.toBeNull();
     expect(ytFrame?.src).toContain("vq=hd1080");
     expect(ytFrame?.src).toContain("mute=1");
     expect(ytFrame?.src).toContain("autoplay=1");
+
+    // Leaving the card hides/deactivates the preview back to crisp artwork
+    fireEvent.mouseLeave(card!);
+    expect(document.querySelector(".sb4-hero-video-wrap")).not.toHaveClass("is-ready");
   });
 
-  it("renders direct .mp4 background video loop + visible play orb without breaking poster fallback", () => {
+  it("renders direct .mp4 background video loop on hover + centered icon orb without breaking poster fallback", () => {
     const onViewDetails = vi.fn();
     render(
       <ProductCardCompact
@@ -133,6 +146,15 @@ describe("ProductCardCompact (Preset 04 · Studio 3D)", () => {
       />,
     );
 
+    const playBtn = screen.getByRole("button", { name: /Demo/i });
+    expect(playBtn).toBeVisible();
+    expect(playBtn.textContent).toBe("");
+    expect(document.querySelector("video.sb4-hero-video-el")).toBeNull();
+
+    // Hover starts direct video loop
+    const card = playBtn.closest("article");
+    fireEvent.mouseEnter(card!);
+
     const videoEl = document.querySelector("video.sb4-hero-video-el") as HTMLVideoElement | null;
     expect(videoEl).not.toBeNull();
     expect(videoEl?.src).toContain("https://cdn.celaest.com/demos/lingua-preview.mp4");
@@ -145,8 +167,6 @@ describe("ProductCardCompact (Preset 04 · Studio 3D)", () => {
       "/images/marketplace/studio-lingua-violet.webp",
     );
 
-    const playBtn = screen.getByRole("button", { name: /Demo/i });
-    expect(playBtn).toBeVisible();
     fireEvent.click(playBtn);
     expect(onViewDetails).toHaveBeenCalledTimes(1);
   });

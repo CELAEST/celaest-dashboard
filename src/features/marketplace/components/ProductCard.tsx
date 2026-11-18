@@ -5,7 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { Star, ShieldCheck, ArrowRight, Play } from "@phosphor-icons/react";
 import { MarketplaceProduct } from "../types";
-import { isDirectVideoUrl, youtubeMaxResThumbnail } from "@/features/shared/utils/youtube";
+import { HeroBackgroundVideo } from "./studio-card/HeroBackgroundVideo";
+import { resolveStudioMedia } from "./studio-card/catalogCardHelpers";
 import { formatCurrency } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
@@ -24,9 +25,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   onClick,
   disableNavigation = false,
 }) => {
+  const [isHovered, setIsHovered] = React.useState(false);
   const t = useTranslations("marketplace");
   const { activeCoupon } = useMarketplaceCouponStore();
   const { pricing, formatPrice } = useGeoPricing();
+  const studioMedia = resolveStudioMedia(product);
 
   // Geo-pricing: resolve localized price (PPP + exchange rate)
   const isGeoPriced = !!(pricing && pricing.country_code && pricing.country_code !== "US");
@@ -65,39 +68,32 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       whileHover={{ y: -5 }}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
       className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-black/40 backdrop-blur-md transition-all hover:border-blue-500/30 hover:bg-black/60 cursor-pointer h-full"
       onClick={disableNavigation ? handleClick : undefined}
     >
       {/* Imagen del Producto */}
       <div className="relative aspect-video w-full overflow-hidden bg-white/5">
-        {isDirectVideoUrl(product.thumbnail_url) ? (
-          <video
-            src={product.thumbnail_url}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-        ) : (
-          <Image
-            src={
-              product.thumbnail_url ||
-              (product.youtube_video_id
-                ? youtubeMaxResThumbnail(product.youtube_video_id)
-                : "/placeholder-product.jpg")
-            }
-            alt={product.name}
-            fill
-            className="object-cover transition-transform duration-500 group-hover:scale-110"
+        <Image
+          src={studioMedia.imageSrc || "/placeholder-product.jpg"}
+          alt={product.name}
+          fill
+          className="object-cover transition-transform duration-500 group-hover:scale-110"
+        />
+        {studioMedia.hasVideo && (
+          <HeroBackgroundVideo
+            youtubeVideoId={studioMedia.youtubeVideoId}
+            videoSrc={studioMedia.videoSrc}
+            title={product.name}
+            active={isHovered}
           />
         )}
         <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-        {(product.youtube_video_id || isDirectVideoUrl(product.thumbnail_url)) && (
+        {studioMedia.hasVideo && (
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-            <span className="flex h-11 w-11 items-center justify-center rounded-full border border-white/25 bg-black/50 text-white backdrop-blur-md shadow-lg transition-transform duration-300 group-hover:scale-110">
-              <Play size={18} weight="fill" className="translate-x-0.5" />
+            <span className="flex h-12 w-12 items-center justify-center rounded-full border border-white/30 bg-black/45 text-white backdrop-blur-md shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:border-white/60">
+              <Play size={20} weight="fill" className="translate-x-[1.5px]" />
             </span>
           </div>
         )}

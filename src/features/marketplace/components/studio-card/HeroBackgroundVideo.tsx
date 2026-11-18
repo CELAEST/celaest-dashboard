@@ -7,6 +7,7 @@ interface HeroBackgroundVideoProps {
   youtubeVideoId?: string | null;
   videoSrc?: string | null;
   title: string;
+  active?: boolean;
 }
 
 const YT_FRAME_W = 1280;
@@ -22,6 +23,19 @@ function sendYtListening(iframe: HTMLIFrameElement | null) {
   iframe?.contentWindow?.postMessage(JSON.stringify({ event: "listening" }), YT_ORIGIN_HOST);
 }
 
+function warmYtConnections() {
+  if (typeof document === "undefined") return;
+  for (const href of [YT_ORIGIN_HOST, "https://i.ytimg.com"]) {
+    if (!document.querySelector(`link[data-yt-preconnect="${href}"]`)) {
+      const link = document.createElement("link");
+      link.rel = "preconnect";
+      link.href = href;
+      link.dataset.ytPreconnect = href;
+      document.head.appendChild(link);
+    }
+  }
+}
+
 function subscribeReducedMotion(cb: () => void) {
   const mql = window.matchMedia?.("(prefers-reduced-motion: reduce)");
   mql?.addEventListener?.("change", cb);
@@ -34,18 +48,21 @@ function getSkipMotionSnapshot() {
   return Boolean(reduced || saveData);
 }
 
-/** Ambient HD muted loop behind card hero artwork (`1280x720` virtual viewport for crisp YouTube ABR). */
+/** Hover-activated HD muted background loop (`1280x720` virtual viewport for crisp YouTube ABR). */
 export const HeroBackgroundVideo: React.FC<HeroBackgroundVideoProps> = ({
   youtubeVideoId,
   videoSrc,
   title,
+  active = false,
 }) => {
   const wrapRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const activeRef = useRef(active);
+  const readyTimerRef = useRef<number | null>(null);
 
   const [inView, setInView] = useState(() => typeof IntersectionObserver === "undefined");
-  const [hasActivated, setHasActivated] = useState(() => typeof IntersectionObserver === "undefined");
+  const [hasActivated, setHasActivated] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [box, setBox] = useState({ width: 420, height: 220 });
   const skipMotion = useSyncExternalStore(
@@ -55,15 +72,27 @@ export const HeroBackgroundVideo: React.FC<HeroBackgroundVideoProps> = ({
   );
 
   useEffect(() => {
+    return () => {
+      if (readyTimerRef.current !== null) window.clearTimeout(readyTimerRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    activeRef.current = active;
+    if (!active || skipMotion) return;
+    if (youtubeVideoId) warmYtConnections();
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- mount player lazily on first hover
+    setHasActivated(true);
+  }, [active, skipMotion, youtubeVideoId]);
+
+  useEffect(() => {
     const el = wrapRef.current;
     if (!el || skipMotion) return;
 
     const io = typeof IntersectionObserver !== "undefined"
       ? new IntersectionObserver(
           ([entry]) => {
-            const visible = Boolean(entry?.isIntersecting);
-            setInView(visible);
-            if (visible) setHasActivated(true);
+            setInView(Boolean(entry?.isIntersecting));
           },
           { rootMargin: "120px", threshold: 0.05 },
         )
@@ -84,22 +113,28 @@ export const HeroBackgroundVideo: React.FC<HeroBackgroundVideoProps> = ({
     };
   }, [skipMotion]);
 
-  // Pause background stream when off-screen or tab is hidden to protect frame budget
+  // Play on hover when visible; immediately pause when unhovered or hidden
   useEffect(() => {
     const syncPlayback = () => {
-      const active = inView && !document.hidden;
+      const shouldPlay = active && inView && !document.hidden;
       if (videoRef.current) {
-        if (active) void videoRef.current.play?.()?.catch?.(() => {});
+        if (shouldPlay) void videoRef.current.play?.()?.catch?.(() => {});
         else videoRef.current.pause?.();
       }
       if (youtubeVideoId && iframeRef.current) {
-        postYtCommand(iframeRef.current, active ? "playVideo" : "pauseVideo");
+        if (shouldPlay) {
+          postYtCommand(iframeRef.current, "mute");
+          postYtCommand(iframeRef.current, "setPlaybackQuality", ["hd1080"]);
+          postYtCommand(iframeRef.current, "playVideo");
+        } else {
+          postYtCommand(iframeRef.current, "pauseVideo");
+        }
       }
     };
     syncPlayback();
     document.addEventListener("visibilitychange", syncPlayback);
     return () => document.removeEventListener("visibilitychange", syncPlayback);
-  }, [inView, youtubeVideoId]);
+  }, [active, inView, youtubeVideoId]);
 
   useEffect(() => {
     if (!youtubeVideoId || !hasActivated) return;
@@ -128,12 +163,13 @@ export const HeroBackgroundVideo: React.FC<HeroBackgroundVideoProps> = ({
   if (skipMotion || (!videoSrc && !youtubeVideoId)) return null;
 
   const coverScale = Math.max(box.width / YT_FRAME_W, box.height / YT_FRAME_H) * YT_OVERSCAN;
+  const isShowingVideo = active && isReady;
 
   return (
     <div
       ref={wrapRef}
       aria-hidden="true"
-      className={`sb4-hero-video-wrap ${isReady ? "is-ready" : ""}`}
+      className={`sb4-hero-video-wrap ${isShowingVideo ? "is-ready" : ""}`}
     >
       {hasActivated && videoSrc ? (
         <video
@@ -160,8 +196,9 @@ export const HeroBackgroundVideo: React.FC<HeroBackgroundVideoProps> = ({
             sendYtListening(iframeRef.current);
             postYtCommand(iframeRef.current, "mute");
             postYtCommand(iframeRef.current, "setPlaybackQuality", ["hd1080"]);
-            postYtCommand(iframeRef.current, "playVideo");
-            window.setTimeout(() => setIsReady(true), 1200);
+            postYtCommand(iframeRef.current, activeRef.current ? "playVideo" : "pauseVideo");
+            if (readyTimerRef.current !== null) window.clearTimeout(readyTimerRef.current);
+            readyTimerRef.current = window.setTimeout(() => setIsReady(true), 800);
           }}
           style={{
             transform: `translate(-50%, -50%) scale(${coverScale.toFixed(4)})`,

@@ -57,6 +57,7 @@ export const StudioCardShell: React.FC<StudioCardShellProps> = ({
   rightActionButton,
 }) => {
   const { cardRef, onMouseMove } = usePointerSheen();
+  const [isHovered, setIsHovered] = React.useState(false);
   const safeActiveIndex = steps.length > 0 ? Math.min(activeStep, steps.length - 1) : 0;
   const activeDetail = steps[safeActiveIndex]?.detail;
 
@@ -64,6 +65,8 @@ export const StudioCardShell: React.FC<StudioCardShellProps> = ({
     <article
       ref={cardRef}
       onMouseMove={onMouseMove}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       className={`sb-card ${variant === "live" ? "sb-card--live-solid" : "sb-card--dashed-neutral"}`}
     >
       <div className="sb-pointer-glow" />
@@ -86,6 +89,7 @@ export const StudioCardShell: React.FC<StudioCardShellProps> = ({
               youtubeVideoId={youtubeVideoId}
               videoSrc={videoSrc}
               title={imageAlt}
+              active={isHovered}
             />
           )}
           <div className="sb4-hero-scrim" />
@@ -106,12 +110,7 @@ export const StudioCardShell: React.FC<StudioCardShellProps> = ({
                 onInspectDetails();
               }}
             >
-              <span className="sb-play-orb-ring">
-                <Play size={17} weight="fill" className="translate-x-[1px]" />
-              </span>
-              {demoButtonLabel && (
-                <span className="sb-play-orb-label">{demoButtonLabel}</span>
-              )}
+              <Play size={20} weight="fill" className="translate-x-[1.5px]" />
             </button>
           )}
 
