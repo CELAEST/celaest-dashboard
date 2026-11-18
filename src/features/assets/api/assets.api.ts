@@ -184,6 +184,7 @@ export interface BackendCustomerAsset {
   product_type: string;
   product_display_type: string;
   product_thumbnail_url?: string;
+  product_youtube_video_id?: string;
   product_price: number;
   product_currency: string;
   product_short_desc: string;

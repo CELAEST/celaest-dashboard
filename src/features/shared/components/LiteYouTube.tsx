@@ -2,7 +2,11 @@
 
 import React from "react";
 import { PlayCircle } from "@phosphor-icons/react";
-import { youtubeEmbedUrl, youtubeThumbnail } from "../utils/youtube";
+import {
+  youtubeEmbedUrl,
+  youtubeMaxResThumbnail,
+  youtubeThumbnail,
+} from "../utils/youtube";
 
 /**
  * Lightweight YouTube "facade" embed.
@@ -47,7 +51,11 @@ export const LiteYouTube: React.FC<LiteYouTubeProps> = ({
   autoPlay = false,
 }) => {
   const [activated, setActivated] = React.useState(autoPlay);
-  const [thumbFailed, setThumbFailed] = React.useState(false);
+  const [thumbTier, setThumbTier] = React.useState<"maxres" | "hq" | "fallback">("maxres");
+
+  React.useEffect(() => {
+    setThumbTier("maxres");
+  }, [videoId]);
 
   // Warm up the connection to YouTube on hover/focus so the first frame
   // arrives a touch faster after the click. Cheap (<1 KB) and standard.
@@ -67,9 +75,12 @@ export const LiteYouTube: React.FC<LiteYouTubeProps> = ({
 
   const activate = React.useCallback(() => setActivated(true), []);
 
-  const thumbSrc = !thumbFailed
-    ? youtubeThumbnail(videoId)
-    : fallbackImage || "";
+  const thumbSrc =
+    thumbTier === "maxres"
+      ? youtubeMaxResThumbnail(videoId)
+      : thumbTier === "hq"
+        ? youtubeThumbnail(videoId)
+        : fallbackImage || "";
 
   return (
     <div
@@ -106,7 +117,21 @@ export const LiteYouTube: React.FC<LiteYouTubeProps> = ({
               alt={title}
               loading="lazy"
               decoding="async"
-              onError={() => setThumbFailed(true)}
+              onLoad={(e) => {
+                // YouTube serves a 120x90 placeholder when maxresdefault does not exist
+                if (
+                  thumbTier === "maxres" &&
+                  e.currentTarget.naturalWidth > 0 &&
+                  e.currentTarget.naturalWidth <= 120
+                ) {
+                  setThumbTier("hq");
+                }
+              }}
+              onError={() => {
+                setThumbTier((prev) =>
+                  prev === "maxres" ? "hq" : "fallback",
+                );
+              }}
               className="absolute inset-0 h-full w-full object-cover"
             />
           )}

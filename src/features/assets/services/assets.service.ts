@@ -114,6 +114,7 @@ export const assetsService = {
     })(),
     minPlanTier: Number(ba.product_min_plan_tier ?? (ba as unknown as { min_plan_tier?: number }).min_plan_tier ?? 0),
     thumbnail: ba.product_thumbnail_url || "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&fm=webp",
+    youtubeVideoId: ba.product_youtube_video_id || undefined,
     accessType: (ba.access_type === "subscription" ? "subscription" : "purchase") as "purchase" | "subscription",
     isPurchased: true,
     isPublic: false,

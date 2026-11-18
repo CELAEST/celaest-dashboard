@@ -3,8 +3,9 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Star, ShieldCheck, ArrowRight } from "@phosphor-icons/react";
+import { Star, ShieldCheck, ArrowRight, Play } from "@phosphor-icons/react";
 import { MarketplaceProduct } from "../types";
+import { isDirectVideoUrl, youtubeMaxResThumbnail } from "@/features/shared/utils/youtube";
 import { formatCurrency } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
@@ -69,13 +70,37 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     >
       {/* Imagen del Producto */}
       <div className="relative aspect-video w-full overflow-hidden bg-white/5">
-        <Image
-          src={product.thumbnail_url || "/placeholder-product.jpg"}
-          alt={product.name}
-          fill
-          className="object-cover transition-transform duration-500 group-hover:scale-110"
-        />
+        {isDirectVideoUrl(product.thumbnail_url) ? (
+          <video
+            src={product.thumbnail_url}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        ) : (
+          <Image
+            src={
+              product.thumbnail_url ||
+              (product.youtube_video_id
+                ? youtubeMaxResThumbnail(product.youtube_video_id)
+                : "/placeholder-product.jpg")
+            }
+            alt={product.name}
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-110"
+          />
+        )}
         <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+        {(product.youtube_video_id || isDirectVideoUrl(product.thumbnail_url)) && (
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+            <span className="flex h-11 w-11 items-center justify-center rounded-full border border-white/25 bg-black/50 text-white backdrop-blur-md shadow-lg transition-transform duration-300 group-hover:scale-110">
+              <Play size={18} weight="fill" className="translate-x-0.5" />
+            </span>
+          </div>
+        )}
 
         {/* Rating Badge */}
         {product.rating_count > 0 && product.rating_avg > 0 && (

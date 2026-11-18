@@ -1,6 +1,17 @@
 import type { ResolvedPricingContext } from "@/features/billing/types";
+import {
+  isDirectVideoUrl,
+  youtubeMaxResThumbnail,
+} from "@/features/shared/utils/youtube";
 import type { ActiveCoupon } from "../../store";
 import type { MarketplaceProduct } from "../../types";
+
+export interface StudioResolvedMedia {
+  imageSrc: string | null;
+  youtubeVideoId: string | null;
+  videoSrc: string | null;
+  hasVideo: boolean;
+}
 
 export interface StudioCapabilityStep {
   num: string;
@@ -48,12 +59,41 @@ export function formatCompactAmount(amount: number, currency: string = "USD"): s
  */
 export function resolveStudioThumbnail(product: Pick<MarketplaceProduct, "thumbnail_url" | "slug" | "name">): string | null {
   const raw = product.thumbnail_url?.trim();
-  if (raw) return raw;
+  if (raw && !isDirectVideoUrl(raw)) return raw;
   const hay = `${product.slug ?? ""} ${product.name ?? ""}`.toLowerCase();
   if (hay.includes("lingua")) {
     return "/images/marketplace/studio-lingua-violet.webp";
   }
   return null;
+}
+
+/**
+ * Resolves static poster + background video stream (direct `.mp4`/`.webm`/`.mov` or YouTube id)
+ * so video cards start cleanly over sharp artwork with zero broken `<Image>` URLs or flicker.
+ */
+export function resolveStudioMedia(
+  product: Pick<MarketplaceProduct, "thumbnail_url" | "youtube_video_id" | "images" | "slug" | "name">,
+): StudioResolvedMedia {
+  const youtubeVideoId = product.youtube_video_id?.trim() || null;
+  const directThumb = isDirectVideoUrl(product.thumbnail_url)
+    ? product.thumbnail_url!.trim()
+    : null;
+  const directGalleryVideo =
+    product.images?.find((src) => isDirectVideoUrl(src))?.trim() || null;
+  const videoSrc = directThumb || directGalleryVideo;
+
+  const fallbackStaticImage =
+    product.images?.find((src) => Boolean(src?.trim()) && !isDirectVideoUrl(src))?.trim() ||
+    null;
+  const baseThumb = resolveStudioThumbnail(product) || fallbackStaticImage;
+  const imageSrc = baseThumb || (youtubeVideoId ? youtubeMaxResThumbnail(youtubeVideoId) : null);
+
+  return {
+    imageSrc,
+    youtubeVideoId,
+    videoSrc,
+    hasVideo: Boolean(youtubeVideoId || videoSrc),
+  };
 }
 
 /** Maps min_plan_tier into localized plan badge label. */

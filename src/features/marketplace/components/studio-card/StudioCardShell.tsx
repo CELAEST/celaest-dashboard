@@ -4,6 +4,7 @@ import React from "react";
 import { Play } from "@phosphor-icons/react";
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
 import type { StudioCapabilityStep } from "./catalogCardHelpers";
+import { HeroBackgroundVideo } from "./HeroBackgroundVideo";
 import { usePointerSheen } from "./usePointerSheen";
 import "./StudioCatalogCard.css";
 
@@ -11,6 +12,8 @@ interface StudioCardShellProps {
   variant: "live" | "upcoming";
   imageSrc: string | null;
   imageAlt: string;
+  youtubeVideoId?: string | null;
+  videoSrc?: string | null;
   priority?: boolean;
   topLeftLabel: string;
   topRightNode: React.ReactNode;
@@ -34,6 +37,8 @@ export const StudioCardShell: React.FC<StudioCardShellProps> = ({
   variant,
   imageSrc,
   imageAlt,
+  youtubeVideoId,
+  videoSrc,
   priority = false,
   topLeftLabel,
   topRightNode,
@@ -76,6 +81,13 @@ export const StudioCardShell: React.FC<StudioCardShellProps> = ({
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="sb4-hero-img object-cover"
           />
+          {(youtubeVideoId || videoSrc) && (
+            <HeroBackgroundVideo
+              youtubeVideoId={youtubeVideoId}
+              videoSrc={videoSrc}
+              title={imageAlt}
+            />
+          )}
           <div className="sb4-hero-scrim" />
 
           <div className="sb4-hero-top">
@@ -86,15 +98,20 @@ export const StudioCardShell: React.FC<StudioCardShellProps> = ({
           {showDemoButton && onInspectDetails && (
             <button
               type="button"
-              className="sb-demo-cue"
+              className="sb-play-orb"
+              aria-label={demoButtonTitle || demoButtonLabel || "Demo"}
               title={demoButtonTitle}
               onClick={(e) => {
                 e.stopPropagation();
                 onInspectDetails();
               }}
             >
-              <Play size={9} weight="fill" />
-              <span>{demoButtonLabel}</span>
+              <span className="sb-play-orb-ring">
+                <Play size={17} weight="fill" className="translate-x-[1px]" />
+              </span>
+              {demoButtonLabel && (
+                <span className="sb-play-orb-label">{demoButtonLabel}</span>
+              )}
             </button>
           )}
 

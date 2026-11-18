@@ -22,6 +22,8 @@ import { useLocalProductPrice } from "@/features/billing/hooks/useLocalProductPr
 import { useTranslations } from "next-intl";
 import { useSwipeDownToClose } from "@/features/shared/hooks/useSwipeDownToClose";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
+import { LiteYouTube } from "@/features/shared/components/LiteYouTube";
+import { isDirectVideoUrl } from "@/features/shared/utils/youtube";
 import {
   isSaasProduct,
   launchSaasProduct,
@@ -226,27 +228,58 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   isDark ? "border-white/[0.06]" : "border-zinc-200"
                 }`}
               >
-                {/* Image */}
-                <div
-                  className={`w-full aspect-video rounded-xl sm:rounded-2xl overflow-hidden border ${
-                    isDark
-                      ? "bg-black/40 border-white/10 shadow-inner"
-                      : "bg-zinc-100 border-zinc-200 shadow-inner"
-                  }`}
-                >
-                  {product.thumbnail ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={product.thumbnail}
-                      alt={product.name}
-                      className="w-full h-full object-cover"
+                {/* Media: Video or Preview Image */}
+                {product.youtubeVideoId ? (
+                  <div
+                    className={`w-full aspect-video rounded-xl sm:rounded-2xl overflow-hidden border ${
+                      isDark
+                        ? "bg-black border-white/10 shadow-inner"
+                        : "bg-zinc-950 border-zinc-200 shadow-inner"
+                    }`}
+                  >
+                    <LiteYouTube
+                      videoId={product.youtubeVideoId}
+                      title={product.name}
+                      fallbackImage={
+                        !isDirectVideoUrl(product.thumbnail)
+                          ? product.thumbnail
+                          : undefined
+                      }
+                      autoPlay
                     />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center opacity-20">
-                      <AssetTypeIcon type={product.type} size={56} />
-                    </div>
-                  )}
-                </div>
+                  </div>
+                ) : (
+                  <div
+                    className={`w-full aspect-video rounded-xl sm:rounded-2xl overflow-hidden border ${
+                      isDark
+                        ? "bg-black/40 border-white/10 shadow-inner"
+                        : "bg-zinc-100 border-zinc-200 shadow-inner"
+                    }`}
+                  >
+                    {isDirectVideoUrl(product.thumbnail) ? (
+                      <video
+                        src={product.thumbnail}
+                        controls
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        className="w-full h-full object-cover"
+                      />
+                    ) : product.thumbnail ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={product.thumbnail}
+                        alt={product.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center opacity-20">
+                        <AssetTypeIcon type={product.type} size={56} />
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Description */}
                 <div>

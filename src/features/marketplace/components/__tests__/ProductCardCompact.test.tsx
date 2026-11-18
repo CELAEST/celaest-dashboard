@@ -109,6 +109,46 @@ describe("ProductCardCompact (Preset 04 · Studio 3D)", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /Demo/i }));
     expect(onViewDetails).toHaveBeenCalledTimes(1);
+
+    // Background YouTube HD preview iframe renders silently in HeroBackgroundVideo
+    const ytFrame = document.querySelector('iframe[title*="ambient preview"]') as HTMLIFrameElement | null;
+    expect(ytFrame).not.toBeNull();
+    expect(ytFrame?.src).toContain("vq=hd1080");
+    expect(ytFrame?.src).toContain("mute=1");
+    expect(ytFrame?.src).toContain("autoplay=1");
+  });
+
+  it("renders direct .mp4 background video loop + visible play orb without breaking poster fallback", () => {
+    const onViewDetails = vi.fn();
+    render(
+      <ProductCardCompact
+        product={{
+          ...baseLinguaProduct,
+          youtube_video_id: undefined,
+          thumbnail_url: "https://cdn.celaest.com/demos/lingua-preview.mp4",
+        }}
+        accessLevel="owned"
+        onSelect={vi.fn()}
+        onViewDetails={onViewDetails}
+      />,
+    );
+
+    const videoEl = document.querySelector("video.sb4-hero-video-el") as HTMLVideoElement | null;
+    expect(videoEl).not.toBeNull();
+    expect(videoEl?.src).toContain("https://cdn.celaest.com/demos/lingua-preview.mp4");
+    expect(videoEl?.muted).toBe(true);
+    expect(videoEl?.loop).toBe(true);
+
+    // Falls back to bespoke studio artwork poster instead of putting .mp4 inside <Image src>
+    const img = screen.getByAltText("CELAEST Lingua") as HTMLImageElement;
+    expect(decodeURIComponent(img.getAttribute("src") ?? "")).toContain(
+      "/images/marketplace/studio-lingua-violet.webp",
+    );
+
+    const playBtn = screen.getByRole("button", { name: /Demo/i });
+    expect(playBtn).toBeVisible();
+    fireEvent.click(playBtn);
+    expect(onViewDetails).toHaveBeenCalledTimes(1);
   });
 
   it("preserves backend thumbnail_url when present and avoids mid-word stack truncation", () => {
@@ -221,6 +261,9 @@ describe("ProductCardCompact (Preset 04 · Studio 3D)", () => {
     expect(screen.getByText("Sin reseñas aún")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "ADQUIRIDO" })).toBeDisabled();
     expect(screen.getByRole("button", { name: /Ver Detalles/i })).toBeEnabled();
+    expect(screen.queryByRole("button", { name: /Demo/i })).not.toBeInTheDocument();
+    expect(document.querySelector("iframe")).toBeNull();
+    expect(document.querySelector("video")).toBeNull();
 
     // RBAC blocked (member role)
     rerender(

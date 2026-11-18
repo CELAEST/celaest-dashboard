@@ -10,6 +10,7 @@ import { ProductModalSidebar } from "./ProductModalSidebar";
 import { useProductDetail } from "../../hooks/useProductDetail";
 import { ImageWithFallback } from "@/components/figma/ImageWithFallback";
 import { LiteYouTube } from "@/features/shared/components/LiteYouTube";
+import { isDirectVideoUrl } from "@/features/shared/utils/youtube";
 import { MarketplaceProduct } from "../../types";
 import { useTranslations } from "next-intl";
 
@@ -230,31 +231,58 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
             `}
           >
             {/* Media Display Cinema 16:9 */}
-            {product.youtube_video_id ? (
-              <div className="w-full rounded-xl sm:rounded-2xl overflow-hidden bg-black aspect-video border border-white/[0.08] shadow-2xl">
-                <LiteYouTube
-                  videoId={product.youtube_video_id}
-                  title={product.name}
-                  fallbackImage={product.thumbnail_url || undefined}
-                  autoPlay
-                />
-              </div>
-            ) : (
-              <div
-                className={`relative aspect-video rounded-xl sm:rounded-2xl overflow-hidden bg-black border border-white/[0.08] shadow-2xl ${
-                  loading ? "animate-pulse" : ""
-                }`}
-              >
-                <ImageWithFallback
-                  src={product.thumbnail_url || ""}
-                  alt={product.name}
-                  fill
-                  className={`object-cover transition-opacity duration-300 ${
-                    loading ? "opacity-50" : "opacity-100"
+            {(() => {
+              const directVideoSrc = isDirectVideoUrl(product.thumbnail_url)
+                ? product.thumbnail_url
+                : product.images?.find(isDirectVideoUrl);
+              if (product.youtube_video_id) {
+                return (
+                  <div className="w-full rounded-xl sm:rounded-2xl overflow-hidden bg-black aspect-video border border-white/[0.08] shadow-2xl">
+                    <LiteYouTube
+                      videoId={product.youtube_video_id}
+                      title={product.name}
+                      fallbackImage={
+                        !isDirectVideoUrl(product.thumbnail_url)
+                          ? product.thumbnail_url || undefined
+                          : undefined
+                      }
+                      autoPlay
+                    />
+                  </div>
+                );
+              }
+              if (directVideoSrc) {
+                return (
+                  <div className="w-full rounded-xl sm:rounded-2xl overflow-hidden bg-black aspect-video border border-white/[0.08] shadow-2xl">
+                    <video
+                      src={directVideoSrc}
+                      controls
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                );
+              }
+              return (
+                <div
+                  className={`relative aspect-video rounded-xl sm:rounded-2xl overflow-hidden bg-black border border-white/[0.08] shadow-2xl ${
+                    loading ? "animate-pulse" : ""
                   }`}
-                />
-              </div>
-            )}
+                >
+                  <ImageWithFallback
+                    src={product.thumbnail_url || ""}
+                    alt={product.name}
+                    fill
+                    className={`object-cover transition-opacity duration-300 ${
+                      loading ? "opacity-50" : "opacity-100"
+                    }`}
+                  />
+                </div>
+              );
+            })()}
 
             {/* Tabs / Description (Desktop) */}
             <div className="hidden lg:block w-full">

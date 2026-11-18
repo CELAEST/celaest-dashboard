@@ -18,7 +18,7 @@ import { StudioCardShell } from "./studio-card/StudioCardShell";
 import {
   parseProductCapabilities,
   resolveCardPricingState,
-  resolveStudioThumbnail,
+  resolveStudioMedia,
   resolveTierBadgeLabel,
 } from "./studio-card/catalogCardHelpers";
 
@@ -151,11 +151,15 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
     </div>
   );
 
+  const studioMedia = resolveStudioMedia(product);
+
   return (
     <StudioCardShell
       variant="live"
-      imageSrc={resolveStudioThumbnail(product)}
+      imageSrc={studioMedia.imageSrc}
       imageAlt={product.name}
+      youtubeVideoId={studioMedia.youtubeVideoId}
+      videoSrc={studioMedia.videoSrc}
       priority={priority}
       topLeftLabel={product.category_name || t("default_category")}
       topRightNode={topRightMeta}
@@ -165,7 +169,7 @@ export const ProductCardCompact = React.memo(function ProductCardCompact({
       activeStep={activeStep}
       onSelectStep={setActiveStep}
       onInspectDetails={onViewDetails}
-      showDemoButton={Boolean(product.youtube_video_id)}
+      showDemoButton={studioMedia.hasVideo}
       demoButtonLabel={t("demo_label")}
       demoButtonTitle={t("watch_demo")}
       footerMetaLeft={footerPriceMeta}
