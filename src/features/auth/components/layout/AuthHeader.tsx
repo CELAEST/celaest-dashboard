@@ -11,12 +11,12 @@ interface AuthHeaderProps {
 export const AuthHeader: React.FC<AuthHeaderProps> = ({ isDark }) => {
   return (
     <motion.div
-      className="flex items-center gap-2.5 mb-3.5 sm:mb-4 lg:mb-5 w-full pr-16 sm:pr-0"
+      className="flex items-center gap-2.5 mb-2.5 sm:mb-3 w-full pr-16 sm:pr-0"
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 }}
     >
-      <div className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 flex items-center justify-center">
+      <div className="w-8 h-8 sm:w-9 sm:h-9 shrink-0 flex items-center justify-center">
         <Logo
           className="w-full h-full"
           color={isDark ? "#a78bfa" : "#8b5cf6"}

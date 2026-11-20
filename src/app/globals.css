@@ -614,3 +614,36 @@ html {
     gap: 20px;
   }
 }
+
+/* ==========================================================================
+   AUTH PORTAL TRI-EJE VERTICAL TELEMETRY PHOTON PULSE
+   ========================================================================== */
+
+@keyframes auth-bus-vert-travel {
+  0% {
+    stroke-dashoffset: 168;
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+
+.auth-tri-bus-photon {
+  stroke-dasharray: 28 140;
+  animation: auth-bus-vert-travel 3.2s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-tri-bus-photon {
+    animation: none;
+    opacity: 0.45;
+  }
+}

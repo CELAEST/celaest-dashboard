@@ -26,7 +26,7 @@ export const AuthFooter: React.FC<AuthFooterProps> = ({
   return (
     <>
       <div
-        className={`mt-4 sm:mt-5 pt-3 sm:pt-4 border-t ${isDark ? "border-white/10" : "border-gray-200"}`}
+        className={`mt-3 pt-2.5 border-t ${isDark ? "border-white/10" : "border-gray-200"}`}
       >
         <p
           className={`text-center text-xs sm:text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}
@@ -46,7 +46,7 @@ export const AuthFooter: React.FC<AuthFooterProps> = ({
         </p>
       </div>
 
-      <div className={`mt-2.5 sm:mt-3.5 pt-2.5 sm:pt-3.5 border-t ${isDark ? "border-white/10" : "border-gray-200"}`}>
+      <div className={`mt-2 pt-2 border-t ${isDark ? "border-white/10" : "border-gray-200"}`}>
         <button
           type="button"
           onClick={handleBrowseAsGuest}
@@ -61,7 +61,7 @@ export const AuthFooter: React.FC<AuthFooterProps> = ({
         </button>
       </div>
 
-      <div className="mt-3 sm:mt-4">
+      <div className="mt-2.5">
         <div className="flex items-center justify-center gap-4 sm:gap-6 text-[10px] sm:text-xs text-gray-400">
           <div className="flex items-center gap-1.5">
             <Lock

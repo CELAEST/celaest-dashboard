@@ -64,7 +64,7 @@ export const SocialAuth: React.FC<SocialAuthProps> = ({
         variant="outline"
         disabled={loading}
         onClick={() => handleSocialSignIn("google")}
-        className={`h-10 sm:h-10.5 text-xs sm:text-sm font-medium rounded-xl cursor-pointer active:scale-[0.99] transition-all duration-200 ${
+        className={`h-9.5 text-xs sm:text-sm font-medium rounded-xl cursor-pointer active:scale-[0.99] transition-all duration-200 ${
           isDark
             ? "bg-white/5 border-white/10 hover:bg-white/10 text-white"
             : "bg-white/60 border-gray-300 hover:bg-white text-gray-700"
@@ -96,7 +96,7 @@ export const SocialAuth: React.FC<SocialAuthProps> = ({
         variant="outline"
         disabled={loading}
         onClick={() => handleSocialSignIn("github")}
-        className={`h-10 sm:h-10.5 text-xs sm:text-sm font-medium rounded-xl cursor-pointer active:scale-[0.99] transition-all duration-200 ${
+        className={`h-9.5 text-xs sm:text-sm font-medium rounded-xl cursor-pointer active:scale-[0.99] transition-all duration-200 ${
           isDark
             ? "bg-white/5 border-white/10 hover:bg-white/10 text-white"
             : "bg-white/60 border-gray-300 hover:bg-white text-gray-700"

@@ -28,6 +28,18 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://dashboard.celaest.com"),
+  alternates: {
+    canonical: "https://dashboard.celaest.com",
+  },
+  robots: {
+    index: true,
+    follow: false,
+    googleBot: {
+      index: true,
+      follow: false,
+    },
+  },
   title: "CELAEST Dashboard - Software Administrativo de Alto Rendimiento",
   description:
     "Optimiza tu flujo de trabajo con el dashboard profesional de CELAEST. Control total de activos, licencias y métricas en tiempo real.",
@@ -38,7 +50,17 @@ export const metadata: Metadata = {
     "enterprise software",
     "CELAEST",
   ],
-  authors: [{ name: "CELAEST Team" }],
+  authors: [{ name: "CELAEST Team", url: "https://celaest.com/es" }],
+  icons: {
+    icon: [
+      { url: "/favicon-v2.ico", sizes: "48x48", type: "image/x-icon" },
+      { url: "/icon-48-v2.png", sizes: "48x48", type: "image/png" },
+      { url: "/icon-192-v2.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-v2.svg", type: "image/svg+xml" },
+    ],
+    apple: [{ url: "/apple-icon-v2.png", sizes: "180x180", type: "image/png" }],
+    shortcut: ["/favicon-v2.ico"],
+  },
   openGraph: {
     title: "CELAEST Dashboard - Eficiencia Operativa",
     description:

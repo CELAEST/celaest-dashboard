@@ -1,9 +1,25 @@
 User-agent: *
 Allow: /
+Allow: /_next/static/
 Disallow: /api/
 Disallow: /admin/
-Disallow: /_next/
 Disallow: /signin
 Disallow: /signup
+
+User-agent: Googlebot
+Allow: /
+Allow: /_next/static/
+Disallow: /api/
+Disallow: /admin/
+Disallow: /signin
+Disallow: /signup
+
+User-agent: Googlebot-Image
+Allow: /
+Allow: /_next/static/
+
+User-agent: Google-Favicon
+Allow: /
+Allow: /_next/static/
 
 Sitemap: https://celaest.com/sitemap.xml

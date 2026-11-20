@@ -17,17 +17,20 @@ import {
 } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
+import type { AuthActiveField } from "../layout/AuthPortalFlanks";
 
 interface SignupFormProps {
   isDark: boolean;
   onSubmit: (data: SignupFormValues) => Promise<void>;
   loading: boolean;
+  onActiveFieldChange?: (field: AuthActiveField) => void;
 }
 
 export const SignupForm: React.FC<SignupFormProps> = ({
   isDark,
   onSubmit,
   loading,
+  onActiveFieldChange,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
   const tAuth = useTranslations("auth");
@@ -42,7 +45,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 sm:space-y-3.5">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 sm:space-y-2.5">
         {/* Name Field */}
         <FormField
           control={form.control}
@@ -61,13 +64,18 @@ export const SignupForm: React.FC<SignupFormProps> = ({
                   />
                   <Input
                     type="text"
-                    className={`pl-9.5 sm:pl-10 h-10 sm:h-11 text-sm rounded-xl ${
+                    className={`pl-9.5 sm:pl-10 h-9.5 text-sm rounded-xl ${
                       isDark
                         ? "bg-white/5 border-white/10 text-white focus:border-violet-500"
                         : "bg-gray-50 border-gray-300 focus:border-violet-500"
                     }`}
                     placeholder="John Doe"
                     {...field}
+                    onFocus={() => onActiveFieldChange?.("name")}
+                    onBlur={() => {
+                      field.onBlur();
+                      onActiveFieldChange?.(null);
+                    }}
                   />
                 </div>
               </FormControl>
@@ -94,13 +102,18 @@ export const SignupForm: React.FC<SignupFormProps> = ({
                   />
                   <Input
                     type="email"
-                    className={`pl-9.5 sm:pl-10 h-10 sm:h-11 text-sm rounded-xl ${
+                    className={`pl-9.5 sm:pl-10 h-9.5 text-sm rounded-xl ${
                       isDark
                         ? "bg-white/5 border-white/10 text-white focus:border-violet-500"
                         : "bg-gray-50 border-gray-300 focus:border-violet-500"
                     }`}
                     placeholder={tAuth("email_placeholder")}
                     {...field}
+                    onFocus={() => onActiveFieldChange?.("email")}
+                    onBlur={() => {
+                      field.onBlur();
+                      onActiveFieldChange?.(null);
+                    }}
                   />
                 </div>
               </FormControl>
@@ -127,13 +140,18 @@ export const SignupForm: React.FC<SignupFormProps> = ({
                   />
                   <Input
                     type={showPassword ? "text" : "password"}
-                    className={`pl-9.5 sm:pl-10 pr-9.5 sm:pr-10 h-10 sm:h-11 text-sm rounded-xl ${
+                    className={`pl-9.5 sm:pl-10 pr-9.5 sm:pr-10 h-9.5 text-sm rounded-xl ${
                       isDark
                         ? "bg-white/5 border-white/10 text-white focus:border-violet-500"
                         : "bg-gray-50 border-gray-300 focus:border-violet-500"
                     }`}
                     placeholder="••••••••"
                     {...field}
+                    onFocus={() => onActiveFieldChange?.("password")}
+                    onBlur={() => {
+                      field.onBlur();
+                      onActiveFieldChange?.(null);
+                    }}
                   />
                   <button
                     type="button"
@@ -160,7 +178,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({
         <Button
           type="submit"
           disabled={loading}
-          className={`w-full h-10 sm:h-11 text-sm font-semibold rounded-xl cursor-pointer active:scale-[0.99] transition-all duration-200 ${
+          className={`w-full h-9.5 sm:h-10 text-sm font-semibold rounded-xl cursor-pointer active:scale-[0.99] transition-all duration-200 ${
             isDark
               ? "bg-linear-to-r from-violet-600 via-violet-500 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white shadow-[0_0_24px_rgba(167,139,250,0.35)]"
               : "bg-linear-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-md shadow-violet-500/25"

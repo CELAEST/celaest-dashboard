@@ -14,6 +14,7 @@ import {
   SignupFormValues,
 } from "@/lib/validation/schemas/auth";
 import { useTranslations } from "next-intl";
+import type { AuthActiveField } from "./AuthPortalFlanks";
 
 export type AuthViewMode = "signin" | "signup" | "forgot" | "otp" | "reset" | "lockout";
 
@@ -28,6 +29,7 @@ interface AuthFormContainerProps {
   initialEmail?: string;
   initialToken?: string;
   onAuthComplete?: () => void;
+  onActiveFieldChange?: (field: AuthActiveField) => void;
 }
 
 export const AuthFormContainer: React.FC<AuthFormContainerProps> = ({
@@ -41,6 +43,7 @@ export const AuthFormContainer: React.FC<AuthFormContainerProps> = ({
   initialEmail = "",
   initialToken = "",
   onAuthComplete,
+  onActiveFieldChange,
 }) => {
   const tAuth = useTranslations("auth");
   const showSocial = mode === "signin" || mode === "signup";
@@ -52,7 +55,7 @@ export const AuthFormContainer: React.FC<AuthFormContainerProps> = ({
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: mode === "signin" ? 20 : -20 }}
         transition={{ duration: 0.3, ease: [0.43, 0.13, 0.23, 0.96] }}
-        className="space-y-4 sm:space-y-5"
+        className="space-y-2.5 sm:space-y-3"
       >
         {mode === "signin" && (
           <LoginForm
@@ -60,10 +63,16 @@ export const AuthFormContainer: React.FC<AuthFormContainerProps> = ({
             onSubmit={onLoginSubmit}
             loading={loading}
             onForgotPassword={() => onChangeMode?.("forgot")}
+            onActiveFieldChange={onActiveFieldChange}
           />
         )}
         {mode === "signup" && (
-          <SignupForm isDark={isDark} onSubmit={onSignupSubmit} loading={loading} />
+          <SignupForm
+            isDark={isDark}
+            onSubmit={onSignupSubmit}
+            loading={loading}
+            onActiveFieldChange={onActiveFieldChange}
+          />
         )}
         {mode === "forgot" && (
           <ForgotPasswordForm isDark={isDark} onBack={() => onChangeMode?.("signin")} />
@@ -94,7 +103,7 @@ export const AuthFormContainer: React.FC<AuthFormContainerProps> = ({
 
         {showSocial && (
           <>
-            <div className="relative pt-3 pb-2 sm:pt-4 sm:pb-3">
+            <div className="relative pt-1 pb-0.5 sm:pt-1.5 sm:pb-1">
               <div className="absolute inset-0 flex items-center">
                 <div className={`w-full border-t ${isDark ? "border-white/10" : "border-gray-200"}`} />
               </div>
