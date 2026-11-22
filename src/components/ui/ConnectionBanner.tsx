@@ -102,6 +102,8 @@ export const ConnectionBanner = React.memo(function ConnectionBanner() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  if (!isOffline) return null;
+
   return (
     <div
       className={`fixed top-0 left-0 right-0 z-200 flex items-center justify-center gap-3 px-4 py-2.5 md:backdrop-blur-xl border-b text-sm font-medium transition-transform duration-300 ${

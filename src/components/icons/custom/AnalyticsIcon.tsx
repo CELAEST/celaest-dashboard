@@ -49,7 +49,7 @@ export const AnalyticsIcon = ({
         rx="1"
         fill="currentColor"
         stroke="none"
-        initial={{ opacity: 0.4 }}
+        initial={{ opacity: 0.4, y: 11, height: 10 }}
         animate={{
           opacity: isActive || isHovered ? 0.6 : 0.4,
           y: isActive || isHovered ? 5 : 11,
@@ -65,7 +65,7 @@ export const AnalyticsIcon = ({
         rx="1"
         fill="currentColor"
         stroke="none"
-        initial={{ opacity: 0.6 }}
+        initial={{ opacity: 0.6, y: 14, height: 7 }}
         animate={{
           opacity: isActive || isHovered ? 0.8 : 0.6,
           y: isActive || isHovered ? 10 : 14,
@@ -81,6 +81,7 @@ export const AnalyticsIcon = ({
         rx="1"
         fill="currentColor"
         stroke="none"
+        initial={{ y: 7, height: 14 }}
         animate={{
           y: isActive || isHovered ? 3 : 7,
           height: isActive || isHovered ? 18 : 14,

@@ -298,7 +298,7 @@
     "all_plans": "Todos",
     "private": "Privado",
     "catalog": "Catálogo",
-    "solutions_available": "{count} soluciones disponibles",
+    "solutions_available": "{count, plural, =1 {1 solución disponible} other {# soluciones disponibles}}",
     "categories": "Categorías",
     "all_categories": "Todas",
     "rating": "Calificación",

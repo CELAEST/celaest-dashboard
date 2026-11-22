@@ -27,6 +27,8 @@ export const OrgSync = () => {
   const lastFetchedToken = useRef<string | null>(null);
   const queryClient = useQueryClient();
   const currentOrgId = useOrgStore((s) => s.currentOrg?.id);
+  const isOrgLoading = useOrgStore((s) => s.isLoading);
+  const hasFetchedOrgs = useOrgStore((s) => s.lastFetched !== null);
   const hasOrg = !!currentOrgId;
   const isRedirecting = useRef(false);
   const t = useTranslations("notifications");
@@ -52,15 +54,16 @@ export const OrgSync = () => {
   }, [session?.accessToken, isAuthenticated, hasOrg, fetchOrgs, resetOrgs]);
 
   // Effect 2: Connect/reconnect WebSocket when token OR active org changes.
-  // Kept separate so org switches update the socket channel without re-fetching.
+  // Wait for org hydration/fetch before connecting so we never open and
+  // immediately abort a provisional org-less WebSocket mid-handshake.
   useEffect(() => {
     const token = session?.accessToken;
-    if (token) {
+    if (token && (currentOrgId || (hasFetchedOrgs && !isOrgLoading))) {
       socket.connect(token, currentOrgId);
     } else if (!isAuthenticated) {
       socket.disconnect();
     }
-  }, [session?.accessToken, isAuthenticated, currentOrgId]);
+  }, [session?.accessToken, isAuthenticated, currentOrgId, hasFetchedOrgs, isOrgLoading]);
 
   // Real-time Reactivity: Listen for membership revoked events
   // NOTE: NotificationContext handles the membership_revoked action (for the

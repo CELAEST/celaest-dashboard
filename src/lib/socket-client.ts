@@ -101,9 +101,9 @@ class SocketClient {
     }
     
     try {
-      // Pass token as WebSocket sub-protocol — browser sends it via
-      // Sec-WebSocket-Protocol header, never in the URL.
-      this.ws = new WebSocket(url, [this.token]);
+      // Pass "celaest.v1" protocol + JWT via WebSocket sub-protocol so the
+      // server negotiates RFC 6455 Sec-WebSocket-Protocol: celaest.v1 cleanly.
+      this.ws = new WebSocket(url, ["celaest.v1", this.token]);
     } catch (e: unknown) {
       logger.error("WebSocket connection error:", e);
       this.handleReconnect();
@@ -187,7 +187,15 @@ class SocketClient {
     if (this.pingInterval) clearInterval(this.pingInterval);
     
     if (this.ws) {
-      this.ws.close();
+      if (this.ws.readyState === WebSocket.CONNECTING) {
+        const pendingWs = this.ws;
+        pendingWs.onopen = () => pendingWs.close();
+        pendingWs.onmessage = null;
+        pendingWs.onclose = null;
+        pendingWs.onerror = null;
+      } else {
+        this.ws.close();
+      }
       this.ws = null;
     }
     this.token = null;

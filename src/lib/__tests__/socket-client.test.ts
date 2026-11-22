@@ -26,17 +26,25 @@ vi.mock("../logger", () => ({
 
 // Mock WebSocket so node doesn't choke
 class MockWebSocket {
+  static CONNECTING = 0;
   static OPEN = 1;
   static CLOSED = 3;
   static CLOSING = 2;
+  static instances: MockWebSocket[] = [];
   readyState = MockWebSocket.OPEN;
+  url: string | URL;
+  protocols?: string | string[];
   onopen: (() => void) | null = null;
   onmessage: ((ev: { data: string }) => void) | null = null;
   onclose: (() => void) | null = null;
   onerror: (() => void) | null = null;
   close = vi.fn();
   send = vi.fn();
-  constructor() {}
+  constructor(url: string | URL, protocols?: string | string[]) {
+    this.url = url;
+    this.protocols = protocols;
+    MockWebSocket.instances.push(this);
+  }
 }
 
 // Assign to global
@@ -119,5 +127,23 @@ describe("SocketClient", () => {
     socket.disconnect();
     // Should not throw — all timers should be cleared safely
     expect(true).toBe(true);
+  });
+
+  it("sends celaest.v1 subprotocol and defers closing while WebSocket is CONNECTING", () => {
+    (globalThis as unknown as { window?: unknown }).window = {};
+    MockWebSocket.instances = [];
+
+    socket.connect("jwt-abc-123", "org-42");
+    const ws = MockWebSocket.instances.at(-1)!;
+    expect(String(ws.url)).toContain("org_id=org-42");
+    expect(ws.protocols).toEqual(["celaest.v1", "jwt-abc-123"]);
+
+    ws.readyState = MockWebSocket.CONNECTING;
+    socket.disconnect();
+    expect(ws.close).not.toHaveBeenCalled();
+
+    ws.onopen?.();
+    expect(ws.close).toHaveBeenCalledTimes(1);
+    delete (globalThis as unknown as { window?: unknown }).window;
   });
 });
