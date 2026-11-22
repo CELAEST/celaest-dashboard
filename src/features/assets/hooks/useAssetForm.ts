@@ -3,6 +3,9 @@ import { z } from "zod";
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
+const MAX_PREVIEW_VIDEO_SIZE = 15 * 1024 * 1024; // 15MB
+const ACCEPTED_PREVIEW_VIDEO_TYPES = ["video/mp4", "video/webm", "video/quicktime"];
+
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 
 export const assetSchema = z.object({
@@ -28,6 +31,21 @@ export const assetSchema = z.object({
   // We deliberately don't z.string().url() here because youtu.be short
   // links are valid for us and a bare id (e.g. "dQw4w9WgXcQ") is also OK.
   youtube_url: z.string().max(255).optional(),
+  preview_video_url: z.string().url("Must be a valid URL").or(z.literal("")).optional(),
+  pending_preview_video: z.custom<File>()
+    .superRefine((val, ctx) => {
+      if (!val) return;
+      if (!(val instanceof File)) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: "No es un video válido" });
+        return;
+      }
+      if (val.size > MAX_PREVIEW_VIDEO_SIZE) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: "El clip debe pesar menos de 15MB" });
+      }
+      if (!ACCEPTED_PREVIEW_VIDEO_TYPES.includes(val.type)) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Formato no soportado (MP4, WebM, MOV)" });
+      }
+    }).optional().nullable(),
   pending_image: z.custom<File>()
     .superRefine((val, ctx) => {
       if (!val) return;

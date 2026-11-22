@@ -5,6 +5,7 @@ import { useTheme } from "@/features/shared/hooks/useTheme";
 import { SettingsSelect } from "../../settings/components/SettingsSelect";
 import { AssetFormValues } from "../hooks/useAssetForm";
 import { AssetImageUploader } from "./AssetImageUploader";
+import { HoverPreviewVideoField } from "./HoverPreviewVideoField";
 import { useCategories } from "../hooks/useCategories";
 import { useTranslations } from "next-intl";
 import {
@@ -457,6 +458,15 @@ export const AssetFormFields: React.FC<AssetFormFieldsProps> = ({
           </div>
         )}
       </div>
+
+      {/* Fast Hover MP4/WebM Preview Clip (Opción 1: < 50ms instant card hover) */}
+      <HoverPreviewVideoField
+        url={watch("preview_video_url") ?? ""}
+        file={watch("pending_preview_video")}
+        onUrlChange={(next) => setValue("preview_video_url", next)}
+        onFileChange={(file) => setValue("pending_preview_video", file)}
+        isDark={isDark}
+      />
 
       {/* Pricing */}
       <div className="grid grid-cols-2 gap-6">

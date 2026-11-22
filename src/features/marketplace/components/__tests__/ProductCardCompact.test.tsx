@@ -149,9 +149,13 @@ describe("ProductCardCompact (Preset 04 · Studio 3D)", () => {
     const playBtn = screen.getByRole("button", { name: /Demo/i });
     expect(playBtn).toBeVisible();
     expect(playBtn.textContent).toBe("");
-    expect(document.querySelector("video.sb4-hero-video-el")).toBeNull();
 
-    // Hover starts direct video loop
+    // Viewport preload mounts <video preload="auto"> silently hidden behind poster before hover
+    const wrap = document.querySelector(".sb4-hero-video-wrap") as HTMLElement | null;
+    expect(wrap).not.toBeNull();
+    expect(wrap).not.toHaveClass("is-ready");
+
+    // Hover immediately reveals & plays preloaded direct video loop
     const card = playBtn.closest("article");
     fireEvent.mouseEnter(card!);
 
@@ -160,6 +164,9 @@ describe("ProductCardCompact (Preset 04 · Studio 3D)", () => {
     expect(videoEl?.src).toContain("https://cdn.celaest.com/demos/lingua-preview.mp4");
     expect(videoEl?.muted).toBe(true);
     expect(videoEl?.loop).toBe(true);
+    expect(videoEl?.getAttribute("preload")).toBe("auto");
+    fireEvent.canPlay(videoEl!);
+    expect(wrap).toHaveClass("is-ready");
 
     // Falls back to bespoke studio artwork poster instead of putting .mp4 inside <Image src>
     const img = screen.getByAltText("CELAEST Lingua") as HTMLImageElement;
@@ -169,6 +176,32 @@ describe("ProductCardCompact (Preset 04 · Studio 3D)", () => {
 
     fireEvent.click(playBtn);
     expect(onViewDetails).toHaveBeenCalledTimes(1);
+  });
+
+  it("prioritizes instant preview_video_url over YouTube iframe on hover when both exist", () => {
+    render(
+      <ProductCardCompact
+        product={{
+          ...baseLinguaProduct,
+          thumbnail_url: "https://cdn.celaest.com/posters/lingua.webp",
+          youtube_video_id: "P6eigqaFWB0",
+          preview_video_url: "https://cdn.celaest.com/previews/lingua-fast.mp4",
+        }}
+        accessLevel="plan"
+        onSelect={vi.fn()}
+        onViewDetails={vi.fn()}
+      />,
+    );
+
+    const card = screen.getByRole("button", { name: /Demo/i }).closest("article");
+    fireEvent.mouseEnter(card!);
+
+    // Uses fast native <video> instead of mounting a YouTube iframe for hover
+    expect(document.querySelector("iframe")).toBeNull();
+    const videoEl = document.querySelector("video.sb4-hero-video-el") as HTMLVideoElement | null;
+    expect(videoEl).not.toBeNull();
+    expect(videoEl?.src).toContain("https://cdn.celaest.com/previews/lingua-fast.mp4");
+    expect(videoEl?.poster).toContain("https://cdn.celaest.com/posters/lingua.webp");
   });
 
   it("preserves backend thumbnail_url when present and avoids mid-word stack truncation", () => {

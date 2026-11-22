@@ -88,6 +88,7 @@ export const StudioCardShell: React.FC<StudioCardShellProps> = ({
             <HeroBackgroundVideo
               youtubeVideoId={youtubeVideoId}
               videoSrc={videoSrc}
+              posterUrl={imageSrc}
               title={imageAlt}
               active={isHovered}
             />

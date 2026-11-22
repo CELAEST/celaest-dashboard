@@ -117,7 +117,7 @@
   overflow: hidden;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.42s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.16s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .sb4-hero-video-wrap.is-ready {

@@ -168,6 +168,36 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
       }
     }
 
+    // 1.5. Upload optional Hover Preview Video clip (MP4/WebM)
+    let finalPreviewVideoUrl = (data.preview_video_url ?? "").trim();
+    if (data.pending_preview_video instanceof File) {
+      try {
+        setIsUploading(true);
+        setUploadProgress(25);
+        const clip = data.pending_preview_video;
+        const clipExt = clip.name.split(".").pop() || "mp4";
+        const clipPath = `previews/${Math.random().toString(36).substring(2)}-${Date.now()}.${clipExt}`;
+
+        const { supabase } = await import("@/lib/supabase/client");
+        if (!supabase) throw new Error("Supabase client not available");
+
+        const { error } = await supabase.storage
+          .from("products")
+          .upload(clipPath, clip, { cacheControl: "31536000", upsert: false });
+        if (error) throw error;
+
+        const { data: urlData } = supabase.storage.from("products").getPublicUrl(clipPath);
+        finalPreviewVideoUrl = urlData.publicUrl;
+        setUploadProgress(100);
+      } catch (err: unknown) {
+        toast.error(
+          t("upload_failed", { error: err instanceof Error ? err.message : "Unknown error" }),
+        );
+        setIsUploading(false);
+        return;
+      }
+    }
+
     // 2. Handle Product File Upload (if any)
     let productFileUrl: string | null = null;
     let productFileSize: number = 0;
@@ -228,6 +258,7 @@ export const AssetAdminPortal: React.FC<AssetAdminPortalProps> = ({
       // update — that matches the form's "leave empty to fall back to the
       // image" contract.
       youtube_url: data.youtube_url ?? "",
+      preview_video_url: finalPreviewVideoUrl,
       features: data.features ? data.features.split("\n").filter(Boolean) : [],
       tags: data.tags ? data.tags.split("\n").filter(Boolean) : [],
       technical_stack: data.technical_stack

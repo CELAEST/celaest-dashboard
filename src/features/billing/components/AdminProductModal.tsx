@@ -39,6 +39,7 @@ interface ProductFormData {
   // Raw URL pasted by the admin. Backend extracts the 11-char id; an empty
   // string clears the preview and falls back to the thumbnail image.
   youtubeUrl?: string;
+  previewVideoUrl?: string;
 }
 
 export const AdminProductModal: React.FC<AdminProductModalProps> = ({
@@ -70,6 +71,7 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
       isFeatured: false,
       shortDescription: "",
       youtubeUrl: "",
+      previewVideoUrl: "",
     },
   });
 
@@ -88,6 +90,7 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
         // admin sees what is currently stored. The backend will re-extract
         // on save, so this round-trips cleanly.
         youtubeUrl: product.youtubeVideoId || "",
+        previewVideoUrl: product.previewVideoUrl || "",
       });
     } else if (!product && isOpen) {
       reset({
@@ -100,6 +103,7 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
         isFeatured: false,
         shortDescription: "",
         youtubeUrl: "",
+        previewVideoUrl: "",
       });
     }
   }, [product, isOpen, reset]);
@@ -129,6 +133,7 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
           is_featured: data.isFeatured,
           short_description: data.shortDescription,
           youtube_url: data.youtubeUrl ?? "",
+          preview_video_url: (data.previewVideoUrl ?? "").trim(),
         };
         return assetsService.updateAsset(token, orgId, product.id, payload);
       } else {
@@ -142,6 +147,7 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
           is_featured: data.isFeatured,
           short_description: data.shortDescription,
           ...(data.youtubeUrl ? { youtube_url: data.youtubeUrl } : {}),
+          ...(data.previewVideoUrl?.trim() ? { preview_video_url: data.previewVideoUrl.trim() } : {}),
         };
         return assetsService.createAsset(token, orgId, payload);
       }
@@ -316,6 +322,22 @@ export const AdminProductModal: React.FC<AdminProductModalProps> = ({
                 </div>
               </div>
             )}
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-[10px] uppercase font-black tracking-widest text-white/40">
+              {t("hover_clip_label")}
+            </label>
+            <input
+              className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-white text-sm font-mono focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/20 transition-colors placeholder:text-white/20"
+              placeholder="https://.../preview.mp4"
+              autoComplete="off"
+              spellCheck={false}
+              {...register("previewVideoUrl")}
+            />
+            <p className="text-[10px] text-white/30">
+              {t("hover_clip_hint")}
+            </p>
           </div>
 
           {/* Toggles */}

@@ -72,15 +72,19 @@ export function resolveStudioThumbnail(product: Pick<MarketplaceProduct, "thumbn
  * so video cards start cleanly over sharp artwork with zero broken `<Image>` URLs or flicker.
  */
 export function resolveStudioMedia(
-  product: Pick<MarketplaceProduct, "thumbnail_url" | "youtube_video_id" | "images" | "slug" | "name">,
+  product: Pick<
+    MarketplaceProduct,
+    "thumbnail_url" | "youtube_video_id" | "preview_video_url" | "images" | "slug" | "name"
+  >,
 ): StudioResolvedMedia {
   const youtubeVideoId = product.youtube_video_id?.trim() || null;
+  const dedicatedPreview = product.preview_video_url?.trim() || null;
   const directThumb = isDirectVideoUrl(product.thumbnail_url)
     ? product.thumbnail_url!.trim()
     : null;
   const directGalleryVideo =
     product.images?.find((src) => isDirectVideoUrl(src))?.trim() || null;
-  const videoSrc = directThumb || directGalleryVideo;
+  const videoSrc = dedicatedPreview || directThumb || directGalleryVideo;
 
   const fallbackStaticImage =
     product.images?.find((src) => Boolean(src?.trim()) && !isDirectVideoUrl(src))?.trim() ||

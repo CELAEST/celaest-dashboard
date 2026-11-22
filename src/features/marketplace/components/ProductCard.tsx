@@ -85,6 +85,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           <HeroBackgroundVideo
             youtubeVideoId={studioMedia.youtubeVideoId}
             videoSrc={studioMedia.videoSrc}
+            posterUrl={studioMedia.imageSrc}
             title={product.name}
             active={isHovered}
           />

@@ -146,6 +146,7 @@ export const AssetCustomerCatalog: React.FC<
                   rating_count: product.reviews || 0,
                   thumbnail_url: product.thumbnail || "",
                   youtube_video_id: product.youtubeVideoId,
+                  preview_video_url: product.previewVideoUrl,
                   images: product.thumbnail ? [product.thumbnail] : [],
                   tags: product.tags || [],
                   features: product.features || [],

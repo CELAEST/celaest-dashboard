@@ -19,6 +19,8 @@ export interface MarketplaceProduct {
    * the image.
    */
   youtube_video_id?: string;
+  /** Optional direct MP4/WebM CDN clip for instant hover preview on cards. */
+  preview_video_url?: string;
   images: string[];
   tags: string[];
   features: string[];

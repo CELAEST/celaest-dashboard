@@ -39,6 +39,8 @@ export interface Asset {
   // a lite-embed (facade) instead of the static thumbnail. Empty/undefined
   // falls back to `thumbnail`.
   youtubeVideoId?: string;
+  // Direct MP4/WebM CDN clip used for instant hover preview on studio cards.
+  previewVideoUrl?: string;
   external_url?: string;
   display_type?: string;
   accessType?: "purchase" | "subscription";
@@ -115,6 +117,7 @@ export const assetsService = {
     minPlanTier: Number(ba.product_min_plan_tier ?? (ba as unknown as { min_plan_tier?: number }).min_plan_tier ?? 0),
     thumbnail: ba.product_thumbnail_url || "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&fm=webp",
     youtubeVideoId: ba.product_youtube_video_id || undefined,
+    previewVideoUrl: ba.product_preview_video_url || undefined,
     accessType: (ba.access_type === "subscription" ? "subscription" : "purchase") as "purchase" | "subscription",
     isPurchased: true,
     isPublic: false,
@@ -161,6 +164,7 @@ export const assetsService = {
       minPlanTier: bp.min_plan_tier || 0,
       thumbnail: bp.thumbnail_url || "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&fm=webp",
       youtubeVideoId: bp.youtube_video_id || undefined,
+      previewVideoUrl: bp.preview_video_url || undefined,
       external_url: bp.external_url || "",
       display_type: bp.display_type || bp.product_type,
       isPurchased: false,

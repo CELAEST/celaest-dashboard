@@ -73,6 +73,8 @@ export const AssetEditor: React.FC<AssetEditorProps> = ({
       github_repository: "",
       thumbnail_url: "",
       youtube_url: "",
+      preview_video_url: "",
+      pending_preview_video: null,
     },
   });
 
@@ -129,6 +131,8 @@ export const AssetEditor: React.FC<AssetEditorProps> = ({
         // Round-trip the bare 11-char id so the input shows what's stored;
         // backend re-extracts on save, so this is idempotent.
         youtube_url: asset.youtubeVideoId || "",
+        preview_video_url: asset.previewVideoUrl || "",
+        pending_preview_video: null,
       });
     } else {
       reset({
@@ -149,6 +153,8 @@ export const AssetEditor: React.FC<AssetEditorProps> = ({
         github_repository: "",
         thumbnail_url: "",
         youtube_url: "",
+        preview_video_url: "",
+        pending_preview_video: null,
       });
     }
   }, [asset, reset, isOpen]);
