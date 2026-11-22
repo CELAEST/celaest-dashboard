@@ -127,7 +127,7 @@ export const OrderDetailsSidebar: React.FC<OrderDetailsSidebarProps> = ({
                 isDark ? "text-zinc-300" : "text-gray-600"
               }`}
             >
-              {formData.paymentProvider || "Stripe"}{" "}
+              {formData.paymentProvider || "Creem"}{" "}
               {formData.paymentMethod === "card" ? "• Card" : ""}
             </div>
           </div>

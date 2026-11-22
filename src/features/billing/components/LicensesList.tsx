@@ -136,7 +136,7 @@ export const LicensesList: React.FC = () => {
         >
           <span className="flex items-center gap-1.5">
             <ShieldCheck size={12} className={isDark ? "text-white/60" : "text-gray-500"} />
-            <span>Sincronizado con Stripe</span>
+            <span>Licencias verificadas · Creem &amp; Mercado Pago</span>
           </span>
           <span className="text-[8px] sm:text-[9px]">
             {allSubscriptions.length} {allSubscriptions.length === 1 ? "activa" : "totales"}

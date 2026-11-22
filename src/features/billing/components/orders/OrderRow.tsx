@@ -133,7 +133,7 @@ export const OrderRow = React.memo(
                   <Money size={14} />
                 )}
                 <span className="capitalize">
-                  {order.paymentMethod || "Stripe"}
+                  {order.paymentMethod || "Creem"}
                 </span>
               </div>
             </td>

@@ -102,7 +102,7 @@ export const PaymentStep: React.FC<PaymentStepProps> = ({
               {t("redirecting_to_stripe")}
             </h2>
             <p className="text-xs text-white/50 leading-relaxed max-w-[420px] mx-auto">
-              Te transferiremos a la pasarela cifrada de Stripe para completar la transacción de forma segura sin almacenar datos sensibles.
+              Te transferiremos a la pasarela cifrada de Creem (Merchant of Record) para completar la transacción internacional de forma segura sin almacenar datos sensibles.
             </p>
           </div>
 
@@ -129,7 +129,7 @@ export const PaymentStep: React.FC<PaymentStepProps> = ({
 
             <div className="flex items-center justify-center gap-2 text-[10px] font-mono text-white/30 text-center">
               <ShieldCheck size={13} />
-              <span>Visa • Mastercard • Amex • Apple Pay • TLS 1.3</span>
+              <span>Visa • Mastercard • Amex • Apple Pay • Google Pay • TLS 1.3</span>
             </div>
 
             {onBack && (

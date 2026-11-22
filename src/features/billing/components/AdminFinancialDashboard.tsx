@@ -7,6 +7,7 @@ import { MetricCard } from "./dashboard/MetricCard";
 import { GatewayControl } from "./dashboard/GatewayControl";
 import { TaxRatesCard } from "./dashboard/TaxRatesCard";
 import { useFinancialDashboard } from "../hooks/useFinancialDashboard";
+import { usePaymentGateways } from "../hooks/usePaymentGateways";
 import { ConfigurePaymentGatewaysModal } from "./modals/ConfigurePaymentGatewaysModal";
 import { ManageTaxRatesModal } from "./modals/ManageTaxRatesModal";
 import { CriticalAlertsModal } from "./modals/CriticalAlertsModal";
@@ -26,8 +27,11 @@ export const AdminFinancialDashboard: React.FC = () => {
     failedPayments,
     taxRates,
     stripeGatewayActive,
+    creemGatewayActive,
+    mercadoPagoGatewayActive,
     refresh,
   } = useFinancialDashboard();
+  const { gateways: liveGateways } = usePaymentGateways();
 
   // Modal States
   const [isGatewayModalOpen, setIsGatewayModalOpen] = useState(false);
@@ -39,29 +43,49 @@ export const AdminFinancialDashboard: React.FC = () => {
   >("failed");
   const t = useTranslations("billing");
 
-  const gateways: PaymentGateway[] = useMemo(
-    () => [
+  const gateways: PaymentGateway[] = useMemo(() => {
+    if (liveGateways.length > 0) {
+      return liveGateways;
+    }
+    return [
       {
-        id: "stripe",
-        name: t("stripe_gateway"),
-        logo: "/logos/stripe.svg",
-        status: stripeGatewayActive ? "active" : "standby",
-        apiKey: "sk_live_**********************abc123",
-        webhookUrl: "https://api.celaest.com/v1/webhooks/stripe",
+        id: "creem",
+        name: t("creem_gateway"),
+        logo: "creem",
+        status: creemGatewayActive ? "active" : "standby",
+        apiKey: "",
+        webhookUrl:
+          "https://celaest-back.onrender.com/api/v1/public/payments/webhooks/creem",
         testMode: false,
       },
       {
-        id: "paypal",
-        name: t("paypal_gateway"),
-        logo: "/logos/paypal.svg",
-        status: "standby",
-        apiKey: "client_id_**********************xyz789",
-        webhookUrl: "https://api.celaest.com/v1/webhooks/paypal",
+        id: "mercadopago",
+        name: t("mercadopago_gateway"),
+        logo: "mercadopago",
+        status: mercadoPagoGatewayActive ? "active" : "standby",
+        apiKey: "",
+        webhookUrl:
+          "https://celaest-back.onrender.com/api/v1/public/payments/webhooks/mercadopago",
+        testMode: false,
+      },
+      {
+        id: "stripe",
+        name: t("stripe_gateway"),
+        logo: "stripe",
+        status: stripeGatewayActive ? "active" : "disabled",
+        apiKey: "",
+        webhookUrl:
+          "https://celaest-back.onrender.com/api/v1/public/payments/webhook",
         testMode: true,
       },
-    ],
-    [stripeGatewayActive, t],
-  );
+    ];
+  }, [
+    liveGateways,
+    creemGatewayActive,
+    mercadoPagoGatewayActive,
+    stripeGatewayActive,
+    t,
+  ]);
 
   return (
     <div className="space-y-6">

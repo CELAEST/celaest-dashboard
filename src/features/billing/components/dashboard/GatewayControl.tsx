@@ -13,21 +13,61 @@ interface GatewayControlProps {
   className?: string;
 }
 
+const GATEWAY_STATUS_STYLES: Record<
+  string,
+  {
+    darkCard: string;
+    lightCard: string;
+    darkTitle: string;
+    dot: string;
+    darkBadge: string;
+    lightBadge: string;
+  }
+> = {
+  active: {
+    darkCard:
+      "bg-[#18181b] border-emerald-500/20 hover:border-emerald-500/50 hover:shadow-[0_0_15px_rgba(16,185,129,0.1)]",
+    lightCard: "bg-emerald-50 border-emerald-200",
+    darkTitle: "text-emerald-400",
+    dot: "bg-emerald-500",
+    darkBadge: "text-emerald-500",
+    lightBadge: "text-emerald-700",
+  },
+  standby: {
+    darkCard: "bg-[#18181b] border-amber-500/20 hover:border-amber-500/50",
+    lightCard: "bg-amber-50 border-amber-200",
+    darkTitle: "text-amber-400",
+    dot: "bg-amber-500",
+    darkBadge: "text-amber-500",
+    lightBadge: "text-amber-700",
+  },
+  disabled: {
+    darkCard: "bg-[#18181b] border-white/10 hover:border-white/20",
+    lightCard: "bg-gray-50 border-gray-200",
+    darkTitle: "text-gray-400",
+    dot: "bg-gray-500",
+    darkBadge: "text-gray-400",
+    lightBadge: "text-gray-600",
+  },
+};
+
+function getGatewaySubtitle(id: string): string {
+  switch (id) {
+    case "creem":
+      return "International · USD / EUR (MoR)";
+    case "mercadopago":
+      return "Colombia / LATAM · COP / PSE / Nequi";
+    case "stripe":
+      return "Disabled (STRIPE_ENABLED=false)";
+    default:
+      return `Gateway: ${id}`;
+  }
+}
+
 export const GatewayControl = React.memo(
   ({ onConfigure, gateways, className }: GatewayControlProps) => {
     const { theme } = useTheme();
     const isDark = theme === "dark";
-
-    const getStatusColor = (status: string) => {
-      switch (status) {
-        case "active":
-          return isDark ? "emerald" : "emerald";
-        case "standby":
-          return isDark ? "yellow" : "yellow";
-        default:
-          return isDark ? "gray" : "gray";
-      }
-    };
 
     return (
       <motion.div
@@ -62,22 +102,22 @@ export const GatewayControl = React.memo(
             </div>
 
             <div className="space-y-3">
-              {gateways.slice(0, 2).map((gateway) => {
-                const color = getStatusColor(gateway.status);
+              {gateways.map((gateway) => {
+                const styles =
+                  GATEWAY_STATUS_STYLES[gateway.status] ??
+                  GATEWAY_STATUS_STYLES.disabled;
                 const isActive = gateway.status === "active";
                 return (
                   <div
                     key={gateway.id}
                     className={`p-4 rounded-xl border transition-all duration-300 hover:scale-[1.02] cursor-pointer group ${
-                      isDark
-                        ? `bg-[#18181b] border-${color}-500/20 hover:border-${color}-500/50 hover:shadow-[0_0_15px_rgba(16,185,129,0.1)]`
-                        : `bg-${color}-50 border-${color}-200`
+                      isDark ? styles.darkCard : styles.lightCard
                     }`}
                   >
                     <div className="flex items-center justify-between mb-2">
                       <span
                         className={`font-bold ${
-                          isDark ? `text-${color}-400` : "text-gray-900"
+                          isDark ? styles.darkTitle : "text-gray-900"
                         }`}
                       >
                         {gateway.name}
@@ -86,16 +126,16 @@ export const GatewayControl = React.memo(
                         <span className="relative flex h-2 w-2">
                           {isActive && (
                             <span
-                              className={`animate-ping absolute inline-flex h-full w-full rounded-full bg-${color}-400 opacity-75`}
+                              className={`animate-ping absolute inline-flex h-full w-full rounded-full ${styles.dot} opacity-75`}
                             ></span>
                           )}
                           <span
-                            className={`relative inline-flex rounded-full h-2 w-2 bg-${color}-500`}
+                            className={`relative inline-flex rounded-full h-2 w-2 ${styles.dot}`}
                           ></span>
                         </span>
                         <span
                           className={`text-[10px] font-black tracking-wider uppercase ${
-                            isDark ? `text-${color}-500` : `text-${color}-700`
+                            isDark ? styles.darkBadge : styles.lightBadge
                           }`}
                         >
                           {gateway.status}
@@ -104,9 +144,7 @@ export const GatewayControl = React.memo(
                     </div>
                     <div className="flex items-center gap-2 font-mono text-[10px] opacity-60">
                       <div className="w-1.5 h-1.5 bg-current rounded-full" />
-                      {gateway.id === "stripe"
-                        ? "sk_live_...xxxxxx"
-                        : "ID: ...yyyyyy"}
+                      {getGatewaySubtitle(gateway.id)}
                     </div>
                   </div>
                 );

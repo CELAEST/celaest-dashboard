@@ -1,5 +1,12 @@
 import React from "react";
-import { Stack, ArrowCircleRight, Hash, CreditCard } from "@phosphor-icons/react";
+import {
+  Stack,
+  ArrowCircleRight,
+  Hash,
+  CreditCard,
+  Globe,
+  Wallet,
+} from "@phosphor-icons/react";
 import { motion } from "motion/react";
 import { useTheme } from "@/features/shared/hooks/useTheme";
 import { useTranslations } from "next-intl";
@@ -53,6 +60,10 @@ export const GatewayItem: React.FC<GatewayItemProps> = ({
 
   const getGatewayIcon = (logo: string) => {
     switch (logo) {
+      case "creem":
+        return <Globe className="w-10 h-10 text-cyan-500" />;
+      case "mercadopago":
+        return <Wallet className="w-10 h-10 text-sky-500" />;
       case "stripe":
         return <Stack className="w-10 h-10 text-indigo-500" />;
       case "paypal":

@@ -303,6 +303,8 @@ export interface GlobalFinancialStats {
   pendingRefunds: number;
   failedPayments: number;
   stripeGatewayActive: boolean;
+  creemGatewayActive?: boolean;
+  mercadoPagoGatewayActive?: boolean;
 }
 
 export interface Payment {

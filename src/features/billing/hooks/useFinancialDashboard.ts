@@ -27,6 +27,8 @@ export const useFinancialDashboard = () => {
     pendingRefunds: statsQuery.data?.pendingRefunds ?? 0,
     failedPayments: statsQuery.data?.failedPayments ?? 0,
     stripeGatewayActive: statsQuery.data?.stripeGatewayActive ?? false,
+    creemGatewayActive: statsQuery.data?.creemGatewayActive ?? false,
+    mercadoPagoGatewayActive: statsQuery.data?.mercadoPagoGatewayActive ?? false,
   }), [statsQuery.data]);
 
   const metrics: FinancialMetric[] = useMemo(() => [

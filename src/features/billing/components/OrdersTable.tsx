@@ -331,7 +331,7 @@ export const OrdersTable = React.memo(function OrdersTable({ hideFooter = true }
                 <Money size={12} className={isDark ? "text-white/40" : "text-gray-400"} />
               )}
               <span className="capitalize">
-                {order.paymentProvider || order.paymentMethod || "Stripe"}
+                {order.paymentProvider || order.paymentMethod || "Creem"}
               </span>
             </div>
           );

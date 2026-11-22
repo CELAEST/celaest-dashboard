@@ -122,7 +122,7 @@ export const usePurchaseFlow = (onClose: () => void, initialStep = 1, onSuccess?
           attempts++;
           setProgress(Math.min(90, (attempts / maxAttempts) * 100));
 
-          if (attempts === 1) setStatusMessage("Verificando con Stripe...");
+          if (attempts === 1) setStatusMessage("Verificando pago con la pasarela...");
           if (attempts === 5) setStatusMessage("Procesando pago...");
           if (attempts === 10) setStatusMessage("Activando licencia...");
           if (attempts === 15) setStatusMessage("Sincronizando activos...");
