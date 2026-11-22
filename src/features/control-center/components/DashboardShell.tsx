@@ -4,6 +4,7 @@ import {
   useState,
   useEffect,
   startTransition,
+  useSyncExternalStore,
 } from "react";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
 
@@ -27,10 +28,19 @@ import { ValidTabId } from "../config/feature-registry";
 
 
 
+const subscribeNoop = () => () => {};
+const getClientMounted = () => true;
+const getServerMounted = () => false;
+
 export function DashboardShell() {
   const searchParams = useSearchParams();
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const hasMounted = useSyncExternalStore(
+    subscribeNoop,
+    getClientMounted,
+    getServerMounted,
+  );
 
   // Landing Guard
   const isRevokedLanding = searchParams.get("revoked") === "true";
@@ -95,6 +105,7 @@ export function DashboardShell() {
   const isGuest = !isLoading && !user;
   const authMode = searchParams.get("mode");
   const showAuthPage =
+    hasMounted &&
     !user &&
     authMode !== null &&
     ["signin", "signup", "forgot", "otp", "reset", "lockout"].includes(authMode);
