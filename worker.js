@@ -133,13 +133,35 @@ async function serveRangeAwareVideo(request, env) {
   });
 }
 
-function withSecurityHeaders(response) {
+const ICON_LINK_HEADER =
+  '</favicon-v2.ico>; rel="icon"; type="image/x-icon", </icon-48-v2.png>; rel="icon"; type="image/png"; sizes="48x48", </icon-192-v2.png>; rel="icon"; type="image/png"; sizes="192x192"';
+
+const LEGACY_PRICING_PATHS = new Set([
+  "/mes",
+  "/año",
+  "/anio",
+  "/month",
+  "/year",
+  "/pricing",
+  "/precios",
+]);
+
+const JUNK_PATHS = new Set(["/$", "/&", "/%24", "/%26"]);
+
+function withSecurityHeaders(response, { noindex = false } = {}) {
   const headers = new Headers(response.headers);
   headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
   headers.set("X-Content-Type-Options", "nosniff");
   headers.set("X-Frame-Options", "DENY");
   headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   headers.set("Permissions-Policy", "camera=(), geolocation=(), microphone=()");
+  const contentType = headers.get("content-type") || "";
+  if (contentType.includes("text/html")) {
+    headers.set("Link", ICON_LINK_HEADER);
+  }
+  if (noindex || response.status === 404) {
+    headers.set("X-Robots-Tag", "noindex, nofollow");
+  }
   return new Response(response.body, {
     status: response.status,
     statusText: response.statusText,
@@ -150,6 +172,36 @@ function withSecurityHeaders(response) {
 const worker = {
   async fetch(request, env) {
     const url = new URL(request.url);
+    const decodedPath = (() => {
+      try {
+        return decodeURIComponent(url.pathname);
+      } catch {
+        return url.pathname;
+      }
+    })();
+    const normalizedPath = decodedPath.replace(/\/+$/, "") || "/";
+
+    // Redirect legacy pricing shortcuts mistakenly crawled on dashboard subdomain -> landing
+    if (LEGACY_PRICING_PATHS.has(normalizedPath)) {
+      return new Response(null, {
+        status: 301,
+        headers: {
+          Location: "https://celaest.com/es",
+          Link: ICON_LINK_HEADER,
+        },
+      });
+    }
+
+    // Redirect malformed literal template/junk URLs (/$ , /& , /%24 , /%26) -> canonical dashboard root
+    if (JUNK_PATHS.has(url.pathname) || JUNK_PATHS.has(normalizedPath)) {
+      return new Response(null, {
+        status: 301,
+        headers: {
+          Location: "https://dashboard.celaest.com/",
+          Link: ICON_LINK_HEADER,
+        },
+      });
+    }
 
     // Redirect legacy/duplicate app.celaest.com -> https://dashboard.celaest.com (301)
     if (
@@ -158,14 +210,29 @@ const worker = {
     ) {
       url.protocol = "https:";
       url.hostname = "dashboard.celaest.com";
-      return Response.redirect(url.toString(), 301);
+      return new Response(null, {
+        status: 301,
+        headers: {
+          Location: url.toString(),
+          Link: ICON_LINK_HEADER,
+        },
+      });
     }
 
     if (/\.(mp4|webm|m4v|mov)$/i.test(url.pathname)) {
       return withSecurityHeaders(await serveRangeAwareVideo(request, env));
     }
 
-    return withSecurityHeaders(await env.ASSETS.fetch(request));
+    const assetResponse = await env.ASSETS.fetch(request);
+    const isQueryDuplicate =
+      url.searchParams.has("mode") ||
+      url.searchParams.has("tab") ||
+      url.searchParams.has("plan") ||
+      url.searchParams.has("revoked");
+
+    return withSecurityHeaders(assetResponse, {
+      noindex: assetResponse.status === 404 || isQueryDuplicate,
+    });
   },
 };
 
