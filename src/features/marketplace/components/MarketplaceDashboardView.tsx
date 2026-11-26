@@ -22,6 +22,7 @@ import { useCheckoutReturn } from "../hooks/useCheckoutReturn";
 import { useAssets } from "@/features/assets/hooks/useAssets";
 import { useBilling } from "@/features/billing/hooks/useBilling";
 import { LicenseModal } from "./modals/LicenseModal";
+import { WelcomeTrialPurchaseModal } from "./modals/WelcomeTrialPurchaseModal";
 import { toast } from "sonner";
 import { CouponFAB } from "./CouponFAB";
 import { MarketplaceInternalHero } from "./MarketplaceInternalHero";
@@ -85,6 +86,7 @@ export function MarketplaceDashboardView() {
   } = useAssets();
 
   const { plan, isLoading: isBillingLoading } = useBilling();
+  const [showWelcomePurchaseModal, setShowWelcomePurchaseModal] = useState(false);
 
   // Helper: determine product access level
   const checkAccess = (prod: MarketplaceProduct): "owned" | "plan" | "none" => {
@@ -356,6 +358,23 @@ export function MarketplaceDashboardView() {
         message={tMarketplace("sign_in_to_purchase")}
       />
 
+      <WelcomeTrialPurchaseModal
+        isOpen={showWelcomePurchaseModal}
+        onClose={() => setShowWelcomePurchaseModal(false)}
+        onOpenLingua={() => {
+          const linguaProduct = products.find((p) =>
+            (p.slug || "").toLowerCase().includes("lingua"),
+          );
+          if (linguaProduct) {
+            launchSaasProduct(
+              linguaProduct,
+              session?.accessToken,
+              session?.refreshToken,
+            );
+          }
+        }}
+      />
+
       {detailProduct && (
         <ProductDetailModal
           initialProduct={detailProduct}
@@ -492,6 +511,7 @@ export function MarketplaceDashboardView() {
             }
             onTrialClaimed={() => {
               void refreshAssets();
+              setShowWelcomePurchaseModal(true);
             }}
           />
 

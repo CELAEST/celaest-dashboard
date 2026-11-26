@@ -2,9 +2,11 @@
 
 import React, { useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { X, CheckCircle, CreditCard, DownloadSimple, Check } from "@phosphor-icons/react";
+import { X } from "@phosphor-icons/react";
 import { SuccessConfetti } from "@/features/shared/components/SuccessConfetti";
 import { useMarketplaceCouponStore } from "@/features/marketplace/store";
+import { useCouponUsage } from "@/features/marketplace/hooks/useCouponUsage";
+import { toast } from "sonner";
 import { formatCurrency } from "@/lib/utils";
 import { usePurchaseFlow } from "@/features/marketplace/hooks/usePurchaseFlow";
 import { ConfirmationStep } from "./purchase-steps/ConfirmationStep";
@@ -37,6 +39,7 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
   onSuccess,
 }) => {
   const t = useTranslations("marketplace");
+  const tCommon = useTranslations("common");
   const { navigateTo } = useDashboardRouter();
   const {
     step,
@@ -70,6 +73,11 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
   } = useSwipeDownToClose({ onClose: resetFlow });
 
   const { activeCoupon, setCoupon, clearCoupon } = useMarketplaceCouponStore();
+  const {
+    isUsed: isWelcomeCouponUsed,
+    isChecking: isCheckingWelcomeCoupon,
+    markCouponAsUsed,
+  } = useCouponUsage();
   const { pricing, formatPrice } = useGeoPricing();
 
   // Geo-pricing (PPP + exchange rate aligned with backend CalculateLocalPrice)
@@ -127,9 +135,9 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
   }, [isOpen, resetFlow]);
 
   const steps = [
-    { number: 1, title: t("confirmation_step"), icon: <CheckCircle size={18} weight="bold" /> },
-    { number: 2, title: t("secure_payment"), icon: <CreditCard size={18} weight="bold" /> },
-    { number: 3, title: t("activation_step"), icon: <DownloadSimple size={18} weight="bold" /> },
+    { number: 1, code: "01", title: t("confirmation_step") },
+    { number: 2, code: "02", title: tCommon("payment") },
+    { number: 3, code: "03", title: t("activation_step") },
   ];
 
   return (
@@ -148,14 +156,14 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
             className="absolute inset-0 bg-black/85 backdrop-blur-md"
           />
 
-          {/* Modal Container: Lingua Standard Golden Ratio (520px) & Pure Obsidian */}
+          {/* Modal Container: Single Unified Obsidian Sheet (440px PC / Bottom-Sheet Mobile) */}
           <div
             ref={sheetRef}
             onClick={(e) => e.stopPropagation()}
             style={{ willChange: "transform", backfaceVisibility: "hidden" }}
-            className="relative z-10 flex flex-col w-full sm:max-w-[520px] max-h-[92dvh] sm:max-h-[88vh] rounded-t-[26px] sm:rounded-3xl overflow-hidden bg-[#09090B] border-t sm:border border-white/[0.08] shadow-[0_32px_96px_-12px_rgba(0,0,0,0.95)] animate-modal-content"
+            className="relative z-10 flex flex-col w-full sm:max-w-[440px] max-h-[92dvh] sm:max-h-[88vh] rounded-t-[22px] sm:rounded-[18px] overflow-hidden bg-[#09090b] border-t sm:border border-white/[0.09] shadow-[0_24px_64px_rgba(0,0,0,0.75)] animate-modal-content"
           >
-            {/* Mobile Drag Indicator (Lingua Standard with Swipe-to-Close) */}
+            {/* Mobile Drag Indicator (Swipe-to-Close preserved) */}
             <div
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
@@ -164,7 +172,7 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
               onPointerMove={handlePointerMove}
               onPointerUp={handlePointerUp}
               onClick={handlePillClick}
-              className="sm:hidden w-full flex items-center justify-center pt-2.5 pb-1 shrink-0 bg-[#0D0D11] select-none cursor-grab active:cursor-grabbing touch-none"
+              className="sm:hidden w-full flex items-center justify-center pt-2.5 pb-1 shrink-0 bg-[#09090b] select-none cursor-grab active:cursor-grabbing touch-none"
               title="Desliza hacia abajo para cerrar"
               role="button"
               tabIndex={0}
@@ -172,33 +180,11 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
             >
               <div
                 ref={handlePillRef}
-                className="w-10 h-1.5 rounded-full bg-white/20 hover:bg-white/35 transition-all duration-150"
+                className="w-[34px] h-1 rounded-full bg-white/[0.16] hover:bg-white/30 transition-all duration-150"
               />
             </div>
 
-            {/* Tokyo Corner Accents (Dark Mode Desktop Only) */}
-            <div className="hidden sm:block pointer-events-none">
-              <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-white/10 rounded-tl-sm z-30" />
-              <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-white/10 rounded-tr-sm z-30" />
-              <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-white/10 rounded-bl-sm z-30" />
-              <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-white/10 rounded-br-sm z-30" />
-            </div>
-
-            {/* Close Button */}
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                resetFlow();
-              }}
-              onTouchEnd={(e) => e.stopPropagation()}
-              onPointerDown={(e) => e.stopPropagation()}
-              className="absolute top-3 sm:top-4 right-3 sm:right-4 z-20 w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center bg-white/[0.04] hover:bg-white/[0.08] text-white/60 hover:text-white transition-colors cursor-pointer"
-            >
-              <X size={18} />
-            </button>
-
-            {/* Stepper Header (Drag-enabled on Mobile) */}
+            {/* Unified Optical-Centered Stepper Header */}
             <div
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
@@ -206,64 +192,61 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
               onPointerDown={handlePointerDown}
               onPointerMove={handlePointerMove}
               onPointerUp={handlePointerUp}
-              className="shrink-0 px-12 sm:px-14 pt-3.5 sm:pt-7 pb-3 sm:pb-4.5 border-b border-white/[0.06] bg-[#0D0D11] select-none cursor-grab active:cursor-grabbing touch-none"
+              className="relative shrink-0 flex items-center justify-center px-10 sm:px-11 py-3.5 border-b border-white/[0.07] bg-[#09090b] select-none cursor-grab active:cursor-grabbing touch-none"
             >
-              <div className="w-full max-w-[340px] sm:max-w-[380px] mx-auto">
-                {/* Fila 1: Círculos y Conectores en Flexbox puro (cero colisión) */}
-                <div className="flex items-center px-[21px] sm:px-[24px]">
-                  {steps.map((s, idx) => {
-                    const isCompleted = step > s.number;
-                    const isActive = step === s.number;
-                    return (
-                      <React.Fragment key={s.number}>
-                        <div
-                          aria-current={isActive ? "step" : undefined}
-                          className={`w-9 h-9 sm:w-11 sm:h-11 rounded-full shrink-0 flex items-center justify-center transition-all duration-200 text-xs font-semibold ${
-                            isActive
-                              ? "bg-white text-[#09090B] shadow-[0_0_20px_rgba(255,255,255,0.22)] ring-4 ring-white/[0.08]"
-                              : isCompleted
-                                ? "bg-[#161820] text-white/90 border border-white/25"
-                                : "bg-[#121319] text-white/30 border border-white/[0.08]"
-                          }`}
-                        >
-                          {isCompleted ? <Check size={16} weight="bold" /> : s.icon}
-                        </div>
-
-                        {idx < steps.length - 1 && (
-                          <div className="flex-1 mx-2.5 sm:mx-3 h-[2px] rounded-full bg-white/[0.08] overflow-hidden">
-                            <div
-                              className="h-full rounded-full bg-white transition-all duration-300 ease-out"
-                              style={{ width: step > s.number ? "100%" : "0%" }}
-                            />
-                          </div>
-                        )}
-                      </React.Fragment>
-                    );
-                  })}
-                </div>
-
-                {/* Fila 2: Etiquetas alineadas ópticamente bajo cada círculo */}
-                <div className="flex items-start justify-between mt-1.5 sm:mt-2.5">
-                  {steps.map((s) => {
-                    const isCompleted = step > s.number;
-                    const isActive = step === s.number;
-                    return (
+              <nav
+                className="flex items-center justify-center gap-1.5 sm:gap-2.5"
+                aria-label={t("confirmation_step")}
+              >
+                {steps.map((s, idx) => {
+                  const isCompleted = step > s.number;
+                  const isActive = step === s.number;
+                  return (
+                    <React.Fragment key={s.number}>
                       <span
-                        key={s.number}
-                        className={`w-[78px] sm:w-[92px] text-[10px] sm:text-xs transition-colors text-center truncate ${
+                        aria-current={isActive ? "step" : undefined}
+                        className={`inline-flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-xs font-medium whitespace-nowrap transition-colors ${
                           isActive
-                            ? "text-white font-semibold"
+                            ? "text-[#f4f4f5]"
                             : isCompleted
-                              ? "text-white/60"
-                              : "text-white/30"
+                              ? "text-[#a1a1aa]"
+                              : "text-[#52525b]"
                         }`}
                       >
-                        {s.title}
+                        <span
+                          className={`font-mono text-[10px] sm:text-[10.5px] ${
+                            isActive ? "text-[#c4b5fd]" : "opacity-70"
+                          }`}
+                        >
+                          {s.code}
+                        </span>
+                        <span>{s.title}</span>
                       </span>
-                    );
-                  })}
-                </div>
-              </div>
+
+                      {idx < steps.length - 1 && (
+                        <span
+                          className="w-2.5 sm:w-4 h-px bg-white/10 shrink-0"
+                          aria-hidden="true"
+                        />
+                      )}
+                    </React.Fragment>
+                  );
+                })}
+              </nav>
+
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  resetFlow();
+                }}
+                onTouchEnd={(e) => e.stopPropagation()}
+                onPointerDown={(e) => e.stopPropagation()}
+                aria-label={tCommon("close")}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 z-20 w-7 h-7 rounded-lg flex items-center justify-center text-[#71717a] hover:text-[#f4f4f5] hover:bg-white/[0.06] transition-colors cursor-pointer"
+              >
+                <X size={15} />
+              </button>
             </div>
 
             {/* Content Body */}
@@ -272,7 +255,7 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
               onTouchStart={handleBodyTouchStart}
               onTouchMove={handleBodyTouchMove}
               onTouchEnd={handleBodyTouchEnd}
-              className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-7 space-y-4 sm:space-y-6 pb-[max(1.5rem,env(safe-area-inset-bottom))]"
+              className="flex-1 min-h-0 overflow-y-auto p-5 space-y-4 pb-[max(1.25rem,env(safe-area-inset-bottom))]"
             >
               {step === 1 && product && (
                 <ConfirmationStep
@@ -287,10 +270,16 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
                   onApplyCoupon={(code) => {
                     const clean = code.trim().toUpperCase();
                     const isWelcome = clean === "WELCOME" || clean === "WELCOM";
+                    const isLingua = (product?.title || "").toLowerCase().includes("lingua");
+                    if (isWelcome && (isWelcomeCouponUsed || isCheckingWelcomeCoupon)) {
+                      toast.error(t("invalid_coupon"));
+                      return;
+                    }
                     setCoupon({
                       code: isWelcome ? "WELCOME" : code,
                       type: "percentage",
-                      value: isWelcome ? 25 : 20,
+                      value: isWelcome && isLingua ? 100 : isWelcome ? 25 : 20,
+                      ...(isWelcome && isLingua ? { isTrial: true, trialDays: 15 } : {}),
                     });
                   }}
                   onContinue={() => handlePurchase(product.id)}
@@ -311,6 +300,8 @@ export const PurchaseFlow: React.FC<PurchaseFlowProps> = ({
                     resetFlow();
                   }}
                   onMpApproved={() => {
+                    markCouponAsUsed();
+                    clearCoupon();
                     closeMpBrick();
                     onSuccess?.();
                     resetFlow();

@@ -211,14 +211,11 @@ export const NotificationCenter = React.memo(function NotificationCenter() {
                     </h3>
                     {unreadCount > 0 && (
                       <span
-                        className={`px-2.5 py-1 rounded-full text-[11px] font-semibold tracking-wide uppercase
-                        ${
-                          isDark
-                            ? "bg-violet-500/10 text-violet-300 ring-1 ring-violet-400/20"
-                            : "bg-blue-50 text-blue-600 ring-1 ring-blue-200"
+                        className={`text-[11px] font-mono font-semibold tracking-[0.14em] uppercase ${
+                          isDark ? "text-violet-400" : "text-blue-600"
                         }`}
                       >
-                        {unreadCount} nuevas
+                        {unreadCount} {unreadCount === 1 ? "nueva" : "nuevas"}
                       </span>
                     )}
                   </div>

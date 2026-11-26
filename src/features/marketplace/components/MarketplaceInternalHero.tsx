@@ -165,9 +165,6 @@ export const MarketplaceInternalHero: React.FC<MarketplaceInternalHeroProps> = (
     try {
       await marketplaceService.claimWelcomeTrial(token, orgId);
       setCopied(true);
-      toast.success(
-        "¡15 días gratis de CELAEST Lingua activados! Tienes todas las bases y 200 peticiones IA listas.",
-      );
       markCouponAsUsed();
       onTrialClaimed?.();
     } catch (error: unknown) {
