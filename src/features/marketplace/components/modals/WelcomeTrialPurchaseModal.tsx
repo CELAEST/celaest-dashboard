@@ -57,9 +57,7 @@ export const WelcomeTrialPurchaseModal: React.FC<WelcomeTrialPurchaseModalProps>
             </div>
 
             <div className="flex flex-col items-center text-center gap-2.5 pt-1">
-              <div className="h-11 w-11 rounded-full bg-emerald-500/15 border border-emerald-400/30 flex items-center justify-center text-emerald-400">
-                <Check size={20} weight="bold" />
-              </div>
+              <Check size={28} weight="bold" className="text-emerald-400" />
               <h2 className="text-lg font-bold text-white tracking-tight">
                 ¡CELAEST Lingua activado!
               </h2>

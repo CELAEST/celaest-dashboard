@@ -1,6 +1,5 @@
 "use client";
 
-import { createPortal } from "react-dom";
 import React, {
   createContext,
   useContext,
@@ -11,7 +10,6 @@ import React, {
   useRef,
   ReactNode,
 } from "react";
-import { NotificationToast } from "@/features/shared/components/NotificationToast";
 import { socket } from "@/lib/socket-client";
 import { useAuthStore } from "@/features/auth/stores/useAuthStore";
 import { toast } from "sonner";
@@ -105,16 +103,24 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   // Used for invitations that were already toasted in a previous session/refresh,
   // so they stay visible in the bell but do not interrupt the user again.
   const addNotification = useCallback(
-    (notification: Omit<Notification, "id" | "read">, options?: { silent?: boolean }) => {
+    (
+      notification: Omit<Notification, "id" | "read">,
+      options?: { silent?: boolean },
+    ) => {
       // Skip if the exact same type+title was already shown within the dedup window
-      const dedupKey = notification.dedupKey ?? `${notification.type}:${notification.title}`;
+      const dedupKey =
+        notification.dedupKey ?? `${notification.type}:${notification.title}`;
       const lastFired = recentEvents.current.get(dedupKey) ?? 0;
       const now = Date.now();
       if (now - lastFired < DEDUP_WINDOW_MS) return;
       recentEvents.current.set(dedupKey, now);
 
       const id = generateId();
-      const newNotification: Notification = { ...notification, id, read: false };
+      const newNotification: Notification = {
+        ...notification,
+        id,
+        read: false,
+      };
 
       setNotifications((prev) => [newNotification, ...prev]);
       if (!options?.silent) {
@@ -223,8 +229,16 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
             timestamp: new Date(invitation.created_at),
             dedupKey: `workspace-invitation:${invitation.id}`,
             actions: [
-              { label: "Aceptar", variant: "primary", onClick: acceptInvitation },
-              { label: "Rechazar", variant: "danger", onClick: rejectInvitation },
+              {
+                label: "Aceptar",
+                variant: "primary",
+                onClick: acceptInvitation,
+              },
+              {
+                label: "Rechazar",
+                variant: "danger",
+                onClick: rejectInvitation,
+              },
             ],
           },
           { silent: alreadyToasted },
@@ -270,11 +284,16 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
       socket.on("order.updated", (raw: unknown) => {
         const payload = raw as { order_id: string; status: string };
         const ref = payload.order_id?.slice(0, 8) ?? "—";
-        handleEvent("info", t("order_updated"), t("order_status_changed", { ref, status: payload.status ?? "—" }));
+        handleEvent(
+          "info",
+          t("order_updated"),
+          t("order_status_changed", { ref, status: payload.status ?? "—" }),
+        );
       }),
       socket.on("order.paid", (raw: unknown) => {
         const payload = raw as { order_id: string; order_number?: string };
-        const ref = payload.order_number ?? `#${payload.order_id?.slice(0, 8) ?? "—"}`;
+        const ref =
+          payload.order_number ?? `#${payload.order_id?.slice(0, 8) ?? "—"}`;
         handleEvent("success", t("payment_received"), t("order_paid", { ref }));
       }),
       socket.on("payment.failed", (raw: unknown) => {
@@ -283,7 +302,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
         handleEvent(
           "error",
           t("payment_failed"),
-          t("order_payment_error", { ref, error: payload.error || "" })
+          t("order_payment_error", { ref, error: payload.error || "" }),
         );
       }),
       socket.on("organization.workspace_invitation_created", () => {
@@ -317,11 +336,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
           if (token) useOrgStore.getState().fetchOrgs(token, true);
         } else {
           // Si es el evento general de la org de que entró ALGUIEN más (y no somos nosotros)
-          handleEvent(
-            "info",
-            t("new_member"),
-            t("member_joined"),
-          );
+          handleEvent("info", t("new_member"), t("member_joined"));
         }
       }),
       socket.on("organization.member_removed", (raw: unknown) => {
@@ -349,7 +364,6 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
           // y el redirect nunca ocurría. getState() siempre lee el valor fresco.
           const freshCurrentOrgId = useOrgStore.getState().currentOrg?.id;
           if (eventOrgId === freshCurrentOrgId || !freshCurrentOrgId) {
-
             toast.error(t("removed_from_workspace"), {
               description: t("redirecting_default"),
             });
@@ -383,11 +397,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
 
         // Si no es nuestra propia revocación, sino de un compañero:
         if (action !== "membership_revoked") {
-          handleEvent(
-            "warning",
-            t("member_removed"),
-            t("member_removed_desc"),
-          );
+          handleEvent("warning", t("member_removed"), t("member_removed_desc"));
         }
       }),
       // NOTE: product.asset_created, license.created and license.activated are
@@ -398,18 +408,24 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
       // distinct action the user cares about.
       socket.on("invoice.generated", (raw: unknown) => {
         const payload = raw as { invoice_id: string; invoice_number?: string };
-        const ref = payload.invoice_number ?? `#${payload.invoice_id?.slice(0, 8) ?? "—"}`;
-        handleEvent("info", t("invoice_generated"), t("invoice_created", { ref }));
+        const ref =
+          payload.invoice_number ??
+          `#${payload.invoice_id?.slice(0, 8) ?? "—"}`;
+        handleEvent(
+          "info",
+          t("invoice_generated"),
+          t("invoice_created", { ref }),
+        );
       }),
     ];
 
     return () => {
       unsubscribers.forEach((unsub) => unsub());
     };
-  // All mutable state accessed inside handlers is read via useOrgStore.getState()
-  // so there is no stale-closure risk. fetchOrgs is never stored in component scope.
-  // Do NOT add fetchOrgs, currentOrg, or currentOrgId here — that would tear down
-  // and re-register all socket listeners on every org switch or store change.
+    // All mutable state accessed inside handlers is read via useOrgStore.getState()
+    // so there is no stale-closure risk. fetchOrgs is never stored in component scope.
+    // Do NOT add fetchOrgs, currentOrg, or currentOrgId here — that would tear down
+    // and re-register all socket listeners on every org switch or store change.
   }, [token, addNotification, t, loadWorkspaceInvitations]);
 
   // Memoize context value to prevent all consumers from re-rendering on every
@@ -424,43 +440,20 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
       clearAll,
       unreadCount,
     }),
-    [notifications, unreadCount, addNotification, removeNotification, markAsRead, markAllAsRead, clearAll],
+    [
+      notifications,
+      unreadCount,
+      addNotification,
+      removeNotification,
+      markAsRead,
+      markAllAsRead,
+      clearAll,
+    ],
   );
 
   return (
     <NotificationContext.Provider value={contextValue}>
       {children}
-
-      {/* Toast Container — rendered via portal to document.body so it cannot
-          be clipped by parents with overflow:hidden or repositioned by
-          ancestors with `transform` (which makes `position: fixed` behave
-          like `absolute`). Width is clamped to viewport with explicit
-          `min(420px, calc(100vw - 32px))`. */}
-      {portalReady &&
-        toasts.length > 0 &&
-        createPortal(
-          <div
-            style={{
-              position: "fixed",
-              bottom: 24,
-              right: 16,
-              width: "min(420px, calc(100vw - 32px))",
-              maxHeight: "calc(100vh - 48px)",
-              zIndex: 9999,
-              pointerEvents: "none",
-            }}
-            className="flex flex-col-reverse gap-3 overflow-hidden"
-          >
-            {toasts.map((toastItem) => (
-              <NotificationToast
-                key={toastItem.id}
-                notification={toastItem}
-                onClose={() => removeToast(toastItem.id)}
-              />
-            ))}
-          </div>,
-          document.body,
-        )}
     </NotificationContext.Provider>
   );
 };
