@@ -46,5 +46,19 @@ export const marketplaceService = {
    */
   async verifyPurchase(sessionId: string, token: string, orgId: string) {
     return marketplaceApi.verifyPurchase(sessionId, token, orgId);
+  },
+
+  /**
+   * Estado del trial gratuito WELCOME de 15 días para Lingua
+   */
+  async getWelcomeTrialStatus(token: string, orgId?: string | null) {
+    return marketplaceApi.getWelcomeTrialStatus(token, orgId);
+  },
+
+  /**
+   * Activa directamente 15 días gratis de Lingua con el cupón WELCOME
+   */
+  async claimWelcomeTrial(token: string, orgId?: string | null) {
+    return marketplaceApi.claimWelcomeTrial(token, orgId);
   }
 };

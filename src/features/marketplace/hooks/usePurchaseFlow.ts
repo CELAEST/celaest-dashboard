@@ -1,4 +1,5 @@
 import { logger } from "@/lib/logger";
+import { trackConversionEvent } from "@/lib/analytics";
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { hapticFeedback } from "@/features/shared/utils/sound-effects";
@@ -7,6 +8,7 @@ import { useApiAuth } from "@/lib/use-api-auth";
 import { useOrgStore } from "@/features/shared/stores/useOrgStore";
 import { toast } from "sonner";
 import { useMarketplaceCouponStore } from "../store";
+import { settingsApi } from "@/features/settings/api/settings.api";
 
 export const usePurchaseFlow = (onClose: () => void, initialStep = 1, onSuccess?: () => void) => {
   const [step, setStep] = useState(initialStep);
@@ -22,7 +24,7 @@ export const usePurchaseFlow = (onClose: () => void, initialStep = 1, onSuccess?
   } | null>(null);
   const { token, orgId, isReady, isAuthReady } = useApiAuth();
   const { isLoading: isOrgsLoading } = useOrgStore();
-  const { activeCoupon } = useMarketplaceCouponStore();
+  const { activeCoupon, clearCoupon } = useMarketplaceCouponStore();
 
   // Sync internal step if initialStep changed (important for in-context return)
   useEffect(() => {
@@ -51,6 +53,13 @@ export const usePurchaseFlow = (onClose: () => void, initialStep = 1, onSuccess?
         response.session_id?.startsWith("mp_") &&
         (response.local_amount ?? 0) > 0
       ) {
+        trackConversionEvent("begin_checkout", {
+          product_id: productId,
+          value: response.local_amount!,
+          currency: response.local_currency || "COP",
+          gateway: "mercadopago",
+          app: "dashboard",
+        });
         setMpBrickData({
           productId,
           amount: response.local_amount!,
@@ -62,6 +71,11 @@ export const usePurchaseFlow = (onClose: () => void, initialStep = 1, onSuccess?
       }
 
       if (response.checkout_url) {
+        trackConversionEvent("begin_checkout", {
+          product_id: productId,
+          gateway: "creem",
+          app: "dashboard",
+        });
         setProgress(100);
         setTimeout(() => {
           window.location.href = response.checkout_url;
@@ -106,15 +120,34 @@ export const usePurchaseFlow = (onClose: () => void, initialStep = 1, onSuccess?
           const response = await marketplaceService.verifyPurchase(sessionId, token, orgId);
 
           if (response.has_access) {
+            trackConversionEvent("purchase", {
+              transaction_id: sessionId,
+              app: "dashboard",
+            });
             setPurchaseComplete(true);
             setShowConfetti(true);
             setStatusMessage("¡Activación completa!");
             setProgress(100);
             hapticFeedback("heavy");
-            try {
-              localStorage.setItem("celaest_coupon_used", "true");
-              window.dispatchEvent(new Event("celaest:coupon_used"));
-            } catch {}
+            const usedWelcome = activeCoupon?.code?.toUpperCase() === "WELCOME";
+            clearCoupon();
+            if (usedWelcome) {
+              try {
+                localStorage.setItem("celaest_coupon_used", "true");
+                window.dispatchEvent(new Event("celaest:coupon_used"));
+              } catch {}
+            }
+            if (token) {
+              settingsApi
+                .updatePreferences(
+                  {
+                    marketplace_active_coupon: null,
+                    ...(usedWelcome ? { marketplace_coupon_used: true } : {}),
+                  },
+                  token,
+                )
+                .catch(console.error);
+            }
             if (onSuccessRef.current) onSuccessRef.current();
             return;
           }
@@ -152,7 +185,7 @@ export const usePurchaseFlow = (onClose: () => void, initialStep = 1, onSuccess?
         isVerifying.current = false;
       };
     }
-  }, [step, purchaseComplete, purchaseMutation.isPending, token, orgId]);
+  }, [step, purchaseComplete, purchaseMutation.isPending, token, orgId, clearCoupon]);
 
   const resetFlow = useCallback(() => {
     setStep(1);

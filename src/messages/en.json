@@ -615,18 +615,18 @@
     "celestial_innovation": "Celestial Innovation",
     "hero_headline": "Automations",
     "hero_headline_accent": "that move your business.",
-    "promo_banner_kicker": "✦ EXCLUSIVE WELCOME BENEFIT",
+    "promo_banner_kicker": "✦ CELAEST LINGUA FREE TRIAL",
     "promo_banner_hint": "HOVER LETTERS FOR GLOW",
-    "promo_banner_title": "25% Welcome Discount on Your First Deployment",
-    "promo_banner_subtitle": "Apply coupon WELCOME at checkout to activate any AI solution with 25% off your first month.",
+    "promo_banner_title": "15 Days Free of CELAEST Lingua with WELCOME",
+    "promo_banner_subtitle": "Claim your no-card trial: unlock every Lingua base plus 200 Cloud AI requests included.",
     "promo_banner_coupon_label": "WELCOME COUPON",
     "promo_banner_copy": "Copy",
     "promo_banner_copied": "Copied",
-    "promo_banner_internal_kicker": "✦ WELCOME COUPON AVAILABLE",
-    "promo_banner_internal_title": "25% Welcome Discount on Your First Deployment",
-    "promo_banner_internal_subtitle": "Apply coupon WELCOME when acquiring any AI solution to get 25% off your first activation.",
-    "promo_banner_internal_apply": "Apply Coupon",
-    "promo_banner_internal_applied": "Coupon Activated",
+    "promo_banner_internal_kicker": "✦ 15 DAYS FREE OF LINGUA",
+    "promo_banner_internal_title": "15 Days Free of CELAEST Lingua — No Card Required",
+    "promo_banner_internal_subtitle": "Claim the WELCOME coupon in 1 click to unlock all Lingua bases and 200 Cloud AI requests for 15 days.",
+    "promo_banner_internal_apply": "Activate 15 Free Days",
+    "promo_banner_internal_applied": "Trial Activated",
     "hero_line_prefix": "that",
     "hero_line_accent": "move",
     "hero_line_suffix": "your business.",
@@ -719,7 +719,40 @@
     "upcoming_2_step_2_detail": "Reserves available units on payment confirmation and prevents cross-channel overselling.",
     "upcoming_2_step_3_name": "Dispatch & notification",
     "upcoming_2_step_3_tag": "STATUS",
-    "upcoming_2_step_3_detail": "Generates the carrier shipping label and sends the tracking link automatically."
+    "upcoming_2_step_3_detail": "Generates the carrier shipping label and sends the tracking link automatically.",
+    "mp_min_amount_warning": "The minimum amount to pay with Mercado Pago in Colombia is $1,000 COP (current amount: ${amount} COP).",
+    "mp_loading": "Loading Mercado Pago (Card, PSE, Nequi)...",
+    "mp_processed_by": "Processed by Mercado Pago · TLS Encrypted",
+    "mp_payment_approved": "Payment approved! Your license is now active.",
+    "mp_payment_rejected": "Payment declined ({detail})",
+    "mp_payment_pending": "Payment pending confirmation. We will notify you shortly.",
+    "plan_module_enabled_desc": "This module is enabled at no additional cost in your active workspace subscription.",
+    "redeem_and_unlock": "Redeem & Unlock",
+    "instant_digital_delivery_notice": "Instant digital delivery • Direct author support",
+    "catalog_products": {
+      "lingua": {
+        "name": "CELAEST Lingua — AI English Mastery",
+        "short_description": "Professional & technical English with AI: real-time voice, IPA phonetics, and 24/7 interviews.",
+        "description": "CELAEST Lingua is an interactive web platform built to accelerate your professional English mastery powered by AI. Includes: • Structured Pathway (A1 to C1) with progressive goals and grammar. • Real-time AI voice conversation practice with dynamic whiteboard and instant corrections. • Interactive reading with contextual translation and phonetic IPA pronunciation. • Synchronized vocabulary vault and progress at https://lingua.celaest.com.",
+        "category_name": "SaaS & AI",
+        "features": [
+          "Structured Pathway A1 to C1",
+          "Real-time AI voice conversation",
+          "Interactive reading & IPA phonetics"
+        ],
+        "technical_stack": [
+          "Web SaaS App (Browser access)",
+          "Voice & IPA Engine",
+          "CELAEST AI Mesh"
+        ],
+        "tags": [
+          "Professional English",
+          "AI Education",
+          "Conversational Practice",
+          "IPA Phonetics"
+        ]
+      }
+    }
   },
   "billing": {
     "no_orders": "No orders found",
@@ -1071,7 +1104,14 @@
     "no_admin_actions": "No administrative actions available",
     "invoice_id_unavailable": "Invoice ID unavailable",
     "void": "Void",
-    "required": "Required"
+    "required": "Required",
+    "no_active_plans": "No active plans",
+    "no_plans_available": "No plans available",
+    "select_plan": "Select plan",
+    "internal_notes": "Internal Notes",
+    "billing_cycle": "Billing Cycle",
+    "notes": "Notes",
+    "subscription_plan": "Subscription Plan"
   },
   "licensing": {
     "revoke_auth_title": "Authorization Revocation",
@@ -1180,7 +1220,8 @@
     "status_suspended": "Suspended",
     "status_trial": "Trial",
     "all_statuses": "All Statuses",
-    "license_key": "License Key"
+    "license_key": "License Key",
+    "copied_to_clipboard": "Copied to clipboard"
   },
   "assets": {
     "asset_manager": "Asset Manager",
@@ -1419,6 +1460,10 @@
     "loading_activity": "Loading activity...",
     "no_recent_activity": "No recent activity detected.",
     "localization": "Localization",
+    "interface_language": "Interface Language",
+    "interface_language_desc": "Changes the language across all dashboard views immediately.",
+    "preferences_saved": "Preferences saved successfully",
+    "preferences_save_error": "Failed to save preferences",
     "user_timezone": "User Timezone",
     "timezone_desc": "Your timezone is used to display timestamps consistently throughout the dashboard.",
     "date_format": "Date Format",
@@ -1862,7 +1907,14 @@
     "job_trigger_error": "Failed to trigger job manually"
   },
   "ai": {
-    "ai_console": "AI Console"
+    "ai_console": "AI Console",
+    "roi_metrics": "ROI Metrics",
+    "total_time_saved": "Total time saved",
+    "hours_unit": "hrs",
+    "vs_prev": "vs prev",
+    "revenue_total": "Total revenue",
+    "roi_label": "ROI",
+    "efficiency_trend": "Efficiency trend"
   },
   "notifications": {
     "new_order": "New Order",

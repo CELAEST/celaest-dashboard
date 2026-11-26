@@ -77,6 +77,8 @@ export interface ActiveCoupon {
   code: string;
   type: "percentage" | "fixed_amount";
   value: number;
+  isTrial?: boolean;
+  trialDays?: number;
 }
 
 interface MarketplaceCouponState {

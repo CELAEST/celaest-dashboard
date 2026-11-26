@@ -615,18 +615,18 @@
     "celestial_innovation": "Innovación Celestial",
     "hero_headline": "Automatizaciones",
     "hero_headline_accent": "que impulsan tu negocio.",
-    "promo_banner_kicker": "✦ BENEFICIO EXCLUSIVO DE BIENVENIDA",
+    "promo_banner_kicker": "✦ PRUEBA GRATUITA DE CELAEST LINGUA",
     "promo_banner_hint": "PASA EL CURSOR POR LAS LETRAS",
-    "promo_banner_title": "25% de Descuento de Bienvenida en tu Primer Despliegue",
-    "promo_banner_subtitle": "Aplica el cupón WELCOME en el checkout y activa cualquier solución de inteligencia artificial con 25% de descuento.",
+    "promo_banner_title": "15 Días Gratis de CELAEST Lingua con el Cupón WELCOME",
+    "promo_banner_subtitle": "Activa tu prueba sin tarjeta: todas las bases desbloqueadas y 200 peticiones de IA Cloud incluidas.",
     "promo_banner_coupon_label": "CUPÓN DE BIENVENIDA",
     "promo_banner_copy": "Copiar",
     "promo_banner_copied": "Copiado",
-    "promo_banner_internal_kicker": "✦ CUPÓN DE BIENVENIDA DISPONIBLE",
-    "promo_banner_internal_title": "25% de Descuento de Bienvenida en tu Primer Despliegue",
-    "promo_banner_internal_subtitle": "Aplica el cupón WELCOME al adquirir cualquier solución de IA y obtén 25% de descuento en tu primera activación.",
-    "promo_banner_internal_apply": "Aplicar cupón",
-    "promo_banner_internal_applied": "Cupón Activado",
+    "promo_banner_internal_kicker": "✦ 15 DÍAS GRATIS DE LINGUA",
+    "promo_banner_internal_title": "15 Días Gratis de CELAEST Lingua Sin Tarjeta",
+    "promo_banner_internal_subtitle": "Reclama el cupón WELCOME con 1 clic para desbloquear todas las bases de Lingua y 200 peticiones de IA durante 15 días.",
+    "promo_banner_internal_apply": "Activar 15 días gratis",
+    "promo_banner_internal_applied": "Prueba Activada",
     "hero_line_prefix": "que",
     "hero_line_accent": "impulsan",
     "hero_line_suffix": "tu negocio.",
@@ -719,7 +719,40 @@
     "upcoming_2_step_2_detail": "Descuenta unidades disponibles al confirmar pago y evita sobreventas entre canales.",
     "upcoming_2_step_3_name": "Despacho y aviso",
     "upcoming_2_step_3_tag": "ESTADO",
-    "upcoming_2_step_3_detail": "Genera el rótulo de transporte y envía el enlace de rastreo al comprador."
+    "upcoming_2_step_3_detail": "Genera el rótulo de transporte y envía el enlace de rastreo al comprador.",
+    "mp_min_amount_warning": "El monto mínimo para pagar con Mercado Pago en Colombia es $1,000 COP (monto actual: ${amount} COP).",
+    "mp_loading": "Cargando Mercado Pago (Tarjeta, PSE, Nequi)...",
+    "mp_processed_by": "Procesado por Mercado Pago · Cifrado TLS",
+    "mp_payment_approved": "¡Pago aprobado! Tu licencia ya está activa.",
+    "mp_payment_rejected": "Pago rechazado ({detail})",
+    "mp_payment_pending": "Pago pendiente de confirmación. Te notificaremos en segundos.",
+    "plan_module_enabled_desc": "Este módulo está habilitado sin costo adicional en tu suscripción corporativa activa.",
+    "redeem_and_unlock": "Canjear y Desbloquear",
+    "instant_digital_delivery_notice": "Entrega digital inmediata • Soporte directo del autor",
+    "catalog_products": {
+      "lingua": {
+        "name": "CELAEST Lingua — Inglés con IA",
+        "short_description": "Inglés profesional y técnico con IA: voz en tiempo real, fonética IPA y entrevistas 24/7.",
+        "description": "CELAEST Lingua es una plataforma web interactiva diseñada para acelerar tu dominio del inglés profesional mediante inteligencia artificial. Qué incluye tu acceso: • Ruta estructurada Pathway (A1 a C1) con objetivos y gramática progresiva. • Práctica de conversación por voz en tiempo real con pizarra dinámica y correcciones al instante. • Lectura interactiva con traducción contextual y pronunciación fonética IPA. • Bóveda de vocabulario y progreso sincronizado en https://lingua.celaest.com.",
+        "category_name": "SaaS & IA",
+        "features": [
+          "Ruta estructurada Pathway A1 a C1",
+          "Conversación con IA en tiempo real",
+          "Lectura interactiva y fonética IPA"
+        ],
+        "technical_stack": [
+          "Aplicación Web SaaS (Acceso desde navegador)",
+          "Motor de Voz y Fonética IPA",
+          "CELAEST IA Mesh"
+        ],
+        "tags": [
+          "Inglés Profesional",
+          "Educación IA",
+          "Práctica Conversacional",
+          "Fonética IPA"
+        ]
+      }
+    }
   },
   "billing": {
     "no_orders": "No se encontraron órdenes",
@@ -1187,7 +1220,8 @@
     "status_suspended": "Suspendida",
     "status_trial": "Prueba",
     "all_statuses": "Todos los estados",
-    "license_key": "Clave de Licencia"
+    "license_key": "Clave de Licencia",
+    "copied_to_clipboard": "Copiado al portapapeles"
   },
   "assets": {
     "asset_manager": "Gestor de Activos",
@@ -1426,6 +1460,10 @@
     "loading_activity": "Cargando actividad...",
     "no_recent_activity": "No se detectó actividad reciente.",
     "localization": "Localización",
+    "interface_language": "Idioma de la Interfaz",
+    "interface_language_desc": "Cambia de inmediato el idioma en todas las vistas del panel.",
+    "preferences_saved": "Preferencias guardadas correctamente",
+    "preferences_save_error": "Error al guardar preferencias",
     "user_timezone": "Zona Horaria",
     "timezone_desc": "Tu zona horaria se usa para mostrar marcas de tiempo consistentes en todo el panel.",
     "date_format": "Formato de Fecha",
@@ -1869,6 +1907,7 @@
     "job_trigger_error": "Error al ejecutar job manualmente"
   },
   "ai": {
+    "ai_console": "Consola IA",
     "roi_metrics": "Métricas ROI",
     "total_time_saved": "Tiempo total ahorrado",
     "hours_unit": "hrs",

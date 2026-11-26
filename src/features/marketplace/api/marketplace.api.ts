@@ -259,5 +259,51 @@ export const marketplaceApi = {
       `/api/v1/org/marketplace/checkout/verify/${sessionId}`,
       { token, orgId }
     );
+  },
+
+  /**
+   * Estado de elegibilidad para el trial gratuito de 15 días de Lingua (WELCOME)
+   */
+  getWelcomeTrialStatus: async (token: string, orgId?: string | null) => {
+    return api.get<{
+      campaign_id: string;
+      coupon_code: string;
+      trial_days: number;
+      ai_requests_limit: number;
+      product_slug: string;
+      already_used: boolean;
+      has_active_access: boolean;
+      eligible: boolean;
+    }>("/api/v1/org/marketplace/trial/welcome/status", {
+      token,
+      ...(orgId ? { orgId } : {}),
+    });
+  },
+
+  /**
+   * Reclama directamente los 15 días gratis de Lingua con WELCOME ($0, sin pasarela)
+   */
+  claimWelcomeTrial: async (token: string, orgId?: string | null) => {
+    return api.post<{
+      message: string;
+      product_id: string;
+      product_slug: string;
+      license_id: string;
+      status: string;
+      billing_cycle: string;
+      access_type: string;
+      trial_days: number;
+      expires_at: string;
+      ai_requests_limit: number;
+      has_access: boolean;
+      already_active?: boolean;
+    }>(
+      "/api/v1/org/marketplace/trial/welcome",
+      {},
+      {
+        token,
+        ...(orgId ? { orgId } : {}),
+      }
+    );
   }
 };

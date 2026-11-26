@@ -17,6 +17,7 @@ import { MarketplaceProduct } from "../../types";
 import { isSaasProduct } from "../../utils/saasLauncher";
 import { formatCurrency } from "@/lib/utils";
 import { useMarketplaceCouponStore } from "../../store";
+import { useCouponUsage } from "../../hooks/useCouponUsage";
 import { useTranslations } from "next-intl";
 import { useGeoPricing } from "@/features/billing/providers/GeoPricingProvider";
 import { useApiAuth } from "@/lib/use-api-auth";
@@ -40,6 +41,7 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
   onViewLicense,
 }) => {
   const t = useTranslations("marketplace");
+  const tCommon = useTranslations("common");
   const { theme } = useTheme();
 
   // Resolve effective access
@@ -49,6 +51,8 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
 
   const { token, orgId } = useApiAuth();
   const { activeCoupon, setCoupon, clearCoupon } = useMarketplaceCouponStore();
+  const { isUsed: isWelcomeCouponUsed, isChecking: isCheckingWelcomeCoupon } =
+    useCouponUsage();
   const { pricing, formatPrice } = useGeoPricing();
   const [couponInput, setCouponInput] = useState("");
   const [validatingCoupon, setValidatingCoupon] = useState(false);
@@ -61,11 +65,36 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
     setCouponError(null);
     try {
       const isWelcome = clean === "WELCOME" || clean === "WELCOM";
+      const isLinguaProduct = (product.slug || "").toLowerCase().includes("lingua");
       if (isWelcome) {
+        if (isLinguaProduct) {
+          if (isWelcomeCouponUsed || isCheckingWelcomeCoupon) {
+            setCouponError("Prueba gratuita WELCOME ya utilizada o no disponible");
+            return;
+          }
+          setCoupon({
+            code: "WELCOME",
+            type: "percentage",
+            value: 100,
+            isTrial: true,
+            trialDays: 15,
+          });
+          setCouponInput("");
+          return;
+        }
+        if (!token || !orgId) {
+          setCouponError("Inicia sesión para aplicar un cupón");
+          return;
+        }
+        const res = await couponsService.validateCoupon(clean, token, orgId);
+        if (!res || !res.valid || !res.coupon) {
+          setCouponError(res?.reason || "Cupón no válido o expirado");
+          return;
+        }
         setCoupon({
-          code: "WELCOME",
-          type: "percentage",
-          value: 25,
+          code: res.coupon.code,
+          type: res.coupon.discount_type,
+          value: res.coupon.discount_value,
         });
         setCouponInput("");
         return;
@@ -197,14 +226,14 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
                   </span>
                 </div>
                 <span className="text-[10px] font-mono text-white/50 tracking-wider uppercase">
-                  Licencia Activa
+                  {t("active_license")}
                 </span>
               </div>
             )}
 
             {isPlan && (
               <p className={`text-xs leading-relaxed font-sans ${theme === "dark" ? "text-white/60" : "text-gray-600"}`}>
-                Este módulo está habilitado sin costo adicional en tu suscripción corporativa activa.
+                {t("plan_module_enabled_desc")}
               </p>
             )}
 
@@ -215,7 +244,7 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
                   onClick={onDownload}
                   className="w-full min-h-[44px] py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 active:scale-[0.99] transition-all cursor-pointer shadow-md bg-white hover:bg-neutral-200 text-black"
                 >
-                  <span>Abrir Aplicación</span>
+                  <span>{t("open_app")}</span>
                   <ArrowSquareOut weight="bold" className="size-4" />
                 </button>
               ) : (
@@ -287,7 +316,7 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
                 </span>
                 <span className={`text-xs font-mono ${theme === "dark" ? "text-white/40" : "text-gray-500"}`}>
                   {!isGeoPriced ? product.currency : ""}
-                  {isSaasProduct(product) ? " / mes" : ""}
+                  {isSaasProduct(product) ? ` / ${t("price_month_short").toLowerCase()}` : ""}
                 </span>
               </div>
             </div>
@@ -300,7 +329,9 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
                     <Tag className="size-3.5" />
                     <span className="font-bold">{activeCoupon.code}</span>
                     <span className="text-[10px] opacity-80">
-                      ({activeCoupon.type === "percentage" ? `-${activeCoupon.value}%` : `-$${activeCoupon.value}`})
+                      {activeCoupon.isTrial
+                        ? `(Trial ${activeCoupon.trialDays ?? 15}d · $0 hoy)`
+                        : `(${activeCoupon.type === "percentage" ? `-${activeCoupon.value}%` : `-$${activeCoupon.value}`})`}
                     </span>
                   </div>
                   <button
@@ -308,7 +339,7 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
                     onClick={handleRemoveCoupon}
                     className="text-[10px] uppercase font-mono tracking-wider opacity-70 hover:opacity-100 transition-opacity cursor-pointer"
                   >
-                    Remover
+                    {tCommon("remove")}
                   </button>
                 </div>
               ) : (
@@ -320,7 +351,7 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
                       setCouponInput(e.target.value.toUpperCase());
                       setCouponError(null);
                     }}
-                    placeholder="¿Tienes un cupón? (ej. PROMO100)"
+                    placeholder={t("coupon_placeholder")}
                     className={`flex-1 h-9 px-3 text-xs font-mono uppercase rounded-xl border outline-none transition-all ${
                       theme === "dark"
                         ? "bg-white/[0.03] border-white/10 text-white placeholder:text-white/30 focus:border-white/30"
@@ -334,7 +365,7 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
                     className="h-9 px-3 rounded-xl text-xs font-mono font-medium border border-white/10 bg-white/5 hover:bg-white/10 text-white transition-all disabled:opacity-40 cursor-pointer flex items-center gap-1"
                   >
                     {validatingCoupon && <CircleNotch className="size-3 animate-spin" />}
-                    <span>Aplicar</span>
+                    <span>{t("apply_coupon")}</span>
                   </button>
                 </div>
               )}
@@ -352,7 +383,7 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
               className="w-full min-h-[44px] py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 active:scale-[0.99] transition-all cursor-pointer shadow-md bg-white hover:bg-neutral-200 text-black"
             >
               <ShoppingCart weight="bold" className="size-4" />
-              <span>{activeCoupon && finalPrice === 0 ? "Canjear y Desbloquear" : t("buy_now")}</span>
+              <span>{activeCoupon && finalPrice === 0 ? t("redeem_and_unlock") : t("buy_now")}</span>
             </button>
           </>
         )}
@@ -502,7 +533,7 @@ export const ProductModalSidebar: React.FC<ProductModalSidebarProps> = ({
 
       {/* Micro-Footer Notice */}
       <div className={`text-[10px] text-center font-mono ${theme === "dark" ? "text-white/30" : "text-gray-400"}`}>
-        Entrega digital inmediata • Soporte directo del autor
+        {t("instant_digital_delivery_notice")}
       </div>
     </div>
   );

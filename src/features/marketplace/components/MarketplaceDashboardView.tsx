@@ -485,8 +485,15 @@ export function MarketplaceDashboardView() {
           ref={contentScrollRef}
           className="flex-1 overflow-y-auto no-scrollbar bg-[#020204]"
         >
-          {/* Commercial Banner for Authenticated Users (Scoped to cards column, disappears when coupon is used) */}
-          <MarketplaceInternalHero />
+          {/* Commercial Banner for Authenticated Users (Scoped to cards column, disappears when trial is claimed or loading) */}
+          <MarketplaceInternalHero
+            isLoading={
+              isLoading || isAssetsLoading || isOrgsLoading
+            }
+            onTrialClaimed={() => {
+              void refreshAssets();
+            }}
+          />
 
           <AnimatePresence mode="wait">
             {isLoading ? (

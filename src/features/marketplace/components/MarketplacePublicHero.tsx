@@ -5,14 +5,21 @@ import { Copy, Check } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
 import "./MarketplacePublicHero.css";
 
-/* Helper: splits string into individual hover-reactive letter spans (Landing Hero Physics) */
+/* Helper: splits string into individual hover-reactive letter spans without breaking words mid-word */
 function GlowLetters({ text, className = "" }: { text: string; className?: string }) {
   return (
     <span className={`comm-glow-letters ${className}`} aria-hidden="true">
-      {Array.from(text).map((char, index) => (
-        <span className="comm-glow-letter" key={`${char}-${index}`}>
-          {char === " " ? "\u00A0" : char}
-        </span>
+      {text.split(" ").map((word, wordIndex, words) => (
+        <React.Fragment key={`${word}-${wordIndex}`}>
+          <span className="inline-block whitespace-nowrap">
+            {Array.from(word).map((char, charIndex) => (
+              <span className="comm-glow-letter" key={`${char}-${charIndex}`}>
+                {char}
+              </span>
+            ))}
+          </span>
+          {wordIndex < words.length - 1 ? " " : null}
+        </React.Fragment>
       ))}
     </span>
   );
@@ -142,8 +149,8 @@ export const MarketplacePublicHero: React.FC = () => {
         <div className="comm-commercial-strip-inner">
           {/* Left Column: Monumental 100% + Reactive Heading */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 sm:gap-7">
-            <div className="text-5xl sm:text-6xl font-black shrink-0 flex items-center leading-none">
-              <GlowOutlineLetters text="25%" />
+            <div className="text-4xl sm:text-6xl font-black shrink-0 flex items-center leading-none whitespace-nowrap">
+              <GlowOutlineLetters text="15 DÍAS" />
             </div>
 
             <div className="flex flex-col gap-1.5 text-left">
